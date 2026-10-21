@@ -1,0 +1,30 @@
+{
+  "utc_start": "2026-10-21T13:47:43.752896+00:00",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "--unit=tekt-set-page-header-baseline-parity",
+    "-p",
+    "MemoryMax=1G",
+    "-p",
+    "MemoryHigh=768M",
+    "-p",
+    "MemorySwapMax=0",
+    "--setenv=PATH=/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "--working-directory=/repos/Antigravity/typst-crystalline",
+    "python3",
+    "lab/results/set-page-header-2026-10-21/agents/parity/run_matrix.py",
+    "--build-receipt",
+    "lab/results/set-page-header-2026-10-21/baseline-build/receipt.json",
+    "--product",
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "--output",
+    "lab/results/set-page-header-2026-10-21/baseline-parity"
+  ],
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "utc_end": "2026-10-21T13:48:06.662621+00:00",
+  "exit": 0
+}

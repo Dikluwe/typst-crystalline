@@ -1,0 +1,245 @@
+{
+  "utc_start": "2026-10-21T13:38:18.666085+00:00",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "diff_head_stat": "",
+  "product": {
+    "path": "lab/target/product/debug/typst",
+    "sha256": "257c153b1044bf8bb773b05dad1a83c6a978ba6f9ce83506e929e4da3c11b89f"
+  },
+  "oracle_receipt_sha256": "9827128412eb27a210be7fffc00a26fa5c22826b155ead3b64b557f5c0372b81",
+  "baseline": false,
+  "cases": [
+    {
+      "name": "caption-manual-interleave",
+      "source_sha256": "f419b6ed9e36df962980e260fbbebffbfe76dc8be69dc0694ae9de3cd7b11f6d",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-manual-interleave.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-manual-interleave.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:18.835017+00:00",
+      "utc_end": "2026-10-21T13:38:21.313456+00:00",
+      "returncode": 0,
+      "text": "A Table 8: CAPA B Table 19: CAPB Table 8; Table 19",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A Table 8: CAPA B Table 19: CAPB Table 8; Table 19",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "caption-includes-uncaptioned",
+      "source_sha256": "39e525c964716c0e14dcd154d2f38f32d9224b159e0ad756f8f47475de6722c5",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-includes-uncaptioned.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-includes-uncaptioned.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:21.313662+00:00",
+      "utc_end": "2026-10-21T13:38:21.963145+00:00",
+      "returncode": 0,
+      "text": "A B Figure 2: CAP",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A B Figure 2: CAP",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "caption-hidden-original",
+      "source_sha256": "fc4fc19af4098f182a0ccde611d6fa81f0831b1122f7b1846e4ad862b6f60a86",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-hidden-original.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/caption-hidden-original.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:21.963353+00:00",
+      "utc_end": "2026-10-21T13:38:22.605001+00:00",
+      "returncode": 0,
+      "text": "V Listing 2: CAP",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "V Listing 2: CAP",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "warning-demanded",
+      "source_sha256": "7ce48f997e2f9773752d2eb90a8d03c57ecb099711b371f7feecac34d64aca80",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-demanded.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-demanded.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:22.605220+00:00",
+      "utc_end": "2026-10-21T13:38:23.251598+00:00",
+      "returncode": 0,
+      "text": "A Table 1: CAP",
+      "stderr": "warning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/baseline-controls/warning-demanded.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\n",
+      "expected_returncode": 0,
+      "expected_text": "A Table 1: CAP",
+      "expected_warnings": [
+        "warning: the numeral system `hebrew` cannot represent zero"
+      ],
+      "passed": true
+    },
+    {
+      "name": "warning-undemanded",
+      "source_sha256": "35bf78131e7bef9060d5b081792dd5e8f5d1d4d6596352b0daa98e5e8d28253b",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-undemanded.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-undemanded.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:23.251940+00:00",
+      "utc_end": "2026-10-21T13:38:23.878912+00:00",
+      "returncode": 0,
+      "text": "A",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "A",
+      "expected_warnings": [],
+      "passed": true
+    },
+    {
+      "name": "warning-explicit-plus-caption",
+      "source_sha256": "d40f4205649feaf1b1612a5510d92fd84e2e49088826ea80391d5f2ae44e86b6",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-explicit-plus-caption.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/warning-explicit-plus-caption.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:23.879104+00:00",
+      "utc_end": "2026-10-21T13:38:24.557662+00:00",
+      "returncode": 0,
+      "text": "A Table 1: CAP (1,)",
+      "stderr": "warning: the numeral system `hebrew` cannot represent zero\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/baseline-controls/warning-explicit-plus-caption.typ:1:67\n  \u2502\n1 \u2502 #counter(figure.where(kind:table)).update(n=>{let ignored=numbering(\"\u05d0\",0);n})\n  \u2502                                                                    ^^^^^^^\n\n",
+      "expected_returncode": 0,
+      "expected_text": "A Table 1: CAP (1,)",
+      "expected_warnings": [
+        "warning: the numeral system `hebrew` cannot represent zero"
+      ],
+      "passed": true
+    },
+    {
+      "name": "html-kind-explicit",
+      "source_sha256": "70cbc0779384157ef104eb16bc467410c5af98f44720094c860e1a567c9dc963",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-kind-explicit.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-kind-explicit.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-21T13:38:24.557872+00:00",
+      "utc_end": "2026-10-21T13:38:24.573940+00:00",
+      "returncode": 0,
+      "text": "(function, table)",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "(function, table)",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "html-kind-inherited-auto",
+      "source_sha256": "49560c2a3e13e9bb32fed8ea4a0a762b631b7f9eaefa5237f61ce5838e41a934",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-kind-inherited-auto.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-kind-inherited-auto.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-21T13:38:24.574121+00:00",
+      "utc_end": "2026-10-21T13:38:24.595170+00:00",
+      "returncode": 0,
+      "text": "rawtable",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "rawtable",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "html-explicit-filtered-read",
+      "source_sha256": "287245f1121d01513ed313d278cb2182fbd7eada4c13e5deb792d0565eb65783",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-explicit-filtered-read.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-explicit-filtered-read.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-21T13:38:24.595347+00:00",
+      "utc_end": "2026-10-21T13:38:24.612996+00:00",
+      "returncode": 0,
+      "text": "(1,)",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "(1,)",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "html-no-paged-demand",
+      "source_sha256": "eab4248bc0a3713b9ec094ced762e9b15a96e4a36fa05ea51314a5d664b091b0",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-no-paged-demand.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/html-no-paged-demand.html",
+        "--features",
+        "html"
+      ],
+      "utc_start": "2026-10-21T13:38:24.613190+00:00",
+      "utc_end": "2026-10-21T13:38:24.629571+00:00",
+      "returncode": 0,
+      "text": "DONE",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "expected_returncode": 0,
+      "expected_text": "DONE",
+      "expected_warnings": [
+        "warning: html export is under active development and incomplete"
+      ],
+      "passed": true
+    },
+    {
+      "name": "header-figure-boundary",
+      "source_sha256": "9f93fc8d20015c656d366b0be1584089f0a0d2be483b79b12ea49bb6d66233b6",
+      "argv": [
+        "lab/target/product/debug/typst",
+        "compile",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/header-figure-boundary.typ",
+        "lab/results/set-page-header-2026-10-21/baseline-controls/header-figure-boundary.pdf"
+      ],
+      "utc_start": "2026-10-21T13:38:24.629809+00:00",
+      "utc_end": "2026-10-21T13:38:25.284467+00:00",
+      "returncode": 0,
+      "text": "H Figure 1: HC B Figure 1: BC (1,)",
+      "stderr": "",
+      "expected_returncode": 0,
+      "expected_text": "H Figure 1: HC B Figure 2: BC (2,)",
+      "expected_warnings": [],
+      "passed": false
+    }
+  ],
+  "utc_end": "2026-10-21T13:38:25.284501+00:00",
+  "passed": false,
+  "changed_inputs": []
+}

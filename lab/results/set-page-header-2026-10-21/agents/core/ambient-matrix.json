@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-21T14:27:53.411856+00:00",
+  "status": "Two new immutable sources frozen before oracle/product measurement; ambient style outcome is not guessed. Original baseline15 sources/policies/receipts unchanged.",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "cases": [
+    {
+      "name": "ambient-style-creation10-body20-one-page",
+      "source": "#set text(10pt)\n#set page(width:360pt,height:300pt,margin:60pt,header:context [HEADER #repr(text.size) #metadata((page:here().page(),size:repr(text.size),is10:text.size==10pt,is20:text.size==20pt,is30:text.size==30pt)) <ambient-header>])\n#set text(20pt)\nBODYONE #context [#repr(text.size) #metadata((page:here().page(),size:repr(text.size),is10:text.size==10pt,is20:text.size==20pt,is30:text.size==30pt)) <ambient-body>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-creation10-body20-one-page.typ",
+      "source_sha256": "7bb0be5455e973f94ea2b9b8b99dbb69f5abbe8bf0a82580536d26e56a912ccd",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<ambient-header>",
+        "<ambient-body>"
+      ],
+      "language_properties_to_measure": [
+        "Determine whether the Context header observes ambient creation 10pt, current page-wide 20/30pt, or another value; preserve raw query JSON and rendered text.",
+        "Confirm actual header and body physical page association, independently for each inherited page.",
+        "The two-page case changes only body ambient style on page 2, while inheriting the same configured header; do not assume the header style outcome."
+      ],
+      "acceptance_property_frozen_before_candidate": "Require actual pinned oracle validity; compare full typed metadata values/page associations and ordered visible words. Preserve exact diagnostics/unknown observations and do not normalize style values."
+    },
+    {
+      "name": "ambient-style-inherited-two-pages-body20-then30",
+      "source": "#set text(10pt)\n#set page(width:360pt,height:300pt,margin:60pt,header:context [HEADER #repr(text.size) #metadata((page:here().page(),size:repr(text.size),is10:text.size==10pt,is20:text.size==20pt,is30:text.size==30pt)) <ambient-header>])\n#set text(20pt)\nBODYONE #context [#repr(text.size) #metadata((page:here().page(),size:repr(text.size),is10:text.size==10pt,is20:text.size==20pt,is30:text.size==30pt)) <ambient-body>]\n#pagebreak()\n#set text(30pt)\nBODYTWO #context [#repr(text.size) #metadata((page:here().page(),size:repr(text.size),is10:text.size==10pt,is20:text.size==20pt,is30:text.size==30pt)) <ambient-body>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-inherited-two-pages-body20-then30.typ",
+      "source_sha256": "107748a67e62124ec7ca85c6402c0db4c449cc70331bdbfe000c1195c5477238",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<ambient-header>",
+        "<ambient-body>"
+      ],
+      "language_properties_to_measure": [
+        "Determine whether the Context header observes ambient creation 10pt, current page-wide 20/30pt, or another value; preserve raw query JSON and rendered text.",
+        "Confirm actual header and body physical page association, independently for each inherited page.",
+        "The two-page case changes only body ambient style on page 2, while inheriting the same configured header; do not assume the header style outcome."
+      ],
+      "acceptance_property_frozen_before_candidate": "Require actual pinned oracle validity; compare full typed metadata values/page associations and ordered visible words. Preserve exact diagnostics/unknown observations and do not normalize style values."
+    }
+  ],
+  "limits": [
+    "No expected value is inferred from creation style or last body style; pinned oracle output decides.",
+    "Page-aware Boolean/representation metadata is the language style observer; PDF extracted font geometry remains supporting data, not canonical style semantics.",
+    "A syntax/harness error is not semantic parity or permission to rewrite frozen sources; preserve invalid attempt and create a distinct version if needed."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/shared-raw-header-body-template/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:48:02.337684+00:00",
+  "utc_end": "2026-10-21T13:48:02.348883+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": " SHARED\nFigure 3: SC\n\nBODYTWO\nFigure 4: B2\n\f",
+  "stderr": "",
+  "stdout_sha256": "e43725c5c06cc5e191d1b233d40d342e37415df62036d44bc7890cb01387240b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

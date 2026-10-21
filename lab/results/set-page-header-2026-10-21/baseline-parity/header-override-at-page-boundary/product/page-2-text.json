@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/header-override-at-page-boundary/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:58.163275+00:00",
+  "utc_end": "2026-10-21T13:47:58.174748+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "HEADERTWO\nFigure 2: H2\n\n\n\nBODYTWO\nFigure 2: B2\n\f",
+  "stderr": "",
+  "stdout_sha256": "584bca45de13d786777e208971de99035846d35181081b55370c1934054fa7ef",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

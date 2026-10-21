@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-21T13:42:13.980792+00:00",
+  "mode": "Additional read-only page-commit source evidence after initial immutable graph snapshot",
+  "inputs_sha256": {
+    "01_core/src/compiler/layout/page_commit.rs": "080caa2c117a235f2616d77e469f43324abf0ad206a75f77d499d3e055cc998d",
+    "00_nucleo/prompts/core/compiler/layout/page_commit.md": "99757df53df024483404048cc9058e08f5e79112ffb4a2ca037129d68cb557df"
+  },
+  "engineering_observation": "page_commit.rs43 requests explicit layers after body items; marginal items append to foreground. This drawing order is not a new temporal counter-order decision.",
+  "audit_baseline_sha256": "3c567d71f3536237641a320f4317cc4170db0a70209db185aa9f44afc98e240d",
+  "audit_md_sha256": "9f9220bf84f80134c57f245525006f6792e04aec5ab407e446a77dcecd98ce4f",
+  "acceptance_md_sha256": "f7e38390318e15a304b4775894b5cdb59d998ea9434b62da8800341a35c240a9"
+}

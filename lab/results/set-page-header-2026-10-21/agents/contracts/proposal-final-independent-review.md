@@ -1,0 +1,13 @@
+# Independent final API/phase review
+
+The frozen proposal SHA `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2` is reviewable for the human exact API/phase decision. No concrete public-contract, phase/provenance or compatibility inconsistency was found. This review is not approval or implementation.
+
+Its four Rust blocks exactly match api-declarations-final.json and remain identical to v5: five fixed free functions, opaque owned plan/request/resolution/trace authority, closed Pending/Complete and explicit ctx-bound factory/Session rebind. One target-aware ordered index slice with Features preserves Bundle-global construction/document starts; four physical slots are explicit. Existing public fields/signatures/variants and legacy wrappers remain unchanged, without a CLI mode. The new productive path/physical phase is explicitly gated by ADR0127 sections2.1/2.3.
+
+The package preserves source-derived incremental stores, tracked/per-store sealing, one source evaluation, Engine-free renderers, shared occurrence frames, alias laws, budgets and diagnostic transactions. Source/capture authority is separate from page-effective environment authority; neither is language equality or a result cache. Ambient evidence was independently type/observer-qualified: header20 follows body20 despite creation10; inherited second header30 follows body30. Local18/12 recipes/prepared aliases remain separate preservation obligations. Same key/geometry cannot certify unchanged effective styles.
+
+All140 existing canonical owner pairs and280 archived texts match current hashes/headers; three new owner pairs remain absent pending decision. The finite manifest bounds private wiring and does not authorize editing every inspected file or unknown public additions. Changed owners require their L0 first; effective Nucleus pins remain a separate graph gate.
+
+Earlier rollback/provenance/reservation/root concerns are addressed as explicit contracts or bounded post-decision proof gates. Private formulas need not already be implemented before approval. Typed admission, optimized/deferred paths, checkpoint state, source parentage, Session rebind and final geometry require independent RED/GREEN. Deferred Footnote/float action order still needs its own oracle control before universal timing claims; source root order is not paint placement.
+
+Duplicate-label Ref repair is explicitly scoped to current owners and registry compatibility. Direct-Func diagnostic ordering, HTML ignored-page warning and native PageRun position discrepancies remain visible. Full F/G preservation, twelve gates and fresh final language replays remain required; no full parity claim is certified. Exact package/evidence hashes are in the adjacent JSON.

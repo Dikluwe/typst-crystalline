@@ -1,0 +1,15 @@
+error: label `<header>` does not exist in the document
+  ┌─ lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:3:4
+  │
+3 │ See @header.
+  │     ^^^^^^^
+
+error: label `<header>` does not exist in the document
+  ┌─ lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:6:4
+  │
+6 │ See @header.
+  │     ^^^^^^^
+
+warning: the `typst query` subcommand is deprecated
+ = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ` instead
+

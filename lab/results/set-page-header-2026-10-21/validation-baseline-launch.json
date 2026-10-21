@@ -1,0 +1,26 @@
+{
+  "utc_start": "2026-10-21T13:38:34.007828+00:00",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "--unit=tekt-set-page-header-validation-baseline",
+    "-p",
+    "MemoryMax=12G",
+    "-p",
+    "MemoryHigh=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "--setenv=PATH=/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "--working-directory=/repos/Antigravity/typst-crystalline",
+    "python3",
+    "lab/tools/ci/validate_layout_migration.py",
+    "--output",
+    "lab/results/set-page-header-2026-10-21/validation-baseline"
+  ],
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "utc_end": "2026-10-21T13:50:48.267913+00:00",
+  "exit": 0
+}

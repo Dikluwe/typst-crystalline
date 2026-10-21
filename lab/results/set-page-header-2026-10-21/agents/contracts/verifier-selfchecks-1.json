@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-21T13:53:02.908061+00:00",
+  "mode": "Pure verifier selfchecks; no product runs",
+  "verifier_sha256": "9e25548f118d6c22088390c622f9d591f38bd5b1dd9ca0a1b7f8d9a02905169a",
+  "selfchecks": [
+    {
+      "name": "True differs from integer1 recursively",
+      "pass": true
+    },
+    {
+      "name": "valid JSON null equals null",
+      "pass": true
+    },
+    {
+      "name": "null differs from missing or invalid JSON",
+      "pass": true
+    },
+    {
+      "name": "two invalid JSON payloads never compare equal",
+      "pass": true
+    },
+    {
+      "name": "two failed empty observers never compare equal",
+      "pass": true
+    },
+    {
+      "name": "dual timeouts never count as successful equal commands",
+      "pass": true
+    },
+    {
+      "name": "nonzero query with valid-looking JSON remains invalid",
+      "pass": true
+    },
+    {
+      "name": "container cardinality remains exact",
+      "pass": true
+    }
+  ]
+}

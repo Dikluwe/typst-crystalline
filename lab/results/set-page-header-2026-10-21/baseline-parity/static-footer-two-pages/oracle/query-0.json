@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/static-footer-two-pages.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:47:49.033803+00:00",
+  "utc_end": "2026-10-21T13:47:49.165392+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":4,\"unique\":4,\"pages\":[1,1,2,2],\"states\":[[1],[2],[3],[4]],\"final\":[4],\"header\":[],\"footer\":[[1,[2]],[2,[4]]],\"body\":[[1,[1]],[2,[3]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/static-footer-two-pages.typ` instead\n\n",
+  "stdout_sha256": "e25bc2098755ca7026060a5c0028d6dfc873012291436995fcc1878f0eb186e9",
+  "stderr_sha256": "e3e465cc6e93f16f7f198ffb5b3662713e70d1a1fa18309a65d8d985054c5083"
+}

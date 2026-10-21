@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-bbox",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/static-header-two-pages/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:47.317753+00:00",
+  "utc_end": "2026-10-21T13:47:47.329048+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"Typst 0.15.1\"/>\n<meta name=\"CreationDate\" content=\"2026-10-21T10:47:47-03\"/>\n<meta name=\"ModDate\" content=\"2026-10-21T10:47:47-03\"/>\n</head>\n<body>\n<doc>\n  <page width=\"220.000000\" height=\"240.000000\">\n    <word xMin=\"88.951500\" yMin=\"17.778000\" xMax=\"131.048500\" yMax=\"30.318000\">HEADER</word>\n    <word xMin=\"81.537500\" yMin=\"32.166000\" xMax=\"110.115500\" yMax=\"44.706000\">Figure</word>\n    <word xMin=\"112.865500\" yMin=\"32.166000\" xMax=\"120.576500\" yMax=\"44.706000\">1:</word>\n    <word xMin=\"123.326500\" yMin=\"32.166000\" xMax=\"138.462500\" yMax=\"44.706000\">HC</word>\n    <word xMin=\"85.508500\" yMin=\"57.404000\" xMax=\"134.491500\" yMax=\"69.944000\">BODYONE</word>\n    <word xMin=\"83.314000\" yMin=\"71.792000\" xMax=\"111.892000\" yMax=\"84.332000\">Figure</word>\n    <word xMin=\"114.642000\" yMin=\"71.792000\" xMax=\"122.353000\" yMax=\"84.332000\">2:</word>\n    <word xMin=\"125.103000\" yMin=\"71.792000\" xMax=\"136.686000\" yMax=\"84.332000\">B1</word>\n  </page>\n</doc>\n</body>\n</html>\n",
+  "stderr": "",
+  "stdout_sha256": "35af9caefd3d18134dd5f0d2d0d69043c01a1a73b976c14be8c9f62229e8dc84",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

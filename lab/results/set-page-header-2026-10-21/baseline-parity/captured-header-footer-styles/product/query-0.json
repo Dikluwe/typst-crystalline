@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/captured-header-footer-styles.typ",
+    "<header-style>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:48:04.970827+00:00",
+  "utc_end": "2026-10-21T13:48:05.604107+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<header-style>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/captured-header-footer-styles.typ` instead\n\n",
+  "stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "stderr_sha256": "5f3325124b860f5dd0530e625874e50454fec26ba86405f841bb0458f762afd1"
+}

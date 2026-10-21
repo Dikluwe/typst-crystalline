@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/static-footer-two-pages/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:49.819959+00:00",
+  "utc_end": "2026-10-21T13:47:49.831398+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "BODYONE\nFigure 1: B1\n\n\n\n\nFOOTER\nFigure 1: FC\n\f",
+  "stderr": "",
+  "stdout_sha256": "b50d7fe69957bffea61c41b8dc41207ab9633e65b2c3aef91065c4c88e68aaf0",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

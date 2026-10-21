@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/lexical-page-runs-contrast.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:47:59.065247+00:00",
+  "utc_end": "2026-10-21T13:47:59.201571+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":4,\"unique\":4,\"pages\":[1,1,1,2],\"states\":[[1],[2],[3],[4]],\"final\":[4],\"header\":[[1,[1]]],\"footer\":[[1,[3]]],\"body\":[[1,[2]],[2,[4]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/lexical-page-runs-contrast.typ` instead\n\n",
+  "stdout_sha256": "82c78dfc2af194f2c3b2c2edb85fcf1bfc064f322c7cd44af4e49f86fa5ee768",
+  "stderr_sha256": "bb726e369b6bf7f7630d4ee1d3fd8c5289f80189c76c191596141f201791f85e"
+}

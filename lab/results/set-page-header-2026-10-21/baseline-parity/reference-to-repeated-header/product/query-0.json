@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:48:01.518694+00:00",
+  "utc_end": "2026-10-21T13:48:02.155865+00:00",
+  "exit": 1,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "error: label `<header>` does not exist in the document\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:3:4\n  \u2502\n3 \u2502 See @header.\n  \u2502     ^^^^^^^\n\nerror: label `<header>` does not exist in the document\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:6:4\n  \u2502\n6 \u2502 See @header.\n  \u2502     ^^^^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ` instead\n\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "d64cec327bda0fd181ec42bd31f24e2d470b57b0bb3771805986500a4c8ee8b9"
+}

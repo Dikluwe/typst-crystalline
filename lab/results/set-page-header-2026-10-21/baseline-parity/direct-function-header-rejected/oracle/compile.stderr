@@ -1,0 +1,6 @@
+error: expected content, none, or auto, found function
+  ┌─ lab/results/set-page-header-2026-10-21/agents/parity/sources/direct-function-header-rejected.typ:1:54
+  │
+1 │ #set page(width:220pt,height:240pt,margin:60pt,header:n=>[HEADER])
+  │                                                       ^^^^^^^^^^^
+

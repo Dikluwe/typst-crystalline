@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/all-layers-causal-order-one-page/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:46.444380+00:00",
+  "utc_end": "2026-10-21T13:47:46.455773+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "FOREGROUND\nBACKGROUND   HEADER\nFigure 4:\n       3: FGC\n          BGCFigure 1: HC\n\n\n\n            BODY\n            Figure 1: BC\n\n\n\n\n            FOOTER\n            Figure 2: FC\n\f",
+  "stderr": "",
+  "stdout_sha256": "9e8b9817eaec44c3dada2be45f555047d70cd3d180b516970ba586eb403ea767",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

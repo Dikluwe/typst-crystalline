@@ -1,0 +1,252 @@
+{
+  "utc": "2026-10-21T14:32:59.336641+00:00",
+  "mode": "Downstream raw-evidence qualification only; no products/Cargo/receipt mutation",
+  "receipt": "lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json",
+  "receipt_sha256": "6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05",
+  "matrix_sha256": "96268383a9fdf2335285459c2e1c2dd0a27732ff99e84d1d4f59e67aaf517f7b",
+  "verifier_sha256": "587672287d01d3ce9ad12a8dfe58ccfac3a150dd4af1e414fac9cefe707942f4",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "product_sha256": "257c153b1044bf8bb773b05dad1a83c6a978ba6f9ce83506e929e4da3c11b89f",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "selfchecks": [
+    {
+      "name": "True differs from integer1 recursively",
+      "pass": true
+    },
+    {
+      "name": "valid JSON null equals null",
+      "pass": true
+    },
+    {
+      "name": "null differs from missing or invalid JSON",
+      "pass": true
+    },
+    {
+      "name": "two invalid JSON payloads never compare equal",
+      "pass": true
+    },
+    {
+      "name": "two failed empty observers never compare equal",
+      "pass": true
+    },
+    {
+      "name": "dual timeouts never count as successful equal commands",
+      "pass": true
+    },
+    {
+      "name": "nonzero query with valid-looking JSON remains invalid",
+      "pass": true
+    },
+    {
+      "name": "container cardinality remains exact",
+      "pass": true
+    }
+  ],
+  "all_retained_command_and_source_artifact_hashes_checked": true,
+  "cases": [
+    {
+      "name": "ambient-style-creation10-body20-one-page",
+      "target": "pdf",
+      "classification": "oracle-success-source",
+      "states": {
+        "oracle": {
+          "compile_class": "success",
+          "error_messages": [],
+          "artifact_verified": true,
+          "pdf_observers_valid": true
+        },
+        "product": {
+          "compile_class": "success",
+          "error_messages": [],
+          "artifact_verified": true,
+          "pdf_observers_valid": true
+        }
+      },
+      "checks": {
+        "both_compiled_successfully": true,
+        "compile_exit_equal_is_acceptance": false,
+        "error_messages_equal": true,
+        "complete_stderr_exact_equal": true,
+        "queries": [
+          {
+            "selector": "<ambient-header>",
+            "oracle": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                }
+              ]
+            },
+            "product": {
+              "valid": true,
+              "value": []
+            },
+            "both_valid": true,
+            "typed_equal": false
+          },
+          {
+            "selector": "<ambient-body>",
+            "oracle": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                }
+              ]
+            },
+            "product": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                }
+              ]
+            },
+            "both_valid": true,
+            "typed_equal": true
+          }
+        ],
+        "both_pdf_observers_valid": true,
+        "physical_page_count_equal": true,
+        "per_page_raw_text_equal": [
+          false
+        ],
+        "per_page_words_equal": [
+          false
+        ],
+        "observer_comparison_limit": "PDF extraction order and whitespace are retained observations, not semantic counter/query order or geometric acceptance."
+      }
+    },
+    {
+      "name": "ambient-style-inherited-two-pages-body20-then30",
+      "target": "pdf",
+      "classification": "oracle-success-source",
+      "states": {
+        "oracle": {
+          "compile_class": "success",
+          "error_messages": [],
+          "artifact_verified": true,
+          "pdf_observers_valid": true
+        },
+        "product": {
+          "compile_class": "success",
+          "error_messages": [],
+          "artifact_verified": true,
+          "pdf_observers_valid": true
+        }
+      },
+      "checks": {
+        "both_compiled_successfully": true,
+        "compile_exit_equal_is_acceptance": false,
+        "error_messages_equal": true,
+        "complete_stderr_exact_equal": true,
+        "queries": [
+          {
+            "selector": "<ambient-header>",
+            "oracle": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                },
+                {
+                  "page": 2,
+                  "size": "30pt",
+                  "is10": false,
+                  "is20": false,
+                  "is30": true
+                }
+              ]
+            },
+            "product": {
+              "valid": true,
+              "value": []
+            },
+            "both_valid": true,
+            "typed_equal": false
+          },
+          {
+            "selector": "<ambient-body>",
+            "oracle": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                },
+                {
+                  "page": 2,
+                  "size": "30pt",
+                  "is10": false,
+                  "is20": false,
+                  "is30": true
+                }
+              ]
+            },
+            "product": {
+              "valid": true,
+              "value": [
+                {
+                  "page": 1,
+                  "size": "20pt",
+                  "is10": false,
+                  "is20": true,
+                  "is30": false
+                },
+                {
+                  "page": 1,
+                  "size": "30pt",
+                  "is10": false,
+                  "is20": false,
+                  "is30": true
+                }
+              ]
+            },
+            "both_valid": true,
+            "typed_equal": false
+          }
+        ],
+        "both_pdf_observers_valid": true,
+        "physical_page_count_equal": true,
+        "per_page_raw_text_equal": [
+          false,
+          false
+        ],
+        "per_page_words_equal": [
+          false,
+          false
+        ],
+        "observer_comparison_limit": "PDF extraction order and whitespace are retained observations, not semantic counter/query order or geometric acceptance."
+      }
+    }
+  ],
+  "limits": [
+    "No overall PASS or refusal acceptance is inferred from matching exits, missing observers or invalid query JSON.",
+    "JSON comparisons preserve exact JSON type/shape; they do not substitute for unrecorded Typst morphology or arithmetic semantics.",
+    "Strict diagnostics remain unwaived, including source spans/hints in retained raw stderr. Equal error exit alone is insufficient.",
+    "DOM parsing preserves tags/attributes/text/declaration without browser repair; it is not visual browser layout.",
+    "The input receipt proves its own frozen before/after run; this verifier does not rebuild a binary or claim later source state identity."
+  ]
+}

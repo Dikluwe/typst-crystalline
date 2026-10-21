@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "pdfinfo",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/lexical-page-runs-contrast/product/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:47:59.887000+00:00",
+  "utc_end": "2026-10-21T13:47:59.899465+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "Creator:         typst-crystalline\nCreationDate:    Wed Oct 21 10:47:59 2026 -03\nModDate:         Wed Oct 21 10:47:59 2026 -03\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       220 x 240 pts\nPage rot:        0\nFile size:       8827 bytes\nOptimized:       no\nPDF version:     1.7\n",
+  "stderr": "",
+  "stdout_sha256": "5a1d2a366526d3a00f6673437f0824386f9dec058d1c3d86101385f62d854abd",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

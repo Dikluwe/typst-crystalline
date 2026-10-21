@@ -1,0 +1,16 @@
+{
+  "recorded_utc": "2026-10-21T14:31:47.815421+00:00",
+  "action": "ambient style observation under a memory-limited user service",
+  "first_attempt": {
+    "result": "CreateProcess rejected before execution",
+    "reason": "The automatic permission approval review did not finish before its deadline. Do not assume the action is unsafe based on the timeout alone. You may retry once, or ask the user for guidance or explicit approval.",
+    "no_process_executed": true,
+    "unexecuted_extension_directory_absent": true
+  },
+  "single_retry": {
+    "strategy": "Execute the already-saved core runner only; no preparation script in the escalated command",
+    "launch_receipt": "lab/results/set-page-header-2026-10-21/ambient-styles-launch.json",
+    "result_receipt": "lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json",
+    "result": "success"
+  }
+}

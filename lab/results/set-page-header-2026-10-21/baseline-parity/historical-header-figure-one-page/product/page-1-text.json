@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/historical-header-figure-one-page/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:45.401140+00:00",
+  "utc_end": "2026-10-21T13:47:45.412272+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "H\nFigure 1: HC\nB\nFigure 1: BC\n(1,)\n\f",
+  "stderr": "",
+  "stdout_sha256": "1fe3a40f8f2818dd8bc91b12bf5bf8287160ba1885beba6c7e7626bd2787d981",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

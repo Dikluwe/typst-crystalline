@@ -1,0 +1,1088 @@
+{
+  "utc": "2026-10-21T13:53:04.350368+00:00",
+  "receipt": "lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json",
+  "receipt_sha256": "38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "diff_head_stat": "",
+  "utc_measurement_start": "2026-10-21T13:47:44.260324+00:00",
+  "utc_measurement_end": "2026-10-21T13:48:06.344316+00:00",
+  "product_sha256": "257c153b1044bf8bb773b05dad1a83c6a978ba6f9ce83506e929e4da3c11b89f",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "changed_inputs": [],
+  "changed_measurement_inputs": [],
+  "case_count": 15,
+  "cases": [
+    {
+      "name": "historical-header-figure-one-page",
+      "source_sha256": "9f93fc8d20015c656d366b0be1584089f0a0d2be483b79b12ea49bb6d66233b6",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [],
+      "product_queries": [],
+      "oracle_pages": 1,
+      "product_pages": 1,
+      "classification": "Confirmed original debt: body Figure must be2 and final2 after actual header Figure1; productbody1/final1."
+    },
+    {
+      "name": "all-layers-causal-order-one-page",
+      "source_sha256": "56631c575397a0a55a9ae31322ef59fc2593b816109781c900faf5c45c6fc6f7",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 5,
+              "unique": 5,
+              "pages": [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ],
+                [
+                  5
+                ]
+              ],
+              "final": [
+                5
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ],
+              "footer": [
+                [
+                  1,
+                  [
+                    4
+                  ]
+                ]
+              ],
+              "body": [
+                [
+                  1,
+                  [
+                    3
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 1,
+              "unique": 1,
+              "pages": [
+                1
+              ],
+              "states": [
+                [
+                  1
+                ]
+              ],
+              "final": [
+                1
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 1,
+      "product_pages": 1,
+      "classification": "Semantic query/counter order is proven by labelled states background1/header2/body3/footer4/foreground5. PDF words visibly overlap/interleave; bbox extraction is not the order oracle. Canvas-related geometry/order differences need independent geometry policy; this row cannot certify canvas rendering."
+    },
+    {
+      "name": "static-header-two-pages",
+      "source_sha256": "7cf1193e635d2f9b41bc4820c1e154dd87aa4fdea83d3a4c4b8c4480deb7a9aa",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 2,
+              "unique": 2,
+              "pages": [
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ],
+              "final": [
+                2
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Required repeated raw header: distinct4 Figure locations, pages1,1,2,2; header states1/3 and body2/4. Product has only2 body figures and reports bothpage1."
+    },
+    {
+      "name": "static-footer-two-pages",
+      "source_sha256": "3b312de9478a2737b1e1a85bb3dcbc55f9a901d7103bb15f77cc5d90a3e1be22",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [],
+              "footer": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    3
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 2,
+              "unique": 2,
+              "pages": [
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ],
+              "final": [
+                2
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Separate mandatory footer gap: body1/footer2 thenbody3/footer4; product omits footer semantics, renders synthetic captions1/2 and reports bothbodypage1."
+    },
+    {
+      "name": "context-header-here-three-pages",
+      "source_sha256": "fbea29932f28fc699beef576a36be0548d6c59fa81b77f03ebc2cf0158c337f6",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "page": 1,
+              "current": [
+                1
+              ],
+              "final": [
+                3
+              ]
+            },
+            {
+              "page": 2,
+              "current": [
+                2
+              ],
+              "final": [
+                3
+              ]
+            },
+            {
+              "page": 3,
+              "current": [
+                3
+              ],
+              "final": [
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": []
+        }
+      ],
+      "oracle_pages": 3,
+      "product_pages": 3,
+      "classification": "Required existing Content Context: metadata has3 actual page locations/current1,2,3/final3. Product [] and absent HEADER text."
+    },
+    {
+      "name": "context-footer-page-update-two-pages",
+      "source_sha256": "64dbfefe9acc7f7222cfeb6cc8cbdebae0cc16c42652b36f661472a0a023d718",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "page": 1,
+              "current": [
+                7
+              ],
+              "final": [
+                8
+              ]
+            },
+            {
+              "page": 2,
+              "current": [
+                8
+              ],
+              "final": [
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": []
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Required footer Context observes logical counter7 onphysical1 and8 onphysical2, final8. Product[]; page count must not substitute for finalcounter."
+    },
+    {
+      "name": "context-header-figure-two-pages",
+      "source_sha256": "4d690007cfe4d026965701e6c0455e3ab85520d9e069804cb9e9033ff057f82e",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 2,
+              "unique": 2,
+              "pages": [
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ],
+              "final": [
+                2
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Context output must join same physical Figure order asstaticheader; product omitsrunningoutput."
+    },
+    {
+      "name": "overridden-unemitted-header-is-inert",
+      "source_sha256": "d5b59d353f917850630b1714dcee8026645525a0f683c33a04e98aa67c03fe29",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 1,
+              "unique": 1,
+              "pages": [
+                1
+              ],
+              "states": [
+                [
+                  1
+                ]
+              ],
+              "final": [
+                1
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 1,
+              "unique": 1,
+              "pages": [
+                1
+              ],
+              "states": [
+                [
+                  1
+                ]
+              ],
+              "final": [
+                1
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 1,
+      "product_pages": 1,
+      "classification": "Preservation success: overwritten dormant panicheader never admitted; solebodyFigure/final1 andsamequery."
+    },
+    {
+      "name": "header-override-at-page-boundary",
+      "source_sha256": "d6894d753a990c0a6ecb25fc0f321e49829586ac51ed159ca2e46b48e3559976",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 2,
+              "unique": 2,
+              "pages": [
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ],
+              "final": [
+                2
+              ],
+              "header": [],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Actual used template changes acrosspages; rawtemplate installation is not sufficient admission. Productrenderselectsrighttexts butsemanticquery/countersomitbothheaders."
+    },
+    {
+      "name": "lexical-page-runs-contrast",
+      "source_sha256": "2650b5332490460e195f3ab70556dfbba4ff14471adf17559adc4196861c9393",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                1,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ],
+              "footer": [
+                [
+                  1,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ],
+              "footer": [
+                [
+                  1,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Independent PageRun position gap: renderedtext andcountersequenceagree butsecondbodylocation.page is1vsoracle2. Static PageRun indexing alreadyworks once; it does not establish correctphysicalstore."
+    },
+    {
+      "name": "reference-to-repeated-header",
+      "source_sha256": "1555b63102853e93781b11791d77cb3b64796b231e3f022b46d8786ff66b6508",
+      "oracle_exit": 1,
+      "product_exit": 1,
+      "oracle_queries": [
+        {
+          "valid": false,
+          "reason": "command did not succeed"
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": false,
+          "reason": "command did not succeed"
+        }
+      ],
+      "oracle_pages": null,
+      "product_pages": null,
+      "classification": "Oracle accepted syntax but refuses duplicate<label> at two refs; product wrongly reports missinglabel. InvalidqueryJSON is not compared or accepted. Required diagnostic refusal, notsuccesssource."
+    },
+    {
+      "name": "shared-raw-header-body-template",
+      "source_sha256": "93db6b0b48dc377030ae6f981892685ca1ec1bf532ece2b6fac0459d57cd1c6b",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 4,
+              "unique": 4,
+              "pages": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ],
+                [
+                  3
+                ],
+                [
+                  4
+                ]
+              ],
+              "final": [
+                4
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ],
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ],
+                [
+                  2,
+                  [
+                    3
+                  ]
+                ]
+              ],
+              "footer": [],
+              "body": [
+                [
+                  2,
+                  [
+                    4
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "count": 2,
+              "unique": 2,
+              "pages": [
+                1,
+                1
+              ],
+              "states": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ],
+              "final": [
+                2
+              ],
+              "header": [
+                [
+                  1,
+                  [
+                    1
+                  ]
+                ]
+              ],
+              "footer": [],
+              "body": [
+                [
+                  1,
+                  [
+                    2
+                  ]
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "oracle_pages": 2,
+      "product_pages": 2,
+      "classification": "Raw shared Content insertsfresh4 identities; oracle3headerlabelhits(2marginal+1bodyalias). Productonly2mainbodyidentities. Do not dedup raw reusable templates."
+    },
+    {
+      "name": "captured-header-footer-styles",
+      "source_sha256": "c64d28d1b55da52a36c039e06753a05d163eae162ce62d15ac7dbbd8b4a2d678",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [
+        {
+          "valid": true,
+          "value": [
+            {
+              "page": 1,
+              "is18": true
+            }
+          ]
+        },
+        {
+          "valid": true,
+          "value": [
+            {
+              "page": 1,
+              "is12": true
+            }
+          ]
+        }
+      ],
+      "product_queries": [
+        {
+          "valid": true,
+          "value": []
+        },
+        {
+          "valid": true,
+          "value": []
+        }
+      ],
+      "oracle_pages": 1,
+      "product_pages": 1,
+      "classification": "Required Content Context captures18ptheader/12ptfooter against9ptbody; oraclemetadata true/true, productboth[]."
+    },
+    {
+      "name": "direct-function-header-rejected",
+      "source_sha256": "21b6f471c7caccfe016ae94cd8886355085ac9d2d233b31c737f0cf373fd99e5",
+      "oracle_exit": 1,
+      "product_exit": 1,
+      "oracle_queries": [],
+      "product_queries": [],
+      "oracle_pages": null,
+      "product_pages": null,
+      "classification": "Both reject Func (no publicFuncmarginal needed), exactmessage orderdiff: oracle content,none,auto vsproduct auto,none,content. This is separate diagnosticparity debt."
+    },
+    {
+      "name": "html-header-context-not-admitted",
+      "source_sha256": "49ad9966040a9772fb45ef8a5d3e83b460fe24d14f51164c1ae168fe76f1eecd",
+      "oracle_exit": 0,
+      "product_exit": 0,
+      "oracle_queries": [],
+      "product_queries": [],
+      "oracle_pages": null,
+      "product_pages": null,
+      "classification": "Bothsuccesswithoutpanic; oraclewarns page setruleignored, productomitswarning. HTMLDOM requires downstreamtype-awareinspection; compileexit0 alone is not acceptance."
+    }
+  ],
+  "limits": [
+    "No aggregate success/closure is inferred from telemetry comparisons.",
+    "Refusal sources, missing JSON, HTML DOM and exactdiagnosticpayload need independent downstream policy.",
+    "Canvas/background/foreground geometry notcertified by overlappingPDFwordorder.",
+    "No products run by this subagent; parent executed exact frozenworker serially."
+  ]
+}

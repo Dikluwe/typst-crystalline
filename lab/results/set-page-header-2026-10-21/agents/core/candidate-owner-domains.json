@@ -1,0 +1,2149 @@
+{
+  "status": "fixed-candidate-inspection-domains-for-review",
+  "utc": "2026-10-21T14:30:35.330038+00:00",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "tracked_status": "",
+  "direct_inventory": "lab/results/set-page-header-2026-10-21/agents/parity/descendant-call-inventory.json",
+  "direct_inventory_sha256": "a825a029deea52e5cf22174c82f471a0335c0c76f2075ff585e7a6f0e363a6f1",
+  "direct_inventory_owner_count": 56,
+  "direct_inventory_site_count": 118,
+  "qualification": "56 direct-call owners plus explicit named bypass/dependency domains. This finite inspection/wiring scope is not a repo-wide exhaustive claim or a claim every inspected file needs an edit. Implementation must distinguish changed vs proven unchanged owners. No public API beyond frozen declarations.",
+  "new_owner_pairs": [
+    {
+      "source": "01_core/src/compiler/layout/page_running_requests.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_running_requests.md"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/page_running.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/page_running.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/page_running.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/page_running.md"
+    }
+  ],
+  "existing_pairs": [
+    {
+      "source": "01_core/src/compiler/eval/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "source_sha256": "d6cc47d7bc24bee7d7f01aa96ba7bca94468ceb552018afe5df9919f7c61f0ad",
+      "owner_sha256": "da611ee22c712ee5a88474f16711c4390b17fb0b09c3ec6ba568fed71b8afffd",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/set/page.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+      "source_sha256": "117ebcb900f165917a59cc57819fcd14caabb3714567b1178ebba5955972a0e1",
+      "owner_sha256": "7fce845ade17f4c2a09489ca179451a1f30ee66e1ea8c048e3532cd6daba39c3",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+      "source_sha256": "8797ecef131f271a73b939778a6be0d4f16f95ebf3d3f4f6b12e8bfca977c965",
+      "owner_sha256": "c028daccf348fbef063a0d712a3c32c29cd9634924c0e09d298b0ff11cd55ecf",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/bibliography.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/bibliography.md",
+      "source_sha256": "ec7264923f5944cc6a2905ed899d9c84389a35e0b0471316aa029fca3f9da5c5",
+      "owner_sha256": "8c9f52eb687d0c651aec279acdaea457e90aba47b38bd71b88c026de6a400839",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/entrypoints.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+      "source_sha256": "9ed7d322d1747a045b11ea23a09f31b19fc9b093f23b64147026e12c3ccced41",
+      "owner_sha256": "c90cce7cbf101add872d4d4851e6f31eba1d30e777739fc2d68ba06638875bb1",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_counters.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_counters.md",
+      "source_sha256": "eee604e2c489fae61ac5d7689e005870c378dc7950b01d0b1d99b946ee5257b6",
+      "owner_sha256": "2d2f8e96e6402adfcc1632601d88d6a88bd7f0be232d3fdc7fea924ca3b6a79c",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/figure_demands.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/figure_demands.md",
+      "source_sha256": "6e012d74f5204bd8f6290cc62d302d27cd21012c76c7325d34a31ac6398b3938",
+      "owner_sha256": "c0f9a28490ce7a8fc5d692e9aa23d99c1302f1bb69140d229df26df0cd09fa10",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags.md",
+      "source_sha256": "4217f2f852ef1b273ce89e23346e0702ba81e5e29a8a2430b97fa1dc71639596",
+      "owner_sha256": "297caa54fd59f8c81df2ad52777312b6fa8582e5fe1f5af46a1333b951a42af7",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/counter_updates.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md",
+      "source_sha256": "d5d181b2e47e4249474329064021895db4dee26f95b6b409875efe9c125674de",
+      "owner_sha256": "516ca4d4f5e6cbe095ad45b77d2207bfc4a435da4234f155e3974ce74cb2f962",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/displays.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/displays.md",
+      "source_sha256": "e03b0fe654a0593a613bb1cd8dbe0e0e271f7d73b9ddfdd5c60add4a1dbc58a7",
+      "owner_sha256": "792e8ddad2faf03d04add0601fd85b87969a95cae0d83a996cb9dbb4a9171703",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/equations.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md",
+      "source_sha256": "278338ffb454a737f6d4752b01d3b7f8bd2662d8f771c2e4397dcd8e07400ae5",
+      "owner_sha256": "3cd646f7d3913ac2f8b1403a362c1e430ff191ef8c0116c5b9ac94dbc5d69655",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/headings.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/headings.md",
+      "source_sha256": "1a3aa985982cd94eaaf290e914e1b787d6ce67264c6281b7810b57b20da17c93",
+      "owner_sha256": "99636c6af8423a4301756f7be8ed1caa51f5a7b680b3026fcb33c8019c5c227a",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/state_updates.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/state_updates.md",
+      "source_sha256": "f602d9480c3173e88c67d276a7617de4eb90547502e6a82170d78bdff9d7f69c",
+      "owner_sha256": "711c6053e392079d0827f16a8c427d904e38646c7cdba28c063cbb493a8870e2",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/heading.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/heading.md",
+      "source_sha256": "b8022515e5d4c6c81669b6cd6742de9fe9d9cf80216bdd4cd775e317b732881c",
+      "owner_sha256": "bd8d5191f1d8dd31cb91af77acd698b8d00b70a2c399cdb6687054d535ce7eeb",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+      "source_sha256": "dd1757e3cd6ec39f603d811dcb5415720a874b45c050979109334f8d0a449164",
+      "owner_sha256": "b0f51076527cb5a6590353f90192a8d94976ddfffdd69a49bc75f51d6ca6e724",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+      "source_sha256": "e30b1bc1ef96a0776df733d1bfd3349fd8f0ff97fb7f5361cc99569048119752",
+      "owner_sha256": "ec188db3a4415a0742cdd19b5df88436b75f5a882f3a5172322ec65b49e7cd5d",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/outline_entries.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/outline_entries.md",
+      "source_sha256": "22178840f16bdf201cc0ffac608e3d137167246e4308ad5a7f2451c1582c0ede",
+      "owner_sha256": "d534f19185fa484c44b877b4e088be6675ede88a392e5c78fdfd962a0e2bf6f6",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/parent_index.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/parent_index.md",
+      "source_sha256": "99a06ce7659b0a89c696ae3c05637e8a4d242abb4d1bd3f4000caf1cc438f869",
+      "owner_sha256": "1940a2d4ded260f211667b8026a87aa69f4e8e93eebcc14cf9217226d4accb1b",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/populate.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+      "source_sha256": "74fcc538f3944839ba9bd1bb4c6d598b38abcfe510b9f0e4bc09c188d62d6d3c",
+      "owner_sha256": "eb4f707bcec0a6930724b6e94b2a311e6391d3503f60aefc6ee257578da92bb3",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/introspect/walk.rs",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/walk.md",
+      "source_sha256": "62a30c6939b52b7bf8b585c50532222c303be21febc30547e008df7172a42b61",
+      "owner_sha256": "86cd06af88a1d243f2d4df93addd4abc018bd0a99033bb8d7013a25b2b0575a7",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/bibliography.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/bibliography.md",
+      "source_sha256": "8185b2a83f2c5285b4fdd227485dcff9562a105c26409b5d5e04e6815d14e28a",
+      "owner_sha256": "b6d934b52c271c34fd6fd01f6040bec6502a1b0ea9bffe5bdfbb96427e4006ca",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 58,
+          "method": "layout_content",
+          "source_line": "l.layout_content(&placed);"
+        },
+        {
+          "line": 170,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(title);"
+        },
+        {
+          "line": 189,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&entry_block(entry.body.clone()));"
+        },
+        {
+          "line": 197,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&entry_block(body));"
+        },
+        {
+          "line": 222,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::block("
+        },
+        {
+          "line": 273,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&entry_block("
+        },
+        {
+          "line": 287,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::block("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/bidi_origin.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/bidi_origin.md",
+      "source_sha256": "656bb3de871ddd9c8b6943428ad410832ec969a302ec60ce5e45c76c54c41af5",
+      "owner_sha256": "3d5b9805e311380f0dd1ec48f1f811b4c3a9e64384f6f285ae67fd3282310596",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/block.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/block.md",
+      "source_sha256": "bc97292bf359dd11e2cc96028f0742d5ee16210debe0b36a6f13b6f71db2cc96",
+      "owner_sha256": "684cb0d1e8a8dfcc30105042dac14bd7edb5d772916e5b5c902dc7642a8fb97b",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 364,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+      "source_sha256": "6680549fb47bce65e829d633b04269fe6ec8a24556271caf57bf0b1295bf7bde",
+      "owner_sha256": "e11644ca1cb29a2c0970a20c4f5c041f6ae6215ac2eadc6980f3500ba60e8838",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 231,
+          "method": "layout_sub_frame_inline",
+          "source_line": "let (_, body_items) = layouter.layout_sub_frame_inline("
+        },
+        {
+          "line": 497,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": ".layout_sub_frame_at_geometric_origin("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/checkpoint.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+      "source_sha256": "ec9084063c82722ebe647eb39ebe76a890672c24483f3b534fd5822f28f9727c",
+      "owner_sha256": "2daa00dd2d3b9e3abede3615e26ffc4ab3dc3b2698493fb9dff5e470cfdffeff",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/cite.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/cite.md",
+      "source_sha256": "3f0228b8c421b72199a67185d9b201453daac66f1b9b280e5398318355726c4f",
+      "owner_sha256": "1fa5dc7bcdc570b1ac58fb6b5bcbdd1d32db53b1afc3478ebf015936f80d639a",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 41,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&content);"
+        },
+        {
+          "line": 43,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(s);"
+        },
+        {
+          "line": 70,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(\"ibid.\".to_string()));"
+        },
+        {
+          "line": 72,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(s);"
+        },
+        {
+          "line": 94,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(text));"
+        },
+        {
+          "line": 96,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(s);"
+        },
+        {
+          "line": 140,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(text));"
+        },
+        {
+          "line": 142,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(s);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/columns.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/columns.md",
+      "source_sha256": "4861219b40c7d015c5afc47c3004510b6c20bbb28d6604519fc0329f260dab51",
+      "owner_sha256": "7fb792aa06497420b4b3219821b81d09e01c3607eef71d7242346b092db4fc48",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/columns/flow.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/columns/flow.md",
+      "source_sha256": "f1a03ca2846568ce9753a1247affb43c025d2687253fc12ce896cb1f1b6f299e",
+      "owner_sha256": "6c21d10e8adbd9be047fbdafc0a6df1a618b477658283305543b20f0995f4570",
+      "inspection_domains": [
+        "direct_dispatch_inventory",
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 119,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/columns/segmented.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/columns/segmented.md",
+      "source_sha256": "a4a32740faf9bd9429af1283370f279261873a8c58589e49fdfa278f6fe4826d",
+      "owner_sha256": "3266c99e25c89dc749d4375423b07e4f3c9718a61371ee4db2681eb502b83571",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/columns/transitions.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/columns/transitions.md",
+      "source_sha256": "ed0ce98e6b12ca270e40eacf76e26298b5bba1bc9d9065bc31307a14799dd732",
+      "owner_sha256": "104d50c64e6c2fc397a7620d5f8d8ea37ee41b91795d7fac6f3e2fe0c19a9841",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/convergence.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/convergence.md",
+      "source_sha256": "e88f3a5c0bfa7cf9ac51b5bb09c6e980133e7b8aaaca8a997f75cdfaac6c07ab",
+      "owner_sha256": "48fc3be6a845f1c9d1714e5b06f6a803e199f87a6c418529ef83f61b6f8c2096",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 138,
+          "method": "layout_content",
+          "source_line": "l.layout_content(content);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/counter_display.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/counter_display.md",
+      "source_sha256": "f05720b021ac531550457ab84c9eaba541bb3eaf3b207051d7b435f8a4bb2f46",
+      "owner_sha256": "2b8f738fb52410bd836ca23d9890757c7de18957e749302b0ee064bcf5ff56ae",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 32,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&display);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/counter_display_callback.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/counter_display_callback.md",
+      "source_sha256": "74ab67d403c41ad9645a3fc400a162110786f5f20e56031761291dfe30dd3d79",
+      "owner_sha256": "6746efb8031baa64d01234080848364f00ab7f567a1b158b7c5c58da13aebd83",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&pre_rendered);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/cursor.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/cursor.md",
+      "source_sha256": "4b0894601f7aabec7ef262a3cbafe72a0199448c2df708129fa1a435a90b9bc8",
+      "owner_sha256": "7ca1300f87174477736b40ce1a9caf4fb15ed3c73df3f29d4828dad532ec8e80",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/decorations.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/decorations.md",
+      "source_sha256": "71fdc538db237663b43e68a13d1ce6de96aba9adad67f38806e41e1271b7bdf7",
+      "owner_sha256": "23fc11411c8c8f822db6dfecc0bc2e2c7c8d8afc995688a0ce7f4b8954212ace",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 49,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/dynamic.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/dynamic.md",
+      "source_sha256": "450418323559eb161a303a7d34a0eb828cec2ff30718685cea4eb358fda081fa",
+      "owner_sha256": "e100a714c1d1b28c90df7ecf209f221e0b42a68929afb38136b1f49ca2f7aaa2",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 40,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&body);"
+        },
+        {
+          "line": 45,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(t));"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/enum_item.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/enum_item.md",
+      "source_sha256": "3e833dd05478c454ad34ccabae2c7080fed5f56f8243a2139360d886be003869",
+      "owner_sha256": "a936fea4e1e08b09cda35ee57dfd96ca7adab9741754be40d3cfdf2739c3b68d",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 94,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/equation.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/equation.md",
+      "source_sha256": "62e1dda61c0cdd3a819f2492ac4c71eb7ef84c435218d2bdee16ed8a17500de0",
+      "owner_sha256": "cb74bd15f903cce4c3b50237a9233591235b284bb6f1b537b98b7e18aff8d8ce",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/figure.md",
+      "source_sha256": "bda5de5bade7ca79c1107df4d527f786d3fbd7dde4e02cd274bbb0c7e03819f8",
+      "owner_sha256": "ffa7c119481e015e7336f2039776c0925b92afa7fa6a628a5e653dc2d071adfe",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 123,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        },
+        {
+          "line": 127,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::linebreak());"
+        },
+        {
+          "line": 131,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&caption_block);"
+        },
+        {
+          "line": 133,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(cap);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/finish.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/finish.md",
+      "source_sha256": "a852d37646ee4a11f29ac507d0e60340cc4e38474d2d5cd706e48f234733d951",
+      "owner_sha256": "0fde8ea780581b379f0c368685e6f1e90a9bc9a1b9c86b5477cf0e311cfa873e",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/flow_suffix.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/flow_suffix.md",
+      "source_sha256": "9b2aae68d53541919a853ad5fd7ea709cc80e3a2bfdf990816527f4801441027",
+      "owner_sha256": "82e85a0fe3a853e524c10bfc341daaca75943fa50f67878e0001623071a82f20",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 42,
+          "method": "layout_content_once",
+          "source_line": "self.layout_content_once(content);"
+        },
+        {
+          "line": 88,
+          "method": "layout_content_once",
+          "source_line": "self.layout_content_once(occurrence);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/footnote.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/footnote.md",
+      "source_sha256": "fa5d37e00f4403ac6f7b53f84c4278584e029f7a4a85291391e7ff1f896851a8",
+      "owner_sha256": "43adaa8faf6d374e1acae8dd7915c0a95776cd437610e2872b2c468694c51cf4",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 48,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&marker);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/footnote_flush.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/footnote_flush.md",
+      "source_sha256": "f7e5763146fb8e5bfea947ba0eed580d751ca2de4f13e5d51c141a840fe26ef7",
+      "owner_sha256": "a97e3e6314cb73ca480ec2f95627da9767f4cd275ff46c76d8b3180516adc751",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 142,
+          "method": "layout_sub_frame",
+          "source_line": "let (h, items, deco, orphaned_x, orphaned_y) = self.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid/cell_body.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid/cell_body.md",
+      "source_sha256": "0a5bf8cdf460d08d143a75e53d7e6ff5b5528225ce8e16c0badf4d695eda867c",
+      "owner_sha256": "16479e8c3dd91cef7b759433eae32b243d9be2470c713aeee5240dc2c289adb9",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 335,
+          "method": "layout_sub_frame",
+          "source_line": "self.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md",
+      "source_sha256": "e8d82503d326152e8403ef3b745b134f6045571dca592f7b0e6460315c8030f0",
+      "owner_sha256": "b7cc36bca84fa27536c71dd66eef9c191cc592ece27b68f5ccbcd4c6179fd157",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid/tracks.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid/tracks.md",
+      "source_sha256": "d0e001371742b6ce74665364dbc85c0ef56fcf70614305b4c470c8275100b113",
+      "owner_sha256": "eebc36967fea9cc6785f4805eb4fe9db8e1af4ba3c2a827002bb52df3dc12670",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 224,
+          "method": "layout_sub_frame",
+          "source_line": "let product = self.layout_sub_frame("
+        },
+        {
+          "line": 543,
+          "method": "layout_sub_frame",
+          "source_line": "let product = self.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid_cell.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid_cell.md",
+      "source_sha256": "b95778f03dd46c9c280a0505768b735b64ba18b177f3a90573f4a3809eb757b4",
+      "owner_sha256": "d5781ec22727795f92659246763a8db36676c1415405317be9d340c05787152b",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid_footer.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid_footer.md",
+      "source_sha256": "7447be1bbcf81cc4dc3f4f94b6982cfd1c831572e80ad7679f5988d42f81da0f",
+      "owner_sha256": "d43d61e238ff193873941a6d8e6409c838431ff30d5fe64d85a919a2198ea433",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/grid_header.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/grid_header.md",
+      "source_sha256": "fae2f7f8c066dcee9dea734ecef1c2ce4e73e96d5ccfaad4820e535b616ea1f0",
+      "owner_sha256": "2273ad0e74338067557e2ee1fe7afcdafbe170a86d7ee7390ee0a780bd6dfd15",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/heading.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/heading.md",
+      "source_sha256": "fdebf8717aef5f114ef7cfefb71a5ba93c127cc2ec97e7f98b2c3e66f236ac9c",
+      "owner_sha256": "b0a841e714f3c765d7ff19e71e4ef92f9caec627d9fdf924da9b4226414d731e",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 117,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&prefix);"
+        },
+        {
+          "line": 126,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/hide.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/hide.md",
+      "source_sha256": "739030b6f2afd6570c76244d984f316dd24063f6d72db58e672bec7782d9ed52",
+      "owner_sha256": "8c30894493a11b775c04f2256efa58200473fe80e5c1e7bf4138b5e32cc4e11c",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 22,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/html_frame.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/html_frame.md",
+      "source_sha256": "c2d3bdb8b34d7971c06d583b14eba5cc31f22882726918224ed63dc1cc7b9888",
+      "owner_sha256": "6d06af851cce9ef7644efee88dcaaa343d18e7356ef6fcbe1f603002a32a540d",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 100,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&elem.body);"
+        },
+        {
+          "line": 227,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": "let (height, mut items, _, _, _) = layouter.layout_sub_frame_at_geometric_origin("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/line_commit.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/line_commit.md",
+      "source_sha256": "31038d553ed83114c4ef66289d8625b8749e00bf25699f54f8376fc98df85165",
+      "owner_sha256": "d9042ec158d025781092eea114bef9ae536bb8f4ea7f936bc9d16ee49c4c55b4",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 790,
+          "method": "layout_sub_frame",
+          "source_line": "let (_, items, _, _, _) = self.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/link_capture.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/link_capture.md",
+      "source_sha256": "ea70716855edb1b5d82b9d5c9dda2275b066f58d774b942f18a94f59a630bc6d",
+      "owner_sha256": "d7dbce14f0891861567041f9b9741bb0e9eea249aa8812d19744e20071e1bf99",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 213,
+          "method": "layout_content",
+          "source_line": "self.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/list_item.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/list_item.md",
+      "source_sha256": "a22d2af62a5858c635fe298ac99946c46fcc74fedcd4b2b496aec23c742d9265",
+      "owner_sha256": "d43034b7b9647fea6f57d29f6d2ae9569b7237338d4d1b2453edbd43546f4d25",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 78,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "source_sha256": "51f4833167ff43b951744ff00000043058215943d54e6efa34b1451541f9580e",
+      "owner_sha256": "e59105765c35f3db418da36ace1f20d9954897e1aa2dce9fc3d4084453adbbcc",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 242,
+          "method": "layout_sub_frame",
+          "source_line": "let (height, items, _, _, _) = isolated.layout_sub_frame("
+        },
+        {
+          "line": 746,
+          "method": "layout_sub_frame",
+          "source_line": "let (height, items, _deco, _orphaned_x, _orphaned_y) = layouter.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "source_sha256": "698a2763e0ec689e6b71e34fc90e9f5867488c6d1fb4ea0168fc3b7b7b17c905",
+      "owner_sha256": "41107f1afdf9146d40dbe4c6fef1609247c554823e6ced9e944303d521a781a2",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 1228,
+          "method": "layout_content_once",
+          "source_line": "self.layout_content_once(content);"
+        },
+        {
+          "line": 1251,
+          "method": "layout_content_once",
+          "source_line": "self.layout_content_once(&e.body);"
+        },
+        {
+          "line": 1274,
+          "method": "layout_content_body",
+          "source_line": "self.layout_content_body(&e.body);"
+        },
+        {
+          "line": 1283,
+          "method": "layout_content",
+          "source_line": "self.layout_content(&e.body);"
+        },
+        {
+          "line": 1411,
+          "method": "layout_content_body",
+          "source_line": "self.layout_content_body(content);"
+        },
+        {
+          "line": 1545,
+          "method": "layout_content_once",
+          "source_line": "| Content::ShowRecipe(_) => self.layout_content_once(content),"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/outline.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/outline.md",
+      "source_sha256": "4c13cd9ed201512501ad8e04727a555ec5225eb3b5fd600b5ec0f9b7162d3da1",
+      "owner_sha256": "0e8de05488f211dd7dcbca07db6e97169c69bfade1c71237bdb9a1ca62242b24",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 63,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        },
+        {
+          "line": 93,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::heading(1, title_content));"
+        },
+        {
+          "line": 146,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&line);"
+        },
+        {
+          "line": 162,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::heading(1, title_content));"
+        },
+        {
+          "line": 174,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(line));"
+        },
+        {
+          "line": 187,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::heading(1, title_content));"
+        },
+        {
+          "line": 199,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(line));"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/outline_entry.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/outline_entry.md",
+      "source_sha256": "f2bdc52b9975969a50765740b6c5f98451415952c73ab72276af1e4fed0a68b3",
+      "owner_sha256": "d2b37d8ce64d25c8938d3605267e612da38fcde41e3becf1581664f3de932cb0",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 15,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/pad.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/pad.md",
+      "source_sha256": "4bcc826306631bf31bef0ecb8f412e36fc2d98e38e6bccb5465a237f3ec43d4b",
+      "owner_sha256": "4737a9968f11c36ffbe1816988e7471c46eef040085e7b8942fa42038dbabcbc",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 64,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/page_canvas.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_canvas.md",
+      "source_sha256": "f4348102bd1ccacb68ea63ad18d51bee14c8daa60677fd37bedc37271051984a",
+      "owner_sha256": "8ddcd1a316be444193f83a31b1bdf905526332969f27353a84defeb003ae1fc6",
+      "inspection_domains": [
+        "direct_dispatch_inventory",
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 28,
+          "method": "layout_sub_frame",
+          "source_line": "let (_, items, _, _, _) = layouter.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/page_commit.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_commit.md",
+      "source_sha256": "080caa2c117a235f2616d77e469f43324abf0ad206a75f77d499d3e055cc998d",
+      "owner_sha256": "99757df53df024483404048cc9058e08f5e79112ffb4a2ca037129d68cb557df",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/page_geometry.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_geometry.md",
+      "source_sha256": "0b45863470a7f2d2c31f9aad02b29d469d444b7a56f3f516b576ebdce603bdfd",
+      "owner_sha256": "b3b6bbf4f673a2bf23cf66d84122b612f84eae3a07eebc438c9518032e9e0d1e",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/page_run.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_run.md",
+      "source_sha256": "a7e4d0c2c9f99aa1069ef10c34e2a81cd503e4ed600ca5a1e366c70816c74685",
+      "owner_sha256": "e79d2d7cf2c1d40f65e21e6329f53c32d4377c967bb40a017259a254799f27e0",
+      "inspection_domains": [
+        "direct_dispatch_inventory",
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 89,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/page_running.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/page_running.md",
+      "source_sha256": "4120ff4e9b398e4ce2b25e2d8c37d3a612a01b19464708e0e26f34adbfe3edfa",
+      "owner_sha256": "e82c02d4b40c9ed00bc011144f22d0d1ee32b7ebde65443ee9533c83ca62f639",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 56,
+          "method": "layout_sub_frame",
+          "source_line": "let (_, items, _, _, _) = layouter.layout_sub_frame("
+        },
+        {
+          "line": 136,
+          "method": "layout_sub_frame",
+          "source_line": "let (_, items, _, _, _) = layouter.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph.md",
+      "source_sha256": "90506b26c83ae73eab9dbf60705d567fe9e7f58ee1237aab5946f7a729862450",
+      "owner_sha256": "a3b67664f146546a643d44378eb6533eb1eba8c60212e3aa7e38b34ec0b536c7",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 287,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": "let (height, items, _, _, _) = isolated.layout_sub_frame_at_geometric_origin("
+        },
+        {
+          "line": 342,
+          "method": "layout_content",
+          "source_line": "isolated.layout_content(&Content::Sequence(parts.to_vec().into()));"
+        },
+        {
+          "line": 422,
+          "method": "layout_content",
+          "source_line": "isolated.layout_content(&Content::Sequence(parts.to_vec().into()));"
+        },
+        {
+          "line": 662,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph_emit.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph_emit.md",
+      "source_sha256": "371f8b52162662a484beaed3533af0459b95ee824fdc55e7385029de4deda1a6",
+      "owner_sha256": "25c6518c1aecf8caaf0f613e165feb53c3207118553a46fb192ee70a8e86b1d0",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph_pagination.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md",
+      "source_sha256": "1a000c496e4d26ca719e44d18bf1ec2cb0cc5565822d6e98e447ec9a49770f66",
+      "owner_sha256": "fe76f7922df7bf9480d08baa053ed180ac86e905fba393504c7d036018416068",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph_plan.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph_plan.md",
+      "source_sha256": "fc1f96ffdc6cab7ef61547bbc31296f27b5509b3d1e248fbfd0ba16c0602f244",
+      "owner_sha256": "13a8dbee6ffc8657d023f9e9c52bd934bc1a5207ca49f78f4b466f4c5c680044",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph_prepare.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md",
+      "source_sha256": "ed936271c60cea618fca000acd77b2060be449d58bfe54024f5c7aff912d98fe",
+      "owner_sha256": "89e8147f0b8a79a3b894e6c352b8a1bc4364e511defe54d68fb67f0f9223bd83",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/paragraph_select.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/paragraph_select.md",
+      "source_sha256": "02dd54d037414dbc34d348cf157992b7e44109af20c84ca76864269744fd4bbc",
+      "owner_sha256": "4dfffa25d0fc1d42f7f5d76b240530611819942cc19327998377750752660559",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/pdf_artifact.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/pdf_artifact.md",
+      "source_sha256": "e1b39d9a05539d87232c6e9120b7de44f9d8ba86914cb814128554cab1535663",
+      "owner_sha256": "7505ed6dbd9f4a8b6751840533c86982eb31f4e506a06fe65e3041c2e1f81989",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 100,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&elem.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/place.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/place.md",
+      "source_sha256": "772b380f5dfd21e6f563b82233d8302cacdb66798231278312d26ca2a0484dd2",
+      "owner_sha256": "579e85ee70a8f8ce11692316256853c9e17f3a1016218460c67ff7ecf10b530f",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 47,
+          "method": "layout_sub_frame",
+          "source_line": "layouter.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/placement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/placement.md",
+      "source_sha256": "44904858e50e3712272b07c089ccd3ecab7ff7015209403d535b9842eb12349f",
+      "owner_sha256": "d9cf90e061909a93141a7b76383789db678b02ef81de4fee71005e37957dec05",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 160,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": "self.layout_sub_frame_at_geometric_origin(body, region);"
+        },
+        {
+          "line": 476,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": "self.layout_sub_frame_at_geometric_origin(body, region);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/position_marker.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/position_marker.md",
+      "source_sha256": "8d6485c0bb18255dc51fa14816c09bafca0f64a44cec7ee684a6ba064207b5ca",
+      "owner_sha256": "f6adfebbc5a592cc9d698fb21eb8e23c3182c19b89dbe22fede61f3531d523fd",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/quote.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/quote.md",
+      "source_sha256": "29c8022d6eadcc16000afe75be377e01260f102cae3f52ac6100f91c1839c863",
+      "owner_sha256": "ee9a29350cd7d0926e6cb3dd4801b65694456ca497540a2c750c729a7b20fd23",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 45,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(open));"
+        },
+        {
+          "line": 47,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        },
+        {
+          "line": 49,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(close));"
+        },
+        {
+          "line": 54,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(\"\u2014 \"));"
+        },
+        {
+          "line": 55,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(a);"
+        },
+        {
+          "line": 62,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(open));"
+        },
+        {
+          "line": 64,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        },
+        {
+          "line": 66,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(close));"
+        },
+        {
+          "line": 69,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(\" \u2014 \"));"
+        },
+        {
+          "line": 70,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(a);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/realized.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/realized.md",
+      "source_sha256": "09ac051380f90c755c63e1ce5cbc7b2c103504bc0383fc9c801fa344f96e50ea",
+      "owner_sha256": "afd30c7dcb9338ab6b83ee5f4c3af4179c3f8d1d51a604965d2a459b56bb5270",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 573,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(visual);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/references.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "source_sha256": "45fa47e1e4e629132f5649e840f274ee4f751cd6cbc87b7370ad8b363f9e082f",
+      "owner_sha256": "6bac749dcba577be21fd3d05ae14b60144cb875f6eb539f55b9261a2ed7d5a6a",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 38,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/region_progress.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/region_progress.md",
+      "source_sha256": "9fce5d61501e5ac0fdcb080e7edaf903e97ac45497a45d354a04cfe0e44bcfea",
+      "owner_sha256": "698ceff7f0c81e2bf50e7f05d538f45f2e976e702f4124c695301afbd1435343",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/repeat.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/repeat.md",
+      "source_sha256": "3e39f25e6dec3fcd43fc5ebcef0bc9bb384e5567e73034240701b13f9f360c1c",
+      "owner_sha256": "6107fe8f8e6aa4cb4e8d607ff8cd681f249683320c0101adf3d6fbebe14cf613",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 34,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/sequence.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sequence.md",
+      "source_sha256": "9034fbffe43b5fa53b82ec29418edd5555a7d7243214c7d2dce1bf42f0628ed7",
+      "owner_sha256": "f3f218b5c8613b5aee3cdce8f880b25af6b85523432d5c30ec2a36e34457c507",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 332,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(part);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/sequence/fractional_preflight.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sequence/fractional_preflight.md",
+      "source_sha256": "284e01b11eb7036d9e04aa49c20ec7fda76919cf54fdf138d2936607680d3568",
+      "owner_sha256": "b2ce5672f45db9fd81b662eb45ea4e83d7a0b7cd90fef02dbafafd28256856b9",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sequence/inline_prefix.md",
+      "source_sha256": "3671ec758028a35fbd99a9d5922ddd03a2e8686eda19a77da67aa47902466100",
+      "owner_sha256": "88ea2948cce9bfa931bf57df0b72cfcd0765a2427c051f1277f27104e387892f",
+      "inspection_domains": [
+        "bypass_geometry_and_transaction_boundaries"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/layout/stack.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/stack.md",
+      "source_sha256": "cd0ddbacc724e9f175640e7c140a34963da61ecc052174652bff749173d179d5",
+      "owner_sha256": "f26a93dded6b9bbd879fee30dbbf559fd5e06cb61bc2885b44e9dbf324eae5fd",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 169,
+          "method": "layout_sub_frame",
+          "source_line": "let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame("
+        },
+        {
+          "line": 234,
+          "method": "layout_sub_frame",
+          "source_line": "let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/state_display.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/state_display.md",
+      "source_sha256": "77184a46cd57ef03ffdaef9d1e6d01c7ed321d2753e2a3a5cff11c48f3bcd82f",
+      "owner_sha256": "eaa2394bfcae9106998054707f0eb1a357fd429276d61b490c3e9218001efdbf",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&pre_rendered);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/style_scope.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/style_scope.md",
+      "source_sha256": "9f6e4d611c8feae6233f17f2f9afeefa35edafaf25f79ad5dd43bcee80376e6e",
+      "owner_sha256": "fbfd8e65440e6ae3d447eaf29f775bd8523eb94d5677b4c5f6f0ab4ea9058304",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 143,
+          "method": "layout_sub_frame_inline",
+          "source_line": "let (_, items) = layouter.layout_sub_frame_inline("
+        },
+        {
+          "line": 160,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        },
+        {
+          "line": 198,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        },
+        {
+          "line": 215,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        },
+        {
+          "line": 227,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+      "source_sha256": "e3b1d912aa81017472eedb160a6d5b0b6075fa1212ce80338050db84301dcd84",
+      "owner_sha256": "c9a24a1b9e44b4349fd650acc3f8091c7d3c715fbe6a21e0e608f6b8a83e34a9",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 76,
+          "method": "layout_sub_frame_with_origin",
+          "source_line": "self.layout_sub_frame_with_origin(content, region, false)"
+        },
+        {
+          "line": 90,
+          "method": "layout_sub_frame_with_origin",
+          "source_line": "self.layout_sub_frame_with_origin(content, region, true)"
+        },
+        {
+          "line": 263,
+          "method": "layout_content",
+          "source_line": "self.layout_content(content);"
+        },
+        {
+          "line": 490,
+          "method": "layout_content",
+          "source_line": "self.layout_content(content);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/table.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/table.md",
+      "source_sha256": "d70b4724ad0312fc85e7b407bcc89b17e293c557bcad0e931063316316da5677",
+      "owner_sha256": "0c5689ea20d7ce784f2c75f1de6fb773f4be4240dbf5e271c0676d012d27d486",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 87,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&captioned);"
+        },
+        {
+          "line": 89,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(cap);"
+        },
+        {
+          "line": 91,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::linebreak());"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/table_cell.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/table_cell.md",
+      "source_sha256": "067480596834d2d1364a32253a237e5ed6f2cbea8f42d66fe3f63e490c1fed69",
+      "owner_sha256": "59f7f3185c671759f2f44eccec89416e60582a1bf5a598d95d1a5e815ab19b65",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 40,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&body);"
+        },
+        {
+          "line": 44,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(e.visual());"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/table_footer.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/table_footer.md",
+      "source_sha256": "53ba974957faa79a98fb6e9bdd04ad06300c2f216ea72e75cf752ea43b1cf86a",
+      "owner_sha256": "91c93265ed6e22a3254611ca7030a1705236c183d17c6fdeca7111a1e0d0b1c9",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/table_header.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/table_header.md",
+      "source_sha256": "2c5b9818085e9554fbdf4cfa6cd18c5b55e99c61ef081bd79374b2129d4e8d0f",
+      "owner_sha256": "96a9e948fd0faf33bd4652584f1e45529ca2484de3cac67328f85b69c8329cce",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 19,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/term_item.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/term_item.md",
+      "source_sha256": "fe9a1ecee58bc54e0aef7e0b2975c0f1a2a5fbf5cf288ff4e1a5e0a1007443f8",
+      "owner_sha256": "16fe7e9b892670bf5551537d66ca35044fce1f6ee7787f7c68d4e863416f6ff1",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 35,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.term);"
+        },
+        {
+          "line": 38,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&Content::text(\": \"));"
+        },
+        {
+          "line": 39,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(&e.description);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/terms.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/terms.md",
+      "source_sha256": "78905402b5b80aaafaf92696b629d5e20bdd81bf412aab560d215eb8db39944a",
+      "owner_sha256": "e31dac785d612da7dae59e2e5c778279d285de44e56bb48c0b02ae1632b86db2",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 24,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(item);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/tiling.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tiling.md",
+      "source_sha256": "047cb19b44d380ca9be6c1478448e0b0f50f3751043705be8d83a9ed48d45d3e",
+      "owner_sha256": "6bac65583815a9cbef2b87cd9b486db261048ccc586fa6f473c750fa6f710b47",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 164,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": ".layout_sub_frame_at_geometric_origin("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/title.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/title.md",
+      "source_sha256": "dcf98aa10796d11145cf6da014ea3b39239f093e565d37a160e0b0bf8f0594e3",
+      "owner_sha256": "56bfe365240a4830553ce24f46540ef013207c79cd698c719c73a386744ff81d",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 42,
+          "method": "layout_content",
+          "source_line": "layouter.layout_content(body);"
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/layout/transform.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/transform.md",
+      "source_sha256": "8e527ac345389ed05ed6c71c429ab8074db9a48cf8623b10201e0cb5f42f1617",
+      "owner_sha256": "dfaae831d317f06363e105c4ae6599c9bf9282832098cf8043e05977d6e266b4",
+      "inspection_domains": [
+        "direct_dispatch_inventory"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations.",
+      "direct_sites": [
+        {
+          "line": 49,
+          "method": "layout_sub_frame",
+          "source_line": "layouter.layout_sub_frame("
+        },
+        {
+          "line": 649,
+          "method": "layout_sub_frame_at_geometric_origin",
+          "source_line": "let (body_h, items, deco, align_x, align_y) = l.layout_sub_frame_at_geometric_origin("
+        }
+      ]
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/accent.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/accent.md",
+      "source_sha256": "8f10b888da8987c56c3763a3eb120027ab8ee6f61013b4578c303db0555f00a6",
+      "owner_sha256": "94740e7eae2e6a75dd0c0ba7db7eb56f21e58c731d5f90e2f12557ab2ae9acda",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/assembly.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/assembly.md",
+      "source_sha256": "f1123807051272ad06cd8917cbf613457631cb21e3e20ee7b5e5ca428ff176af",
+      "owner_sha256": "042e17db306790f6d3e379e79ab3427cb3c8f7b932449161774a532eea52eb2f",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/attach.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/attach.md",
+      "source_sha256": "3b058464d72a2519f7d84fcd194f77183540bf91882b275f8c99654e1946ea40",
+      "owner_sha256": "aba13fce895091596872aa703fb284e11591faa17cd96a8480b44bb1d5449da9",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/callbacks.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/callbacks.md",
+      "source_sha256": "172b1434c14c6ab2283640a7f9f0a70463c2c5bbec9f2c134facbb1b03c7b492",
+      "owner_sha256": "ffcc9676b260a3136ab98ed205d1ae5814f24a6949f80b30388524062323dc82",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/cancel.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/cancel.md",
+      "source_sha256": "cf529e8f6db49fa098ca8050e997859791953c6b3433d70838fc8c4a6e9aa5eb",
+      "owner_sha256": "386bccb2b2215a24f18856b8ab2728c2ad631693fce95f2ce58becbfd4aeb691",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/cases.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/cases.md",
+      "source_sha256": "666574614c785f5f1c7f8311d3b168f38f925fc5114694c47ce6969df4f8c68d",
+      "owner_sha256": "77278b6e55903f01949527d04c36eb6345b61128826db232700472cb7f68149d",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/delimited.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/delimited.md",
+      "source_sha256": "a0ad6af520ce4eaedbf4a41476ea12ec7e9321dd0c6ed0b2decd75ec55796bca",
+      "owner_sha256": "0d9925f7ce10b3e2cfbbd37877cdb1b35c3555bb046077e1353ee70ebcc673ed",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/external_bridge.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/external_bridge.md",
+      "source_sha256": "e6189a1ef99a58ad1ce8c557ae78a35bfe35ffb876a8aea013c68aeac96ccee1",
+      "owner_sha256": "c2b8eaa511910b578482ebda8eea94924dd8348c19134071bffde543a173f4ac",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/frac.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/frac.md",
+      "source_sha256": "b07c6f1c93adb99fc9ecdb58a77afee32d0e83c1f758be46468551effd8cf0eb",
+      "owner_sha256": "67504c95fc4e2f86c27dd5c18db8b1dd5d31b74d99927294153e6cd89d52c727",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/grid_composition.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/grid_composition.md",
+      "source_sha256": "781fe961a1408a9c5930676ca4c60d8b65ceafe87f2ee1e60d29d6269e2bdb67",
+      "owner_sha256": "960bab2fa3eb6f5b879a3ce67296c4fb4dd204dc7288316a0dd0f8a98a141937",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/large_operator.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/large_operator.md",
+      "source_sha256": "d0648cc5cd440c97574c9a5c46c419b63ec4bc53fbf96b32225e9e75393f80d8",
+      "owner_sha256": "c71a71effff485c543888b4ced61b6dd0ae1e93fa84eba0435b7c679e7c62171",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/line_decorations.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/line_decorations.md",
+      "source_sha256": "a763873828fbe2d67159746c3c5e054ea30b6baf7b6291a1804e04bc2cb77910",
+      "owner_sha256": "2e15093ff3b51d399985dddf486002a2258b993851fcc69548c667ff2d364c3a",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/matrix.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/matrix.md",
+      "source_sha256": "9562a5de22f423ae3bc6c8368ab5a62008c4707d125108804b1e75f55171803e",
+      "owner_sha256": "6af648d9415765a21bfde2a951d5f1a3a2060c199a4c8571ad628fec2fcac262",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/mod.md",
+      "source_sha256": "bff5a226aefdc9603ba8a473cceb5515b8b7a955f70fc00b0a938cf4d8bfb24c",
+      "owner_sha256": "98db96a5993c47e8a70789314dbbdd227baae36adf239f3be1098a04a2d89610",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/node_wrappers.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/node_wrappers.md",
+      "source_sha256": "2d7ce6964e882372b647cfbe06c89871f9102b177f84328716df4d6cc6a0b170",
+      "owner_sha256": "0371330ce408b5f302b5f37b7bf57005c717b76da1a243160cc7566a75ab4fa8",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/op.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/op.md",
+      "source_sha256": "ac1d7cb04e0875b369471bb16a492c4fba7dc79f0448c590781c8e8b307a4fcb",
+      "owner_sha256": "837e9ec8790d46312d261128780f46134e684095f1dd6326e356d8d3d6a93599",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/root.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/root.md",
+      "source_sha256": "479f837982c512759baa7de957aed86d19a343d7a1aec18be3ccb1070f878964",
+      "owner_sha256": "a6650253fb0e85dc34b9312f94cce9aa845419db14ff8443815fff006532e1cc",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/sequence_composition.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md",
+      "source_sha256": "d7731a20412e30e9691688ad594ccbd1620d01b466fe3cd590a2b02d54f7be3f",
+      "owner_sha256": "31da726c0257ab96e931e180c622fb73d99fcddb5391a419f0621b282e26e527",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/spacing.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/spacing.md",
+      "source_sha256": "0bf0046792c8d9c4886df96da2dfbe281d8640a26fcaa21372ae5278683f87b1",
+      "owner_sha256": "0815b56087db27dd75aad58d0e888a67f8e5711cfcd750bedcc59ea6ea1c89f1",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/stretch.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/stretch.md",
+      "source_sha256": "7c5741522c0ba98cc78897bd338acd07439278f877f9b407be73b91e9117d987",
+      "owner_sha256": "1d7052ab027dd93a3f30c136ed86262c18829274db0adf5f905be3341414a2a9",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/stretchy.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/stretchy.md",
+      "source_sha256": "d0d8e247683b3feb78303084b8b33591ae7ab857e612f9d54e3f01e8bb2f504c",
+      "owner_sha256": "6da3cda34b3e9e84065712192861f1e2427a1c1438c4ca99d864788ac0a386bc",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/style_transform.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/style_transform.md",
+      "source_sha256": "d56f504c0f8f2ac83e36e276753ab8918c731061a30cd855ac371b725033ce95",
+      "owner_sha256": "ffb4896449a947c9094bc61833e50d969a0caa3a0bb3dbbdda9c70463fbfae32",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/underline.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/underline.md",
+      "source_sha256": "c2da643dd0fce16cb80bb7ad56bd10a18349f7f5fdfd50341962b89219be5b44",
+      "owner_sha256": "fe0325ec8f5a87886190c2af9b5162496356a579cba2962d67854aa7fd6ffa19",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/underover.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/underover.md",
+      "source_sha256": "ddc78a69d07b7f2fa233f58007c0e57316470f649943bf40796626eeabfb9b4b",
+      "owner_sha256": "1f0a3959e4e00ff926c1f4d95b0529979da202cf7c8ef06f1f4baf3b81fe033f",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/math/layout/vec.rs",
+      "owner": "00_nucleo/prompts/core/compiler/math/layout/vec.md",
+      "source_sha256": "d3071835cf075a59753c6b0e1590cc7c8f355eed69bd93751eaf8022787eee46",
+      "owner_sha256": "8444239844822296f1fa4c42868915da673ae4816f12011cc6f80ef6930197fd",
+      "inspection_domains": [
+        "math_atomicity_or_typed_edges"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/context_occurrences.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/context_occurrences.md",
+      "source_sha256": "6552a173b5352293def6803bf747083a576dea36b3edb20bec4b0ed2f687c548",
+      "owner_sha256": "c1ebdbc6b5b0e84eddcdbeab8e42dc8ad878fca264ad5fe1d0c3a1bfbc1b1824",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/recipes.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/recipes.md",
+      "source_sha256": "27f4dd0e6219ed2ed014845fd476f0aae20945132eed6e4bb8ae7145408d40d6",
+      "owner_sha256": "92b765ae72000f321fe0d4ba0dd8c595082f53f60dad64a494363218af372779",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/reference_supplements.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/reference_supplements.md",
+      "source_sha256": "abc23450585c0ba374bf8cbf88c9e3cd1076128a8dc509dc393757b1fee5abe6",
+      "owner_sha256": "a5d5b7c3337731320c4cc517b70464dc2de3b1b1d6fc50b3e7d4dc855ba7fa5b",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/realize/table_cells.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/table_cells.md",
+      "source_sha256": "b586c6451994509bdc446cf9e1a14cea4e82b9431000786545418f1c803394c1",
+      "owner_sha256": "949b5379f82341a087fd9c9267fd1909054300a2f719ac1d1b18648685db784d",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/layout/page.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/layout/page.md",
+      "source_sha256": "2ee8fee12e59acec460ef0163a3b5b21a95fdcc60bb8a8373d36c93f9a21c4c3",
+      "owner_sha256": "72007de50a8dd199fb36d59c84326d9422afc8d975b035f7becd96c868ba912c",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/content.rs",
+      "owner": "00_nucleo/prompts/core/entities/content.md",
+      "source_sha256": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+      "owner_sha256": "8be63192e7c051ff77d46184f831192b9e75b8ab2da1865b5e1df3339ac0c552",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/content/page_structure.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/page_structure.md",
+      "source_sha256": "7cdad1977926b9dd8cabf1dd8fe1bf2a8d957bf1c2a309c4a8c898a30bfa76e2",
+      "owner_sha256": "8c2a12d240efd92e722b3439e32ae403cb9e0ecdf41632f249539cd3c8093096",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+      "source_sha256": "2526cf4359a14caf278609c95ddd865c092feefe5bc27e31256f9a5c14c84f9c",
+      "owner_sha256": "e9dc9896f1284d38df3ed7e756d8be8181c9247663243eef9f527c3d2b6c9aaf",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/counter_registry.rs",
+      "owner": "00_nucleo/prompts/core/entities/counter_registry.md",
+      "source_sha256": "e452dbabed4a8bf29cebd23f1799cccdc0163d03af4d70e111a4ae490c32b54f",
+      "owner_sha256": "445636432bb5197d31db033fd3aab481d60ca308c773655445bd9cae58a70eaa",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/elements/page_run.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/page_run.md",
+      "source_sha256": "f3935fd3d7a1fa89e58a76cc57ff9f2206508cbc00113a2a7f3e6805b5704621",
+      "owner_sha256": "8b3de6b30f3ed4c1844772a0d7501ede632504aed3848f9372cc7f5ca4b55928",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/introspector.rs",
+      "owner": "00_nucleo/prompts/core/entities/introspector.md",
+      "source_sha256": "8f632b36baca2082b5322636a5edef3d8872762da472e074303da1b4d39e1c1e",
+      "owner_sha256": "ac84351ac2d4ae23536b3661180f64d292a38137079d11b050bcd62d6c9e9410",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/label_registry.rs",
+      "owner": "00_nucleo/prompts/core/entities/label_registry.md",
+      "source_sha256": "d0988e178fcdb5d1668e00aa7d1e03cd5830ea68d0a859e8fd94eb8e5ea2533b",
+      "owner_sha256": "629faee40374dc1a313c28bbee59e84951d838a2db04a8222e6982b9ba5bc9b9",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/page_canvas.rs",
+      "owner": "00_nucleo/prompts/core/entities/page_canvas.md",
+      "source_sha256": "f3d20e72c46dc713c7ec90abd840c3b6f0b9b46758d716a044b5355c60efe078",
+      "owner_sha256": "addc5a664b699fe87659d14adfa0b9b64625ad1ceb874bcc37ec1b7244011fb6",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/page_running.rs",
+      "owner": "00_nucleo/prompts/core/entities/page_running.md",
+      "source_sha256": "7568b85efc936dfbd6cfef6736a2e58976cc946e788308adf1da641adaeb89ac",
+      "owner_sha256": "6521f874e88da60185bc1c6f3221a7e01f0a4644a5acd9ffb022e620eb084fda",
+      "inspection_domains": [
+        "domain_contract_preservation"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "01_core/src/entities/state_registry.rs",
+      "owner": "00_nucleo/prompts/core/entities/state_registry.md",
+      "source_sha256": "8fcf94c190211ceb8c64eec4c97ca07f9cabf114161d8494c68d84913e602df8",
+      "owner_sha256": "b59f6df913f73d0fcffc2508395dac138591acfa7a6ceedc59220e794224864a",
+      "inspection_domains": [
+        "source_construction_and_runtime_dependencies"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md",
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065",
+      "owner_sha256": "1a65b03223c787c6a0d530b2699255291fa87a681e57f3dcae8afbbff360cab0",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "inspection_domains": [
+        "coordination_capture_and_identity"
+      ],
+      "implementation_permission": "Private protocol wiring only after owning L0 audit/update/seal and genuine tests; preserve formulas/current owner contract unless explicitly amended by proposal. No public API beyond frozen declarations."
+    }
+  ],
+  "shared_invariants": {
+    "proposed_nucleus": "00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml",
+    "status": "Declarative shared protocol: draft/pin through actual consuming L0s before implementation; never a productive @prompt target. Preserve existing geometry/decorative nucleus."
+  },
+  "exclusions": [
+    "No existing public entity/signature/trait/field/variant mutation.",
+    "No new generic equality/hash, direct Func marginal, CLI flag or target default.",
+    "No columns/baseline escrow resolution, global Frame semantic index, source reevaluation or second solver."
+  ],
+  "gates": [
+    "Owner-first audits and meaningful independent RED/GREEN; modified manifest narrower than finite inspected domains.",
+    "Typed child edges/source packets, preserved original snapshots/parents; future Content/edge requires decision.",
+    "Checkpoint/journal/deferred placement and measurement None; no pointer/hash/Location packet inference.",
+    "Shared arena reserve-only aliases, immutable capture authority and Session rebind.",
+    "Four measured physical slots, actual pages, current-owner duplicate-label Ref refusal, Bundle-global target order.",
+    "V15/V26 valid graph, canonical paths and scoped forward/reverse seals before validation."
+  ]
+}

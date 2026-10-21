@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-creation10-body20-one-page.typ",
+    "<ambient-body>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T14:30:18.671907+00:00",
+  "utc_end": "2026-10-21T14:30:18.799625+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"page\":1,\"size\":\"20pt\",\"is10\":false,\"is20\":true,\"is30\":false}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<ambient-body>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-creation10-body20-one-page.typ` instead\n\n",
+  "stdout_sha256": "bbcddfa3e5946bfae7be2e1699c1bfaa62eb57a2fc6bad119983be82c36fb18b",
+  "stderr_sha256": "668ed3dce36505915dcc704e566ebe61b8db4ada271381c62641ed90195474e3"
+}

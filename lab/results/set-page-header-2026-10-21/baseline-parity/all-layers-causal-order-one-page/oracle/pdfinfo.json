@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "pdfinfo",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/all-layers-causal-order-one-page/oracle/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:47:45.575427+00:00",
+  "utc_end": "2026-10-21T13:47:45.587957+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "Creator:         Typst 0.15.1\nCreationDate:    Wed Oct 21 10:47:45 2026 -03\nModDate:         Wed Oct 21 10:47:45 2026 -03\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       220 x 240 pts\nPage rot:        0\nFile size:       9281 bytes\nOptimized:       no\nPDF version:     1.7\n",
+  "stderr": "",
+  "stdout_sha256": "c362fc94a338f0d4e9bf8f6111de780331fc75db0f8e4be6b1b0e5fe59f68fe7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/lexical-page-runs-contrast/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:59.899638+00:00",
+  "utc_end": "2026-10-21T13:47:59.911936+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "HEADER\nFigure 1: HC\n\n\n\nBODYONE\nFigure 2: B1\n\n\n\n\nFOOTER\nFigure 3: FC\n\f",
+  "stderr": "",
+  "stdout_sha256": "645cd858541168f01cc45bb8aac12456725af684f91ba89b5b6a2b730775239a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

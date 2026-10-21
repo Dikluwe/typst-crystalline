@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/html-header-context-not-admitted.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/html-header-context-not-admitted/product/document.html",
+    "--features",
+    "html",
+    "--format",
+    "html"
+  ],
+  "utc_start": "2026-10-21T13:48:06.320677+00:00",
+  "utc_end": "2026-10-21T13:48:06.336371+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "d103175d5ac5ba1d2d4afae2e801958a1e0dafae1b43ffe6f1f44f3783a2f3ce"
+}

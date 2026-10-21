@@ -1,0 +1,103 @@
+{
+  "utc": "2026-10-21T13:52:03.290747+00:00",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "diff_head_stat": "",
+  "status": "Read-only source and contract review; no products executed; scalar matrix results pending root serial execution",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "file_sha256": {
+    "00_nucleo/adr/adr-0107-language-parity-not-mechanics.md": "6b1e052a28fbc4e1715e0dae435ff61f4372ec4d2f9fd8c8eb2f3ab936c32f07",
+    "00_nucleo/adr/adr-0108-anti-drift-measure-before-deciding.md": "1c93efdf8edcf1faa334dc5cbeac5c2fc0772efc701440ca09200daba7c735d5",
+    "00_nucleo/adr/adr-0109-atomization.md": "d2a32eef5cfba00de845c0ad7b57fa6abe3e74d9d10040ca0713e46cf6362299",
+    "00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md": "0497442287368b05b01503217a02992990d0493525701c408733c03a11e6d659",
+    "00_nucleo/prompts/core/entities/page_running.md": "6521f874e88da60185bc1c6f3221a7e01f0a4644a5acd9ffb022e620eb084fda",
+    "00_nucleo/prompts/core/entities/elements/page_run.md": "8b3de6b30f3ed4c1844772a0d7501ede632504aed3848f9372cc7f5ca4b55928",
+    "00_nucleo/prompts/core/compiler/layout/page_running.md": "e82c02d4b40c9ed00bc011144f22d0d1ee32b7ebde65443ee9533c83ca62f639",
+    "00_nucleo/prompts/core/compiler/layout/set_page.md": "0924874cf4274024890d1ba1450682f46f10d8db2f2b2ec99dba6df0ed98d254",
+    "00_nucleo/prompts/core/compiler/layout/page_run.md": "e79d2d7cf2c1d40f65e21e6329f53c32d4377c967bb40a017259a254799f27e0",
+    "00_nucleo/prompts/core/compiler/eval/rules/set/page.md": "7fce845ade17f4c2a09489ca179451a1f30ee66e1ea8c048e3532cd6daba39c3",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/page.md": "72007de50a8dd199fb36d59c84326d9422afc8d975b035f7becd96c868ba912c",
+    "00_nucleo/prompts/core/compiler/introspect/figure_demands.md": "c0f9a28490ce7a8fc5d692e9aa23d99c1302f1bb69140d229df26df0cd09fa10",
+    "00_nucleo/prompts/core/compiler/introspect/walk.md": "86cd06af88a1d243f2d4df93addd4abc018bd0a99033bb8d7013a25b2b0575a7",
+    "00_nucleo/prompts/core/compiler/eval/context_reads.md": "49a6767556349695727ae2de1948b5d5f5cd20cf0e85665a3f956194b7f21fd7",
+    "00_nucleo/prompts/infra/pipeline/paged.md": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+    "00_nucleo/prompts/_nuclei/layout/page-running.toml": "494ba4308b781cd84f131a562aa66a47a8348adcc259cf00e74b6510812c79c5",
+    "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "ef7f785f4e1290e8fcf46224a620e5f71624bb634aa80732d08a4b109c856810",
+    "01_core/src/compiler/eval/rules/set/page.rs": "117ebcb900f165917a59cc57819fcd14caabb3714567b1178ebba5955972a0e1",
+    "01_core/src/entities/page_running.rs": "7568b85efc936dfbd6cfef6736a2e58976cc946e788308adf1da641adaeb89ac",
+    "01_core/src/compiler/layout/page_running.rs": "4120ff4e9b398e4ce2b25e2d8c37d3a612a01b19464708e0e26f34adbfe3edfa",
+    "01_core/src/compiler/layout/page_run.rs": "a7e4d0c2c9f99aa1069ef10c34e2a81cd503e4ed600ca5a1e366c70816c74685",
+    "01_core/src/compiler/layout/set_page.rs": "d78803147a32ccf114e1b4cd97cd5dca29b74cb72134d93e91e4a9bc84b2d397",
+    "01_core/src/compiler/layout/page_commit.rs": "080caa2c117a235f2616d77e469f43324abf0ad206a75f77d499d3e055cc998d",
+    "01_core/src/compiler/layout/mod.rs": "698a2763e0ec689e6b71e34fc90e9f5867488c6d1fb4ea0168fc3b7b7b17c905",
+    "01_core/src/compiler/introspect/walk.rs": "62a30c6939b52b7bf8b585c50532222c303be21febc30547e008df7172a42b61",
+    "01_core/src/compiler/introspect/figure_demands.rs": "6e012d74f5204bd8f6290cc62d302d27cd21012c76c7325d34a31ac6398b3938",
+    "lab/typst-original/crates/typst-layout/src/pages/run.rs": "ff6dc32dc6896f7dcbe974030a9aae40bebbff8ed40cb4ab798c7c32364d11f1",
+    "lab/typst-original/crates/typst-layout/src/pages/finalize.rs": "ace071e7b774f9f092a887178911e71e75f5935911de9ba5e4bac2d67052b656",
+    "lab/typst-original/crates/typst-layout/src/flow/mod.rs": "1010ce26a41c270c9aaadb975e6dbb3e5aa7629be1a41dacda6f6955ff92aee5",
+    "lab/typst-original/crates/typst-library/src/foundations/context.rs": "07cc00c04758ed1e334623a618dd8f5a0c57d800f5074c0db521715f9d95fdd0",
+    "lab/typst-original/crates/typst-library/src/layout/page.rs": "4e89956fc3e97102165107ed7e2ee050335250a9c87db3f7a38b4bf490f6aac4"
+  },
+  "findings": [
+    {
+      "id": "semantic-order",
+      "classification": "source-supported language mechanism; bilateral values pending",
+      "evidence": [
+        "lab/typst-original/crates/typst-layout/src/pages/run.rs:187-201",
+        "lab/typst-original/crates/typst-layout/src/pages/run.rs:204-239",
+        "lab/typst-original/crates/typst-layout/src/pages/finalize.rs:53-80"
+      ],
+      "finding": "Body layout runs first, but final frame semantic order explicitly affects introspection/counters: background, header, body, footer, foreground. Each physical body fragment gets its own marginal layout with locator.next. Calling order alone is not the language acceptance oracle.",
+      "refuter": "Pinned bilateral query/counter observations contradict the apparent frame-order relation; investigate rather than copy mechanics."
+    },
+    {
+      "id": "context-admission",
+      "classification": "source-supported existing language capability; output observations pending",
+      "evidence": [
+        "lab/typst-original/crates/typst-library/src/layout/page.rs:349-418",
+        "lab/typst-original/crates/typst-layout/src/flow/mod.rs:139-162",
+        "lab/typst-original/crates/typst-library/src/foundations/context.rs:63-86"
+      ],
+      "finding": "Marginals accept static rich Content including Context, not a Func marginal API. Fragment realization supplies locatable Context blocks with actual location and known styles; test physical repeated metadata, here/page and final counter before choosing a Tekt phase design.",
+      "refuter": "Oracle rejects a supposedly accepted matrix source; classify source validity separately and preserve exact diagnostic."
+    },
+    {
+      "id": "tekt-boundary",
+      "classification": "current productive implementation and L0 boundary",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set/page.rs:288-309",
+        "01_core/src/compiler/layout/set_page.rs:67-80",
+        "01_core/src/compiler/layout/page_running.rs:78-103",
+        "01_core/src/compiler/layout/page_commit.rs:43-44",
+        "01_core/src/compiler/introspect/walk.rs:1047-1060",
+        "00_nucleo/prompts/core/compiler/introspect/figure_demands.md:26-31",
+        "00_nucleo/prompts/core/compiler/introspect/walk.md:656-668"
+      ],
+      "finding": "SetPage deltas install PageConfig; pure layout later renders running layers. Current static PageRun walk indexes one ordered template visit, not a measured per-physical-page event stream; full SetPage physical admission was explicitly outside the Figure closure. Context at ordinary pure layout is not a general evaluator.",
+      "refuter": "A bounded existing-phase repair demonstrably satisfies all repeated-page/context/ref/override language controls without new capability or phase; then classify that exact repair continuous."
+    },
+    {
+      "id": "identity-accessibility",
+      "classification": "architectural risk, not measured output conclusion",
+      "evidence": [
+        "00_nucleo/prompts/_nuclei/layout/page-running.toml",
+        "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml",
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md"
+      ],
+      "finding": "Decorative repeated accessible content policy does not establish query/counter occurrence identity. Preserve stable retained Context frames, actual located aliases and fresh raw insertion distinctions; do not deduplicate by Content equality/hash or manufacture counter histories/locations."
+    },
+    {
+      "id": "approval-boundary",
+      "classification": "ADR0127 classification pending measurements/design",
+      "evidence": [
+        "00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md"
+      ],
+      "finding": "Internal mapping/parity correction in the same authorized boundary can be continuous. New public facade/entity field, actual per-physical-page realization phase, or eval/layout phase transfer requires a concrete public/phase approval. Prior Figure/Ref approval does not authorize that by analogy. Keep HTML paged-header nonadmission and pure layout responsibilities explicit."
+    }
+  ],
+  "matrix_sha256": "e782c96866a1ee3805133067bac5dbea93081f4bb487ecad7d3f2ecac1c84082",
+  "worker_sha256": "36e3ecd7f75f2d9f23d42010ee71232b4824f8f0e7e9190c141a78b7515c58af",
+  "products_executed_by_agent": false,
+  "scope": "No code/L0/policy edits. Lab sources, measurement worker and audit only."
+}

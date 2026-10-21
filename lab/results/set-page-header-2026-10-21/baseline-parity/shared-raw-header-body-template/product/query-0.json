@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/shared-raw-header-body-template.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:48:03.203513+00:00",
+  "utc_end": "2026-10-21T13:48:03.850901+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":2,\"unique\":2,\"pages\":[1,1],\"states\":[[1],[2]],\"final\":[2],\"header\":[[1,[1]]],\"footer\":[],\"body\":[[1,[2]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/shared-raw-header-body-template.typ` instead\n\n",
+  "stdout_sha256": "473d33f2ca3c7046053c17d8a8c7068a042263a96b84705935cf6c259248d4e7",
+  "stderr_sha256": "a1ee7fbdcc5de455ea6b86d2fff5e9d47154dc6cf2fcea4f69161ec2f8805eeb"
+}

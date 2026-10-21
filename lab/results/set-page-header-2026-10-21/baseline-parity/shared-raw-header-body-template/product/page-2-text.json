@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/shared-raw-header-body-template/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:48:03.180037+00:00",
+  "utc_end": "2026-10-21T13:48:03.191620+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "SHARED\nFigure 2: SC\n\n\n\nBODYTWO\nFigure 2: B2\n\f",
+  "stderr": "",
+  "stdout_sha256": "b0bc9e5d9de6f3be85694f0b64613a286cbd801e3f0eaaf887f5699811922713",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

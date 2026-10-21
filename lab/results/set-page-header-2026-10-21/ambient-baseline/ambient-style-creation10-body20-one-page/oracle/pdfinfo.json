@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "pdfinfo",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/ambient-baseline/ambient-style-creation10-body20-one-page/oracle/document.pdf"
+  ],
+  "utc_start": "2026-10-21T14:30:18.465267+00:00",
+  "utc_end": "2026-10-21T14:30:18.509165+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "Creator:         Typst 0.15.1\nCreationDate:    Wed Oct 21 11:30:18 2026 -03\nModDate:         Wed Oct 21 11:30:18 2026 -03\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       360 x 300 pts\nPage rot:        0\nFile size:       6468 bytes\nOptimized:       no\nPDF version:     1.7\n",
+  "stderr": "",
+  "stdout_sha256": "7c46b8c240e52c9500c96f772784cf272c3a53bcddcea84ff0cf1c84f6c432ef",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

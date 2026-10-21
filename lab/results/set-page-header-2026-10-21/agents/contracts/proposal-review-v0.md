@@ -1,0 +1,49 @@
+# Independent physical-running proposal review — v0
+
+The reviewed immutable draft is `proposal-reviewed-59712402201d.md`, SHA-256 `59712402201dfda4f75f0c276d637fb63bb8e37bef4946452d7db8779d64493b`. It is correctly marked unapproved and not approval-ready. The additive public types/facades and physical discovery→realization→index→replay channel require exact ADR-0127 §2.1/2.3 approval. Prior Figure/Ref approval is not authority for this extension.
+
+The draft preserves useful boundaries: old public entity/layout outcome shapes, Engine-free renderers, one program evaluation, shared occurrence arena, retained diagnostic transactions, five-attempt protocol, source-derived semantic stores and no global Frame/PDF introspection. Its later revision now explicitly captures reached SetPage templates without visiting their children; that addresses where capture can occur, but not yet complete lineage matching or rollback. The validated baseline15 requires physical raw repetition, overwritten-template silence and captured styles; equal physical page counts do not prove a complete index. The separate native PageRun position discrepancy must remain accounted.
+
+## Point3: exact rollback and publication boundaries
+
+`layout/checkpoint.rs` is an additional owning unit missing from the initial exact-owner table. FlowSuffixCheckpoint captures pages length, runtime, Locator seed, position-capture length, warnings/errors and deferred buffers. Its comment explicitly excludes the existing callback capabilities. A new interior-mutable request/event pass referenced by Layouter is therefore **not** automatically captured. `flow_suffix.rs:35–93` restores that checkpoint before region transition and replays the same source occurrences; any new event, consumed-resolution bit or request left outside the checkpoint creates a phantom accepted event.
+
+A viable private design must give the new pass one logical checkpoint/journal token covering event/request tails, seen-original/alias state, per-page placement, unresolved/consumption state and any mutated earlier entry. Append-only lengths suffice only for genuinely append-only state; consumed flags or previous-page edits need a reversible journal or exact snapshot. Restore before the existing replay/transition. Confirmed prefixes remain untouched. This is a design requirement, not authorization to add a public checkpoint API.
+
+`convergence.rs:103–187` creates fresh pass states for each five-round layout candidate and discards failed transcripts. The new pass must have that same attempt lifetime; neither an old consumed store nor a trace from an abandoned inner candidate may survive. Pending must remain Pending even if old request lists are empty. Distinguish provisional discovery stores from a complete validated global snapshot; SealedPositions immutability does not prove all running contributions were admitted.
+
+`sub_frame.rs:95–452` temporarily moves buffers and lays Content on the same Layouter. Not every call is a disposable measure, and not every call is a physical body insertion. `measurement.rs:230–247` uses a separate isolated Layouter; it must receive no publication channel. Actual Box/Place/Table cells and running subframes need their retained child contribution. A scoped fragment/journal or equivalent exact mechanism must distinguish retained versus discarded work without inspecting paint to infer language meaning.
+
+The concrete deferred paths matter. `place.rs:43–77` lays a float body into a subframe and stores FrameItems; `place.rs:176–236` later emits/translates those items without revisiting Content. `footnote_flush.rs:119–165` lays bodies for admission and may retain a remainder for another region. Recording page=`pages.len()+1` at initial child dispatch is not a proof of final page ownership. Preserve source event order while associating its accepted existing position-capture/sub-store with the final physical page. Do not sort by coordinates or scan frames to rebuild introspection.
+
+`columns/transitions.rs:23–154` closes notes, translates column buffers and merges them before page commit; `columns/{flow,segmented}.rs` and `region_progress.rs` own the related transitions. Main-flow suffix retries and deferred insertions must not publish the same semantic event twice. The final manifest must name each actually changed owner or provide a concrete unchanged-delegation proof for it; the list below is not blanket permission to edit all consumers.
+
+| Role | Current owners to classify explicitly |
+|---|---|
+| Pass state / generation | `layout/mod.rs`, `layout/convergence.rs`, new requests owner |
+| Suffix rollback / replay | `layout/checkpoint.rs`, `layout/flow_suffix.rs` |
+| Local composition / isolated measures | `layout/sub_frame.rs`, `layout/measurement.rs` and retained callers |
+| Deferred floats / footnotes | `layout/place.rs`, `layout/footnote_flush.rs`, plus queue declarations in mod |
+| Columns / physical transitions | `layout/columns.rs`, `layout/columns/{flow,segmented,transitions}.rs`, `layout/region_progress.rs`, `layout/cursor.rs` |
+| Actual running requests / terminal path | `layout/page_running.rs`, `layout/page_commit.rs`, `layout/finish.rs` |
+| Consumed original registration | `layout/realized.rs`, ordinary registration in mod |
+
+Each source has a distinct canonical L0, recorded by full SHA in the JSON. Shared new invariants, if chosen, need a pinned Nucleus; a broad execution instruction cannot own these bodies.
+
+## Point4: capture authority, capabilities and strict matching
+
+The proposed explicit reached-SetPage capture is appropriate as a *capture-only* boundary: use an existing immutable ShowRecipe, preserve raw child templates and do not allocate their semantic occurrences or run callbacks. Keep already captured recipes and intentional Located aliases. Existing `textual.rs:46–85` keeps persistent raw style chains/baselines; `recipes.rs:602–657` installs captured styles/rules/guards/file/context floor and restores the Engine on each Result. Do not replace that protocol with styles left by body layout or a collapsed delta. Capture at installation is not evidence that the template is eventually emitted.
+
+The draft must choose an exact authority for request replay. Physical `(page,slot)` addresses one candidate's insertion site, not a producer's semantic identity or captured environment. An override, changed contextual contribution or repagination can reuse the same address with different template/rules/style/source. A replacement must invalidate its retained descendants and execution as existing Session does, even when its physical key is unchanged. Bundle documents need separately scoped keys/ownership while sharing the compilation arena.
+
+Current strict observation is private to eval (`observation/mod.rs:27–58`). It compares all ShowRecipe fields (`content.rs:38–56`) and raw StyleChain deltas (`style.rs:10–29`). Generic Func Element/Plugin may be Unproven (`value.rs:1767–1801`), propagated through native namespaces. Existing math/par.line request matching uses Func equality and collapsed style equality; copying it does not satisfy full new-template provenance. A new private observation bridge must name its actual owning L0 and visibility delta. Alternatively, an explicitly audited immutable capture capability can prove that both requests refer to the same retained producer object; this is allocation/lineage proof only, never language identity or a result cache. Any necessary public/private field/type/constructor must appear exactly in the final declaration. Opaque input cannot become Same through a hash, Debug, name, coordinate, or convenient language equality.
+
+The request/resolution lifecycle must state when a frame is created, retained, invalidated and retired. Same physical key alone cannot reuse a frame after a changed producer. Use the shared arena's exclusive frame, stable retry slots and scoped raw Context instantiation, conserving intentionally existing Located aliases. Define how known prepared Locations/Context IDs inside a SetPage-opaque template are reserved without visiting it as emitted content; current `reserve_locations`/occurrence reservation does not enter that field. This reservation is separate from semantic membership and must not register dormant actions or callbacks.
+
+The resolution's operational root Location must stay non-queryable. Merely wrapping raw root Figure/Context in Located can force that root identity onto a language occurrence. Define separate root position registration or an exact already-prepared transport shape that proves children keep their own Locations. Preserve known-style/no-Location supplement callback behavior and modern counter guards. A missing host frame must have a specified fail-closed behavior, not silent fallback to another allocation domain.
+
+## Remaining gate blockers
+
+Point2 still needs its source-derived body-event/per-store construction algorithm, including parent relations, zero-paint updates, canonical originals and actual visual children. A marginal-only transcript or appending actions after existing histories is insufficient. Scope must account for measured static footer, all five layers, contextual running matter and the PageRun body-position discrepancy; two slots cannot certify a five-layer mechanism by assertion. The repeated-header Ref refusal differs substantively (duplicate versus absent labels), while direct Func and HTML ignored-page diagnostics retain their measured differences.
+
+This report proposes no productive implementation and grants no extra owner/API permission. After exact algorithms, scope and declarations are ready, bind the final proposal hash before the gate. Then L0-first independent RED→GREEN and source-bound full revalidation apply. `acceptance-v2.md` is the current gate list; its first attempt and every baseline receipt remain preserved.

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/overridden-unemitted-header-is-inert.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:47:56.491911+00:00",
+  "utc_end": "2026-10-21T13:47:57.128467+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":1,\"unique\":1,\"pages\":[1],\"states\":[[1]],\"final\":[1],\"header\":[],\"footer\":[],\"body\":[[1,[1]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/overridden-unemitted-header-is-inert.typ` instead\n\n",
+  "stdout_sha256": "9b76c233a66fc77dd33fd4210799641c0b35b1744ebabaa5c8be334d3774f3a2",
+  "stderr_sha256": "6960f1a96c6d59cfaabc31a384f9a32384871928c0819fa0323e81fc842b6d68"
+}

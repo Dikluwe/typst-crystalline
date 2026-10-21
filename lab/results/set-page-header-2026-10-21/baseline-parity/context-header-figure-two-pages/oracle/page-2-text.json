@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/context-header-figure-two-pages/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:54.022640+00:00",
+  "utc_end": "2026-10-21T13:47:54.034672+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "  HEADER\nFigure 3: HC\n\nBODYTWO\nFigure 4: B2\n\f",
+  "stderr": "",
+  "stdout_sha256": "855e2f336fbd5ef0546a0ff55233e6cb31fee121ed859b954a915ea85ee22052",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/context-footer-page-update-two-pages/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:53.213167+00:00",
+  "utc_end": "2026-10-21T13:47:53.225066+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "PAGETWO\n\f",
+  "stderr": "",
+  "stdout_sha256": "8016dc271f110bd80dd571d24e645d89e8fca2a58ab241885c17e3fc26eb3e5f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

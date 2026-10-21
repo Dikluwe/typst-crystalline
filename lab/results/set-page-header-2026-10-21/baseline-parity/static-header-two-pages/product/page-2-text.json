@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/static-header-two-pages/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:48.180597+00:00",
+  "utc_end": "2026-10-21T13:47:48.192366+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "HEADER\nFigure 2: HC\n\n\n\nBODYTWO\nFigure 2: B2\n\f",
+  "stderr": "",
+  "stdout_sha256": "3a69d0d7e0c23e226301c70929a459ec45fdf2a2171eaa60a6dc6851e4a18642",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

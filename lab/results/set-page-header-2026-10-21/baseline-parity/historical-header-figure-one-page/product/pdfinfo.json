@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "pdfinfo",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/historical-header-figure-one-page/product/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:47:45.388484+00:00",
+  "utc_end": "2026-10-21T13:47:45.400971+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "Creator:         typst-crystalline\nCreationDate:    Wed Oct 21 10:47:45 2026 -03\nModDate:         Wed Oct 21 10:47:45 2026 -03\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       200 x 200 pts\nPage rot:        0\nFile size:       6438 bytes\nOptimized:       no\nPDF version:     1.7\n",
+  "stderr": "",
+  "stdout_sha256": "7142c4ede0e74c04e35bf66004fd13726fd1e7363bc9eb6a0f6b694cb41059c0",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

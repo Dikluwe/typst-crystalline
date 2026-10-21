@@ -1,0 +1,37 @@
+# Independent SetPage header contract audit
+
+This is a read-only source/contract audit at clean HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`. `audit-baseline.json` binds UTC, exact status/diffstat, full source/L0 SHA-256 for the selected ownership graph, canonical headers, declared effective Nucleus pins and raw file hashes. It records engineering observations, not a new runtime parity measurement. The parent's fresh baseline/oracle receipts must supply the language RED. F/G sources, controls and receipts remain immutable.
+
+## Observed operational distinction
+
+`compiler/eval/rules/set/page.rs:287–303,569` stores the evaluated header Content in an immutable progressive SetPageDelta. `stdlib/layout/page.rs:341–385` instead returns a lexical PageRun containing both configuration and a body. These are not interchangeable carriers.
+
+The existing static visitor and both generic entity maps explicitly treat SetPage as terminal (`entities/content/traversal.rs:319,1273,1635`). This is an intentional current traversal boundary even though SetPageDelta has Content-bearing fields. It is not proof that its header is semantically empty. Figure `needs_preparation` uses that borrowed static visitor; the eval gate at `eval/mod.rs:917–939` consequently cannot discover a Figure solely inside that field. Running the realization facade for some other body recipe does not make the generic mapper enter a SetPage header.
+
+PageRun has explicit static marginal traversal/reconstruction (`traversal.rs:55,798`). Its reached Figures therefore enter the existing recipe/preview/final-preparation boundary under the causal Engine. Canonical introspection and Figure demand explicitly order its actual static layers as background, header, body, footer, foreground (`introspect/walk.rs:1047`; `figure_demands.rs:73`). They do not visit PageRun supplement as emitted running content. The generic map's field visitation order is not itself the temporal counter-order contract.
+
+SetPage layout installs raw header Content into PageConfig (`layout/set_page.rs:67`). Changed configuration closes a preceding material page before installing the new configuration; it does not wrap the following source in a lexical PageRun. PageRun closes an initial material page, applies local configuration, lays its body, commits its terminal boundary and restores the previous configuration (`layout/page_run.rs:14–99`). Replacing progressive deltas with PageRun would therefore need proof of boundaries/restoration rather than an assumption of equivalence.
+
+`layout/page_commit.rs:43` obtains explicit running layers after main-flow items exist. `layout/page_running.rs:78–106` lays the configured Content in an isolated finite subframe. Its owning L0 admits no callback execution. Layout ShowRecipe transport only delegates to its body (`layout/mod.rs:1282`); it does not install the captured rules/styles as a realization Engine. Thus rendering a still-raw source header is not equivalent to realizing it.
+
+The prepared Figure renderer requires its exact typed key and Location history. Its unprepared ordinal fallback is explicitly synthetic compatibility (`layout/figure.rs:33–78` and owning L0), so a source SetPage header reaching that fallback cannot certify the productive Figure contract merely because its visible caption looks plausible. Preparation, canonical action/query registration, demand collection and layout must describe the same actual header contribution.
+
+## Invariants that constrain a repair
+
+The page-running Nucleus has exactly its two owning consumers: domain `entities/page_running` and renderer `layout/page_running`. Preserve omitted delta versus Auto versus None versus explicit Content, including Empty. Explicit Content suppresses automatic page numbering in that marginal. Header ascent remains relative to the physical top margin. Repeated running matter is decorative and must not duplicate accessible body semantics. That last claim does not decide whether separate physical header insertions have one or several language-query occurrences; measure rather than infer that identity policy.
+
+Occurrence identity and causal order remain distinct. Existing prepared aliases conserve Location; fresh raw insertions do not collapse by equality, Arc, text, span or hash. Query/counter order follows the recorded first-occurrence order, not raw Location sorting. A new header insertion must preserve original Figure/label snapshots, actual products and hidden-parent pruning. No original raw descendant may become a phantom occurrence.
+
+Recipes preserve captured ShowRecipe rules, styles, guards, file, nearest Source and active-frame restoration. A header created under one lexical environment cannot silently receive whichever body style was left at page commit. Retain explicit kind/supplement and show-set precedence. A supplement callback gets known effective styles and no fabricated Location; ordinary modern get/final guards, real contextual Locations, actual read replay and exact diagnostics remain binding.
+
+Context discovery/order/substitution must agree with the emitted header topology. If new contexts are admitted, reuse the ratified shared occurrence arena, retained producer frames, stable retry slots, five-attempt protocol and retained-transaction warning ownership. Do not add a second fold/session/cache or fake a filtered-counter read. L3 cannot implement L1 kind inference/selector matching/counter business logic. No callback may be moved into the Engine-free walk or renderer.
+
+A SetPage template can be overridden before its first material page, inherited across pages, cleared or restored through nested lexical PageRuns. Eagerly preparing every delta is therefore not established as actual-output admission. Repetition, alias identity, source errors, warnings, query membership and counter order require direct oracle controls. The current static PageRun single-scope behavior is a preservation control, not a universal solution for physical repetition.
+
+## ADR-0127 classification boundary
+
+A measured parity correction that adds only an owner-local child decision within the already existing pure realization/preparation phase, preserves public contracts and proves actual emission can follow continuous flow after L0-first and real RED→GREEN. The current exclusion of SetPage fields must first be amended at each actual owning boundary; it is not implicit extension permission.
+
+A new physical-page trace exposed across L1/L3, public field/trait/function, or new post-pagination header realization/admission pass requires exact public API and/or phase classification under ADR-0127 §2.1/2.3 before implementation. Calling an existing helper later does not by itself make its new phase continuous. A new hook/default mode, changed scope/boundary semantics or a compatibility promise also needs its corresponding classification. Current Figure/demand L0s expressly exclude static SetPage admission and full page-running timing, so the earlier Figure/Ref approvals do not authorize an unspecified new channel.
+
+No concrete implementation proposal is approved by this audit. The next decision must bind the exact owner list, fields/signatures, phase graph, emitted-versus-dormant admission, retry/error ownership and limitations. `acceptance.md` lists causal gates without inventing oracle outcomes or changing actual tests before their owning L0 exists and is current.

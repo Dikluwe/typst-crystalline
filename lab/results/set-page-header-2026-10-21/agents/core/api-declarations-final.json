@@ -1,0 +1,48 @@
+{
+  "status": "public-declarations-frozen-reviewable-for-approval",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "proposal_sha256": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2",
+  "new_public_modules": [
+    "compiler::introspect::page_running",
+    "compiler::realize::page_running"
+  ],
+  "new_layout_reexported_types": [
+    "PageRunningSlot",
+    "PageRunningKey",
+    "PageRunningBody",
+    "PageRunningRequest",
+    "PageRunningResolution",
+    "PageRunningTrace",
+    "PageRunningRequests",
+    "PageRunningDocument",
+    "PageRunningPassOutcome",
+    "SealedPageRunning",
+    "PageRunningLayoutInputs"
+  ],
+  "new_introspect_types": [
+    "PageRunningIndexInput"
+  ],
+  "new_free_functions": [
+    "compiler::layout::layout_with_page_running",
+    "compiler::introspect::page_running::prepare_page_running_body",
+    "compiler::introspect::page_running::introspect_with_page_running",
+    "compiler::realize::page_running::realize_page_running",
+    "compiler::realize::page_running::bind_page_running_content"
+  ],
+  "public_rust_declarations": [
+    "#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]\npub enum PageRunningSlot { Background, Header, Footer, Foreground }\n\n#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]\npub struct PageRunningKey {\n    pub page: NonZeroUsize,\n    pub slot: PageRunningSlot,\n}\n\n#[derive(Debug, Clone)]\npub struct PageRunningBody { /* private owned Content, typed plan and authority */ }\nimpl PageRunningBody {\n    pub fn content(&self) -> &Content;\n}\n\n#[derive(Debug, Clone)]\npub struct PageRunningRequest { /* private authority, key, capture and geometry */ }\nimpl PageRunningRequest {\n    pub fn key(&self) -> PageRunningKey;\n    pub fn span(&self) -> Span;\n}\n\n#[derive(Debug, Clone)]\npub struct PageRunningResolution { /* private request authority, Content and plan */ }\nimpl PageRunningResolution {\n    pub fn key(&self) -> PageRunningKey;\n    pub fn content(&self) -> &Content;\n}\n\n#[derive(Debug, Clone)]\npub struct PageRunningTrace { /* private typed packet admission and sealed geometry */ }\n\npub struct PageRunningRequests {\n    pub callbacks: LayoutCallbackRequests,\n    pub running: Vec<PageRunningRequest>,\n    pub trace: PageRunningTrace,\n}\n\npub struct PageRunningDocument {\n    pub document: PagedDocument,\n    pub trace: PageRunningTrace,\n}\n\npub struct PageRunningPassOutcome { /* private closed Pending/Complete state */ }\nimpl PageRunningPassOutcome {\n    pub fn into_result(self)\n        -> Result<PageRunningDocument, PageRunningRequests>;\n}\n\n#[derive(Debug, Clone)]\npub struct SealedPageRunning { /* private immutable resolutions */ }\nimpl SealedPageRunning {\n    pub fn new(resolutions: Vec<PageRunningResolution>) -> SourceResult<Self>;\n    pub fn resolutions(&self) -> &[PageRunningResolution];\n}\n\npub struct PageRunningLayoutInputs<'a> {\n    pub math: Option<&'a SealedMathCallbacks>,\n    pub par_line: Option<&'a SealedParLineCallbacks>,\n    pub running: Option<&'a SealedPageRunning>,\n}\n",
+    "pub fn layout_with_page_running<M: FontMetrics + Clone, S: ImageSizer + Clone>(\n    body: &PageRunningBody,\n    introspector: TagIntrospector,\n    metrics: M,\n    sizer: S,\n    font_size: f64,\n    inputs: PageRunningLayoutInputs<'_>,\n) -> PageRunningPassOutcome;\n",
+    "pub struct PageRunningIndexInput<'a> {\n    pub body: &'a PageRunningBody,\n    pub target: EvalTarget,\n    pub running: Option<(&'a PageRunningTrace, &'a SealedPageRunning)>,\n}\n\npub fn prepare_page_running_body(\n    content: &Content,\n    ctx: &mut EvalContext,\n) -> SourceResult<PageRunningBody>;\n\npub fn introspect_with_page_running(\n    documents: &[PageRunningIndexInput<'_>],\n    features: Features,\n    ctx: &mut EvalContext,\n    engine: &mut Engine<'_>,\n) -> SourceResult<(TagIntrospector, Vec<LocatorSeed>)>;\n",
+    "pub fn realize_page_running(\n    request: &PageRunningRequest,\n    ctx: &mut EvalContext,\n    engine: &mut Engine<'_>,\n) -> SourceResult<PageRunningResolution>;\n\npub fn bind_page_running_content(\n    resolution: &PageRunningResolution,\n    expanded: Content,\n    ctx: &mut EvalContext,\n) -> SourceResult<PageRunningResolution>;\n"
+  ],
+  "existing_public_signature_field_variant_removals": [],
+  "content_variants_added": [],
+  "new_mode_flags": [],
+  "gate_classification": [
+    "ADR-0127 public-contract addition",
+    "ADR-0127 new Paged physical-discovery/realization/source-construction phase"
+  ],
+  "manifest_completion": "Fixed finite 56-direct and named bypass/dependency domains; actual changed owners narrowed after owner-first audits. No unknown public additions authorized.",
+  "manifest": "candidate-owner-domains.json",
+  "manifest_sha256": "a32eca2a829a350b1826bdd48a822b0383e70ac863fab4dee2fec5f6be9a6306"
+}

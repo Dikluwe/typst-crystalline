@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/ambient-baseline/ambient-style-inherited-two-pages-body20-then30/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T14:30:21.719504+00:00",
+  "utc_end": "2026-10-21T14:30:21.730884+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "BODYONE 20pt\n\f",
+  "stderr": "",
+  "stdout_sha256": "208024fb0edcc2f6dff4397e5df0de4905a4ec20111ee24bb99db719f5f884eb",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

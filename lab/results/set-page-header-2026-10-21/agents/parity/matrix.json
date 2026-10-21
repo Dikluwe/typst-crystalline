@@ -1,0 +1,240 @@
+{
+  "utc": "2026-10-21T13:42:16.220616+00:00",
+  "status": "Sources and language observation properties frozen before baseline/candidate; no scalar result invented or measured here",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "historical_control": {
+    "receipt": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target-controls-oracle/receipt.json",
+    "source_sha256": "9f93fc8d20015c656d366b0be1584089f0a0d2be483b79b12ea49bb6d66233b6",
+    "observed_text": "H Figure 1: HC B Figure 2: BC (2,)"
+  },
+  "cases": [
+    {
+      "name": "historical-header-figure-one-page",
+      "source": "#set page(width:200pt,height:200pt,margin:30pt,header:figure([H],caption:[HC]))\n#figure([B],caption:[BC])\n#context repr(counter(figure).final())\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/historical-header-figure-one-page.typ",
+      "source_sha256": "9f93fc8d20015c656d366b0be1584089f0a0d2be483b79b12ea49bb6d66233b6",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [],
+      "language_properties_to_measure": [
+        "Reproduce the immutable current-pin header Figure1/body Figure2/final(2,) observation without changing its source."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "all-layers-causal-order-one-page",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,background:[#figure([BACKGROUND],caption:[BGC]) <background>],header:[#figure([HEADER],caption:[HC]) <header>],footer:[#figure([FOOTER],caption:[FC]) <footer>],foreground:[#figure([FOREGROUND],caption:[FGC]) <foreground>])\n#figure([BODY],caption:[BC]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/all-layers-causal-order-one-page.typ",
+      "source_sha256": "56631c575397a0a55a9ae31322ef59fc2593b816109781c900faf5c45c6fc6f7",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Distinguish semantic introspection order from layout invocation order. Measure each labelled layer counter state and location page.",
+        "Source explicitly supports background/header before body and footer/foreground after body; measure complete scalar/query relations."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "static-header-two-pages",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])\n#figure([BODYONE],caption:[B1]) <body>\n#pagebreak()\n#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/static-header-two-pages.typ",
+      "source_sha256": "7cf1193e635d2f9b41bc4820c1e154dd87aa4fdea83d3a4c4b8c4480deb7a9aa",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Measure whether physically repeated raw header content creates distinct queryable occurrences/actions and captions on two pages; do not assume once-per-template identity."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "static-footer-two-pages",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,footer:[#figure([FOOTER],caption:[FC]) <footer>])\n#figure([BODYONE],caption:[B1]) <body>\n#pagebreak()\n#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/static-footer-two-pages.typ",
+      "source_sha256": "3b312de9478a2737b1e1a85bb3dcbc55f9a901d7103bb15f77cc5d90a3e1be22",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Symmetric footer repetition and its position after the body on each physical page."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "context-header-here-three-pages",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:context [HEADER #counter(page).display(\"1\") #metadata((page:here().page(),current:counter(page).get(),final:counter(page).final())) <running>])\nPAGEONE\n#pagebreak()\nPAGETWO\n#pagebreak()\nPAGETHREE\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/context-header-here-three-pages.typ",
+      "source_sha256": "fbea29932f28fc699beef576a36be0548d6c59fa81b77f03ebc2cf0158c337f6",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<running>"
+      ],
+      "language_properties_to_measure": [
+        "A contextual header has actual location and known styles per emitted physical page. Measure here().page/current/final and repeated metadata visibility."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "context-footer-page-update-two-pages",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,footer:context [FOOTER #counter(page).display(\"1\") #metadata((page:here().page(),current:counter(page).get(),final:counter(page).final())) <running>])\nPAGEONE\n#counter(page).update(7)\n#pagebreak()\nPAGETWO\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/context-footer-page-update-two-pages.typ",
+      "source_sha256": "64dbfefe9acc7f7222cfeb6cc8cbdebae0cc16c42652b36f661472a0a023d718",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<running>"
+      ],
+      "language_properties_to_measure": [
+        "Page counter current/final follows actual update location and physical advance; do not substitute page count for final state."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "context-header-figure-two-pages",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:context [#figure([HEADER],caption:[HC]) <header>])\n#figure([BODYONE],caption:[B1]) <body>\n#pagebreak()\n#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/context-header-figure-two-pages.typ",
+      "source_sha256": "4d690007cfe4d026965701e6c0455e3ab85520d9e069804cb9e9033ff057f82e",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Header Context may produce Figure content; measure preparation, occurrence count, stable page positions, counter histories and caption text."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "overridden-unemitted-header-is-inert",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([UNUSED],caption:[UNUSED],supplement:it=>panic(\"UNEMITTED_HEADER\")) <header>])\n#set page(header:none)\n#figure([BODY],caption:[BC]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/overridden-unemitted-header-is-inert.typ",
+      "source_sha256": "d5b59d353f917850630b1714dcee8026645525a0f683c33a04e98aa67c03fe29",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "A header overwritten before the first physical page must not gain emitted actions/query membership or run its preparation callback; ordinary argument validation still occurs."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "header-override-at-page-boundary",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADERONE],caption:[H1]) <header>])\n#figure([BODYONE],caption:[B1]) <body>\n#pagebreak()\n#set page(header:[#figure([HEADERTWO],caption:[H2]) <header>],footer:none)\n#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/header-override-at-page-boundary.typ",
+      "source_sha256": "d6894d753a990c0a6ecb25fc0f321e49829586ac51ed159ca2e46b48e3559976",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Only the active header is emitted on each page; replacement does not leak prior content/actions or add an extra boundary page."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "lexical-page-runs-contrast",
+      "source": "#page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>],footer:[#figure([FOOTER],caption:[FC]) <footer>])[#figure([BODYONE],caption:[B1]) <body>]\n#page(width:220pt,height:240pt,margin:60pt,header:none,footer:none)[#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/lexical-page-runs-contrast.typ",
+      "source_sha256": "2650b5332490460e195f3ab70556dfbba4ff14471adf17559adc4196861c9393",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Contrast ratified PageRun lexical/LIFO semantics with SetPage progression; inherited/omitted/none marginals must not collapse to a global configuration."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "reference-to-repeated-header",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])\n#figure([BODYONE],caption:[B1]) <body>\nSee @header.\n#pagebreak()\n#figure([BODYTWO],caption:[B2]) <body>\nSee @header.\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ",
+      "source_sha256": "1555b63102853e93781b11791d77cb3b64796b231e3f022b46d8786ff66b6508",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Measure label target choice and reference number/page for repeated header labels, rather than guessing whether all references follow latest physical repetition."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "shared-raw-header-body-template",
+      "source": "#let shared = [#figure([SHARED],caption:[SC]) <header>]\n#set page(width:220pt,height:240pt,margin:60pt,header:shared)\n#shared\n#pagebreak()\n#figure([BODYTWO],caption:[B2]) <body>\n#context [#metadata((\n  count: query(figure).len(),\n  unique: query(figure).map(it => it.location()).dedup().len(),\n  pages: query(figure).map(it => it.location().page()),\n  states: query(figure).map(it => counter(figure).at(it.location())),\n  final: counter(figure).final(),\n  header: query(<header>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  footer: query(<footer>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n  body: query(<body>).map(it => (it.location().page(),counter(figure).at(it.location()))),\n)) <probe>]\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/shared-raw-header-body-template.typ",
+      "source_sha256": "93db6b0b48dc377030ae6f981892685ca1ec1bf532ece2b6fac0459d57cd1c6b",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<probe>"
+      ],
+      "language_properties_to_measure": [
+        "Reuse of a raw Content value must not be equated with an already Located alias; measure distinct sites and repeated header identities without global hash/equality dedup."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "captured-header-footer-styles",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:[#set text(size:18pt,weight:\"bold\")\n#context [HEADER #metadata((page:here().page(),is18:text.size==18pt)) <header-style>]],footer:[#set text(size:12pt)\n#context [FOOTER #metadata((page:here().page(),is12:text.size==12pt)) <footer-style>]])\n#set text(9pt)\nBODY\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/captured-header-footer-styles.typ",
+      "source_sha256": "c64d28d1b55da52a36c039e06753a05d163eae162ce62d15ac7dbbd8b4a2d678",
+      "target": "pdf",
+      "classification": "accepted-source-to-measure",
+      "queries": [
+        "<header-style>",
+        "<footer-style>"
+      ],
+      "language_properties_to_measure": [
+        "Marginal contexts preserve their effective captured style independently of later body style and position; record per-page rendered words/bounds."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "direct-function-header-rejected",
+      "source": "#set page(width:220pt,height:240pt,margin:60pt,header:n=>[HEADER])\nBODY\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/direct-function-header-rejected.typ",
+      "source_sha256": "21b6f471c7caccfe016ae94cd8886355085ac9d2d233b31c737f0cf373fd99e5",
+      "target": "pdf",
+      "classification": "refusal-source-to-measure",
+      "queries": [],
+      "language_properties_to_measure": [
+        "Direct Func header is not admitted by the public Smart<Option<Content>> surface; measure exact rejection rather than introducing a Func marginal mode."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    },
+    {
+      "name": "html-header-context-not-admitted",
+      "source": "#set page(header:context panic(\"HTML_HEADER_MUST_NOT_RUN\"))\nBODY\n",
+      "source_file": "lab/results/set-page-header-2026-10-21/agents/parity/sources/html-header-context-not-admitted.typ",
+      "source_sha256": "49ad9966040a9772fb45ef8a5d3e83b460fe24d14f51164c1ae168fe76f1eecd",
+      "target": "html",
+      "classification": "accepted-source-to-measure",
+      "queries": [],
+      "language_properties_to_measure": [
+        "HTML semantic target has no implicit physical page marginals; a paged repair must not eagerly execute its header Context."
+      ],
+      "acceptance_property_frozen_before_candidate": "Use exact oracle source semantics: success/error class, complete query JSON, physical page count, ordered per-page word content and exact diagnostics for refusal cases; retain all raw stdout/stderr/text/positions. No invocation counts, Location numeric encoding, output byte equivalence or algorithm-order parity."
+    }
+  ],
+  "limits": [
+    "No source is automatically a success merely because it is in accepted-source-to-measure: oracle compilation establishes validity; syntax/harness errors must be separated before candidate acceptance.",
+    "The batch does not authorize new public contracts, phases, direct Func marginal support or blanket SetPage metadata traversal.",
+    "PDF text/word extraction are observer outputs retained raw; semantic query/counter/location evidence decides causal order, not the order that internal functions happened to execute."
+  ]
+}

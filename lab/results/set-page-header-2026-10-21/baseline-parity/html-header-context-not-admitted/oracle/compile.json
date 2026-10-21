@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/html-header-context-not-admitted.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/html-header-context-not-admitted/oracle/document.html",
+    "--features",
+    "html",
+    "--format",
+    "html"
+  ],
+  "utc_start": "2026-10-21T13:48:06.311870+00:00",
+  "utc_end": "2026-10-21T13:48:06.320364+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\nwarning: page set rule was ignored during HTML export\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/agents/parity/sources/html-header-context-not-admitted.typ:1:1\n  \u2502\n1 \u2502 #set page(header:context panic(\"HTML_HEADER_MUST_NOT_RUN\"))\n  \u2502  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e4b20e0f40885d4b89fff9bba41cd69261dd7678db19d28737a00b78ef34bb38"
+}

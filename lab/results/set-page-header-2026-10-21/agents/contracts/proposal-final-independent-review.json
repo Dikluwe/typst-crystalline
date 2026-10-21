@@ -1,0 +1,117 @@
+{
+  "utc": "2026-10-21T14:39:11.544184+00:00",
+  "mode": "Independent exact frozen API/phase/compatibility review; lab report only, no active edits/products/Cargo/seals",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "tracked_diff_head_stat": "",
+  "conclusion": "Reviewable for the human exact API/phase decision. No concrete public-contract, phase/provenance or compatibility inconsistency found. Not approved or implemented by this review.",
+  "blocking_public_contract_findings": [],
+  "reviewed_proposal_sha256": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2",
+  "reviewed_api_sha256": "4baaab61b3c3b247593433d18ab78d22ba5e2c275acab6e747c43dc0ef559196",
+  "reviewed_owner_domains_sha256": "a32eca2a829a350b1826bdd48a822b0383e70ac863fab4dee2fec5f6be9a6306",
+  "evidence_sha256": {
+    "agents/core/proposal.md": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2",
+    "agents/core/api-declarations-final.json": "4baaab61b3c3b247593433d18ab78d22ba5e2c275acab6e747c43dc0ef559196",
+    "agents/core/api-declarations-draft-v5.json": "b6cd8d8e00dc1432561a9e245f7b5c7aa06b6ce477224d39b0c5e2341cb44f4a",
+    "agents/core/candidate-owner-domains.json": "a32eca2a829a350b1826bdd48a822b0383e70ac863fab4dee2fec5f6be9a6306",
+    "agents/core/candidate-owner-domain-sources.json.gz": "1eb425e4ea43683e8f3b2ebfaf35238c2dab5f3ba09bb9fe49e800aa447689a0",
+    "agents/core/proposal-status.json": "f576bbb569bce326a0f89d2ed4aaa1f96e775cf0c6187192a77d397975a395cb",
+    "baseline-parity/receipt.json": "38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf",
+    "ambient-baseline/receipt.json": "6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05",
+    "agents/contracts/verified-baseline-observations-1.json": "3c96253f047b0890c1d7a945d61ce1c41862bc13e492fb15652ef989d7beff3e",
+    "agents/contracts/verified-ambient-observations-1.json": "cd65d39876ec982657b28364d8341b05dfe2942e22b7d27b1ad063ac16826cdf",
+    "agents/contracts/acceptance.md": "f7e38390318e15a304b4775894b5cdb59d998ea9434b62da8800341a35c240a9",
+    "agents/contracts/acceptance-v2.md": "cf6ee11ea7a6c122c7a3b176dc6ee5a363695819458198446adb672cb077e253",
+    "agents/contracts/proposal-review-v0.json": "da6d50e5d5c2028dd07b4569647eee56d2a5a5102c2cd354a4f6c8f1ec4f2d27",
+    "agents/contracts/verify_observations.py": "9e25548f118d6c22088390c622f9d591f38bd5b1dd9ca0a1b7f8d9a02905169a",
+    "agents/contracts/verify_ambient_observations.py": "587672287d01d3ce9ad12a8dfe58ccfac3a150dd4af1e414fac9cefe707942f4"
+  },
+  "public_consistency": {
+    "four_codeblocks_match_machine_declarations": true,
+    "public_declarations_unchanged_from_v5": true,
+    "new_free_functions": [
+      "compiler::layout::layout_with_page_running",
+      "compiler::introspect::page_running::prepare_page_running_body",
+      "compiler::introspect::page_running::introspect_with_page_running",
+      "compiler::realize::page_running::realize_page_running",
+      "compiler::realize::page_running::bind_page_running_content"
+    ],
+    "private_authority_and_mutation_boundary": "Opaque Body/Request/Resolution/Trace, closed Pending/Complete, no public request constructor/setter/default completion.",
+    "four_physical_slots": "Background/Header/Footer/Foreground, physical key is not semantic identity.",
+    "explicit_crossings": "ctx-bound factory/realization/Session rebind and one target-aware ordered document slice plus Features retain one arena and Bundle-global construction/starts.",
+    "no_extra_public_interface_required_by_stated_contract": true
+  },
+  "gate_classification": [
+    "ADR0127 section2.1 additive public contracts",
+    "ADR0127 section2.3 new Paged physical-discovery/realization/source-construction/replay phase"
+  ],
+  "preserved_boundaries": [
+    "One source evaluation; no language callbacks in layout/walk.",
+    "Source-derived incremental populate/helpers before dependent folds, no global Frame/PDF introspector.",
+    "Pending never publishes an incomplete successful document.",
+    "Existing shared arena, aliases/raw law, five-attempt budget and retained diagnostic ownership.",
+    "HTML separate target with no physical protocol, Bundle-global ordered slice.",
+    "Old public fields/signatures/variants and legacy unplanned wrappers retained; no new CLI mode."
+  ],
+  "manifest_review": {
+    "existing_canonical_pairs_verified": 140,
+    "new_fixed_pairs_not_materialized": 3,
+    "archived_current_texts_verified": 280,
+    "finite_direct_inventory_qualified": "56 direct owners/118 sites plus named bypass/dependency domains, not permission to edit all or repo-wide exhaustiveness.",
+    "actual_changed_subset_requires_owning_L0_first": true,
+    "unlisted_owner_requires_separate_review": true,
+    "effective_nucleus_pins_not_inferred_from_raw_SHA": true
+  },
+  "prior_risk_disposition": {
+    "rollback": "Checkpoint/journal, planned cursors, consumption/tentative pages and deferred segments are explicit future L0/RED proof gates.",
+    "provenance": "Private source/capture plus page-effective environment authorities replace mutable requests/generic observation expansion; changed plan/environment invalidates old resolution at same key/geometry.",
+    "reservation": "Reserve-only dormant aliases/ContextIDs is explicit and does not admit effects.",
+    "root_identity": "Operational Located/queryable root removed; actual descendants keep Locations.",
+    "source_construction": "Private root/child/post-child packet plan covers derived/no-Location operations, source-parent relations and existing incremental dependencies.",
+    "capture": "Creation rules/source/guards/context floor are distinct from page-wide effective styles; preserve local18/12 recipes and prepared aliases."
+  },
+  "ambient_binding": {
+    "oracle_first_header": [
+      {
+        "page": 1,
+        "size": "20pt",
+        "is10": false,
+        "is20": true,
+        "is30": false
+      }
+    ],
+    "oracle_inherited_two_headers": [
+      {
+        "page": 1,
+        "size": "20pt",
+        "is10": false,
+        "is20": true,
+        "is30": false
+      },
+      {
+        "page": 2,
+        "size": "30pt",
+        "is10": false,
+        "is20": false,
+        "is30": true
+      }
+    ],
+    "typed_JSON_and_successful_raw_observers_verified": true,
+    "creation10_is_not_effective20_30": true,
+    "product_absent_header_and_stale_body_page_retained_as_RED": true
+  },
+  "remaining_implementation_gates": [
+    "L0-first per changed/new owner and pinned Nucleus, genuine independent RED/GREEN, no productive implementation before decision.",
+    "Typed source-edge/original/visual admission including optimized/deferred paths, exact rollback, final geometry and Session rebind proofs.",
+    "Measure deferred Footnote/float action order before universal timing claims: root source order differs from eventual paint placement; baseline15 does not settle all deferred cases.",
+    "Page-effective versus local/captured styles, modern no-fake-Location guards, exact warning/error sources and transaction ownership.",
+    "Explicit duplicate-label Ref correction in current owners, public LabelRegistry first-lookup compatibility/bibliography precedence preserved.",
+    "No unknown public API/default/phase/compat additions; exact revised proposal required if necessary.",
+    "All F/G controls, twelve full gates, strict Clippy/Rustdoc/fmt, complete diagnostic multiset and final source/binary language replay."
+  ],
+  "retained_limits": [
+    "Direct Func diagnostic order and HTML ignored-page warning gaps remain visible without waiver.",
+    "Native PageRun stale second-page body Location is measured and must be accounted, not certified from words/counters.",
+    "No complete running-matter/geometry/accessibility/language parity claim.",
+    "Private formulas and completion proofs are future implementation gates, not asserted implemented or demanded before exact API/phase approval."
+  ]
+}

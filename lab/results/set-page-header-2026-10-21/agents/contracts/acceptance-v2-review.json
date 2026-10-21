@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-21T13:46:04.172532+00:00",
+  "mode": "Read-only matrix/source-to-gate alignment; no active tests/L0/source edits or runtime invocation",
+  "prior_acceptance_sha256": "f7e38390318e15a304b4775894b5cdb59d998ea9434b62da8800341a35c240a9",
+  "acceptance_v2_sha256": "cf6ee11ea7a6c122c7a3b176dc6ee5a363695819458198446adb672cb077e253",
+  "matrix_sha256": "e782c96866a1ee3805133067bac5dbea93081f4bb487ecad7d3f2ecac1c84082",
+  "all_frozen_sources_verified": true,
+  "case_names": [
+    "historical-header-figure-one-page",
+    "all-layers-causal-order-one-page",
+    "static-header-two-pages",
+    "static-footer-two-pages",
+    "context-header-here-three-pages",
+    "context-footer-page-update-two-pages",
+    "context-header-figure-two-pages",
+    "overridden-unemitted-header-is-inert",
+    "header-override-at-page-boundary",
+    "lexical-page-runs-contrast",
+    "reference-to-repeated-header",
+    "shared-raw-header-body-template",
+    "captured-header-footer-styles",
+    "direct-function-header-rejected",
+    "html-header-context-not-admitted"
+  ],
+  "scope_qualification": "Static-footer and all-five-layer source outcomes must be individually accounted; concrete public API/phase scope remains undecided. No scalar oracle result inferred from accepted-source-to-measure labels."
+}

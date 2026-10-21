@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-21T14:27:53.411856+00:00",
+  "action": "Prepare only; runner/source syntax read, no product or oracle command executed by this agent.",
+  "parent_worker": "lab/results/set-page-header-2026-10-21/agents/parity/run_matrix.py",
+  "parent_worker_sha256": "36e3ecd7f75f2d9f23d42010ee71232b4824f8f0e7e9190c141a78b7515c58af",
+  "worker": "lab/results/set-page-header-2026-10-21/agents/core/run_ambient_matrix.py",
+  "worker_sha256": "9c373d4b6f99dffb446273cd961aa3686f0de28f16bc294b61b4785ce1446b9c",
+  "only_worker_change": "matrix_path default now HERE / 'ambient-matrix.json'; original worker unchanged",
+  "matrix": "lab/results/set-page-header-2026-10-21/agents/core/ambient-matrix.json",
+  "matrix_sha256": "96268383a9fdf2335285459c2e1c2dd0a27732ff99e84d1d4f59e67aaf517f7b",
+  "source_hashes": {
+    "lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-creation10-body20-one-page.typ": "7bb0be5455e973f94ea2b9b8b99dbb69f5abbe8bf0a82580536d26e56a912ccd",
+    "lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-inherited-two-pages-body20-then30.typ": "107748a67e62124ec7ca85c6402c0db4c449cc70331bdbfe000c1195c5477238"
+  },
+  "command": [
+    "python3",
+    "lab/results/set-page-header-2026-10-21/agents/core/run_ambient_matrix.py",
+    "--build-receipt",
+    "lab/results/set-page-header-2026-10-21/baseline-build/receipt.json",
+    "--product",
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "--output",
+    "lab/results/set-page-header-2026-10-21/ambient-baseline"
+  ]
+}

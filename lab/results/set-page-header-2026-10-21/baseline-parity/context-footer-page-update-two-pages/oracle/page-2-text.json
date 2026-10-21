@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/context-footer-page-update-two-pages/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:52.387708+00:00",
+  "utc_end": "2026-10-21T13:47:52.399639+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "PAGETWO\n\n\n\n\nFOOTER 8\n\f",
+  "stderr": "",
+  "stdout_sha256": "bad84625332370899220da72dd15a2cb55231b3507ad901b7b59e6be13461beb",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

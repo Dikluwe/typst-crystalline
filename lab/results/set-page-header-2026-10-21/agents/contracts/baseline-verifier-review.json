@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-21T13:55:00.222808+00:00",
+  "mode": "Authorized pure downstream verifier/selfcheck execution and raw evidence review; no Cargo/products/active edits",
+  "source_head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "measurement_utc": [
+    "2026-10-21T13:47:44.260324+00:00",
+    "2026-10-21T13:48:06.344316+00:00"
+  ],
+  "inputs_sha256": {
+    "agents/parity/run_matrix.py": "36e3ecd7f75f2d9f23d42010ee71232b4824f8f0e7e9190c141a78b7515c58af",
+    "agents/parity/matrix.json": "e782c96866a1ee3805133067bac5dbea93081f4bb487ecad7d3f2ecac1c84082",
+    "baseline-parity/receipt.json": "38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf",
+    "agents/contracts/verify_observations.py": "9e25548f118d6c22088390c622f9d591f38bd5b1dd9ca0a1b7f8d9a02905169a",
+    "agents/contracts/verifier-selfchecks-1.json": "29ded9d2b5e2ef2dbf051a2a9f2018ba78fb2395482290714bc072dd1e4a403d",
+    "agents/contracts/verified-baseline-observations-1.json": "3c96253f047b0890c1d7a945d61ce1c41862bc13e492fb15652ef989d7beff3e",
+    "agents/contracts/verifier-selfchecks-1.stdout": "ee70fde8801c80e1ce288d73569592fd12e3987d50201b71ded91410e1e640fb",
+    "agents/contracts/verified-baseline-observations-1.stdout": "310a6eeeb8939b84fc3995ff0e6bbc5fa3645a7303e46cb4e9a97c4c8d9bc3f3"
+  },
+  "worker_root_resolves_repository": true,
+  "old_telemetry_mutant_demonstrations": {
+    "bool_true_equals_integer1": [
+      {
+        "selector": "<probe>",
+        "both_valid": true,
+        "equal": true
+      }
+    ],
+    "nonzero_empty_observer_equal": [
+      true
+    ],
+    "dual_timeout_exit_equal": true
+  },
+  "new_selfchecks_pass": 8,
+  "source_and_retained_command_artifact_hashes_verified": true,
+  "counts": {
+    "oracle_success_sources": 13,
+    "oracle_refusal_or_invalid_sources": 2,
+    "pdf_success_sources": 12,
+    "html_success_sources": 1,
+    "valid_query_pairs": 12,
+    "valid_equal_query_pairs": 1
+  },
+  "current_facts": {
+    "all_pdf_success_page_counts_equal_with_valid_observers": true,
+    "overridden_unemitted_template_inert": "Both success, valid query/value/word equality, no panic; preserve as negative admission control.",
+    "repeated_reference_refusal": "Oracle labels occur multiple times; product labels do not exist. Both exit1 is not acceptance.",
+    "direct_function_refusal": "Both reject Func marginal; exact expected-type order differs and remains visible.",
+    "html": "Equal actual DOM/body BODY, panic inert; product omits oracle page-set-ignored warning, so strict diagnostic comparison fails.",
+    "native_page_run": "Word output and four Figure states agree, but last body Location.page is1 in product versus2 in oracle.",
+    "all_layers": "Oracle count5/unique5, at states1..5, header2/body3/footer4; product count1/body1.",
+    "two_page_static_running": "Oracle interleaves four unique Figure records by pages[1,1,2,2]; product lacks running records and reports body pages[1,1] despite two physical pages."
+  },
+  "limits": [
+    "The original worker is observational and emits no overall PASS. Its weaker equal-telemetry fields are superseded for downstream qualification, not retroactively edited.",
+    "No aggregate parity acceptance or diagnostic waiver is introduced.",
+    "PDF word order/raw whitespace and captured bounds remain observer data, separate from semantic temporal query values."
+  ]
+}

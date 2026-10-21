@@ -1,0 +1,257 @@
+{
+  "utc_start": "2026-10-21T14:36:38.193832+00:00",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "diff_head_stat": "",
+  "status": "?? 00_nucleo/diagnostics/set-page-header-2026-10-21.md\n",
+  "productive_inputs_unchanged": true,
+  "full_validation_jobs": 12,
+  "history_unchanged": true,
+  "commands": [
+    {
+      "name": "layout",
+      "argv": [
+        "python3",
+        "lab/tools/ci/check_mature_layout.py"
+      ],
+      "utc_start": "2026-10-21T14:36:38.312517+00:00",
+      "utc_end": "2026-10-21T14:36:40.600969+00:00",
+      "exit": 0
+    },
+    {
+      "name": "strict-lineage",
+      "argv": [
+        "lab/target/linter/debug/crystalline-lint",
+        ".",
+        "--checks",
+        "v1,v5,v15,v26",
+        "--fail-on",
+        "warning"
+      ],
+      "utc_start": "2026-10-21T14:36:40.600982+00:00",
+      "utc_end": "2026-10-21T14:36:46.972846+00:00",
+      "exit": 0
+    },
+    {
+      "name": "reverse-lineage",
+      "argv": [
+        "python3",
+        "lab/tools/ci/check_reverse_lineage.py"
+      ],
+      "utc_start": "2026-10-21T14:36:46.972858+00:00",
+      "utc_end": "2026-10-21T14:36:47.571200+00:00",
+      "exit": 0
+    },
+    {
+      "name": "full-lint",
+      "argv": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/lint.py",
+        "--output",
+        "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/lint-review",
+        "--expected-v16",
+        "0"
+      ],
+      "utc_start": "2026-10-21T14:36:47.571213+00:00",
+      "utc_end": "2026-10-21T14:36:55.120208+00:00",
+      "exit": 0
+    },
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "utc_start": "2026-10-21T14:36:55.120221+00:00",
+      "utc_end": "2026-10-21T14:36:55.156185+00:00",
+      "exit": 0
+    }
+  ],
+  "links": [
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "review.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/review.md",
+      "sha256": "86d01836f6282b92f5a4af191043a4d46017ea1bdbd412c74cf1024d855bedc9"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/core/proposal.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/proposal.md",
+      "sha256": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "../../../00_nucleo/diagnostics/set-page-header-2026-10-21.md",
+      "resolved": "00_nucleo/diagnostics/set-page-header-2026-10-21.md",
+      "sha256": "3a493138b76c3a428788720e347e6ecabbf014a2e358fb2801d9a27c19ebb5f7"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "baseline-build/receipt.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/baseline-build/receipt.json",
+      "sha256": "59f8176ad708244c0c92019442330a2d3e4785be862c6625f1417ff2f66fe3fa"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "baseline-controls/receipt.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/baseline-controls/receipt.json",
+      "sha256": "b2c3bf5c79de24d876dacb355ea4d203a7c10dfbdf64fb7b4af63275f7d469d5"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "history-baseline.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/history-baseline.json",
+      "sha256": "b898e91a7c1cb5907b2df5bcc9d620fcb19a741ccc2366c1e7071a04f3379bb5"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/parity/matrix.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/parity/matrix.json",
+      "sha256": "e782c96866a1ee3805133067bac5dbea93081f4bb487ecad7d3f2ecac1c84082"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "baseline-parity/receipt.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json",
+      "sha256": "38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/core/ambient-matrix.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/ambient-matrix.json",
+      "sha256": "96268383a9fdf2335285459c2e1c2dd0a27732ff99e84d1d4f59e67aaf517f7b"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "ambient-baseline/receipt.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json",
+      "sha256": "6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/contracts/verified-ambient-observations-1.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/contracts/verified-ambient-observations-1.json",
+      "sha256": "cd65d39876ec982657b28364d8341b05dfe2942e22b7d27b1ad063ac16826cdf"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/parity/baseline-summary.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/parity/baseline-summary.md",
+      "sha256": "b5ae46a1bcf276e9b539e4d4624eedb752239484794ae558b9db2b2b8ca54707"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/contracts/audit.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/contracts/audit.md",
+      "sha256": "9f9220bf84f80134c57f245525006f6792e04aec5ab407e446a77dcecd98ce4f"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/contracts/acceptance-v2.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/contracts/acceptance-v2.md",
+      "sha256": "cf6ee11ea7a6c122c7a3b176dc6ee5a363695819458198446adb672cb077e253"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/contracts/baseline-verifier-review.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/contracts/baseline-verifier-review.md",
+      "sha256": "a588fa4f5e152127ac6b7d524c293789dd7be66f5fe53e0714818fc3e88c20db"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/contracts/verified-baseline-observations-1.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/contracts/verified-baseline-observations-1.json",
+      "sha256": "3c96253f047b0890c1d7a945d61ce1c41862bc13e492fb15652ef989d7beff3e"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "validation-baseline/validation-commands.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/validation-baseline/validation-commands.json",
+      "sha256": "aac57682da92c1363be2beb5c85b6a1f1ea63b3937a6e3ad81d834ead92c5b86"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "validation-baseline/validation-freeze.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/validation-baseline/validation-freeze.json",
+      "sha256": "19de7990932e0c12ccc91a51a0198bdc176d7cde23796238316e7b62c2011a3a"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "lint-delta.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/lint-delta.json",
+      "sha256": "6f04405d222cbbeda2490debbd7fab0a136b663daf3219809352cc13579531e0"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/core/source-evidence-index.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/source-evidence-index.json",
+      "sha256": "9bd322f8edb54cc47d224a68e4c8219b7b6f9cf5ed460b0840eeaec93bb74672"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/README.md",
+      "target": "agents/parity/index-driver.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md",
+      "sha256": "1781095a112cf6f7a1d57c059f8f87ff4bd899b5645f086df276ed8580e98eb9"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "agents/core/proposal.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/proposal.md",
+      "sha256": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "agents/core/api-declarations-final.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/api-declarations-final.json",
+      "sha256": "4baaab61b3c3b247593433d18ab78d22ba5e2c275acab6e747c43dc0ef559196"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "agents/core/candidate-owner-domains.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/agents/core/candidate-owner-domains.json",
+      "sha256": "a32eca2a829a350b1826bdd48a822b0383e70ac863fab4dee2fec5f6be9a6306"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "README.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/README.md",
+      "sha256": "cd79788c2e7c9e83e47f3e9377c30757495d1e91846000f69606a2499a426a1d"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "validation-baseline/validation-commands.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/validation-baseline/validation-commands.json",
+      "sha256": "aac57682da92c1363be2beb5c85b6a1f1ea63b3937a6e3ad81d834ead92c5b86"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "lint-delta.json",
+      "resolved": "lab/results/set-page-header-2026-10-21/lint-delta.json",
+      "sha256": "6f04405d222cbbeda2490debbd7fab0a136b663daf3219809352cc13579531e0"
+    },
+    {
+      "source": "lab/results/set-page-header-2026-10-21/review.md",
+      "target": "../../../00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md",
+      "resolved": "00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md",
+      "sha256": "0497442287368b05b01503217a02992990d0493525701c408733c03a11e6d659"
+    },
+    {
+      "source": "00_nucleo/diagnostics/set-page-header-2026-10-21.md",
+      "target": "../../lab/results/set-page-header-2026-10-21/review.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/review.md",
+      "sha256": "86d01836f6282b92f5a4af191043a4d46017ea1bdbd412c74cf1024d855bedc9"
+    },
+    {
+      "source": "00_nucleo/diagnostics/set-page-header-2026-10-21.md",
+      "target": "../../lab/results/set-page-header-2026-10-21/README.md",
+      "resolved": "lab/results/set-page-header-2026-10-21/README.md",
+      "sha256": "cd79788c2e7c9e83e47f3e9377c30757495d1e91846000f69606a2499a426a1d"
+    }
+  ],
+  "complete_lint_multiset_unchanged": true,
+  "utc_end": "2026-10-21T14:36:55.484242+00:00",
+  "input_count": 2142,
+  "changed_inputs": [],
+  "branch": "codex/tekt-mature-layout"
+}

@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-21T13:42:13.555625+00:00",
+  "head": "63b7b96b99109b61655b373dc0d248beb7838f86",
+  "paths": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-4/receipt.json": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target-controls-oracle/receipt.json": "9827128412eb27a210be7fffc00a26fa5c22826b155ead3b64b557f5c0372b81",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json": "3ba970b0a458cf2a47e1d289e47d890c3706a9e4dbae50713bbfa102fff5a1eb",
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json": "cb0dd8c4c2e16c0c349adf23748e1454d83b7bc969749fa1ee3d4ac0f92de839",
+    "lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json": "38f13725d9965fa77137e8ce9705af6101fb0149e5517f9c7c92bcc16db2e2db",
+    "lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270",
+    "lab/results/v16-corrections-2026-10-19/batch-g/evidence-manifest.json": "594298b1271a2bb71dd2d3c68ad81d1da29ebb7fbbd73b7b5a768f5044d883b4"
+  }
+}

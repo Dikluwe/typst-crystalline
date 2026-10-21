@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/context-footer-page-update-two-pages.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/context-footer-page-update-two-pages/product/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:47:52.543688+00:00",
+  "utc_end": "2026-10-21T13:47:53.175126+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

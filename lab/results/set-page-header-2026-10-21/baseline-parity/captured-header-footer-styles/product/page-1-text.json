@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/captured-header-footer-styles/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:48:04.944326+00:00",
+  "utc_end": "2026-10-21T13:48:04.957395+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "BODY\n\f",
+  "stderr": "",
+  "stdout_sha256": "ad0b1a3fece6b1c11d9bda390912fcd85f71f6882cd92d01abf14bf24c3d82f8",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

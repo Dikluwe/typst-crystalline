@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/static-footer-two-pages.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:47:49.867409+00:00",
+  "utc_end": "2026-10-21T13:47:50.513925+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":2,\"unique\":2,\"pages\":[1,1],\"states\":[[1],[2]],\"final\":[2],\"header\":[],\"footer\":[],\"body\":[[1,[1]],[1,[2]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/static-footer-two-pages.typ` instead\n\n",
+  "stdout_sha256": "be4971b5508e0627a58a4fc7072c746341d9a5ad2ec710285fd510c166289b12",
+  "stderr_sha256": "e3e465cc6e93f16f7f198ffb5b3662713e70d1a1fa18309a65d8d985054c5083"
+}

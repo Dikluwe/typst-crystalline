@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-21T14:34:00.735487+00:00",
+  "status": "reviewable-for-exact-API-and-phase-approval; not approved",
+  "proposal": "lab/results/set-page-header-2026-10-21/agents/core/proposal.md",
+  "proposal_sha256": "f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2",
+  "api": "api-declarations-final.json",
+  "api_sha256": "4baaab61b3c3b247593433d18ab78d22ba5e2c275acab6e747c43dc0ef559196",
+  "owner_domains": "candidate-owner-domains.json",
+  "owner_domains_sha256": "a32eca2a829a350b1826bdd48a822b0383e70ac863fab4dee2fec5f6be9a6306",
+  "ambient_receipt": "lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json",
+  "ambient_receipt_sha256": "6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05",
+  "public_declarations_unchanged_from_v5": true,
+  "active_tree_changes": [],
+  "implementation_forbidden_pending_decision": true,
+  "independent_final_review": "Requested from contracts auditor; not invented as completed here."
+}

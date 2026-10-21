@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/direct-function-header-rejected.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/direct-function-header-rejected/product/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:48:06.283287+00:00",
+  "utc_end": "2026-10-21T13:48:06.302442+00:00",
+  "exit": 1,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "error: expected auto, none, or content, found function\n  \u250c\u2500 lab/results/set-page-header-2026-10-21/agents/parity/sources/direct-function-header-rejected.typ:1:54\n  \u2502\n1 \u2502 #set page(width:220pt,height:240pt,margin:60pt,header:n=>[HEADER])\n  \u2502                                                       ^^^^^^^^^^^\n\n",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "dd9eab6b3639a37e7a8d3a264614e72223128ca17f798498df7586b74399305d"
+}

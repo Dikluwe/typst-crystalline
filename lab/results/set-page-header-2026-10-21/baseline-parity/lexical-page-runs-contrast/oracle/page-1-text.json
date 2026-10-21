@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/lexical-page-runs-contrast/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:59.009521+00:00",
+  "utc_end": "2026-10-21T13:47:59.022809+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "  HEADER\nFigure 1: HC\n\nBODYONE\nFigure 2: B1\n\n\n\n\n  FOOTER\nFigure 3: FC\n\f",
+  "stderr": "",
+  "stdout_sha256": "6a51ca798353fa6ef29c363fb041d3bc12df3083e54ac1d2950e84d5fd5fbb84",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

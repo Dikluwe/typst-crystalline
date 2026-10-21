@@ -1,0 +1,34 @@
+{
+  "status": "draft-unapproved",
+  "proposal": "proposal.md",
+  "proposal_sha256": "54aad6970d7fea6f6555c3af75b0132f8a5c4367a0ec59dbd617a29ab5441ae7",
+  "prior_versions": [
+    {
+      "path": "lab/results/set-page-header-2026-10-21/agents/core/proposal-versions/proposal-v0.md",
+      "sha256": "84fdfd9e97bbed9ec322669011d021b983e82785aad3529cc3e7847af5c76f42"
+    },
+    {
+      "path": "lab/results/set-page-header-2026-10-21/agents/core/proposal-versions/proposal-v1.md",
+      "sha256": "59712402201dfda4f75f0c276d637fb63bb8e37bef4946452d7db8779d64493b"
+    },
+    {
+      "path": "lab/results/set-page-header-2026-10-21/agents/core/proposal-versions/proposal-v2.md",
+      "sha256": "da3456b77dc76153ebaddb9b2715663f7c6b4ffc5b2af38abff7b353cd9c3749"
+    }
+  ],
+  "active_tree_changes": [],
+  "execution": "No Cargo, product, active L0/source/test, seal or Git mutation performed by this agent for this investigation.",
+  "open_engineering": [
+    "Complete typed source-edge inventory and actual edit/preservation owner manifest",
+    "Physical packet commitment through optimized, generated-wrapper and deferred paths",
+    "Bundle-global source plan and index facade exact declaration",
+    "Independent review of final opaque API and reserve-only alias/capture protocol"
+  ],
+  "decisions": [
+    "Four physical slots selected by parent from measured all-five-layer order",
+    "Owned wrapper-free Content/source-plan overlay; no fake Location/pointer/hash body address",
+    "Private immutable capture authority; no generic observation weakening",
+    "Exact public rebind function for existing Session substitutions",
+    "ADR-0127 public-contract/phase gate required before active L0/code implementation"
+  ]
+}

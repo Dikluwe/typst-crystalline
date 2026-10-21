@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/overridden-unemitted-header-is-inert/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:56.468145+00:00",
+  "utc_end": "2026-10-21T13:47:56.479403+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "BODY\nFigure 1: BC\n\f",
+  "stderr": "",
+  "stdout_sha256": "a140a278c6f5e23d79a4f92e4bea32642656ee889d61aba7518b40e84081cc3d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

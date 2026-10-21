@@ -1,0 +1,12 @@
+error: label `<header>` occurs multiple times in the document
+  ┌─ lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:3:4
+  │
+3 │ See @header.
+  │     ^^^^^^^
+
+error: label `<header>` occurs multiple times in the document
+  ┌─ lab/results/set-page-header-2026-10-21/agents/parity/sources/reference-to-repeated-header.typ:6:4
+  │
+6 │ See @header.
+  │     ^^^^^^^
+

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/historical-header-figure-one-page/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:44.699702+00:00",
+  "utc_end": "2026-10-21T13:47:44.729312+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "            H\n       Figure 1: HC\n            B\n       Figure 2: BC\n(2,)\n\f",
+  "stderr": "",
+  "stdout_sha256": "e8c42325f7f7736b03a9789a3fa2cd2e63b0e5ae1d0f7779bd7943271eeaf78d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

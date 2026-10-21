@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/header-override-at-page-boundary/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:57.288766+00:00",
+  "utc_end": "2026-10-21T13:47:57.300850+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "HEADERONE\n Figure 1: H1\n\n BODYONE\n Figure 2: B1\n\f",
+  "stderr": "",
+  "stdout_sha256": "aeade8205d0ea7e8b378279cd4e67e24cf22597eaef1b4b90f89ccbc562314d4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

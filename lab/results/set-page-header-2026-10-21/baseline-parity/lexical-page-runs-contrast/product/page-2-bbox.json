@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-bbox",
+    "-f",
+    "2",
+    "-l",
+    "2",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/lexical-page-runs-contrast/product/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:59.936819+00:00",
+  "utc_end": "2026-10-21T13:47:59.948953+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"typst-crystalline\"/>\n<meta name=\"CreationDate\" content=\"2026-10-21T13:47:59Z\"/>\n<meta name=\"ModDate\" content=\"2026-10-21T13:47:59Z\"/>\n</head>\n<body>\n<doc>\n  <page width=\"220.000000\" height=\"240.000000\">\n    <word xMin=\"60.000000\" yMin=\"57.404000\" xMax=\"112.756000\" yMax=\"69.944000\">BODYTWO</word>\n    <word xMin=\"60.000000\" yMin=\"71.792000\" xMax=\"88.578000\" yMax=\"84.332000\">Figure</word>\n    <word xMin=\"91.328000\" yMin=\"71.792000\" xMax=\"99.039000\" yMax=\"84.332000\">4:</word>\n    <word xMin=\"101.789000\" yMin=\"71.792000\" xMax=\"113.372000\" yMax=\"84.332000\">B2</word>\n  </page>\n</doc>\n</body>\n</html>\n",
+  "stderr": "",
+  "stdout_sha256": "9df4aea014704e6fa2deb1d55196d76e241a4e445cfb13e6045cba3d007a8bb2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

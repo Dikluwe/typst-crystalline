@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-inherited-two-pages-body20-then30.typ",
+    "<ambient-body>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T14:30:22.372221+00:00",
+  "utc_end": "2026-10-21T14:30:22.977947+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"page\":1,\"size\":\"20pt\",\"is10\":false,\"is20\":true,\"is30\":false},{\"page\":1,\"size\":\"30pt\",\"is10\":false,\"is20\":false,\"is30\":true}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<ambient-body>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/core/ambient-sources/ambient-style-inherited-two-pages-body20-then30.typ` instead\n\n",
+  "stdout_sha256": "9d226cc6c70aaebc018e3a36a43180382b4bcc2eb63f3df8d4600cf0b1c28bd6",
+  "stderr_sha256": "b52a37015375c4c1fc404b5397cfd9e5e7c47a5676d763893de9d4d6a4dd6072"
+}

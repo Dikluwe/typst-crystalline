@@ -1,0 +1,12 @@
+{
+  "worker_sha256": "36e3ecd7f75f2d9f23d42010ee71232b4824f8f0e7e9190c141a78b7515c58af",
+  "matrix_sha256": "e782c96866a1ee3805133067bac5dbea93081f4bb487ecad7d3f2ecac1c84082",
+  "tests": [
+    "worker import does not execute product",
+    "valid JSON parsed independently",
+    "invalid JSON rejected",
+    "two invalid JSON observations do not compare equal"
+  ],
+  "passed": true,
+  "products_executed": false
+}

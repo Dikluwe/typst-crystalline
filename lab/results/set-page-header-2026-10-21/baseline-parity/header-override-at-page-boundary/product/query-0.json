@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/tekt-set-page-header-baseline-257c153b",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/header-override-at-page-boundary.typ",
+    "<probe>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:47:58.186570+00:00",
+  "utc_end": "2026-10-21T13:47:58.844867+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"count\":2,\"unique\":2,\"pages\":[1,1],\"states\":[[1],[2]],\"final\":[2],\"header\":[],\"footer\":[],\"body\":[[1,[1]],[1,[2]]]}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/header-override-at-page-boundary.typ` instead\n\n",
+  "stdout_sha256": "be4971b5508e0627a58a4fc7072c746341d9a5ad2ec710285fd510c166289b12",
+  "stderr_sha256": "dce32c2df385cc7f2b7217b91321225fb05f5df7f56de877bd9c6f00ff98e5da"
+}

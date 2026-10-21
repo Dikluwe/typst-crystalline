@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-21T13:44:12.757233+00:00",
+  "baseline": "lab/results/v16-corrections-2026-10-19/batch-g/lint-closure-docs/after.sarif.gz",
+  "baseline_sha256": "0bc9d0cf3496880f30880728a1fe5e25117aeaaa5057de6746deab45b1c95a17",
+  "current": "lab/results/set-page-header-2026-10-21/lint-baseline/after.sarif.gz",
+  "current_sha256": "0d05f37e164e8b2f466cd4884a14e25f75a3eeec38abe2724d850520a64940ef",
+  "added_full_objects": [],
+  "removed_full_objects": [],
+  "identical_complete_multiset": true
+}

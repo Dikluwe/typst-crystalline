@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/static-footer-two-pages/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:48.987457+00:00",
+  "utc_end": "2026-10-21T13:47:48.998655+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "BODYONE\nFigure 1: B1\n\n\n\n\n  FOOTER\nFigure 2: FC\n\f",
+  "stderr": "",
+  "stdout_sha256": "0e95f72493c0951950a7d07036c9b063ed6e2c8daef7fe8960bac1674256aa82",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

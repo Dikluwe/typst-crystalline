@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/shared-raw-header-body-template.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/shared-raw-header-body-template/oracle/document.pdf"
+  ],
+  "utc_start": "2026-10-21T13:48:02.162611+00:00",
+  "utc_end": "2026-10-21T13:48:02.301072+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

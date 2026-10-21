@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/overridden-unemitted-header-is-inert/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:55.679351+00:00",
+  "utc_end": "2026-10-21T13:47:55.691036+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "   BODY\nFigure 1: BC\n\f",
+  "stderr": "",
+  "stdout_sha256": "e0963c06570bca4388eb14869ed4482c92d4772d01028af9186642bced89f051",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

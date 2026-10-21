@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-bbox",
+    "-f",
+    "1",
+    "-l",
+    "1",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/all-layers-causal-order-one-page/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:45.599865+00:00",
+  "utc_end": "2026-10-21T13:47:45.611031+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n<meta name=\"Creator\" content=\"Typst 0.15.1\"/>\n<meta name=\"CreationDate\" content=\"2026-10-21T10:47:45-03\"/>\n<meta name=\"ModDate\" content=\"2026-10-21T10:47:45-03\"/>\n</head>\n<body>\n<doc>\n  <page width=\"220.000000\" height=\"240.000000\">\n    <word xMin=\"88.951500\" yMin=\"17.778000\" xMax=\"131.048500\" yMax=\"30.318000\">HEADER</word>\n    <word xMin=\"81.537500\" yMin=\"32.166000\" xMax=\"110.115500\" yMax=\"44.706000\">Figure</word>\n    <word xMin=\"112.865500\" yMin=\"32.166000\" xMax=\"120.576500\" yMax=\"44.706000\">2:</word>\n    <word xMin=\"123.326500\" yMin=\"32.166000\" xMax=\"138.462500\" yMax=\"44.706000\">HC</word>\n    <word xMin=\"96.074000\" yMin=\"57.404000\" xMax=\"123.926000\" yMax=\"69.944000\">BODY</word>\n    <word xMin=\"82.318500\" yMin=\"71.792000\" xMax=\"110.896500\" yMax=\"84.332000\">Figure</word>\n    <word xMin=\"113.646500\" yMin=\"71.792000\" xMax=\"121.357500\" yMax=\"84.332000\">3:</word>\n    <word xMin=\"124.107500\" yMin=\"71.792000\" xMax=\"137.681500\" yMax=\"84.332000\">BC</word>\n    <word xMin=\"74.013500\" yMin=\"106.591000\" xMax=\"145.986500\" yMax=\"119.131000\">BACKGROUND</word>\n    <word xMin=\"74.987000\" yMin=\"106.591000\" xMax=\"145.013000\" yMax=\"119.131000\">FOREGROUND</word>\n    <word xMin=\"78.551000\" yMin=\"120.979000\" xMax=\"107.129000\" yMax=\"133.519000\">Figure</word>\n    <word xMin=\"109.879000\" yMin=\"120.979000\" xMax=\"117.590000\" yMax=\"133.519000\">1:</word>\n    <word xMin=\"110.445500\" yMin=\"120.979000\" xMax=\"118.156500\" yMax=\"133.519000\">5:</word>\n    <word xMin=\"120.340000\" yMin=\"120.979000\" xMax=\"141.449000\" yMax=\"133.519000\">BGC</word>\n    <word xMin=\"120.906500\" yMin=\"120.979000\" xMax=\"140.882500\" yMax=\"133.519000\">FGC</word>\n    <word xMin=\"90.062500\" yMin=\"195.404007\" xMax=\"129.937500\" yMax=\"207.944007\">FOOTER</word>\n    <word xMin=\"82.885000\" yMin=\"209.792007\" xMax=\"111.463000\" yMax=\"222.332007\">Figure</word>\n    <word xMin=\"114.213000\" yMin=\"209.792007\" xMax=\"121.924000\" yMax=\"222.332007\">4:</word>\n    <word xMin=\"124.674000\" yMin=\"209.792007\" xMax=\"137.115000\" yMax=\"222.332007\">FC</word>\n  </page>\n</doc>\n</body>\n</html>\n",
+  "stderr": "",
+  "stdout_sha256": "a2117abfa6f5ff5abae7fa8ff55afc856c6c04090e9eee4363514b40dad93cff",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

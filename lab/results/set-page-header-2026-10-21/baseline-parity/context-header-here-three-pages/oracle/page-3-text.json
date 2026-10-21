@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pdftotext",
+    "-layout",
+    "-f",
+    "3",
+    "-l",
+    "3",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/baseline-parity/context-header-here-three-pages/oracle/document.pdf",
+    "-"
+  ],
+  "utc_start": "2026-10-21T13:47:50.723649+00:00",
+  "utc_end": "2026-10-21T13:47:50.735877+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "HEADER 3\n\nPAGETHREE\n\f",
+  "stderr": "",
+  "stdout_sha256": "4983025b5029ef8770f8ceeea77754477d2cb14f3c55f0cb52d5d6b453063c2d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

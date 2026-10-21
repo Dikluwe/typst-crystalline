@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "query",
+    "/repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/captured-header-footer-styles.typ",
+    "<header-style>",
+    "--field",
+    "value"
+  ],
+  "utc_start": "2026-10-21T13:48:04.029972+00:00",
+  "utc_end": "2026-10-21T13:48:04.161056+00:00",
+  "exit": 0,
+  "timed_out": false,
+  "stdout": "[{\"page\":1,\"is18\":true}]\n",
+  "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<header-style>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/set-page-header-2026-10-21/agents/parity/sources/captured-header-footer-styles.typ` instead\n\n",
+  "stdout_sha256": "cd1573c612192685c109a97453f7f36259702d8d2eceab29e248858cc093f7e8",
+  "stderr_sha256": "5f3325124b860f5dd0530e625874e50454fec26ba86405f841bb0458f762afd1"
+}
