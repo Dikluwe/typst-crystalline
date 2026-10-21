@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: 29a19e1e
+Hash do Código: bb35e5f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
@@ -223,3 +223,16 @@ The second RED's reached-body control also asserted an unpromised final counter-
 Atomic Strong, Empty, source-bound Empty, immediate multi-child Sequence and strong(empty) default Block morphology are fixed by the two pinned oracle receipt sets. Add actual callback assertions for one-child Parbreak Sequence, flat six-child text/Strong Sequence, and retained Strong(empty), not only the original Strong atomic case. Source wrappers remain transparent to language fields. These are fixed independent language expectations, not an implementation mirror.
 
 Add fixed actual language controls for Block None child Heading count0 and identity/labeled-identity child count1, bound by ordinary-block-hidden-heading and ordinary-block-labelled receipts. Preserve the separate open Block-label membership gap; do not assert that a missing label projection is correct. Require Heading/Page reference layout errors at their measured lexical Source columns, retaining exact messages/hints and all earlier actual Context/typed Figure controls.
+
+
+## Closed producer recognition and transparent Source roots
+
+Measurement before decision: clean baseline4382891f0d5f0839669597cb5c90a98f24cfb8bd context_stabilization.rs:263–269,390–396 recognizes a bare ContextBlock or the immediate ContextBlock body of Located. entities/content.rs:233–1309 contains120 alternatives. pipeline.rs:429–430 overwrites duplicate map entries, while Session::new:381–407 keeps first encounter order and retrieves each Arc/chain from the completed map. The immutable source catalogue, actual enum-growth diagnostics and two actual Source-root failures are retained in lab/results/v16-corrections-2026-10-19/batch-g/{structural-baseline-2,focused-source-red}/.
+
+The Source failures expose Located(Source(ContextBlock)) below generic Underline/MathFrac: collection includes the producer, but L1's suppressed Located-body root callback propagates through Source, and immediate-body recognition loses it. Direct ordered Located→Source descent and Source→Located work. The Source nucleus permits no orientation restriction. Current ordinary/Ref constructor paths traced generally produce Source(Located(bareContextBlock)); frontend generation of the reverse orientation remains unproven. This is an existing domain-contract correction, not a measured frontend parity improvement.
+
+At each of the two recognition sites, retain bare ContextBlock recognition and consume only transparent Source layers at a Located producer root before its ContextBlock/nonproducer decision. Retain the exact producer Arc, Location, origin and effective chain. Both outer and inner decisions must enumerate the complete closed Content complement. A Source alternative in the inner nonproducer catalogue is unreachable after Source-root consumption; it must not bypass that consumption. Do not peel Styled/Realized, change generic mapping or add another producer-admission channel. None means no producer at that callback, never an empty subtree.
+
+Actual duplicate IDs still make ordered topology impossible. The unselected legacy fallback retains first-ID order plus last-collected Arc/chain, one initial execution per ID, and its existing error/warning policy. It gains no retry or retained-cycle budget. No equality, hashing, Debug fingerprint or pointer-based producer deduplication is permitted. Preserve captured ShowRecipe snapshots, inner Styled overrides, Figure actual-child order, hidden-original exclusion, occurrence frames, reference Route ancestry, descendant invalidation, five attempts and retained diagnostics.
+
+Acceptance includes generic bare/Located/source ordering in both orientations, duplicate rejection, first-order/last-payload+chain and one legacy initial execution, current generated Ref plus ordinary Context capture, and all forty approved Ref controls. Each original recognition decision requires attributable enum-growth evidence. Any new wrapper admission or public/phase/default/compatibility change requires separate classification; the bounded Source correction and nominal closure are continuous internal flow under ADR-0127.

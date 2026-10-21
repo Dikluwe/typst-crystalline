@@ -1,0 +1,72 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+error[E0624]: associated function `from_raw` is private
+   --> 03_infra/src/export/html/document.rs:598:39
+    |
+598 |             body, location: Location::from_raw(410),
+    |                                       ^^^^^^^^ private associated function
+    |
+   ::: /repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs:25:5
+    |
+ 25 |     pub(crate) fn from_raw(raw: u128) -> Self {
+    |     ----------------------------------------- private associated function defined here
+
+error[E0624]: associated function `from_raw` is private
+   --> 03_infra/src/export/html/encoding.rs:226:76
+    |
+226 |         Content::Located(Arc::new(LocatedContent { body,location:Location::from_raw(420) }))
+    |                                                                            ^^^^^^^^ private associated function
+    |
+   ::: /repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs:25:5
+    |
+ 25 |     pub(crate) fn from_raw(raw: u128) -> Self {
+    |     ----------------------------------------- private associated function defined here
+
+error[E0277]: the trait bound `typst_core::entities::style_chain::StyleChain: std::default::Default` is not satisfied
+   --> 03_infra/src/export/html/encoding.rs:234:62
+    |
+234 |                 assert_eq!(title_text_with_context(&wrapped,&Default::default(),&mut Default::default()).unwrap_err().message,
+    |                                                              ^^^^^^^^^^^^^^^^^^ the trait `std::default::Default` is not implemented for `typst_core::entities::style_chain::StyleChain`
+
+error[E0277]: the trait bound `typst_core::entities::style_chain::StyleChain: std::default::Default` is not satisfied
+   --> 03_infra/src/export/html/encoding.rs:244:55
+    |
+244 |             assert_eq!(title_text_with_context(&body,&Default::default(),&mut Default::default()).unwrap(),"A &amp; &lt;\n B");
+    |                                                       ^^^^^^^^^^^^^^^^^^ the trait `std::default::Default` is not implemented for `typst_core::entities::style_chain::StyleChain`
+
+error[E0624]: associated function `from_raw` is private
+   --> 03_infra/src/pipeline/html.rs:294:75
+    |
+294 |         Content::Located(Arc::new(LocatedContent {body,location:Location::from_raw(430)}))
+    |                                                                           ^^^^^^^^ private associated function
+    |
+   ::: /repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs:25:5
+    |
+ 25 |     pub(crate) fn from_raw(raw: u128) -> Self {
+    |     ----------------------------------------- private associated function defined here
+
+error[E0624]: associated function `from_raw` is private
+   --> 03_infra/src/pipeline/html.rs:347:32
+    |
+347 |         let location=Location::from_raw(440);
+    |                                ^^^^^^^^ private associated function
+    |
+   ::: /repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs:25:5
+    |
+ 25 |     pub(crate) fn from_raw(raw: u128) -> Self {
+    |     ----------------------------------------- private associated function defined here
+
+error[E0624]: associated function `from_raw` is private
+   --> 03_infra/src/pipeline/html.rs:364:32
+    |
+364 |         let location=Location::from_raw(441);candidate.context_block_locations.insert(21,location);
+    |                                ^^^^^^^^ private associated function
+    |
+   ::: /repos/Antigravity/typst-crystalline/01_core/src/entities/location.rs:25:5
+    |
+ 25 |     pub(crate) fn from_raw(raw: u128) -> Self {
+    |     ----------------------------------------- private associated function defined here
+
+Some errors have detailed explanations: E0277, E0624.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `typst-infra` (lib test) due to 7 previous errors

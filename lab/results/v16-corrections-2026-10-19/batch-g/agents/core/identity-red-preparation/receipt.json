@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-21T00:05:53.096060+00:00",
+  "source_productive_and_existing_tests_unchanged": true,
+  "new_test_module": "batch_g_carrier_depth_tests",
+  "new_tests": [
+    "carrier_debug_transparency_reaches_the_same_visible_depth_boundary",
+    "carrier_hash_compatibility_covers_selected_old_and_new_content_families",
+    "debug_retains_visible_max_depth_and_iterates_carriers_without_consuming_originals"
+  ],
+  "expected_semantic_failures": 3,
+  "executed": false,
+  "cargo_fmt_seal_executed": false,
+  "measurement_receipt_sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664",
+  "refuted_hypothesis": "NestedValueFloat(-0.0/0.0): 0 actual hash violations; Debug omits CounterDisplay payload.",
+  "files": {
+    "00_nucleo/prompts/core/entities/content/identity.md": {
+      "sha256": "f75ecb1fd004eaa4af96de1142f5e812ecfee40190f7f6274a25ac61170ec2ec"
+    },
+    "01_core/src/entities/content/identity.rs": {
+      "sha256": "c3d5aa40cac41bd18cecc7da4eefeded1dd6b5103be39fa95a95eb730a4c3ba2"
+    }
+  }
+}

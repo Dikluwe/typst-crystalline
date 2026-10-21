@@ -1,0 +1,95 @@
+[
+  {
+    "name": "complete-lint",
+    "utc_start": "2026-10-21T00:21:58.504711+00:00",
+    "utc_end": "2026-10-21T00:22:04.708455+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint-final-2",
+      "--expected-v16",
+      "0"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "complete-lint-delta",
+    "utc_start": "2026-10-21T00:22:04.708757+00:00",
+    "utc_end": "2026-10-21T00:22:04.915405+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint_delta_final.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "structural-evolution",
+    "utc_start": "2026-10-21T00:22:04.915830+00:00",
+    "utc_end": "2026-10-21T00:22:38.498907+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/structural.py",
+      "green",
+      "--name",
+      "green-final"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "tuple-axes",
+    "utc_start": "2026-10-21T00:22:38.499213+00:00",
+    "utc_end": "2026-10-21T00:23:38.579834+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/tuple_axes.py",
+      "--base",
+      "structural-green-final",
+      "--name",
+      "green-final"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "clean-real-products",
+    "utc_start": "2026-10-21T00:23:38.580217+00:00",
+    "utc_end": "2026-10-21T00:23:39.171512+00:00",
+    "argv": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "full-validation",
+    "utc_start": "2026-10-21T00:23:39.171825+00:00",
+    "utc_end": "2026-10-21T00:37:24.005569+00:00",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/validation-final-2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "fresh-build",
+    "utc_start": "2026-10-21T00:37:24.006203+00:00",
+    "utc_end": "2026-10-21T00:37:25.010313+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/build.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final"
+    ],
+    "exit": 0
+  }
+]

@@ -1,0 +1,90 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 27s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 17 tests
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_containers_and_operators_share_opaque_relation ... FAILED
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_is_opaque_and_preserves_original_identity ... FAILED
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_preserves_snapshot_field_sets_and_other_kinds ... ok
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_projects_nominal_container_children ... FAILED
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_reaches_suppressed_source_and_located_roots ... FAILED
+test compiler::realize::bare_math::batch_g_tests::batch_g_absence_proof_preserves_boundaries_without_certifying_other_containers ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_label_guard_wraps_root_or_descends_into_non_mathy_body ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_recipe_styles_and_realized_visual_preserve_causal_snapshot ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_table_absence_uses_resolved_cells_and_always_checks_caption ... ok
+test compiler::realize::batch_g_tests::batch_g_normalization_retains_protected_and_nonsequence_products ... ok
+test compiler::realize::batch_g_tests::batch_g_observation_reserves_captured_rule_floor_and_sequence_marker ... ok
+test compiler::realize::batch_g_tests::batch_g_observation_reserves_located_context_and_both_realized_sides ... ok
+test entities::content::equality::batch_g_tests::batch_g_context_hub_equality_uses_owned_id_without_executing_closure ... FAILED
+test entities::content::equality::batch_g_tests::batch_g_historical_false_cases_and_transparent_heterogeneous_pairs_remain ... ok
+test entities::content::equality::batch_g_tests::batch_g_html_frame_same_kind_compares_body ... FAILED
+test entities::content::equality::batch_g_tests::batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state ... FAILED
+test entities::content::equality::batch_g_tests::batch_g_title_same_kind_compares_body ... FAILED
+
+failures:
+
+---- compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_containers_and_operators_share_opaque_relation stdout ----
+
+thread 'compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_containers_and_operators_share_opaque_relation' (3249433) panicked at 01_core/src/compiler/eval/operators/equality.rs:899:9:
+assertion `left == right` failed
+  left: Ok(Bool(false))
+ right: Ok(Bool(true))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_is_opaque_and_preserves_original_identity stdout ----
+
+thread 'compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_is_opaque_and_preserves_original_identity' (3249434) panicked at 01_core/src/compiler/eval/operators/equality.rs:840:9:
+assertion failed: values_eq(&Value::Content(a.clone()), &Value::Content(b.clone()))
+
+---- compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_projects_nominal_container_children stdout ----
+
+thread 'compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_projects_nominal_container_children' (3249436) panicked at 01_core/src/compiler/eval/operators/equality.rs:892:13:
+assertion failed: content_language_eq(&x, &y)
+
+---- compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_reaches_suppressed_source_and_located_roots stdout ----
+
+thread 'compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_reaches_suppressed_source_and_located_roots' (3249437) panicked at 01_core/src/compiler/eval/operators/equality.rs:874:13:
+assertion failed: content_language_eq(x, y)
+
+---- entities::content::equality::batch_g_tests::batch_g_context_hub_equality_uses_owned_id_without_executing_closure stdout ----
+
+thread 'entities::content::equality::batch_g_tests::batch_g_context_hub_equality_uses_owned_id_without_executing_closure' (3249445) panicked at 01_core/src/entities/content/equality.rs:282:9:
+assertion `left == right` failed
+  left: context(ContextBlockElem { id: 7 })
+ right: context(ContextBlockElem { id: 7 })
+
+---- entities::content::equality::batch_g_tests::batch_g_html_frame_same_kind_compares_body stdout ----
+
+thread 'entities::content::equality::batch_g_tests::batch_g_html_frame_same_kind_compares_body' (3249447) panicked at 01_core/src/entities/content/equality.rs:252:9:
+assertion `left == right` failed
+  left: html.frame(HtmlFrameElem { body: text("A") })
+ right: html.frame(HtmlFrameElem { body: text("A") })
+
+---- entities::content::equality::batch_g_tests::batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state stdout ----
+
+thread 'entities::content::equality::batch_g_tests::batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state' (3249448) panicked at 01_core/src/entities/content/equality.rs:263:9:
+assertion `left == right` failed
+  left: html.elem(HtmlElem { tag: "div", attrs: Some({"id": "a", "class": "b"}), body: Content(text("A")) })
+ right: html.elem(HtmlElem { tag: "div", attrs: Some({"id": "a", "class": "b"}), body: Content(text("A")) })
+
+---- entities::content::equality::batch_g_tests::batch_g_title_same_kind_compares_body stdout ----
+
+thread 'entities::content::equality::batch_g_tests::batch_g_title_same_kind_compares_body' (3249449) panicked at 01_core/src/entities/content/equality.rs:245:9:
+assertion `left == right` failed
+  left: title(TitleElem { body: text("A") })
+ right: title(TitleElem { body: text("A") })
+
+
+failures:
+    compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_containers_and_operators_share_opaque_relation
+    compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_is_opaque_and_preserves_original_identity
+    compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_projects_nominal_container_children
+    compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_reaches_suppressed_source_and_located_roots
+    entities::content::equality::batch_g_tests::batch_g_context_hub_equality_uses_owned_id_without_executing_closure
+    entities::content::equality::batch_g_tests::batch_g_html_frame_same_kind_compares_body
+    entities::content::equality::batch_g_tests::batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state
+    entities::content::equality::batch_g_tests::batch_g_title_same_kind_compares_body
+
+test result: FAILED. 9 passed; 8 failed; 0 ignored; 0 measured; 7722 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

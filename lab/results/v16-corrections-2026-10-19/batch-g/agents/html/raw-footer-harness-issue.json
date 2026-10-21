@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-21T00:07:41.975682+00:00",
+  "classification": "Static test-harness privacy error, not semantic RED. Await root freeze release; no productive change.",
+  "evidence": [
+    "03_infra/src/export/mod.rs:33 declares private mod html",
+    "03_infra/src/export/mod.rs:959 publicly reexports the same export_html function",
+    "New raw-footer test has two calls and standalone-footer test has one call through private module; all must use identical public reexport."
+  ],
+  "source_sha256": "ca0a9bb69737b8be9bafbf655396a18487d8e3735f71dab58c6353abef8181c0",
+  "occurrences": 3,
+  "planned_patch": "Only replace crate::export::html::export_html with crate::export::export_html; preserve arguments, assertions and productive body."
+}

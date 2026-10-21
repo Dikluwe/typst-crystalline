@@ -1,0 +1,96 @@
+{
+  "baseline_head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "branch": "codex/tekt-mature-layout",
+  "ids": [
+    "V16-049",
+    "V16-050",
+    "V16-051",
+    "V16-052",
+    "V16-074",
+    "V16-088",
+    "V16-089",
+    "V16-092",
+    "V16-093",
+    "V16-094",
+    "V16-095",
+    "V16-096",
+    "V16-097",
+    "V16-098",
+    "V16-099",
+    "V16-101",
+    "V16-102",
+    "V16-103"
+  ],
+  "pairs": [
+    {
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md"
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md"
+    },
+    {
+      "source": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/equality.md"
+    },
+    {
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md"
+    },
+    {
+      "source": "03_infra/src/export/html/encoding.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md"
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/html.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md"
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md"
+    },
+    {
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md"
+    }
+  ],
+  "sources": [
+    "01_core/src/compiler/realize/bare_math.rs",
+    "01_core/src/compiler/realize/mod.rs",
+    "01_core/src/entities/content/equality.rs",
+    "03_infra/src/export/html/document.rs",
+    "03_infra/src/export/html/encoding.rs",
+    "03_infra/src/pipeline.rs",
+    "03_infra/src/pipeline/bundle.rs",
+    "03_infra/src/pipeline/context_stabilization.rs",
+    "03_infra/src/pipeline/html.rs",
+    "03_infra/src/pipeline/paged.rs",
+    "03_infra/src/query_helpers.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+    "00_nucleo/prompts/core/compiler/realize/mod.md",
+    "00_nucleo/prompts/core/entities/content/equality.md",
+    "00_nucleo/prompts/infra/export/html/document.md",
+    "00_nucleo/prompts/infra/export/html/encoding.md",
+    "00_nucleo/prompts/infra/pipeline.md",
+    "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "00_nucleo/prompts/infra/pipeline/html.md",
+    "00_nucleo/prompts/infra/pipeline/paged.md",
+    "00_nucleo/prompts/infra/query_helpers.md"
+  ]
+}

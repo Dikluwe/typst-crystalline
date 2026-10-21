@@ -1,0 +1,130 @@
+{
+  "utc": "2026-10-21T01:11:40.921052+00:00",
+  "status": "PASS bounded unchanged366-row Hash correction for actual candidate3",
+  "closure_binding": {
+    "stage": "final",
+    "passed": true,
+    "source_snapshot_sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+    "build_receipt_sha256": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f",
+    "product_sha256": "ced5125ee4b42a6ad9ac36db432d01b0e6bdafd93d2e042f8ea56b3a966f3fd9",
+    "frozen_input_count": 2142,
+    "current_input_drift": []
+  },
+  "reviewer_role": "Identity implementation author independently recomputed raw receipt rows/provenance; C independent implementation review remains separately bound. No executable/probe/Cargo rerun by reviewer.",
+  "before_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+    "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+  },
+  "candidate_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-3/receipt.json",
+    "sha256": "6a5b2f43f48fec21ff02dd3701aace59f0786e2523ab9834c9335b3113738e17"
+  },
+  "build_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+    "sha256": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f"
+  },
+  "source_snapshot": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-3/receipt.json.gz",
+    "sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a"
+  },
+  "artifact_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-artifact-candidate-3/receipt.json",
+    "sha256": "e28df8ad7806c2aa862d4b773a3f5bf759ed494d2ddcdbe6d5361af1f73a6594"
+  },
+  "cargo_json": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-artifact-candidate-3/cargo.jsonl",
+    "sha256": "99a888da0c6304c13f68bc6d6a013604258dc1e364ac35a8b1639f506a098c42"
+  },
+  "probe_source": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/public_hash_probe.rs",
+    "sha256": "8255fbf6dcda63bdc220d227a665e497f7560ccb8741bb5f2e32035db5d39cde"
+  },
+  "runner": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/run_public_hash_probe.py",
+    "sha256": "97bae110d5ec577f75a902aace0c82a143d73f1b398d3d68f34a774862f96ad2"
+  },
+  "baseline_runner": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-probe-runner-before-candidate/run_public_hash_probe.py",
+    "sha256": "9753520931a31df98f8350447871821c637559612fcb9bdd06bbe463032c5018"
+  },
+  "product": {
+    "path": "lab/target/product/debug/typst",
+    "sha256": "ced5125ee4b42a6ad9ac36db432d01b0e6bdafd93d2e042f8ea56b3a966f3fd9"
+  },
+  "core_rlib": {
+    "path": "lab/target/product/debug/deps/libtypst_core-fe1a0bfb5cea3d93.rlib",
+    "sha256": "8a15cf0f10935a77e0ec094c651bd83cef40979be15e62ca0ddee66109d94a8d"
+  },
+  "core_dep_info": {
+    "path": "lab/target/product/debug/deps/typst_core-fe1a0bfb5cea3d93.d",
+    "sha256": "b0a98d3d1501c447549e33f2470c9623a194f11f98e408319ade1ad0326fa7a3"
+  },
+  "probe_binary": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-3/probe",
+    "sha256": "185f9daa5f54359bf87981293a5ddd2549b1bad5c3dc910f2989b46927b88f4b"
+  },
+  "actual_cargo_source": "/repos/Antigravity/typst-crystalline/01_core/src/lib.rs",
+  "actual_cargo_profile": {
+    "opt_level": "0",
+    "debuginfo": 0,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": false
+  },
+  "cargo_public_and_hashed_rlib_same_inode": true,
+  "raw_stdout_equals_reported_rows": true,
+  "case_keys_order_Eq_antecedents_and_untransported_baselines_unchanged": true,
+  "rows": 366,
+  "before_violations": {
+    "public": 248,
+    "rust": 168
+  },
+  "candidate_violations": {
+    "public": 0,
+    "rust": 0
+  },
+  "attrs_order_negative": {
+    "family": "HtmlAttrsOrder",
+    "placement": "root",
+    "carrier": "none",
+    "depth": 0,
+    "equal": false,
+    "debug_a": "html.elem(HtmlElem { tag: \"div\", attrs: Some({\"id\": \"a\", \"class\": \"b\"}), body: Content(text(\"A\")) })",
+    "debug_b": "html.elem(HtmlElem { tag: \"div\", attrs: Some({\"class\": \"b\", \"id\": \"a\"}), body: Content(text(\"A\")) })",
+    "public_hash_a": "661388469993263681101636323073939407",
+    "public_hash_b": "131521957695184101177886435930303371058",
+    "std_hash_a": "1701301539373923068",
+    "std_hash_b": "4767196535982525801",
+    "public_hash_equal": false,
+    "std_hash_equal": false
+  },
+  "nested_value_float_refutation": {
+    "family": "NestedValueFloat",
+    "placement": "root",
+    "carrier": "none",
+    "depth": 0,
+    "equal": true,
+    "debug_a": "counter.display",
+    "debug_b": "counter.display",
+    "public_hash_a": "216260820787886291663724863720578241756",
+    "public_hash_b": "216260820787886291663724863720578241756",
+    "std_hash_a": "8293753203877513482",
+    "std_hash_b": "8293753203877513482",
+    "public_hash_equal": true,
+    "std_hash_equal": true
+  },
+  "independent_implementation_review": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/hash-depth-implementation-independent-review.json",
+    "sha256": "48a0c89a34cfc7885145459bb43cf903b4b1681439991fd5656e223333065609"
+  },
+  "historical_previous_review": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-final-review.json",
+    "sha256": "acf765b64865d3f0d3f5cb7fb1e1aa71806a28969f6b10359e3f5a3cb112dfe1"
+  },
+  "limits": [
+    "Exactly the immutable366-row corpus, not universal Content/Value hashing or full language parity.",
+    "Equal values must hash equally; no exemption or weakened contract is invented.",
+    "NestedValueFloat remains a refuted hypothesis, not an observed gap.",
+    "Old failed HTML and old successful12-gate/Hash snapshots remain historical; fresh3 acceptance has separate evidence."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-21T00:27:35.671915+00:00",
+  "status": "Static final acceptance audit complete; actual final build/language receipts pending",
+  "reviewer": "figure_realize_impl; independent HTML/core acceptance audit",
+  "current_frozen_input_count": 2142,
+  "current_frozen_inputs_sha256": "837b7250b5046038c0a35a2a93300488383e248d4c9eaae629e98f92d1ad8403",
+  "files": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/accept_final.py": "4cd87f40793926197aa3210daa81691e1153ea325f6ae3addab01d52f300fe14",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validate_final.py": "b5a6788e4c42196ec19fcd61f06ae1afed70645fa9c40f66046046395308c29f",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/replay_equality.py": "741d7f0aac52de5293e7b6f4f357bba7ef70d7506fdd8453cdba80ddda969892",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/final-verifier-hardening.json": "797d62d1bf3725bd7ec784326244ac0bfc6de294a2cb28e9b0c7d442aeb03523",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-hardening-receipt.json": "a69af524cf22b5d0f878412d18134a77e9eb7a77fa771c883df4fec375f903c7"
+  },
+  "focused_measured": {
+    "typst-core": {
+      "receipt": "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-final-typst-core/receipt.json",
+      "sha256": "5dbbf521e12cbe035dff44d4ece2543e4d351a699812c0cad1d8fd0d874dda26",
+      "exit": 0,
+      "tests": 20,
+      "failed": [],
+      "changed_inputs": [],
+      "inputs_equal_current": true
+    },
+    "typst-infra": {
+      "receipt": "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-final-typst-infra/receipt.json",
+      "sha256": "b9fb0bfa4c14b80893dce7fe0e1f3391e7a1a27d4f7dcdcdea55e7bbd07bd5c6",
+      "exit": 0,
+      "tests": 32,
+      "failed": [],
+      "changed_inputs": [],
+      "inputs_equal_current": true
+    }
+  },
+  "resolved_verifier_findings": [
+    "Equality invalid actual JSON can no longer become None==None success; oracle JSON invalidity raises as evidence error. Actual-AST RED then GREEN four controls retained.",
+    "Final acceptance validates exact F84 ordered rows and77required/5debt/2negative, plus source/manifest/build hashes and actual oracle observations for77required.",
+    "Final acceptance validates six Ref matrices with43ordered rows/40required(27language/12error/1termination), actual source/policy/oracle/build hashes and required compile/query exit status; three nonrequired rows remain explicit.",
+    "HTML verifier admits only the exact measured deep-heading warning omission; feature warning plus hints remains mandatory and extra/changed warnings fail. DOCTYPE remains semantic and successful output requires zero oracle-matching error payload."
+  ],
+  "current_blocking_findings": [],
+  "pending": [
+    "candidate-build-final receipt and current binary binding",
+    "equality-candidate actual34 rows:33required and1explicit HTML-fields comparison gap",
+    "html-candidate actual16 rows:13required and3explicit unsupported Link gaps",
+    "F84 replay, six Ref matrices and target11 actual receipts; only existing header-figure-boundary strict failure admitted",
+    "Full final validation12 and final acceptance command receipts"
+  ],
+  "reporting_limits": [
+    "Do not call F84 eighty-four oracle parity passes:77required+5known-debt+2negative-control policies are distinct.",
+    "Do not call Ref43 forty-three required parity cases:40required and3nonrequired rows have different dispositions; required termination only proves bounded termination.",
+    "HTML strict_diagnostic differences include primary origins and selected parsed help lines; required checks do not certify full trace/path/highlight parity. Exact deep-heading warning omission remains debt.",
+    "Equality selected checks exclude known title/frame/empty-attrs repr presentation and one HTML tri-state fields discrepancy. No result here authorizes weakening mechanical hash/observation/producer identity or deduplicating emissions.",
+    "Known header strict failure must remain displayed as10/11 target controls; it is not a green parity row.",
+    "Raw-footer synthetic renderer omission is retained observed domain behavior, not newly ratified language intent. Public resolved-footer language output remains required."
+  ]
+}

@@ -1,0 +1,9 @@
+# Located/Source producer orientation audit
+
+At the frozen batch-G source state, the generic-container shape `Underline(Located(L, Source(span, ContextBlock(id))))` is a concrete source-causal counterexample: collection descends both carriers, but ordered recognition receives only the Located callback and its immediate body is Source. L1 suppresses the underlying ContextBlock root callback through Source, so ordered recognition omits a member already present in by_id. The legacy duplicate-ID fallback has the same recognition. Direct ordered roots Located→Source recurse and work; Source→Located also works. This is a source proof awaiting unit execution, not a measured runtime count.
+
+The Source nucleus promises transparent language identity and one transported occurrence; pipeline discovery is exhaustive and Source-transparent. No invariant prohibits Source inside Located. The existing locate helper accepts arbitrary Content, and both carriers have public fields. Therefore explicit None for Source at the inner match needs a causal correction or a ratified orientation restriction, not an assumption of impossibility.
+
+Current frontend paths traced here usually produce the opposite orientation: Ref capture locates a bare ContextBlock; finish_occurrences receives Source-transparent nodes before locating. No actual language fixture emitting Located→Source→Context is yet proven. This limits parity claims, but does not erase the valid domain/owner obligation.
+
+Request an L0-first unit RED for the generic nested reverse shape and duplicate legacy fallback. A correction must peel only transparent Source at that exact producer root, preserve spans/Location/Arc/styles and one execution, and retain the existing bare/direct-Located/Source-outside/current-Ref controls. No Styled/Realized admission, new API, phase, equality or budget change is implied. Sources and L0s remain frozen during the current Cargo run.

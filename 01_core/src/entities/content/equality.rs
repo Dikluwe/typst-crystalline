@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/equality.md
-//! @prompt-hash bf54e8c5
+//! @prompt-hash 8d671d62
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -28,6 +28,22 @@ impl PartialEq for Content {
             (Self::Par { body: a }, Self::Par { body: b }) => a == b,
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
+            (Self::HtmlElem(a), Self::HtmlElem(b)) => {
+                a.tag == b.tag
+                    && match (&a.attrs, &b.attrs) {
+                        (None, None) => true,
+                        (Some(a), Some(b)) => {
+                            a.len() == b.len()
+                                && a.iter()
+                                    .zip(b.iter())
+                                    .all(|((ak, av), (bk, bv))| ak == bk && av == bv)
+                        }
+                        (None, Some(_)) | (Some(_), None) => false,
+                    }
+                    && a.body == b.body
+            }
+            (Self::HtmlFrame(a), Self::HtmlFrame(b)) => a == b,
+            (Self::Title(a), Self::Title(b)) => a == b,
             // F-5b fatia 1 (P371): strong/emph variantes próprias — `==` por tipo
             // (distinto de `Styled[Bold]` → `strong ≠ #set text`, fidelidade 0107).
             (Self::Strong(a), Self::Strong(b)) => a == b,
@@ -201,12 +217,250 @@ impl PartialEq for Content {
             // Modelo D (Lote 6 P321): StateDisplay/CounterDisplayCallback delegam.
             (Self::StateDisplay(a), Self::StateDisplay(b)) => a == b,
             (Self::CounterDisplayCallback(a), Self::CounterDisplayCallback(b)) => a == b,
-            // Quirk pré-existente preservado (Lote 6 P321): Metadata/State/
-            // StateUpdate NÃO têm arm — caem em `_ => false` (sempre desiguais).
+            // Preserve the three documented mechanical always-unequal cases.
+            (Self::Metadata(_), Self::Metadata(_))
+            | (Self::State(_), Self::State(_))
+            | (Self::StateUpdate(_), Self::StateUpdate(_)) => false,
+            (Self::ContextBlock(a), Self::ContextBlock(b)) => a == b,
             // Lote F-1 (P334): a fronteira dinâmica compara por downcast
             // estrutural (`dyn_eq`); kinds diferentes ⇒ `false`.
             (Self::Dynamic(a), Self::Dynamic(b)) => a.dyn_eq(b.as_ref()),
-            _ => false, // neutro: N16[β] — variantes de Content sem arm de PartialEq retornam false (sempre desiguais)
+            // Every same-kind policy is above; this closed product retains
+            // heterogeneous inequality and forces review on either new axis.
+            (
+                Self::Empty
+                | Self::Text(_)
+                | Self::Space
+                | Self::SpaceFromNewline
+                | Self::Parbreak
+                | Self::Sequence(_)
+                | Self::HtmlElem(_)
+                | Self::HtmlFrame(_)
+                | Self::Par { .. }
+                | Self::Heading(_)
+                | Self::Title(_)
+                | Self::Strong(_)
+                | Self::Emph(_)
+                | Self::Raw(_)
+                | Self::ListItem(_)
+                | Self::EnumItem(_)
+                | Self::Link(_)
+                | Self::Equation(_)
+                | Self::MathSequence(_)
+                | Self::MathIdent(_)
+                | Self::MathText(_)
+                | Self::MathFrac(_)
+                | Self::MathAttach(_)
+                | Self::MathPrimes(_)
+                | Self::MathRoot(_)
+                | Self::MathStretch(_)
+                | Self::MathDelimited(_)
+                | Self::MathLr(_)
+                | Self::MathMid(_)
+                | Self::MathOverbrace(_)
+                | Self::MathUnderbrace(_)
+                | Self::MathUnderbracket(_)
+                | Self::MathUnderparen(_)
+                | Self::MathUndershell(_)
+                | Self::MathOverbracket(_)
+                | Self::MathOverparen(_)
+                | Self::MathOvershell(_)
+                | Self::MathAlignPoint(_)
+                | Self::Linebreak(_)
+                | Self::MathMatrix(_)
+                | Self::MathCases(_)
+                | Self::MathAccent(_)
+                | Self::MathCancel(_)
+                | Self::MathUnderline(_)
+                | Self::MathOverline(_)
+                | Self::MathVec(_)
+                | Self::MathClassOverride(_)
+                | Self::MathLimitsOverride(_)
+                | Self::MathUnderover(_)
+                | Self::MathOp(_)
+                | Self::MathStyled(_)
+                | Self::Label(_)
+                | Self::Ref(_)
+                | Self::CounterDisplay(_)
+                | Self::CounterUpdate(_)
+                | Self::Outline(_)
+                | Self::OutlineEntry(_)
+                | Self::Figure(_)
+                | Self::FigureCaption(_)
+                | Self::Image(_)
+                | Self::Shape(_)
+                | Self::Curve(_)
+                | Self::Transform(_)
+                | Self::Grid(_)
+                | Self::GridHeader(_)
+                | Self::GridFooter(_)
+                | Self::GridCell(_)
+                | Self::SetPage(_)
+                | Self::PageRun(_)
+                | Self::Align(_)
+                | Self::Place(_)
+                | Self::Flush(_)
+                | Self::Styled(_)
+                | Self::Divider(_)
+                | Self::Terms(_)
+                | Self::TermItem(_)
+                | Self::Quote(_)
+                | Self::Document { .. }
+                | Self::Asset { .. }
+                | Self::SmartQuote(_)
+                | Self::PdfAttach(_)
+                | Self::PdfArtifact(_)
+                | Self::Underline(_)
+                | Self::Strike(_)
+                | Self::Overline(_)
+                | Self::SmallCaps { .. }
+                | Self::Pad(_)
+                | Self::Hide(_)
+                | Self::HSpace(_)
+                | Self::VSpace(_)
+                | Self::Pagebreak(_)
+                | Self::Colbreak(_)
+                | Self::Stack(_)
+                | Self::Boxed(_)
+                | Self::Block(_)
+                | Self::TableCell(_)
+                | Self::Bibliography(_)
+                | Self::Cite(_)
+                | Self::Footnote(_)
+                | Self::FootnoteEntry(_)
+                | Self::TableHeader(_)
+                | Self::TableFooter(_)
+                | Self::GridHLine(_)
+                | Self::GridVLine(_)
+                | Self::TableHLine(_)
+                | Self::TableVLine(_)
+                | Self::Table(_)
+                | Self::Repeat(_)
+                | Self::Columns(_)
+                | Self::Metadata(_)
+                | Self::State(_)
+                | Self::StateUpdate(_)
+                | Self::StateDisplay(_)
+                | Self::CounterDisplayCallback(_)
+                | Self::ContextBlock(_)
+                | Self::Dynamic(_),
+                Self::Empty
+                | Self::Text(_)
+                | Self::Space
+                | Self::SpaceFromNewline
+                | Self::Parbreak
+                | Self::Sequence(_)
+                | Self::HtmlElem(_)
+                | Self::HtmlFrame(_)
+                | Self::Par { .. }
+                | Self::Heading(_)
+                | Self::Title(_)
+                | Self::Strong(_)
+                | Self::Emph(_)
+                | Self::Raw(_)
+                | Self::ListItem(_)
+                | Self::EnumItem(_)
+                | Self::Link(_)
+                | Self::Equation(_)
+                | Self::MathSequence(_)
+                | Self::MathIdent(_)
+                | Self::MathText(_)
+                | Self::MathFrac(_)
+                | Self::MathAttach(_)
+                | Self::MathPrimes(_)
+                | Self::MathRoot(_)
+                | Self::MathStretch(_)
+                | Self::MathDelimited(_)
+                | Self::MathLr(_)
+                | Self::MathMid(_)
+                | Self::MathOverbrace(_)
+                | Self::MathUnderbrace(_)
+                | Self::MathUnderbracket(_)
+                | Self::MathUnderparen(_)
+                | Self::MathUndershell(_)
+                | Self::MathOverbracket(_)
+                | Self::MathOverparen(_)
+                | Self::MathOvershell(_)
+                | Self::MathAlignPoint(_)
+                | Self::Linebreak(_)
+                | Self::MathMatrix(_)
+                | Self::MathCases(_)
+                | Self::MathAccent(_)
+                | Self::MathCancel(_)
+                | Self::MathUnderline(_)
+                | Self::MathOverline(_)
+                | Self::MathVec(_)
+                | Self::MathClassOverride(_)
+                | Self::MathLimitsOverride(_)
+                | Self::MathUnderover(_)
+                | Self::MathOp(_)
+                | Self::MathStyled(_)
+                | Self::Label(_)
+                | Self::Ref(_)
+                | Self::CounterDisplay(_)
+                | Self::CounterUpdate(_)
+                | Self::Outline(_)
+                | Self::OutlineEntry(_)
+                | Self::Figure(_)
+                | Self::FigureCaption(_)
+                | Self::Image(_)
+                | Self::Shape(_)
+                | Self::Curve(_)
+                | Self::Transform(_)
+                | Self::Grid(_)
+                | Self::GridHeader(_)
+                | Self::GridFooter(_)
+                | Self::GridCell(_)
+                | Self::SetPage(_)
+                | Self::PageRun(_)
+                | Self::Align(_)
+                | Self::Place(_)
+                | Self::Flush(_)
+                | Self::Styled(_)
+                | Self::Divider(_)
+                | Self::Terms(_)
+                | Self::TermItem(_)
+                | Self::Quote(_)
+                | Self::Document { .. }
+                | Self::Asset { .. }
+                | Self::SmartQuote(_)
+                | Self::PdfAttach(_)
+                | Self::PdfArtifact(_)
+                | Self::Underline(_)
+                | Self::Strike(_)
+                | Self::Overline(_)
+                | Self::SmallCaps { .. }
+                | Self::Pad(_)
+                | Self::Hide(_)
+                | Self::HSpace(_)
+                | Self::VSpace(_)
+                | Self::Pagebreak(_)
+                | Self::Colbreak(_)
+                | Self::Stack(_)
+                | Self::Boxed(_)
+                | Self::Block(_)
+                | Self::TableCell(_)
+                | Self::Bibliography(_)
+                | Self::Cite(_)
+                | Self::Footnote(_)
+                | Self::FootnoteEntry(_)
+                | Self::TableHeader(_)
+                | Self::TableFooter(_)
+                | Self::GridHLine(_)
+                | Self::GridVLine(_)
+                | Self::TableHLine(_)
+                | Self::TableVLine(_)
+                | Self::Table(_)
+                | Self::Repeat(_)
+                | Self::Columns(_)
+                | Self::Metadata(_)
+                | Self::State(_)
+                | Self::StateUpdate(_)
+                | Self::StateDisplay(_)
+                | Self::CounterDisplayCallback(_)
+                | Self::ContextBlock(_)
+                | Self::Dynamic(_),
+            ) => false,
         }
     }
 }
@@ -218,5 +472,149 @@ mod equality_tests {
     #[test]
     fn causal_space_origin_is_not_structural_identity() {
         assert_eq!(Content::Space, Content::SpaceFromNewline);
+    }
+}
+
+#[cfg(test)]
+mod batch_g_tests {
+    use super::Content;
+    use crate::entities::content::{LocatedContent, RealizedContent, SourceContent};
+    use crate::entities::elements::context_block::ContextBlockElem;
+    use crate::entities::func::Func;
+    use crate::entities::html::{HtmlAttrs, HtmlBody, HtmlElem, HtmlFrameElem};
+    use crate::entities::location::Location;
+    use crate::entities::span::Span;
+    use std::hash::{DefaultHasher, Hash, Hasher};
+    use std::sync::Arc;
+
+    fn html(attrs: Option<HtmlAttrs>, body: HtmlBody) -> Content {
+        Content::HtmlElem(Arc::new(HtmlElem::new("div".into(), attrs, body)))
+    }
+    fn hash(content: &Content) -> u64 {
+        let mut h = DefaultHasher::new();
+        content.hash(&mut h);
+        h.finish()
+    }
+
+    #[test]
+    fn batch_g_title_same_kind_compares_body() {
+        assert_eq!(
+            Content::title(Content::text("A")),
+            Content::title(Content::text("A"))
+        );
+        assert_ne!(
+            Content::title(Content::text("A")),
+            Content::title(Content::text("B"))
+        );
+    }
+
+    #[test]
+    fn batch_g_html_frame_same_kind_compares_body() {
+        let a = Content::HtmlFrame(Arc::new(HtmlFrameElem { body: Content::text("A") }));
+        assert_eq!(a, a.clone());
+        assert_ne!(
+            a,
+            Content::HtmlFrame(Arc::new(HtmlFrameElem { body: Content::text("B") }))
+        );
+    }
+
+    #[test]
+    fn batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state() {
+        let first: HtmlAttrs = [("id".into(), "a".into()), ("class".into(), "b".into())]
+            .into_iter()
+            .collect();
+        let reverse: HtmlAttrs =
+            [("class".into(), "b".into()), ("id".into(), "a".into())]
+                .into_iter()
+                .collect();
+        let a =
+            html(Some(first.clone()), HtmlBody::Content(Box::new(Content::text("A"))));
+        let same = html(Some(first), HtmlBody::Content(Box::new(Content::text("A"))));
+        let reordered =
+            html(Some(reverse), HtmlBody::Content(Box::new(Content::text("A"))));
+        assert_eq!(a, same);
+        assert_ne!(a, reordered);
+        assert_ne!(html(None, HtmlBody::Unset), html(None, HtmlBody::None));
+        assert_ne!(
+            html(None, HtmlBody::None),
+            html(None, HtmlBody::Content(Box::new(Content::Empty)))
+        );
+        assert_ne!(
+            html(None, HtmlBody::Unset),
+            html(Some(HtmlAttrs::default()), HtmlBody::Unset)
+        );
+        for content in [
+            a.clone(),
+            Content::sequence(vec![Content::text("x"), a.clone()]),
+            Content::title(a.clone()),
+            Content::HtmlFrame(Arc::new(HtmlFrameElem { body: a.clone() })),
+        ] {
+            assert_eq!(content, content.clone());
+            assert_eq!(hash(&content), hash(&content.clone()));
+            assert_eq!(
+                crate::entities::content_hash::hash_content(&content),
+                crate::entities::content_hash::hash_content(&content.clone())
+            );
+        }
+        assert_eq!(hash(&a), hash(&same));
+    }
+
+    #[test]
+    fn batch_g_context_hub_equality_uses_owned_id_without_executing_closure() {
+        let make = |id, name| {
+            Content::ContextBlock(Arc::new(ContextBlockElem {
+                id,
+                closure: Func::native(name, |_, _, _, _| {
+                    panic!("mechanical equality executed closure")
+                }),
+            }))
+        };
+        let a = make(7, "a");
+        assert_eq!(a, make(7, "different-capability"));
+        assert_ne!(a, make(8, "a"));
+        assert_eq!(hash(&a), hash(&make(7, "different-capability")));
+    }
+
+    #[test]
+    fn batch_g_historical_false_cases_and_transparent_heterogeneous_pairs_remain() {
+        use crate::entities::elements::{
+            metadata::MetadataElem, state::StateElem, state_update::StateUpdateElem,
+        };
+        use crate::entities::value::Value;
+        for content in [
+            Content::Metadata(Arc::new(MetadataElem { value: Box::new(Value::Int(1)) })),
+            Content::State(Arc::new(StateElem {
+                key: "k".into(),
+                init: Box::new(Value::Int(1)),
+            })),
+            Content::StateUpdate(Arc::new(StateUpdateElem {
+                key: "k".into(),
+                update: crate::entities::state_update::StateUpdate::Set(Box::new(
+                    Value::Int(1),
+                )),
+            })),
+        ] {
+            assert_ne!(content, content.clone());
+        }
+        let a = Content::text("a");
+        for wrapper in [
+            Content::Source(Arc::new(SourceContent {
+                body: a.clone(),
+                span: Span::detached(),
+            })),
+            Content::Located(Arc::new(LocatedContent {
+                body: a.clone(),
+                location: Location::from_raw(4),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("ignored"),
+                visual: a.clone(),
+            })),
+        ] {
+            assert_eq!(a, wrapper);
+            assert_eq!(wrapper, a);
+            assert_ne!(wrapper, Content::Space);
+            assert_ne!(Content::Space, wrapper);
+        }
     }
 }

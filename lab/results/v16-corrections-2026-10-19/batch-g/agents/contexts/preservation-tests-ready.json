@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-20T23:14:12.776064+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "productive_source_changes": false,
+  "source": {
+    "03_infra/src/pipeline.rs": {
+      "original_complete_bytes_unchanged": true,
+      "before_sha256": "2bfdcc544bfaaab8a9a1cfe17b698fb5c96052bac684c0948efa8f24e6c8739a",
+      "after_sha256": "c8f84bce815897987121ba167e5b888be3b1e0502baaf73d77052f8756235c21",
+      "new_tests": [
+        "batch_g_generic_collection_preserves_located_source_and_visual_projection",
+        "batch_g_generic_collection_uses_captured_chain_then_inner_delta_and_last_payload"
+      ]
+    },
+    "03_infra/src/pipeline/context_stabilization.rs": {
+      "original_complete_bytes_unchanged": true,
+      "before_sha256": "4254f747e74f0f343d4c7e2c8259bc8fd834b85e910d646b0b136e47f85a2f96",
+      "after_sha256": "9540e01274e1e1a3c93dc2609480854ac90d7bdecd68a9410fd14c9425896008",
+      "new_tests": [
+        "batch_g_generic_order_recognizes_bare_and_located_source_producers",
+        "batch_g_legacy_duplicate_keeps_first_id_order_last_payload_chain_and_single_execution",
+        "batch_g_actual_reference_capture_preserves_generated_and_source_producers"
+      ]
+    },
+    "03_infra/src/pipeline/paged.rs": {
+      "original_complete_bytes_unchanged": true,
+      "before_sha256": "1c1f745818f736e02e36d0c12272642f994d0b00baf96887dc711b59bb302e6e",
+      "after_sha256": "e80de9521256012349042632a61b15ae3e1795d196112b5d6091403f4d3f34c4",
+      "new_tests": [
+        "batch_g_font_proof_accepts_only_strings_or_all_string_arrays_without_evaluation",
+        "batch_g_layout_proof_checks_source_both_realized_branches_and_marginals",
+        "batch_g_layout_proof_visits_table_caption_and_grid_cells_header_footer",
+        "batch_g_unproved_context_still_compiles_through_the_ordinary_full_cycle",
+        "batch_g_outline_phase_preserves_all_four_shared_carriers_and_semantic_index",
+        "batch_g_unqualified_outline_root_uses_general_prefix_observation"
+      ]
+    }
+  },
+  "cargo_run": false,
+  "l0_updated_before_tests": true
+}

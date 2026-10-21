@@ -1,0 +1,1 @@
+{let a = (context panic("must-not-run-A")); let b = (context panic("must-not-run-B")); (equal: a == b, repr: repr(a), fields: a.fields())}

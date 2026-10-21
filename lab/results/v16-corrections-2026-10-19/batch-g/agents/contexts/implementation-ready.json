@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-20T23:38:08.919561+00:00",
+  "new_cfg_test_tail_unchanged": {
+    "03_infra/src/pipeline.rs": "a1538ed1a3149571989e044ff99277728c36ef3c97ccd490ee51ecbd105a5890",
+    "03_infra/src/pipeline/context_stabilization.rs": "a31a1e13540a6dd6917e9dcaaea1032ce91affd0a4a61f43606ad95942596a21",
+    "03_infra/src/pipeline/paged.rs": "e5d830ab53dd9f505d75cee51db728cd1afd8de81bd54eb35d5689b1652d541b"
+  },
+  "changed_sources": {
+    "03_infra/src/pipeline.rs": "9e57536fb22813ddf9cf835fa02b26b4ed2bafb5a401f281f225b07085ae3427",
+    "03_infra/src/pipeline/context_stabilization.rs": "9fc5bcf0ee33c75d7ee121e804b690e4af2972c06c38f382a06ca78b1465fa8f",
+    "03_infra/src/pipeline/paged.rs": "5163ae8085bb17c2131af66ddc4a5c37bc546b87c6aa51ae655895e8379ad3e7"
+  },
+  "cargo_run": false,
+  "formatted_or_sealed": false,
+  "recognition_sites_preserved": 2,
+  "shared_producer_recognition_helper": false
+}

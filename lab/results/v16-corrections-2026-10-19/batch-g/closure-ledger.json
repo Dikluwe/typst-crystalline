@@ -1,0 +1,878 @@
+{
+  "utc": "2026-10-21T01:12:52.389637+00:00",
+  "state": "uncommitted working tree",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "branch": "codex/tekt-mature-layout",
+  "diff_head_stat": " .../core/compiler/eval/operators/equality.md       |  80 +-\n .../prompts/core/compiler/realize/bare_math.md     |  39 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  45 +-\n .../prompts/core/entities/content/equality.md      |  71 +-\n .../prompts/core/entities/content/identity.md      |  80 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  91 ++-\n 00_nucleo/prompts/infra/export/html/encoding.md    |  26 +-\n 00_nucleo/prompts/infra/pipeline.md                |  13 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 106 ++-\n .../infra/pipeline/context_stabilization.md        |  15 +-\n 00_nucleo/prompts/infra/pipeline/html.md           |  40 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  13 +-\n 00_nucleo/prompts/infra/query_helpers.md           |  48 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 267 ++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 349 ++++++++-\n 01_core/src/compiler/realize/mod.rs                | 354 ++++++++-\n 01_core/src/entities/content/equality.rs           | 406 +++++++++-\n 01_core/src/entities/content/identity.rs           | 326 +++++++-\n 03_infra/src/export/html/document.rs               | 419 ++++++++++-\n 03_infra/src/export/html/encoding.rs               | 184 ++++-\n 03_infra/src/pipeline.rs                           | 224 +++++-\n 03_infra/src/pipeline/bundle.rs                    | 504 ++++++++++++-\n 03_infra/src/pipeline/context_stabilization.rs     | 823 ++++++++++++++++++++-\n 03_infra/src/pipeline/html.rs                      | 442 ++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 626 +++++++++++++++-\n 03_infra/src/query_helpers.rs                      | 363 ++++++++-\n 26 files changed, 5817 insertions(+), 137 deletions(-)\n",
+  "status": "closed within the recorded G scope; no complete parity claim",
+  "source_owner_pairs": [
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "source_sha256": "e0b9c0bf16975992f07816691585b2c68e597e9e9260b41c36373cd480d72b9f",
+      "owner_sha256": "89e8f21fe8230a505ee12e5bf2d3de3588e1f2f70c58248777b63d8c33df6471",
+      "source_prompt_hash": "f8077a4c",
+      "computed_effective_prompt_hash": "f8077a4c",
+      "owner_code_hash": "9126a6cf",
+      "computed_source_hash_without_header": "9126a6cf",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+        "00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml": "a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329",
+        "00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml": "7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c",
+      "owner_sha256": "e5195424ebbac0814f1bc6b3990183e2ab44aab7fcd6ef5346760b9ed436171c",
+      "source_prompt_hash": "c8f739b2",
+      "computed_effective_prompt_hash": "c8f739b2",
+      "owner_code_hash": "35e7b028",
+      "computed_source_hash_without_header": "35e7b028",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "source_prompt_hash": "87403de5",
+      "computed_effective_prompt_hash": "87403de5",
+      "owner_code_hash": "55677093",
+      "computed_source_hash_without_header": "55677093",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/map-content-change.toml": "6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043",
+        "00_nucleo/prompts/_nuclei/content/sequence-realization.toml": "14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml": "983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3",
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/equality.md",
+      "source_sha256": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee",
+      "owner_sha256": "32c36031c975e8596bffc62d1a274a2a4efcaa445fc84b9f910cf8603fe8ce5a",
+      "source_prompt_hash": "8d671d62",
+      "computed_effective_prompt_hash": "8d671d62",
+      "owner_code_hash": "c814a03a",
+      "computed_source_hash_without_header": "c814a03a",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/entities/content/identity.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/identity.md",
+      "source_sha256": "5e00c14808a08609c5a4c6e23efbe9f24d0bb2818ba91397ae95d3f66d53e565",
+      "owner_sha256": "e302da31e229ed7b7bb96ffdc252760d6f6f3c17ec7fdb6008ec66f8a262c189",
+      "source_prompt_hash": "4e1b9ce7",
+      "computed_effective_prompt_hash": "4e1b9ce7",
+      "owner_code_hash": "82734be4",
+      "computed_source_hash_without_header": "82734be4",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded",
+        "00_nucleo/prompts/_nuclei/math/matrix-morphology.toml": "dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735",
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c",
+        "00_nucleo/prompts/_nuclei/table/cell-presence.toml": "f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221",
+        "00_nucleo/prompts/_nuclei/table/cell-projection.toml": "8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf",
+        "00_nucleo/prompts/_nuclei/transform-semantics.toml": "6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md",
+      "source_sha256": "8c584ce08e3336a52ad28c35663a43a0e8545dd38740f88d0c149713f62c54ce",
+      "owner_sha256": "f053bc3c205f0388ce7ff50d4ed2af00c9f2e9fd0aba792e8d6453621d006c6e",
+      "source_prompt_hash": "226f1b00",
+      "computed_effective_prompt_hash": "226f1b00",
+      "owner_code_hash": "3531eac9",
+      "computed_source_hash_without_header": "3531eac9",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/export/html/encoding.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+      "source_sha256": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e",
+      "owner_sha256": "f98d9765183832abb04ef034cd830aacdeb8701e953e1ccde2eca7b39185aa49",
+      "source_prompt_hash": "44e9a9ab",
+      "computed_effective_prompt_hash": "44e9a9ab",
+      "owner_code_hash": "c421616c",
+      "computed_source_hash_without_header": "c421616c",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md",
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065",
+      "owner_sha256": "1a65b03223c787c6a0d530b2699255291fa87a681e57f3dcae8afbbff360cab0",
+      "source_prompt_hash": "f59d6dd0",
+      "computed_effective_prompt_hash": "f59d6dd0",
+      "owner_code_hash": "9d4eeafe",
+      "computed_source_hash_without_header": "9d4eeafe",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/expression-source-identity.toml": "a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "source_sha256": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+      "owner_sha256": "5c9e08b465d89e18f3d6d9c37a9a7253bee00ba0365468c8cc43b1aa88ceb2e2",
+      "source_prompt_hash": "9a480b5e",
+      "computed_effective_prompt_hash": "9a480b5e",
+      "owner_code_hash": "6f2aa8da",
+      "computed_source_hash_without_header": "6f2aa8da",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml": "9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf",
+        "00_nucleo/prompts/_nuclei/export/svg-destination-context.toml": "199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0",
+        "00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml": "fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417",
+        "00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml": "06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "source_prompt_hash": "c319d05d",
+      "computed_effective_prompt_hash": "c319d05d",
+      "owner_code_hash": "bb35e5f9",
+      "computed_source_hash_without_header": "bb35e5f9",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compilation-metric-cache.toml": "389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4",
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b",
+        "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/html.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+      "source_sha256": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e",
+      "owner_sha256": "ab5595d4abd74fc6d998a3b0c9eab395f14b01fc6d579912a36a1175b020ce01",
+      "source_prompt_hash": "627fd360",
+      "computed_effective_prompt_hash": "627fd360",
+      "owner_code_hash": "e046d357",
+      "computed_source_hash_without_header": "e046d357",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml": "9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf",
+        "00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml": "fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "source_prompt_hash": "bde0cb01",
+      "computed_effective_prompt_hash": "bde0cb01",
+      "owner_code_hash": "9b02b5e2",
+      "computed_source_hash_without_header": "9b02b5e2",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compilation-metric-cache.toml": "389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4",
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/math/callback-realization.toml": "4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030",
+        "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde",
+        "00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml": "a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "source_prompt_hash": "4e60a29a",
+      "computed_effective_prompt_hash": "4e60a29a",
+      "owner_code_hash": "c5f39b73",
+      "computed_source_hash_without_header": "c5f39b73",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    }
+  ],
+  "evidence": {
+    "scope.json": "0e8df942b5b569f4163836e764ecf15e179aedcac71397cfb079cfa48f47563f",
+    "cases.json": "a5a252360b10ce66fdc45387932dfc6908c096141a93fe1a0b3cea26a231c74f",
+    "baseline-inputs.json.gz": "a4c07f0060f42ea828ee5b1bb7ddb9eb0d0e377c851d13f81eb78b0a59cf126f",
+    "reseal-candidate-3/receipt.json.gz": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+    "lint-final-3/lint-state.json.gz": "785871817c7c160c201654a029767d3322244d8c3afed121169c6874d220abc7",
+    "lint-delta-3.json": "b4b28edb851585f04f5b08caaa2507c6a74fa282a504e60493ca7ecd1e8dc6a9",
+    "structural-green-3/receipt.json": "1ddfed41a3c09a920e2111573eeb2d993b9ecd2977ee9923d2568196b0d2f126",
+    "tuple-axes-green-3/receipt.json": "784843038ba0554017fb61ba41fa6730171657e1964aa338d874f66ca24582a1",
+    "validation-final-3/validation-state.json.gz": "48cd62f87c3f800741bf61c7eddcddc55664e1850968f4bcf7f7e1ed044ffc47",
+    "validation-final-3/validation-commands.json": "a49e0a04c3ae3ad4a85779ada8013850fdd2658d881717ecb78b61b5b6c88cbc",
+    "validation-final-3/validation-freeze.json": "2ec57ed83fd5cd5069e23ed410aabbc1e1fbb2f3709b44bf6ed0c4afbe625159",
+    "candidate-build-3/receipt.json": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f",
+    "hash-before/receipt.json": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664",
+    "hash-candidate-3/receipt.json": "6a5b2f43f48fec21ff02dd3701aace59f0786e2523ab9834c9335b3113738e17",
+    "equality-candidate-3/receipt.json": "16af2314b21b904ba00b60ff5c65a2c67612acd1ab2bb257261bb54e604f96eb",
+    "html-candidate-3/receipt.json": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef",
+    "figure-policy-replay-3/receipt.json": "215d7866561bfd1b16615119671f46419f87e2e776f69c2d326e4c4ad7a45da6",
+    "reference-corpora-3/receipt.json": "da40fec8b7f3b7c11c142ec697f535fe4159690e8bc15cf1641cff4144c42be5",
+    "figure-target-controls-3/receipt.json": "e48467b251bc1532aceebd32fb95ba5e1e8a1942460f2c9fbbc72e1aa884d9ad",
+    "acceptance-3/commands.json": "1ff4b33fcecae3814e5f6d8aef918ae8d99f5c07086130d64957d82bf8bc0c81",
+    "agents/core/api-scope-review-final13-3.json": "a644176d3383681c83fe5c2560407a11b84eb48da58a6f6b578add9cd5213d97",
+    "gates-3-launch.json": "dd44d1b87699d686d967f82d1d09552780296d64a9beb82d256f8b9f5368155e",
+    "acceptance-3-launch.json": "dcd6cf7446b6cb1d0b65e9e189b2909ff86a0fff66cea3ea324b44008f622532",
+    "acceptance-worker-state-3.json": "69a3cb6d24d94f25605e8b2b48cdbd033382186a5280d3f4bca94e7bda50c1c7",
+    "agents/core/hash-final-review-3.json": "4f0290b40c9749955b880edec01da0ff4df06deeb44cc9d2fc5e5255d2e71cdd",
+    "agents/html/final-acceptance-review-3.json": "3d972851a7637b61a5189a253bea8f9e3da6567e81bf42b0f1bce02d723298b7",
+    "agents/contexts/final13-structural-review-3.json": "44e2ead848513d092614311da5cfd258723e6d96d63da1cdb27a7503f89a78b9",
+    "agents/contexts/final13-lint-review-3.json": "02269bb42eb0011e8fafbc9a9d871fb583c753e6b6eab13a372eeb3aa1b6f857",
+    "agents/html/final-verifier-hardening.json": "797d62d1bf3725bd7ec784326244ac0bfc6de294a2cb28e9b0c7d442aeb03523",
+    "agents/html/header-debt-verifier-hardening.json": "df4d38cb808fef04724c9a47899487238d9f3e919317796b2f58bf09e2f9f8e8",
+    "open-obligations.json": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270"
+  },
+  "findings": [
+    {
+      "id": "V16-049",
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+      "current_match_line": 54,
+      "status": "closed",
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c",
+      "owner_sha256": "e5195424ebbac0814f1bc6b3990183e2ab44aab7fcd6ef5346760b9ed436171c",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-050",
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+      "current_match_line": 199,
+      "status": "closed",
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c",
+      "owner_sha256": "e5195424ebbac0814f1bc6b3990183e2ab44aab7fcd6ef5346760b9ed436171c",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-051",
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "current_match_line": 90,
+      "status": "closed",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-052",
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "current_match_line": 236,
+      "status": "closed",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-074",
+      "source": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/equality.md",
+      "current_match_line": 11,
+      "status": "closed",
+      "source_sha256": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee",
+      "owner_sha256": "32c36031c975e8596bffc62d1a274a2a4efcaa445fc84b9f910cf8603fe8ce5a",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-088",
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md",
+      "current_match_line": 57,
+      "status": "closed",
+      "source_sha256": "8c584ce08e3336a52ad28c35663a43a0e8545dd38740f88d0c149713f62c54ce",
+      "owner_sha256": "f053bc3c205f0388ce7ff50d4ed2af00c9f2e9fd0aba792e8d6453621d006c6e",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-089",
+      "source": "03_infra/src/export/html/encoding.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+      "current_match_line": 14,
+      "status": "closed",
+      "source_sha256": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e",
+      "owner_sha256": "f98d9765183832abb04ef034cd830aacdeb8701e953e1ccde2eca7b39185aa49",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-092",
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "current_match_line": 336,
+      "status": "closed",
+      "source_sha256": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+      "owner_sha256": "5c9e08b465d89e18f3d6d9c37a9a7253bee00ba0365468c8cc43b1aa88ceb2e2",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-093",
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "current_match_line": 270,
+      "status": "closed",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-094",
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "current_match_line": 638,
+      "status": "closed",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-095",
+      "source": "03_infra/src/pipeline/html.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+      "current_match_line": 306,
+      "status": "closed",
+      "source_sha256": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e",
+      "owner_sha256": "ab5595d4abd74fc6d998a3b0c9eab395f14b01fc6d579912a36a1175b020ce01",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-096",
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "current_match_line": 15,
+      "status": "closed",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-097",
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "current_match_line": 94,
+      "status": "closed",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-098",
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "current_match_line": 345,
+      "status": "closed",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-099",
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md",
+      "current_match_line": 517,
+      "status": "closed",
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065",
+      "owner_sha256": "1a65b03223c787c6a0d530b2699255291fa87a681e57f3dcae8afbbff360cab0",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-101",
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "current_match_line": 215,
+      "status": "closed",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-102",
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "current_match_line": 250,
+      "status": "closed",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    },
+    {
+      "id": "V16-103",
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "current_match_line": 381,
+      "status": "closed",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "primary_e0004_count": 1,
+      "acceptance": [
+        "focused-green-3-typst-core/receipt.json",
+        "focused-green-3-typst-infra/receipt.json",
+        "structural-green-3/receipt.json",
+        "lint-delta-3.json",
+        "validation-final-3/validation-commands.json"
+      ]
+    }
+  ],
+  "additional_causes": [
+    {
+      "utc": "2026-10-20T23:14:06.636238+00:00",
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "reason": "Source- and pinned-oracle-backed comparison-only Context opacity correction discovered in V16-074, separated from mechanical id Eq; no public/default/phase change. L0-first and real language RED required.",
+      "evidence": "agents/core/context-intent-review.md",
+      "evidence_sha256": "05c64e6cff8c2df30351246248b47766be8ef20bccb1b44e8a74ec15efae20dc"
+    },
+    {
+      "utc": "2026-10-21T00:04:17.149014+00:00",
+      "evidence": "hash-before/receipt.json",
+      "evidence_sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664",
+      "cause": "Invisible carriers consume the Debug depth budget and give equal Content different Debug-based public/std hashes; source-bound real artifact proves it in existing and newly equal wrappers.",
+      "classification": "ADR-0127 continuous internal formula correction of existing source transparency and Eq/Hash obligations; no signature/entity/trait/default/product mode/phase change. hash_content already scopes determinism to compiler/Rust and documents Debug formatting may change hashes. Preserve visible structural depth limit and hash algorithm, occurrence and observation identity.",
+      "not_evidence_of_a_debt": "The NestedValueFloat control is equal and has equal hashes because CounterDisplay Debug omits that payload; its inferred negative-zero mismatch was refuted, not treated as an observed failing obligation."
+    }
+  ],
+  "supplemental_identity_witnesses": [
+    {
+      "kind": "carrier-transparent Debug projection",
+      "original_inventory_id": null,
+      "target": {
+        "file": "01_core/src/entities/content/identity.rs",
+        "line": 305,
+        "byte_start": 11663,
+        "byte_end": 11678,
+        "after": "impl fmt::Debug for Content",
+        "anchor": "match content {"
+      },
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/entities/content/identity.rs:305:19\n     |\n 305 |             match content {\n     |                   ^^^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 425 ~                 | Content::Dynamic(..) => break,\n 426 ~                 &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 16637,
+                  "byte_start": 16637,
+                  "column_end": 48,
+                  "column_start": 48,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/identity.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 425,
+                  "line_start": 425,
+                  "suggested_replacement": ",\n                &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 48,
+                      "highlight_start": 48,
+                      "text": "                | Content::Dynamic(..) => break,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 11676,
+              "byte_start": 11669,
+              "column_end": 26,
+              "column_start": 19,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/identity.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 305,
+              "line_start": 305,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 26,
+                  "highlight_start": 19,
+                  "text": "            match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "nominal Debug formatter",
+      "original_inventory_id": null,
+      "target": {
+        "file": "01_core/src/entities/content/identity.rs",
+        "line": 441,
+        "byte_start": 16979,
+        "byte_end": 16988,
+        "after": "fn fmt_content(",
+        "anchor": "match c {"
+      },
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/entities/content/identity.rs:441:11\n     |\n 441 |     match c {\n     |           ^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 578 ~         Content::PageRun(e) => write!(f, \"page.run({:?})\", e),\n 579 ~         &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 24985,
+                  "byte_start": 24985,
+                  "column_end": 62,
+                  "column_start": 62,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/identity.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 578,
+                  "line_start": 578,
+                  "suggested_replacement": ",\n        &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 62,
+                      "highlight_start": 62,
+                      "text": "        Content::PageRun(e) => write!(f, \"page.run({:?})\", e),"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 16986,
+              "byte_start": 16985,
+              "column_end": 12,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/identity.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 441,
+              "line_start": 441,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 12,
+                  "highlight_start": 11,
+                  "text": "    match c {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    }
+  ],
+  "remaining_obligations": "open-obligations.json"
+}

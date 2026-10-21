@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-20T23:38:08.814869+00:00",
+  "pre_consolidation_l0": {
+    "00_nucleo/prompts/infra/pipeline.md": "7f5e96c988d50f12a650602a9043114c71fef9db36a33444cfbd0d1604d83218",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "37de47d5397f1a06839c15cae3e3a12d41f84a6ada118dcb9b3b0f5ddaafc6a6",
+    "00_nucleo/prompts/infra/pipeline/paged.md": "739e8c9b71cbfee15a311dc4bb0e6faff7f2fcf73c33f94d019dd9ff2ede4b8d"
+  }
+}

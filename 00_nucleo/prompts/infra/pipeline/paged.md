@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: 16ce31b0
+Hash do Código: 9b02b5e2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
@@ -214,3 +214,14 @@ matches the separately measured vanilla lexical20pt behavior. Do not change
 style snapshots or script sizing in this correction. Preserve all
 invalid-return, source-span, callback/store and prior validation controls; no
 suppression, fabricated negative or weakened assertion is authorized.
+
+
+## Closed conservative reuse proofs
+
+Measurement before decision: clean baseline4382891f0d5f0839669597cb5c90a98f24cfb8bd paged.rs:15–20 accepts text.font Str or an all-Str Array; entities/value.rs:83–219 contains39 alternatives. paged.rs:55–123 proves24 physical/recursive Content classes and leaves96 unproved; entities/content.rs:233–1309 contains120 alternatives. paged.rs:214–237 compares pointers only for Sequence, Styled, Located and Realized root pairs before ordinary prefix observation. Exact immutable inputs and real compiler diagnostics are retained in lab/results/v16-corrections-2026-10-19/batch-g/structural-baseline-2/. These are mechanical sufficient proofs, not Typst equality or new parity claims.
+
+The font predicate explicitly rejects the other37 Value alternatives. Preserve empty/all-Str Array acceptance and mixed-array rejection without catalog lookup, font resolution, evaluation or I/O. The arbitrary-string custom-key fallback remains unchanged. The initial-layout predicate explicitly leaves the other96 Content alternatives unproved. Retain every true/recursive case, transparent Source, both original and visual for Realized, raw/resolved Table/Grid/cell slots and SetPage marginal restrictions. False preserves the full layout/context/numbering cycle; it does not reject valid language or infer an empty render. The producer collector's visual-only projection is not this proof's contract.
+
+The immutable-outline continuity proof keeps exactly four same-kind Arc::ptr_eq arms first. Its finite negative complement explicitly lists all120 current Content alternatives independently on both tuple axes, returning false after those four accepted pairs. No enum wildcard, structural/hash equality or extra qualified carrier is allowed. New-left/old-right, old-left/new-right and new/new inputs each require an attributable missing-decision witness. Rebuilt equal roots do not qualify through pointer identity. Preserve general prefix observation, optional second run, errors and causal warning order. This proof is a private immutable-carrier optimization, not language identity.
+
+Acceptance preserves Str/empty/all-Str/mixed/nonfamily font inputs with inert Func/Content decoys; Source, both Realized branches, Table/Grid/SetPage restrictions; ordinary full-cycle output for valid unproved content; and the four shared outline carriers plus unqualified general-prefix handling. Existing rebuilt/prefix-change/error/warning controls remain binding. Independent enum-domain and tuple-axis compiler witnesses supplement runtime controls; grouped-arm execution cannot certify every nominal alternative. Keep PageStore, metrics lifetime, Source origins, known-style/no-Location math callbacks and modern counter.final guards unchanged. This scope is continuous internal exhaustiveness under ADR-0127 with no API, default, phase, compatibility, proof-whitelist or Nucleus expansion.

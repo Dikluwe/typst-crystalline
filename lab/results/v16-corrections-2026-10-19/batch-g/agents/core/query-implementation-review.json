@@ -1,0 +1,56 @@
+{
+  "utc": "2026-10-20T23:35:15.871599+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "mode": "Independent read-only final-implementation review; no Cargo/source/L0/seal mutation",
+  "inputs": {
+    "03_infra/src/query_helpers.rs": "e7965246af7b982ecff4d633c6f95521f2415f9aa1c72be2cd560f554135af08",
+    "00_nucleo/prompts/infra/query_helpers.md": "64f979621fa9d91e70c9881c8cb4ea909a6c8c947daca38858908c9bd25ab921",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/audit.json": "221fdc0dc7d96d265a1f76bcd75793d71e7e9edcba079d3c8a6980a3af871cf0",
+    "01_core/src/entities/content/sequence.rs": "8b0337c870308cfa1463b59bf11126677b0344953f93f686b02c7ab687a094d8",
+    "01_core/src/entities/content.rs": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+    "01_core/src/entities/element_kind.rs": "c8b79dc03ffc9d32d7012374f78e4bb2ffd86467d0c345797d35fdc0f1712228"
+  },
+  "verdict": "PASS substantive/static boundaries; dynamic integration/evolution Green pending root",
+  "three_closed_matches": {
+    "count_element_in_content": {
+      "match_line": 215,
+      "domain_size": 22,
+      "all_current_variants_explicit": true,
+      "missing": [],
+      "open_neutral_fallback": false
+    },
+    "count_list_groups": {
+      "match_line": 250,
+      "domain_size": 120,
+      "all_current_variants_explicit": true,
+      "missing": [],
+      "open_neutral_fallback": false
+    },
+    "count_enum_groups": {
+      "match_line": 381,
+      "domain_size": 120,
+      "all_current_variants_explicit": true,
+      "missing": [],
+      "open_neutral_fallback": false
+    }
+  },
+  "existing_cfg_test_prefix_byte_identical": true,
+  "new_tests_count": 4,
+  "preservation": [
+    "Raw empty Sequence1; canonical Empty0 (sequence.rs15\u201321 verified; prior wrong construction citation corrected).",
+    "List/Enum bare item recurses into body, simple bareitem0; explicit group1; Styledgroup0; mixedsequence child recursion retained.",
+    "Matching nested item body can contain group and remains recursively counted.",
+    "Direct approximate helper Heading/Metadata0 remains distinct from actual introspector Heading2/Metadata1 summaries.",
+    "No ElementKind future alternative inherits0: current22variant static match is closed. No Content future alternative inherits0 in either groupwalker: current120variant matches closed. Exact E0004 still requires actual root copied-workspace proof.",
+    "Source/Located/Realized/Styled/etc remain intentionally terminal for these two approximate group walkers; this is not a new claim their subtrees lack semantic nodes.",
+    "No changed public signature, grammar, target/phase/default or approximation promotion; compiled/located query paths and legacy debts remain.",
+    "New English module documentation identifies approximate summaries vs compiled CLI index; old obsolete helper-not-CLI construction narrative removed."
+  ],
+  "test_review": "Four controls are meaningful representation/entrypoint distinctions, not a runtime enum-list implementation mirror. Original tests unchanged. No new ignores/allow/expect/config changes.",
+  "findings": [],
+  "limits": [
+    "No Cargo or dynamic verification executed by this reviewer.",
+    "This does not certify list/enum language or universal query parity.",
+    "Current source/L0 may be resealed/formatted by root later; hashes above identify only this reviewed snapshot."
+  ]
+}

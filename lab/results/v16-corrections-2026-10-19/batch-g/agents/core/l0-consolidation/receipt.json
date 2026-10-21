@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-20T23:38:00.763427+00:00",
+  "scope": "Only newly added decision sections of four core L0s consolidated; preceding owner bytes preserved",
+  "before_archive": "before.json.gz",
+  "before_archive_sha256": "4d2ea6392f4b510b5243aa3d712886f7789b79c4f25328d6bdad6dcceb3408a4",
+  "before_sha256": {
+    "00_nucleo/prompts/core/compiler/realize/bare_math.md": "f90a8aff16ed20ddada2901f58934410da553414aae13425b20f10e14dd17714",
+    "00_nucleo/prompts/core/compiler/realize/mod.md": "4d8fbd090c236790bab03c6d3fb618d729e3953c7cc7cad4bbfd4d7e63b09f74",
+    "00_nucleo/prompts/core/entities/content/equality.md": "954195ea34503181449205253294ba7cef21952c8b12eb908fb61ccba7ffb631",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "ad19937d49a19c77847d10151b20835eb90239a0e819ecb8fd2a39dd58b321aa"
+  },
+  "after_sha256": {
+    "00_nucleo/prompts/core/compiler/realize/bare_math.md": "568f111886b1b820727dec9c7b16217bd2ded7e348da5532157dab4bfd766959",
+    "00_nucleo/prompts/core/compiler/realize/mod.md": "b081f5751a7d487b8157decec5b916a7d59844db3dc2debc04fcb831ca87146d",
+    "00_nucleo/prompts/core/entities/content/equality.md": "b95ff090ccb11c7afa94b0efd7c2ed9203e37ee20a7ebc64b08a202d9730bc57",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "b7ac0ad8bbd9a295305fad92c13d9a1e88e966a7bbd52ddecc25c6c2fe2c838d"
+  },
+  "source_sha256_unchanged": {
+    "01_core/src/compiler/realize/bare_math.rs": "62e742a8da5acbd4aa43d3312793d23a877a8087bc1c811736e49edf2b97764b",
+    "01_core/src/compiler/realize/mod.rs": "d2c9b86dc897bc55a6bfb5ecf9412a40711f2acb59337ce5ed500c221c80019f",
+    "01_core/src/entities/content/equality.rs": "3ae6f4ef82b55035ae741bb26dcea02263b60a5e4ab28db769c491242f934579",
+    "01_core/src/compiler/eval/operators/equality.rs": "5578b9a9ba3103ebccd47b18b79156a1c6f3bfb9fc053abe7a91fa164d61aace"
+  },
+  "preserved": "Evidence before decision, owner contracts, Source/Located and Styled semantics, complete closed partitions, actual RED and language acceptance, hash compatibility, intentional mechanical cases and known parity/performance limits",
+  "removed": "Temporary batch headings, agent/root coordination, pending review chronology and tactical run commands; full prior bytes archived",
+  "no_cargo_fmt_seal": true
+}

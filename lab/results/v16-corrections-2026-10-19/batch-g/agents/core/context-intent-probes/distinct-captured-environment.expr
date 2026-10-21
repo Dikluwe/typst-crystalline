@@ -1,0 +1,1 @@
+{let f(x) = context x; let a=f("A");let b=f("B");(equal:a==b,not_equal:a!=b)}

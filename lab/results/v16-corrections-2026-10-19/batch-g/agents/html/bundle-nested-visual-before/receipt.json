@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-20T23:45:31.286601+00:00",
+  "before_sha256": {
+    "03_infra/src/pipeline/bundle.rs": "aaba99863462a200884ab24b5ba449f09dd2e20ed1a8545b1dc1ac0e0a6655a3",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "36c021a877662639de65bb8cbfa19f6143fe01b6344113fb307ba90cdc26810a"
+  },
+  "measured_evidence": "lab/results/v16-corrections-2026-10-19/batch-g/bundle-diagnostic/receipt.json",
+  "classification": "Continuous private projection correction; no renderer/global traversal/public API/phase change."
+}

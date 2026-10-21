@@ -1,0 +1,1 @@
+{ let a = html.elem("div", [A]); let b = html.elem("div", [A], attrs: (:)); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }

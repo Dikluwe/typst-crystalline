@@ -1,0 +1,12 @@
+{
+  "utc_recorded": "2026-10-20T23:27:57.746707+00:00",
+  "unit": "tekt-batch-g-axes-baseline",
+  "invocation": "8bb1e7e6ca1b4a13bf6fdf635703926d",
+  "worker_sha256": "9cf3b79342b04d83b8e93447fde14af3f9a94d23583befb2dad7ac9cf21bbfc4",
+  "memory_max": "12G",
+  "memory_high": "10G",
+  "memory_swap_max": "0",
+  "jobs": 1,
+  "first_launch": "Automatic permission review deadline expired at CreateProcess; no process started; one identical retry explicitly permitted by tool and started successfully.",
+  "scope": "Copied immutable baseline2, actual productive files held"
+}

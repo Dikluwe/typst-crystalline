@@ -1,0 +1,47 @@
+[
+  {
+    "name": "g-hash",
+    "utc_start": "2026-10-21T00:37:52.673984+00:00",
+    "utc_end": "2026-10-21T00:38:17.744339+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/hash_measurement_candidate.py"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "g-equality",
+    "utc_start": "2026-10-21T00:38:17.744648+00:00",
+    "utc_end": "2026-10-21T00:38:21.614039+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/core/replay_equality.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final/receipt.json",
+      "--out",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "g-html",
+    "utc_start": "2026-10-21T00:38:21.615783+00:00",
+    "utc_end": "2026-10-21T00:38:22.655789+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/html-candidate"
+    ],
+    "exit": 1,
+    "expected_exit": 0
+  }
+]

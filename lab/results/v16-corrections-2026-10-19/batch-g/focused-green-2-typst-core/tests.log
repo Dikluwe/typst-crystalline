@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized] target(s) in 0.24s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 17 tests
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_containers_and_operators_share_opaque_relation ... ok
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_is_opaque_and_preserves_original_identity ... ok
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_preserves_snapshot_field_sets_and_other_kinds ... ok
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_projects_nominal_container_children ... ok
+test compiler::eval::operators::equality::batch_g_context_tests::batch_g_context_language_reaches_suppressed_source_and_located_roots ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_absence_proof_preserves_boundaries_without_certifying_other_containers ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_label_guard_wraps_root_or_descends_into_non_mathy_body ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_recipe_styles_and_realized_visual_preserve_causal_snapshot ... ok
+test compiler::realize::bare_math::batch_g_tests::batch_g_table_absence_uses_resolved_cells_and_always_checks_caption ... ok
+test compiler::realize::batch_g_tests::batch_g_normalization_retains_protected_and_nonsequence_products ... ok
+test compiler::realize::batch_g_tests::batch_g_observation_reserves_captured_rule_floor_and_sequence_marker ... ok
+test compiler::realize::batch_g_tests::batch_g_observation_reserves_located_context_and_both_realized_sides ... ok
+test entities::content::equality::batch_g_tests::batch_g_context_hub_equality_uses_owned_id_without_executing_closure ... ok
+test entities::content::equality::batch_g_tests::batch_g_historical_false_cases_and_transparent_heterogeneous_pairs_remain ... ok
+test entities::content::equality::batch_g_tests::batch_g_html_frame_same_kind_compares_body ... ok
+test entities::content::equality::batch_g_tests::batch_g_html_same_kind_preserves_attrs_order_presence_and_body_state ... ok
+test entities::content::equality::batch_g_tests::batch_g_title_same_kind_compares_body ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 7722 filtered out; finished in 0.00s
+

@@ -1,0 +1,159 @@
+{
+  "utc": "2026-10-20T23:45:35.487239+00:00",
+  "prior_review_sha256": "f6b1924d769c9d4db6c5c3ace92377209f7cabeb28bb9d884268d4f4e03e2cf2",
+  "mode": "Independent lab verifier replay only; no Cargo/product/source/L0 edits",
+  "old_archive_exactly_bound_to_prior_review": true,
+  "all16_case_sources_oracles_and_target_modes_unchanged": true,
+  "current_runner_sha256": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+  "current_policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+  "hardening_receipt_sha256": "a69af524cf22b5d0f878412d18134a77e9eb7a77fa771c883df4fec375f903c7",
+  "actual_independent_runs": {
+    "before": {
+      "argv": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/test_replay_verifier.py",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-hardening-before/replay_cli.py",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-hardening-before/cli-policies.json"
+      ],
+      "exit": 1,
+      "stdout": {
+        "runner_sha256": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+        "policy_sha256": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1",
+        "fixtures": [
+          {
+            "name": "exact-oracle",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "name": "exact-deep-warning-omission",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "name": "missing-doctype",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          },
+          {
+            "name": "wrong-doctype",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          },
+          {
+            "name": "missing-feature-warning",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          },
+          {
+            "name": "extra-warning",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          },
+          {
+            "name": "wrong-deep-warning",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          },
+          {
+            "name": "error-with-success-exit",
+            "expected": false,
+            "actual": true,
+            "pass": false
+          }
+        ],
+        "failed": [
+          "missing-doctype",
+          "wrong-doctype",
+          "missing-feature-warning",
+          "extra-warning",
+          "wrong-deep-warning",
+          "error-with-success-exit"
+        ]
+      },
+      "stderr": ""
+    },
+    "after": {
+      "argv": [
+        "python3",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/test_replay_verifier.py"
+      ],
+      "exit": 0,
+      "stdout": {
+        "runner_sha256": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+        "policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+        "fixtures": [
+          {
+            "name": "exact-oracle",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "name": "exact-deep-warning-omission",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "name": "missing-doctype",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "name": "wrong-doctype",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "name": "missing-feature-warning",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "name": "extra-warning",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "name": "wrong-deep-warning",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "name": "error-with-success-exit",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          }
+        ],
+        "failed": []
+      },
+      "stderr": ""
+    }
+  },
+  "assessment": [
+    "R1 resolved: only exact measured deep-heading warning omission is optional; feature warning/hints/order and all extra/changed warnings remain mandatory.",
+    "R2 resolved: document declarations are compared, so missing and wrong doctype fail without switching to byte equality.",
+    "R3 resolved: every main comparison requires exact error payload, including empty errors for successful oracle cases.",
+    "R4 resolved in naming: parsed_diagnostic_fields replaces the misleading complete_diagnostic_fields. Full raw stderr remains retained; origin/trace/highlight/path parity is not claimed.",
+    "Required13 versus explicit3Link gap classification remains unchanged; known standalone deep-warning omission remains a recorded strict difference rather than full diagnostic GREEN."
+  ],
+  "limits": [
+    "These eight verifier fixtures exercise acceptance formulas only, not the compiler or a language regression corpus.",
+    "Candidate language acceptance remains pending source-bound CLI execution.",
+    "Original faulty verifier and independent initial review remain archived; no failure was overwritten."
+  ]
+}

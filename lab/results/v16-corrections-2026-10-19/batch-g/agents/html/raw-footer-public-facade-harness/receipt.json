@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-21T00:09:07.882313+00:00",
+  "classification": "Harness privacy correction only; prior infra run did not execute tests and is not semantic RED.",
+  "before_sha256": "ca0a9bb69737b8be9bafbf655396a18487d8e3735f71dab58c6353abef8181c0",
+  "after_sha256": "9b50910fc66680d1feb37b27b4e19650edfc87df22fc3dcea954254f4b3339bf",
+  "patch": "Three calls in two new cfgtests use the exact public export_html reexport instead of private module path.",
+  "production_prefix_byte_identical": true,
+  "reverse_exact_path_replacement_restores_before": true,
+  "assertions_arguments_and_expected_values_unchanged": true,
+  "l0_sha256": "5e58dacb7fe7c5a47a900084ecfdfca6ff916ab8a18eadb9daa8c08ff79d2396",
+  "prior_invalid_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/focused-followup-red-infra",
+  "status": "Frozen for infra32 actual semantic RED retry; no productive implementation/L0/Cargo/fmt/seals."
+}

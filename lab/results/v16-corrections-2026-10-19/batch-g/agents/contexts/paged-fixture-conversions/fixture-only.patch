@@ -1,0 +1,25 @@
+--- 03_infra/src/pipeline/paged.rs
++++ 03_infra/src/pipeline/paged.rs
+@@ -1612,8 +1612,8 @@
+     fn batch_g_font_proof_accepts_only_strings_or_all_string_arrays_without_evaluation() {
+         for value in [
+             Value::Str("Family".into()),
+-            Value::Array(vec![].into()),
+-            Value::Array(vec![Value::Str("One".into()), Value::Str("Two".into())].into()),
++            Value::Array(vec![]),
++            Value::Array(vec![Value::Str("One".into()), Value::Str("Two".into())]),
+         ] {
+             assert!(page_independent_style("text.font", &value, false));
+             assert!(page_independent_style("text.font", &value, true));
+@@ -1632,9 +1632,9 @@
+                     panic!("a font proof must not execute a function")
+                 },
+             )),
+-            Value::Array(vec![Value::Str("Family".into()), Value::Int(1)].into()),
++            Value::Array(vec![Value::Str("Family".into()), Value::Int(1)]),
+             Value::Array(
+-                vec![Value::Array(vec![Value::Str("Family".into())].into())].into(),
++                vec![Value::Array(vec![Value::Str("Family".into())])],
+             ),
+         ] {
+             assert!(!page_independent_style("text.font", &value, false));

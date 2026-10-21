@@ -1,0 +1,45 @@
+--- before/03_infra/src/export/html/document.rs
++++ after/03_infra/src/export/html/document.rs
+@@ -249,6 +249,12 @@
+     Ok(None)
+ }
+ 
++fn inline_cell_visual(
++    cell: &typst_core::entities::elements::table_cell::TableCellElem,
++) -> &Content {
++    cell.standalone.as_ref().map_or(&cell.body, |snapshot| &snapshot.visual)
++}
++
+ fn has_block(content: &Content) -> bool {
+     if matches!(
+         content,
+@@ -269,6 +275,9 @@
+     }
+     if let Content::Styled(e) = content {
+         return has_block(&e.body);
++    }
++    if let Content::TableCell(cell) = content {
++        return has_block(inline_cell_visual(cell));
+     }
+     false
+ }
+@@ -310,6 +319,9 @@
+         Content::HtmlElem(_) => inline(content, mode, resolver, chain)?,
+         Content::HtmlFrame(_) => inline(content, mode, resolver, chain)?,
+         Content::Table(_) => inline(content, mode, resolver, chain)?,
++        Content::TableCell(cell) => {
++            render_body(inline_cell_visual(cell), mode, resolver, chain)?
++        }
+         Content::Par { body } => {
+             format!("<p>{}</p>", inline(body, mode, resolver, chain)?.trim())
+         }
+@@ -362,6 +374,9 @@
+         Content::Source(e) => {
+             append_block(&e.body, mode, resolver, chain, out, paragraph, context)?
+         }
++        Content::TableCell(cell) => append_block(
++            inline_cell_visual(cell), mode, resolver, chain, out, paragraph, context,
++        )?,
+         Content::Sequence(parts) => {
+             append_sequence(parts, mode, resolver, chain, out, paragraph, context)?
+         }

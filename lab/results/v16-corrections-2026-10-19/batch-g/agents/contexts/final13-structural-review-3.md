@@ -1,0 +1,9 @@
+# Independent structural GREEN and tuple-axis review
+
+The sealed final13 source archive contains997 Rust inputs, all matching the exact complete-lint snapshot. Only three sentinel variants are initially inserted in its disposable real-workspace copy. Raw core diagnostics contain213 E0004 errors and raw infra diagnostics contain25; no other error code appears. Each of the5 selected core and13 selected infra decisions has exactly one attributable primary E0004. Copied-core bridges are independently reconstructed from actual rustc suggestions only; copied infra targets are untouched.
+
+All12 isolated tuple runs were also reparsed: baseline absorbs each of the6 left/right/new-new residual classes, while candidate produces a primary E0004 at the exact selected074/098 site in every direction. Each selected source differs only by its recorded mask; the new-new masks enumerate all120 old alternatives on both sides, and the other masks cover only the two nonselected future directions. Thus each residual obligation is tested independently instead of inferred from an unrelated error.
+
+The JSON preserves complete raw selected diagnostics, primary spans, masks, source/receipt hashes and multiplicity. These are compile-time future-decision witnesses, not runtime coverage or full parity. The report binds final13 sources including carrier-depth, raw-footer effect-admission and selected Cell composition corrections; later changed sources require appropriately rebound final evidence. Two additional primary witnesses independently protect the identity carrier classifier and nominal formatter; neither is counted as an original18 ID. No Cargo, productive source or L0 change was performed by this review.
+
+The independent Cell selection/composition/preservation audit is linked and SHA-bound in JSON; these compiler results do not replace its language/CLI controls or the parent-owned full validation. Earlier final snapshots remain historical.

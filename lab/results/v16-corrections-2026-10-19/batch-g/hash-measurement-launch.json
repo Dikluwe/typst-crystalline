@@ -1,0 +1,25 @@
+{
+  "utc_start": "2026-10-21T00:02:07.646181+00:00",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "--unit=tekt-batch-g-hash-measurement",
+    "-p",
+    "MemoryMax=12G",
+    "-p",
+    "MemoryHigh=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "--setenv=PATH=/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "--working-directory=/repos/Antigravity/typst-crystalline",
+    "python3",
+    "-c",
+    "from pathlib import Path; import subprocess; p=Path(\"lab/results/v16-corrections-2026-10-19/batch-g\"); subprocess.run([\"python3\",str(p/\"build.py\"),\"--output\",str(p/\"candidate-build\")],check=True); subprocess.run([\"python3\",str(p/\"hash_measurement.py\")],check=True)"
+  ],
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "utc_end": "2026-10-21T00:02:37.129854+00:00",
+  "exit": 1
+}

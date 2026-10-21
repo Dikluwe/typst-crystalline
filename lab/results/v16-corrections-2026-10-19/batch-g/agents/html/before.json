@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-20T23:10:04.979580+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": "",
+  "files": {
+    "03_infra/src/export/html/document.rs": {
+      "sha256": "b842efe75472126d39017485aa18756654a253ae23ce6445ff40c1fbf19453ab",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/03_infra/src/export/html/document.rs"
+    },
+    "00_nucleo/prompts/infra/export/html/document.md": {
+      "sha256": "409336c8c0511540ba80c43be810f63630131006403dbea981f83a15f249cc89",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/00_nucleo/prompts/infra/export/html/document.md"
+    },
+    "03_infra/src/export/html/encoding.rs": {
+      "sha256": "4a8194dd4070b29615a8750a6b8261dc4121d599b1e99f2c9caf868651b033d4",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/03_infra/src/export/html/encoding.rs"
+    },
+    "00_nucleo/prompts/infra/export/html/encoding.md": {
+      "sha256": "fe808dfb8a10b8c19e6f504649a774aae9020d7fc5397a3684d6d2d071fa34cc",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/00_nucleo/prompts/infra/export/html/encoding.md"
+    },
+    "03_infra/src/pipeline/bundle.rs": {
+      "sha256": "41f01ae2077ec6f4c6c6130bc7fa2d26c3cfba8e0f43e9e53223eeefa61be8d6",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/03_infra/src/pipeline/bundle.rs"
+    },
+    "00_nucleo/prompts/infra/pipeline/bundle.md": {
+      "sha256": "1bfb74e834fdc6d4b8333e124559a62248b1a36728fe2e189e526a73cca7f7d8",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/00_nucleo/prompts/infra/pipeline/bundle.md"
+    },
+    "03_infra/src/pipeline/html.rs": {
+      "sha256": "7eed447e451bca0d019878803587b59fabb037822b63c6d45e24b74c2d43bd52",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/03_infra/src/pipeline/html.rs"
+    },
+    "00_nucleo/prompts/infra/pipeline/html.md": {
+      "sha256": "6cb557c69d5d67f0974f3fccaba55d52ef80734091218a9be88d39ca73d4eac6",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/before/00_nucleo/prompts/infra/pipeline/html.md"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-20T23:21:44.339185+00:00",
+  "class": "invalid initial RED harness E0308; no tests executed; cfg-only construction repair plus authorized L0 reconciliation and existing snapshot assertions",
+  "initial_red": "lab/results/v16-corrections-2026-10-19/batch-g/focused-red-core/receipt.json",
+  "before_sha256": {
+    "01_core/src/compiler/realize/mod.rs": "b842bea138f721fa37db90706b68cd88548f923a5e60532d0d30496f453f2d82",
+    "01_core/src/compiler/eval/operators/equality.rs": "d1796d6fc22d3faed9121b277b907b0f5b73af24a70cd942327540884f3191dd",
+    "00_nucleo/prompts/core/entities/content/equality.md": "d485a26bb2d92939f2cffdcc67e26f2e3dd00c11bd052e443af5ef6fa1676eb7"
+  },
+  "after_sha256": {
+    "01_core/src/compiler/realize/mod.rs": "4a8d22e2a1c4c6a09eab66c6948965f5cc7a81e897fc4229cece82846b8fe5ae",
+    "01_core/src/compiler/eval/operators/equality.rs": "9093722f486786217b5ff8b029bdb92ed6404fe9f8130fd4b7b45e8470bd0f8a",
+    "00_nucleo/prompts/core/entities/content/equality.md": "2e68309a97c8350503a8613ebeef1b9489e704d6e23a4e811a921c2aeb319676"
+  },
+  "expected_test_count": 17,
+  "expected_semantic_failures": 8,
+  "expected_preservation_passes": 9,
+  "no_cargo": true,
+  "no_productive_body_change": true
+}

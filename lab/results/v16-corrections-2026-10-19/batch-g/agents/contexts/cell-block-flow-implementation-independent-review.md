@@ -1,0 +1,11 @@
+# Independent Cell block-flow implementation review
+
+No blocking finding. The borrowed helper and three delegations implement the bounded L0 contract; ADR-0127 continuous classification remains appropriate. The exact pre-production archive matches the actual RED input: 34/36 passed, exactly isolated/mixed Cell flow failed, no compiler error or drift. Raw assertions at document.rs:859 and :869 show the exact outer-p and merged-neighbor errors, rather than setup/guard failures; the public prepared-snapshot fixture setup completed before the first root assertion.
+
+Selection: the helper borrows standalone.visual when present, otherwise body. It does not consult resolved, mutate content or execute callbacks. The unchanged root control distinguishes all three snapshots through publicly prepared data.
+
+Composition: block detection examines the same child. Direct composition passes the same mode, resolver and StyleChain. Sequence composition passes the identical output/paragraph buffers and SmartQuoteContext through existing block handling. Existing lexical styles and flush/reset ownership remain intact.
+
+Preservation: the exact unformatted candidate is reconstructed from the executed RED source by only the helper and three additions; its SHA matches the implementation receipt and the complete test suffix remains byte-identical. After parent formatting, prior test modules remain byte-identical, while the new module differs only by outside-literal whitespace and optional trailing commas; all string literals and assertions are preserved. Inline, Table and bundle sources match the plan. Table rows retain resolved-first selection and td/th/span ownership. Selected unresolved producers still reach the unsupported-content error. No global Cell peeling, explicit-root change, error suppression, new API or phase occurs.
+
+The four controls do not independently certify every Styled/locale/SmartQuote combination; source review confirms unchanged state transport and previous suites remain binding. Parent-owned GREEN and fresh original-policy CLI are still required. The earlier full12 success is historical after the required CLI failure. See adjacent JSON for exact hashes and checks.

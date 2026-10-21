@@ -1,5 +1,5 @@
 # L0 — Mathematical insertion preparation
-Hash do Código: 33f29e69
+Hash do Código: 35e7b028
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
@@ -204,3 +204,40 @@ lineage under 12 GiB, zero swap and one Cargo job. Do not claim the global gate
 is green while external V16 findings remain. Historical sequence, superseded
 filter-specific structural tests and approvals are recoverable from
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/realize/bare_math.md`.
+
+## Closed conservative Content decisions
+
+### Evidence before classification
+
+Baseline HEAD `4382891f0d5f0839669597cb5c90a98f24cfb8bd`, clean productive
+tree, UTC, exact sources/L0s/SHA-256 and the complete120-variant Content domain
+are archived in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/core/{source-before.json.gz,audit.json}`.
+At the measured `bare_math.rs:53–75`, false means absence is not proven; at
+`:92–132`, `Ok(None)` delegates recursion to the preorder mapper. These are
+engineering observations, not new language or performance measurements.
+
+### Owned closed decisions
+
+Both decisions are exhaustive over Content at their actual productive sites.
+The measured nominal complements in audit.json retain respectively false
+(absence not proven) and `Ok(None)` (ordinary mapped traversal). Do not enlarge
+the positive absence proof, Mathy catalogue or preserved-boundary domain.
+For Label, the Mathy predicate is inside its nominal arm: true wraps the full
+Label once, false delegates to traversal. Preserve Styled insertion styles,
+ShowRecipe's complete lexical snapshot, Realized.original unchanged and visual
+prepared, Equation/Located terminal, MathStyled lifting and Source provenance.
+A future Content variant requires an explicit decision at both sites; it cannot
+inherit a skipped subtree or fabricated equation.
+
+### Acceptance and limits
+
+Require controls for both Label outcomes, plain versus Mathy container bodies,
+raw/resolved Table and Cell visual boundaries, recipe styles and complete
+snapshot fields, Realized original/visual asymmetry and prepared Located.
+Existing tests and failed historical performance thresholds remain binding.
+An enum-extension compiler comparison must establish exact-site nonexhaustive
+witnesses; preservation tests alone are not semantic RED. This is continuous
+ADR-0127 internal classification with no public/default/phase or compatibility
+change. L0-first implementation, graph validation and restricted bilateral
+resealing remain required.

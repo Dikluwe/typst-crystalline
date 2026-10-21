@@ -1,0 +1,13 @@
+{
+  "exit": 101,
+  "failed": [],
+  "compiler_error_codes": [
+    "E0603"
+  ],
+  "changed_inputs": []
+}
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py", line 17, in <module>
+    assert not r['compiler_error_codes'] and 'could not compile' not in log
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

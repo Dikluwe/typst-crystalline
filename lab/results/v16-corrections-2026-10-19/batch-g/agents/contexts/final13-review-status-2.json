@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-21T00:25:26.379911+00:00",
+  "independent_reviews_complete": [
+    "agents/contexts/final13-lint-review.json",
+    "agents/contexts/final13-structural-review.json"
+  ],
+  "available_receipts": {
+    "structural-green-final/receipt.json": true,
+    "tuple-axes-green-final/receipt.json": true,
+    "candidate-gates-final/receipt.json": false,
+    "validation-final-2/receipt.json": false,
+    "candidate-build-final/receipt.json": false
+  },
+  "closure": "Independent compiler and lint reviews passed on final13 frozen sources. Full integration/build/CLI completion is not inferred from these reviews; the root integrator must bind its actual final gate receipts."
+}

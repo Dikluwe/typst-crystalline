@@ -1,0 +1,7 @@
+2026-10-20T23:47:31.272233+00:00 START core-witnesses
+2026-10-20T23:47:40.403993+00:00 END core-witnesses exit 101 selected 5 other 0
+2026-10-20T23:47:40.531408+00:00 START core-bridge-0
+2026-10-20T23:47:50.342667+00:00 END core-bridge-0 exit 0 selected 0 other 0
+2026-10-20T23:47:50.593300+00:00 START infra-witnesses
+2026-10-20T23:48:01.327440+00:00 END infra-witnesses exit 101 selected 13 other 0
+PASS real green owner evolution witnesses 5 13

@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-21T00:45:18.500371+00:00",
+  "source_sha256": "9319700454332d6aa00f0c0afbfc14ec4634a19381dfc8bd3793be361413422e",
+  "l0_sha256": "e3e211e75ed450deac310f23baa7788351c60052009332da7135d250689b82bc",
+  "actual_red": "lab/results/v16-corrections-2026-10-19/batch-g/focused-cell-red-infra/receipt.json",
+  "before_archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-flow-before-production",
+  "all_test_bytes_unchanged": true,
+  "entry_projection_and_explicit_root_bytes_unchanged": true,
+  "patch_scope": "One private borrowed standalone.visual\u2192body helper; local has_block/render_body/append_block delegates preserve current chain, paragraph buffer and quote context. Table renderer/global mapper and unsupported-kind coverage unchanged.",
+  "status": "Frozen for independent review and parent integrate3; no Cargo/fmt/seal."
+}

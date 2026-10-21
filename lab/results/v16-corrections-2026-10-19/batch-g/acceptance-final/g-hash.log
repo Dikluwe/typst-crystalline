@@ -1,0 +1,59 @@
+compile 0
+run 0
+{
+  "Strong": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Sequence": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Title": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Frame": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Html": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Context": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "Space": {
+    "rows": 52,
+    "equal": 52,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "HtmlAttrsOrder": {
+    "rows": 1,
+    "equal": 0,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  },
+  "NestedValueFloat": {
+    "rows": 1,
+    "equal": 1,
+    "public_hash_violations": 0,
+    "std_hash_violations": 0
+  }
+}
+receipt 6d47bb83dda5f11b19115364aaca8301790d833a617b4903eec70fc026e2e768

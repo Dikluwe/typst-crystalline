@@ -1,0 +1,56 @@
+{
+  "utc": "2026-10-20T23:44:04.718462+00:00",
+  "reviewer": "figure_realize_impl; independent of core author",
+  "mode": "read-only source/L0/evidence inspection; no Cargo or productive changes",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "current_inputs": {
+    "01_core/src/compiler/eval/operators/equality.rs": "e0b9c0bf16975992f07816691585b2c68e597e9e9260b41c36373cd480d72b9f",
+    "01_core/src/entities/content/equality.rs": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee",
+    "01_core/src/entities/elements/context_block.rs": "bfa26e98995423eb82b223ffbb4e48bcab22dd31cc35a029e541702e22ecf410",
+    "01_core/src/entities/content/morphology.rs": "9fb1c9fbec7c6b6fd100784d1ca31b70a3ef8b66964e5814056552de76898a08",
+    "01_core/src/compiler/eval/observation/content.rs": "6e9b9e15449baef44528e536e9fabef7f2be0094af9f654b508a405d14bee624",
+    "01_core/src/compiler/eval/observation/elements.rs": "01a35fb92455d7d980e396c6441d6a0ffd19dfb7543724f5d74b9a1261ac72b5",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "89e8f21fe8230a505ee12e5bf2d3de3588e1f2f70c58248777b63d8c33df6471",
+    "00_nucleo/prompts/core/entities/content/equality.md": "32c36031c975e8596bffc62d1a274a2a4efcaa445fc84b9f910cf8603fe8ce5a",
+    "lab/typst-original/crates/typst-library/src/foundations/context.rs": "07cc00c04758ed1e334623a618dd8f5a0c57d800f5074c0db521715f9d95fdd0",
+    "lab/typst-original/crates/typst-library/src/foundations/content/raw.rs": "2a18f73aafed4174dd2169bc6da886565bfdac27f306f7ee85c4d48bde6f602f",
+    "lab/typst-original/crates/typst-macros/src/elem.rs": "467f17f9564895b72b1efc575e2bfe704993ef846215bbcda0d5846b9970be58",
+    "lab/typst-original/docs/content/reference/language/context.typ": "d9bd7b1217d81ad4636d38c6032de384a9e34d8aebd346955bbd68d8f09b54ef",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/equality-probes/receipt.json": "c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/receipt.json": "3523208ad9be23fcc87960083db10fa7a1805910b758cdb44de83f2eb42fb86c",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-review.md": "05c64e6cff8c2df30351246248b47766be8ef20bccb1b44e8a74ec15efae20dc",
+    "01_core/src/entities/content/rust_hash.rs": "013521dc4848074cb3da480d682d2015025d7668a7eba06ba79ed79c0b442fa2",
+    "01_core/src/compiler/realize/context_occurrences.rs": "6552a173b5352293def6803bf747083a576dea36b3edb20bec4b0ed2f687c548",
+    "01_core/src/compiler/realize/reference_supplements.rs": "abc23450585c0ba374bf8cbf88c9e3cd1076128a8dc509dc393757b1fee5abe6",
+    "01_core/src/entities/content/traversal.rs": "2526cf4359a14caf278609c95ddd865c092feefe5bc27e31256f9a5c14c84f9c",
+    "01_core/src/entities/func.rs": "6ad351d724f603ed5bfa363526ee6e2eb0d4a8810e9cd8cfe49e166c67dd0536"
+  },
+  "unchanged_from_clean_batch_g_baseline": {
+    "01_core/src/entities/elements/context_block.rs": true,
+    "01_core/src/entities/content/morphology.rs": true,
+    "01_core/src/compiler/eval/observation/content.rs": true,
+    "01_core/src/compiler/eval/observation/elements.rs": true,
+    "01_core/src/entities/content/rust_hash.rs": true,
+    "01_core/src/compiler/realize/context_occurrences.rs": true,
+    "01_core/src/compiler/realize/reference_supplements.rs": true,
+    "01_core/src/entities/content/traversal.rs": true,
+    "01_core/src/entities/func.rs": true
+  },
+  "findings": [],
+  "resolved_prior_review_items": [
+    "Owning entity L0 no longer says Context intent review is pending; responsibility is exclusively operator L0.",
+    "Some snapshot tests now cover differing labels and Locations, differing field sets and Some-empty versus None/raw in both directions."
+  ],
+  "analysis": [
+    "comparison_root only constructs ephemeral comparison clones: Context id becomes 0 while nominal Context and original Func remain. No callback is invoked, and original identity/closure are not mutated.",
+    "Source/ShowRecipe/Located recursively project their immediate root; Realized only projects visual while preserving original. This closes suppressed-root callback behavior locally; generic traversal and public morphology are unchanged. Existing Styled normalization/coalescing is preserved.",
+    "The hub ContextBlock arm retains owned id equality. New HtmlElem compares exact tag, Option/presence, ordered attributes and HtmlBody; HtmlFrame/Title delegate field equality. Unlike combinations use a closed two-axis complement; State/Metadata same-kind exclusions remain explicit.",
+    "Some snapshot comparison retains complete field-set equality, label exclusion and nested values_eq; None retains morphology fallback. Locations remain outside language equality. Recursive Eq/Neq/In/NotIn/array/dict paths share the owner relation.",
+    "Hash, strict observations (including Context id and closure), context occurrence arena and reference phase remain byte-identical to baseline. No private representative escapes into causal identity, indexing, cache or producer membership.",
+    "The comparison classification is supported by fixed oracle/source evidence but is still an inference about opaque language fields, not a documentation statement that all Contexts are equal. L0 explicitly records that distinction and its refuter."
+  ],
+  "limits": [
+    "This static review does not certify unexecuted CLI replay34 or final full-suite gates. Parent owns measured GREEN and structural witnesses.",
+    "Generic Rust equality and language equality intentionally differ; no conclusion here authorizes changing global Func/ObservationEq or deduplicating Context emissions."
+  ]
+}

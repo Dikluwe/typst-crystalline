@@ -1,0 +1,254 @@
+[
+  {
+    "id": "V16-049",
+    "file": "01_core/src/compiler/realize/bare_math.rs",
+    "baseline": {
+      "after": "fn plain_without_bare_math(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn plain_without_bare_math(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 54,
+    "reported_wildcard_line": 74
+  },
+  {
+    "id": "V16-050",
+    "file": "01_core/src/compiler/realize/bare_math.rs",
+    "baseline": {
+      "after": "fn prepare(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn prepare(",
+      "anchor": "match node {"
+    },
+    "baseline_match_line": 92,
+    "reported_wildcard_line": 131
+  },
+  {
+    "id": "V16-051",
+    "file": "01_core/src/compiler/realize/mod.rs",
+    "baseline": {
+      "after": "fn normalize_insertions(",
+      "anchor": "match child {"
+    },
+    "green": {
+      "after": "fn normalize_insertions(",
+      "anchor": "match child {"
+    },
+    "baseline_match_line": 90,
+    "reported_wildcard_line": 96
+  },
+  {
+    "id": "V16-052",
+    "file": "01_core/src/compiler/realize/mod.rs",
+    "baseline": {
+      "after": "fn observe_occurrences(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn observe_occurrences(",
+      "anchor": "match node {"
+    },
+    "baseline_match_line": 118,
+    "reported_wildcard_line": 139
+  },
+  {
+    "id": "V16-074",
+    "file": "01_core/src/entities/content/equality.rs",
+    "baseline": {
+      "after": "impl PartialEq for Content",
+      "anchor": "match (self, other) {"
+    },
+    "green": {
+      "after": "impl PartialEq for Content",
+      "anchor": "match (self, other) {"
+    },
+    "baseline_match_line": 11,
+    "reported_wildcard_line": 209
+  },
+  {
+    "id": "V16-088",
+    "file": "03_infra/src/export/html/document.rs",
+    "baseline": {
+      "after": "fn export_html_with_frame_resolver(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn export_html_with_frame_resolver(",
+      "anchor": "match node {"
+    },
+    "baseline_match_line": 29,
+    "reported_wildcard_line": 44
+  },
+  {
+    "id": "V16-089",
+    "file": "03_infra/src/export/html/encoding.rs",
+    "baseline": {
+      "after": "fn visual_content(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn visual_content(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 14,
+    "reported_wildcard_line": 19
+  },
+  {
+    "id": "V16-092",
+    "file": "03_infra/src/pipeline/bundle.rs",
+    "baseline": {
+      "after": "fn bundle_html_semantic_content(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn bundle_html_semantic_content(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 327,
+    "reported_wildcard_line": 388
+  },
+  {
+    "id": "V16-093",
+    "file": "03_infra/src/pipeline/context_stabilization.rs",
+    "baseline": {
+      "after": "fn ordered_blocks(",
+      "anchor": "match &e.body {"
+    },
+    "green": {
+      "after": "fn ordered_blocks(",
+      "anchor": "match &e.body {"
+    },
+    "baseline_match_line": 265,
+    "reported_wildcard_line": 269
+  },
+  {
+    "id": "V16-094",
+    "file": "03_infra/src/pipeline/context_stabilization.rs",
+    "baseline": {
+      "after": "let blocks = blocks.unwrap_or_else(",
+      "anchor": "match &e.body {"
+    },
+    "green": {
+      "after": "let blocks = blocks.unwrap_or_else(",
+      "anchor": "match &e.body {"
+    },
+    "baseline_match_line": 392,
+    "reported_wildcard_line": 396
+  },
+  {
+    "id": "V16-095",
+    "file": "03_infra/src/pipeline/html.rs",
+    "baseline": {
+      "after": "fn collect_html_frames(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn collect_html_frames(",
+      "anchor": "match node {"
+    },
+    "baseline_match_line": 176,
+    "reported_wildcard_line": 186
+  },
+  {
+    "id": "V16-096",
+    "file": "03_infra/src/pipeline/paged.rs",
+    "baseline": {
+      "after": "fn page_independent_style(",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "fn page_independent_style(",
+      "anchor": "match value {"
+    },
+    "baseline_match_line": 15,
+    "reported_wildcard_line": 20
+  },
+  {
+    "id": "V16-097",
+    "file": "03_infra/src/pipeline/paged.rs",
+    "baseline": {
+      "after": "fn initial_layout_independent(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn initial_layout_independent(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 58,
+    "reported_wildcard_line": 123
+  },
+  {
+    "id": "V16-098",
+    "file": "03_infra/src/pipeline/paged.rs",
+    "baseline": {
+      "after": "let same_carrier =",
+      "anchor": "match (content, &first) {"
+    },
+    "green": {
+      "after": "let same_carrier =",
+      "anchor": "match (content, &first) {"
+    },
+    "baseline_match_line": 214,
+    "reported_wildcard_line": 219
+  },
+  {
+    "id": "V16-099",
+    "file": "03_infra/src/pipeline.rs",
+    "baseline": {
+      "after": "fn collect_context_blocks_into(",
+      "anchor": "match node {"
+    },
+    "green": {
+      "after": "fn collect_context_blocks_into(",
+      "anchor": "match node {"
+    },
+    "baseline_match_line": 517,
+    "reported_wildcard_line": 536
+  },
+  {
+    "id": "V16-101",
+    "file": "03_infra/src/query_helpers.rs",
+    "baseline": {
+      "after": "fn count_element_in_content(",
+      "anchor": "match kind {"
+    },
+    "green": {
+      "after": "fn count_element_in_content(",
+      "anchor": "match kind {"
+    },
+    "baseline_match_line": 226,
+    "reported_wildcard_line": 242
+  },
+  {
+    "id": "V16-102",
+    "file": "03_infra/src/query_helpers.rs",
+    "baseline": {
+      "after": "fn count_list_groups(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn count_list_groups(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 247,
+    "reported_wildcard_line": 256
+  },
+  {
+    "id": "V16-103",
+    "file": "03_infra/src/query_helpers.rs",
+    "baseline": {
+      "after": "fn count_enum_groups(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn count_enum_groups(",
+      "anchor": "match content {"
+    },
+    "baseline_match_line": 261,
+    "reported_wildcard_line": 270
+  }
+]

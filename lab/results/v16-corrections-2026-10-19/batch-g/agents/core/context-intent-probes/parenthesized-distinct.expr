@@ -1,0 +1,1 @@
+{ let a = (context [A]); let b = (context [B]); (equal: a == b, left: repr(a), right: repr(b), left_fields: a.fields(), right_fields: b.fields(), left_type: repr(type(a)), right_type: repr(type(b))) }

@@ -1,0 +1,9 @@
+# Scope/API audit — 13 sealed pairs
+
+PASS for the exact named seal and hashes bound in the JSON companion. All 26 source/L0 files match the recorded frozen snapshot. Both directions of all 13 seals and every effective Nucleus pin were independently recalculated. Canonical owner paths/headers are correct. Public and restricted-public signatures and entity/type fields remain unchanged; no new suppression/configuration or out-of-scope productive/normative file changed. No public API, default, compatibility expansion or pipeline phase was added.
+
+The core implementation author performed this self-audit transparently. Independent core implementation and carrier-depth plan/implementation reviews by the other agents are linked and hashed in the JSON; HTML and query also received independent source reviews. Those scoped historical source reviews and this metadata/API audit do not replace final compiler/lint tests, actual frozen-corpus replay or the source-bound hash probe.
+
+The identity refinement explicitly supersedes only old mechanical Debug-output preservation where Source/ShowRecipe/Located/Realized consumed visible depth and violated established transparency and equal-value hashing. Borrowed projection precedes the same MAX_DEPTH8; nominal formatting, hashing algorithms, causal/observational identities, defaults and phases remain unchanged. The public hash contract already permits numeric results to follow separately specified Debug corrections; equal values must still hash equally. The actual nested Float control refuted its suggested mismatch and is not reported as an observed gap. Finite tests do not establish a universal Hash law or full language parity.
+
+Known approximation/equality/HTML/representation/performance limits remain. No source/L0 mutation, Cargo, formatting or resealing was performed by this audit. Any later mutation supersedes this snapshot rather than retroactively certifying it.

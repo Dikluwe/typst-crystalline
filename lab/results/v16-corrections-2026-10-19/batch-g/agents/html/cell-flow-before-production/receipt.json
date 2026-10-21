@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-21T00:45:18.499859+00:00",
+  "actual_red": "lab/results/v16-corrections-2026-10-19/batch-g/focused-cell-red-infra/receipt.json",
+  "sha256": {
+    "03_infra/src/export/html/document.rs": "aae30cf6b3585e31f0c3ced0d50517d00505ed68943d5bf60d3207991e668657",
+    "00_nucleo/prompts/infra/export/html/document.md": "e3e211e75ed450deac310f23baa7788351c60052009332da7135d250689b82bc"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "script_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+  "fixtures": [
+    {
+      "name": "complete-F84-77-required-5-debt-2-negative",
+      "accepted": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "missing-F-row",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "duplicated-F-row",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "required-F-reclassified",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "required-F-wrong-observation",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "complete-Ref43-with40-required",
+      "accepted": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "missing-required-Ref",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "extra-Ref",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    }
+  ],
+  "actual_immutable_reference_groups": 6,
+  "actual_immutable_reference_rows": 43,
+  "actual_immutable_required_rows": 40,
+  "all_pass": true
+}

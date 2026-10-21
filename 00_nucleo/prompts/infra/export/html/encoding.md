@@ -1,5 +1,5 @@
 # L0 — html/encoding
-Hash do Código: 44c74b92
+Hash do Código: c421616c
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/encoding.rs`
@@ -93,3 +93,27 @@ wrapped Linebreak/Space/SpaceFromNewline, preserving contextual quote state/esca
 Observe title text/escaping/diagnostics, not wrapper shape; script/style validation
 stays unchanged. Unit RED covers every carrier/nesting/visual-versus-original/
 escaped text/wrapped separators. Internal ADR-0127 adds no API/default/phase.
+
+
+## Closed textual carrier stopping classes
+
+### Evidence before decision
+
+At baseline4382891, `03_infra/src/export/html/encoding.rs:12–21` peels Source,
+ShowRecipe, Located and Realized.visual. The terminal return correctly stops on
+every other Content kind. The full closed enum and source/L0 hashes are retained
+in `lab/results/v16-corrections-2026-10-19/batch-g/agents/html/audit.json`.
+This is mechanical classification and admits no additional textual language kind
+or claim about upstream intent.
+
+### Contract and acceptance
+
+Enumerate the unchanged stopping complement explicitly. Do not peel Styled,
+Label, Strong, HtmlElem, ContextBlock or other semantic nodes here. Raw/title
+retain their independent Styled handling, title SmartQuote resolution, exact
+nontext rejection and contextual escaping. Preserve carrier/nesting/visual-original
+behavior and wrapped Linebreak plus Space/SpaceFromNewline separator absorption.
+Verify strict nontext rejection and title SmartQuote/raw rejection; script/style
+constructor guards remain unchanged. A new Content variant must require review
+at this exact productive stopping decision. This internal ADR-0127 correction
+changes no API, phase, default or accepted textual input.

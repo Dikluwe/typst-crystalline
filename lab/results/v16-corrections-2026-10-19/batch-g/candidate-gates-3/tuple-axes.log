@@ -1,0 +1,13 @@
+2026-10-21T00:50:03.451061+00:00 START V16-074-new-left-old-right
+2026-10-21T00:50:12.285067+00:00 END V16-074-new-left-old-right selected 1 other 0
+2026-10-21T00:50:12.511729+00:00 START V16-074-old-left-new-right
+2026-10-21T00:50:21.389627+00:00 END V16-074-old-left-new-right selected 1 other 0
+2026-10-21T00:50:21.552274+00:00 START V16-074-new-new
+2026-10-21T00:50:30.097090+00:00 END V16-074-new-new selected 1 other 0
+2026-10-21T00:50:30.240958+00:00 START V16-098-new-left-old-right
+2026-10-21T00:50:41.236660+00:00 END V16-098-new-left-old-right selected 1 other 0
+2026-10-21T00:50:41.385441+00:00 START V16-098-old-left-new-right
+2026-10-21T00:50:52.386855+00:00 END V16-098-old-left-new-right selected 1 other 0
+2026-10-21T00:50:52.528186+00:00 START V16-098-new-new
+2026-10-21T00:51:03.824379+00:00 END V16-098-new-new selected 1 other 0
+PASS six isolated actual tuple-class probes green

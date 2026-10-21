@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-20T23:18:48.719419+00:00",
+  "reviewer": "figure_realize_impl (HTML owner; independent Context comparison review)",
+  "mode": "read-only during actual global RED freeze; no source/L0/tests/Cargo mutation",
+  "baseline_head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "inputs": {
+    "01_core/src/compiler/eval/operators/equality.rs": "d1796d6fc22d3faed9121b277b907b0f5b73af24a70cd942327540884f3191dd",
+    "01_core/src/entities/content/equality.rs": "d7f7eb6cf3c85aad0882f20ae9dd783ff5e6adeeec527b1fcd7b3dfa7cdc4cee",
+    "01_core/src/entities/elements/context_block.rs": "bfa26e98995423eb82b223ffbb4e48bcab22dd31cc35a029e541702e22ecf410",
+    "01_core/src/entities/content/morphology.rs": "9fb1c9fbec7c6b6fd100784d1ca31b70a3ef8b66964e5814056552de76898a08",
+    "01_core/src/compiler/eval/observation/content.rs": "6e9b9e15449baef44528e536e9fabef7f2be0094af9f654b508a405d14bee624",
+    "01_core/src/compiler/eval/observation/elements.rs": "01a35fb92455d7d980e396c6441d6a0ffd19dfb7543724f5d74b9a1261ac72b5",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "1d8f4c95a11edcad165a2673e3d2478719a4cc08575b3abb894c8458acdb4af4",
+    "00_nucleo/prompts/core/entities/content/equality.md": "d485a26bb2d92939f2cffdcc67e26f2e3dd00c11bd052e443af5ef6fa1676eb7",
+    "lab/typst-original/crates/typst-library/src/foundations/context.rs": "07cc00c04758ed1e334623a618dd8f5a0c57d800f5074c0db521715f9d95fdd0",
+    "lab/typst-original/crates/typst-library/src/foundations/content/raw.rs": "2a18f73aafed4174dd2169bc6da886565bfdac27f306f7ee85c4d48bde6f602f",
+    "lab/typst-original/crates/typst-macros/src/elem.rs": "467f17f9564895b72b1efc575e2bfe704993ef846215bbcda0d5846b9970be58",
+    "lab/typst-original/docs/content/reference/language/context.typ": "d9bd7b1217d81ad4636d38c6032de384a9e34d8aebd346955bbd68d8f09b54ef",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/equality-probes/receipt.json": "c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/receipt.json": "3523208ad9be23fcc87960083db10fa7a1805910b758cdb44de83f2eb42fb86c",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-review.md": "05c64e6cff8c2df30351246248b47766be8ef20bccb1b44e8a74ec15efae20dc"
+  },
+  "productive_prefixes_baseline_equal": {
+    "01_core/src/compiler/eval/operators/equality.rs": true,
+    "01_core/src/entities/content/equality.rs": true
+  },
+  "mechanical_identity_public_morphology_and_observation_files_baseline_equal": {
+    "01_core/src/entities/elements/context_block.rs": true,
+    "01_core/src/entities/content/morphology.rs": true,
+    "01_core/src/compiler/eval/observation/content.rs": true,
+    "01_core/src/compiler/eval/observation/elements.rs": true
+  },
+  "architecture_assessment": "Bounded comparison-only Context projection is supported by immutable actual current-pin observations, deliberate internal Func field exclusion and explicit documented opacity. Docs do not directly say all Contexts compare equal; preserve the source-backed inference/refuter qualification.",
+  "boundary_assessment": [
+    "Mechanical ContextBlock Eq/Hash remain id-based; public morph_canon keeps original id/closure. Strict ObservationEq retains id AND closure capability comparison; language projection may not leak into these consumers.",
+    "Canonical opaque Context representative must remain Context kind, preserving original unevaluated Func in a temporary clone; no Empty/text replacement, body evaluation, query/member allocation or emission dedup.",
+    "Existing private Styled comparison normalization and all carrier/source projections remain owner-local; no new phase/API/default.",
+    "Some snapshots still compare actual linguistic field sets excluding label, recursively; None/raw fallback must remain exact. Unlike kinds/empty/body andFloatNaN stay unequal.",
+    "Root expected real RED and final ABrender/query replay remain mandatory; mechanical equality unit tests alone cannot certify language parity."
+  ],
+  "findings": [
+    {
+      "id": "stale-pending-core-L0",
+      "kind": "active normative contradiction; correct after freeze before productive implementation",
+      "path": "00_nucleo/prompts/core/entities/content/equality.md",
+      "evidence": "Measurement paragraph still says Context observations do not yet authorize projection/source-intent review pending, while current operator owner records completed review and scoped correction.",
+      "recommendation": "Mark that sentence explicitly historical/superseded and cite full canonical operator L0 path. Retain mechanical id equality and source/intent caveat; do not erase archived review history."
+    },
+    {
+      "id": "snapshot-boundary-controls",
+      "kind": "acceptance gap; extend tests after freeze",
+      "path": "01_core/src/compiler/eval/operators/equality.rs::batch_g_context_language_preserves_snapshot_field_sets_and_other_kinds",
+      "evidence": "EqualSome tests assign same Location and never label fields; unequalSome cases vary actual fieldvalues/fieldset. They do not directly pin label/Location independence or None/raw fallback promised in newL0.",
+      "recommendation": "Add equalSome same nonlabel fields with distinct label+Location, rawvsNone and Some-empty/rawContext pairs bothdirections, plus unlike-fieldset negatives. Current productive code need not broaden Some relation."
+    }
+  ],
+  "additional_control_recommendation": "After implementing comparator, retain a scoped strict ObservationEq negative on differing Context ids/closures so language-opaque proof cannot later be reused by stabilization; current observer productive bytes are verified unchanged.",
+  "adr0127": "Continuous bounded language-parity correction under root classification; no new API/entity/phase/default. No justification to change occurrence or observation identity."
+}

@@ -1,0 +1,55 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+error[E0603]: module `html` is private
+    --> 03_infra/src/pipeline/bundle.rs:1023:45
+     |
+1023 |             let field_html = crate::export::html::export_html(&footer.body).expect("retained field remains projected");
+     |                                             ^^^^ private module
+     |
+note: the module `html` is defined here
+    --> 03_infra/src/export/mod.rs:33:1
+     |
+  33 | mod html;
+     | ^^^^^^^^^
+help: consider importing this function through its public re-export instead
+     |
+1023 -             let field_html = crate::export::html::export_html(&footer.body).expect("retained field remains projected");
+1023 +             let field_html = crate::export::export_html(&footer.body).expect("retained field remains projected");
+     |
+
+error[E0603]: module `html` is private
+    --> 03_infra/src/pipeline/bundle.rs:1025:39
+     |
+1025 |             let html = crate::export::html::export_html(&projected).expect("raw Table body is supported");
+     |                                       ^^^^ private module
+     |
+note: the module `html` is defined here
+    --> 03_infra/src/export/mod.rs:33:1
+     |
+  33 | mod html;
+     | ^^^^^^^^^
+help: consider importing this function through its public re-export instead
+     |
+1025 -             let html = crate::export::html::export_html(&projected).expect("raw Table body is supported");
+1025 +             let html = crate::export::export_html(&projected).expect("raw Table body is supported");
+     |
+
+error[E0603]: module `html` is private
+    --> 03_infra/src/pipeline/bundle.rs:1037:35
+     |
+1037 |         let html = crate::export::html::export_html(&projected).expect("standalone Footer body is supported");
+     |                                   ^^^^ private module
+     |
+note: the module `html` is defined here
+    --> 03_infra/src/export/mod.rs:33:1
+     |
+  33 | mod html;
+     | ^^^^^^^^^
+help: consider importing this function through its public re-export instead
+     |
+1037 -         let html = crate::export::html::export_html(&projected).expect("standalone Footer body is supported");
+1037 +         let html = crate::export::export_html(&projected).expect("standalone Footer body is supported");
+     |
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `typst-infra` (lib test) due to 3 previous errors

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash d6ab9409
+//! @prompt-hash c319d05d
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -262,11 +262,252 @@ fn ordered_blocks(
         }
         let contextual = match node {
             Content::ContextBlock(elem) => Some(elem),
-            Content::Located(e) => match &e.body {
-                Content::ContextBlock(elem) => Some(elem),
-                _ => None,
-            },
-            _ => None,
+            Content::Located(e) => {
+                let mut producer_root = &e.body;
+                while let Content::Source(origin) = producer_root {
+                    producer_root = &origin.body;
+                }
+                match producer_root {
+                    Content::ContextBlock(elem) => Some(elem),
+                    Content::Source(..)
+                    | Content::ShowRecipe(..)
+                    | Content::Realized(..)
+                    | Content::Located(..)
+                    | Content::Empty
+                    | Content::Text(..)
+                    | Content::Space
+                    | Content::SpaceFromNewline
+                    | Content::Parbreak
+                    | Content::Sequence(..)
+                    | Content::HtmlElem(..)
+                    | Content::HtmlFrame(..)
+                    | Content::Par { .. }
+                    | Content::Heading(..)
+                    | Content::Title(..)
+                    | Content::Strong(..)
+                    | Content::Emph(..)
+                    | Content::Raw(..)
+                    | Content::ListItem(..)
+                    | Content::EnumItem(..)
+                    | Content::Link(..)
+                    | Content::Equation(..)
+                    | Content::MathSequence(..)
+                    | Content::MathIdent(..)
+                    | Content::MathText(..)
+                    | Content::MathFrac(..)
+                    | Content::MathAttach(..)
+                    | Content::MathPrimes(..)
+                    | Content::MathRoot(..)
+                    | Content::MathStretch(..)
+                    | Content::MathDelimited(..)
+                    | Content::MathLr(..)
+                    | Content::MathMid(..)
+                    | Content::MathOverbrace(..)
+                    | Content::MathUnderbrace(..)
+                    | Content::MathUnderbracket(..)
+                    | Content::MathUnderparen(..)
+                    | Content::MathUndershell(..)
+                    | Content::MathOverbracket(..)
+                    | Content::MathOverparen(..)
+                    | Content::MathOvershell(..)
+                    | Content::MathAlignPoint(..)
+                    | Content::Linebreak(..)
+                    | Content::MathMatrix(..)
+                    | Content::MathCases(..)
+                    | Content::MathAccent(..)
+                    | Content::MathCancel(..)
+                    | Content::MathUnderline(..)
+                    | Content::MathOverline(..)
+                    | Content::MathVec(..)
+                    | Content::MathClassOverride(..)
+                    | Content::MathLimitsOverride(..)
+                    | Content::MathUnderover(..)
+                    | Content::MathOp(..)
+                    | Content::MathStyled(..)
+                    | Content::Label(..)
+                    | Content::Ref(..)
+                    | Content::CounterDisplay(..)
+                    | Content::CounterUpdate(..)
+                    | Content::Outline(..)
+                    | Content::OutlineEntry(..)
+                    | Content::Figure(..)
+                    | Content::FigureCaption(..)
+                    | Content::Image(..)
+                    | Content::Shape(..)
+                    | Content::Curve(..)
+                    | Content::Transform(..)
+                    | Content::Grid(..)
+                    | Content::GridHeader(..)
+                    | Content::GridFooter(..)
+                    | Content::GridCell(..)
+                    | Content::SetPage(..)
+                    | Content::PageRun(..)
+                    | Content::Align(..)
+                    | Content::Place(..)
+                    | Content::Flush(..)
+                    | Content::Styled(..)
+                    | Content::Divider(..)
+                    | Content::Terms(..)
+                    | Content::TermItem(..)
+                    | Content::Quote(..)
+                    | Content::Document { .. }
+                    | Content::Asset { .. }
+                    | Content::SmartQuote(..)
+                    | Content::PdfAttach(..)
+                    | Content::PdfArtifact(..)
+                    | Content::Underline(..)
+                    | Content::Strike(..)
+                    | Content::Overline(..)
+                    | Content::SmallCaps { .. }
+                    | Content::Pad(..)
+                    | Content::Hide(..)
+                    | Content::HSpace(..)
+                    | Content::VSpace(..)
+                    | Content::Pagebreak(..)
+                    | Content::Colbreak(..)
+                    | Content::Stack(..)
+                    | Content::Boxed(..)
+                    | Content::Block(..)
+                    | Content::TableCell(..)
+                    | Content::Bibliography(..)
+                    | Content::Cite(..)
+                    | Content::Footnote(..)
+                    | Content::FootnoteEntry(..)
+                    | Content::TableHeader(..)
+                    | Content::TableFooter(..)
+                    | Content::GridHLine(..)
+                    | Content::GridVLine(..)
+                    | Content::TableHLine(..)
+                    | Content::TableVLine(..)
+                    | Content::Table(..)
+                    | Content::Repeat(..)
+                    | Content::Columns(..)
+                    | Content::Metadata(..)
+                    | Content::State(..)
+                    | Content::StateUpdate(..)
+                    | Content::StateDisplay(..)
+                    | Content::CounterDisplayCallback(..)
+                    | Content::Dynamic(..) => None,
+                }
+            }
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::Dynamic(..) => None,
         };
         if let Some(elem) = contextual {
             if let Some(pair) = by_id.get(&elem.id) {
@@ -389,11 +630,252 @@ impl<'a> Session<'a> {
             let _ = origin.map_content(&mut |node| {
                 let contextual = match node {
                     Content::ContextBlock(elem) => Some(elem),
-                    Content::Located(e) => match &e.body {
-                        Content::ContextBlock(elem) => Some(elem),
-                        _ => None,
-                    },
-                    _ => None,
+                    Content::Located(e) => {
+                        let mut producer_root = &e.body;
+                        while let Content::Source(origin) = producer_root {
+                            producer_root = &origin.body;
+                        }
+                        match producer_root {
+                            Content::ContextBlock(elem) => Some(elem),
+                            Content::Source(..)
+                            | Content::ShowRecipe(..)
+                            | Content::Realized(..)
+                            | Content::Located(..)
+                            | Content::Empty
+                            | Content::Text(..)
+                            | Content::Space
+                            | Content::SpaceFromNewline
+                            | Content::Parbreak
+                            | Content::Sequence(..)
+                            | Content::HtmlElem(..)
+                            | Content::HtmlFrame(..)
+                            | Content::Par { .. }
+                            | Content::Heading(..)
+                            | Content::Title(..)
+                            | Content::Strong(..)
+                            | Content::Emph(..)
+                            | Content::Raw(..)
+                            | Content::ListItem(..)
+                            | Content::EnumItem(..)
+                            | Content::Link(..)
+                            | Content::Equation(..)
+                            | Content::MathSequence(..)
+                            | Content::MathIdent(..)
+                            | Content::MathText(..)
+                            | Content::MathFrac(..)
+                            | Content::MathAttach(..)
+                            | Content::MathPrimes(..)
+                            | Content::MathRoot(..)
+                            | Content::MathStretch(..)
+                            | Content::MathDelimited(..)
+                            | Content::MathLr(..)
+                            | Content::MathMid(..)
+                            | Content::MathOverbrace(..)
+                            | Content::MathUnderbrace(..)
+                            | Content::MathUnderbracket(..)
+                            | Content::MathUnderparen(..)
+                            | Content::MathUndershell(..)
+                            | Content::MathOverbracket(..)
+                            | Content::MathOverparen(..)
+                            | Content::MathOvershell(..)
+                            | Content::MathAlignPoint(..)
+                            | Content::Linebreak(..)
+                            | Content::MathMatrix(..)
+                            | Content::MathCases(..)
+                            | Content::MathAccent(..)
+                            | Content::MathCancel(..)
+                            | Content::MathUnderline(..)
+                            | Content::MathOverline(..)
+                            | Content::MathVec(..)
+                            | Content::MathClassOverride(..)
+                            | Content::MathLimitsOverride(..)
+                            | Content::MathUnderover(..)
+                            | Content::MathOp(..)
+                            | Content::MathStyled(..)
+                            | Content::Label(..)
+                            | Content::Ref(..)
+                            | Content::CounterDisplay(..)
+                            | Content::CounterUpdate(..)
+                            | Content::Outline(..)
+                            | Content::OutlineEntry(..)
+                            | Content::Figure(..)
+                            | Content::FigureCaption(..)
+                            | Content::Image(..)
+                            | Content::Shape(..)
+                            | Content::Curve(..)
+                            | Content::Transform(..)
+                            | Content::Grid(..)
+                            | Content::GridHeader(..)
+                            | Content::GridFooter(..)
+                            | Content::GridCell(..)
+                            | Content::SetPage(..)
+                            | Content::PageRun(..)
+                            | Content::Align(..)
+                            | Content::Place(..)
+                            | Content::Flush(..)
+                            | Content::Styled(..)
+                            | Content::Divider(..)
+                            | Content::Terms(..)
+                            | Content::TermItem(..)
+                            | Content::Quote(..)
+                            | Content::Document { .. }
+                            | Content::Asset { .. }
+                            | Content::SmartQuote(..)
+                            | Content::PdfAttach(..)
+                            | Content::PdfArtifact(..)
+                            | Content::Underline(..)
+                            | Content::Strike(..)
+                            | Content::Overline(..)
+                            | Content::SmallCaps { .. }
+                            | Content::Pad(..)
+                            | Content::Hide(..)
+                            | Content::HSpace(..)
+                            | Content::VSpace(..)
+                            | Content::Pagebreak(..)
+                            | Content::Colbreak(..)
+                            | Content::Stack(..)
+                            | Content::Boxed(..)
+                            | Content::Block(..)
+                            | Content::TableCell(..)
+                            | Content::Bibliography(..)
+                            | Content::Cite(..)
+                            | Content::Footnote(..)
+                            | Content::FootnoteEntry(..)
+                            | Content::TableHeader(..)
+                            | Content::TableFooter(..)
+                            | Content::GridHLine(..)
+                            | Content::GridVLine(..)
+                            | Content::TableHLine(..)
+                            | Content::TableVLine(..)
+                            | Content::Table(..)
+                            | Content::Repeat(..)
+                            | Content::Columns(..)
+                            | Content::Metadata(..)
+                            | Content::State(..)
+                            | Content::StateUpdate(..)
+                            | Content::StateDisplay(..)
+                            | Content::CounterDisplayCallback(..)
+                            | Content::Dynamic(..) => None,
+                        }
+                    }
+                    Content::Source(..)
+                    | Content::ShowRecipe(..)
+                    | Content::Realized(..)
+                    | Content::Empty
+                    | Content::Text(..)
+                    | Content::Space
+                    | Content::SpaceFromNewline
+                    | Content::Parbreak
+                    | Content::Sequence(..)
+                    | Content::HtmlElem(..)
+                    | Content::HtmlFrame(..)
+                    | Content::Par { .. }
+                    | Content::Heading(..)
+                    | Content::Title(..)
+                    | Content::Strong(..)
+                    | Content::Emph(..)
+                    | Content::Raw(..)
+                    | Content::ListItem(..)
+                    | Content::EnumItem(..)
+                    | Content::Link(..)
+                    | Content::Equation(..)
+                    | Content::MathSequence(..)
+                    | Content::MathIdent(..)
+                    | Content::MathText(..)
+                    | Content::MathFrac(..)
+                    | Content::MathAttach(..)
+                    | Content::MathPrimes(..)
+                    | Content::MathRoot(..)
+                    | Content::MathStretch(..)
+                    | Content::MathDelimited(..)
+                    | Content::MathLr(..)
+                    | Content::MathMid(..)
+                    | Content::MathOverbrace(..)
+                    | Content::MathUnderbrace(..)
+                    | Content::MathUnderbracket(..)
+                    | Content::MathUnderparen(..)
+                    | Content::MathUndershell(..)
+                    | Content::MathOverbracket(..)
+                    | Content::MathOverparen(..)
+                    | Content::MathOvershell(..)
+                    | Content::MathAlignPoint(..)
+                    | Content::Linebreak(..)
+                    | Content::MathMatrix(..)
+                    | Content::MathCases(..)
+                    | Content::MathAccent(..)
+                    | Content::MathCancel(..)
+                    | Content::MathUnderline(..)
+                    | Content::MathOverline(..)
+                    | Content::MathVec(..)
+                    | Content::MathClassOverride(..)
+                    | Content::MathLimitsOverride(..)
+                    | Content::MathUnderover(..)
+                    | Content::MathOp(..)
+                    | Content::MathStyled(..)
+                    | Content::Label(..)
+                    | Content::Ref(..)
+                    | Content::CounterDisplay(..)
+                    | Content::CounterUpdate(..)
+                    | Content::Outline(..)
+                    | Content::OutlineEntry(..)
+                    | Content::Figure(..)
+                    | Content::FigureCaption(..)
+                    | Content::Image(..)
+                    | Content::Shape(..)
+                    | Content::Curve(..)
+                    | Content::Transform(..)
+                    | Content::Grid(..)
+                    | Content::GridHeader(..)
+                    | Content::GridFooter(..)
+                    | Content::GridCell(..)
+                    | Content::SetPage(..)
+                    | Content::PageRun(..)
+                    | Content::Align(..)
+                    | Content::Place(..)
+                    | Content::Flush(..)
+                    | Content::Styled(..)
+                    | Content::Divider(..)
+                    | Content::Terms(..)
+                    | Content::TermItem(..)
+                    | Content::Quote(..)
+                    | Content::Document { .. }
+                    | Content::Asset { .. }
+                    | Content::SmartQuote(..)
+                    | Content::PdfAttach(..)
+                    | Content::PdfArtifact(..)
+                    | Content::Underline(..)
+                    | Content::Strike(..)
+                    | Content::Overline(..)
+                    | Content::SmallCaps { .. }
+                    | Content::Pad(..)
+                    | Content::Hide(..)
+                    | Content::HSpace(..)
+                    | Content::VSpace(..)
+                    | Content::Pagebreak(..)
+                    | Content::Colbreak(..)
+                    | Content::Stack(..)
+                    | Content::Boxed(..)
+                    | Content::Block(..)
+                    | Content::TableCell(..)
+                    | Content::Bibliography(..)
+                    | Content::Cite(..)
+                    | Content::Footnote(..)
+                    | Content::FootnoteEntry(..)
+                    | Content::TableHeader(..)
+                    | Content::TableFooter(..)
+                    | Content::GridHLine(..)
+                    | Content::GridVLine(..)
+                    | Content::TableHLine(..)
+                    | Content::TableVLine(..)
+                    | Content::Table(..)
+                    | Content::Repeat(..)
+                    | Content::Columns(..)
+                    | Content::Metadata(..)
+                    | Content::State(..)
+                    | Content::StateUpdate(..)
+                    | Content::StateDisplay(..)
+                    | Content::CounterDisplayCallback(..)
+                    | Content::Dynamic(..) => None,
                 };
                 if let Some(elem) = contextual {
                     if seen.insert(elem.id) {
@@ -2453,5 +2935,324 @@ mod figure_pipeline_transaction_tests {
         );
         assert!(result.is_ok(), "{result:?}");
         assert!(warnings.is_empty(), "{warnings:?}");
+    }
+}
+
+#[cfg(test)]
+mod batch_g_session_tests {
+    use super::*;
+    use typst_core::entities::content::{LocatedContent, SourceContent};
+    use typst_core::entities::elements::math_frac::MathFracElem;
+    use typst_core::entities::func::Func;
+    use typst_core::entities::layout_types::Length;
+    use typst_core::entities::locator::Locator;
+    use typst_core::entities::style::{Style, Styles};
+
+    fn block(id: u64, closure: Func) -> Content {
+        Content::ContextBlock(Arc::new(ContextBlockElem { id, closure }))
+    }
+
+    fn empty(id: u64) -> Content {
+        block(
+            id,
+            Func::native("ordered-witness", |_ctx, _args, _world, _file| Ok(Value::None)),
+        )
+    }
+
+    #[test]
+    fn batch_g_generic_order_recognizes_bare_and_located_source_producers() {
+        let located = Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::Located(Arc::new(LocatedContent {
+                location: Locator::new().next(),
+                body: empty(3),
+            })),
+        }));
+        let tree = Content::MathFrac(Arc::new(MathFracElem {
+            num: empty(8),
+            den: located,
+            style: None,
+            num_deparenthesized: false,
+            denom_deparenthesized: false,
+            line: true,
+        }));
+        let chain = StyleChain::default_chain();
+        let ordered =
+            ordered_blocks(&tree, &chain).expect("distinct actual IDs are ordered");
+        assert_eq!(
+            ordered.iter().map(|(elem, _)| elem.id).collect::<Vec<_>>(),
+            vec![8, 3]
+        );
+        assert!(
+            ordered_blocks(&Content::sequence(vec![tree, empty(3)]), &chain).is_none()
+        );
+    }
+
+    #[test]
+    fn batch_g_legacy_duplicate_keeps_first_id_order_last_payload_chain_and_single_execution(
+    ) {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let first = block(
+            7,
+            Func::native("first", |_ctx, _args, _world, _file| {
+                Ok(Value::Content(Content::text("FIRST")))
+            }),
+        );
+        let middle = block(
+            2,
+            Func::native("middle", |_ctx, _args, _world, _file| {
+                Ok(Value::Content(Content::text("MIDDLE")))
+            }),
+        );
+        let last = block(
+            7,
+            Func::native_with_engine(
+                "last",
+                |_ctx, _args, _world, _file, _scopes, engine| {
+                    Ok(Value::Content(Content::text(format!(
+                        "LAST{}",
+                        engine.styles.size()
+                    ))))
+                },
+            ),
+        );
+        let Content::ContextBlock(last_elem) = &last else { panic!("bare fixture") };
+        let last_elem = last_elem.clone();
+        let tree = Content::sequence(vec![
+            first,
+            middle,
+            Content::styled(
+                Box::new(last),
+                Styles::from_iter([Style::Size(Length::pt(30.0))]),
+            ),
+        ]);
+        let intr = introspect_with_introspector(&tree);
+        let mut session = Session::new(
+            tree,
+            &intr,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        assert!(
+            session.impossible,
+            "actual duplicate topology remains invalid for selection"
+        );
+        assert_eq!(
+            session
+                .roots
+                .iter()
+                .map(|&i| session.nodes[i].elem.id)
+                .collect::<Vec<_>>(),
+            vec![7, 2]
+        );
+        assert!(Arc::ptr_eq(&session.nodes[0].elem, &last_elem));
+        assert_eq!(session.nodes[0].chain.size(), 30.0);
+        assert!(
+            !session.discover(),
+            "ordinary producers do not select a new retained cycle"
+        );
+        assert_eq!(session.nodes.len(), 2);
+        assert!(session
+            .nodes
+            .iter()
+            .all(|node| node.current.is_some() && node.children.is_empty()));
+        assert!(
+            session.retired.is_empty(),
+            "legacy discovery performs one initial execution per ID"
+        );
+        assert_eq!(session.body(0).plain_text(), "LAST30");
+        assert_eq!(session.body(1).plain_text(), "MIDDLE");
+        assert_eq!(session.content().plain_text(), "LAST30MIDDLELAST30");
+    }
+
+    #[test]
+    fn batch_g_actual_reference_capture_preserves_generated_and_source_producers() {
+        let world = crate::world::SystemWorld::for_stdin(std::path::PathBuf::from("/tmp"), "#figure(kind: image, supplement: [F])[BODY] <outer>\n@outer\n#context [ORDINARY]".into());
+        let source = world.source(world.main()).unwrap();
+        let (module, warnings) = eval_to_module_with_sink(&world, &source);
+        let module = module.expect("existing reference capture source must evaluate");
+        assert!(warnings.is_empty());
+        let content = module.content().unwrap();
+        let ordered = ordered_blocks(content, &StyleChain::default_chain())
+            .expect("captured actual IDs are distinct");
+        assert_eq!(ordered.len(), 2);
+        let is_reference = typst_core::compiler::realize::reference_supplements::is_reference_supplement_producer;
+        assert!(is_reference(&ordered[0].0));
+        assert!(!is_reference(&ordered[1].0));
+        let collected = collect_context_blocks(content, &StyleChain::default_chain());
+        assert_eq!(collected.len(), 2);
+        for (elem, _) in &ordered {
+            assert!(Arc::ptr_eq(&collected[&elem.id].0, elem));
+        }
+    }
+}
+
+#[cfg(test)]
+mod batch_g_source_root_tests {
+    use super::*;
+    use typst_core::entities::content::{LocatedContent, SourceContent};
+    use typst_core::entities::elements::math_frac::MathFracElem;
+    use typst_core::entities::elements::underline::UnderlineElem;
+    use typst_core::entities::func::Func;
+    use typst_core::entities::layout_types::Length;
+    use typst_core::entities::locator::Locator;
+    use typst_core::entities::style::{Style, Styles};
+
+    fn producer(id: u64, closure: Func) -> Arc<ContextBlockElem> {
+        Arc::new(ContextBlockElem { id, closure })
+    }
+
+    fn empty(id: u64) -> Arc<ContextBlockElem> {
+        producer(
+            id,
+            Func::native("source-root", |_ctx, _args, _world, _file| Ok(Value::None)),
+        )
+    }
+
+    fn underline(body: Content) -> Content {
+        Content::Underline(Arc::new(UnderlineElem {
+            body,
+            stroke: None,
+            offset: None,
+            extent: None,
+        }))
+    }
+
+    fn source(body: Content, span: Span) -> Content {
+        Content::Source(Arc::new(SourceContent { body, span }))
+    }
+
+    #[test]
+    fn batch_g_source_root_generic_order_preserves_both_orientations_and_chain() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source_file = world.source(world.main()).unwrap();
+        let span = source_file.root().span();
+        let reverse = empty(21);
+        let forward = empty(22);
+        let mut locator = Locator::new();
+        let reverse_content = Content::Located(Arc::new(LocatedContent {
+            location: locator.next(),
+            body: source(Content::ContextBlock(reverse.clone()), span),
+        }));
+        let forward_content = source(
+            Content::Located(Arc::new(LocatedContent {
+                location: locator.next(),
+                body: Content::ContextBlock(forward.clone()),
+            })),
+            span,
+        );
+        let tree = underline(Content::MathFrac(Arc::new(MathFracElem {
+            num: reverse_content,
+            den: forward_content,
+            style: None,
+            num_deparenthesized: false,
+            denom_deparenthesized: false,
+            line: true,
+        })));
+        let chain = StyleChain::default_chain()
+            .push_styles(&Styles::from_iter([Style::Size(Length::pt(30.0))]));
+        let by_id = collect_context_blocks(&tree, &chain);
+        assert_eq!(
+            by_id.len(),
+            2,
+            "both Source orientations are actual collected members"
+        );
+        let ordered = ordered_blocks(&tree, &chain)
+            .expect("distinct transported producers retain order");
+        assert_eq!(ordered.iter().map(|(e, _)| e.id).collect::<Vec<_>>(), vec![21, 22]);
+        for ((actual, styles), expected) in ordered.iter().zip([reverse, forward]) {
+            assert!(Arc::ptr_eq(actual, &expected));
+            assert_eq!(styles.size(), 30.0);
+        }
+        let Content::Underline(outer) = &tree else { panic!("underline retained") };
+        let Content::MathFrac(frac) = &outer.body else { panic!("fraction retained") };
+        let Content::Located(at) = &frac.num else { panic!("Location retained") };
+        let Content::Source(origin) = &at.body else { panic!("origin retained") };
+        assert_eq!(origin.span, span);
+    }
+
+    #[test]
+    fn batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source_file = world.source(world.main()).unwrap();
+        let span = source_file.root().span();
+        let first = empty(7);
+        let middle = empty(2);
+        let duplicate = empty(7);
+        let last = producer(
+            7,
+            Func::native("source-last", |_ctx, _args, _world, _file| {
+                Ok(Value::Content(Content::text("LAST")))
+            }),
+        );
+        let extra = producer(
+            9,
+            Func::native("source-extra", |_ctx, _args, _world, _file| {
+                Ok(Value::Content(Content::text("EXTRA")))
+            }),
+        );
+        let mut locator = Locator::new();
+        let last_content = underline(Content::styled(
+            Box::new(Content::Located(Arc::new(LocatedContent {
+                location: locator.next(),
+                body: source(Content::ContextBlock(last.clone()), span),
+            }))),
+            Styles::from_iter([Style::Size(Length::pt(30.0))]),
+        ));
+        let extra_content = underline(Content::Located(Arc::new(LocatedContent {
+            location: locator.next(),
+            body: source(Content::ContextBlock(extra.clone()), span),
+        })));
+        let tree = Content::sequence(vec![
+            Content::ContextBlock(first),
+            Content::ContextBlock(middle),
+            Content::ContextBlock(duplicate),
+            last_content,
+            extra_content,
+        ]);
+        let intr = introspect_with_introspector(&tree);
+        let mut session = Session::new(
+            tree,
+            &intr,
+            &world,
+            &source_file,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        assert!(session.impossible, "the direct duplicate still selects legacy fallback");
+        assert_eq!(
+            session
+                .roots
+                .iter()
+                .map(|&i| session.nodes[i].elem.id)
+                .collect::<Vec<_>>(),
+            vec![7, 2, 9]
+        );
+        assert!(Arc::ptr_eq(&session.nodes[0].elem, &last));
+        assert!(Arc::ptr_eq(&session.nodes[2].elem, &extra));
+        assert_eq!(session.nodes[0].chain.size(), 30.0);
+        assert!(!session.discover());
+        assert_eq!(session.nodes.len(), 3);
+        assert!(session
+            .nodes
+            .iter()
+            .all(|node| node.current.is_some() && node.children.is_empty()));
+        assert!(session.retired.is_empty());
+        assert_eq!(session.body(0).plain_text(), "LAST");
+        assert_eq!(session.body(2).plain_text(), "EXTRA");
     }
 }

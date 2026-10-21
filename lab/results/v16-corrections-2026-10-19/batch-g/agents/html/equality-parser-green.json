@@ -1,0 +1,38 @@
+{
+  "runner_sha256": "741d7f0aac52de5293e7b6f4f357bba7ef70d7506fdd8453cdba80ddda969892",
+  "fixtures": [
+    {
+      "name": "valid-equal",
+      "pass_value": true,
+      "raised_invalid_oracle": false,
+      "expected_value": true,
+      "expected_oracle_rejection": false,
+      "pass": true
+    },
+    {
+      "name": "invalid-actual-valid-oracle",
+      "pass_value": false,
+      "raised_invalid_oracle": false,
+      "expected_value": false,
+      "expected_oracle_rejection": false,
+      "pass": true
+    },
+    {
+      "name": "invalid-oracle",
+      "pass_value": false,
+      "raised_invalid_oracle": true,
+      "expected_value": false,
+      "expected_oracle_rejection": true,
+      "pass": true
+    },
+    {
+      "name": "legitimate-json-null",
+      "pass_value": true,
+      "raised_invalid_oracle": false,
+      "expected_value": true,
+      "expected_oracle_rejection": false,
+      "pass": true
+    }
+  ],
+  "all_pass": true
+}

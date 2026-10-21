@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/encoding.md
-//! @prompt-hash 4ee8a473
+//! @prompt-hash 44e9a9ab
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -16,7 +16,122 @@ fn visual_content(mut content: &Content) -> &Content {
             Content::ShowRecipe(e) => &e.body,
             Content::Located(e) => &e.body,
             Content::Realized(e) => &e.visual,
-            _ => return content,
+            Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => return content,
         };
     }
 }
@@ -212,6 +327,71 @@ mod carrier_tests {
                     "A\n B"
                 );
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod batch_g_html_encoding_tests {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::entities::{
+        content::LocatedContent, location::Location, locator::Locator,
+    };
+    fn located(body: Content, location: Location) -> Content {
+        Content::Located(Arc::new(LocatedContent { body, location }))
+    }
+    #[test]
+    fn batch_g_html_textual_guards_do_not_accept_semantic_body_containers() {
+        let mut locator = Locator::new();
+        for content in [
+            Content::label("x", Content::text("TEXT")),
+            Content::strong(Content::text("TEXT")),
+            Content::heading(1, Content::text("TEXT")),
+        ] {
+            for wrapped in [
+                content.clone(),
+                located(content.clone(), locator.next()),
+                located(located(content, locator.next()), locator.next()),
+            ] {
+                assert_eq!(
+                    raw_text(&wrapped).unwrap_err().message,
+                    "HTML raw text element cannot have non-text children"
+                );
+                assert_eq!(
+                    title_text_with_context(
+                        &wrapped,
+                        &typst_core::entities::style_chain::StyleChain::default_chain(),
+                        &mut Default::default()
+                    )
+                    .unwrap_err()
+                    .message,
+                    "HTML raw text element cannot have non-text children"
+                );
+            }
+        }
+    }
+    #[test]
+    fn batch_g_html_title_wrapped_newline_space_origin_and_escaping_stay_exact() {
+        let mut locator = Locator::new();
+        for separator in [Content::Space, Content::SpaceFromNewline] {
+            let body = Content::sequence(vec![
+                Content::text("A & <"),
+                located(Content::linebreak(), locator.next()),
+                located(separator, locator.next()),
+                Content::Space,
+                Content::text("B"),
+            ]);
+            assert_eq!(
+                title_text_with_context(
+                    &body,
+                    &typst_core::entities::style_chain::StyleChain::default_chain(),
+                    &mut Default::default()
+                )
+                .unwrap(),
+                "A &amp; &lt;\n B"
+            );
+            assert_eq!(raw_text(&body).unwrap(), "A & <\n  B");
         }
     }
 }

@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-20T23:32:13.984433+00:00",
+  "files": {
+    "01_core/src/compiler/realize/bare_math.rs": {
+      "before_sha256": "2d00519f45229c12873907b5a635f3d80bf411e71a1ff6ff1423be46d979fed3",
+      "after_sha256": "62e742a8da5acbd4aa43d3312793d23a877a8087bc1c811736e49edf2b97764b",
+      "all_cfg_test_suffix_byte_identical": true,
+      "test_suffix_sha256": "f51e8b339758edb0348817fd9c8dc4ccf0d3dad56133f6b50347bae90aff00ec"
+    },
+    "01_core/src/compiler/realize/mod.rs": {
+      "before_sha256": "a72a66bcdd9bc13e2d5e04aa76d29a81b2ed01c5757b9f0750d805298475995c",
+      "after_sha256": "d2c9b86dc897bc55a6bfb5ecf9412a40711f2acb59337ce5ed500c221c80019f",
+      "all_cfg_test_suffix_byte_identical": true,
+      "test_suffix_sha256": "6e222de4fa017e24fdb90d7d67be892140dbea89a856aa510fa0d0058236b88e"
+    },
+    "01_core/src/entities/content/equality.rs": {
+      "before_sha256": "6a9c2f8a9fce4f8074bf9011a15996cecfd9c1e3e9d981a3e85d0d95b01e18af",
+      "after_sha256": "3ae6f4ef82b55035ae741bb26dcea02263b60a5e4ab28db769c491242f934579",
+      "all_cfg_test_suffix_byte_identical": true,
+      "test_suffix_sha256": "fdd844eae6c32fcefbe44178f52a0a0dadee957742aa4b0b82e6cd14ebad4486"
+    },
+    "01_core/src/compiler/eval/operators/equality.rs": {
+      "before_sha256": "61a2cb8c9528f7578d0e205377228863451819fa98bb5be3c9e22f89f9a98389",
+      "after_sha256": "5578b9a9ba3103ebccd47b18b79156a1c6f3bfb9fc053abe7a91fa164d61aace",
+      "all_cfg_test_suffix_byte_identical": true,
+      "test_suffix_sha256": "7aaf6dc5077e8c7be8a346c9429085942cc52b991d65b749614bef0767d37858"
+    }
+  },
+  "no_cargo_fmt_seal": true,
+  "no_public_signature_change": true,
+  "enum_count": 120
+}

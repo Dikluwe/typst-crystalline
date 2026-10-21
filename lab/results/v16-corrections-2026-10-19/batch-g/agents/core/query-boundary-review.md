@@ -1,0 +1,5 @@
+# Independent query-boundary review — batch G101–103
+
+The full current L0 and audit were read against actual source and the four appended tests. Productive source is an exact HEAD prefix; no signature or public behavior has changed. The tests preserve raw-empty1/canonical-empty0, bare-item0/group1/Styled-group0, nested-body recursion, and real-introspector Heading/Metadata summaries versus direct-helper zero. These are substantive boundary controls, not an enum-list mirror or a claim that approximate counts meet language parity. Existing debt and compiled/located query contracts remain explicit.
+
+One low-severity citation correction is needed after the RED freeze: the new L0/audit attribute sequence canonicalization to content/construction.rs:6–25; the current definition is `01_core/src/entities/content/sequence.rs:10–20`. Tests and the normative boundary are supported by that actual implementation. No code/test/spec edits were made by this review, and no Cargo ran. Exact reviewed hashes and detailed findings are in query-boundary-review.json.

@@ -1,0 +1,70 @@
+{
+  "utc": "2026-10-21T00:41:04.192692+00:00",
+  "classification": "Distinct fresh output names for the cell-flow correction; failed acceptance and earlier successful gates are immutable. No acceptance policy, compiler control, source inputs, hash algorithm, or expected result is relaxed.",
+  "workers": [
+    {
+      "old": "integrate_final.py",
+      "old_sha256": "4548c5decd437972935610ac59abeb8939b7cc1a63b36aa4f2c3667ef0880239",
+      "new": "integrate_3.py",
+      "new_sha256": "5f3a8b6caddc9b78945a9bd425a7ae232855b4a3780ad910623b2ebb738dc11a",
+      "literal_changes": {
+        "integration-final": "integration-3",
+        "reseal-candidate-final": "reseal-candidate-3",
+        "focused-green-final-": "focused-green-3-",
+        "('typst-infra',32)": "('typst-infra',36)"
+      }
+    },
+    {
+      "old": "validate_final.py",
+      "old_sha256": "b5a6788e4c42196ec19fcd61f06ae1afed70645fa9c40f66046046395308c29f",
+      "new": "validate_3.py",
+      "new_sha256": "26844c2dbc8f7c161251336110764a2e9a161acc9733477cdf0959fb09f6eda9",
+      "literal_changes": {
+        "candidate-gates-final": "candidate-gates-3",
+        "focused-green-final-": "focused-green-3-",
+        "lint-final-2": "lint-final-3",
+        "lint_delta_final.py": "lint_delta_3.py",
+        "green-final": "green-3",
+        "validation-final-2": "validation-final-3",
+        "candidate-build-final": "candidate-build-3"
+      }
+    },
+    {
+      "old": "lint_delta_final.py",
+      "old_sha256": "6b1f4bfcdb01205568f4e187dc61bc6fd88b91029f02ee7afc5a8bee889077e2",
+      "new": "lint_delta_3.py",
+      "new_sha256": "47496b1d5db6f175cfa7815b1869e2893e73f5c3869a1ae34bbdc9b52ccd105f",
+      "literal_changes": {
+        "lint-final-2": "lint-final-3",
+        "lint-delta-final.json": "lint-delta-3.json"
+      }
+    },
+    {
+      "old": "hash_measurement_candidate.py",
+      "old_sha256": "041c4f53e490aa26444ccab3cc4c7dcbf636295557814fb5f1f5d5678f2fb4c8",
+      "new": "hash_measurement_candidate_3.py",
+      "new_sha256": "6259b7ebed0f428a5bcc3740f57bdee5925610eef2eefe4860da2121d5085ebc",
+      "literal_changes": {
+        "hash-artifact-candidate-final": "hash-artifact-candidate-3",
+        "candidate-build-final": "candidate-build-3",
+        "hash-candidate-final": "hash-candidate-3"
+      }
+    },
+    {
+      "old": "accept_final.py",
+      "old_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+      "new": "accept_3.py",
+      "new_sha256": "5244ec3600b4cf6397aa0cfdb7e53bae35d092d27a639862410820a392ea938b",
+      "literal_changes": {
+        "candidate-build-final": "candidate-build-3",
+        "acceptance-final": "acceptance-3",
+        "hash_measurement_candidate.py": "hash_measurement_candidate_3.py",
+        "equality-candidate": "equality-candidate-3",
+        "html-candidate": "html-candidate-3",
+        "figure-policy-replay": "figure-policy-replay-3",
+        "reference-corpora": "reference-corpora-3",
+        "figure-target-controls": "figure-target-controls-3"
+      }
+    }
+  ]
+}

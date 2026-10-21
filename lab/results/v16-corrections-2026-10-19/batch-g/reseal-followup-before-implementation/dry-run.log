@@ -1,0 +1,3 @@
+Would fix ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md old=9703cb42 hash-a=4e1b9ce7 hash-b=db6c5773
+Would fix ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md old=d591b206 hash-a=9a480b5e hash-b=e1fe3faa
+Would fix ./03_infra/src/pipeline/paged.rs prompt=00_nucleo/prompts/infra/pipeline/paged.md old=bde0cb01 hash-a=bde0cb01 hash-b=595f7222

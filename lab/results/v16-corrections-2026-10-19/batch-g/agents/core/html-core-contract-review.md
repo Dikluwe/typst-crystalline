@@ -1,0 +1,7 @@
+# HTML4 independent review and core self-audit
+
+No actionable contract defect found within the reviewed correction scope. HTML document projection removes only the declared internal marker kinds and handles suppressed transported roots without consuming original content. Encoding retains exact textual stopping/escaping/rejection classes. HTML frame event count and collection share Source/Located root handling, preserve once-only bottom-up order and style scope, and keep exact Context ID/collision/page-none guards. Bundle projection reaches only selected supported Table/Cell/Header/Footer visuals, keeps dormant raw/caption snapshots, and leaves Frame as a paged island and unsupported semantic containers as errors.
+
+The author's own core projection is explicitly a self-audit, not independent review: its ephemeral Context comparison id never reaches Engine/Value/output/public morphology, Hash/ObservationEq or allocators; Func remains unevaluated, and mechanical Context identity remains id-based. Original occurrence/query semantics and full snapshot/typed Figure rules are unchanged. Full closed Content pair axes require root's actual compiler witnesses; the private whole-node passthrough is conservative identity rather than a neutral classification.
+
+Exact source/L0 hashes and retained limits are in html-core-contract-review.json. No Cargo or source/L0 mutation ran. Dynamic integration/actual candidate replay and final sealed-input certification remain pending the integrator; this does not certify general HTML or equality parity.

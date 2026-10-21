@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-21T00:16:20.405627+00:00",
+  "actual_red": "lab/results/v16-corrections-2026-10-19/batch-g/focused-followup-red-infra-2",
+  "archive": "raw-footer-before-production",
+  "source_sha256": "6d32faa31cf3a1e0b307e1da5f779e2417d6db14716f46a578dfe1256ce4cc13",
+  "l0_sha256": "5f28b9034e04c718b8d029eac937440bf08e26f498f1f3389c5099b22933bb23",
+  "all_test_bytes_unchanged": true,
+  "private_effect_state": "Entry is emitted. All21 recursive child edges inherit state except one raw-footer edge that sets dormant. Dormant never re-enters entry wrapper. Table-row-slot selection remains independent.",
+  "recursive_calls_including_declaration": 22,
+  "effect_creation": "Existing warning constructor is guarded at Heading by actual emission state; no warnings are collected then discarded/filtered and no messages change.",
+  "preserved": "Heading field conversion, raw footer snapshots and omission, standalone/resolved warnings, frame opacity, renderer, global traversal, public contracts and pipeline phases.",
+  "status": "Source/L0/tests frozen for parent GREEN/fmt/seals; no Cargo/fmt/seals run by owner."
+}

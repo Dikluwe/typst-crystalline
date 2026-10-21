@@ -1,0 +1,14 @@
+Applied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=3212f8dc hash-b=048994d7
+Applied ./01_core/src/compiler/realize/bare_math.rs prompt=00_nucleo/prompts/core/compiler/realize/bare_math.md hash-a=c4c5c1ed hash-b=bf8eba4d
+Applied ./01_core/src/compiler/realize/mod.rs prompt=00_nucleo/prompts/core/compiler/realize/mod.md hash-a=74580e33 hash-b=d28e259c
+Applied ./01_core/src/entities/content/equality.rs prompt=00_nucleo/prompts/core/entities/content/equality.md hash-a=4e6dcee2 hash-b=cd07b168
+Applied ./03_infra/src/export/html/document.rs prompt=00_nucleo/prompts/infra/export/html/document.md hash-a=3d0b66a5 hash-b=df06c2e5
+Applied ./03_infra/src/export/html/encoding.rs prompt=00_nucleo/prompts/infra/export/html/encoding.md hash-a=6367f2fb hash-b=24b6a814
+Applied ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md hash-a=ffe963cb hash-b=70657f57
+Applied ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md hash-a=c8fafccb hash-b=72a54d28
+Applied ./03_infra/src/pipeline/html.rs prompt=00_nucleo/prompts/infra/pipeline/html.md hash-a=3b86deb9 hash-b=15ea40a5
+Applied ./03_infra/src/pipeline/paged.rs prompt=00_nucleo/prompts/infra/pipeline/paged.md hash-a=946052e7 hash-b=452202ca
+Applied ./03_infra/src/pipeline.rs prompt=00_nucleo/prompts/infra/pipeline.md hash-a=b772ea34 hash-b=31cd3c66
+Applied ./03_infra/src/query_helpers.rs prompt=00_nucleo/prompts/infra/query_helpers.md hash-a=4e60a29a hash-b=b75ea41d
+
+Re-running analysis... ✅ 0 drift warnings remaining

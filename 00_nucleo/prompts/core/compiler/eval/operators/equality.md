@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/equality
-Hash do Código: af116c9e
+Hash do Código: 9126a6cf
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
@@ -282,3 +282,81 @@ Figure-owned kind field filter comparison uses exact FigureKind identity, includ
 ### Acceptance and boundaries
 
 Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+## Opaque Context comparison
+
+### Evidence before decision
+
+At baseline HEAD `4382891f0d5f0839669597cb5c90a98f24cfb8bd`, the immutable
+29-expression receipt
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/core/equality-probes/receipt.json`
+SHA-256 c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6
+records current pinned oracle commit/tree/executable, product build4,
+source/commands/UTC and unchanged binaries/sources. Context aliases and
+independently created Contexts compare equal in the language, including distinct
+bodies/captured environments, while the measured raw product comparison falls
+through false. Unlike Context/body/empty pairs remain unequal.
+
+`context-intent-probes/receipt.json` beside it, SHA-256
+3523208ad9be23fcc87960083db10fa7a1805910b758cdb44de83f2eb42fb86c,
+confirms explicit parentheses/assignments, empty fields and content type;
+opaque panic bodies do not execute. A separate document renders AB in both
+binaries while metadata records equality true/false. Pinned ContextElem
+`foundations/context.rs:63–87` deliberately hides its required func field and
+executes it later with insertion context; `typst-macros/src/elem.rs:393–425`
+excludes internal fields, and `foundations/content/raw.rs:354–361` compares
+exposed fields. Language documentation `docs/content/reference/language/context.typ:11,23–36`
+explicitly states created Context content is opaque and may execute zero, one
+or multiple times at insertion. It does not explicitly prescribe every equality
+result; the narrower inference is that hidden closure/result is not linguistic
+morphology. A source requirement exposing Context identity/function/output as
+an equality field would refute this inference. Detailed source review is in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-review.md`;
+complete pre-change owner/source hashes are in language-equality-before.json.gz
+in the same evidence directory.
+
+### Exclusive private comparison responsibility
+
+Only this owner's ephemeral comparison projection is refined: after existing
+morphology, nominal ContextBlock contributes its opaque Context kind without
+private id/closure as language fields. Keep the existing comparison-only Styled
+map removal/coalescing policy. A private local ContextBlock representative may
+retain the original unevaluated Func and substitute only an irrelevant
+comparison id. Never replace it with Empty, text, another kind or an evaluated
+result. Original content/IDs/closures remain unchanged. Mechanical Content and
+ContextBlock Eq/Hash retain their owned id rule. Language equality does not
+control query membership, allocation, observation, caching or emission deduplication.
+
+Traverse effective comparison bodies, including immediate bodies beneath Source
+and Located whose callback root can be suppressed by the bottom-up mapper,
+Sequence, Styled, Title and HtmlFrame. Retain Source/ShowRecipe/Located
+transparency and Realized.visual; never compare Realized.original as emitted
+morphology or execute recipes. Preserve the static mapper protocol and semantic
+node distinctions; change no generic traversal or public morph_canon. Arrays,
+dictionaries and Eq/Neq/In/NotIn share the existing recursive relation.
+
+No projection or fabricated id escapes into Engine, Value, source, original or
+rendered content, public morph_canon, Hash, ObservationEq, termination, registry/
+locator or snapshot payload. No closure/style function executes. No blanket
+all-content equality or Arc shortcut is permitted. Preserve the complete Some
+snapshot field-set relation, label exclusion, None fallback, Figure kind identity
+and selector/filter comparisons. Nested content field values retain existing
+recursive equality; erase no snapshot field or presence distinction.
+
+### Acceptance and limits
+
+Require functional RED→GREEN for distinct raw Contexts, explicit-parenthesis
+source equivalents, suppressed carrier roots, nominal containers, arrays/
+dictionaries/operators and nonexecution. Original ids/Func Arcs, public morphology
+and both actual AB emissions remain unchanged. Unlike-kind/empty/body/Float NaN
+negatives and unequal snapshot field sets remain; matching fields ignore label/
+Location while preserving Some/None semantics. Existing Styled/Figure/snapshot
+tests remain binding. Replay fixed oracle expressions and rendered/query source
+against a provenance-bound candidate; mechanical id tests do not replace the
+language corpus.
+
+This is ADR-0127 continuous parity in the existing comparison phase, with no
+public signature/entity/trait/default/compatibility change. L0-first
+implementation, actual RED→GREEN, relevant enum-evolution witnesses, full
+validation, paths and graph-valid bilateral resealing remain required. No broad
+equality/hash rewrite, suppression or complete Content parity claim follows.

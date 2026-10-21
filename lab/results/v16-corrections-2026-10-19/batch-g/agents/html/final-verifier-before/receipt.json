@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-21T00:23:57.399276+00:00",
+  "purpose": "Exact two lab scripts before pre-candidate verifier hardening",
+  "sha256": {
+    "agents/core/replay_equality.py": "85256316a94c02ca99b6e1109885360c436436f2a1d70f925ef002114b001552",
+    "accept_final.py": "d6d04470135f0359355a1503de8736fdfab76a0601602fe2a7f2fc6ea5f31692"
+  }
+}

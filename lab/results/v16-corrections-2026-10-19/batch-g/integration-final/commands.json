@@ -1,0 +1,57 @@
+[
+  {
+    "name": "fmt",
+    "utc_start": "2026-10-21T00:16:40.288386+00:00",
+    "utc_end": "2026-10-21T00:16:44.327262+00:00",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--all"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "reseal",
+    "utc_start": "2026-10-21T00:16:44.327528+00:00",
+    "utc_end": "2026-10-21T00:17:07.822003+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reseal.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-final"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "typst-core",
+    "utc_start": "2026-10-21T00:17:07.822326+00:00",
+    "utc_end": "2026-10-21T00:18:34.246571+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py",
+      "--output",
+      "focused-green-final-typst-core",
+      "--package",
+      "typst-core",
+      "--expected-total",
+      "20"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "typst-infra",
+    "utc_start": "2026-10-21T00:18:34.246998+00:00",
+    "utc_end": "2026-10-21T00:19:15.201301+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py",
+      "--output",
+      "focused-green-final-typst-infra",
+      "--package",
+      "typst-infra",
+      "--expected-total",
+      "32"
+    ],
+    "exit": 0
+  }
+]

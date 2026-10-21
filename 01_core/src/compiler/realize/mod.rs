@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
-//! @prompt-hash 38f6e4e6
+//! @prompt-hash 87403de5
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -93,7 +93,125 @@ fn normalize_insertions(content: &Content) -> SourceResult<Content> {
                     !crate::compiler::eval::rules::textual::is_product(child)
                         && matches!(e.visual, Content::Sequence(_))
                 },
-                _ => false,
+                // These direct-child carriers are not flattenable sequences.
+                Content::Source(_)
+                | Content::ShowRecipe(_)
+                | Content::Located(_)
+                | Content::Empty
+                | Content::Text(_)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::HtmlElem(_)
+                | Content::HtmlFrame(_)
+                | Content::Par { .. }
+                | Content::Heading(_)
+                | Content::Title(_)
+                | Content::Strong(_)
+                | Content::Emph(_)
+                | Content::Raw(_)
+                | Content::ListItem(_)
+                | Content::EnumItem(_)
+                | Content::Link(_)
+                | Content::Equation(_)
+                | Content::MathSequence(_)
+                | Content::MathIdent(_)
+                | Content::MathText(_)
+                | Content::MathFrac(_)
+                | Content::MathAttach(_)
+                | Content::MathPrimes(_)
+                | Content::MathRoot(_)
+                | Content::MathStretch(_)
+                | Content::MathDelimited(_)
+                | Content::MathLr(_)
+                | Content::MathMid(_)
+                | Content::MathOverbrace(_)
+                | Content::MathUnderbrace(_)
+                | Content::MathUnderbracket(_)
+                | Content::MathUnderparen(_)
+                | Content::MathUndershell(_)
+                | Content::MathOverbracket(_)
+                | Content::MathOverparen(_)
+                | Content::MathOvershell(_)
+                | Content::MathAlignPoint(_)
+                | Content::Linebreak(_)
+                | Content::MathMatrix(_)
+                | Content::MathCases(_)
+                | Content::MathAccent(_)
+                | Content::MathCancel(_)
+                | Content::MathUnderline(_)
+                | Content::MathOverline(_)
+                | Content::MathVec(_)
+                | Content::MathClassOverride(_)
+                | Content::MathLimitsOverride(_)
+                | Content::MathUnderover(_)
+                | Content::MathOp(_)
+                | Content::MathStyled(_)
+                | Content::Label(_)
+                | Content::Ref(_)
+                | Content::CounterDisplay(_)
+                | Content::CounterUpdate(_)
+                | Content::Outline(_)
+                | Content::OutlineEntry(_)
+                | Content::Figure(_)
+                | Content::FigureCaption(_)
+                | Content::Image(_)
+                | Content::Shape(_)
+                | Content::Curve(_)
+                | Content::Transform(_)
+                | Content::Grid(_)
+                | Content::GridHeader(_)
+                | Content::GridFooter(_)
+                | Content::GridCell(_)
+                | Content::SetPage(_)
+                | Content::PageRun(_)
+                | Content::Align(_)
+                | Content::Place(_)
+                | Content::Flush(_)
+                | Content::Styled(_)
+                | Content::Divider(_)
+                | Content::Terms(_)
+                | Content::TermItem(_)
+                | Content::Quote(_)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(_)
+                | Content::PdfAttach(_)
+                | Content::PdfArtifact(_)
+                | Content::Underline(_)
+                | Content::Strike(_)
+                | Content::Overline(_)
+                | Content::SmallCaps { .. }
+                | Content::Pad(_)
+                | Content::Hide(_)
+                | Content::HSpace(_)
+                | Content::VSpace(_)
+                | Content::Pagebreak(_)
+                | Content::Colbreak(_)
+                | Content::Stack(_)
+                | Content::Boxed(_)
+                | Content::Block(_)
+                | Content::TableCell(_)
+                | Content::Bibliography(_)
+                | Content::Cite(_)
+                | Content::Footnote(_)
+                | Content::FootnoteEntry(_)
+                | Content::TableHeader(_)
+                | Content::TableFooter(_)
+                | Content::GridHLine(_)
+                | Content::GridVLine(_)
+                | Content::TableHLine(_)
+                | Content::TableVLine(_)
+                | Content::Table(_)
+                | Content::Repeat(_)
+                | Content::Columns(_)
+                | Content::Metadata(_)
+                | Content::State(_)
+                | Content::StateUpdate(_)
+                | Content::StateDisplay(_)
+                | Content::CounterDisplayCallback(_)
+                | Content::ContextBlock(_)
+                | Content::Dynamic(_) => false,
             });
             if needs_flattening {
                 let mut parts = Vec::with_capacity(children.len());
@@ -136,7 +254,123 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
                 }
             }
             Content::Realized(e) => observe_occurrences(&e.original, ctx),
-            _ => {}
+            // No node-local reservation; the mapper still visits descendants.
+            Content::Source(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::Dynamic(_) => {}
         }
         Ok(None)
     });
@@ -487,5 +721,119 @@ mod insertion_reuse_tests {
             matches!(&parts[0], Content::Realized(e) if e.original == original && matches!(e.visual, Content::Empty))
         );
         assert!(parts[1..].iter().all(|p| matches!(p, Content::Text(_))));
+    }
+}
+
+#[cfg(test)]
+mod batch_g_tests {
+    use super::*;
+    use crate::entities::content::{RealizedContent, ShowRecipeContent};
+    use crate::entities::elements::context_block::ContextBlockElem;
+    use crate::entities::file_id::FileId;
+    use crate::entities::func::Func;
+    use crate::entities::location::Location;
+    use crate::entities::show::{NodeKind, Selector, Transformation};
+    use crate::entities::value::Value;
+    use std::num::NonZeroU16;
+
+    fn recipe(body: Content, product: bool) -> Content {
+        let styles = if product {
+            StyleChain::default_chain()
+                .push_custom("eval.textual.product", Value::Bool(true))
+        } else {
+            StyleChain::default_chain()
+        };
+        Content::ShowRecipe(Arc::new(ShowRecipeContent {
+            body,
+            textual: true,
+            context_id_floor: 0,
+            rules: Arc::from([]),
+            styles,
+            guards: vec![],
+            file: FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        }))
+    }
+
+    #[test]
+    fn batch_g_normalization_retains_protected_and_nonsequence_products() {
+        for protected in [false, true] {
+            for visual in [
+                Content::text("v"),
+                Content::sequence(vec![Content::text("a"), Content::text("b")]),
+            ] {
+                let original = recipe(Content::text("origin"), protected);
+                let input = Content::sequence(vec![
+                    Content::Realized(Arc::new(RealizedContent {
+                        original: original.clone(),
+                        visual: visual.clone(),
+                    })),
+                    Content::text("tail"),
+                ]);
+                let output = normalize_insertions(&input).unwrap();
+                let Content::Sequence(parts) = output else { panic!("sequence lost") };
+                let should_flatten = !protected && matches!(visual, Content::Sequence(_));
+                assert_eq!(parts.len(), if should_flatten { 4 } else { 2 });
+                let Content::Realized(first) = &parts[0] else { panic!("origin lost") };
+                assert_eq!(first.original, original);
+                if should_flatten {
+                    assert!(matches!(first.visual, Content::Empty));
+                    assert_eq!(parts[1].plain_text(), "a");
+                    assert_eq!(parts[2].plain_text(), "b");
+                } else {
+                    assert_eq!(first.visual, visual);
+                }
+                assert_eq!(parts.last().unwrap().plain_text(), "tail");
+            }
+        }
+    }
+
+    #[test]
+    fn batch_g_observation_reserves_located_context_and_both_realized_sides() {
+        let context = |id| {
+            Content::ContextBlock(Arc::new(ContextBlockElem {
+                id,
+                closure: Func::native("must-not-run", |_, _, _, _| {
+                    panic!("ID observation executed a closure")
+                }),
+            }))
+        };
+        let located = |location, body| {
+            Content::Located(Arc::new(LocatedContent {
+                location: Location::from_raw(location),
+                body,
+            }))
+        };
+        let input = Content::title(Content::Realized(Arc::new(RealizedContent {
+            original: located(47, context(71)),
+            visual: located(53, context(83)),
+        })));
+        let mut ctx = EvalContext::new();
+        observe_occurrences(&input, &mut ctx);
+        assert_eq!(ctx.next_context_id, 84);
+        assert_eq!(ctx.realization_locator.next(), Location::from_raw(54));
+    }
+
+    #[test]
+    fn batch_g_observation_reserves_captured_rule_floor_and_sequence_marker() {
+        let Content::ShowRecipe(base) = recipe(Content::text("body"), false) else {
+            unreachable!()
+        };
+        let mut snapshot = base.as_ref().clone();
+        snapshot.context_id_floor = 101;
+        snapshot.rules = Arc::from([ShowRule {
+            id: 123,
+            selector: Selector::NodeKind(NodeKind::Heading),
+            transform: Transformation::Content(Content::text("unused")),
+        }]);
+        snapshot.styles = snapshot
+            .styles
+            .push_custom("eval.sequence.occurrence", Value::Bool(true));
+        let tree = Content::title(Content::ShowRecipe(Arc::new(snapshot)));
+        let mut ctx = EvalContext::new();
+        observe_occurrences(&tree, &mut ctx);
+        assert_eq!(ctx.next_context_id, 101);
+        assert_eq!(ctx.next_rule_id, 124);
+        assert!(ctx.has_deferred_show_rules);
+        assert_eq!(ctx.realization_locator.next(), Location::from_raw(0));
     }
 }

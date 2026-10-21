@@ -1,0 +1,663 @@
+{
+  "utc": "2026-10-20T23:39:40.476226+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "status": "Read-only scope/API snapshot; final lineage and integration gates pending root",
+  "scope_sha256": "6e4e96430bb9dfbc086ea9a8815850854fb2ecbfcd5a53940a3f7f0d8fcecbe7",
+  "pairs": [
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "source_sha256": "e0b9c0bf16975992f07816691585b2c68e597e9e9260b41c36373cd480d72b9f",
+      "owner_sha256": "89e8f21fe8230a505ee12e5bf2d3de3588e1f2f70c58248777b63d8c33df6471",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "apply_binary",
+          "header": "pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, String>"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "values_eq",
+          "header": "pub(crate) fn values_eq(a: &Value, b: &Value) -> bool"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "selector_contains_element",
+          "header": "pub(crate) fn selector_contains_element(selector: &Selector) -> bool"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "figure_kind_values_eq",
+          "header": "pub(crate) fn figure_kind_values_eq(a: &Value, b: &Value) -> bool"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "selectors_eq",
+          "header": "pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "counter_keys_eq",
+          "header": "pub(crate) fn counter_keys_eq(a: &CounterKey, b: &CounterKey) -> bool"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c",
+      "owner_sha256": "e5195424ebbac0814f1bc6b3990183e2ab44aab7fcd6ef5346760b9ed436171c",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "fn",
+          "name": "prepare",
+          "header": "pub(in crate::compiler) fn prepare( content: &Content, styles: &StyleChain, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "fn",
+          "name": "prepare_root",
+          "header": "pub(in crate::compiler) fn prepare_root( content: &Content, styles: &StyleChain, ) -> Option<Content>"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "fn",
+          "name": "needs_preparation",
+          "header": "pub(in crate::compiler) fn needs_preparation(content: &Content) -> bool"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "mod",
+          "name": "bare_math",
+          "header": "pub(in crate::compiler) mod bare_math"
+        },
+        {
+          "visibility": "pub",
+          "kind": "mod",
+          "name": "context_occurrences",
+          "header": "pub mod context_occurrences"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "mod",
+          "name": "figure",
+          "header": "pub(in crate::compiler) mod figure"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "mod",
+          "name": "figure_kind",
+          "header": "pub(in crate::compiler) mod figure_kind"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "mod",
+          "name": "recipes",
+          "header": "pub(in crate::compiler) mod recipes"
+        },
+        {
+          "visibility": "pub",
+          "kind": "mod",
+          "name": "reference_supplements",
+          "header": "pub mod reference_supplements"
+        },
+        {
+          "visibility": "pub(in crate::compiler)",
+          "kind": "mod",
+          "name": "sequences",
+          "header": "pub(in crate::compiler) mod sequences"
+        },
+        {
+          "visibility": "pub",
+          "kind": "struct",
+          "name": "RealizedDocument",
+          "header": "pub struct RealizedDocument"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "locate",
+          "header": "pub(crate) fn locate(content: Content, ctx: &mut EvalContext) -> Content"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "realize_document",
+          "header": "pub fn realize_document( content: &Content, world: &dyn World, source: &Source, _registry: &ElementRegistry, previous: &TagIntrospector, full_error: bool, target: EvalTarget, features: Features, ) -> (SourceResult<RealizedDocument>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "realize_math_insertions",
+          "header": "pub fn realize_math_insertions( content: Content, ctx: &mut EvalContext, engine: &mut Engine<'_>, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "capture_context_recipe",
+          "header": "pub(crate) fn capture_context_recipe( content: Content, ctx: &EvalContext, engine: &Engine<'_>, ) -> Content"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "realize_table_insertions",
+          "header": "pub fn realize_table_insertions( content: Content, ctx: &mut EvalContext, engine: &mut Engine<'_>, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "table_cells_needed",
+          "header": "pub(crate) fn table_cells_needed(content: &Content) -> bool"
+        },
+        {
+          "visibility": "pub(crate)",
+          "kind": "fn",
+          "name": "capture_table_insertion",
+          "header": "pub(crate) fn capture_table_insertion( content: Content, ctx: &mut EvalContext, engine: &mut Engine<'_>, ) -> SourceResult<Content>"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/equality.md",
+      "source_sha256": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee",
+      "owner_sha256": "32c36031c975e8596bffc62d1a274a2a4efcaa445fc84b9f910cf8603fe8ce5a",
+      "public_declarations_unchanged": true,
+      "public_declarations": [],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md",
+      "source_sha256": "32f654468c314aad8cab392b9a50c4150015cd6f6c37354b3494275bf4633ced",
+      "owner_sha256": "744cc1c9859013bad091a744d5a406aba438c6378de3ffae684252af363fc649",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(super)",
+          "kind": "const",
+          "name": "PREFIX",
+          "header": "pub(super) const PREFIX: &str = \"<!DOCTYPE html><html lang=\\\"en\\\"><head><meta charset=\\\"utf-8\\\"><meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1\\\"></head><body>\""
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "export_html_with_frame_resolver",
+          "header": "pub(super) fn export_html_with_frame_resolver( content: &Content, mode: HtmlSerializationMode, pretty: bool, resolver: Option<&HtmlFrameResolver<'_>>, ) -> Result<String, SourceDiagnostic>"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/export/html/encoding.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+      "source_sha256": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e",
+      "owner_sha256": "f98d9765183832abb04ef034cd830aacdeb8701e953e1ccde2eca7b39185aa49",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "raw_text",
+          "header": "pub(super) fn raw_text(content: &Content) -> Result<String, SourceDiagnostic>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "title_text_with_context",
+          "header": "pub(super) fn title_text_with_context( content: &Content, chain: &typst_core::entities::style_chain::StyleChain, context: &mut typst_core::compiler::lang::quotes::SmartQuoteContext, ) -> Result<String, SourceDiagnostic>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "escape_text",
+          "header": "pub(super) fn escape_text(text: &str, mode: HtmlSerializationMode) -> String"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "escape_attribute",
+          "header": "pub(super) fn escape_attribute(text: &str, mode: HtmlSerializationMode) -> String"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md",
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065",
+      "owner_sha256": "1a65b03223c787c6a0d530b2699255291fa87a681e57f3dcae8afbbff360cab0",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_query_context",
+          "header": "pub fn compile_query_context( world: &dyn World, source: &Source, ) -> ( SourceResult<typst_core::entities::introspector::TagIntrospector>, Vec<SourceDiagnostic>, )"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_expression_with_sink",
+          "header": "pub fn eval_expression_with_sink( world: &dyn World, expression: &str, ) -> (SourceResult<Value>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_expression_with_sink_features",
+          "header": "pub fn eval_expression_with_sink_features( world: &dyn World, expression: &str, features: typst_core::entities::compiler_features::Features, ) -> (SourceResult<Value>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_source_with_sink_features",
+          "header": "pub fn eval_source_with_sink_features( world: &dyn World, expression: &Source, features: typst_core::entities::compiler_features::Features, ) -> (SourceResult<Value>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_source_with_document_features",
+          "header": "pub fn eval_source_with_document_features( world: &dyn World, document: &Source, expression: &Source, features: typst_core::entities::compiler_features::Features, ) -> (SourceResult<Value>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_expression_with_document_features",
+          "header": "pub fn eval_expression_with_document_features( world: &dyn World, source: &Source, expression: &str, features: typst_core::entities::compiler_features::Features, ) -> (SourceResult<Value>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "eval_to_module_with_sink",
+          "header": "pub fn eval_to_module_with_sink( world: &dyn World, source: &Source, ) -> (SourceResult<Module>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "expand_context_blocks",
+          "header": "pub fn expand_context_blocks( content: Content, intr: &typst_core::entities::introspector::TagIntrospector, world: &dyn World, source: &Source, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "expand_context_blocks_and_reintrospect",
+          "header": "pub fn expand_context_blocks_and_reintrospect( content: Content, intr: &typst_core::entities::introspector::TagIntrospector, world: &dyn World, source: &Source, ) -> SourceResult<(Content, typst_core::entities::introspector::TagIntrospector)>"
+        },
+        {
+          "visibility": "pub",
+          "kind": "struct",
+          "name": "Timings",
+          "header": "pub struct Timings"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "to_json",
+          "header": "pub fn to_json(&self) -> String"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "source_sha256": "aaba99863462a200884ab24b5ba449f09dd2e20ed1a8545b1dc1ac0e0a6655a3",
+      "owner_sha256": "36c021a877662639de65bb8cbfa19f6143fe01b6344113fb307ba90cdc26810a",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "introspect_bundle_with_runtime_for_pipeline",
+          "header": "pub(super) fn introspect_bundle_with_runtime_for_pipeline( bodies: &[Content], html_targets: &[bool], features: typst_core::entities::compiler_features::Features, world: &dyn World, source: &Source, ) -> ( SourceResult<( typst_core::entities::introspector::TagIntrospector, Vec<typst_core::entities::locator::LocatorSeed>, )>, Vec<SourceDiagnostic>, )"
+        },
+        {
+          "visibility": "pub",
+          "kind": "struct",
+          "name": "BundleFile",
+          "header": "pub struct BundleFile"
+        },
+        {
+          "visibility": "pub",
+          "kind": "struct",
+          "name": "BundleCompileOptions",
+          "header": "pub struct BundleCompileOptions"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "bundle_error",
+          "header": "pub(super) fn bundle_error(message: impl Into<String>) -> Vec<SourceDiagnostic>"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_bundle_files",
+          "header": "pub fn compile_to_bundle_files( world: &dyn World, source: &Source, options: BundleCompileOptions, ) -> (Result<Vec<BundleFile>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "collect_bundle_entries",
+          "header": "pub(super) fn collect_bundle_entries( content: &Content, entries: &mut Vec<Content>, ) -> SourceResult<()>"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(super)",
+          "kind": "struct",
+          "name": "Prepared",
+          "header": "pub(super) struct Prepared<'a>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "prepare",
+          "header": "pub(super) fn prepare<'a>( content: Content, intr: &TagIntrospector, world: &'a dyn World, source: &'a Source, full_error: bool, features: Features, module: Option<&Module>, ) -> (SourceResult<Prepared<'a>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "prepare_html",
+          "header": "pub(super) fn prepare_html( content: Content, intr: &TagIntrospector, world: &dyn World, source: &Source, full_error: bool, features: Features, ) -> (SourceResult<Content>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "struct",
+          "name": "PreparedBundle",
+          "header": "pub(super) struct PreparedBundle"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "prepare_bundle",
+          "header": "pub(super) fn prepare_bundle( bodies: Vec<Content>, html_targets: &[bool], intr: &TagIntrospector, world: &dyn World, source: &Source, full_error: bool, features: Features, ) -> (SourceResult<PreparedBundle>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "expand",
+          "header": "pub(super) fn expand( content: Content, intr: &TagIntrospector, world: &dyn World, source: &Source, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "expand_legacy",
+          "header": "pub(super) fn expand_legacy( content: Content, intr: &TagIntrospector, world: &dyn World, source: &Source, ) -> SourceResult<Content>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "discovered_options_for_test",
+          "header": "pub(super) fn discovered_options_for_test( world: &dyn World, source: &Source, features: Features, ) -> Vec<(bool, Features)>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "realize_page_snapshot_for_pipeline",
+          "header": "pub(super) fn realize_page_snapshot_for_pipeline( documents: &[(Vec<Location>, Option<std::num::NonZeroUsize>)], intr: &mut TagIntrospector, world: &dyn World, source: &Source, ) -> (SourceResult<()>, Vec<SourceDiagnostic>)"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/pipeline/html.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+      "source_sha256": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e",
+      "owner_sha256": "ab5595d4abd74fc6d998a3b0c9eab395f14b01fc6d579912a36a1175b020ce01",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_html_string",
+          "header": "pub fn compile_to_html_string( world: &dyn World, source: &Source, ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_html_string_with_features",
+          "header": "pub fn compile_to_html_string_with_features( world: &dyn World, source: &Source, features: typst_core::entities::compiler_features::Features, ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_html_string_with_features_and_serialization",
+          "header": "pub fn compile_to_html_string_with_features_and_serialization( world: &dyn World, source: &Source, features: typst_core::entities::compiler_features::Features, mode: crate::export::HtmlSerializationMode, ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_html_string_with_features_and_serialization_and_pretty",
+          "header": "pub fn compile_to_html_string_with_features_and_serialization_and_pretty( world: &dyn World, source: &Source, features: typst_core::entities::compiler_features::Features, mode: crate::export::HtmlSerializationMode, pretty: bool, ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "resolve_html_pretty",
+          "header": "pub(super) fn resolve_html_pretty( pretty_override: Option<bool>, options: &DocumentFormatOptions, ) -> bool"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "compile_to_html_string_with_features_and_serialization_and_pretty_override",
+          "header": "pub fn compile_to_html_string_with_features_and_serialization_and_pretty_override( world: &dyn World, source: &Source, features: typst_core::entities::compiler_features::Features, mode: crate::export::HtmlSerializationMode, pretty_override: Option<bool>, ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "html_frame_positions",
+          "header": "pub(super) fn html_frame_positions( content: &Content, candidate: &typst_core::entities::introspector::TagIntrospector, metrics: FallbackFontMetrics<'_>, source: &Source, ) -> SourceResult< HashMap< typst_core::entities::location::Location, typst_core::entities::position::HtmlPosition, >, >"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "source_sha256": "bc6724297f7022975e4c8f3e866b0bc1ef44b8d7d320544f5a79f24a013b2ed6",
+      "owner_sha256": "0d0a95bc3494d6afeb4441d796272698aa3b9f439ebcba1a2c2195da5301b2a6",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "initial_layout_independent",
+          "header": "pub(super) fn initial_layout_independent(content: &Content) -> bool"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "introspect_with_runtime_for_pipeline",
+          "header": "pub(super) fn introspect_with_runtime_for_pipeline( content: &Content, world: &dyn World, source: &Source, ) -> ( SourceResult<typst_core::entities::introspector::TagIntrospector>, Vec<SourceDiagnostic>, )"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "introspect_with_runtime_for_target",
+          "header": "pub(super) fn introspect_with_runtime_for_target( content: &Content, world: &dyn World, source: &Source, target: EvalTarget, features: typst_core::entities::compiler_features::Features, ) -> ( SourceResult<typst_core::entities::introspector::TagIntrospector>, Vec<SourceDiagnostic>, )"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "realize_outlines_for_pipeline",
+          "header": "pub(super) fn realize_outlines_for_pipeline( content: &Content, introspector: &typst_core::entities::introspector::TagIntrospector, world: &dyn World, source: &Source, ) -> ( SourceResult<(Content, typst_core::entities::introspector::TagIntrospector)>, Vec<SourceDiagnostic>, )"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "compile_to_paged_document_full_error",
+          "header": "pub(super) fn compile_to_paged_document_full_error( world: &dyn World, source: &Source, full_error: bool, timings: &mut Timings, ) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "compile_to_paged_document_full_error_and_features",
+          "header": "pub(super) fn compile_to_paged_document_full_error_and_features( world: &dyn World, source: &Source, full_error: bool, features: typst_core::entities::compiler_features::Features, timings: &mut Timings, ) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "struct",
+          "name": "PagedCompilation",
+          "header": "pub(super) struct PagedCompilation"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "compile_to_paged_document_full_error_and_features_with_introspector",
+          "header": "pub(super) fn compile_to_paged_document_full_error_and_features_with_introspector( world: &dyn World, source: &Source, full_error: bool, features: typst_core::entities::compiler_features::Features, timings: &mut Timings, ) -> (SourceResult<PagedCompilation>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "layout_with_realized_math_callbacks_with_metrics",
+          "header": "pub(super) fn layout_with_realized_math_callbacks_with_metrics( content: &Content, introspector: typst_core::entities::introspector::TagIntrospector, world: &dyn World, source: &Source, font_metrics: &FallbackFontMetrics<'_>, ) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "layout_with_realized_math_callbacks_from",
+          "header": "pub(super) fn layout_with_realized_math_callbacks_from( content: &Content, introspector: typst_core::entities::introspector::TagIntrospector, world: &dyn World, source: &Source, location_start: typst_core::entities::locator::LocatorSeed, ) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "bind_logical_page_numbers",
+          "header": "pub(super) fn bind_logical_page_numbers( doc: &mut PagedDocument, store: &typst_core::entities::page_store::PageStore, offset: usize, ) -> SourceResult<()>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "realize_page_numberings",
+          "header": "pub(super) fn realize_page_numberings( world: &dyn World, source: &Source, doc: &PagedDocument, logical_numbers: &[usize], logical_total: usize, reference_pages: &HashSet<usize>, ) -> SourceResult<(typst_core::entities::page_store::PageStore, Vec<SourceDiagnostic>)>"
+        },
+        {
+          "visibility": "pub(super)",
+          "kind": "fn",
+          "name": "page_reference_pages",
+          "header": "pub(super) fn page_reference_pages( content: &Content, doc: &PagedDocument, ) -> HashSet<usize>"
+        }
+      ],
+      "owner_header_canonical": true
+    },
+    {
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "public_declarations_unchanged": true,
+      "public_declarations": [
+        {
+          "visibility": "pub",
+          "kind": "enum",
+          "name": "ParsedSelector",
+          "header": "pub enum ParsedSelector"
+        },
+        {
+          "visibility": "pub",
+          "kind": "struct",
+          "name": "QuerySummary",
+          "header": "pub struct QuerySummary"
+        },
+        {
+          "visibility": "pub",
+          "kind": "enum",
+          "name": "SelectorKind",
+          "header": "pub enum SelectorKind"
+        },
+        {
+          "visibility": "pub",
+          "kind": "enum",
+          "name": "QueryError",
+          "header": "pub enum QueryError"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "parse_selector",
+          "header": "pub fn parse_selector(s: &str) -> Result<ParsedSelector, QueryError>"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "summarize_query",
+          "header": "pub fn summarize_query( intr: &TagIntrospector, content: &Content, parsed: &ParsedSelector, raw_selector: &str, ) -> QuerySummary"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "count_element_in_content",
+          "header": "pub fn count_element_in_content(content: &Content, kind: ElementKind) -> usize"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "query_to_summary",
+          "header": "pub fn query_to_summary( world: &dyn World, source: &Source, selector: &str, ) -> Result<QuerySummary, QueryError>"
+        },
+        {
+          "visibility": "pub",
+          "kind": "enum",
+          "name": "CompiledQueryError",
+          "header": "pub enum CompiledQueryError"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "query_compiled_elements",
+          "header": "pub fn query_compiled_elements( world: &dyn World, source: &Source, selector: &str, ) -> (Result<Vec<Value>, CompiledQueryError>, Vec<SourceDiagnostic>)"
+        },
+        {
+          "visibility": "pub",
+          "kind": "fn",
+          "name": "query_elements",
+          "header": "pub fn query_elements( world: &dyn World, source: &Source, selector: &str, ) -> (Result<Vec<Value>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>)"
+        }
+      ],
+      "owner_header_canonical": true
+    }
+  ],
+  "pair_count": 12,
+  "source_owner_file_count": 24,
+  "productive_outside_scope": [],
+  "changed_nuclei": [],
+  "changed_build_lint_configs": [],
+  "new_allow_expect_ignore": false,
+  "public_declaration_diff": false,
+  "new_entity_field_or_enum_or_trait": false,
+  "classification": "Existing-owner internal exhaustiveness and source-backed parity corrections; same targets/defaults/phase and public contracts. Additional operator owner is existing private language comparison scope, not new public API.",
+  "authorship": "Core four implementation is this reviewing agent own work; query and HTML four implementations are independently reviewed. This is not represented as independent review of own core code.",
+  "limits": [
+    "No Cargo/test/build/lint run by reviewer; no sealed-lineage/current gate claim until root final freeze.",
+    "Approximate query limits, general HTML support, HTML fields/repr and historical mechanical equality/performance debts are not closed by this review."
+  ]
+}

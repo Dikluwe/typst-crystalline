@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-21T00:16:03.903556+00:00",
+  "actual_red": "lab/results/v16-corrections-2026-10-19/batch-g/focused-followup-red-infra-2/receipt.json",
+  "before_sha256": {
+    "03_infra/src/pipeline/bundle.rs": "9b50910fc66680d1feb37b27b4e19650edfc87df22fc3dcea954254f4b3339bf",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "5f28b9034e04c718b8d029eac937440bf08e26f498f1f3389c5099b22933bb23"
+  }
+}

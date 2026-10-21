@@ -1,0 +1,247 @@
+{
+  "utc": "2026-10-21T00:39:40.983289+00:00",
+  "status": "PASS bounded source-bound hash correction; G closure remains blocked separately by required HTML replay failure",
+  "reviewer_role": "Identity implementation author performed this independent recomputation of raw receipts/provenance; independent implementation review by another agent remains separately linked. No probe/product/Cargo execution performed in this review.",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "source_snapshot": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-final/receipt.json.gz",
+    "sha256": "f4c7099c33664032b2f81544b201255df01e7c893914aab23adc16fc16b00c0e"
+  },
+  "before_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+    "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+  },
+  "candidate_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-final/receipt.json",
+    "sha256": "6d47bb83dda5f11b19115364aaca8301790d833a617b4903eec70fc026e2e768"
+  },
+  "build_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final/receipt.json",
+    "sha256": "24a57fd179c549ceea7f81465dbcbc1f2a7094d3a1b0e93f37db1b7d4201c191"
+  },
+  "artifact_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-artifact-candidate-final/receipt.json",
+    "sha256": "446e0a6a2909455b33e4168aea672bd042ac5c4925e0ad555346c07ded6a4a73"
+  },
+  "cargo_json": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-artifact-candidate-final/cargo.jsonl",
+    "sha256": "b010da50c56afa032099ce259f6ee4fd04ffb270cff748f50034c3760c6f018b"
+  },
+  "probe_source": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/public_hash_probe.rs",
+    "sha256": "8255fbf6dcda63bdc220d227a665e497f7560ccb8741bb5f2e32035db5d39cde"
+  },
+  "candidate_runner": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/run_public_hash_probe.py",
+    "sha256": "97bae110d5ec577f75a902aace0c82a143d73f1b398d3d68f34a774862f96ad2"
+  },
+  "baseline_runner": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-probe-runner-before-candidate/run_public_hash_probe.py",
+    "sha256": "9753520931a31df98f8350447871821c637559612fcb9bdd06bbe463032c5018"
+  },
+  "candidate_probe_binary": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-final/probe",
+    "sha256": "185f9daa5f54359bf87981293a5ddd2549b1bad5c3dc910f2989b46927b88f4b"
+  },
+  "product_binary": {
+    "path": "lab/target/product/debug/typst",
+    "sha256": "185e63b30415aaec44cca9115781a662077aa1edffab6aabe97166d7a82b1620"
+  },
+  "core_rlib": {
+    "path": "lab/target/product/debug/deps/libtypst_core-fe1a0bfb5cea3d93.rlib",
+    "sha256": "8a15cf0f10935a77e0ec094c651bd83cef40979be15e62ca0ddee66109d94a8d"
+  },
+  "core_dep_info": {
+    "path": "lab/target/product/debug/deps/typst_core-fe1a0bfb5cea3d93.d",
+    "sha256": "b0a98d3d1501c447549e33f2470c9623a194f11f98e408319ade1ad0326fa7a3"
+  },
+  "same_actual_cargo_public_and_hashed_rlib_inode": true,
+  "actual_cargo_target_source": "/repos/Antigravity/typst-crystalline/01_core/src/lib.rs",
+  "actual_cargo_profile": {
+    "opt_level": "0",
+    "debuginfo": 0,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": false
+  },
+  "frozen_input_count": 2142,
+  "raw_stdout_equals_reported_rows": true,
+  "case_order_keys_eq_antecedents_and_untransported_baselines_unchanged": true,
+  "total_rows": 366,
+  "before_violations": {
+    "public": 248,
+    "rust": 168
+  },
+  "candidate_violations": {
+    "public": 0,
+    "rust": 0
+  },
+  "summary": {
+    "Strong": {
+      "rows": 52,
+      "old": {
+        "public": 36,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Sequence": {
+      "rows": 52,
+      "old": {
+        "public": 36,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Title": {
+      "rows": 52,
+      "old": {
+        "public": 36,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Frame": {
+      "rows": 52,
+      "old": {
+        "public": 36,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Html": {
+      "rows": 52,
+      "old": {
+        "public": 36,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Context": {
+      "rows": 52,
+      "old": {
+        "public": 34,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "Space": {
+      "rows": 52,
+      "old": {
+        "public": 34,
+        "rust": 24
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "HtmlAttrsOrder": {
+      "rows": 1,
+      "old": {
+        "public": 0,
+        "rust": 0
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    },
+    "NestedValueFloat": {
+      "rows": 1,
+      "old": {
+        "public": 0,
+        "rust": 0
+      },
+      "candidate": {
+        "public": 0,
+        "rust": 0
+      }
+    }
+  },
+  "attrs_order_negative_preserved": {
+    "family": "HtmlAttrsOrder",
+    "placement": "root",
+    "carrier": "none",
+    "depth": 0,
+    "equal": false,
+    "debug_a": "html.elem(HtmlElem { tag: \"div\", attrs: Some({\"id\": \"a\", \"class\": \"b\"}), body: Content(text(\"A\")) })",
+    "debug_b": "html.elem(HtmlElem { tag: \"div\", attrs: Some({\"class\": \"b\", \"id\": \"a\"}), body: Content(text(\"A\")) })",
+    "public_hash_a": "661388469993263681101636323073939407",
+    "public_hash_b": "131521957695184101177886435930303371058",
+    "std_hash_a": "1701301539373923068",
+    "std_hash_b": "4767196535982525801",
+    "public_hash_equal": false,
+    "std_hash_equal": false
+  },
+  "nested_value_float_refutation_preserved": {
+    "family": "NestedValueFloat",
+    "placement": "root",
+    "carrier": "none",
+    "depth": 0,
+    "equal": true,
+    "debug_a": "counter.display",
+    "debug_b": "counter.display",
+    "public_hash_a": "216260820787886291663724863720578241756",
+    "public_hash_b": "216260820787886291663724863720578241756",
+    "std_hash_a": "8293753203877513482",
+    "std_hash_b": "8293753203877513482",
+    "public_hash_equal": true,
+    "std_hash_equal": true
+  },
+  "hash_owner_changes": {
+    "01_core/src/entities/content/identity.rs": {
+      "current_sha256": "5e00c14808a08609c5a4c6e23efbe9f24d0bb2818ba91397ae95d3f66d53e565",
+      "baseline_sha256": "5bc6f48db28a247575f0678983d909c7f20de2819e9129ba29bf6ace42e42bb6"
+    },
+    "01_core/src/entities/content/rust_hash.rs": {
+      "current_sha256": "013521dc4848074cb3da480d682d2015025d7668a7eba06ba79ed79c0b442fa2",
+      "baseline_sha256": "013521dc4848074cb3da480d682d2015025d7668a7eba06ba79ed79c0b442fa2"
+    },
+    "01_core/src/entities/content_hash.rs": {
+      "current_sha256": "d0bb85defa4942de8c080a6b020f547dba05eea0fc3b1d45d656a5c556e685f0",
+      "baseline_sha256": "d0bb85defa4942de8c080a6b020f547dba05eea0fc3b1d45d656a5c556e685f0"
+    },
+    "00_nucleo/prompts/core/entities/content/identity.md": {
+      "current_sha256": "e302da31e229ed7b7bb96ffdc252760d6f6f3c17ec7fdb6008ec66f8a262c189",
+      "baseline_sha256": "5f7a3f1038daf1455cb74b5f0f0bda911db9d66bb7c938b3d90c7836efdd34ee"
+    },
+    "00_nucleo/prompts/core/entities/content/rust_hash.md": {
+      "current_sha256": "bea4a84adb65dad01a8d0a274186c5db86c20657d3249793db3af1437dcb6f94",
+      "baseline_sha256": "bea4a84adb65dad01a8d0a274186c5db86c20657d3249793db3af1437dcb6f94"
+    },
+    "00_nucleo/prompts/core/entities/content_hash.md": {
+      "current_sha256": "87a722a274beaa0767b046782c4084572fb76c32d9a4749811b95d5a9ea6d272",
+      "baseline_sha256": "87a722a274beaa0767b046782c4084572fb76c32d9a4749811b95d5a9ea6d272"
+    }
+  },
+  "independent_implementation_review": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/hash-depth-implementation-independent-review.json",
+    "sha256": "48a0c89a34cfc7885145459bb43cf903b4b1681439991fd5656e223333065609"
+  },
+  "claim_limits": [
+    "Exactly the unchanged366-row corpus, not a universal Content/Value Hash law or complete language parity.",
+    "The global equal-values/equal-hash obligation remains required; no exception or weaker invariant is invented.",
+    "NestedValueFloat is refuted as a proposed observed mismatch: both Debug strings omit the payload and hashes agree.",
+    "Current receipt binds the named frozen snapshot and historical binary; any later HTML/source repair requires a fresh candidate replay without overwriting this evidence.",
+    "The actual required bundle-cell-heading HTML replay failed separately; G is not closed by Hash GREEN."
+  ]
+}

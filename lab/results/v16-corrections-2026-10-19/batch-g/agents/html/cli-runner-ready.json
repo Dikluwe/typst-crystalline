@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-20T23:39:38.342226+00:00",
+  "status": "CLI runner ready before candidate; policies unchanged",
+  "runner": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py",
+  "runner_sha256": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+  "policy": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json",
+  "policy_sha256": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1",
+  "cases": 16,
+  "required_cases": 13,
+  "explicit_unsupported_link_gaps": 3,
+  "diagnostic_limits": "Standalone deepheading missingwarning and deepheading primaryorigin differences recorded from initialoracle/product; no fullwarning/diagnostic parity claim. This runner records every strict mismatch independently.",
+  "defensive_harness_refinement": "Unexpected success for an oracle error is now recorded as false comparison instead of attempting HTML parse(None); no predicate/expected outcome weakened.",
+  "command_template": [
+    "python3",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py",
+    "--build-receipt",
+    "<root-provided-Gbuild/receipt.json>",
+    "--product",
+    "lab/target/product/debug/typst",
+    "--output",
+    "<new-lab-output-directory>"
+  ],
+  "no_cargo": true
+}

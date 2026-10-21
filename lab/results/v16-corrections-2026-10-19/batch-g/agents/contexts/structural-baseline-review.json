@@ -1,0 +1,3073 @@
+{
+  "utc": "2026-10-20T23:18:29.017922+00:00",
+  "reviewer": "independent infra/context agent",
+  "baseline_head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "mode": "read-only review; no Cargo or productive/L0 edits",
+  "source_copy": {
+    "original_rust_inputs": 997,
+    "all_match_clean_head_blobs": true,
+    "all_stage_inputs_match_exact_reconstruction": true,
+    "changed_disposable_core_files": 101,
+    "infra_copied_files_changed": []
+  },
+  "exact_three_enum_mutations": {
+    "01_core/src/entities/content.rs": {
+      "inserted": "TektV16EvolutionProbe,",
+      "original_sha256": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+      "mutated_sha256": "98b826d692535dc3a574ed4aa42fa2d6a23553fa739342c67f64a6a4124f30ef"
+    },
+    "01_core/src/entities/element_kind.rs": {
+      "inserted": "TektV16EvolutionProbe,",
+      "original_sha256": "c8b79dc03ffc9d32d7012374f78e4bb2ffd86467d0c345797d35fdc0f1712228",
+      "mutated_sha256": "6a1cbe2e6e42792220ea7763632bcdc0f2a27bd505f4018558453b82434928bd"
+    },
+    "01_core/src/entities/value.rs": {
+      "inserted": "TektV16EvolutionProbe,",
+      "original_sha256": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3",
+      "mutated_sha256": "dfdb3613749b324b3294ef902dead678176d16c92b67991b8ae3b10cbcee28d2"
+    }
+  },
+  "raw_log_reviews": {
+    "core-witnesses": {
+      "raw_sha256": "e85175e860003650b0fc773b2f114ebdb86c8a4d9ab5663eed0485efc3f7a5e5",
+      "errors": 207,
+      "codes": {
+        "E0004": 207
+      },
+      "selected_checked": 5,
+      "selected_primary_e0004": 0,
+      "primary_spans": [
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/math/delimiters.rs",
+              "byte_start": 251,
+              "byte_end": 254,
+              "line_start": 10,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/math/delimiters.rs",
+              "byte_start": 1815,
+              "byte_end": 1818,
+              "line_start": 58,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/operators/arithmetic.rs",
+              "byte_start": 1218,
+              "byte_end": 1222,
+              "line_start": 30,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/operators/error_formatting.rs",
+              "byte_start": 2102,
+              "byte_end": 2103,
+              "line_start": 54,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+              "byte_start": 3182,
+              "byte_end": 3188,
+              "line_start": 82,
+              "column_start": 33
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+              "byte_start": 6786,
+              "byte_end": 6793,
+              "line_start": 182,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+              "byte_start": 781,
+              "byte_end": 787,
+              "line_start": 22,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/call_dispatch/invoke.rs",
+              "byte_start": 614,
+              "byte_end": 620,
+              "line_start": 23,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/callee_error.rs",
+              "byte_start": 596,
+              "byte_end": 601,
+              "line_start": 15,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 2367,
+              "byte_end": 2368,
+              "line_start": 53,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 14558,
+              "byte_end": 14559,
+              "line_start": 365,
+              "column_start": 45
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 22099,
+              "byte_end": 22106,
+              "line_start": 579,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 28177,
+              "byte_end": 28182,
+              "line_start": 755,
+              "column_start": 28
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 31955,
+              "byte_end": 31956,
+              "line_start": 854,
+              "column_start": 38
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "byte_start": 40461,
+              "byte_end": 40462,
+              "line_start": 1076,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+              "byte_start": 24989,
+              "byte_end": 24996,
+              "line_start": 618,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+              "byte_start": 29978,
+              "byte_end": 29985,
+              "line_start": 768,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+              "byte_start": 901,
+              "byte_end": 906,
+              "line_start": 27,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+              "byte_start": 2956,
+              "byte_end": 2961,
+              "line_start": 94,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/modules.rs",
+              "byte_start": 12299,
+              "byte_end": 12308,
+              "line_start": 293,
+              "column_start": 28
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/repr/content.rs",
+              "byte_start": 727,
+              "byte_end": 728,
+              "line_start": 18,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/repr/value.rs",
+              "byte_start": 253,
+              "byte_end": 254,
+              "line_start": 11,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/matching/projection.rs",
+              "byte_start": 1574,
+              "byte_end": 1578,
+              "line_start": 51,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/matching.rs",
+              "byte_start": 8099,
+              "byte_end": 8117,
+              "line_start": 212,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/matching.rs",
+              "byte_start": 15466,
+              "byte_end": 15473,
+              "line_start": 415,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/matching.rs",
+              "byte_start": 19836,
+              "byte_end": 19843,
+              "line_start": 550,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/space.rs",
+              "byte_start": 327,
+              "byte_end": 334,
+              "line_start": 12,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/space.rs",
+              "byte_start": 4373,
+              "byte_end": 4381,
+              "line_start": 137,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/space.rs",
+              "byte_start": 12739,
+              "byte_end": 12746,
+              "line_start": 399,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/space.rs",
+              "byte_start": 16897,
+              "byte_end": 16904,
+              "line_start": 525,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual/space.rs",
+              "byte_start": 21138,
+              "byte_end": 21145,
+              "line_start": 656,
+              "column_start": 25
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual.rs",
+              "byte_start": 4352,
+              "byte_end": 4373,
+              "line_start": 142,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/textual.rs",
+              "byte_start": 17375,
+              "byte_end": 17382,
+              "line_start": 523,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/intercept.rs",
+              "byte_start": 3315,
+              "byte_end": 3320,
+              "line_start": 81,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/realize.rs",
+              "byte_start": 1263,
+              "byte_end": 1270,
+              "line_start": 39,
+              "column_start": 25
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/realize.rs",
+              "byte_start": 8387,
+              "byte_end": 8394,
+              "line_start": 229,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/set/page.rs",
+              "byte_start": 16770,
+              "byte_end": 16774,
+              "line_start": 371,
+              "column_start": 40
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/set/text.rs",
+              "byte_start": 16330,
+              "byte_end": 16334,
+              "line_start": 327,
+              "column_start": 54
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/rules/set/text.rs",
+              "byte_start": 16532,
+              "byte_end": 16536,
+              "line_start": 330,
+              "column_start": 57
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+              "byte_start": 1346,
+              "byte_end": 1350,
+              "line_start": 32,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+              "byte_start": 15299,
+              "byte_end": 15306,
+              "line_start": 349,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+              "byte_start": 25376,
+              "byte_end": 25383,
+              "line_start": 553,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/expression_dispatch.rs",
+              "byte_start": 38884,
+              "byte_end": 38888,
+              "line_start": 839,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/expression_dispatch.rs",
+              "byte_start": 37288,
+              "byte_end": 37293,
+              "line_start": 790,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/markup_stream.rs",
+              "byte_start": 6197,
+              "byte_end": 6202,
+              "line_start": 147,
+              "column_start": 45
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/markup_stream.rs",
+              "byte_start": 15831,
+              "byte_end": 15838,
+              "line_start": 373,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/markup_stream.rs",
+              "byte_start": 20445,
+              "byte_end": 20450,
+              "line_start": 508,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/observation/content.rs",
+              "byte_start": 471,
+              "byte_end": 475,
+              "line_start": 14,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/observation/value.rs",
+              "byte_start": 378,
+              "byte_end": 382,
+              "line_start": 13,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/observation/value.rs",
+              "byte_start": 25599,
+              "byte_end": 25603,
+              "line_start": 616,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/eval/mod.rs",
+              "byte_start": 37341,
+              "byte_end": 37346,
+              "line_start": 917,
+              "column_start": 25
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/classification.rs",
+              "byte_start": 874,
+              "byte_end": 881,
+              "line_start": 20,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/figure_demands.rs",
+              "byte_start": 1396,
+              "byte_end": 1403,
+              "line_start": 52,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/materialize_time.rs",
+              "byte_start": 1188,
+              "byte_end": 1195,
+              "line_start": 30,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 1430,
+              "byte_end": 1437,
+              "line_start": 36,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 6852,
+              "byte_end": 6856,
+              "line_start": 200,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 14480,
+              "byte_end": 14487,
+              "line_start": 414,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 31868,
+              "byte_end": 31875,
+              "line_start": 862,
+              "column_start": 28
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 37844,
+              "byte_end": 37851,
+              "line_start": 1025,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/walk.rs",
+              "byte_start": 16753,
+              "byte_end": 16768,
+              "line_start": 473,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/extract_payload.rs",
+              "byte_start": 832,
+              "byte_end": 839,
+              "line_start": 20,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/from_tags/displays.rs",
+              "byte_start": 3065,
+              "byte_end": 3070,
+              "line_start": 72,
+              "column_start": 35
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/labelled.rs",
+              "byte_start": 1735,
+              "byte_end": 1741,
+              "line_start": 41,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/introspect/locatable.rs",
+              "byte_start": 1010,
+              "byte_end": 1017,
+              "line_start": 23,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/image.rs",
+              "byte_start": 5079,
+              "byte_end": 5082,
+              "line_start": 130,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/references.rs",
+              "byte_start": 17321,
+              "byte_end": 17325,
+              "line_start": 422,
+              "column_start": 43
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/measurement.rs",
+              "byte_start": 1613,
+              "byte_end": 1620,
+              "line_start": 55,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/measurement.rs",
+              "byte_start": 9956,
+              "byte_end": 9963,
+              "line_start": 278,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/realized.rs",
+              "byte_start": 490,
+              "byte_end": 497,
+              "line_start": 15,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/realized.rs",
+              "byte_start": 4505,
+              "byte_end": 4509,
+              "line_start": 142,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/realized.rs",
+              "byte_start": 10325,
+              "byte_end": 10332,
+              "line_start": 308,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/realized.rs",
+              "byte_start": 14399,
+              "byte_end": 14406,
+              "line_start": 434,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/borders.rs",
+              "byte_start": 1647,
+              "byte_end": 1651,
+              "line_start": 43,
+              "column_start": 29
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/cell_body.rs",
+              "byte_start": 2708,
+              "byte_end": 2712,
+              "line_start": 72,
+              "column_start": 87
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+              "byte_start": 943,
+              "byte_end": 950,
+              "line_start": 42,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/measurement_cache.rs",
+              "byte_start": 5486,
+              "byte_end": 5493,
+              "line_start": 182,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/row_groups.rs",
+              "byte_start": 3586,
+              "byte_end": 3590,
+              "line_start": 73,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/row_groups.rs",
+              "byte_start": 9248,
+              "byte_end": 9269,
+              "line_start": 218,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/row_groups.rs",
+              "byte_start": 14575,
+              "byte_end": 14576,
+              "line_start": 377,
+              "column_start": 37
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/tracks.rs",
+              "byte_start": 3492,
+              "byte_end": 3502,
+              "line_start": 77,
+              "column_start": 48
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/tracks.rs",
+              "byte_start": 18687,
+              "byte_end": 18691,
+              "line_start": 406,
+              "column_start": 48
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid/tracks.rs",
+              "byte_start": 32825,
+              "byte_end": 32829,
+              "line_start": 697,
+              "column_start": 18
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/transform.rs",
+              "byte_start": 27993,
+              "byte_end": 28000,
+              "line_start": 716,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/text/style.rs",
+              "byte_start": 3220,
+              "byte_end": 3221,
+              "line_start": 79,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/text/style.rs",
+              "byte_start": 3696,
+              "byte_end": 3700,
+              "line_start": 86,
+              "column_start": 49
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/paragraph.rs",
+              "byte_start": 450,
+              "byte_end": 457,
+              "line_start": 12,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/paragraph.rs",
+              "byte_start": 16956,
+              "byte_end": 16963,
+              "line_start": 473,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/paragraph_indent.rs",
+              "byte_start": 2290,
+              "byte_end": 2291,
+              "line_start": 97,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+              "byte_start": 4862,
+              "byte_end": 4869,
+              "line_start": 141,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+              "byte_start": 10784,
+              "byte_end": 10788,
+              "line_start": 308,
+              "column_start": 54
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+              "byte_start": 11180,
+              "byte_end": 11213,
+              "line_start": 317,
+              "column_start": 46
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+              "byte_start": 16696,
+              "byte_end": 16729,
+              "line_start": 450,
+              "column_start": 46
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/sequence/inline_prefix.rs",
+              "byte_start": 22034,
+              "byte_end": 22065,
+              "line_start": 580,
+              "column_start": 42
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/helpers.rs",
+              "byte_start": 17370,
+              "byte_end": 17377,
+              "line_start": 451,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/grid_placement.rs",
+              "byte_start": 3656,
+              "byte_end": 3657,
+              "line_start": 98,
+              "column_start": 38
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `Some(entities::value::Value::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/line_commit.rs",
+              "byte_start": 31461,
+              "byte_end": 31470,
+              "line_start": 706,
+              "column_start": 38
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/format_options.rs",
+              "byte_start": 1066,
+              "byte_end": 1071,
+              "line_start": 30,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/mod.rs",
+              "byte_start": 62808,
+              "byte_end": 62815,
+              "line_start": 1245,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/mod.rs",
+              "byte_start": 69518,
+              "byte_end": 69525,
+              "line_start": 1417,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/layout/mod.rs",
+              "byte_start": 74153,
+              "byte_end": 74160,
+              "line_start": 1541,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/accent.rs",
+              "byte_start": 10461,
+              "byte_end": 10476,
+              "line_start": 252,
+              "column_start": 44
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/accent.rs",
+              "byte_start": 5494,
+              "byte_end": 5509,
+              "line_start": 128,
+              "column_start": 19
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/accent.rs",
+              "byte_start": 18523,
+              "byte_end": 18541,
+              "line_start": 467,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 5656,
+              "byte_end": 5657,
+              "line_start": 178,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 11064,
+              "byte_end": 11068,
+              "line_start": 304,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 15451,
+              "byte_end": 15465,
+              "line_start": 426,
+              "column_start": 30
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 22786,
+              "byte_end": 22800,
+              "line_start": 590,
+              "column_start": 45
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 22921,
+              "byte_end": 22941,
+              "line_start": 592,
+              "column_start": 41
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 37485,
+              "byte_end": 37499,
+              "line_start": 973,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 48690,
+              "byte_end": 48704,
+              "line_start": 1250,
+              "column_start": 45
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 53524,
+              "byte_end": 53538,
+              "line_start": 1381,
+              "column_start": 45
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 53664,
+              "byte_end": 53684,
+              "line_start": 1383,
+              "column_start": 41
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 32353,
+              "byte_end": 32368,
+              "line_start": 842,
+              "column_start": 19
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/attach.rs",
+              "byte_start": 42359,
+              "byte_end": 42374,
+              "line_start": 1103,
+              "column_start": 19
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/matrix.rs",
+              "byte_start": 17568,
+              "byte_end": 17586,
+              "line_start": 508,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/sequence_composition.rs",
+              "byte_start": 2472,
+              "byte_end": 2490,
+              "line_start": 59,
+              "column_start": 43
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/spacing.rs",
+              "byte_start": 1393,
+              "byte_end": 1400,
+              "line_start": 30,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/spacing.rs",
+              "byte_start": 21799,
+              "byte_end": 21820,
+              "line_start": 524,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/spacing.rs",
+              "byte_start": 25907,
+              "byte_end": 25928,
+              "line_start": 654,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/stretch.rs",
+              "byte_start": 506,
+              "byte_end": 527,
+              "line_start": 16,
+              "column_start": 22
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/stretch.rs",
+              "byte_start": 4627,
+              "byte_end": 4632,
+              "line_start": 144,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/underover.rs",
+              "byte_start": 1110,
+              "byte_end": 1131,
+              "line_start": 35,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/underover.rs",
+              "byte_start": 5193,
+              "byte_end": 5214,
+              "line_start": 165,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/underover.rs",
+              "byte_start": 9339,
+              "byte_end": 9360,
+              "line_start": 295,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/underover.rs",
+              "byte_start": 18916,
+              "byte_end": 18934,
+              "line_start": 581,
+              "column_start": 50
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/mod.rs",
+              "byte_start": 20800,
+              "byte_end": 20821,
+              "line_start": 612,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/mod.rs",
+              "byte_start": 26530,
+              "byte_end": 26548,
+              "line_start": 776,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/mod.rs",
+              "byte_start": 43075,
+              "byte_end": 43100,
+              "line_start": 1166,
+              "column_start": 48
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/math/layout/mod.rs",
+              "byte_start": 64157,
+              "byte_end": 64178,
+              "line_start": 1641,
+              "column_start": 22
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/figure_kind.rs",
+              "byte_start": 7852,
+              "byte_end": 7857,
+              "line_start": 218,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/figure_kind.rs",
+              "byte_start": 10841,
+              "byte_end": 10848,
+              "line_start": 307,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/recipes.rs",
+              "byte_start": 2391,
+              "byte_end": 2395,
+              "line_start": 73,
+              "column_start": 23
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/recipes.rs",
+              "byte_start": 9432,
+              "byte_end": 9436,
+              "line_start": 236,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/reference_supplements.rs",
+              "byte_start": 10570,
+              "byte_end": 10576,
+              "line_start": 312,
+              "column_start": 24
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 686,
+              "byte_end": 690,
+              "line_start": 20,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 5643,
+              "byte_end": 5648,
+              "line_start": 161,
+              "column_start": 25
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 6745,
+              "byte_end": 6766,
+              "line_start": 202,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 13432,
+              "byte_end": 13436,
+              "line_start": 421,
+              "column_start": 24
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 22775,
+              "byte_end": 22793,
+              "line_start": 706,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 33255,
+              "byte_end": 33262,
+              "line_start": 1023,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/realize/table_cells.rs",
+              "byte_start": 39787,
+              "byte_end": 39792,
+              "line_start": 1216,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/calc/abs.rs",
+              "byte_start": 2598,
+              "byte_end": 2603,
+              "line_start": 65,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/calc/power.rs",
+              "byte_start": 4646,
+              "byte_end": 4651,
+              "line_start": 128,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `Some(&entities::value::Value::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/figure_image.rs",
+              "byte_start": 4007,
+              "byte_end": 4029,
+              "line_start": 100,
+              "column_start": 22
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `Some(&entities::value::Value::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/figure_image.rs",
+              "byte_start": 9536,
+              "byte_end": 9564,
+              "line_start": 230,
+              "column_start": 28
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `Some(&entities::value::Value::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/figure_image.rs",
+              "byte_start": 11562,
+              "byte_end": 11589,
+              "line_start": 290,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+              "byte_start": 4172,
+              "byte_end": 4177,
+              "line_start": 105,
+              "column_start": 54
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+              "byte_start": 6122,
+              "byte_end": 6127,
+              "line_start": 157,
+              "column_start": 47
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/casting.rs",
+              "byte_start": 659,
+              "byte_end": 662,
+              "line_start": 25,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/casting.rs",
+              "byte_start": 2561,
+              "byte_end": 2564,
+              "line_start": 79,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+              "byte_start": 299,
+              "byte_end": 302,
+              "line_start": 12,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+              "byte_start": 2224,
+              "byte_end": 2229,
+              "line_start": 70,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/place.rs",
+              "byte_start": 1281,
+              "byte_end": 1284,
+              "line_start": 35,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout/stroke.rs",
+              "byte_start": 5192,
+              "byte_end": 5197,
+              "line_start": 146,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/layout.rs",
+              "byte_start": 4140,
+              "byte_end": 4141,
+              "line_start": 121,
+              "column_start": 29
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+              "byte_start": 2611,
+              "byte_end": 2616,
+              "line_start": 86,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/shapes/line.rs",
+              "byte_start": 1062,
+              "byte_end": 1065,
+              "line_start": 32,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+              "byte_start": 13067,
+              "byte_end": 13068,
+              "line_start": 331,
+              "column_start": 62
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/document.rs",
+              "byte_start": 5024,
+              "byte_end": 5029,
+              "line_start": 146,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/math/matrix.rs",
+              "byte_start": 3787,
+              "byte_end": 3792,
+              "line_start": 111,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/math/vector.rs",
+              "byte_start": 1269,
+              "byte_end": 1274,
+              "line_start": 43,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/outline.rs",
+              "byte_start": 14358,
+              "byte_end": 14363,
+              "line_start": 429,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 10282,
+              "byte_end": 10285,
+              "line_start": 233,
+              "column_start": 19
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 22219,
+              "byte_end": 22224,
+              "line_start": 539,
+              "column_start": 27
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 23622,
+              "byte_end": 23627,
+              "line_start": 557,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 24744,
+              "byte_end": 24749,
+              "line_start": 565,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 30915,
+              "byte_end": 30936,
+              "line_start": 705,
+              "column_start": 30
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+              "byte_start": 37833,
+              "byte_end": 37854,
+              "line_start": 891,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/loading/encoding.rs",
+              "byte_start": 1880,
+              "byte_end": 1887,
+              "line_start": 48,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/loading/encoding.rs",
+              "byte_start": 9710,
+              "byte_end": 9717,
+              "line_start": 251,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+              "byte_start": 1063,
+              "byte_end": 1068,
+              "line_start": 36,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/collections.rs",
+              "byte_start": 5413,
+              "byte_end": 5419,
+              "line_start": 172,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/compiler/stdlib/state.rs",
+              "byte_start": 7481,
+              "byte_end": 7486,
+              "line_start": 228,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/emptiness.rs",
+              "byte_start": 303,
+              "byte_end": 307,
+              "line_start": 12,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/fields.rs",
+              "byte_start": 241,
+              "byte_end": 248,
+              "line_start": 10,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, _)` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/fields.rs",
+              "byte_start": 5597,
+              "byte_end": 5610,
+              "line_start": 171,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/identity.rs",
+              "byte_start": 298,
+              "byte_end": 305,
+              "line_start": 13,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/identity.rs",
+              "byte_start": 5116,
+              "byte_end": 5120,
+              "line_start": 156,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/identity.rs",
+              "byte_start": 11922,
+              "byte_end": 11923,
+              "line_start": 315,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/morphology.rs",
+              "byte_start": 384,
+              "byte_end": 388,
+              "line_start": 14,
+              "column_start": 22
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/page_structure.rs",
+              "byte_start": 332,
+              "byte_end": 336,
+              "line_start": 12,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/plain_text.rs",
+              "byte_start": 316,
+              "byte_end": 320,
+              "line_start": 12,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/rust_hash.rs",
+              "byte_start": 672,
+              "byte_end": 676,
+              "line_start": 17,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/source.rs",
+              "byte_start": 482,
+              "byte_end": 486,
+              "line_start": 19,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/traversal.rs",
+              "byte_start": 993,
+              "byte_end": 997,
+              "line_start": 35,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/traversal.rs",
+              "byte_start": 17051,
+              "byte_end": 17055,
+              "line_start": 432,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/traversal.rs",
+              "byte_start": 37700,
+              "byte_end": 37704,
+              "line_start": 762,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/content/traversal.rs",
+              "byte_start": 84062,
+              "byte_end": 84066,
+              "line_start": 1524,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/elements/table_cell.rs",
+              "byte_start": 4962,
+              "byte_end": 4967,
+              "line_start": 158,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/element_kind.rs",
+              "byte_start": 4760,
+              "byte_end": 4764,
+              "line_start": 103,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/font_variations.rs",
+              "byte_start": 3727,
+              "byte_end": 3730,
+              "line_start": 95,
+              "column_start": 31
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 14882,
+              "byte_end": 14886,
+              "line_start": 374,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 17358,
+              "byte_end": 17362,
+              "line_start": 430,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 19211,
+              "byte_end": 19215,
+              "line_start": 474,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 20650,
+              "byte_end": 20654,
+              "line_start": 522,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 22105,
+              "byte_end": 22109,
+              "line_start": 567,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 23474,
+              "byte_end": 23478,
+              "line_start": 612,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 24822,
+              "byte_end": 24826,
+              "line_start": 657,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 26216,
+              "byte_end": 26220,
+              "line_start": 702,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 27547,
+              "byte_end": 27551,
+              "line_start": 747,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 28891,
+              "byte_end": 28895,
+              "line_start": 792,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 30252,
+              "byte_end": 30256,
+              "line_start": 837,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 31580,
+              "byte_end": 31584,
+              "line_start": 882,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 33045,
+              "byte_end": 33049,
+              "line_start": 930,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 34714,
+              "byte_end": 34718,
+              "line_start": 979,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 36545,
+              "byte_end": 36549,
+              "line_start": 1033,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "01_core/src/entities/value.rs",
+              "byte_start": 38083,
+              "byte_end": 38087,
+              "line_start": 1080,
+              "column_start": 15
+            }
+          ]
+        }
+      ]
+    },
+    "core-bridge-0": {
+      "raw_sha256": "c8346803192a86ef28a425e1e8291abc110128f0b467a02fd0d3b171aae8ea09",
+      "errors": 0,
+      "codes": {},
+      "selected_checked": 0,
+      "selected_primary_e0004": 0,
+      "primary_spans": []
+    },
+    "infra-witnesses": {
+      "raw_sha256": "bcbecfeb1feea43d9a8028892d4b02da69dd7f5beee492dbe23fbf4d7f754b8c",
+      "errors": 9,
+      "codes": {
+        "E0004": 9
+      },
+      "selected_checked": 13,
+      "selected_primary_e0004": 0,
+      "primary_spans": [
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/export/html/whitespace.rs",
+              "byte_start": 829,
+              "byte_end": 836,
+              "line_start": 26,
+              "column_start": 25
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/export/html/whitespace.rs",
+              "byte_start": 5308,
+              "byte_end": 5315,
+              "line_start": 153,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/export/html/whitespace.rs",
+              "byte_start": 12783,
+              "byte_end": 12787,
+              "line_start": 374,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/export/html/whitespace.rs",
+              "byte_start": 18763,
+              "byte_end": 18770,
+              "line_start": 550,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/pipeline/context_stabilization.rs",
+              "byte_start": 3034,
+              "byte_end": 3041,
+              "line_start": 100,
+              "column_start": 15
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/pipeline.rs",
+              "byte_start": 24214,
+              "byte_end": 24222,
+              "line_start": 570,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/pipeline.rs",
+              "byte_start": 31997,
+              "byte_end": 32001,
+              "line_start": 773,
+              "column_start": 22
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/query_helpers.rs",
+              "byte_start": 10266,
+              "byte_end": 10273,
+              "line_start": 275,
+              "column_start": 11
+            }
+          ]
+        },
+        {
+          "code": "E0004",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "file_name": "03_infra/src/query_helpers.rs",
+              "byte_start": 16042,
+              "byte_end": 16049,
+              "line_start": 368,
+              "column_start": 11
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "selected_decisions": [
+    {
+      "id": "V16-049",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "match_line": 54,
+      "byte_start": 1888,
+      "byte_end": 1903,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-050",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "match_line": 92,
+      "byte_start": 3429,
+      "byte_end": 3441,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-051",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "match_line": 90,
+      "byte_start": 3105,
+      "byte_end": 3118,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-052",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "match_line": 118,
+      "byte_start": 4305,
+      "byte_end": 4317,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-074",
+      "file": "01_core/src/entities/content/equality.rs",
+      "match_line": 11,
+      "byte_start": 246,
+      "byte_end": 267,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-088",
+      "file": "03_infra/src/export/html/document.rs",
+      "match_line": 29,
+      "byte_start": 1266,
+      "byte_end": 1278,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-089",
+      "file": "03_infra/src/export/html/encoding.rs",
+      "match_line": 14,
+      "byte_start": 409,
+      "byte_end": 424,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-092",
+      "file": "03_infra/src/pipeline/bundle.rs",
+      "match_line": 327,
+      "byte_start": 12013,
+      "byte_end": 12028,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-093",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "match_line": 265,
+      "byte_start": 10193,
+      "byte_end": 10208,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-094",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "match_line": 392,
+      "byte_start": 15076,
+      "byte_end": 15091,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-095",
+      "file": "03_infra/src/pipeline/html.rs",
+      "match_line": 176,
+      "byte_start": 6617,
+      "byte_end": 6629,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-096",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "match_line": 15,
+      "byte_start": 718,
+      "byte_end": 731,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-097",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "match_line": 58,
+      "byte_start": 2372,
+      "byte_end": 2387,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-098",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "match_line": 214,
+      "byte_start": 8314,
+      "byte_end": 8339,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-099",
+      "file": "03_infra/src/pipeline.rs",
+      "match_line": 517,
+      "byte_start": 22061,
+      "byte_end": 22073,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-101",
+      "file": "03_infra/src/query_helpers.rs",
+      "match_line": 226,
+      "byte_start": 8468,
+      "byte_end": 8480,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-102",
+      "file": "03_infra/src/query_helpers.rs",
+      "match_line": 247,
+      "byte_start": 9302,
+      "byte_end": 9317,
+      "primary_e0004_hits": []
+    },
+    {
+      "id": "V16-103",
+      "file": "03_infra/src/query_helpers.rs",
+      "match_line": 261,
+      "byte_start": 9784,
+      "byte_end": 9799,
+      "primary_e0004_hits": []
+    }
+  ],
+  "selected_core": 5,
+  "selected_infra": 13,
+  "selected_e0004": 0,
+  "core_dependency_bridge": {
+    "iterations": 1,
+    "suggestion_files": 100,
+    "insertions": 207,
+    "qualified_paths": 207,
+    "reconstructed_exactly": true,
+    "all_in_copied_core": true,
+    "no_runtime_execution": true,
+    "why_needed": "The actual core enum-growth check emits207 existing closed-decision E0004 diagnostics. Cargo cannot compile the real infra dependent crate until that copied core dependency typechecks. Record the core witness first, then add rustc-suggested unreachable probe-only arms to copied core only; copied infra selected matches remain unmodified."
+  },
+  "failed_first_round": {
+    "raw_error_codes": {
+      "core-witnesses": {
+        "E0004": 207
+      },
+      "core-bridge-0": {
+        "E0433": 4
+      }
+    },
+    "classification": {
+      "utc": "2026-10-20T23:12:19.455032+00:00",
+      "worker_sha256": "be92183b134141335658f4e88ccf53fb3a5dfbcdbbd7fd17bed7384c272aa2fe",
+      "classification": "Invalid infrastructure probe harness; initial real core witness phase is preserved but does not discharge infrared gate. Copied-core rustc suggestions use shortened element_kind::ElementKind paths that do not resolve in four modules. Correct only copied dependency qualification and rerun fresh baseline2. No productive source or semantic RED failure claimed.",
+      "selected_core": 0,
+      "other_core_witness_errors": 0,
+      "bridge_other_codes": [
+        "E0433"
+      ]
+    },
+    "not_valid_infra_gate": true
+  },
+  "provenance_qualification": {
+    "actual_inputs_changed_during_probe": [
+      "00_nucleo/prompts/infra/pipeline.md",
+      "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "00_nucleo/prompts/infra/pipeline/paged.md"
+    ],
+    "copy_is_recorded_immutable_clean_baseline": true,
+    "statement": "Three active L0s changed while the disposable baseline ran. This is not an unchanged-active-working-tree claim; all997 copied Rust inputs instead independently match the exact clean committed baseline and the disposable modifications are reconstructed from immutable archives."
+  },
+  "limits": [
+    "Absence of a primary E0004 at the18 selected original matches is the measured baseline defect: their catchalls absorb enum growth. It is not a runtime language failure or GREEN repair witness.",
+    "The copied probe arms are not productive source and never execute. Existing closed core decisions are mechanically bridged only to expose the real infra compiler diagnostics.",
+    "Independent left/right/new-new tuple obligations and repair GREEN must be checked after implementation; this baseline round alone does not certify them."
+  ],
+  "evidence_sha256": {
+    "structural-baseline-2/receipt.json": "824afb25424bd3b29ced26bbb324869854bdada4bc847368be094c08301961e1",
+    "structural-baseline-2/state.json.gz": "a7fab9da1e18eb1f1b1da99c7917b320db902f28d6fd65d7fb82b9d4a9ee4a51",
+    "structural-baseline-2/original-sources.json.gz": "fe6c944ebb517d9daba328c0a9696984bff589713dad013d6538375eee9aca1b",
+    "structural-baseline-2/enum-mutations.json.gz": "0086f91f7e3945cd380ce39ea9de57a8ee445efd933655e8fbfeb40eae693fee",
+    "structural-baseline-2/core-probe-only-bridges.json.gz": "872ed218bd15432eb247878089e35398853a1dd31759274442e0fd8d03118505",
+    "structural-baseline-2/bridged-core-sources.json.gz": "3db828bd863870bb141851d5cb3df2b5c776ae6d0bb9102c93ec2ea5829e463f",
+    "structural-baseline/failure-classification.json": "6b6efb21a2e91e8f3328115cb3ee2426b05e6dd087b9b67a8f973425aa55c08b"
+  }
+}

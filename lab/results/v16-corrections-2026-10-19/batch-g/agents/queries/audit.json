@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-20T23:11:53.274271+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "state": "uncommitted working tree; other agents may have L0/test edits, this source/owner still baseline",
+  "diff_head_stat": " .../prompts/core/compiler/realize/bare_math.md     | 31 +++++++\n 00_nucleo/prompts/core/compiler/realize/mod.md     | 36 ++++++++\n .../prompts/core/entities/content/equality.md      | 67 +++++++++++++++\n 00_nucleo/prompts/infra/export/html/document.md    | 31 +++++++\n 00_nucleo/prompts/infra/export/html/encoding.md    | 19 +++++\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 34 ++++++++\n 00_nucleo/prompts/infra/pipeline/html.md           | 30 +++++++\n 01_core/src/compiler/realize/bare_math.rs          | 98 ++++++++++++++++++++++\n 01_core/src/compiler/realize/mod.rs                | 97 +++++++++++++++++++++\n 01_core/src/entities/content/equality.rs           | 84 +++++++++++++++++++\n 03_infra/src/export/html/document.rs               | 57 +++++++++++++\n 03_infra/src/export/html/encoding.rs               | 31 +++++++\n 03_infra/src/pipeline/bundle.rs                    | 68 +++++++++++++++\n 03_infra/src/pipeline/html.rs                      | 89 ++++++++++++++++++++\n 14 files changed, 772 insertions(+)\n",
+  "source_sha256": "968cbcf6a008a6f479486996b209dd4fe8e978d75dbe67d576027ea7c9c790e1",
+  "owner_sha256": "2d7e6dd853a9e3f1d40f53587a846cb2e477ad6ef41b7a0db24b30cbf87e53bc",
+  "static_evidence": [
+    "query_helpers.rs:154-177 separates introspector summary from approximate document kinds",
+    "query_helpers.rs:225-243 direct non-document kinds return0",
+    "query_helpers.rs:246-272 raw Sequence all(empty) returns1; bare item descends body; wrapped groups terminal",
+    "content/construction.rs:6-25 canonical sequence constructor normalizes empty/singleton",
+    "00_nucleo/prompts/infra/query_helpers.md:33-37 explicitly preserves approximate walkers and singleton discrepancy"
+  ],
+  "decision": "Preserve ratified approximate API semantics with explicit closed complements; do not promote helpers into located queries or claim markup parity. Characterize raw/canonical empty, singleton/group/wrapper and real introspector distinction. Closed-domain evolution provides structural RED; preservation controls must pass before/after. Public signatures/default/phase unchanged; ADR0127 continuous.",
+  "deferred": "Changing documented approximate group policy requires separate measured owner decision; no unexecuted CLI/oracle defect claim."
+}

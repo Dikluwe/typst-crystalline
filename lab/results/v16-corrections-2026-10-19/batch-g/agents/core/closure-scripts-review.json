@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-21T00:51:23.969950+00:00",
+  "status": "Two concrete evidence-guard hardenings required before closure; no active/source defect inferred",
+  "scope": "Read-only review of named Lab closure/manifest scripts and cycle3 template, not execution or authorization to close/commit",
+  "script_sha256": {
+    "close_reports.py": "75ddd033bee69d69583db8254d3756c99f08576de2c19bb12ddbff806c2e1691",
+    "validate_closure.py": "3d8082d21171861ccb345e87b1de3baf3b4c03e5ba76178b7b6ce9a186ab44ef",
+    "preserve_evidence.py": "004a940dd428bf49f068c6115f860564a42e3b4c3f690d9883af8d21d7a2cb07",
+    "commit_batch.py": "51fa117c7e372b9a2a52701cee9b22c8930843b8fe172bafab0b84a26332f957",
+    "accept_3.py": "5244ec3600b4cf6397aa0cfdb7e53bae35d092d27a639862410820a392ea938b",
+    "validate_3.py": "26844c2dbc8f7c161251336110764a2e9a161acc9733477cdf0959fb09f6eda9"
+  },
+  "findings": [
+    {
+      "id": "closure-evidence-binding",
+      "priority": "Required before closure generation",
+      "source": "close_reports.py",
+      "lines": "46-67,92,111-118",
+      "fact": "Cycle3 paths and counts are current, but independent Hash/acceptance reviews and the obligation inventory are existence-only guards. Equality/HTML/Hash snapshots are not directly required to equal the current build input map/build SHA/product SHA at this outer closure guard.",
+      "impact": "A stale or merely drafted review file could satisfy existence while the template claims final acceptance; success of the actual acceptance worker is useful independent evidence but does not itself make those report files current.",
+      "bounded_correction": "Require the actual independent review finite PASS fields and receipt/build/seal/evidence SHA bindings; require finalized open-obligations for this exact snapshot. Bind each final candidate receipt directly to the successful current build and binary. Keep all existing executable and scope assertions."
+    },
+    {
+      "id": "post-validation-prose-binding",
+      "priority": "Required before evidence manifest/commit",
+      "source": "validate_closure.py / preserve_evidence.py / commit_batch.py",
+      "lines": "closure receipt construction; preserve initial existence check; manifest commit verification",
+      "fact": "The closure validator checks report links but does not record the validated README/diagnostic/closure-ledger/open-obligations source digests. The preservation script requires only that the closure receipt exists and then hashes current prose; commit validates those current manifest bytes. Build frozen_inputs deliberately excludes diagnostics and these Lab reports.",
+      "impact": "A prose edit after documentation checks can become freshly manifested and committed without invalidating that successful closure receipt, even while all Rust inputs remain unchanged.",
+      "bounded_correction": "Record SHA-256 for every newly validated textual output and closure input/report manifest in closure-checks/receipt.json, then require exactly those hashes in preserve_evidence and commit_batch before staging. Bind the closure receipt itself and validated build/product identity; preserve the existing literal path manifest and exact staging assertions."
+    }
+  ],
+  "checked_preservations": [
+    "All current cycle3 report/build/focus paths consistently use candidate3; mandatory13pairs/26SHA/25Nuclei and focused20+36 assertions are present.",
+    "Twelve executable gates, source freeze, exact26 tracked implementation/L0 paths, branch/baseline ancestry, public/API metadata and no-suppression guards remain.",
+    "Template distinguishes bounded V16 closure from language parity; inherited F84 dispositions, Ref40 required and target10/11 known strict header failure remain distinct.",
+    "Template explicitly preserves previous successful12-gate snapshot and later required HTML failure; no retroactive pass is claimed for that snapshot.",
+    "Exact before/after248/168\u21920 finite Hash evidence and NestedValueFloat refutation are represented without inventing a weak Hash law.",
+    "The raw-footer correction is stated as emission-aware diagnostics; raw footer omission remains an open renderer debt. Source/Context shapes remain domain coverage without invented frontend reachability.",
+    "Git staging uses a literal, exact NUL-separated manifest; no reset/rebase/force-push/history rewrite is performed by the reviewed script. ELF/pycache omission is explicit with hashes and recipes retained locally.",
+    "Existing active diagnostic content is preserved through an exact archived prefix/status transformation; link and unchanged-full-SARIF revalidation occur after documentation generation."
+  ],
+  "syntax_only_checked": true,
+  "executed_close_validator_preserver_commit_product_or_cargo": false,
+  "claim_limits": [
+    "Future output paths and final3 schemas cannot yet be certified from nonexistent candidate/acceptance results.",
+    "This report binds the script hashes above; later hardening supersedes its findings only after independent reread.",
+    "No changes were made to scripts, productive sources, owners, README, diagnostics, freezes or binaries."
+  ]
+}

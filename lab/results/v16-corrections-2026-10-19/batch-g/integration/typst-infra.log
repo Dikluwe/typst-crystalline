@@ -1,0 +1,13 @@
+{
+  "exit": 101,
+  "failed": [
+    "pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_bundle_public_preparation_projects_resolved_and_standalone_cells"
+  ],
+  "compiler_error_codes": [],
+  "changed_inputs": []
+}
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py", line 19, in <module>
+    assert {name.split('::')[-1] for name in failed}==set(a.expected_fail)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

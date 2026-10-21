@@ -1,0 +1,291 @@
+[
+  {
+    "name": "python-ci-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "lab/tools/ci"
+    ],
+    "utc_end": "2026-10-21T00:23:40.008256+00:00",
+    "seconds": 0.3349451280082576,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "layout",
+    "command": [
+      "python3",
+      "lab/tools/ci/check_mature_layout.py"
+    ],
+    "utc_end": "2026-10-21T00:23:42.086697+00:00",
+    "seconds": 2.078180742013501,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "strict-lineage",
+    "command": [
+      "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+      ".",
+      "--checks",
+      "v1,v5,v15,v26",
+      "--fail-on",
+      "warning"
+    ],
+    "utc_end": "2026-10-21T00:23:47.506894+00:00",
+    "seconds": 5.419946784997592,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "reverse-lineage",
+    "command": [
+      "python3",
+      "lab/tools/ci/check_reverse_lineage.py"
+    ],
+    "utc_end": "2026-10-21T00:23:48.031909+00:00",
+    "seconds": 0.5247425519919489,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "utc_end": "2026-10-21T00:24:22.190703+00:00",
+    "seconds": 34.158449606009526,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "tests-domain-infra",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--exclude",
+      "typst-wiring",
+      "--lib",
+      "--bins",
+      "--tests",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-21T00:28:55.106841+00:00",
+    "seconds": 272.9158010399842,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    }
+  },
+  {
+    "name": "tests-wiring",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-wiring",
+      "--bins",
+      "--tests",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-21T00:32:58.764762+00:00",
+    "seconds": 243.65728893500636,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "doctests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--doc",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-21T00:33:06.845272+00:00",
+    "seconds": 8.080069084011484,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "build-all-targets",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--all-targets"
+    ],
+    "utc_end": "2026-10-21T00:35:01.822683+00:00",
+    "seconds": 114.9769643569889,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings",
+      "-D",
+      "unfulfilled_lint_expectations"
+    ],
+    "utc_end": "2026-10-21T00:36:43.843821+00:00",
+    "seconds": 102.0206837610167,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check",
+      "--all"
+    ],
+    "utc_end": "2026-10-21T00:36:47.567895+00:00",
+    "seconds": 3.723619566007983,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {}
+  },
+  {
+    "name": "rustdoc",
+    "command": [
+      "cargo",
+      "doc",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--no-deps"
+    ],
+    "utc_end": "2026-10-21T00:37:23.647721+00:00",
+    "seconds": 36.07936330800294,
+    "exit": 0,
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "TYPST_VANILLA": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "TMPDIR": "/dev/shm/tekt-layout-pi2o90by"
+    },
+    "overrides": {
+      "RUSTDOCFLAGS": "-D warnings"
+    }
+  }
+]

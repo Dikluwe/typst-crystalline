@@ -1,0 +1,201 @@
+{
+  "utc_start": "2026-10-20T23:12:26.155409+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "binary_sha256": {
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "product": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76"
+  },
+  "diff_stat": " .../prompts/core/compiler/realize/bare_math.md     | 31 +++++++\n 00_nucleo/prompts/core/compiler/realize/mod.md     | 36 ++++++++\n .../prompts/core/entities/content/equality.md      | 67 +++++++++++++++\n 00_nucleo/prompts/infra/export/html/document.md    | 31 +++++++\n 00_nucleo/prompts/infra/export/html/encoding.md    | 19 +++++\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 34 ++++++++\n 00_nucleo/prompts/infra/pipeline/html.md           | 30 +++++++\n 00_nucleo/prompts/infra/query_helpers.md           | 46 +++++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 98 ++++++++++++++++++++++\n 01_core/src/compiler/realize/mod.rs                | 97 +++++++++++++++++++++\n 01_core/src/entities/content/equality.rs           | 84 +++++++++++++++++++\n 03_infra/src/export/html/document.rs               | 57 +++++++++++++\n 03_infra/src/export/html/encoding.rs               | 31 +++++++\n 03_infra/src/pipeline/bundle.rs                    | 68 +++++++++++++++\n 03_infra/src/pipeline/html.rs                      | 89 ++++++++++++++++++++\n 03_infra/src/query_helpers.rs                      | 92 ++++++++++++++++++++\n 16 files changed, 908 insertions(+), 2 deletions(-)\n",
+  "note": "Historical verified build4 product, exact unchanged executable; current pending source changes are tests/L0 only. No claim rebuilt product.",
+  "cases": [
+    {
+      "name": "parenthesized-distinct",
+      "source_sha256": "931c0a10d0cd402c1a95b610b7e206d33ebd692ff284112439113543ec9f6934",
+      "expression": "{ let a = (context [A]); let b = (context [B]); (equal: a == b, left: repr(a), right: repr(b), left_fields: a.fields(), right_fields: b.fields(), left_type: repr(type(a)), right_type: repr(type(b))) }",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let a = (context [A]); let b = (context [B]); (equal: a == b, left: repr(a), right: repr(b), left_fields: a.fields(), right_fields: b.fields(), left_type: repr(type(a)), right_type: repr(type(b))) }",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":true,\"left\":\"context()\",\"right\":\"context()\",\"left_fields\":{},\"right_fields\":{},\"left_type\":\"content\",\"right_type\":\"content\"}\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "{ let a = (context [A]); let b = (context [B]); (equal: a == b, left: repr(a), right: repr(b), left_fields: a.fields(), right_fields: b.fields(), left_type: repr(type(a)), right_type: repr(type(b))) }",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":false,\"left\":\"context()\",\"right\":\"context()\",\"left_fields\":{},\"right_fields\":{},\"left_type\":\"content\",\"right_type\":\"content\"}\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "opaque-unexecuted-panic",
+      "source_sha256": "54ee44e072d8382f9e44fb001ad44817abe52a7f1f38fa7aef725e7bdcab4ace",
+      "expression": "{let a = (context panic(\"must-not-run-A\")); let b = (context panic(\"must-not-run-B\")); (equal: a == b, repr: repr(a), fields: a.fields())}",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{let a = (context panic(\"must-not-run-A\")); let b = (context panic(\"must-not-run-B\")); (equal: a == b, repr: repr(a), fields: a.fields())}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":true,\"repr\":\"context()\",\"fields\":{}}\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "{let a = (context panic(\"must-not-run-A\")); let b = (context panic(\"must-not-run-B\")); (equal: a == b, repr: repr(a), fields: a.fields())}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":false,\"repr\":\"context()\",\"fields\":{}}\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "distinct-captured-environment",
+      "source_sha256": "679fc1baca7487ba66d7b10c363128d49925597b437b37f55c1378e0f0357c15",
+      "expression": "{let f(x) = context x; let a=f(\"A\");let b=f(\"B\");(equal:a==b,not_equal:a!=b)}",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{let f(x) = context x; let a=f(\"A\");let b=f(\"B\");(equal:a==b,not_equal:a!=b)}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":true,\"not_equal\":false}\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "{let f(x) = context x; let a=f(\"A\");let b=f(\"B\");(equal:a==b,not_equal:a!=b)}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":false,\"not_equal\":true}\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "context-vs-body",
+      "source_sha256": "09b71c44031f225c4ff29ae1f4420c30c51139576a736d730a79fa0c7b3f688a",
+      "expression": "{let a=(context [A]);(equal:a==[A],reverse:[A]==a,empty:a==[])}",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{let a=(context [A]);(equal:a==[A],reverse:[A]==a,empty:a==[])}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":false,\"reverse\":false,\"empty\":false}\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "{let a=(context [A]);(equal:a==[A],reverse:[A]==a,empty:a==[])}",
+            "--format",
+            "json"
+          ],
+          "exit": 0,
+          "stdout": "{\"equal\":false,\"reverse\":false,\"empty\":false}\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "distinct-rendered",
+      "source_sha256": "11e4c5f85678521f732f429705cc46ba3b935dfd8a2a5c9ca190b8140b7fb406",
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ",
+      "runs": {
+        "oracle": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "compile",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/oracle.pdf"
+            ],
+            "exit": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "query": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+              "query",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ",
+              "<probe>",
+              "--field",
+              "value"
+            ],
+            "exit": 0,
+            "stdout": "[{\"equal\":true,\"first\":{},\"second\":{}}]\n",
+            "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ` instead\n\n"
+          },
+          "text": "AB\n\f",
+          "pdf_sha256": "2c6be2dbf03d7a567cf8153d9eb1611dae516740f44d1fc88f9634830406c452"
+        },
+        "product": {
+          "compile": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "compile",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/product.pdf"
+            ],
+            "exit": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "query": {
+            "argv": [
+              "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+              "query",
+              "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ",
+              "<probe>",
+              "--field",
+              "value"
+            ],
+            "exit": 0,
+            "stdout": "[{\"equal\":false,\"first\":{},\"second\":{}}]\n",
+            "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-probes/distinct-rendered.typ` instead\n\n"
+          },
+          "text": "AB\n\f",
+          "pdf_sha256": "1aac00e46781fbd1522ecb9b0e01bc4072d1347cede324e3b55ef24e21f26858"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-20T23:12:30.328752+00:00",
+  "binary_unchanged": true
+}

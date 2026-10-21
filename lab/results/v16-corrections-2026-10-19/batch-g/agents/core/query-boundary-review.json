@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-20T23:22:34.448192+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "mode": "Independent evidence-only review during frozen RED; no source/L0/test/Cargo changes",
+  "input_sha256": {
+    "03_infra/src/query_helpers.rs": "7a585080eac13b3b3d9d0b69f14194dd6e7f5c38a705e040799ba169721e053c",
+    "00_nucleo/prompts/infra/query_helpers.md": "46a58047e603918843baefe80fcc577e319dd1b58573f66ef0c2b2961a2a9f7f",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/audit.json": "221fdc0dc7d96d265a1f76bcd75793d71e7e9edcba079d3c8a6980a3af871cf0",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/source-before.rs": "968cbcf6a008a6f479486996b209dd4fe8e978d75dbe67d576027ea7c9c790e1",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/owner-before.md": "2d7e6dd853a9e3f1d40f53587a846cb2e477ad6ef41b7a0db24b30cbf87e53bc",
+    "01_core/src/entities/content/sequence.rs": "8b0337c870308cfa1463b59bf11126677b0344953f93f686b02c7ab687a094d8"
+  },
+  "productive_prefix_byte_identical": true,
+  "full_current_owner_read": true,
+  "tests_count": 4,
+  "verdict": "Substantive boundary PASS; one source-citation correction requested after freeze",
+  "preserved_obligations": [
+    "Public source prefix/signatures exact HEAD; appended cfg tests only.",
+    "Raw empty Sequence counts1 from all(empty), canonical Content::sequence(empty) counts0; distinct internal forms are intentionally not called language parity.",
+    "Bare list/enum item with text body0; explicit one-item Sequence group1; Styled(group)0; mixed ordinary Sequence descends and counts group1.",
+    "Nested group inside matching item body recurses and counts1.",
+    "Real introspector summary counts actual Heading2/Metadata1 while direct approximate helper is zero for each; metadata value projection retained.",
+    "No runtime enum-list matrix, no changed expected tolerance or ignored/suppressed test; structural evolution gate remains separate.",
+    "Existing approximate limitations, singleton discrepancy, compiled and located query contracts remain unchanged; no new approximation/parity ratification."
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "kind": "wrong current-source evidence anchor",
+      "location": "00_nucleo/prompts/infra/query_helpers.md:195 and agents/queries/audit.json static_evidence",
+      "claim": "content/construction.rs:6-25 normalizes empty/singleton inputs",
+      "actual": "01_core/src/entities/content/sequence.rs:10-20 owns Content::sequence and normalizes0 toEmpty/1 tofirst/n toSequence. construction.rs:6-25 imports, text and empty constructors.",
+      "action": "After RED freeze, correct only the source citation in the new L0 clause and audit receipt/addendum; normative expectation/test itself is supported by actual sequence.rs. Preserve prior audit as historical if replacing evidence."
+    }
+  ],
+  "limits": [
+    "No Cargo/test executed by reviewer; expected preservation outcomes await root actual RED.",
+    "No new oracle comparison needed/claimed for the documented approximate projection.",
+    "Review covers requested101\u2013103 changes, not universal query parity."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-21T00:13:04.950487+00:00",
+  "mode": "independent read-only implementation/source-archive audit; no Cargo/source/L0 edits",
+  "source_sha256": "d2701975d2f22070b38388477a7f25c917db06d1e3da49d51715dc7bdfe96a7f",
+  "owner_sha256": "57285cabade2198b2bf1271f98c1cadfbae1336efb8c3bd3bbbe727f127de66f",
+  "implementation_receipt_sha256": "5e9b613f7016b941d299f214ea7e7410885e69c8ad3b5b4ae1aa8c7310106ccf",
+  "red_preparation_after_sha256": "9adc3d613402b738b645a313eedc59095dad163743ac95adfd8b3aa178364aa6",
+  "all_old_and_new_test_suffix_bytes_identical": true,
+  "entire_nominal_formatter_bytes_identical": true,
+  "debug_body_exact_delta": "Only prepend borrowed four-carrier projection loop before the original depth logic, then pass projected content rather than self to fmt_content. Removing that exact loop/call substitution reproduces the old Debug method bytes.",
+  "closed_catalogue": {
+    "four_projected_carriers": 4,
+    "ordinary_break_alternatives": 116,
+    "all120_current_variants_exactly_once": true,
+    "no_wildcard": true
+  },
+  "retained_behavior": [
+    "MAX_DEPTH8 and existing get/check/increment/format/reset/result sequence are byte-identical.",
+    "Iterative borrowed descent does not clone, recurse across carriers, execute recipes/closures, read original or mutate causal metadata.",
+    "Realized chooses visual only; all noncarrier formatting remains in the unchanged exhaustive nominal formatter.",
+    "Both hash algorithm owners remain byte-identical to measured baseline; APIs/defaults/phases do not change."
+  ],
+  "supplemental_structural_anchors": [
+    {
+      "after": "impl fmt::Debug for Content",
+      "anchor": "match content {",
+      "line": 305,
+      "byte_start": 11663,
+      "byte_end": 11678,
+      "kind": "new supplemental carrier classifier",
+      "original18_inventory_id": null
+    },
+    {
+      "after": "fn fmt_content(",
+      "anchor": "match c {",
+      "line": 441,
+      "byte_start": 16979,
+      "byte_end": 16988,
+      "kind": "existing nominal formatter",
+      "original18_inventory_id": null
+    }
+  ],
+  "not_original_inventory_ids": true,
+  "pending": [
+    "Actual functional GREEN and source-bound366-row probe after correction.",
+    "Real enum-growth primary E0004 at BOTH supplemental anchors, independently attributed; do not inflate original18 count.",
+    "Final13-pair source-bound full lint, API/ownership/nucleus/direct+reverse lineage and strict tests."
+  ],
+  "assessment": "Implementation matches measured existing-carrier law correction and current enduring L0 with no substantive finding. It does not prove universal hash compatibility or language parity."
+}

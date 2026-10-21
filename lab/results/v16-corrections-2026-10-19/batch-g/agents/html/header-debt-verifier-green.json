@@ -1,0 +1,25 @@
+{
+  "script_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+  "historical_receipt_sha256": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922",
+  "fixtures": [
+    {
+      "name": "exact-historical-failure",
+      "accepted": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "crash-in-known-gap",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "new-diagnostic-in-known-gap",
+      "accepted": false,
+      "expected": false,
+      "pass": true
+    }
+  ],
+  "all_pass": true
+}

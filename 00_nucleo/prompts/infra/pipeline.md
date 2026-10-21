@@ -1,5 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: dde3a132
+Hash do Código: 9d4eeafe
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -126,3 +126,14 @@ Measurement before decision: the unsealed reference-three lint records two newly
 Spell both complements against the closed Content catalogue at entities/content.rs:233–1309, preserving tuple/struct/unit forms. Each future variant must fail Rust exhaustiveness at these new decisions until classified. No wildcard, allow/expect, parser rewrite, fake leaf, new public facade or repair of the unrelated baseline collector decision is authorized. Existing actual Grid/dormant-template, emitted caption ordering and duplicate-member regressions remain required.
 
 Source transport correction: the frozen reference-four compile records E0624 at pipeline.rs:573 because Content::with_source_span is crate-private L1. Preserve the same existing Source carrier by cloning its public SourceContent fields and recursively replacing only body, retaining span exactly. Do not widen any method visibility or add a public API; this is representation-preserving L3 transport through the already approved public entity.
+
+
+## Closed context collector decisions
+
+Measurement before decision: clean baseline4382891f0d5f0839669597cb5c90a98f24cfb8bd pipeline.rs:415–539 separates borrowed carrier descent from the generic L1 map callback at509–536. entities/content.rs:233–1309 contains120 alternatives. traversal.rs:411–438,667–673 makes Source transparent, maps Realized visual only and suppresses a Located body's root callback. The immutable source catalogue and real enum-growth diagnostics are retained in lab/results/v16-corrections-2026-10-19/batch-g/structural-baseline-2/. These are local mechanism observations, not new upstream parity measurements.
+
+The generic collector callback must explicitly enumerate the115 alternatives other than Located, Realized, ShowRecipe, ContextBlock and Styled as requiring no local callback action. The enclosing exhaustive L1 map continues to traverse their actual descendants: local no-action never establishes an empty subtree. Preserve generic containers, immediate Located recognition, Source transport, visual-only Realized collection, the approved prepared-reference child accessor, Figure emitted-child order and dormant-template exclusion. L3 must not decode private reference markers or infer Figure kinds.
+
+Styled pushes its delta; ShowRecipe uses its captured chain. Bottom-up carrier reentry overwrites provisional descendant entries with their correct scope. Repeated numeric IDs retain the last collected Arc and chain. The session separately retains first-ID encounter order on its legacy fallback: first occurrence does not determine the final payload or chain. No equality, closure hash, Debug fingerprint or pointer-based producer deduplication is permitted. Both Source/Located orientations remain transparent under the existing Source contract; Source inside Located does not justify an empty producer decision.
+
+Acceptance preserves generic math/decoration descendants, bare and Located/source producers, captured and inner style overrides, hidden-original exclusion, last-map payload/chain, substitution topology and current generated Ref producers. Structural enum-growth evidence must identify this closed decision independently. Existing forty Ref controls, retained diagnostics and known-style/no-Location counter boundaries remain binding. Runtime execution of one grouped branch does not certify every alternative. The scope is continuous internal exhaustiveness and existing Source-contract preservation under ADR-0127, with no API, default, phase, compatibility or Nucleus change.

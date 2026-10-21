@@ -1,0 +1,57 @@
+{
+  "utc": "2026-10-21T00:39:58.103011+00:00",
+  "mode": "Read-only causal plan; no source/L0/test/script edits",
+  "inputs": {
+    "03_infra/src/export/html/document.rs": "32f654468c314aad8cab392b9a50c4150015cd6f6c37354b3494275bf4633ced",
+    "00_nucleo/prompts/infra/export/html/document.md": "744cc1c9859013bad091a744d5a406aba438c6378de3ffae684252af363fc649",
+    "03_infra/src/export/html/inline.rs": "d0f09f7857c00165a14252eb0f6e02fb2a105272adde13e9e4764d3dd927d0ef",
+    "03_infra/src/export/html/table.rs": "a96602189d9271c512ce66c1b04b71fc0636041997a7a5696b3029bdf21b2ec5",
+    "03_infra/src/pipeline/bundle.rs": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+    "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json": "5ee6853da84e040964c5c75ed6061280ed11ba567fcc71b42fc92d1b4b656643",
+    "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final/receipt.json": "24a57fd179c549ceea7f81465dbcbc1f2a7094d3a1b0e93f37db1b7d4201c191"
+  },
+  "actual_semantic_red": {
+    "receipt": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json",
+    "case": "bundle-cell-heading",
+    "source_sha256": "712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2",
+    "product_sha256": "185e63b30415aaec44cca9115781a662077aa1edffab6aabe97166d7a82b1620",
+    "observed": "body/p/h2(H)",
+    "oracle": "body/h2(H)",
+    "other_checks": "Exit, error payload, warning payload and parsed diagnostics match; only semantic DOM fails."
+  },
+  "cause": [
+    "Bundle projection correctly retains nominal TableCell and transforms its selected ordinary-inline visual into HtmlElem h2.",
+    "document.rs has_block/render_body/append_block do not classify the selected Cell visual. render_body falls through to p around inline(Cell); inline.rs110 then emits standalone.visual/body containing h2 inside that p.",
+    "The public-preparation unit assertion required td/h2 substring and therefore proved inner conversion without excluding an outer p for the isolated Cell. The frozen semantic DOM policy detects the remaining actual morphology failure."
+  ],
+  "bounded_plan": [
+    "Update only owning document L0 first, after archive; remove only its empty Portuguese heading. Add evidence before decision and selected-Cell block-flow contract.",
+    "Use one owner-private borrowed cell visual helper exactly matching inline.rs: standalone.visual when present, otherwise lexical body. Do not use resolved precedence for a standalone inline Cell.",
+    "has_block classifies this selected visual; render_body delegates direct standalone Cell to ordinary body composition; append_block delegates it into the current paragraph/block accumulator. Preserve inherited style chain and quote context/reset behavior.",
+    "Do not peel TableCell in project_visual_root or any global mapper. Table rows stay governed by Table renderer/resolved row selection; cells retain their nominal snapshots and td/th boundaries.",
+    "Leave explicit html/body root recognition unchanged; no new HTML element support, renderer/global traversal/API/phase/default or policy changes."
+  ],
+  "planned_tests": [
+    {
+      "name": "batch_g_html_root_cell_uses_selected_block_flow",
+      "expected_old": "semantic RED",
+      "acceptance": "Standalone Cell with projected h2 yields body/h2, no p/h2."
+    },
+    {
+      "name": "batch_g_html_sequence_cell_flushes_neighboring_paragraphs",
+      "expected_old": "semantic RED",
+      "acceptance": "A, Cell(h2 H), B yields p(A),h2(H),p(B), preserving rich child markup."
+    },
+    {
+      "name": "batch_g_html_plain_cell_preserves_inline_paragraph",
+      "expected_old": "preservation PASS",
+      "acceptance": "Plain text/Strong Cell amid text remains one paragraph and retains inline markup."
+    },
+    {
+      "name": "batch_g_html_table_row_cell_keeps_td_boundary",
+      "expected_old": "preservation PASS",
+      "acceptance": "Raw Table row Cell containing projected h2 retains table/tbody/tr/td/h2 and metadata; no global Cell peeling."
+    }
+  ],
+  "classification": "ADR0127 continuous existing semantic HTML block-flow parity correction; no public signature/default/pipeline/compat break. Await root approval for L0/test edits before implementation."
+}

@@ -1,0 +1,231 @@
+{
+  "utc": "2026-10-21T00:26:27.545045+00:00",
+  "scope": "Only two lab runners and lab-only verifier controls; no productive source/L0/policy/expected changes",
+  "before_archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/final-verifier-before",
+  "after_sha256": {
+    "agents/core/replay_equality.py": "741d7f0aac52de5293e7b6f4f357bba7ef70d7506fdd8453cdba80ddda969892",
+    "accept_final.py": "4cd87f40793926197aa3210daa81691e1153ea325f6ae3addab01d52f300fe14"
+  },
+  "equality_actual_red": {
+    "runner_sha256": "85256316a94c02ca99b6e1109885360c436436f2a1d70f925ef002114b001552",
+    "fixtures": [
+      {
+        "name": "valid-equal",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": true,
+        "expected_oracle_rejection": false,
+        "pass": true
+      },
+      {
+        "name": "invalid-actual-valid-oracle",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": false,
+        "expected_oracle_rejection": false,
+        "pass": false
+      },
+      {
+        "name": "invalid-oracle",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": false,
+        "expected_oracle_rejection": true,
+        "pass": false
+      },
+      {
+        "name": "legitimate-json-null",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": true,
+        "expected_oracle_rejection": false,
+        "pass": true
+      }
+    ],
+    "all_pass": false
+  },
+  "equality_actual_green": {
+    "runner_sha256": "741d7f0aac52de5293e7b6f4f357bba7ef70d7506fdd8453cdba80ddda969892",
+    "fixtures": [
+      {
+        "name": "valid-equal",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": true,
+        "expected_oracle_rejection": false,
+        "pass": true
+      },
+      {
+        "name": "invalid-actual-valid-oracle",
+        "pass_value": false,
+        "raised_invalid_oracle": false,
+        "expected_value": false,
+        "expected_oracle_rejection": false,
+        "pass": true
+      },
+      {
+        "name": "invalid-oracle",
+        "pass_value": false,
+        "raised_invalid_oracle": true,
+        "expected_value": false,
+        "expected_oracle_rejection": true,
+        "pass": true
+      },
+      {
+        "name": "legitimate-json-null",
+        "pass_value": true,
+        "raised_invalid_oracle": false,
+        "expected_value": true,
+        "expected_oracle_rejection": false,
+        "pass": true
+      }
+    ],
+    "all_pass": true
+  },
+  "completeness_tests": {
+    "script_sha256": "4cd87f40793926197aa3210daa81691e1153ea325f6ae3addab01d52f300fe14",
+    "fixtures": [
+      {
+        "name": "complete-F84-77-required-5-debt-2-negative",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "missing-F-row",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "duplicated-F-row",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "required-F-reclassified",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "required-F-wrong-observation",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "complete-Ref43-with40-required",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "missing-required-Ref",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "extra-Ref",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      }
+    ],
+    "actual_immutable_reference_groups": 6,
+    "actual_immutable_reference_rows": 43,
+    "actual_immutable_required_rows": 40,
+    "all_pass": true
+  },
+  "immutable_F_files": {
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/cases.json": {
+      "sha256": "86417bca1bd3753ac58fdc1f60db27265a6e083d87fd7c25f0b68f6ba1b12979",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target-controls-oracle/receipt.json": {
+      "sha256": "9827128412eb27a210be7fffc00a26fa5c22826b155ead3b64b557f5c0372b81",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/matrix.json": {
+      "sha256": "ab87dfc9639d7c6e9727f561366fe4169e3537ff33538c6a036b01dee02ef9cb",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/oracle/receipt.json": {
+      "sha256": "cba1b85cc4de91e88a3bb9ce9aa1eb07a6fc1b41d97b1ee97f645384568c1e58",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/render-order-policies-v2.json": {
+      "sha256": "5e4426b96413c273d99a0f11e3a40ee98bbfce95b3b4b41f2960e73de80e9fc0",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-matrix.json": {
+      "sha256": "fa952d021b75e669bbeb3bd404cf293dbd87f85eb7c40cda743899ba45cd5a18",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-oracle/receipt.json": {
+      "sha256": "d428806c3a6d5bab6a1fed3e340fb002dba4c3fd325ebc78b90905f1e2c26edd",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/additional-render-order-policies-v2.json": {
+      "sha256": "3d78ed91320ddc15c0895ff7bc487458fbabe04b9cff272776b705e5db4607d2",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-matrix.json": {
+      "sha256": "ad29f6adc99c1c10337e206fe7eff6dab090d935bd3e41f656d49df12793db19",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-oracle/receipt.json": {
+      "sha256": "80095b055cf494be2d1c8de7750e380a1926524e8ad6bcf523f1d11be38a69dc",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/targeted-render-order-policies-v2.json": {
+      "sha256": "331e503d1121d712564266ce591b46634c1213db9046b7eb69f4de92e9096c8f",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-matrix.json": {
+      "sha256": "14b097bc87257762d1e5bc317644be901e005ef35ca833b7958443d28a41ebd7",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-oracle/receipt.json": {
+      "sha256": "b28aa7aadca9b3db3abae3ac8610eed42b7631757d04b77fdd4ce53fd956c909",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-policies.json": {
+      "sha256": "4ad90fb0f2a9e4444f3e5035b37d5e545753bd31b45710e88468f219ffa9927d",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-matrix.json": {
+      "sha256": "5779c4b25407b07ad91cbee7d80267882985cac2956ae34010e93e9726f4e6e3",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-oracle/receipt.json": {
+      "sha256": "96f530127ec4fa9c62f6ed2a1cf576472c43a261d1d64cdaf0bc7033c0d91487",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/origin-edge-policies.json": {
+      "sha256": "5d61dcd44dc93541bb1cf9063bd93723554c7f6fe90fb3dadf1bcd860cdbb799",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-matrix.json": {
+      "sha256": "e2c6110ce60b6c02cb37326482469029ee3cdadffb957a86e9f1bd1d50b10baa",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-oracle/receipt.json": {
+      "sha256": "9ae5b125bf8c2133506f936d7e707de559f7ff3890242a97885c93fbb621789e",
+      "baseline_equal": true
+    },
+    "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/agents/entities/reference-acceptance/show-origin-selected-policies.json": {
+      "sha256": "18fea3abef03e237787b2ae458db12c36cf513479c68f9af713703167ab99a53",
+      "baseline_equal": true
+    }
+  },
+  "unchanged_G_evidence": {
+    "equality_oracle_receipt_sha256": "c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6",
+    "context_intent_oracle_receipt_sha256": "3523208ad9be23fcc87960083db10fa7a1805910b758cdb44de83f2eb42fb86c",
+    "html_policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+  },
+  "syntax_checks": "Both runners parse/compile without executing them or Cargo",
+  "status": "Frozen before candidate acceptance. Actual language results remain pending."
+}

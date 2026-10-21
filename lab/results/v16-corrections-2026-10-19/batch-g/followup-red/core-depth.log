@@ -1,0 +1,11 @@
+{
+  "exit": 101,
+  "failed": [
+    "entities::content::identity::batch_g_carrier_depth_tests::carrier_debug_transparency_reaches_the_same_visible_depth_boundary",
+    "entities::content::identity::batch_g_carrier_depth_tests::carrier_hash_compatibility_covers_selected_old_and_new_content_families",
+    "entities::content::identity::batch_g_carrier_depth_tests::debug_retains_visible_max_depth_and_iterates_carriers_without_consuming_originals"
+  ],
+  "compiler_error_codes": [],
+  "changed_inputs": []
+}
+Actual focused RED recorded: 20 tests

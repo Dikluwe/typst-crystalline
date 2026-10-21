@@ -1,0 +1,1736 @@
+{
+  "baseline_head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "cases": [
+    {
+      "id": "V16-049",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "plain_without_bare_math",
+      "classification": "structural domain obligation",
+      "report": "eval-realize-analysis.md",
+      "analysis": {
+        "id": "V16-049",
+        "file": "01_core/src/compiler/realize/bare_math.rs",
+        "line": 74,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+        "source_sha256": "0feff0e36394f86948da4af4fa922f5565b47491c0be6c47b76117e6963bbf06",
+        "l0_sha256": "8797a15fbc6c9d3f4bb32cad9364cab183bfba4909aa2b628d0de0c509812889",
+        "effective_prompt_seal": "7e0d0974",
+        "partition": "eval-realize",
+        "function": "plain_without_bare_math",
+        "function_source_range": "01_core/src/compiler/realize/bare_math.rs:53\u201376",
+        "scrutinee": "content",
+        "enum_domain": "Content",
+        "handled_variants": [
+          "Empty",
+          "Text",
+          "Space",
+          "SpaceFromNewline",
+          "Equation",
+          "Located",
+          "Source",
+          "Styled",
+          "Sequence",
+          "ShowRecipe",
+          "Realized",
+          "TableCell",
+          "Table"
+        ],
+        "current_nominal_complement": [
+          "Parbreak",
+          "HtmlElem",
+          "HtmlFrame",
+          "Par",
+          "Heading",
+          "Title",
+          "Strong",
+          "Emph",
+          "Raw",
+          "ListItem",
+          "EnumItem",
+          "Link",
+          "MathSequence",
+          "MathIdent",
+          "MathText",
+          "MathFrac",
+          "MathAttach",
+          "MathPrimes",
+          "MathRoot",
+          "MathStretch",
+          "MathDelimited",
+          "MathLr",
+          "MathMid",
+          "MathOverbrace",
+          "MathUnderbrace",
+          "MathUnderbracket",
+          "MathUnderparen",
+          "MathUndershell",
+          "MathOverbracket",
+          "MathOverparen",
+          "MathOvershell",
+          "MathAlignPoint",
+          "Linebreak",
+          "MathMatrix",
+          "MathCases",
+          "MathAccent",
+          "MathCancel",
+          "MathUnderline",
+          "MathOverline",
+          "MathVec",
+          "MathClassOverride",
+          "MathLimitsOverride",
+          "MathUnderover",
+          "MathOp",
+          "MathStyled",
+          "Label",
+          "Ref",
+          "CounterDisplay",
+          "CounterUpdate",
+          "Outline",
+          "OutlineEntry",
+          "Figure",
+          "FigureCaption",
+          "Image",
+          "Shape",
+          "Curve",
+          "Transform",
+          "Grid",
+          "GridHeader",
+          "GridFooter",
+          "GridCell",
+          "SetPage",
+          "PageRun",
+          "Align",
+          "Place",
+          "Flush",
+          "Divider",
+          "Terms",
+          "TermItem",
+          "Quote",
+          "Document",
+          "Asset",
+          "SmartQuote",
+          "PdfAttach",
+          "PdfArtifact",
+          "Underline",
+          "Strike",
+          "Overline",
+          "SmallCaps",
+          "Pad",
+          "Hide",
+          "HSpace",
+          "VSpace",
+          "Pagebreak",
+          "Colbreak",
+          "Stack",
+          "Boxed",
+          "Block",
+          "Bibliography",
+          "Cite",
+          "Footnote",
+          "FootnoteEntry",
+          "TableHeader",
+          "TableFooter",
+          "GridHLine",
+          "GridVLine",
+          "TableHLine",
+          "TableVLine",
+          "Repeat",
+          "Columns",
+          "Metadata",
+          "State",
+          "StateUpdate",
+          "StateDisplay",
+          "CounterDisplayCallback",
+          "ContextBlock",
+          "Dynamic"
+        ],
+        "guard_refusals_and_preconditions": [],
+        "classification": "structural domain obligation",
+        "concrete_root_cause": "The false fallback is a conservative failure to prove absence and therefore triggers full transformation. It must not be reinterpreted as evidence that every other node contains Mathy or converted into an optimistic no-math default.",
+        "current_complement_policy": "Empty/Text/Space/SpaceFromNewline prove no bare Mathy; Equation/Located are preserved boundaries. Source/Styled/Sequence/ShowRecipe recurse; Realized uses visual; TableCell visual; Table chooses resolved cells when present otherwise children/header/footer and always caption. Every listed complement returns false (Unknown for the optimization) and uses the existing full map_content_pre path.",
+        "evidence": [
+          "01_core/src/compiler/realize/bare_math.rs:53\u201376"
+        ],
+        "owning_l0_clauses": [
+          "00_nucleo/prompts/core/compiler/realize/bare_math.md:44\u201395",
+          "00_nucleo/prompts/core/compiler/realize/bare_math.md:117\u2013162"
+        ],
+        "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Name this as the closed absence-proof catalogue, with an explicit not-proven domain for every remaining Content variant. Preserve negative safety: new variants must be reviewed and cannot automatically skip transformation. Do not add absence cases without a proof over that owner representation; performance acceptance remains independent.",
+        "planned_tests_and_refuters": [
+          "Paired proof-positive versus full traversal controls keep identical semantic output/geometry/effects; unknown carriers and actual bare Mathy must still be transformed.",
+          "Table resolved/raw/header/footer/caption and Cell visual paths plus Realized original/visual distinction.",
+          "No claim of speedup or release gate closure from structural lint repair; retain failed performance thresholds until new paired measurements."
+        ],
+        "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+        "oracle_probes_needed": [],
+        "dependencies": [
+          "V16-050",
+          "map_content_pre owner",
+          "Mathy catalogue and Table/Cell realization owners"
+        ],
+        "adr_0127": {
+          "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+          "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+        },
+        "repair_constraints": [
+          "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+        ],
+        "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "source_evidence": [
+        "01_core/src/compiler/realize/bare_math.rs:53\u201376"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/core/compiler/realize/bare_math.md:44\u201395",
+        "00_nucleo/prompts/core/compiler/realize/bare_math.md:117\u2013162"
+      ],
+      "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Name this as the closed absence-proof catalogue, with an explicit not-proven domain for every remaining Content variant. Preserve negative safety: new variants must be reviewed and cannot automatically skip transformation. Do not add absence cases without a proof over that owner representation; performance acceptance remains independent.",
+      "proposed_tests": [
+        "Paired proof-positive versus full traversal controls keep identical semantic output/geometry/effects; unknown carriers and actual bare Mathy must still be transformed.",
+        "Table resolved/raw/header/footer/caption and Cell visual paths plus Realized original/visual distinction.",
+        "No claim of speedup or release gate closure from structural lint repair; retain failed performance thresholds until new paired measurements."
+      ],
+      "gate": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "uncertainty": {
+        "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+        "probes_needed": [],
+        "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "dependencies": [
+        "V16-050",
+        "map_content_pre owner",
+        "Mathy catalogue and Table/Cell realization owners"
+      ],
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./01_core/src/compiler/realize/bare_math.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 74
+        }
+      }
+    },
+    {
+      "id": "V16-050",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "prepare (map_content_pre callback)",
+      "classification": "structural domain obligation",
+      "report": "eval-realize-analysis.md",
+      "analysis": {
+        "id": "V16-050",
+        "file": "01_core/src/compiler/realize/bare_math.rs",
+        "line": 131,
+        "column": 13,
+        "message": "wildcard `_ =>` delega decis\u00e3o para `Ok(None)`",
+        "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+        "source_sha256": "0feff0e36394f86948da4af4fa922f5565b47491c0be6c47b76117e6963bbf06",
+        "l0_sha256": "8797a15fbc6c9d3f4bb32cad9364cab183bfba4909aa2b628d0de0c509812889",
+        "effective_prompt_seal": "7e0d0974",
+        "partition": "eval-realize",
+        "function": "prepare (map_content_pre callback)",
+        "function_source_range": "01_core/src/compiler/realize/bare_math.rs:78\u2013134",
+        "scrutinee": "node after absence proof and prepare_root",
+        "enum_domain": "Content",
+        "handled_variants": [
+          "Equation",
+          "Located",
+          "Styled",
+          "ShowRecipe",
+          "Realized",
+          "Label",
+          "MathStyled"
+        ],
+        "current_nominal_complement": [
+          "Source",
+          "Empty",
+          "Text",
+          "Space",
+          "SpaceFromNewline",
+          "Parbreak",
+          "Sequence",
+          "HtmlElem",
+          "HtmlFrame",
+          "Par",
+          "Heading",
+          "Title",
+          "Strong",
+          "Emph",
+          "Raw",
+          "ListItem",
+          "EnumItem",
+          "Link",
+          "MathSequence",
+          "MathIdent",
+          "MathText",
+          "MathFrac",
+          "MathAttach",
+          "MathPrimes",
+          "MathRoot",
+          "MathStretch",
+          "MathDelimited",
+          "MathLr",
+          "MathMid",
+          "MathOverbrace",
+          "MathUnderbrace",
+          "MathUnderbracket",
+          "MathUnderparen",
+          "MathUndershell",
+          "MathOverbracket",
+          "MathOverparen",
+          "MathOvershell",
+          "MathAlignPoint",
+          "Linebreak",
+          "MathMatrix",
+          "MathCases",
+          "MathAccent",
+          "MathCancel",
+          "MathUnderline",
+          "MathOverline",
+          "MathVec",
+          "MathClassOverride",
+          "MathLimitsOverride",
+          "MathUnderover",
+          "MathOp",
+          "Ref",
+          "CounterDisplay",
+          "CounterUpdate",
+          "Outline",
+          "OutlineEntry",
+          "Figure",
+          "FigureCaption",
+          "Image",
+          "Shape",
+          "Curve",
+          "Transform",
+          "Grid",
+          "GridHeader",
+          "GridFooter",
+          "GridCell",
+          "SetPage",
+          "PageRun",
+          "Align",
+          "Place",
+          "Flush",
+          "Divider",
+          "Terms",
+          "TermItem",
+          "Quote",
+          "Document",
+          "Asset",
+          "SmartQuote",
+          "PdfAttach",
+          "PdfArtifact",
+          "Underline",
+          "Strike",
+          "Overline",
+          "SmallCaps",
+          "Pad",
+          "Hide",
+          "HSpace",
+          "VSpace",
+          "Pagebreak",
+          "Colbreak",
+          "Stack",
+          "Boxed",
+          "Block",
+          "TableCell",
+          "Bibliography",
+          "Cite",
+          "Footnote",
+          "FootnoteEntry",
+          "TableHeader",
+          "TableFooter",
+          "GridHLine",
+          "GridVLine",
+          "TableHLine",
+          "TableVLine",
+          "Table",
+          "Repeat",
+          "Columns",
+          "Metadata",
+          "State",
+          "StateUpdate",
+          "StateDisplay",
+          "CounterDisplayCallback",
+          "ContextBlock",
+          "Dynamic"
+        ],
+        "guard_refusals_and_preconditions": [
+          "Absence-proof true and prepare_root Some exit before this match.",
+          "Label with non-Mathy body reaches Ok(None), not a terminal Some."
+        ],
+        "classification": "structural domain obligation",
+        "concrete_root_cause": "Ok(None) is the traversal protocol meaning let the owner mapper recurse, not leave an arbitrary node unvisited. Earlier absence proof and root Mathy capture make many apparent nominal cases unreachable at this match.",
+        "current_complement_policy": "Proof-positive nodes return terminal Some before the match; supported Mathy roots return prepared Equation before it. Styled/ShowRecipe/Realized have context/visual-specific recursion; Equation/Located remain terminal; Label with Mathy body wraps the whole Label; MathStyled preserves and lifts equations. All listed complement plus Label guard refusal return Ok(None), requesting normal pre-order child traversal, not a neutral content replacement.",
+        "evidence": [
+          "01_core/src/compiler/realize/bare_math.rs:78\u2013134"
+        ],
+        "owning_l0_clauses": [
+          "00_nucleo/prompts/core/compiler/realize/bare_math.md:44\u201395",
+          "00_nucleo/prompts/core/compiler/realize/bare_math.md:97\u2013115",
+          "00_nucleo/prompts/core/compiler/realize/bare_math.md:164\u2013193"
+        ],
+        "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close this callback protocol partition with early-stage preconditions recorded. Keep nominal default-traversal families explicit without moving classification into a helper that hides new variants. Preserve root-before-children, style snapshots, Realized.original untouched and Label morphology; do not reintroduce superseded Context selector filtering.",
+        "planned_tests_and_refuters": [
+          "A bare Mathy root is wrapped exactly once before its children; Equation/Located remain boundaries.",
+          "Styled, ShowRecipe captured styles, Realized visual, Label Mathy versus non-Mathy, and MathStyled lift preserve effects/order/morphology.",
+          "Opaque or unknown wrapper traversal must not be treated as absence or skip a supported descendant."
+        ],
+        "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+        "oracle_probes_needed": [],
+        "dependencies": [
+          "V16-049",
+          "map_content_pre protocol",
+          "Causal realization order"
+        ],
+        "adr_0127": {
+          "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+          "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+        },
+        "repair_constraints": [
+          "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+        ],
+        "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "source_evidence": [
+        "01_core/src/compiler/realize/bare_math.rs:78\u2013134"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/core/compiler/realize/bare_math.md:44\u201395",
+        "00_nucleo/prompts/core/compiler/realize/bare_math.md:97\u2013115",
+        "00_nucleo/prompts/core/compiler/realize/bare_math.md:164\u2013193"
+      ],
+      "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close this callback protocol partition with early-stage preconditions recorded. Keep nominal default-traversal families explicit without moving classification into a helper that hides new variants. Preserve root-before-children, style snapshots, Realized.original untouched and Label morphology; do not reintroduce superseded Context selector filtering.",
+      "proposed_tests": [
+        "A bare Mathy root is wrapped exactly once before its children; Equation/Located remain boundaries.",
+        "Styled, ShowRecipe captured styles, Realized visual, Label Mathy versus non-Mathy, and MathStyled lift preserve effects/order/morphology.",
+        "Opaque or unknown wrapper traversal must not be treated as absence or skip a supported descendant."
+      ],
+      "gate": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "uncertainty": {
+        "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+        "probes_needed": [],
+        "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "dependencies": [
+        "V16-049",
+        "map_content_pre protocol",
+        "Causal realization order"
+      ],
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./01_core/src/compiler/realize/bare_math.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 131
+        }
+      }
+    },
+    {
+      "id": "V16-051",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "normalize_insertions (children any predicate)",
+      "classification": "structural domain obligation",
+      "report": "eval-realize-analysis.md",
+      "analysis": {
+        "id": "V16-051",
+        "file": "01_core/src/compiler/realize/mod.rs",
+        "line": 93,
+        "column": 17,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+        "source_sha256": "b52e91f0671b9392a2f81f2cc21fa32d7ce37b5439e9ed343746dd47ce7a67fd",
+        "l0_sha256": "719ab0775feb90887125ed88f602527a3812aba18a0afaff90e399590d163717",
+        "effective_prompt_seal": "713b28fe",
+        "partition": "eval-realize",
+        "function": "normalize_insertions (children any predicate)",
+        "function_source_range": "01_core/src/compiler/realize/mod.rs:59\u2013111",
+        "scrutinee": "child inside Sequence children.iter().any",
+        "enum_domain": "Content",
+        "handled_variants": [
+          "Sequence",
+          "Realized"
+        ],
+        "current_nominal_complement": [
+          "Source",
+          "ShowRecipe",
+          "Located",
+          "Empty",
+          "Text",
+          "Space",
+          "SpaceFromNewline",
+          "Parbreak",
+          "HtmlElem",
+          "HtmlFrame",
+          "Par",
+          "Heading",
+          "Title",
+          "Strong",
+          "Emph",
+          "Raw",
+          "ListItem",
+          "EnumItem",
+          "Link",
+          "Equation",
+          "MathSequence",
+          "MathIdent",
+          "MathText",
+          "MathFrac",
+          "MathAttach",
+          "MathPrimes",
+          "MathRoot",
+          "MathStretch",
+          "MathDelimited",
+          "MathLr",
+          "MathMid",
+          "MathOverbrace",
+          "MathUnderbrace",
+          "MathUnderbracket",
+          "MathUnderparen",
+          "MathUndershell",
+          "MathOverbracket",
+          "MathOverparen",
+          "MathOvershell",
+          "MathAlignPoint",
+          "Linebreak",
+          "MathMatrix",
+          "MathCases",
+          "MathAccent",
+          "MathCancel",
+          "MathUnderline",
+          "MathOverline",
+          "MathVec",
+          "MathClassOverride",
+          "MathLimitsOverride",
+          "MathUnderover",
+          "MathOp",
+          "MathStyled",
+          "Label",
+          "Ref",
+          "CounterDisplay",
+          "CounterUpdate",
+          "Outline",
+          "OutlineEntry",
+          "Figure",
+          "FigureCaption",
+          "Image",
+          "Shape",
+          "Curve",
+          "Transform",
+          "Grid",
+          "GridHeader",
+          "GridFooter",
+          "GridCell",
+          "SetPage",
+          "PageRun",
+          "Align",
+          "Place",
+          "Flush",
+          "Styled",
+          "Divider",
+          "Terms",
+          "TermItem",
+          "Quote",
+          "Document",
+          "Asset",
+          "SmartQuote",
+          "PdfAttach",
+          "PdfArtifact",
+          "Underline",
+          "Strike",
+          "Overline",
+          "SmallCaps",
+          "Pad",
+          "Hide",
+          "HSpace",
+          "VSpace",
+          "Pagebreak",
+          "Colbreak",
+          "Stack",
+          "Boxed",
+          "Block",
+          "TableCell",
+          "Bibliography",
+          "Cite",
+          "Footnote",
+          "FootnoteEntry",
+          "TableHeader",
+          "TableFooter",
+          "GridHLine",
+          "GridVLine",
+          "TableHLine",
+          "TableVLine",
+          "Table",
+          "Repeat",
+          "Columns",
+          "Metadata",
+          "State",
+          "StateUpdate",
+          "StateDisplay",
+          "CounterDisplayCallback",
+          "ContextBlock",
+          "Dynamic"
+        ],
+        "guard_refusals_and_preconditions": [
+          "Realized protected textual product or non-Sequence visual is false despite nominally handled variant."
+        ],
+        "classification": "structural domain obligation",
+        "concrete_root_cause": "The false wildcard is a flattening-eligibility decision, not a statement that a child needs no normalization. The rest of the function separately canonicalizes degenerate sequences and markup spaces.",
+        "current_complement_policy": "Sequence child is true. Realized is true only if it is not a protected textual product and visual is Sequence; otherwise false within its arm. Every listed complement is false for this direct-child flattening trigger, but may still be visited by map_content and participate in space/identity normalization. Flattening an unprotected Realized sequence preserves an original-bearing empty visual marker before its children.",
+        "evidence": [
+          "01_core/src/compiler/realize/mod.rs:59\u2013111"
+        ],
+        "owning_l0_clauses": [
+          "00_nucleo/prompts/core/compiler/realize/mod.md:80\u201398",
+          "00_nucleo/prompts/core/compiler/realize/mod.md:186\u2013200",
+          "00_nucleo/prompts/core/compiler/realize/mod.md:228\u2013258"
+        ],
+        "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close direct-child flattenability over Content, retaining protected-product and visual-shape checks inside Realized. Keep the marker/original boundary, degenerate Sequence canonicalization and separate space normalization. Do not generalize flattening through semantic/style carriers or optimize away the original marker.",
+        "planned_tests_and_refuters": [
+          "Nested Sequence and unprotected Realized Sequence flatten in encounter order with preserved original marker.",
+          "Protected textual product, Realized nonsequence visual, Styled/Source carrier boundaries and Unicode/markup spaces preserve current morphology/effects.",
+          "No-change index/identity reuse and zero/one-child canonicalization controls remain valid."
+        ],
+        "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+        "oracle_probes_needed": [],
+        "dependencies": [
+          "Textual product predicate and space owner",
+          "map_content change-proof protocol",
+          "V16-052"
+        ],
+        "adr_0127": {
+          "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+          "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+        },
+        "repair_constraints": [
+          "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+        ],
+        "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "source_evidence": [
+        "01_core/src/compiler/realize/mod.rs:59\u2013111"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/core/compiler/realize/mod.md:80\u201398",
+        "00_nucleo/prompts/core/compiler/realize/mod.md:186\u2013200",
+        "00_nucleo/prompts/core/compiler/realize/mod.md:228\u2013258"
+      ],
+      "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close direct-child flattenability over Content, retaining protected-product and visual-shape checks inside Realized. Keep the marker/original boundary, degenerate Sequence canonicalization and separate space normalization. Do not generalize flattening through semantic/style carriers or optimize away the original marker.",
+      "proposed_tests": [
+        "Nested Sequence and unprotected Realized Sequence flatten in encounter order with preserved original marker.",
+        "Protected textual product, Realized nonsequence visual, Styled/Source carrier boundaries and Unicode/markup spaces preserve current morphology/effects.",
+        "No-change index/identity reuse and zero/one-child canonicalization controls remain valid."
+      ],
+      "gate": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "uncertainty": {
+        "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+        "probes_needed": [],
+        "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "dependencies": [
+        "Textual product predicate and space owner",
+        "map_content change-proof protocol",
+        "V16-052"
+      ],
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./01_core/src/compiler/realize/mod.rs"
+        },
+        "region": {
+          "startColumn": 17,
+          "startLine": 96
+        }
+      }
+    },
+    {
+      "id": "V16-052",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "observe_occurrences (map_content callback)",
+      "classification": "structural domain obligation",
+      "report": "eval-realize-analysis.md",
+      "analysis": {
+        "id": "V16-052",
+        "file": "01_core/src/compiler/realize/mod.rs",
+        "line": 136,
+        "column": 13,
+        "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+        "source_sha256": "b52e91f0671b9392a2f81f2cc21fa32d7ce37b5439e9ed343746dd47ce7a67fd",
+        "l0_sha256": "719ab0775feb90887125ed88f602527a3812aba18a0afaff90e399590d163717",
+        "effective_prompt_seal": "713b28fe",
+        "partition": "eval-realize",
+        "function": "observe_occurrences (map_content callback)",
+        "function_source_range": "01_core/src/compiler/realize/mod.rs:113\u2013140",
+        "scrutinee": "node",
+        "enum_domain": "Content",
+        "handled_variants": [
+          "Located",
+          "ContextBlock",
+          "ShowRecipe",
+          "Realized"
+        ],
+        "current_nominal_complement": [
+          "Source",
+          "Empty",
+          "Text",
+          "Space",
+          "SpaceFromNewline",
+          "Parbreak",
+          "Sequence",
+          "HtmlElem",
+          "HtmlFrame",
+          "Par",
+          "Heading",
+          "Title",
+          "Strong",
+          "Emph",
+          "Raw",
+          "ListItem",
+          "EnumItem",
+          "Link",
+          "Equation",
+          "MathSequence",
+          "MathIdent",
+          "MathText",
+          "MathFrac",
+          "MathAttach",
+          "MathPrimes",
+          "MathRoot",
+          "MathStretch",
+          "MathDelimited",
+          "MathLr",
+          "MathMid",
+          "MathOverbrace",
+          "MathUnderbrace",
+          "MathUnderbracket",
+          "MathUnderparen",
+          "MathUndershell",
+          "MathOverbracket",
+          "MathOverparen",
+          "MathOvershell",
+          "MathAlignPoint",
+          "Linebreak",
+          "MathMatrix",
+          "MathCases",
+          "MathAccent",
+          "MathCancel",
+          "MathUnderline",
+          "MathOverline",
+          "MathVec",
+          "MathClassOverride",
+          "MathLimitsOverride",
+          "MathUnderover",
+          "MathOp",
+          "MathStyled",
+          "Label",
+          "Ref",
+          "CounterDisplay",
+          "CounterUpdate",
+          "Outline",
+          "OutlineEntry",
+          "Figure",
+          "FigureCaption",
+          "Image",
+          "Shape",
+          "Curve",
+          "Transform",
+          "Grid",
+          "GridHeader",
+          "GridFooter",
+          "GridCell",
+          "SetPage",
+          "PageRun",
+          "Align",
+          "Place",
+          "Flush",
+          "Styled",
+          "Divider",
+          "Terms",
+          "TermItem",
+          "Quote",
+          "Document",
+          "Asset",
+          "SmartQuote",
+          "PdfAttach",
+          "PdfArtifact",
+          "Underline",
+          "Strike",
+          "Overline",
+          "SmallCaps",
+          "Pad",
+          "Hide",
+          "HSpace",
+          "VSpace",
+          "Pagebreak",
+          "Colbreak",
+          "Stack",
+          "Boxed",
+          "Block",
+          "TableCell",
+          "Bibliography",
+          "Cite",
+          "Footnote",
+          "FootnoteEntry",
+          "TableHeader",
+          "TableFooter",
+          "GridHLine",
+          "GridVLine",
+          "TableHLine",
+          "TableVLine",
+          "Table",
+          "Repeat",
+          "Columns",
+          "Metadata",
+          "State",
+          "StateUpdate",
+          "StateDisplay",
+          "CounterDisplayCallback",
+          "Dynamic"
+        ],
+        "guard_refusals_and_preconditions": [],
+        "classification": "structural domain obligation",
+        "concrete_root_cause": "The empty wildcard performs no node-local ID observation, but the mapper still visits eligible descendants. A future ID-bearing variant would silently miss reservation. Realized deliberately adds original traversal because ordinary mapper projects visual.",
+        "current_complement_policy": "Located observes Location and directly checks ContextBlock body to cover mapper callback boundaries; ContextBlock advances next_context_id; ShowRecipe advances context/rule floors and marks deferred Sequence rules; Realized separately scans original. Every listed complement has no node-local Location/context/rule observation in this callback and returns Ok(None), allowing normal mapped descent. It is not a claim the subtree is ID-free.",
+        "evidence": [
+          "01_core/src/compiler/realize/mod.rs:113\u2013140"
+        ],
+        "owning_l0_clauses": [
+          "00_nucleo/prompts/core/compiler/realize/mod.md:80\u201398",
+          "00_nucleo/prompts/core/compiler/realize/mod.md:178\u2013200",
+          "00_nucleo/prompts/core/compiler/realize/mod.md:284\u2013296"
+        ],
+        "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the node-local identifier inventory and specify which carrier namespaces are observed through which traversal. Keep saturating max updates, direct Located ContextBlock handling, Sequence rule marker and Realized original-plus-normal-visual paths. Do not change public identity namespaces or scan callbacks/executed results speculatively.",
+        "planned_tests_and_refuters": [
+          "Preexisting nested Locations/context IDs/RuleIds reserve a strictly safe next ID without reexecuting bodies; include Located(ContextBlock), captured recipes, Realized original-only IDs and visual-only IDs.",
+          "A new enum variant with occurrence metadata must fail compile-negative review; ordinary non-ID nodes recurse rather than falsely proving absence.",
+          "No-change reuse and separate occurrence identity gates remain unchanged."
+        ],
+        "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+        "oracle_probes_needed": [],
+        "dependencies": [
+          "Context occurrence/Locator owners and map_content traversal contract",
+          "V16-051"
+        ],
+        "adr_0127": {
+          "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+          "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+        },
+        "repair_constraints": [
+          "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+        ],
+        "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "source_evidence": [
+        "01_core/src/compiler/realize/mod.rs:113\u2013140"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/core/compiler/realize/mod.md:80\u201398",
+        "00_nucleo/prompts/core/compiler/realize/mod.md:178\u2013200",
+        "00_nucleo/prompts/core/compiler/realize/mod.md:284\u2013296"
+      ],
+      "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the node-local identifier inventory and specify which carrier namespaces are observed through which traversal. Keep saturating max updates, direct Located ContextBlock handling, Sequence rule marker and Realized original-plus-normal-visual paths. Do not change public identity namespaces or scan callbacks/executed results speculatively.",
+      "proposed_tests": [
+        "Preexisting nested Locations/context IDs/RuleIds reserve a strictly safe next ID without reexecuting bodies; include Located(ContextBlock), captured recipes, Realized original-only IDs and visual-only IDs.",
+        "A new enum variant with occurrence metadata must fail compile-negative review; ordinary non-ID nodes recurse rather than falsely proving absence.",
+        "No-change reuse and separate occurrence identity gates remain unchanged."
+      ],
+      "gate": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "uncertainty": {
+        "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+        "probes_needed": [],
+        "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+      },
+      "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "dependencies": [
+        "Context occurrence/Locator owners and map_content traversal contract",
+        "V16-051"
+      ],
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./01_core/src/compiler/realize/mod.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 139
+        }
+      }
+    },
+    {
+      "id": "V16-074",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "Content::eq (Rust PartialEq)",
+      "classification": "mixed: valid heterogeneous inequality plus unresolved same-variant omissions",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 209,
+        "column": 13,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/core/entities/content/equality.md",
+        "source_sha256": "84d1cf5b345039416f42ec208b5fd3c16e145ba63e7440fdd750f437f14bcc9c",
+        "l0_sha256": "4b73bd36e6ae14287366472e81fb1f53468f94c608c82428a31fa5beba76e3a4",
+        "effective_prompt_seal": "bf54e8c5",
+        "partition": "entities-boundaries",
+        "function": "Content::eq (Rust PartialEq)",
+        "scrutinee": "(self,other)",
+        "enum": "Content \u00d7 Content",
+        "classification": "mixed: valid heterogeneous inequality plus unresolved same-variant omissions",
+        "source_evidence": [
+          "01_core/src/entities/content/equality.rs:11-27: transparent carriers and Space/SpaceFromNewline equivalence",
+          "01_core/src/entities/content/equality.rs:204-209: comment acknowledges only Metadata/State/StateUpdate always-unequal quirk",
+          "01_core/src/entities/content.rs:233-1318: current enum additionally has HtmlElem,HtmlFrame,Title,ContextBlock without same-variant equality arms"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/core/entities/content/equality.md:13-16: preserve existing distinctions; morphology/hash separately owned; :26-27,43-46: body/visual/source transparency"
+        ],
+        "complement_behavior": "Cross-kind non-equivalent pairs are correctly false after transparent wrappers and space equivalence. Same-kind Metadata/State/StateUpdate false is recorded existing mechanics; HtmlElem/HtmlFrame/Title/ContextBlock also fall through false but are not justified by that old comment.",
+        "concrete_repair": "First separate unlike-kind inequality from the seven uncovered same-kind classes. Preserve approved carrier/space and payload arms. Give the three historical always-false classes explicit documented mechanical treatment; audit each of HtmlElem/HtmlFrame/Title/ContextBlock against its entity owner before deciding its same-kind rule. Do not freeze all omitted variants as false just to clear V16, and do not derive language equality from Rust equality. For the proven cross-kind remainder use an exhaustive first-axis partition forcing future same/new decisions.",
+        "regression_test_plan": "Rust controls for all seven uncovered same-kind cases, clone/reflexivity observation clearly labeled mechanics, plus unlike kinds and symmetric transparent carrier combinations. Separate language ==/fields/morphology controls under equality operator owner; no oracle needed to prove the current Rust fallthrough.",
+        "dependencies": "Entity owners for HtmlElem/HtmlFrame/Title/ContextBlock, compiler/eval/operators/equality and content morphology/hash owners. Existing quirk is not authorization for new language behavior.",
+        "adr0127_classification": "Nominal preservation of justified mechanical cases is continuous flow. Changed public equality/compatibility semantics needs explicit classification and, if a deliberate public contract change, ADR-0127 confirmation; measured parity correction can flow after evidence/L0.",
+        "uncertainty_and_refuter": "Static omission is proven; incorrect language equality is NOT proven because semantic equality has a different owner. Current owner evidence supporting intentional always-false for a newer same-kind variant would refute the suspected omission.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content \u00d7 Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "01_core/src/entities/content/equality.rs:11-27: transparent carriers and Space/SpaceFromNewline equivalence",
+        "01_core/src/entities/content/equality.rs:204-209: comment acknowledges only Metadata/State/StateUpdate always-unequal quirk",
+        "01_core/src/entities/content.rs:233-1318: current enum additionally has HtmlElem,HtmlFrame,Title,ContextBlock without same-variant equality arms"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/core/entities/content/equality.md:13-16: preserve existing distinctions; morphology/hash separately owned; :26-27,43-46: body/visual/source transparency"
+      ],
+      "correction": "First separate unlike-kind inequality from the seven uncovered same-kind classes. Preserve approved carrier/space and payload arms. Give the three historical always-false classes explicit documented mechanical treatment; audit each of HtmlElem/HtmlFrame/Title/ContextBlock against its entity owner before deciding its same-kind rule. Do not freeze all omitted variants as false just to clear V16, and do not derive language equality from Rust equality. For the proven cross-kind remainder use an exhaustive first-axis partition forcing future same/new decisions.",
+      "proposed_tests": "Rust controls for all seven uncovered same-kind cases, clone/reflexivity observation clearly labeled mechanics, plus unlike kinds and symmetric transparent carrier combinations. Separate language ==/fields/morphology controls under equality operator owner; no oracle needed to prove the current Rust fallthrough.",
+      "gate": "Nominal preservation of justified mechanical cases is continuous flow. Changed public equality/compatibility semantics needs explicit classification and, if a deliberate public contract change, ADR-0127 confirmation; measured parity correction can flow after evidence/L0.",
+      "uncertainty": "Static omission is proven; incorrect language equality is NOT proven because semantic equality has a different owner. Current owner evidence supporting intentional always-false for a newer same-kind variant would refute the suspected omission.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content \u00d7 Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Entity owners for HtmlElem/HtmlFrame/Title/ContextBlock, compiler/eval/operators/equality and content morphology/hash owners. Existing quirk is not authorization for new language behavior.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./01_core/src/entities/content/equality.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 209
+        }
+      }
+    },
+    {
+      "id": "V16-088",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "export_html_with_frame_resolver visual map callback",
+      "classification": "valid unchanged complement plus carrier-root semantic candidate",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-088",
+        "file": "03_infra/src/export/html/document.rs",
+        "line": 37,
+        "column": 17,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/export/html/document.md",
+        "source_sha256": "c5956faecad667e21ebadb303b4fa95baf251726de86493028c73684dd11bbdb",
+        "l0_sha256": "80204a8de43f7843be07aa591027d8d2f2beab8152efe2f55c39b0b15ea38e9f",
+        "effective_prompt_seal": "70e739df",
+        "partition": "entities-boundaries",
+        "function": "export_html_with_frame_resolver visual map callback",
+        "scrutinee": "node",
+        "enum": "Content",
+        "classification": "valid unchanged complement plus carrier-root semantic candidate",
+        "source_evidence": [
+          "03_infra/src/export/html/document.rs:27-39: unwrap Located/Realized/ShowRecipe/Label, Empty for State/StateUpdate/Metadata, None otherwise",
+          "01_core/src/entities/content/traversal.rs:436,667-673: Located suppresses body-root callback; replacement is not reprocessed"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/export/html/document.md:47-72,128-136: visual-only projection, Label body, markers Empty, unresolved producers not hidden",
+          "00_nucleo/prompts/core/entities/content/traversal.md:16-22,30-39: bottom-up and Located root suppression"
+        ],
+        "complement_behavior": "Ordinary visual content correctly returns None to preserve processed descendants; unsupported content must remain for the renderer\u2019s error. However a Located root containing State can be unwrapped into a State replacement without the marker arm being applied.",
+        "concrete_repair": "First add a targeted private projection control for Located(State), Located(Metadata), nested carrier chains and Located(Label(State)). If confirmed, make this owner\u2019s visual projection classify the current unwrapped root before returning its replacement, using explicit carrier/marker semantics without executing callbacks or broad global transparency. Then classify ordinary unchanged variants nominally. Do not silence the defect by adding wrappers/markers to a no-op complement.",
+        "regression_test_plan": "Direct vs Located/wrapped markers yield same Empty DOM contribution; Label retains body; unresolved ContextBlock/StateDisplay still errors; no repeated recipes/effects. Test replacement non-revisit behavior, explicit roots and paragraph boundaries.",
+        "dependencies": "Content traversal contract and HTML document/inline owners; no change to generic map_content semantics.",
+        "adr0127_classification": "Internal bug/parity correction can use ADR-0127 continuous flow after focused RED and L0. No public API/default/phase expansion.",
+        "uncertainty_and_refuter": "Static callback path suggests a concrete inconsistency: root Located{body:State} \u2192 callback Located \u2192 Some(State), not revisited. End-to-end production reachability/actual export result has NOT been run; a prior preparation guarantee excluding such inputs or a renderer that deliberately handles them refutes external failure claim.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/export/html/document.rs:27-39: unwrap Located/Realized/ShowRecipe/Label, Empty for State/StateUpdate/Metadata, None otherwise",
+        "01_core/src/entities/content/traversal.rs:436,667-673: Located suppresses body-root callback; replacement is not reprocessed"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/export/html/document.md:47-72,128-136: visual-only projection, Label body, markers Empty, unresolved producers not hidden",
+        "00_nucleo/prompts/core/entities/content/traversal.md:16-22,30-39: bottom-up and Located root suppression"
+      ],
+      "correction": "First add a targeted private projection control for Located(State), Located(Metadata), nested carrier chains and Located(Label(State)). If confirmed, make this owner\u2019s visual projection classify the current unwrapped root before returning its replacement, using explicit carrier/marker semantics without executing callbacks or broad global transparency. Then classify ordinary unchanged variants nominally. Do not silence the defect by adding wrappers/markers to a no-op complement.",
+      "proposed_tests": "Direct vs Located/wrapped markers yield same Empty DOM contribution; Label retains body; unresolved ContextBlock/StateDisplay still errors; no repeated recipes/effects. Test replacement non-revisit behavior, explicit roots and paragraph boundaries.",
+      "gate": "Internal bug/parity correction can use ADR-0127 continuous flow after focused RED and L0. No public API/default/phase expansion.",
+      "uncertainty": "Static callback path suggests a concrete inconsistency: root Located{body:State} \u2192 callback Located \u2192 Some(State), not revisited. End-to-end production reachability/actual export result has NOT been run; a prior preparation guarantee excluding such inputs or a renderer that deliberately handles them refutes external failure claim.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Content traversal contract and HTML document/inline owners; no change to generic map_content semantics.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/export/html/document.rs"
+        },
+        "region": {
+          "startColumn": 17,
+          "startLine": 44
+        }
+      }
+    },
+    {
+      "id": "V16-089",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "visual_content",
+      "classification": "valid terminal return after local carrier peeling",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-089",
+        "file": "03_infra/src/export/html/encoding.rs",
+        "line": 19,
+        "column": 13,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o em enum de dom\u00ednio com `return content`",
+        "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+        "source_sha256": "4a8194dd4070b29615a8750a6b8261dc4121d599b1e99f2c9caf868651b033d4",
+        "l0_sha256": "fe808dfb8a10b8c19e6f504649a774aae9020d7fc5397a3684d6d2d071fa34cc",
+        "effective_prompt_seal": "4ee8a473",
+        "partition": "entities-boundaries",
+        "function": "visual_content",
+        "scrutinee": "content",
+        "enum": "Content",
+        "classification": "valid terminal return after local carrier peeling",
+        "source_evidence": [
+          "03_infra/src/export/html/encoding.rs:12-21: loops over Source/ShowRecipe/Located/Realized then returns borrowed leaf"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/export/html/encoding.md:88-95: exact local transparency and strict nontext rejection"
+        ],
+        "complement_behavior": "All other variants stop peeling and remain subject to raw/title textual validation. Returning input is not accepting it as text.",
+        "concrete_repair": "Explicitly name the ordinary stopping variants without extending transparency to Styled/Label/ContextBlock here; preserve downstream title style/quote handling and strict nontext errors.",
+        "regression_test_plan": "Each carrier and nested visual\u2260original; wrapped Linebreak/Space separator absorption, title SmartQuote, rejected nontext and script/style guards.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "A terminal erroneously accepted by downstream raw/title guard refutes that guard, not the local stop class. Never treat all body-bearing content as textual.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/export/html/encoding.rs:12-21: loops over Source/ShowRecipe/Located/Realized then returns borrowed leaf"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/export/html/encoding.md:88-95: exact local transparency and strict nontext rejection"
+      ],
+      "correction": "Explicitly name the ordinary stopping variants without extending transparency to Styled/Label/ContextBlock here; preserve downstream title style/quote handling and strict nontext errors.",
+      "proposed_tests": "Each carrier and nested visual\u2260original; wrapped Linebreak/Space separator absorption, title SmartQuote, rejected nontext and script/style guards.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "A terminal erroneously accepted by downstream raw/title guard refutes that guard, not the local stop class. Never treat all body-bearing content as textual.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/export/html/encoding.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 19
+        }
+      }
+    },
+    {
+      "id": "V16-092",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "bundle_html_semantic_content",
+      "classification": "valid identity for nonconverted elements; container completeness requires focused controls",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-092",
+        "file": "03_infra/src/pipeline/bundle.rs",
+        "line": 379,
+        "column": 9,
+        "message": "wildcard `_ =>` delega decis\u00e3o para `content.clone()`",
+        "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+        "source_sha256": "ba2411b8764eda5648dcd07c9f43bc9986d32fb42ffb5d116beb087de7bf8cb1",
+        "l0_sha256": "dee2909c7512d1da97bf9c3370f1b8894e3af991f3abf0e72d9177821f5d30f5",
+        "effective_prompt_seal": "6920d3c2",
+        "partition": "entities-boundaries",
+        "function": "bundle_html_semantic_content",
+        "scrutinee": "content",
+        "enum": "Content",
+        "classification": "valid identity for nonconverted elements; container completeness requires focused controls",
+        "source_evidence": [
+          "03_infra/src/pipeline/bundle.rs:318-379: four causal carriers, labels/headings and selected recursive containers; HtmlFrame remains unmodified at :325"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/bundle.md:36-41,83-92: final render copy, styles/order/heading warning, frame islands"
+        ],
+        "complement_behavior": "Residual leaves/elements keep their language carrier for the HTML exporter; some will intentionally diagnose unsupported HTML. HtmlFrame is already an explicit opaque island and must not be descended by this conversion.",
+        "concrete_repair": "Build explicit identity classes only after checking each residual container for whether a heading descendant needs this bundle conversion. Keep current heading offset/deep warning, inherited styles, Source/Located/Realized visual projection and frame boundary; add recursion only for an evidenced missing promised container, not every body getter.",
+        "regression_test_plan": "Wrapped/styled heading, level>5 warning once, adjacent text, nested HtmlElem and unmodified HtmlFrame with heading inside; residual unsupported element diagnostic unchanged.",
+        "dependencies": "HTML document/inline/frame resolver owners and bundle global snapshot; no eval/callback replay.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "A residual Link/Quote/etc container containing a heading is a minimal candidate for missing normalization, but exporter ownership may intentionally reject it. No blanket claim of hidden headings or automatic full-tree conversion.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/bundle.rs:318-379: four causal carriers, labels/headings and selected recursive containers; HtmlFrame remains unmodified at :325"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/bundle.md:36-41,83-92: final render copy, styles/order/heading warning, frame islands"
+      ],
+      "correction": "Build explicit identity classes only after checking each residual container for whether a heading descendant needs this bundle conversion. Keep current heading offset/deep warning, inherited styles, Source/Located/Realized visual projection and frame boundary; add recursion only for an evidenced missing promised container, not every body getter.",
+      "proposed_tests": "Wrapped/styled heading, level>5 warning once, adjacent text, nested HtmlElem and unmodified HtmlFrame with heading inside; residual unsupported element diagnostic unchanged.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "A residual Link/Quote/etc container containing a heading is a minimal candidate for missing normalization, but exporter ownership may intentionally reject it. No blanket claim of hidden headings or automatic full-tree conversion.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "HTML document/inline/frame resolver owners and bundle global snapshot; no eval/callback replay.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/bundle.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 388
+        }
+      }
+    },
+    {
+      "id": "V16-093",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "ordered_blocks",
+      "classification": "valid producer-recognition complement; apparent Located duplicate refuted",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-093",
+        "file": "03_infra/src/pipeline/context_stabilization.rs",
+        "line": 97,
+        "column": 13,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "source_sha256": "abb5e6e36882a3c3edc68002c44bbc33c5c080622621d00b976004e207281d2a",
+        "l0_sha256": "a7aa969c374eec487ad51f42027b121a2d1b3a385c6a8064266bd8e13d60b4d6",
+        "effective_prompt_seal": "dac9f11d",
+        "partition": "entities-boundaries",
+        "function": "ordered_blocks",
+        "scrutinee": "node",
+        "enum": "Content",
+        "classification": "valid producer-recognition complement; apparent Located duplicate refuted",
+        "source_evidence": [
+          "03_infra/src/pipeline/context_stabilization.rs:79-109: explicit bare ContextBlock and Located(ContextBlock) recognition",
+          "01_core/src/entities/content/traversal.rs:436,667-673: immediate Located body callback suppressed"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/context_stabilization.md:28-34,53-55,123-127: causal ordering, duplicate handling, empty proof, legacy fallback"
+        ],
+        "complement_behavior": "All other current nodes contribute no producer at their own callback; L1 traversal already visited permitted descendants. Preserve detect all duplicate ids and preserve encounter order; None triggers legacy mode. Located with non-ContextBlock body also yields None locally.",
+        "concrete_repair": "Keep both bare and Located producer cases; nested match must also state the nonproducer Content classes rather than moving a wildcard into a helper. Nominally partition callback complement after confirming traversal/call semantics. Do not remove Located case as redundant or deduplicate by equality/hash.",
+        "regression_test_plan": "Located{body:ContextBlock(id7)} produces one event, because map_content_inner(false) suppresses the bare root callback. Two distinct occurrences with same id still fail ordered uniqueness; distinct ids preserve order. Legacy mode keeps first occurrence/chain and unchanged number of evaluations. Realized.original-only producer stays hidden; empty by_id remains valid.",
+        "dependencies": "L1 Content traversal root-suppression contract and pipeline collect_context_blocks style map. Strict V15/V26 before any repair.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "The simple double-count hypothesis is statically REFUTED by transform_root=false, matching L0:55. A future map contract delivering both callbacks would refute it and must fail these controls. No callback execution/probe performed.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/context_stabilization.rs:79-109: explicit bare ContextBlock and Located(ContextBlock) recognition",
+        "01_core/src/entities/content/traversal.rs:436,667-673: immediate Located body callback suppressed"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md:28-34,53-55,123-127: causal ordering, duplicate handling, empty proof, legacy fallback"
+      ],
+      "correction": "Keep both bare and Located producer cases; nested match must also state the nonproducer Content classes rather than moving a wildcard into a helper. Nominally partition callback complement after confirming traversal/call semantics. Do not remove Located case as redundant or deduplicate by equality/hash.",
+      "proposed_tests": "Located{body:ContextBlock(id7)} produces one event, because map_content_inner(false) suppresses the bare root callback. Two distinct occurrences with same id still fail ordered uniqueness; distinct ids preserve order. Legacy mode keeps first occurrence/chain and unchanged number of evaluations. Realized.original-only producer stays hidden; empty by_id remains valid.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "The simple double-count hypothesis is statically REFUTED by transform_root=false, matching L0:55. A future map contract delivering both callbacks would refute it and must fail these controls. No callback execution/probe performed.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "L1 Content traversal root-suppression contract and pipeline collect_context_blocks style map. Strict V15/V26 before any repair.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/context_stabilization.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 269
+        }
+      }
+    },
+    {
+      "id": "V16-094",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "Session::new legacy fallback callback",
+      "classification": "valid producer-recognition complement; apparent Located duplicate refuted",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-094",
+        "file": "03_infra/src/pipeline/context_stabilization.rs",
+        "line": 182,
+        "column": 21,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+        "source_sha256": "abb5e6e36882a3c3edc68002c44bbc33c5c080622621d00b976004e207281d2a",
+        "l0_sha256": "a7aa969c374eec487ad51f42027b121a2d1b3a385c6a8064266bd8e13d60b4d6",
+        "effective_prompt_seal": "dac9f11d",
+        "partition": "entities-boundaries",
+        "function": "Session::new legacy fallback callback",
+        "scrutinee": "node",
+        "enum": "Content",
+        "classification": "valid producer-recognition complement; apparent Located duplicate refuted",
+        "source_evidence": [
+          "03_infra/src/pipeline/context_stabilization.rs:158-223: explicit bare ContextBlock and Located(ContextBlock) recognition",
+          "01_core/src/entities/content/traversal.rs:436,667-673: immediate Located body callback suppressed"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/context_stabilization.md:28-34,53-55,123-127: causal ordering, duplicate handling, empty proof, legacy fallback"
+        ],
+        "complement_behavior": "All other current nodes contribute no producer at their own callback; L1 traversal already visited permitted descendants. Preserve retain only first id occurrence, one ordinary evaluation per id, and impossible flag. Located with non-ContextBlock body also yields None locally.",
+        "concrete_repair": "Keep both bare and Located producer cases; nested match must also state the nonproducer Content classes rather than moving a wildcard into a helper. Nominally partition callback complement after confirming traversal/call semantics. Do not remove Located case as redundant or deduplicate by equality/hash.",
+        "regression_test_plan": "Located{body:ContextBlock(id7)} produces one event, because map_content_inner(false) suppresses the bare root callback. Two distinct occurrences with same id still fail ordered uniqueness; distinct ids preserve order. Legacy mode keeps first occurrence/chain and unchanged number of evaluations. Realized.original-only producer stays hidden; empty by_id remains valid.",
+        "dependencies": "L1 Content traversal root-suppression contract and pipeline collect_context_blocks style map. Strict V15/V26 before any repair.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "The simple double-count hypothesis is statically REFUTED by transform_root=false, matching L0:55. A future map contract delivering both callbacks would refute it and must fail these controls. No callback execution/probe performed.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/context_stabilization.rs:158-223: explicit bare ContextBlock and Located(ContextBlock) recognition",
+        "01_core/src/entities/content/traversal.rs:436,667-673: immediate Located body callback suppressed"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/context_stabilization.md:28-34,53-55,123-127: causal ordering, duplicate handling, empty proof, legacy fallback"
+      ],
+      "correction": "Keep both bare and Located producer cases; nested match must also state the nonproducer Content classes rather than moving a wildcard into a helper. Nominally partition callback complement after confirming traversal/call semantics. Do not remove Located case as redundant or deduplicate by equality/hash.",
+      "proposed_tests": "Located{body:ContextBlock(id7)} produces one event, because map_content_inner(false) suppresses the bare root callback. Two distinct occurrences with same id still fail ordered uniqueness; distinct ids preserve order. Legacy mode keeps first occurrence/chain and unchanged number of evaluations. Realized.original-only producer stays hidden; empty by_id remains valid.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "The simple double-count hypothesis is statically REFUTED by transform_root=false, matching L0:55. A future map contract delivering both callbacks would refute it and must fail these controls. No callback execution/probe performed.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "L1 Content traversal root-suppression contract and pipeline collect_context_blocks style map. Strict V15/V26 before any repair.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/context_stabilization.rs"
+        },
+        "region": {
+          "startColumn": 21,
+          "startLine": 396
+        }
+      }
+    },
+    {
+      "id": "V16-095",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "collect_html_frames map callback",
+      "classification": "nonframe no-op valid; Located frame observer candidate",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-095",
+        "file": "03_infra/src/pipeline/html.rs",
+        "line": 186,
+        "column": 13,
+        "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+        "source_sha256": "7eed447e451bca0d019878803587b59fabb037822b63c6d45e24b74c2d43bd52",
+        "l0_sha256": "6cb557c69d5d67f0974f3fccaba55d52ef80734091218a9be88d39ca73d4eac6",
+        "effective_prompt_seal": "9049e636",
+        "partition": "entities-boundaries",
+        "function": "collect_html_frames map callback",
+        "scrutinee": "node",
+        "enum": "Content",
+        "classification": "nonframe no-op valid; Located frame observer candidate",
+        "source_evidence": [
+          "03_infra/src/pipeline/html.rs:158-200: frame_count bottom-up, HtmlFrame collection, Styled ancestors for last count frames; :224 consumer resolves frames",
+          "01_core/src/entities/content/traversal.rs:436,667-673: Located suppresses immediate child-root callback"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/html.md:26-32: occurrence order/effective styles, nested islands and fail-closed topology"
+        ],
+        "complement_behavior": "Ordinary nonframe nodes do nothing at their callback while descendants are visited. Direct Located(HtmlFrame) is a candidate exception because neither callback matches HtmlFrame; frame_count may report zero for that same shape.",
+        "concrete_repair": "Test exact direct-transported frame shape in both frame_count and collection, then repair root recognition in this owner if reachable/permitted; keep nested island ordering and outer StyleChain calculation aligned. Classify true nonframe remainder explicitly. Do not globally unwrap all carriers or emit a replacement for unsupported islands.",
+        "regression_test_plan": "Compare direct HtmlFrame with Located{body:HtmlFrame} under one/two Styled ancestors, sibling frames and nested frames; assert collected occurrence order, frame count and intrinsic positions/visible styles without a global PageStore.",
+        "dependencies": "Content traversal semantics, HtmlFrame producer owner, intrinsic frame layout and resolver; no public page identity/default/phase change.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "Helper-level direct Located frame omission follows the static callback contract, but language production of this shape has NOT been demonstrated. A producer invariant forbidding it refutes the end-to-end issue. Any repair must preserve fail-closed collision/ambiguity behavior.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/html.rs:158-200: frame_count bottom-up, HtmlFrame collection, Styled ancestors for last count frames; :224 consumer resolves frames",
+        "01_core/src/entities/content/traversal.rs:436,667-673: Located suppresses immediate child-root callback"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/html.md:26-32: occurrence order/effective styles, nested islands and fail-closed topology"
+      ],
+      "correction": "Test exact direct-transported frame shape in both frame_count and collection, then repair root recognition in this owner if reachable/permitted; keep nested island ordering and outer StyleChain calculation aligned. Classify true nonframe remainder explicitly. Do not globally unwrap all carriers or emit a replacement for unsupported islands.",
+      "proposed_tests": "Compare direct HtmlFrame with Located{body:HtmlFrame} under one/two Styled ancestors, sibling frames and nested frames; assert collected occurrence order, frame count and intrinsic positions/visible styles without a global PageStore.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "Helper-level direct Located frame omission follows the static callback contract, but language production of this shape has NOT been demonstrated. A producer invariant forbidding it refutes the end-to-end issue. Any repair must preserve fail-closed collision/ambiguity behavior.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Content traversal semantics, HtmlFrame producer owner, intrinsic frame layout and resolver; no public page identity/default/phase change.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/html.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 186
+        }
+      }
+    },
+    {
+      "id": "V16-096",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "page_independent_style text.font value classification",
+      "classification": "valid fail-closed optimization proof",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-096",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 20,
+        "column": 13,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+        "source_sha256": "1e35aa9169e4c19e1a124437b759eaff70d8df76208e4cc5625d4f7357a7f637",
+        "l0_sha256": "73921d2af415bd904fcc9512c3a2c46d1aa60394ba67a95bc25543ee27bcddee",
+        "effective_prompt_seal": "31fa1119",
+        "partition": "entities-boundaries",
+        "function": "page_independent_style text.font value classification",
+        "scrutinee": "value (under key == \"text.font\")",
+        "enum": "Value",
+        "classification": "valid fail-closed optimization proof",
+        "source_evidence": [
+          "03_infra/src/pipeline/paged.rs:13-52: only Str or all-Str Array accepted for text.font",
+          "03_infra/src/pipeline/paged.rs:528-529: both contextual/realized proof required before reuse"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/paged.md:64-78: narrow physical candidate reuse whitelist; unknown values retain full cycle"
+        ],
+        "complement_behavior": "All current other Value categories cannot prove a physical font-family scalar, so false selects full layout/stabilization; it does not reject language font data or choose fallback fonts. Mixed Array already false.",
+        "concrete_repair": "Name the non-Str/non-Array proof-rejection categories directly, preserve empty-array all predicate and other key branches. Do not broaden accepted scalars or change actual font validation to reduce lint.",
+        "regression_test_plan": "Str/all-Str/mixed/empty Array and each representative nonfamily category; verify full cycle still compiles valid unproved content and retains diagnostics. No new font catalog/shaping work in the proof.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "If false prevents compilation rather than only reuse in its call path, classification must be revisited. Do not infer purity of arbitrary Value from current shape.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Value and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/paged.rs:13-52: only Str or all-Str Array accepted for text.font",
+        "03_infra/src/pipeline/paged.rs:528-529: both contextual/realized proof required before reuse"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/paged.md:64-78: narrow physical candidate reuse whitelist; unknown values retain full cycle"
+      ],
+      "correction": "Name the non-Str/non-Array proof-rejection categories directly, preserve empty-array all predicate and other key branches. Do not broaden accepted scalars or change actual font validation to reduce lint.",
+      "proposed_tests": "Str/all-Str/mixed/empty Array and each representative nonfamily category; verify full cycle still compiles valid unproved content and retains diagnostics. No new font catalog/shaping work in the proof.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "If false prevents compilation rather than only reuse in its call path, classification must be revisited. Do not infer purity of arbitrary Value from current shape.",
+      "structural_proof": "In a disposable copy, add a sentinel to Value and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/paged.rs"
+        },
+        "region": {
+          "startColumn": 13,
+          "startLine": 20
+        }
+      }
+    },
+    {
+      "id": "V16-097",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "initial_layout_independent",
+      "classification": "valid conservative negative dependency classification",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-097",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 123,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+        "source_sha256": "1e35aa9169e4c19e1a124437b759eaff70d8df76208e4cc5625d4f7357a7f637",
+        "l0_sha256": "73921d2af415bd904fcc9512c3a2c46d1aa60394ba67a95bc25543ee27bcddee",
+        "effective_prompt_seal": "31fa1119",
+        "partition": "entities-boundaries",
+        "function": "initial_layout_independent",
+        "scrutinee": "content",
+        "enum": "Content",
+        "classification": "valid conservative negative dependency classification",
+        "source_evidence": [
+          "03_infra/src/pipeline/paged.rs:55-124: explicit terminals/containers/styles/Table/Grid/SetPage; fallback false",
+          "03_infra/src/pipeline/paged.rs:528-529: two independent proofs gate candidate reuse"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/paged.md:70-78: explicit whitelist and every unlisted variant fails closed; Source delegates only body"
+        ],
+        "complement_behavior": "Current unlisted variants may contain context, callbacks, numbering, unknown geometry or unproved effects, and therefore keep the full cycle. False is not evidence that content is semantically invalid or render-empty.",
+        "concrete_repair": "Construct the nominal unproved set against exactly the L0 whitelist: preserve ContextBlock, residual ShowRecipe, Ref/Outline/Entry/Heading, all math, state/counter/bibliography, Dynamic/PageRun etc as false. Preserve current accepted recursion, Realized checking both original and visual, all Table/Grid slots and SetPage restrictions. No automatic true for simple-looking new variant.",
+        "regression_test_plan": "Known positive physical tables/styles, negative header/background/Heading/context/Dynamic/recipe; rejected proof still uses full cycle with identical text/pages/geometry/errors/effect counts. Sentinel demands local decision.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "A newly measured proof can justify a future whitelist expansion, but is not part of this lint repair. Reuse benefit or same final page count alone cannot prove independence.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/paged.rs:55-124: explicit terminals/containers/styles/Table/Grid/SetPage; fallback false",
+        "03_infra/src/pipeline/paged.rs:528-529: two independent proofs gate candidate reuse"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/paged.md:70-78: explicit whitelist and every unlisted variant fails closed; Source delegates only body"
+      ],
+      "correction": "Construct the nominal unproved set against exactly the L0 whitelist: preserve ContextBlock, residual ShowRecipe, Ref/Outline/Entry/Heading, all math, state/counter/bibliography, Dynamic/PageRun etc as false. Preserve current accepted recursion, Realized checking both original and visual, all Table/Grid slots and SetPage restrictions. No automatic true for simple-looking new variant.",
+      "proposed_tests": "Known positive physical tables/styles, negative header/background/Heading/context/Dynamic/recipe; rejected proof still uses full cycle with identical text/pages/geometry/errors/effect counts. Sentinel demands local decision.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "A newly measured proof can justify a future whitelist expansion, but is not part of this lint repair. Reuse benefit or same final page count alone cannot prove independence.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/paged.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 123
+        }
+      }
+    },
+    {
+      "id": "V16-098",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "realize_outlines_for_pipeline same_carrier",
+      "classification": "valid limited immutable-root continuity proof",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 219,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+        "source_sha256": "1e35aa9169e4c19e1a124437b759eaff70d8df76208e4cc5625d4f7357a7f637",
+        "l0_sha256": "73921d2af415bd904fcc9512c3a2c46d1aa60394ba67a95bc25543ee27bcddee",
+        "effective_prompt_seal": "31fa1119",
+        "partition": "entities-boundaries",
+        "function": "realize_outlines_for_pipeline same_carrier",
+        "scrutinee": "(content,&first)",
+        "enum": "Content \u00d7 Content",
+        "classification": "valid limited immutable-root continuity proof",
+        "source_evidence": [
+          "03_infra/src/pipeline/paged.rs:181-220: runtime realization once, exact Arc ptr equality for Sequence/Styled/Located/Realized; :221-236 fast return or prefix update/rerun"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline/paged.md:58-62: those four root proofs only, otherwise previous path"
+        ],
+        "complement_behavior": "All unlike or nonqualified same-kind pairs lack this continuity proof and return false; they proceed to observed-prefix comparison, not loss of output. Address is not language identity.",
+        "concrete_repair": "Keep four Arc::ptr_eq bodies. Exhaustively partition the first tuple axis into qualified same-kind comparison and explicitly unqualified classes, preserving prefix observation/rerun/warning accumulation. Do not add more ptr_eq classes from convenience or substitute Content::eq/hash.",
+        "regression_test_plan": "Four shared-root positives, rebuilt roots and unlike kinds false; prefix change runs second realization with warnings retained, error propagation unchanged; terminal no-op remains semantically correct via general path.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "A fallback path with visible extra effects can refute current reuse/general equivalence and needs its own evidence, not blanket return true. New/same sentinel must force this proof site to decide.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content \u00d7 Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline/paged.rs:181-220: runtime realization once, exact Arc ptr equality for Sequence/Styled/Located/Realized; :221-236 fast return or prefix update/rerun"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline/paged.md:58-62: those four root proofs only, otherwise previous path"
+      ],
+      "correction": "Keep four Arc::ptr_eq bodies. Exhaustively partition the first tuple axis into qualified same-kind comparison and explicitly unqualified classes, preserving prefix observation/rerun/warning accumulation. Do not add more ptr_eq classes from convenience or substitute Content::eq/hash.",
+      "proposed_tests": "Four shared-root positives, rebuilt roots and unlike kinds false; prefix change runs second realization with warnings retained, error propagation unchanged; terminal no-op remains semantically correct via general path.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "A fallback path with visible extra effects can refute current reuse/general equivalence and needs its own evidence, not blanket return true. New/same sentinel must force this proof site to decide.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content \u00d7 Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline/paged.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 219
+        }
+      }
+    },
+    {
+      "id": "V16-099",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "collect_context_blocks_into L1 fallback visitor",
+      "classification": "valid no-action callback complement after exhaustive delegated traversal",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-099",
+        "file": "03_infra/src/pipeline.rs",
+        "line": 488,
+        "column": 21,
+        "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/pipeline.md",
+        "source_sha256": "cbd8a2fe69146b5cf0889518ff2f4677d2f45b4fb06e5d60d5f6a2febb3ff989",
+        "l0_sha256": "ab00ebee9d7be3ed4f87857912b4769cf82f831f364c7ae7191e613d5ba2ab55",
+        "effective_prompt_seal": "bca3633d",
+        "partition": "entities-boundaries",
+        "function": "collect_context_blocks_into L1 fallback visitor",
+        "scrutinee": "node",
+        "enum": "Content",
+        "classification": "valid no-action callback complement after exhaustive delegated traversal",
+        "source_evidence": [
+          "03_infra/src/pipeline.rs:402-491: borrowed Sequence/Table/Cell, generic L1 map fallback, carrier/style reentry and insert overwrites",
+          "01_core/src/entities/content/traversal.rs:436,667-673: Located callback suppression"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/pipeline.md:28,52-59: exhaustive L1 descent, exact raw/resolved/standalone topology and captured chains"
+        ],
+        "complement_behavior": "At each residual ordinary node there is no direct producer/chain update; descendants were already visited. Outer other arm is a substantive delegated traversal, not no-op. Preserve reinsertion under Styled/ShowRecipe effective chain.",
+        "concrete_repair": "Nominally classify callback nonproducer classes without replacing outer L1 traversal with a partial L3 terminal table. Keep explicit Located/Realized/ShowRecipe/Styled reentry and exact map insertion/order. Check root callback suppression separately.",
+        "regression_test_plan": "ContextBlock inside each borrowed/fallback container, nested style chain and ShowRecipe snapshot, Located root, Realized visual-only, Table raw/resolved/standalone choices and repeated ids. No loss/reexecution; compare collected chain not Debug.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "If a current container is seen only in ordering and not this collector, the empty-by_id proof is false. Adding a no-op for such a carrier would hide the defect; use the existing L1 topology.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/pipeline.rs:402-491: borrowed Sequence/Table/Cell, generic L1 map fallback, carrier/style reentry and insert overwrites",
+        "01_core/src/entities/content/traversal.rs:436,667-673: Located callback suppression"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/pipeline.md:28,52-59: exhaustive L1 descent, exact raw/resolved/standalone topology and captured chains"
+      ],
+      "correction": "Nominally classify callback nonproducer classes without replacing outer L1 traversal with a partial L3 terminal table. Keep explicit Located/Realized/ShowRecipe/Styled reentry and exact map insertion/order. Check root callback suppression separately.",
+      "proposed_tests": "ContextBlock inside each borrowed/fallback container, nested style chain and ShowRecipe snapshot, Located root, Realized visual-only, Table raw/resolved/standalone choices and repeated ids. No loss/reexecution; compare collected chain not Debug.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "If a current container is seen only in ordering and not this collector, the empty-by_id proof is false. Adding a no-op for such a carrier would hide the defect; use the existing L1 topology.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/pipeline.rs"
+        },
+        "region": {
+          "startColumn": 21,
+          "startLine": 536
+        }
+      }
+    },
+    {
+      "id": "V16-101",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "count_element_in_content",
+      "classification": "valid public zero projection for non-document kinds, guarded in summary",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-101",
+        "file": "03_infra/src/query_helpers.rs",
+        "line": 242,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `0` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/query_helpers.md",
+        "source_sha256": "968cbcf6a008a6f479486996b209dd4fe8e978d75dbe67d576027ea7c9c790e1",
+        "l0_sha256": "2d7e6dd853a9e3f1d40f53587a846cb2e477ad6ef41b7a0db24b30cbf87e53bc",
+        "effective_prompt_seal": "ee693f46",
+        "partition": "entities-boundaries",
+        "function": "count_element_in_content",
+        "scrutinee": "kind",
+        "enum": "ElementKind",
+        "classification": "valid public zero projection for non-document kinds, guarded in summary",
+        "source_evidence": [
+          "03_infra/src/query_helpers.rs:154-167: summarize_query selects content helper only for is_document_element_kind",
+          "03_infra/src/query_helpers.rs:225-243: seven approximate document categories; others zero",
+          "01_core/src/entities/element_kind.rs:16-109: full current kind set"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/query_helpers.md:31-37: approximate projection, all other kinds zero, no located-value promotion"
+        ],
+        "complement_behavior": "Heading/Figure/Citation/Metadata/State/StateUpdate/Outline/OutlineEntry/Bibliography/Equation/CounterUpdate/Table/StateDisplay/CounterDisplay/ContextBlock all return zero here. The summary takes their actual counts from the introspector instead. Public direct helper call still has specified zero.",
+        "concrete_repair": "Name those fifteen non-document categories explicitly; retain List/Enum/Par/Link/Raw/Quote/Footnote logic. Cross-check is_document_element_kind so a future new kind cannot silently fall into zero through a mismatched gate.",
+        "regression_test_plan": "Direct helper Heading/Metadata zero versus summarize_query positive introspector count; all seven document branches and unknown selector diagnostics. No fake locations or promotion of approximate paragraph/list results.",
+        "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+        "adr0127_classification": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+        "uncertainty_and_refuter": "A new kind that actually belongs to document projection requires explicit decision and measured semantics, not default zero. Existing L0 deliberately preserves direct helper negatives.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to ElementKind and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/query_helpers.rs:154-167: summarize_query selects content helper only for is_document_element_kind",
+        "03_infra/src/query_helpers.rs:225-243: seven approximate document categories; others zero",
+        "01_core/src/entities/element_kind.rs:16-109: full current kind set"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/query_helpers.md:31-37: approximate projection, all other kinds zero, no located-value promotion"
+      ],
+      "correction": "Name those fifteen non-document categories explicitly; retain List/Enum/Par/Link/Raw/Quote/Footnote logic. Cross-check is_document_element_kind so a future new kind cannot silently fall into zero through a mismatched gate.",
+      "proposed_tests": "Direct helper Heading/Metadata zero versus summarize_query positive introspector count; all seven document branches and unknown selector diagnostics. No fake locations or promotion of approximate paragraph/list results.",
+      "gate": "ADR-0127 continuous flow for a behavior-preserving internal classification, L0 first; no new public contract/default/phase.",
+      "uncertainty": "A new kind that actually belongs to document projection requires explicit decision and measured semantics, not default zero. Existing L0 deliberately preserves direct helper negatives.",
+      "structural_proof": "In a disposable copy, add a sentinel to ElementKind and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Only this owner and the referenced enum owner; no ownership transfer.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/query_helpers.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 242
+        }
+      }
+    },
+    {
+      "id": "V16-102",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "count_list_groups",
+      "classification": "documented approximate projection with reproducible empty/singleton/wrapper limitations",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-102",
+        "file": "03_infra/src/query_helpers.rs",
+        "line": 256,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `0` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/query_helpers.md",
+        "source_sha256": "968cbcf6a008a6f479486996b209dd4fe8e978d75dbe67d576027ea7c9c790e1",
+        "l0_sha256": "2d7e6dd853a9e3f1d40f53587a846cb2e477ad6ef41b7a0db24b30cbf87e53bc",
+        "effective_prompt_seal": "ee693f46",
+        "partition": "entities-boundaries",
+        "function": "count_list_groups",
+        "scrutinee": "content",
+        "enum": "Content",
+        "classification": "documented approximate projection with reproducible empty/singleton/wrapper limitations",
+        "source_evidence": [
+          "03_infra/src/query_helpers.rs:246-258: Sequence all predicate, otherwise sum; item recurses body; remainder zero",
+          "03_infra/src/query_helpers.rs:154-167,225-228: legacy summary path selects group helper"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/query_helpers.md:33-37: retain current approximate group walkers and documented singleton discrepancy; compiled-query path separately owned"
+        ],
+        "complement_behavior": "Sequence consisting only of ListItem counts one group, otherwise recurse. Bare ListItem counts only groups in its body, so plain singleton gives zero. Every other current variant, including wrappers, returns zero under this bounded legacy model.",
+        "concrete_repair": "Do not blindly enumerate the old zero catchall and claim correct list semantics. First record focused empty/singleton/wrapper characterization and owner decision about this deliberately approximate API. If retaining the approximation for this bounded repair, explicitly name terminal and intentionally untraversed container classes with the limitation in L0/tests. Any semantic correction (nonempty group test, singleton group policy or added container descent) requires new measurement/L0 with actual grouping boundaries, not reusing generic map_content node counts.",
+        "regression_test_plan": "Minimal static input is raw Content::Sequence(Arc::from([])), then count_element_in_content(..., List/Enum) \u2192 helper \u2192 all(empty)==true \u21921. Content::sequence(vec![]) normalizes differently and is NOT the same witness. Also bare item(text), Sequence[item], Styled(Sequence[item]), nested mixed content and real markup run. Existing L0 describes these as approximate/current; future oracle probes at bd5... are NOT executed and cannot be assumed to require one count.",
+        "dependencies": "Query summary/ElementKind and normalization/grouping owners. No change to compiled located query or public signatures.",
+        "adr0127_classification": "Explicit preservation classification is continuous internal flow. A measured parity correction may flow L0-first; deliberate change to documented approximate public behavior/compatibility must be classified under ADR-0127 before implementation.",
+        "uncertainty_and_refuter": "The empty raw-Sequence value is a source-proven function-level result, not an executed CLI/oracle failure. A producer invariant excluding empty raw sequences refutes the CLI claim, not this total public-input observation. Owner\u2019s documented preservation means no semantic fix may be smuggled in as lint-only.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/query_helpers.rs:246-258: Sequence all predicate, otherwise sum; item recurses body; remainder zero",
+        "03_infra/src/query_helpers.rs:154-167,225-228: legacy summary path selects group helper"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/query_helpers.md:33-37: retain current approximate group walkers and documented singleton discrepancy; compiled-query path separately owned"
+      ],
+      "correction": "Do not blindly enumerate the old zero catchall and claim correct list semantics. First record focused empty/singleton/wrapper characterization and owner decision about this deliberately approximate API. If retaining the approximation for this bounded repair, explicitly name terminal and intentionally untraversed container classes with the limitation in L0/tests. Any semantic correction (nonempty group test, singleton group policy or added container descent) requires new measurement/L0 with actual grouping boundaries, not reusing generic map_content node counts.",
+      "proposed_tests": "Minimal static input is raw Content::Sequence(Arc::from([])), then count_element_in_content(..., List/Enum) \u2192 helper \u2192 all(empty)==true \u21921. Content::sequence(vec![]) normalizes differently and is NOT the same witness. Also bare item(text), Sequence[item], Styled(Sequence[item]), nested mixed content and real markup run. Existing L0 describes these as approximate/current; future oracle probes at bd5... are NOT executed and cannot be assumed to require one count.",
+      "gate": "Explicit preservation classification is continuous internal flow. A measured parity correction may flow L0-first; deliberate change to documented approximate public behavior/compatibility must be classified under ADR-0127 before implementation.",
+      "uncertainty": "The empty raw-Sequence value is a source-proven function-level result, not an executed CLI/oracle failure. A producer invariant excluding empty raw sequences refutes the CLI claim, not this total public-input observation. Owner\u2019s documented preservation means no semantic fix may be smuggled in as lint-only.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Query summary/ElementKind and normalization/grouping owners. No change to compiled located query or public signatures.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/query_helpers.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 256
+        }
+      }
+    },
+    {
+      "id": "V16-103",
+      "batch": "G",
+      "status": "open; plan only",
+      "function": "count_enum_groups",
+      "classification": "documented approximate projection with reproducible empty/singleton/wrapper limitations",
+      "report": "entities-boundaries-analysis.md",
+      "analysis": {
+        "id": "V16-103",
+        "file": "03_infra/src/query_helpers.rs",
+        "line": 270,
+        "column": 9,
+        "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `0` em enum de dom\u00ednio",
+        "owner": "00_nucleo/prompts/infra/query_helpers.md",
+        "source_sha256": "968cbcf6a008a6f479486996b209dd4fe8e978d75dbe67d576027ea7c9c790e1",
+        "l0_sha256": "2d7e6dd853a9e3f1d40f53587a846cb2e477ad6ef41b7a0db24b30cbf87e53bc",
+        "effective_prompt_seal": "ee693f46",
+        "partition": "entities-boundaries",
+        "function": "count_enum_groups",
+        "scrutinee": "content",
+        "enum": "Content",
+        "classification": "documented approximate projection with reproducible empty/singleton/wrapper limitations",
+        "source_evidence": [
+          "03_infra/src/query_helpers.rs:260-272: Sequence all predicate, otherwise sum; item recurses body; remainder zero",
+          "03_infra/src/query_helpers.rs:154-167,225-228: legacy summary path selects group helper"
+        ],
+        "l0_clauses": [
+          "00_nucleo/prompts/infra/query_helpers.md:33-37: retain current approximate group walkers and documented singleton discrepancy; compiled-query path separately owned"
+        ],
+        "complement_behavior": "Sequence consisting only of EnumItem counts one group, otherwise recurse. Bare EnumItem counts only groups in its body, so plain singleton gives zero. Every other current variant, including wrappers, returns zero under this bounded legacy model.",
+        "concrete_repair": "Do not blindly enumerate the old zero catchall and claim correct list semantics. First record focused empty/singleton/wrapper characterization and owner decision about this deliberately approximate API. If retaining the approximation for this bounded repair, explicitly name terminal and intentionally untraversed container classes with the limitation in L0/tests. Any semantic correction (nonempty group test, singleton group policy or added container descent) requires new measurement/L0 with actual grouping boundaries, not reusing generic map_content node counts.",
+        "regression_test_plan": "Minimal static input is raw Content::Sequence(Arc::from([])), then count_element_in_content(..., List/Enum) \u2192 helper \u2192 all(empty)==true \u21921. Content::sequence(vec![]) normalizes differently and is NOT the same witness. Also bare item(text), Sequence[item], Styled(Sequence[item]), nested mixed content and real markup run. Existing L0 describes these as approximate/current; future oracle probes at bd5... are NOT executed and cannot be assumed to require one count.",
+        "dependencies": "Query summary/ElementKind and normalization/grouping owners. No change to compiled located query or public signatures.",
+        "adr0127_classification": "Explicit preservation classification is continuous internal flow. A measured parity correction may flow L0-first; deliberate change to documented approximate public behavior/compatibility must be classified under ADR-0127 before implementation.",
+        "uncertainty_and_refuter": "The empty raw-Sequence value is a source-proven function-level result, not an executed CLI/oracle failure. A producer invariant excluding empty raw sequences refutes the CLI claim, not this total public-input observation. Owner\u2019s documented preservation means no semantic fix may be smuggled in as lint-only.",
+        "execution_status": "static-source analysis only; tests, compiler-negative experiments and oracle probes not executed",
+        "compile_negative_plan": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API."
+      },
+      "source_evidence": [
+        "03_infra/src/query_helpers.rs:260-272: Sequence all predicate, otherwise sum; item recurses body; remainder zero",
+        "03_infra/src/query_helpers.rs:154-167,225-228: legacy summary path selects group helper"
+      ],
+      "l0_evidence": [
+        "00_nucleo/prompts/infra/query_helpers.md:33-37: retain current approximate group walkers and documented singleton discrepancy; compiled-query path separately owned"
+      ],
+      "correction": "Do not blindly enumerate the old zero catchall and claim correct list semantics. First record focused empty/singleton/wrapper characterization and owner decision about this deliberately approximate API. If retaining the approximation for this bounded repair, explicitly name terminal and intentionally untraversed container classes with the limitation in L0/tests. Any semantic correction (nonempty group test, singleton group policy or added container descent) requires new measurement/L0 with actual grouping boundaries, not reusing generic map_content node counts.",
+      "proposed_tests": "Minimal static input is raw Content::Sequence(Arc::from([])), then count_element_in_content(..., List/Enum) \u2192 helper \u2192 all(empty)==true \u21921. Content::sequence(vec![]) normalizes differently and is NOT the same witness. Also bare item(text), Sequence[item], Styled(Sequence[item]), nested mixed content and real markup run. Existing L0 describes these as approximate/current; future oracle probes at bd5... are NOT executed and cannot be assumed to require one count.",
+      "gate": "Explicit preservation classification is continuous internal flow. A measured parity correction may flow L0-first; deliberate change to documented approximate public behavior/compatibility must be classified under ADR-0127 before implementation.",
+      "uncertainty": "The empty raw-Sequence value is a source-proven function-level result, not an executed CLI/oracle failure. A producer invariant excluding empty raw sequences refutes the CLI claim, not this total public-input observation. Owner\u2019s documented preservation means no semantic fix may be smuggled in as lint-only.",
+      "structural_proof": "In a disposable copy, add a sentinel to Content and require E0004 at this exact decision after repair; record baseline behavior and exact file/span independently of unrelated errors. For a tuple match test the first-axis new/same and new/new combinations; do not let another match\u2019s error stand in for this site. For an external enum, use a disposable copied dependency with the pinned variants plus sentinel, never change the productive/vendor API.",
+      "dependencies": "Query summary/ElementKind and normalization/grouping owners. No change to compiled located query or public signatures.",
+      "current_baseline_location": {
+        "artifactLocation": {
+          "uri": "./03_infra/src/query_helpers.rs"
+        },
+        "region": {
+          "startColumn": 9,
+          "startLine": 270
+        }
+      }
+    }
+  ]
+}

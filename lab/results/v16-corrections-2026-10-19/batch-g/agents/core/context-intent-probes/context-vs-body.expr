@@ -1,0 +1,1 @@
+{let a=(context [A]);(equal:a==[A],reverse:[A]==a,empty:a==[])}

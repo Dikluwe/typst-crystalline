@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-20T23:12:27.799304+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "status": " M 00_nucleo/prompts/core/compiler/realize/bare_math.md\n M 00_nucleo/prompts/core/compiler/realize/mod.md\n M 00_nucleo/prompts/core/entities/content/equality.md\n M 00_nucleo/prompts/infra/export/html/document.md\n M 00_nucleo/prompts/infra/export/html/encoding.md\n M 00_nucleo/prompts/infra/pipeline/bundle.md\n M 00_nucleo/prompts/infra/pipeline/html.md\n M 00_nucleo/prompts/infra/query_helpers.md\n M 01_core/src/compiler/realize/bare_math.rs\n M 01_core/src/compiler/realize/mod.rs\n M 01_core/src/entities/content/equality.rs\n M 03_infra/src/export/html/document.rs\n M 03_infra/src/export/html/encoding.rs\n M 03_infra/src/pipeline/bundle.rs\n M 03_infra/src/pipeline/html.rs\n M 03_infra/src/query_helpers.rs\n",
+  "diff_stat": " .../prompts/core/compiler/realize/bare_math.md     | 31 +++++++\n 00_nucleo/prompts/core/compiler/realize/mod.md     | 36 ++++++++\n .../prompts/core/entities/content/equality.md      | 67 +++++++++++++++\n 00_nucleo/prompts/infra/export/html/document.md    | 31 +++++++\n 00_nucleo/prompts/infra/export/html/encoding.md    | 19 +++++\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 34 ++++++++\n 00_nucleo/prompts/infra/pipeline/html.md           | 30 +++++++\n 00_nucleo/prompts/infra/query_helpers.md           | 46 +++++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 98 ++++++++++++++++++++++\n 01_core/src/compiler/realize/mod.rs                | 97 +++++++++++++++++++++\n 01_core/src/entities/content/equality.rs           | 84 +++++++++++++++++++\n 03_infra/src/export/html/document.rs               | 57 +++++++++++++\n 03_infra/src/export/html/encoding.rs               | 31 +++++++\n 03_infra/src/pipeline/bundle.rs                    | 68 +++++++++++++++\n 03_infra/src/pipeline/html.rs                      | 89 ++++++++++++++++++++\n 03_infra/src/query_helpers.rs                      | 92 ++++++++++++++++++++\n 16 files changed, 908 insertions(+), 2 deletions(-)\n",
+  "files": {
+    "03_infra/src/pipeline.rs": {
+      "sha256": "2bfdcc544bfaaab8a9a1cfe17b698fb5c96052bac684c0948efa8f24e6c8739a",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/03_infra/src/pipeline.rs",
+      "bytes": 39806
+    },
+    "03_infra/src/pipeline/context_stabilization.rs": {
+      "sha256": "4254f747e74f0f343d4c7e2c8259bc8fd834b85e910d646b0b136e47f85a2f96",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/03_infra/src/pipeline/context_stabilization.rs",
+      "bytes": 93053
+    },
+    "03_infra/src/pipeline/paged.rs": {
+      "sha256": "1c1f745818f736e02e36d0c12272642f994d0b00baf96887dc711b59bb302e6e",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/03_infra/src/pipeline/paged.rs",
+      "bytes": 48928
+    },
+    "00_nucleo/prompts/infra/pipeline.md": {
+      "sha256": "4c7d7b3bc13a850c5cc10985817871b1bc14c6baee75c4a8a89407c87294684f",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/00_nucleo/prompts/infra/pipeline.md",
+      "bytes": 18464
+    },
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": {
+      "sha256": "fbcff712435b9c600e2b6140641ee4e6569aedddb55516a6ec98ab5fd8a293e1",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "bytes": 50589
+    },
+    "00_nucleo/prompts/infra/pipeline/paged.md": {
+      "sha256": "72b87e230725c4285fe59265075c5124968b821f5c744de80d19d803f268e8e0",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/before-l0-tests/00_nucleo/prompts/infra/pipeline/paged.md",
+      "bytes": 37979
+    }
+  }
+}

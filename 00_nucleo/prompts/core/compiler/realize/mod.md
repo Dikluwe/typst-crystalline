@@ -1,5 +1,5 @@
 # L0 — compiler/realize/mod
-Hash do Código: 43b82123
+Hash do Código: 55677093
 
 **Layer:** L1.
 **Exclusive productive consumer:** `01_core/src/compiler/realize/mod.rs`.
@@ -328,3 +328,46 @@ allocation; no fourth public signature or new entity field. Preserve unrelated
 facades and error/warning/target/features behavior. Internal selected-template
 instantiation may reconstruct raw ContextBlock IDs only under approved stable
 producer/frame insertion contract, preserving preexisting Located aliases.
+
+## Closed normalization and occurrence reservation
+
+### Evidence before classification
+
+Baseline HEAD `4382891f0d5f0839669597cb5c90a98f24cfb8bd`, clean productive
+tree, UTC, exact bytes/SHA-256 and the complete120-variant Content inventory are
+archived in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/core/{source-before.json.gz,audit.json}`.
+The measured `mod.rs:90–97` tests direct-child flatten eligibility; false does
+not prove a subtree needs no normalization. `:118–140` reserves node-local
+identifiers; its empty branch does not suppress mapped child visits. These
+readings are engineering evidence, not new language or performance claims.
+
+### Owned closed decisions
+
+Both decisions name their complete current nominal complements at the actual
+productive sites, preserving all preconditions and surrounding passes.
+Sequence and unprotected Realized with Sequence visual are eligible to flatten;
+protected textual products and non-Sequence Realized visuals are not. Keep the
+original-bearing empty marker, encounter order, semantic/style carrier
+boundaries, zero/one-child canonicalization and separate markup-space policy.
+
+Reservation observes Located location, including its direct ContextBlock body
+because the bottom-up mapper omits that body's callback; ContextBlock advances
+the context floor, ShowRecipe reserves context/rule floors and the Sequence
+deferred marker, and Realized additionally scans original while the ordinary
+mapper scans visual. Every other current carrier has no node-local reservation
+in this pass but retains ordinary child traversal. Preserve saturating floor
+arithmetic and no closure/callback execution. Do not create an identity, scan
+previous invalid attempts or change allocation namespaces.
+
+### Acceptance and limits
+
+Require protected/unprotected Realized Sequence and non-Sequence cases,
+provenance markers, canonical no-change reuse, and Locations/context/rule IDs in
+ordinary containers, Located(ContextBlock), and each Realized side. Preserve
+lexical fields and deferred Sequence markers. Enum extension must establish
+exact-site compiler nonexhaustiveness at both decisions; preservation tests
+alone are not semantic RED. This internal same-owner/phase classification
+follows ADR-0127 continuous flow, with no public contract/default/compatibility
+change. L0-first implementation and graph-valid restricted bilateral resealing
+remain required.

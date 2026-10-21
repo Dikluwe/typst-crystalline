@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-21T00:42:31.771634+00:00",
+  "mode": "Independent read-only plan/source review; lab report only, no Cargo or productive/L0/test changes by reviewer",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": " .../core/compiler/eval/operators/equality.md       |  80 +-\n .../prompts/core/compiler/realize/bare_math.md     |  39 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  45 +-\n .../prompts/core/entities/content/equality.md      |  71 +-\n .../prompts/core/entities/content/identity.md      |  80 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  91 ++-\n 00_nucleo/prompts/infra/export/html/encoding.md    |  26 +-\n 00_nucleo/prompts/infra/pipeline.md                |  13 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 106 ++-\n .../infra/pipeline/context_stabilization.md        |  15 +-\n 00_nucleo/prompts/infra/pipeline/html.md           |  40 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  13 +-\n 00_nucleo/prompts/infra/query_helpers.md           |  48 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 267 ++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 349 ++++++++-\n 01_core/src/compiler/realize/mod.rs                | 354 ++++++++-\n 01_core/src/entities/content/equality.rs           | 406 +++++++++-\n 01_core/src/entities/content/identity.rs           | 326 +++++++-\n 03_infra/src/export/html/document.rs               | 313 +++++++-\n 03_infra/src/export/html/encoding.rs               | 184 ++++-\n 03_infra/src/pipeline.rs                           | 224 +++++-\n 03_infra/src/pipeline/bundle.rs                    | 504 ++++++++++++-\n 03_infra/src/pipeline/context_stabilization.rs     | 823 ++++++++++++++++++++-\n 03_infra/src/pipeline/html.rs                      | 442 ++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 626 +++++++++++++++-\n 03_infra/src/query_helpers.rs                      | 363 ++++++++-\n 26 files changed, 5711 insertions(+), 137 deletions(-)\n",
+  "inputs_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-block-flow-plan.json": "be65e189e98de1f9a4bd852ad1a73200a7b25ba4ee287fcb5fd242303c5f34fa",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-block-flow-plan.md": "fda1bc568bd1e10feb8ed7245a2edfb6185d4ef1b26cc90f7a640e331fca833a",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-flow-tests-ready.json": "a7e848e7cbb35f0407fe7a64011ed6e35b26eb1cea99cc4361ed99e9acc1fed5",
+    "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json": "5ee6853da84e040964c5c75ed6061280ed11ba567fcc71b42fc92d1b4b656643",
+    "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-final/receipt.json": "24a57fd179c549ceea7f81465dbcbc1f2a7094d3a1b0e93f37db1b7d4201c191",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+    "03_infra/src/export/html/document.rs": "24f397f6695bb4e5dc889781b46d4ac978eb0bb713e4d405263a8dcfe7ab355a",
+    "00_nucleo/prompts/infra/export/html/document.md": "1049d946df30523e99cfaa5206125d8459d5d001c7109c09247ae295a9ca0515",
+    "03_infra/src/export/html/inline.rs": "d0f09f7857c00165a14252eb0f6e02fb2a105272adde13e9e4764d3dd927d0ef",
+    "03_infra/src/export/html/table.rs": "a96602189d9271c512ce66c1b04b71fc0636041997a7a5696b3029bdf21b2ec5",
+    "03_infra/src/pipeline/bundle.rs": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f"
+  },
+  "classification": "ADR-0127 continuous existing semantic HTML composition correction; no new public signature, entity field, default mode/path, pipeline phase or compatibility promise. L0 first and functional RED/GREEN remain required.",
+  "findings": [],
+  "causal_evidence": {
+    "actual_receipt": "html-candidate/receipt.json",
+    "actual_case": "bundle-cell-heading",
+    "checks": {
+      "exit": true,
+      "semantic_dom": false,
+      "error_payload": true,
+      "warning_payload": true,
+      "parsed_diagnostic_fields": true,
+      "admitted_warning_payload": true
+    },
+    "actual_html": {
+      "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><h2>H</h2></p></body></html>"
+    },
+    "source_sha256": "712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2",
+    "product_sha256": "185e63b30415aaec44cca9115781a662077aa1edffab6aabe97166d7a82b1620",
+    "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "source_anchors": [
+      "document.rs::has_block: TableCell not classified",
+      "document.rs::render_body: generic fallback wraps Cell in p",
+      "inline.rs:110-117: ordinary Cell selects standalone.visual, else body",
+      "document.rs::append_block: nominal Cell falls into inline paragraph accumulator",
+      "table.rs:44-54: direct row Cell selects resolved.visual first, otherwise standalone.visual/body"
+    ]
+  },
+  "plan_accepted": [
+    "Owner-private borrowed selection exactly matches ordinary inline TableCell; resolved is not ordinary-inline precedence.",
+    "has_block, render_body and append_block delegate selected child through existing flows.",
+    "Same lexical chain and paragraph quote context flow into append delegation, reset only via existing selected block handling.",
+    "No global Cell peeling: retain nominal TableCell for direct Table row boundaries/metadata, no table.rs or generic mapper change.",
+    "Do not extend explicit_document_root or unsupported-kind support; unresolved producers continue through existing renderer errors."
+  ],
+  "test_review": {
+    "preexisting_source_bytes_prefix_unchanged": true,
+    "new_tests": 4,
+    "expected_causal_red": 2,
+    "expected_preservation_pass": 2,
+    "coverage": [
+      "isolated projected h2 without outer p",
+      "mixed neighboring paragraphs and Strong heading payload",
+      "plain Strong Cell inline paragraph grouping",
+      "raw Table td + colspan2/rowspan3 preserved"
+    ],
+    "limits": [
+      "The four appended tests exercise body fallback, not a conflicting standalone/resolved/body snapshot matrix. Exact selection must be independently checked in productive helper.",
+      "The new controls do not independently exercise Styled lexical changes or SmartQuote glyphs. Existing shared-state implementation and suites remain binding; no new full coverage claim.",
+      "Unresolved ContextBlock/StateDisplay errors and explicit-root exclusivity must remain unchanged; no new support implied."
+    ]
+  },
+  "current_status": "L0-first/new-tests-only candidate observed; production prefix byte-identical to pre-test archive. Functional RED/GREEN, resealing, lint, structural and full integration/CLI reruns remain parent-owned and pending. Prior full12 success is historical and does not close the required CLI failure."
+}

@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-20T23:11:59.896775+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": " .../prompts/core/compiler/realize/bare_math.md     | 31 +++++++\n 00_nucleo/prompts/core/compiler/realize/mod.md     | 36 ++++++++\n .../prompts/core/entities/content/equality.md      | 67 +++++++++++++++\n 00_nucleo/prompts/infra/export/html/document.md    | 31 +++++++\n 00_nucleo/prompts/infra/export/html/encoding.md    | 19 +++++\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 34 ++++++++\n 00_nucleo/prompts/infra/pipeline/html.md           | 30 +++++++\n 00_nucleo/prompts/infra/query_helpers.md           | 46 +++++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 98 ++++++++++++++++++++++\n 01_core/src/compiler/realize/mod.rs                | 97 +++++++++++++++++++++\n 01_core/src/entities/content/equality.rs           | 84 +++++++++++++++++++\n 03_infra/src/export/html/document.rs               | 57 +++++++++++++\n 03_infra/src/export/html/encoding.rs               | 31 +++++++\n 03_infra/src/pipeline/bundle.rs                    | 68 +++++++++++++++\n 03_infra/src/pipeline/html.rs                      | 89 ++++++++++++++++++++\n 03_infra/src/query_helpers.rs                      | 92 ++++++++++++++++++++\n 16 files changed, 908 insertions(+), 2 deletions(-)\n",
+  "argv": [
+    "lab/typst-original/target/release/typst",
+    "compile",
+    "--features",
+    "html,bundle",
+    "--format",
+    "bundle",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/footer-oracle-control/footer.typ",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/footer-oracle-control/output"
+  ],
+  "source_sha256": "9dc2f7e8f0dc261398e95eeacd35efb4571f18ea160a3aa3cf89cd35faf92e0d",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "exit": 0,
+  "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+  "html": {
+    "output/one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tbody><tr><td>BODY</td></tr></tbody><tfoot><tr><td><h2>FOOT</h2></td></tr></tfoot></table></body></html>"
+  }
+}

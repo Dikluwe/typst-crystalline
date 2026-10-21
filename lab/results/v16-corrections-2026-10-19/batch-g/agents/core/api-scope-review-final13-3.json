@@ -1,0 +1,319 @@
+{
+  "utc": "2026-10-21T00:47:27.432120+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "branch": "codex/tekt-mature-layout",
+  "diff_stat": " .../core/compiler/eval/operators/equality.md       |  80 +-\n .../prompts/core/compiler/realize/bare_math.md     |  39 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  45 +-\n .../prompts/core/entities/content/equality.md      |  71 +-\n .../prompts/core/entities/content/identity.md      |  80 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  91 ++-\n 00_nucleo/prompts/infra/export/html/encoding.md    |  26 +-\n 00_nucleo/prompts/infra/pipeline.md                |  13 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 106 ++-\n .../infra/pipeline/context_stabilization.md        |  15 +-\n 00_nucleo/prompts/infra/pipeline/html.md           |  40 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  13 +-\n 00_nucleo/prompts/infra/query_helpers.md           |  48 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 267 ++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 349 ++++++++-\n 01_core/src/compiler/realize/mod.rs                | 354 ++++++++-\n 01_core/src/entities/content/equality.rs           | 406 +++++++++-\n 01_core/src/entities/content/identity.rs           | 326 +++++++-\n 03_infra/src/export/html/document.rs               | 419 ++++++++++-\n 03_infra/src/export/html/encoding.rs               | 184 ++++-\n 03_infra/src/pipeline.rs                           | 224 +++++-\n 03_infra/src/pipeline/bundle.rs                    | 504 ++++++++++++-\n 03_infra/src/pipeline/context_stabilization.rs     | 823 ++++++++++++++++++++-\n 03_infra/src/pipeline/html.rs                      | 442 ++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 626 +++++++++++++++-\n 03_infra/src/query_helpers.rs                      | 363 ++++++++-\n 26 files changed, 5817 insertions(+), 137 deletions(-)\n",
+  "status": "PASS API/scope/independent forward+reverse seal audit for this exact named snapshot; executable/full gate closure is separate",
+  "seal": "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-3/receipt.json.gz",
+  "seal_sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+  "scope_sha256": "0e8df942b5b569f4163836e764ecf15e179aedcac71397cfb079cfa48f47563f",
+  "pair_count": 13,
+  "source_owner_file_count": 26,
+  "pairs": [
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "source_sha256": "e0b9c0bf16975992f07816691585b2c68e597e9e9260b41c36373cd480d72b9f",
+      "owner_sha256": "89e8f21fe8230a505ee12e5bf2d3de3588e1f2f70c58248777b63d8c33df6471",
+      "source_prompt_hash": "f8077a4c",
+      "computed_effective_prompt_hash": "f8077a4c",
+      "owner_code_hash": "9126a6cf",
+      "computed_source_hash_without_header": "9126a6cf",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+        "00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml": "a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329",
+        "00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml": "7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/bare_math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c",
+      "owner_sha256": "e5195424ebbac0814f1bc6b3990183e2ab44aab7fcd6ef5346760b9ed436171c",
+      "source_prompt_hash": "c8f739b2",
+      "computed_effective_prompt_hash": "c8f739b2",
+      "owner_code_hash": "35e7b028",
+      "computed_source_hash_without_header": "35e7b028",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925",
+      "owner_sha256": "438edd5bdd6d0a1c836323e5676e5126547af2ae5dac114b86081bb67c46df8d",
+      "source_prompt_hash": "87403de5",
+      "computed_effective_prompt_hash": "87403de5",
+      "owner_code_hash": "55677093",
+      "computed_source_hash_without_header": "55677093",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/map-content-change.toml": "6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043",
+        "00_nucleo/prompts/_nuclei/content/sequence-realization.toml": "14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml": "983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3",
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/equality.md",
+      "source_sha256": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee",
+      "owner_sha256": "32c36031c975e8596bffc62d1a274a2a4efcaa445fc84b9f910cf8603fe8ce5a",
+      "source_prompt_hash": "8d671d62",
+      "computed_effective_prompt_hash": "8d671d62",
+      "owner_code_hash": "c814a03a",
+      "computed_source_hash_without_header": "c814a03a",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "01_core/src/entities/content/identity.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/identity.md",
+      "source_sha256": "5e00c14808a08609c5a4c6e23efbe9f24d0bb2818ba91397ae95d3f66d53e565",
+      "owner_sha256": "e302da31e229ed7b7bb96ffdc252760d6f6f3c17ec7fdb6008ec66f8a262c189",
+      "source_prompt_hash": "4e1b9ce7",
+      "computed_effective_prompt_hash": "4e1b9ce7",
+      "owner_code_hash": "82734be4",
+      "computed_source_hash_without_header": "82734be4",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded",
+        "00_nucleo/prompts/_nuclei/math/matrix-morphology.toml": "dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735",
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c",
+        "00_nucleo/prompts/_nuclei/table/cell-presence.toml": "f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221",
+        "00_nucleo/prompts/_nuclei/table/cell-projection.toml": "8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf",
+        "00_nucleo/prompts/_nuclei/transform-semantics.toml": "6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/export/html/document.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/document.md",
+      "source_sha256": "8c584ce08e3336a52ad28c35663a43a0e8545dd38740f88d0c149713f62c54ce",
+      "owner_sha256": "f053bc3c205f0388ce7ff50d4ed2af00c9f2e9fd0aba792e8d6453621d006c6e",
+      "source_prompt_hash": "226f1b00",
+      "computed_effective_prompt_hash": "226f1b00",
+      "owner_code_hash": "3531eac9",
+      "computed_source_hash_without_header": "3531eac9",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/export/html/encoding.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+      "source_sha256": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e",
+      "owner_sha256": "f98d9765183832abb04ef034cd830aacdeb8701e953e1ccde2eca7b39185aa49",
+      "source_prompt_hash": "44e9a9ab",
+      "computed_effective_prompt_hash": "44e9a9ab",
+      "owner_code_hash": "c421616c",
+      "computed_source_hash_without_header": "c421616c",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline.md",
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065",
+      "owner_sha256": "1a65b03223c787c6a0d530b2699255291fa87a681e57f3dcae8afbbff360cab0",
+      "source_prompt_hash": "f59d6dd0",
+      "computed_effective_prompt_hash": "f59d6dd0",
+      "owner_code_hash": "9d4eeafe",
+      "computed_source_hash_without_header": "9d4eeafe",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/expression-source-identity.toml": "a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/bundle.md",
+      "source_sha256": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+      "owner_sha256": "5c9e08b465d89e18f3d6d9c37a9a7253bee00ba0365468c8cc43b1aa88ceb2e2",
+      "source_prompt_hash": "9a480b5e",
+      "computed_effective_prompt_hash": "9a480b5e",
+      "owner_code_hash": "6f2aa8da",
+      "computed_source_hash_without_header": "6f2aa8da",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml": "9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf",
+        "00_nucleo/prompts/_nuclei/export/svg-destination-context.toml": "199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0",
+        "00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml": "fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417",
+        "00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml": "06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/context_stabilization.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810",
+      "owner_sha256": "be0218be577c1c7622f089eddca54f0c6dbe4e196dde91af0aa547091500179d",
+      "source_prompt_hash": "c319d05d",
+      "computed_effective_prompt_hash": "c319d05d",
+      "owner_code_hash": "bb35e5f9",
+      "computed_source_hash_without_header": "bb35e5f9",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compilation-metric-cache.toml": "389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4",
+        "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b",
+        "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/html.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/html.md",
+      "source_sha256": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e",
+      "owner_sha256": "ab5595d4abd74fc6d998a3b0c9eab395f14b01fc6d579912a36a1175b020ce01",
+      "source_prompt_hash": "627fd360",
+      "computed_effective_prompt_hash": "627fd360",
+      "owner_code_hash": "e046d357",
+      "computed_source_hash_without_header": "e046d357",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml": "9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf",
+        "00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml": "fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/pipeline/paged.rs",
+      "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "source_sha256": "671713bd6ebbdfbf08f8d080bd4c004660be242babea9020485959df0120a9c3",
+      "owner_sha256": "4c19fdde440859c97b4d4411d4a867ab9cf022a1f4d439298b451dad6f9cfebf",
+      "source_prompt_hash": "bde0cb01",
+      "computed_effective_prompt_hash": "bde0cb01",
+      "owner_code_hash": "9b02b5e2",
+      "computed_source_hash_without_header": "9b02b5e2",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/compilation-metric-cache.toml": "389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4",
+        "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/math/callback-realization.toml": "4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030",
+        "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde",
+        "00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml": "a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    },
+    {
+      "source": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query_helpers.md",
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087",
+      "owner_sha256": "90f15ff917885d71b3080f1b48848a7fb20b554077a258924ce0e00fdc54e1a1",
+      "source_prompt_hash": "4e60a29a",
+      "computed_effective_prompt_hash": "4e60a29a",
+      "owner_code_hash": "c5f39b73",
+      "computed_source_hash_without_header": "c5f39b73",
+      "direct_nucleus_pins": {
+        "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+        "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+        "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf"
+      },
+      "canonical_owner": true,
+      "public_declarations_and_type_fields_unchanged": true
+    }
+  ],
+  "all_frozen_inputs_match_named_seal": 2142,
+  "unique_effective_nuclei": {
+    "00_nucleo/prompts/_nuclei/compilation-metric-cache.toml": "389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4",
+    "00_nucleo/prompts/_nuclei/compiler-feature-gates.toml": "09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1",
+    "00_nucleo/prompts/_nuclei/content/map-content-change.toml": "6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043",
+    "00_nucleo/prompts/_nuclei/content/sequence-realization.toml": "14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843",
+    "00_nucleo/prompts/_nuclei/content/source-origin.toml": "059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+    "00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml": "983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3",
+    "00_nucleo/prompts/_nuclei/export/format-option-precedence.toml": "9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf",
+    "00_nucleo/prompts/_nuclei/export/svg-destination-context.toml": "199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0",
+    "00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml": "fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417",
+    "00_nucleo/prompts/_nuclei/expression-source-identity.toml": "a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb",
+    "00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml": "06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b",
+    "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+    "00_nucleo/prompts/_nuclei/math/bare-insertion.toml": "c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b",
+    "00_nucleo/prompts/_nuclei/math/callback-realization.toml": "4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded",
+    "00_nucleo/prompts/_nuclei/math/matrix-morphology.toml": "dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735",
+    "00_nucleo/prompts/_nuclei/page-counter-snapshot.toml": "49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde",
+    "00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml": "a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425",
+    "00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml": "a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329",
+    "00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml": "7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648",
+    "00_nucleo/prompts/_nuclei/smartquote-semantics.toml": "d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c",
+    "00_nucleo/prompts/_nuclei/table/cell-presence.toml": "f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221",
+    "00_nucleo/prompts/_nuclei/table/cell-projection.toml": "8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a",
+    "00_nucleo/prompts/_nuclei/table/cell-realization.toml": "2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf",
+    "00_nucleo/prompts/_nuclei/transform-semantics.toml": "6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d"
+  },
+  "unique_effective_nucleus_count": 25,
+  "public_signature_entity_trait_enum_default_phase_change": false,
+  "new_allow_expect_ignore_or_config_change": false,
+  "outside_productive_or_normative_changes": [],
+  "author_roles": "Core implementation author self-audit is explicitly disclosed; HTML4/query implementation reviewed independently. Parent/other agent independent core review and actual tests remain separate evidence.",
+  "proof_method": "Independent Python SHA256 metadata stripping and domain-framed recursive Nucleus hashing from pinned linter source algorithm; no repair/linter/Cargo invocation. Baseline-to-current full public header and type-field equality; deterministic owner/header paths; exact 26-file change set.",
+  "independent_source_reviews": {
+    "agents/html/core-implementation-review.json": {
+      "sha256": "977101a1a59b5ba6c81d731614f8b5a980b77251048b23c2d379c70a58b3121c",
+      "evidence_role": "Independent core review by a different agent"
+    },
+    "agents/contexts/hash-depth-plan-independent-review.json": {
+      "sha256": "c3e6f0cb00f8c880f22dacd987c53e82244060f0c474263e4561ed957763335a",
+      "evidence_role": "Independent core review by a different agent"
+    },
+    "agents/contexts/hash-depth-implementation-independent-review.json": {
+      "sha256": "48a0c89a34cfc7885145459bb43cf903b4b1681439991fd5656e223333065609",
+      "evidence_role": "Independent core review by a different agent"
+    },
+    "agents/core/query-implementation-review.json": {
+      "sha256": "bc3cfa11b1b54c30ed242b555966792cb7305b31647c1ed84be293f161fa079e",
+      "evidence_role": "Independent HTML/query review by core author; earlier scoped snapshot, not a later-build certificate"
+    },
+    "agents/core/html-core-contract-review.json": {
+      "sha256": "4c227a5f6bb9252ae785c0af1d19b22150199274ef5ad04f9c6c2db64a0da9c0",
+      "evidence_role": "Independent HTML/query review by core author; earlier scoped snapshot, not a later-build certificate"
+    }
+  },
+  "debug_depth_refinement": {
+    "source": "01_core/src/entities/content/identity.rs",
+    "owner": "00_nucleo/prompts/core/entities/content/identity.md",
+    "classification": "ADR-0127 continuous internal formula correction of existing source transparency and Eq/Hash obligations; no signature/entity/trait/default/product mode/phase change. hash_content already scopes determinism to compiler/Rust and documents Debug formatting may change hashes. Preserve visible structural depth limit and hash algorithm, occurrence and observation identity.",
+    "measurement_receipt_sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664",
+    "limits": "The old mechanical output-preservation clause is superseded only where four invisible carriers consumed visible depth and violated established transparency/equal-value hashing; visible MAX_DEPTH8 and all nominal formatting, algorithms, causal identities and public signatures remain unchanged. No blanket numerical-hash or debug-output preservation claim; no new default or phase.",
+    "refuted_hypothesis": "The NestedValueFloat control is equal and has equal hashes because CounterDisplay Debug omits that payload; its inferred negative-zero mismatch was refuted, not treated as an observed failing obligation."
+  },
+  "hash_algorithm_evidence": {
+    "/repos/Antigravity/tekt-linter/03_infra/nucleus.rs": "bbabac04788ecb269a5b515b670883eb4c7519dac9eab9869a92445b29a6f603",
+    "/repos/Antigravity/tekt-linter/03_infra/hash_writer.rs": "6fb8716b15d2906bf0be31ec8717820b66f3ab6fa19ed97effc3c875c4f24e70",
+    "/repos/Antigravity/tekt-linter/03_infra/prompt_io.rs": "0f999bd9015c6a449a4fa1ee09db16ee44c6d982b6afd9e63765d8f3345d2d20"
+  },
+  "limits": [
+    "No complete language/equality/HTML/query parity claim.",
+    "Documented approximate projection, HTML fields/repr/unsupported semantic kinds, historical mechanical false cases and bare-Math performance target remain explicitly bounded.",
+    "No Cargo, formatter, reseal or source/L0 change executed by reviewer.",
+    "Any later source/L0 mutation supersedes this snapshot review without changing its historical evidence."
+  ]
+}

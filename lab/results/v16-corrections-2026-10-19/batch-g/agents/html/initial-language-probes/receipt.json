@@ -1,0 +1,298 @@
+{
+  "utc_start": "2026-10-20T23:05:49.756218+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": "",
+  "binaries": {
+    "oracle": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    },
+    "product": {
+      "path": "lab/target/product/debug/typst",
+      "sha256": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76"
+    }
+  },
+  "source_equivalence": "Product binary remains final Figure build4 with all2142build input hashes equal current clean baseline4382891; no Cargo run. Current commit differs from its historical HEAD but productive bytes match exactly.",
+  "cases": [
+    {
+      "name": "metadata",
+      "source": "#metadata(1)\nA\n",
+      "source_sha256": "406608022d30434cff7f8490f8d843d4db4a1695fed65ae8be346501410c8db0",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/metadata.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/metadata-oracle.html"
+          ],
+          "utc_start": "2026-10-20T23:05:49.982498+00:00",
+          "utc_end": "2026-10-20T23:05:49.989361+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "metadata-oracle.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/metadata.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/metadata-product.html"
+          ],
+          "utc_start": "2026-10-20T23:05:49.989413+00:00",
+          "utc_end": "2026-10-20T23:05:50.002951+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "metadata-product.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>"
+          }
+        }
+      }
+    },
+    {
+      "name": "context-metadata",
+      "source": "#context { metadata(1) }\nA\n",
+      "source_sha256": "ff4df2b19ada4a597f8b794d5d0536ced8b9983ec6d60736c631814bb7e83b0c",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/context-metadata.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/context-metadata-oracle.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.003140+00:00",
+          "utc_end": "2026-10-20T23:05:50.009674+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "context-metadata-oracle.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/context-metadata.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/context-metadata-product.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.009715+00:00",
+          "utc_end": "2026-10-20T23:05:50.023567+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "context-metadata-product.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>"
+          }
+        }
+      }
+    },
+    {
+      "name": "link-heading",
+      "source": "#link(\"https://example.org\")[#heading([H])]\n",
+      "source_sha256": "20910f43f15192a2ba1b0db281d972c94ea12f5067e7eb531a3685576de8ee50",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/link-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/link-heading-oracle.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.023812+00:00",
+          "utc_end": "2026-10-20T23:05:50.030531+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "link-heading-oracle.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\"><h2>H</h2></a></p></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/link-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/link-heading-product.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.030599+00:00",
+          "utc_end": "2026-10-20T23:05:50.044073+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {}
+        }
+      }
+    },
+    {
+      "name": "bundle-link-heading",
+      "source": "#document(\"one.html\")[#link(\"https://example.org\")[#heading([H])]]\n",
+      "source_sha256": "88e2ec833ed0e5811c4321ccee5d9ae33a8d2f4dacd57f018d411099c73370d3",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-link-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-link-heading-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:05:50.044286+00:00",
+          "utc_end": "2026-10-20T23:05:50.051498+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\"><h2>H</h2></a></p></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-link-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-link-heading-product-out"
+          ],
+          "utc_start": "2026-10-20T23:05:50.051528+00:00",
+          "utc_end": "2026-10-20T23:05:50.065435+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {}
+        }
+      }
+    },
+    {
+      "name": "heading-six",
+      "source": "#heading(level:6)[H]\n",
+      "source_sha256": "05815f6a77bc37eec65d2e07964e08bb2bbcde2b9e4987b5761df542f423a917",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six-oracle.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.065667+00:00",
+          "utc_end": "2026-10-20T23:05:50.072043+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\nwarning: heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six.typ:1:1\n  \u2502\n1 \u2502 #heading(level:6)[H]\n  \u2502  ^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: HTML only supports <h1> to <h6>, not <h7>\n  = hint: you may want to restructure your document so that it doesn't contain deep headings\n\n",
+          "html": {
+            "heading-six-oracle.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html",
+            "--format",
+            "html",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six-product.html"
+          ],
+          "utc_start": "2026-10-20T23:05:50.072088+00:00",
+          "utc_end": "2026-10-20T23:05:50.085345+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+          "html": {
+            "heading-six-product.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>"
+          }
+        }
+      }
+    },
+    {
+      "name": "bundle-heading-six",
+      "source": "#document(\"one.html\")[#heading(level:6)[H]]\n",
+      "source_sha256": "9f2cc76d2cdc8f3b7e975001f5c418d4711cab5652999c5d9139090f03529908",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:05:50.085548+00:00",
+          "utc_end": "2026-10-20T23:05:50.092732+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\nwarning: heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six.typ:1:23\n  \u2502\n1 \u2502 #document(\"one.html\")[#heading(level:6)[H]]\n  \u2502                        ^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: HTML only supports <h1> to <h6>, not <h7>\n  = hint: you may want to restructure your document so that it doesn't contain deep headings\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six-product-out"
+          ],
+          "utc_start": "2026-10-20T23:05:50.092758+00:00",
+          "utc_end": "2026-10-20T23:05:50.107350+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\nwarning: heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology\n = hint: HTML only supports <h1> to <h6>, not <h7>\n = hint: you may want to restructure your document so that it doesn't contain deep headings\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>"
+          }
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-20T23:05:50.107364+00:00",
+  "binary_unchanged": true
+}

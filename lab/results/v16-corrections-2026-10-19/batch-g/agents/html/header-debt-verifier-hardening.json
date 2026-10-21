@@ -1,0 +1,114 @@
+{
+  "utc": "2026-10-21T00:29:05.795974+00:00",
+  "before_archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/header-debt-verifier-before",
+  "after_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+  "actual_red": {
+    "script_sha256": "4cd87f40793926197aa3210daa81691e1153ea325f6ae3addab01d52f300fe14",
+    "historical_receipt_sha256": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922",
+    "fixtures": [
+      {
+        "name": "exact-historical-failure",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "crash-in-known-gap",
+        "accepted": true,
+        "expected": false,
+        "pass": false
+      },
+      {
+        "name": "new-diagnostic-in-known-gap",
+        "accepted": true,
+        "expected": false,
+        "pass": false
+      }
+    ],
+    "all_pass": false
+  },
+  "actual_green": {
+    "script_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+    "historical_receipt_sha256": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922",
+    "fixtures": [
+      {
+        "name": "exact-historical-failure",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "crash-in-known-gap",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "new-diagnostic-in-known-gap",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      }
+    ],
+    "all_pass": true
+  },
+  "completeness_regression": {
+    "script_sha256": "3b82b42bc38ddd4032cb97fc5c9fc1ccebd96b05039ffc4da68086731f3e31fc",
+    "fixtures": [
+      {
+        "name": "complete-F84-77-required-5-debt-2-negative",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "missing-F-row",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "duplicated-F-row",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "required-F-reclassified",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "required-F-wrong-observation",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "complete-Ref43-with40-required",
+        "accepted": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "missing-required-Ref",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      },
+      {
+        "name": "extra-Ref",
+        "accepted": false,
+        "expected": false,
+        "pass": true
+      }
+    ],
+    "actual_immutable_reference_groups": 6,
+    "actual_immutable_reference_rows": 43,
+    "actual_immutable_required_rows": 40,
+    "all_pass": true
+  },
+  "guard": "Preserve same case/source SHA, passed=false, returncode0, exact historical observed text and empty stderr. A crash/new diagnostic cannot hide under known failed status.",
+  "scope": "Lab-only accept_final and fixture evidence; no source/L0/cases/policies/expected change. Acceptance not executed."
+}

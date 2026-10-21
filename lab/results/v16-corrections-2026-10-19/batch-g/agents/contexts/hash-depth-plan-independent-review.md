@@ -1,0 +1,7 @@
+# Independent carrier-depth/hash plan review
+
+Actual source-bound stdout reproduces366 rows exactly:248 equal pairs violate public hashing and168 violate Rust hashing. Build/artifact/probe inputs agree; the actual Cargo-reported public core rlib and linked dependency rlib are the same inode and recorded SHA. All six hash source/owner files matched clean HEAD at measurement. Nested Float is refuted: its actual Debug is counter.display and both hashes agree.
+
+The cause is invisible carriers consuming visible Debug depth before delegating. Borrow only Source.body, ShowRecipe.body, Located.body and Realized.visual iteratively before the depth check. Keep visible MAX_DEPTH8, counter/reset behavior, nominal payloads, causal data and both algorithms/API unchanged; do not clone, execute stored callbacks, inspect original or introduce equality/cache behavior.
+
+ADR-0127 continuous flow is supported. The current public hash L0 expressly allows numerical changes following separately specified Debug changes while requiring equal-value compatibility. This repairs that invariant; it does not claim byte/numerically identical output for the formerly broken carrier-depth case. No public/default/phase/compatibility contract expansion is proposed. Three new local regressions are appropriate, but actual RED, final source-bound probe,13-pair API/lineage and strict gates remain separate obligations; finite tests do not establish universal equality/hash or language parity.

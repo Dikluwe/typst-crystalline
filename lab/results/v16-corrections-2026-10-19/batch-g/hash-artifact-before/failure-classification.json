@@ -1,0 +1,6 @@
+{
+  "utc": "2026-10-21T00:03:19.218832+00:00",
+  "kind": "Verifier artifact-path harness failure before probe compilation or runtime; not semantic RED",
+  "cause": "Cargo reported the top-level unhashed rlib and the hashed rmeta, while the runner correctly requires its real deps/hashed rlib.",
+  "repair": "Select the hashed rlib paired with the emitted rmeta and verify identical bytes to the emitted top-level rlib; retain source/origin guard, exact Cargo artifact JSON and SHA."
+}

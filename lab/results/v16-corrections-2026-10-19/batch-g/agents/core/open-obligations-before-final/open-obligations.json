@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "utc": "2026-10-21T00:24:01.980007+00:00",
+  "status": "Draft retained-obligation inventory; final executable and candidate replay gates are not claimed by this report",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "working_tree": "Uncommitted working tree bound to the exact audited named seal; productive inputs are frozen while the integrator runs final gates.",
+  "source_snapshot": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-final/receipt.json.gz",
+    "sha256": "f4c7099c33664032b2f81544b201255df01e7c893914aab23adc16fc16b00c0e"
+  },
+  "scope": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/scope.json",
+    "sha256": "0e8df942b5b569f4163836e764ecf15e179aedcac71397cfb079cfa48f47563f"
+  },
+  "api_audit": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+    "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+  },
+  "inherited_obligations": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json",
+      "sha256": "862abb1f458cc6f7390a550903f5ee2879b06200935048dad12650c7f783a597",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/open-obligations.json",
+      "sha256": "9665ad09a68d880509cd603df8ab7bc94086bf8c616449d059a02a31baa9df55",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json",
+      "sha256": "0685d3bcad4791bb5a887bb56f842554d33e8c60c3463f7dc258ffb2290423ee",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json",
+      "sha256": "7783232491e40aecfa9db50261b4570949b92dab9a611b04c8fb047deb407398",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json",
+      "sha256": "3ba970b0a458cf2a47e1d289e47d890c3706a9e4dbae50713bbfa102fff5a1eb",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    }
+  ],
+  "inheritance_rule": "All earlier C/D/E/F obligations remain available through exact immutable references. The later Figure implementation open-obligations is also preserved. An earlier temporary pending selected ID is historical, not evidence that a later approved correction did not happen; only a subsequent explicit source-bound closure can supersede an obligation. G alone closes none of these inherited language gaps.",
+  "g_obligations": [
+    {
+      "id": "G-language-fields-and-representation",
+      "status": "Observed baseline residuals; not corrected by the equality slice",
+      "scope": "HTML native fields still lack the oracle fields in the frozen negative control. Title/HtmlFrame and attribute-presence representations have separately recorded differences. Equality acceptance does not certify fields, repr or serialization.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/equality-probes/receipt.json",
+          "sha256": "c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/html-core-contract-review.json",
+          "sha256": "4c227a5f6bb9252ae785c0af1d19b22150199274ef5ad04f9c6c2db64a0da9c0"
+        }
+      ],
+      "closure": "Owning field/repr contracts require separate source-backed measurements and language-level acceptance. Preserve the current nonrequired HTML-fields comparison as a visible gap."
+    },
+    {
+      "id": "G-html-link-and-unsupported-content",
+      "status": "Explicit retained limitations",
+      "scope": "Three frozen Link cases remain nonrequired known gaps. Unsupported semantic containers and unresolved producers retain errors; nominal exhaustiveness grants no new HTML support. HtmlFrame remains a paged island.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json",
+          "sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-hardening-review.json",
+          "sha256": "ad57511aba06318f9ff1d6b925130b3e3af8101bf3b9cd4bb522e764f08669d1"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/html-core-contract-review.json",
+          "sha256": "4c227a5f6bb9252ae785c0af1d19b22150199274ef5ad04f9c6c2db64a0da9c0"
+        }
+      ],
+      "closure": "Separate owner-scoped Link/unsupported-kind implementation with actual pinned-language sources, existing error preservation and diagnostic/DOM controls; do not accept an empty projection as support."
+    },
+    {
+      "id": "G-html-deep-heading-and-diagnostic-envelope",
+      "status": "Known warning omission and limited verifier envelope remain visible",
+      "scope": "The fixed corpus retains only the exact previously measured standalone deep-heading warning omission as a waiver. The hardened verifier checks doctype, feature warning, extra/changed warnings and success/error consistency, but parsed fields do not certify every raw span, trace, highlight or path. Raw stderr must remain preserved.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-hardening-review.json",
+          "sha256": "ad57511aba06318f9ff1d6b925130b3e3af8101bf3b9cd4bb522e764f08669d1"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-and-anchor-review.json",
+          "sha256": "f6b1924d769c9d4db6c5c3ace92377209f7cabeb28bb9d884268d4f4e03e2cf2"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json",
+          "sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+        }
+      ],
+      "closure": "Repair the owned warning cause and remeasure full diagnostics without broadening the waiver; raw diagnostic comparison remains an independent acceptance obligation."
+    },
+    {
+      "id": "G-raw-table-footer-emission",
+      "status": "Existing renderer debt preserved, not ratified as intended behavior",
+      "scope": "The raw Table fallback currently omits its footer from output. Retained raw footer fields still convert, while that dormant branch creates no deep-heading warning. Emitted standalone and resolved footers keep their warning and two hints. The diagnostic correction does not implement raw footer rendering or full Table/HTML parity.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/raw-footer-implementation-independent-review.json",
+          "sha256": "52a70cac513c2c682a17b6eb4eade1e9d9f64f09071ee49493f4b51d9404de28"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/raw-footer-plan-review.json",
+          "sha256": "1d46d9acf7d72c7bbc0d191eb64e180b221e2d89e9ad465fabf2a0e2bf1498aa"
+        }
+      ],
+      "closure": "A renderer-owner correction must preserve section/visual selection and show actual footer output, ordering and warning provenance; never fabricate warnings for unrendered data or suppress emitted ones."
+    },
+    {
+      "id": "G-approximate-query-group-policy",
+      "status": "Documented approximate API boundary remains open",
+      "scope": "Raw empty Sequence counts one group while canonical empty counts zero; a bare item counts zero, an explicit group one, Styled group zero, with existing nested recursion. Direct helper zero can coexist with a positive real-introspector summary. This is neither semantic absence nor a newly measured reachable CLI parity defect.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/audit.json",
+          "sha256": "221fdc0dc7d96d265a1f76bcd75793d71e7e9edcba079d3c8a6980a3af871cf0"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/query-implementation-review.json",
+          "sha256": "bc3cfa11b1b54c30ed242b555966792cb7305b31647c1ed84be293f161fa079e"
+        }
+      ],
+      "closure": "Separate measured owner decision is required to change the approximate public policy. Keep compiled/located queries distinct and do not infer language parity from closed zero complements."
+    },
+    {
+      "id": "G-source-context-orientation-reachability",
+      "status": "Domain-contract correction verified separately from frontend reachability",
+      "scope": "Located(Source(ContextBlock)) under generic wrappers exposed suppressed callback-root behavior. The repaired collector/order/substitution preserves the Source contract for either orientation, but a frontend path generating every synthetic reverse orientation is unproven. No invented end-to-end reachability or new language defect is claimed.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/located-source-audit.json",
+          "sha256": "655f49073077c50fbfb62c101f7601a59b670284ad2d803fa075e0e9bdb2253e"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/audit-state.json",
+          "sha256": "cdf898eb4d6a1034832aa881eb1d17dbc47d72701c55dc458caea50e6e4c0974"
+        }
+      ],
+      "closure": "A source-backed actual constructor/evaluation trace and pinned language control are needed before claiming frontend parity coverage for those shapes. Preserve duplicate-ID/topology failures, legacy fallback, styles, original/visual selection and retained diagnostic semantics."
+    },
+    {
+      "id": "G-bare-math-optimization-target",
+      "status": "Historical failed performance threshold remains binding",
+      "scope": "The conservative proof and preorder decisions are now closed but retain their positive domain and fallback traversal. No new time, memory, allocation or general math-language improvement follows from enum exhaustiveness. Existing failed performance targets and math-label/general insertion limitations are not closed.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/audit.json",
+          "sha256": "c864e447f10e99d96b23bf7411894735641829809255c0b2e0fcf17b57dfaff5"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        }
+      ],
+      "closure": "Use the historical owner-defined equivalent-work controls and paired provenance-bound performance measurements; do not convert preservation tests or Arc reuse into a performance claim."
+    },
+    {
+      "id": "G-mechanical-and-language-equality-boundaries",
+      "status": "Bounded semantics, not complete Content equality parity",
+      "scope": "Metadata/State/StateUpdate retain documented mechanical false policies; Context mechanical equality remains id-based while the private language projection is opaque and never published. No closure execution, occurrence merging, allocator/ObservationEq/Hash rewrite or generic visitor change is admitted. Full authoritative snapshot field sets and Figure selectors remain binding.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-review.md",
+          "sha256": "05c64e6cff8c2df30351246248b47766be8ef20bccb1b44e8a74ec15efae20dc"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/core-implementation-review.json",
+          "sha256": "977101a1a59b5ba6c81d731614f8b5a980b77251048b23c2d379c70a58b3121c"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        }
+      ],
+      "closure": "Any additional language relation needs its own source/intent/oracle evidence. Mechanical equality, language morphology, strict observation and producer identity must remain distinct."
+    },
+    {
+      "id": "G-finite-carrier-hash-coverage",
+      "status": "Measured cause corrected; final unchanged-corpus candidate proof pending",
+      "scope": "The source-bound pre-fix probe observed 248 public and 168 Rust hash violations in 366 rows. The identity refinement preserves visible MAX_DEPTH8 and nominal formatting while invisible carriers no longer consume depth. Final acceptance requires zero violations in the exact same matrix. This finite proof cannot establish universal Content/Value hashing.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+          "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/hash-depth-implementation-independent-review.json",
+          "sha256": "48a0c89a34cfc7885145459bb43cf903b4b1681439991fd5656e223333065609"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        }
+      ],
+      "closure": "Bind a successful fresh real-root candidate build/artifact and unchanged source/probe/366-row matrix, then independently review actual zero violations. Preserve the global equal-values/equal-hash contract without claiming it follows universally from this finite sample."
+    }
+  ],
+  "refuted_hypotheses": [
+    {
+      "id": "NestedValueFloat-negative-zero-hash",
+      "status": "Refuted by the actual source-bound control, not an observed gap",
+      "evidence": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+        "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+      },
+      "fact": "CounterDisplay Debug omits the nested selector Float payload; the one equal pair has equal public and Rust hashes."
+    }
+  ],
+  "validation_separation": {
+    "final_gates": "Running or pending at inventory creation; use the integrator final receipts rather than this draft as evidence of completion.",
+    "equality_verifier": "A real invalid-actual-JSON acceptance gap was independently reported. The authorized other agent is hardening only the Lab runner with preserved old bytes and negative controls before actual candidate replay; sources, policies and expected language payloads remain fixed.",
+    "hash_final_review": "Must be written only after hash-candidate-final/receipt.json exists and binds the actual candidate."
+  },
+  "claim_limits": [
+    "No complete language, syntax, morphology, rendering, diagnostic or Hash-law parity claim.",
+    "No blanket waiver or weakening of a contract; unsupported or unproved content is not accepted as semantic zero.",
+    "This Lab report authorizes no productive/API/default/phase change and mutates no earlier reports."
+  ]
+}

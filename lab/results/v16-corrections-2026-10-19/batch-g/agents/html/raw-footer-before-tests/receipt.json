@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-21T00:05:19.509430+00:00",
+  "purpose": "Before L0 and three added controls; production body not yet changed",
+  "sha256": {
+    "03_infra/src/pipeline/bundle.rs": "91aa0aaf3a2575e47127a30c8cc813fe4cfe3605cc2b46a717dd5cc416315cf0",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "8b0fa001c05dbabf79f2986f1b18ded106b7959b5e6c04e0619a385c8b3f84d2"
+  }
+}

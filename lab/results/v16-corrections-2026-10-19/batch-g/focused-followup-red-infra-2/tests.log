@@ -1,0 +1,53 @@
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 16.80s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 32 tests
+test export::html::document::batch_g_html_document_tests::batch_g_html_located_label_keeps_body_and_unresolved_producers_reject ... ok
+test export::html::document::batch_g_html_document_tests::batch_g_html_located_markers_preserve_empty_visual_contribution ... ok
+test export::html::document::batch_g_html_document_tests::batch_g_html_suppressed_realized_figure_keeps_visual_paragraphs ... ok
+test export::html::encoding::batch_g_html_encoding_tests::batch_g_html_textual_guards_do_not_accept_semantic_body_containers ... ok
+test export::html::encoding::batch_g_html_encoding_tests::batch_g_html_title_wrapped_newline_space_origin_and_escaping_stay_exact ... ok
+test pipeline::batch_g_collection_tests::batch_g_generic_collection_preserves_located_source_and_visual_projection ... ok
+test pipeline::batch_g_collection_tests::batch_g_generic_collection_uses_captured_chain_then_inner_delta_and_last_payload ... ok
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_bundle_public_preparation_projects_resolved_and_standalone_cells ... ok
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_emitted_standalone_footer_still_warns ... ok
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_public_resolved_footer_keeps_deep_warning_once ... ok
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_raw_footer_projection_has_no_unemitted_warning ... FAILED
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_table_frame_island_is_not_preconverted ... ok
+test pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_table_projection_preserves_sections_spans_and_dormant_caption ... ok
+test pipeline::context_stabilization::batch_g_session_tests::batch_g_actual_reference_capture_preserves_generated_and_source_producers ... ok
+test pipeline::context_stabilization::batch_g_session_tests::batch_g_generic_order_recognizes_bare_and_located_source_producers ... ok
+test pipeline::context_stabilization::batch_g_session_tests::batch_g_legacy_duplicate_keeps_first_id_order_last_payload_chain_and_single_execution ... ok
+test pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_generic_order_preserves_both_orientations_and_chain ... ok
+test pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload ... ok
+test pipeline::html::batch_g_html_frame_tests::batch_g_html_located_context_root_keeps_expected_id_matching_strict ... ok
+test pipeline::html::batch_g_html_frame_tests::batch_g_html_located_frame_discovery_and_style_counts_agree ... ok
+test pipeline::html::batch_g_html_frame_tests::batch_g_html_located_frame_positions_require_real_matching_context_ids ... ok
+test pipeline::html::batch_g_html_frame_tests::batch_g_html_nested_frames_and_visual_carriers_are_once_only ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_font_proof_accepts_only_strings_or_all_string_arrays_without_evaluation ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_layout_proof_checks_source_both_realized_branches_and_marginals ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_layout_proof_visits_table_caption_and_grid_cells_header_footer ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_outline_phase_preserves_all_four_shared_carriers_and_semantic_index ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_unproved_context_still_compiles_through_the_ordinary_full_cycle ... ok
+test pipeline::paged::batch_g_reuse_proof_tests::batch_g_unqualified_outline_root_uses_general_prefix_observation ... ok
+test query_helpers::batch_g_projection_tests::batch_g_approximate_group_boundaries_remain_explicit ... ok
+test query_helpers::batch_g_projection_tests::batch_g_nested_group_bodies_keep_their_legacy_projection ... ok
+test query_helpers::batch_g_projection_tests::batch_g_raw_empty_group_is_distinct_from_canonical_empty ... ok
+test query_helpers::batch_g_projection_tests::batch_g_real_introspector_summary_does_not_use_direct_zero_projection ... ok
+
+failures:
+
+---- pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_raw_footer_projection_has_no_unemitted_warning stdout ----
+
+thread 'pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_raw_footer_projection_has_no_unemitted_warning' (3315204) panicked at 03_infra/src/pipeline/bundle.rs:1028:13:
+direct: unrendered footer contributes no deep-heading warning
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pipeline::bundle::batch_g_html_bundle_tests::batch_g_html_raw_footer_projection_has_no_unemitted_warning
+
+test result: FAILED. 31 passed; 1 failed; 0 ignored; 0 measured; 1403 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

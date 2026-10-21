@@ -1,0 +1,14 @@
+{
+  "utc_recorded": "2026-10-20T23:04:08.855144+00:00",
+  "argv": [
+    "python3",
+    "lab/results/v16-corrections-2026-10-19/batch-g/lint.py",
+    "--output",
+    "lab/results/v16-corrections-2026-10-19/batch-g/lint-baseline",
+    "--expected-v16",
+    "18"
+  ],
+  "exit": 2,
+  "stderr": "python3: cannot open lint.py: No such file or directory",
+  "classification": "Preparation worker still creating snapshot/scripts; no linter process or measurement ran. Dependent launch repeated after preparation completed. No productive change."
+}

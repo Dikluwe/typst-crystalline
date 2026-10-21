@@ -1,0 +1,13 @@
+{
+  "baseline_counts": {
+    "V16:error": 18,
+    "V19:note": 1315,
+    "V20:note": 905
+  },
+  "candidate_counts": {
+    "V19:note": 1339,
+    "V20:note": 905
+  },
+  "outside_scope_identical": true,
+  "outside_scope_objects": 2174
+}

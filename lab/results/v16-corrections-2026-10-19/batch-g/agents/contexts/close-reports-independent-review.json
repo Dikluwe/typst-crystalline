@@ -1,0 +1,60 @@
+{
+  "utc": "2026-10-21T00:29:11.959137+00:00",
+  "mode": "Read-only closure-script review; script NOT executed and no root script/docs/source/L0 edits",
+  "script_sha256_at_review": "46469a5f914e120830f99ac95b9c1eecc5e62def59b48abd18b0cc63a20e3ff2",
+  "overall": "Writing only after real final gates and fresh policy acceptance is correct. The reviewed script still needs schema-tight leaf binding and exact supplemental/tuple review guards before publication.",
+  "resolved_during_review": [
+    {
+      "issue": "Hash violations container is a dictionary even when both lists are empty, so not violations is wrong.",
+      "status": "Parent reports corrected to not any(values), candidate_acceptance.pass and exact measured baseline counts.",
+      "verify_final": "Require both compile/run exit0, unchanged366-row source, actual artifact binding and candidate_acceptance.pass."
+    }
+  ],
+  "remaining_recommendations": [
+    {
+      "id": "C1",
+      "topic": "Final source binding",
+      "detail": "Compare validation-state.inputs, focused receipt.inputs and final build.inputs. Check focused compiler_error_codes[] and every tests.status==ok. Check API current pair source/owner hashes, scope/seal hashes and all_frozen_inputs_match_named_seal."
+    },
+    {
+      "id": "C2",
+      "topic": "Structural supplement and tuple gates",
+      "detail": "Count18 original primary witnesses and two separately named identity witnesses. Six tuple commands must each have exactly one selected primary E0004 and no other error codes; command-list length alone is insufficient. Hash-bind independent final reviews/raw receipts."
+    },
+    {
+      "id": "C3",
+      "topic": "Current F acceptance vs historical reference",
+      "detail": "F fixtures/oracle/policies are immutable references; only fresh outputs under G are current executions. accept_final already verifies exact84 policy cardinality/classes and40required across6matrices, source/assets/policy/oracle/build hashes. Closure should additionally bind all leaf receipts to final product/build, and target only-header10/11. File existence alone is not a fresh-success guard."
+    },
+    {
+      "id": "C4",
+      "topic": "Supplement ledger schema",
+      "detail": "Replace the generic supplemental_identity_witnesses sentence with actual final review path/SHA and its two witness records. Include both independent review JSON/Markdown files in evidence_names."
+    },
+    {
+      "id": "C5",
+      "topic": "Current diagnostic Markdown table",
+      "detail": "g_entry begins a newline while the prefix before marker already ends a newline, creating a blank line before the G row. Insert the row before the table separator or remove the redundant leading newline."
+    },
+    {
+      "id": "C6",
+      "topic": "Historical Figure narrative",
+      "detail": "The added explicit F-checkpoint preface is appropriate. Keep older1606/outside/1315notes/source state and F pending obligations historical; do not present those old receipts as current G evidence. Current F/Ref/target statements must point to fresh G replay paths."
+    }
+  ],
+  "exact_minimal_final_review_guards": "sr = load(\"agents/contexts/final13-structural-review.json\")\nassert sr[\"selected_total\"] == 18\nassert sr[\"selected_core_primary_witnesses\"] == 5 and sr[\"selected_infra_primary_witnesses\"] == 13\nassert sr[\"current_source_drift_from_reviewed_candidate_snapshot\"] == []\nsupp = sr[\"supplemental_identity_witnesses\"]\nassert len(supp) == 2\nassert all(x[\"original_inventory_id\"] is None and len(x[\"raw_primary_e0004\"]) == 1 for x in supp)\nassert {(x[\"target\"][\"after\"], x[\"target\"][\"anchor\"]) for x in supp} == {\n    (\"impl fmt::Debug for Content\", \"match content {\"),\n    (\"fn fmt_content(\", \"match c {\"),\n}\nassert sr[\"tuple_results\"] == {\n    \"baseline_original_absorbs_each_direction\": 6,\n    \"candidate_each_direction_primary_e0004\": 6,\n    \"all_logs_only_e0004_errors\": True,\n    \"exact_mask_only_target_mutations\": True,\n}\ngreen_axes = [x for x in sr[\"tuple_axis_reviews\"] if x[\"phase\"] == \"green\"]\nassert len(green_axes) == 6 and all(len(x[\"primary_target_e0004\"]) == 1 for x in green_axes)\nfor name, digest in sr[\"evidence_sha256\"].items():\n    assert sha(P / name) == digest\nlr = load(\"agents/contexts/final13-lint-review.json\")\nassert lr[\"scope_pairs\"] == 13 and lr[\"outside_scope_objects\"] == 2174\nassert lr[\"outside_scope_complete_objects_identical\"] and lr[\"no_added_errors_or_warnings\"]\nassert lr[\"unexplained_note_removals\"] == [] and lr[\"current_input_drift\"] == []\nassert lr[\"all_root_delta_multiplicities_reproduced\"]\nfor name, digest in lr[\"evidence_sha256\"].items():\n    assert sha(P / name) == digest\n",
+  "final_review_paths_sha256": {
+    "agents/contexts/final13-lint-review.json": "839afbb5fd1b24ab24ed53254866d50196afab2bff060e290bcf40e7ed26355e",
+    "agents/contexts/final13-lint-review.md": "56003b5be68a228e79d8969c2a2d8c3733d4a3b1ff8b3b60f4ed71ed3602b144",
+    "agents/contexts/final13-structural-review.json": "b4d0c00bbc90c182bebb5c6fe33c28188389f3a6176e13a45e261cfcb529455a",
+    "agents/contexts/final13-structural-review.md": "0c7ac598de5cdad7147f9b7d99e81378cb78deae42fa6e48d7d1755a2d98c981"
+  },
+  "report_claim_assessment": [
+    "Zero errors/warnings with1339/905 enabled notes is properly distinct from complete language parity.",
+    "248/168\u21920 must remain a366-row finite claim, not universal Hash compatibility. Nested Float control is correctly refuted.",
+    "Raw footer omission, Link gaps, diagnostic envelope and approximate query behavior remain explicit.",
+    "25 effective nuclei and13 pairs should be asserted against API audit fields instead of only prose constants.",
+    "Original105 closure requires exact existing A\u2013F inventory plus the18 current IDs; incidental100 must not be counted again."
+  ],
+  "execution_status": "Full final gate/build/CLI receipts remain the integrator responsibility; this reviewer did not execute close_reports.py."
+}

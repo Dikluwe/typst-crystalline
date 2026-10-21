@@ -1,0 +1,403 @@
+{
+  "schema": 1,
+  "utc": "2026-10-21T01:12:40.199413+00:00",
+  "status": "Final retained-obligation inventory for the named candidate3; scoped validation passed, inherited and declared language gaps remain open",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "working_tree": "Exact uncommitted source/L0/config snapshot bound to candidate3 before closure commit; all2142 inputs are unchanged.",
+  "source_snapshot": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-3/receipt.json.gz",
+    "sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a"
+  },
+  "scope": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/scope.json",
+    "sha256": "0e8df942b5b569f4163836e764ecf15e179aedcac71397cfb079cfa48f47563f"
+  },
+  "api_audit": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13-3.json",
+    "sha256": "a644176d3383681c83fe5c2560407a11b84eb48da58a6f6b578add9cd5213d97"
+  },
+  "inherited_obligations": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json",
+      "sha256": "862abb1f458cc6f7390a550903f5ee2879b06200935048dad12650c7f783a597",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-d/open-obligations.json",
+      "sha256": "9665ad09a68d880509cd603df8ab7bc94086bf8c616449d059a02a31baa9df55",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json",
+      "sha256": "0685d3bcad4791bb5a887bb56f842554d33e8c60c3463f7dc258ffb2290423ee",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json",
+      "sha256": "7783232491e40aecfa9db50261b4570949b92dab9a611b04c8fb047deb407398",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json",
+      "sha256": "3ba970b0a458cf2a47e1d289e47d890c3706a9e4dbae50713bbfa102fff5a1eb",
+      "treatment": "Preserved verbatim by hash-bound reference; this report does not erase, close, or re-ratify its obligations. Historical selected-case status is not promoted to current status; later approved Figure/Circle implementation evidence remains separate."
+    }
+  ],
+  "inheritance_rule": "All earlier C/D/E/F obligations remain available through exact immutable references. The later Figure implementation open-obligations is also preserved. An earlier temporary pending selected ID is historical, not evidence that a later approved correction did not happen; only a subsequent explicit source-bound closure can supersede an obligation. G alone closes none of these inherited language gaps.",
+  "g_obligations": [
+    {
+      "id": "G-language-fields-and-representation",
+      "status": "Observed baseline residuals; not corrected by the equality slice",
+      "scope": "HTML native fields still lack the oracle fields in the frozen negative control. Title/HtmlFrame and attribute-presence representations have separately recorded differences. Equality acceptance does not certify fields, repr or serialization.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/equality-probes/receipt.json",
+          "sha256": "c03c9e8653b09d21fe0cd55ada2a920e6820b2efcf5a06a77454eca896b128a6"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/html-core-contract-review.json",
+          "sha256": "4c227a5f6bb9252ae785c0af1d19b22150199274ef5ad04f9c6c2db64a0da9c0"
+        }
+      ],
+      "closure": "Owning field/repr contracts require separate source-backed measurements and language-level acceptance. Preserve the current nonrequired HTML-fields comparison as a visible gap."
+    },
+    {
+      "id": "G-html-link-and-unsupported-content",
+      "status": "Explicit retained limitations",
+      "scope": "Three frozen Link cases remain nonrequired known gaps. Unsupported semantic containers and unresolved producers retain errors; nominal exhaustiveness grants no new HTML support. HtmlFrame remains a paged island.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json",
+          "sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-hardening-review.json",
+          "sha256": "ad57511aba06318f9ff1d6b925130b3e3af8101bf3b9cd4bb522e764f08669d1"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/html-core-contract-review.json",
+          "sha256": "4c227a5f6bb9252ae785c0af1d19b22150199274ef5ad04f9c6c2db64a0da9c0"
+        }
+      ],
+      "closure": "Separate owner-scoped Link/unsupported-kind implementation with actual pinned-language sources, existing error preservation and diagnostic/DOM controls; do not accept an empty projection as support."
+    },
+    {
+      "id": "G-html-deep-heading-and-diagnostic-envelope",
+      "status": "Actual candidate3 diagnostic differences retained by the declared policy envelope",
+      "scope": "Required policy acceptance is not full diagnostic equality: standalone heading-six still omits its deep-heading warning; bundle-heading-six retains the warning/two hints but lacks its oracle source origin; title-nontext-rejected has a different error message/order/source envelope. The three unsupported Link cases remain separate strict failures. Raw stderr is preserved; no blanket waiver or full origin/trace/highlight/path parity is claimed.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-hardening-review.json",
+          "sha256": "ad57511aba06318f9ff1d6b925130b3e3af8101bf3b9cd4bb522e764f08669d1"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-and-anchor-review.json",
+          "sha256": "f6b1924d769c9d4db6c5c3ace92377209f7cabeb28bb9d884268d4f4e03e2cf2"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json",
+          "sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3/receipt.json",
+          "sha256": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/final-acceptance-review-3.json",
+          "sha256": "3d972851a7637b61a5189a253bea8f9e3da6567e81bf42b0f1bce02d723298b7"
+        }
+      ],
+      "closure": "Repair the owned warning cause and remeasure full diagnostics without broadening the waiver; raw diagnostic comparison remains an independent acceptance obligation."
+    },
+    {
+      "id": "G-raw-table-footer-emission",
+      "status": "Existing renderer debt preserved, not ratified as intended behavior",
+      "scope": "The raw Table fallback currently omits its footer from output. Retained raw footer fields still convert, while that dormant branch creates no deep-heading warning. Emitted standalone and resolved footers keep their warning and two hints. The diagnostic correction does not implement raw footer rendering or full Table/HTML parity.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/raw-footer-implementation-independent-review.json",
+          "sha256": "52a70cac513c2c682a17b6eb4eade1e9d9f64f09071ee49493f4b51d9404de28"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/raw-footer-plan-review.json",
+          "sha256": "1d46d9acf7d72c7bbc0d191eb64e180b221e2d89e9ad465fabf2a0e2bf1498aa"
+        }
+      ],
+      "closure": "A renderer-owner correction must preserve section/visual selection and show actual footer output, ordering and warning provenance; never fabricate warnings for unrendered data or suppress emitted ones."
+    },
+    {
+      "id": "G-approximate-query-group-policy",
+      "status": "Documented approximate API boundary remains open",
+      "scope": "Raw empty Sequence counts one group while canonical empty counts zero; a bare item counts zero, an explicit group one, Styled group zero, with existing nested recursion. Direct helper zero can coexist with a positive real-introspector summary. This is neither semantic absence nor a newly measured reachable CLI parity defect.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/audit.json",
+          "sha256": "221fdc0dc7d96d265a1f76bcd75793d71e7e9edcba079d3c8a6980a3af871cf0"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/query-implementation-review.json",
+          "sha256": "bc3cfa11b1b54c30ed242b555966792cb7305b31647c1ed84be293f161fa079e"
+        }
+      ],
+      "closure": "Separate measured owner decision is required to change the approximate public policy. Keep compiled/located queries distinct and do not infer language parity from closed zero complements."
+    },
+    {
+      "id": "G-source-context-orientation-reachability",
+      "status": "Domain-contract correction verified separately from frontend reachability",
+      "scope": "Located(Source(ContextBlock)) under generic wrappers exposed suppressed callback-root behavior. The repaired collector/order/substitution preserves the Source contract for either orientation, but a frontend path generating every synthetic reverse orientation is unproven. No invented end-to-end reachability or new language defect is claimed.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/located-source-audit.json",
+          "sha256": "655f49073077c50fbfb62c101f7601a59b670284ad2d803fa075e0e9bdb2253e"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/audit-state.json",
+          "sha256": "cdf898eb4d6a1034832aa881eb1d17dbc47d72701c55dc458caea50e6e4c0974"
+        }
+      ],
+      "closure": "A source-backed actual constructor/evaluation trace and pinned language control are needed before claiming frontend parity coverage for those shapes. Preserve duplicate-ID/topology failures, legacy fallback, styles, original/visual selection and retained diagnostic semantics."
+    },
+    {
+      "id": "G-bare-math-optimization-target",
+      "status": "Historical failed performance threshold remains binding",
+      "scope": "The conservative proof and preorder decisions are now closed but retain their positive domain and fallback traversal. No new time, memory, allocation or general math-language improvement follows from enum exhaustiveness. Existing failed performance targets and math-label/general insertion limitations are not closed.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/audit.json",
+          "sha256": "c864e447f10e99d96b23bf7411894735641829809255c0b2e0fcf17b57dfaff5"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        }
+      ],
+      "closure": "Use the historical owner-defined equivalent-work controls and paired provenance-bound performance measurements; do not convert preservation tests or Arc reuse into a performance claim."
+    },
+    {
+      "id": "G-mechanical-and-language-equality-boundaries",
+      "status": "Bounded semantics, not complete Content equality parity",
+      "scope": "Metadata/State/StateUpdate retain documented mechanical false policies; Context mechanical equality remains id-based while the private language projection is opaque and never published. No closure execution, occurrence merging, allocator/ObservationEq/Hash rewrite or generic visitor change is admitted. Full authoritative snapshot field sets and Figure selectors remain binding.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/context-intent-review.md",
+          "sha256": "05c64e6cff8c2df30351246248b47766be8ef20bccb1b44e8a74ec15efae20dc"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/core-implementation-review.json",
+          "sha256": "977101a1a59b5ba6c81d731614f8b5a980b77251048b23c2d379c70a58b3121c"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        }
+      ],
+      "closure": "Any additional language relation needs its own source/intent/oracle evidence. Mechanical equality, language morphology, strict observation and producer identity must remain distinct."
+    },
+    {
+      "id": "G-finite-carrier-hash-coverage",
+      "status": "Bounded cause and unchanged-corpus acceptance complete; universal coverage is not claimed",
+      "scope": "The actual same366-row candidate3 corpus has zero public and Rust Hash violations, compared with248/168 before. The global equal-value hashing obligation remains mandatory; finite sampled success neither proves every Content/Value pair nor identifies an additional observed counterexample.",
+      "evidence": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+          "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/hash-depth-implementation-independent-review.json",
+          "sha256": "48a0c89a34cfc7885145459bb43cf903b4b1681439991fd5656e223333065609"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13.json",
+          "sha256": "222b52423f6fa508d51c070fc566be10ef7c88a500552f8e5d3ac1a8e91f39f1"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-3/receipt.json",
+          "sha256": "6a5b2f43f48fec21ff02dd3701aace59f0786e2523ab9834c9335b3113738e17"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-final-review-3.json",
+          "sha256": "4f0290b40c9749955b880edec01da0ff4df06deeb44cc9d2fc5e5255d2e71cdd"
+        }
+      ],
+      "closure": "The concrete carrier-depth cause is corrected and this exact finite acceptance is fulfilled. Preserve its complete receipts and the universal contract; no further unmeasured Hash defect is asserted."
+    }
+  ],
+  "refuted_hypotheses": [
+    {
+      "id": "NestedValueFloat-negative-zero-hash",
+      "status": "Refuted by the actual source-bound control, not an observed gap",
+      "evidence": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+        "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+      },
+      "fact": "CounterDisplay Debug omits the nested selector Float payload; the one equal pair has equal public and Rust hashes."
+    }
+  ],
+  "validation_separation": {
+    "final_gates": "Actual candidate3 all12 passed with unchanged2142 inputs. These receipts certify scoped executable gates, not complete language parity.",
+    "equality_verifier": "The invalid-actual/oracle JSON acceptance defect was corrected before candidate3 replay; exact old bytes and real parser negative controls remain archived. Cases, oracle payloads and policies are unchanged.",
+    "verifier_evidence": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/final-verifier-hardening.json",
+      "sha256": "797d62d1bf3725bd7ec784326244ac0bfc6de294a2cb28e9b0c7d442aeb03523"
+    },
+    "hash_final_review": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-final-review-3.json",
+      "sha256": "4f0290b40c9749955b880edec01da0ff4df06deeb44cc9d2fc5e5255d2e71cdd"
+    },
+    "final_binding_meaning": "passed=true certifies finite Hash/acceptance evidence and integrity of this retained-obligation ledger for the named snapshot; it does not close any inherited or explicitly declared language gap."
+  },
+  "claim_limits": [
+    "No complete language, syntax, morphology, rendering, diagnostic or Hash-law parity claim.",
+    "No blanket waiver or weakening of a contract; unsupported or unproved content is not accepted as semantic zero.",
+    "This Lab report authorizes no productive/API/default/phase change and mutates no earlier reports."
+  ],
+  "closure_binding": {
+    "stage": "final",
+    "passed": true,
+    "source_snapshot_sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+    "build_receipt_sha256": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f",
+    "product_sha256": "ced5125ee4b42a6ad9ac36db432d01b0e6bdafd93d2e042f8ea56b3a966f3fd9",
+    "frozen_input_count": 2142,
+    "current_input_drift": []
+  },
+  "draft_history": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/open-obligations-before-final/open-obligations.json",
+    "sha256": "84c32d4e65dabc0ea337d8a3d53ffbc4e750139c966f7ba4a1e2c7a0e2483e18"
+  },
+  "actual_candidate_acceptance": {
+    "full_gates": {
+      "passed": 12,
+      "total": 12,
+      "commands": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-commands.json",
+        "sha256": "a49e0a04c3ae3ad4a85779ada8013850fdd2658d881717ecb78b61b5b6c88cbc"
+      },
+      "freeze": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-freeze.json",
+        "sha256": "2ec57ed83fd5cd5069e23ed410aabbc1e1fbb2f3709b44bf6ed0c4afbe625159"
+      }
+    },
+    "focused": {
+      "passed": 56,
+      "core": 20,
+      "infra": 36,
+      "receipts": [
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-3-typst-core/receipt.json",
+          "sha256": "177d09cb4eec58f56330b5cf39bbad7224c0ee002523c5c82ea1bc478b1b5fab"
+        },
+        {
+          "path": "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-3-typst-infra/receipt.json",
+          "sha256": "94863fd27f8e4ca345d1b9898a7c05b7e4031ca477df3d804b0b6364c9b2cbe4"
+        }
+      ]
+    },
+    "hash": {
+      "rows": 366,
+      "public_violations": 0,
+      "rust_violations": 0,
+      "review": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-final-review-3.json",
+        "sha256": "4f0290b40c9749955b880edec01da0ff4df06deeb44cc9d2fc5e5255d2e71cdd"
+      }
+    },
+    "equality": {
+      "required_pass": 33,
+      "required": 33,
+      "total": 34,
+      "explicit_gap": "html-tristate-fields",
+      "receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate-3/receipt.json",
+        "sha256": "16af2314b21b904ba00b60ff5c65a2c67612acd1ab2bb257261bb54e604f96eb"
+      }
+    },
+    "html": {
+      "required_pass": 13,
+      "required": 13,
+      "total": 16,
+      "strict_failure_names": [
+        "link-heading",
+        "bundle-link-heading",
+        "heading-six",
+        "bundle-heading-six",
+        "bundle-link-text",
+        "title-nontext-rejected"
+      ],
+      "receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3/receipt.json",
+        "sha256": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef"
+      }
+    },
+    "F_policies": {
+      "policy_pass": 84,
+      "required": 77,
+      "known_debts": 5,
+      "negative_controls": 2,
+      "receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/figure-policy-replay-3/receipt.json",
+        "sha256": "215d7866561bfd1b16615119671f46419f87e2e776f69c2d326e4c4ad7a45da6"
+      }
+    },
+    "references": {
+      "required_pass": 40,
+      "required": 40,
+      "total": 43,
+      "matrices": 6,
+      "two_open_bilateral_and_one_refuted_fixture_retained": true,
+      "receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/receipt.json",
+        "sha256": "da40fec8b7f3b7c11c142ec697f535fe4159690e8bc15cf1641cff4144c42be5"
+      }
+    },
+    "targets": {
+      "passed": 10,
+      "total": 11,
+      "known_strict_failure": "header-figure-boundary",
+      "source_returncode_text_stderr_identical_to_history": true,
+      "receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/batch-g/figure-target-controls-3/receipt.json",
+        "sha256": "e48467b251bc1532aceebd32fb95ba5e1e8a1942460f2c9fbbc72e1aa884d9ad"
+      },
+      "historical_receipt": {
+        "path": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/candidate-target-controls-4/receipt.json",
+        "sha256": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922"
+      }
+    },
+    "independent_acceptance_review": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/final-acceptance-review-3.json",
+      "sha256": "3d972851a7637b61a5189a253bea8f9e3da6567e81bf42b0f1bce02d723298b7"
+    },
+    "acceptance_commands": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/acceptance-3/commands.json",
+      "sha256": "1ff4b33fcecae3814e5f6d8aef918ae8d99f5c07086130d64957d82bf8bc0c81"
+    },
+    "frozen_worker_files": 52,
+    "worker_state": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/acceptance-worker-state-3.json",
+      "sha256": "69a3cb6d24d94f25605e8b2b48cdbd033382186a5280d3f4bca94e7bda50c1c7"
+    }
+  },
+  "historical_failed_attempts": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json",
+      "sha256": "5ee6853da84e040964c5c75ed6061280ed11ba567fcc71b42fc92d1b4b656643"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-2/validation-commands.json",
+      "sha256": "e8b8ef03f16b067c5a93494dc27a640e011c3ba5092da3d19c7296796efdb4eb"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-final-review.json",
+      "sha256": "acf765b64865d3f0d3f5cb7fb1e1aa71806a28969f6b10359e3f5a3cb112dfe1"
+    }
+  ],
+  "bounded_repaired_cell_flow": {
+    "status": "Actual frozen original policy passes after causal owner repair",
+    "receipt": {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3/receipt.json",
+      "sha256": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef"
+    },
+    "case": "bundle-cell-heading",
+    "scope": "Borrowed standalone.visual/body selection in existing document composition; no global Cell unwrapping, row selection, root, target/default/API/phase change or complete Table/HTML certification."
+  }
+}

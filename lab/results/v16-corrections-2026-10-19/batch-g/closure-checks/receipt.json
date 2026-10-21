@@ -1,0 +1,393 @@
+{
+  "utc": "2026-10-21T01:13:23.678964+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": " .../v16-correction-progress-2026-10-19.md          |  42 +-\n .../core/compiler/eval/operators/equality.md       |  80 +-\n .../prompts/core/compiler/realize/bare_math.md     |  39 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  45 +-\n .../prompts/core/entities/content/equality.md      |  71 +-\n .../prompts/core/entities/content/identity.md      |  80 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  91 ++-\n 00_nucleo/prompts/infra/export/html/encoding.md    |  26 +-\n 00_nucleo/prompts/infra/pipeline.md                |  13 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 106 ++-\n .../infra/pipeline/context_stabilization.md        |  15 +-\n 00_nucleo/prompts/infra/pipeline/html.md           |  40 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  13 +-\n 00_nucleo/prompts/infra/query_helpers.md           |  48 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 267 ++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 349 ++++++++-\n 01_core/src/compiler/realize/mod.rs                | 354 ++++++++-\n 01_core/src/entities/content/equality.rs           | 406 +++++++++-\n 01_core/src/entities/content/identity.rs           | 326 +++++++-\n 03_infra/src/export/html/document.rs               | 419 ++++++++++-\n 03_infra/src/export/html/encoding.rs               | 184 ++++-\n 03_infra/src/pipeline.rs                           | 224 +++++-\n 03_infra/src/pipeline/bundle.rs                    | 504 ++++++++++++-\n 03_infra/src/pipeline/context_stabilization.rs     | 823 ++++++++++++++++++++-\n 03_infra/src/pipeline/html.rs                      | 442 ++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 626 +++++++++++++++-\n 03_infra/src/query_helpers.rs                      | 363 ++++++++-\n 27 files changed, 5853 insertions(+), 143 deletions(-)\n",
+  "input_count": 2142,
+  "changed_inputs": [],
+  "all_full_diagnostics_identical_to_executable_final": true,
+  "active_changed_paths": [
+    "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "00_nucleo/prompts/core/compiler/realize/bare_math.md",
+    "00_nucleo/prompts/core/compiler/realize/mod.md",
+    "00_nucleo/prompts/core/entities/content/equality.md",
+    "00_nucleo/prompts/core/entities/content/identity.md",
+    "00_nucleo/prompts/infra/export/html/document.md",
+    "00_nucleo/prompts/infra/export/html/encoding.md",
+    "00_nucleo/prompts/infra/pipeline.md",
+    "00_nucleo/prompts/infra/pipeline/bundle.md",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "00_nucleo/prompts/infra/pipeline/html.md",
+    "00_nucleo/prompts/infra/pipeline/paged.md",
+    "00_nucleo/prompts/infra/query_helpers.md",
+    "01_core/src/compiler/eval/operators/equality.rs",
+    "01_core/src/compiler/realize/bare_math.rs",
+    "01_core/src/compiler/realize/mod.rs",
+    "01_core/src/entities/content/equality.rs",
+    "01_core/src/entities/content/identity.rs",
+    "03_infra/src/export/html/document.rs",
+    "03_infra/src/export/html/encoding.rs",
+    "03_infra/src/pipeline.rs",
+    "03_infra/src/pipeline/bundle.rs",
+    "03_infra/src/pipeline/context_stabilization.rs",
+    "03_infra/src/pipeline/html.rs",
+    "03_infra/src/pipeline/paged.rs",
+    "03_infra/src/query_helpers.rs"
+  ],
+  "local_markdown_links": [
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "candidate-build-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "sha256": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "validation-final-3/validation-state.json.gz",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-state.json.gz",
+      "sha256": "48cd62f87c3f800741bf61c7eddcddc55664e1850968f4bcf7f7e1ed044ffc47"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "agents/core/api-scope-review-final13-3.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/api-scope-review-final13-3.md",
+      "sha256": "3568d2c83339d6a4424b41b401702488e26677e90f47827f4a6e6d910bb13b69"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "../../construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md",
+      "resolved": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md",
+      "sha256": "62c6068aefecb7fc1ebaebd61cd5d7a1e0ac769c82384116651baa6e2db38399"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "baseline-inputs.json.gz",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/baseline-inputs.json.gz",
+      "sha256": "a4c07f0060f42ea828ee5b1bb7ddb9eb0d0e377c851d13f81eb78b0a59cf126f"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "cases.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/cases.json",
+      "sha256": "a5a252360b10ce66fdc45387932dfc6908c096141a93fe1a0b3cea26a231c74f"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "scope.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/scope.json",
+      "sha256": "0e8df942b5b569f4163836e764ecf15e179aedcac71397cfb079cfa48f47563f"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "closure-ledger.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json",
+      "sha256": "38f13725d9965fa77137e8ce9705af6101fb0149e5517f9c7c92bcc16db2e2db"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "hash-before/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json",
+      "sha256": "786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "hash-candidate-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-3/receipt.json",
+      "sha256": "6a5b2f43f48fec21ff02dd3701aace59f0786e2523ab9834c9335b3113738e17"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "integration-3/commands.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/integration-3/commands.json",
+      "sha256": "c12be6d1f6606f55aadb9413cc6d11e05cb30828f7d8a872ee2d7a5adb6dade6"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "validation-final-3/validation-commands.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-commands.json",
+      "sha256": "a49e0a04c3ae3ad4a85779ada8013850fdd2658d881717ecb78b61b5b6c88cbc"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "validation-final-3/validation-freeze.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-freeze.json",
+      "sha256": "2ec57ed83fd5cd5069e23ed410aabbc1e1fbb2f3709b44bf6ed0c4afbe625159"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "structural-green-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/structural-green-3/receipt.json",
+      "sha256": "1ddfed41a3c09a920e2111573eeb2d993b9ecd2977ee9923d2568196b0d2f126"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "tuple-axes-green-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/tuple-axes-green-3/receipt.json",
+      "sha256": "784843038ba0554017fb61ba41fa6730171657e1964aa338d874f66ca24582a1"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "equality-candidate-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate-3/receipt.json",
+      "sha256": "16af2314b21b904ba00b60ff5c65a2c67612acd1ab2bb257261bb54e604f96eb"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "html-candidate-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3/receipt.json",
+      "sha256": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "figure-policy-replay-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/figure-policy-replay-3/receipt.json",
+      "sha256": "215d7866561bfd1b16615119671f46419f87e2e776f69c2d326e4c4ad7a45da6"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "reference-corpora-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/receipt.json",
+      "sha256": "da40fec8b7f3b7c11c142ec697f535fe4159690e8bc15cf1641cff4144c42be5"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "figure-target-controls-3/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/figure-target-controls-3/receipt.json",
+      "sha256": "e48467b251bc1532aceebd32fb95ba5e1e8a1942460f2c9fbbc72e1aa884d9ad"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "lint-delta-3.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/lint-delta-3.json",
+      "sha256": "b4b28edb851585f04f5b08caaa2507c6a74fa282a504e60493ca7ecd1e8dc6a9"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "html-candidate/receipt.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json",
+      "sha256": "5ee6853da84e040964c5c75ed6061280ed11ba567fcc71b42fc92d1b4b656643"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "validation-final-2/validation-commands.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-2/validation-commands.json",
+      "sha256": "e8b8ef03f16b067c5a93494dc27a640e011c3ba5092da3d19c7296796efdb4eb"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json",
+      "sha256": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "diagnostic-history/v16-correction-progress-2026-10-19.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md",
+      "sha256": "b7d98542a049cfb698837c2c8633ab94a1a656c8d155d7dfcc9769013fbccab0"
+    },
+    {
+      "source": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "target": "diagnostic-history/provenance.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/provenance.json",
+      "sha256": "e2d135070fbf1e84ddf0a800781b6e1e5741fb7abd65ca025fe23b6062809795"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-a/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-a/README.md",
+      "sha256": "066a2b67f18a216794df7e15a197e3c8397e291ad0771c80291192724d4079e8"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-b/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-b/README.md",
+      "sha256": "a06605fc3806fec157f362719c2fc4e1b9b204acf9bf12682288268081340b5f"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-c/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-c/README.md",
+      "sha256": "1d389c19f20cd585497d509f543b84e43be236bd79aed337a9cab19d0abb68cf"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json",
+      "sha256": "862abb1f458cc6f7390a550903f5ee2879b06200935048dad12650c7f783a597"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-d/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-d/README.md",
+      "sha256": "88399b5b41a2a20f780a8077c7d635978b217964b191638e2d4fd336763770fa"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-e/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-e/README.md",
+      "sha256": "d209fe77a815ecb034cac35229bf8747d19cde928d16a25394b4c598bc8c1549"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json",
+      "sha256": "0685d3bcad4791bb5a887bb56f842554d33e8c60c3463f7dc258ffb2290423ee"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-f/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-f/README.md",
+      "sha256": "71e856ce904eda67a05d0de0da3daf92926214973262fc22b37a92e7f3c735a0"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json",
+      "sha256": "7783232491e40aecfa9db50261b4570949b92dab9a611b04c8fb047deb407398"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/circle-origin/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/circle-origin/README.md",
+      "sha256": "347ba144f169da5ab60bbfbdb77b273232a2f0cb90ee41cce36ed30783171247"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md",
+      "sha256": "b6b450999108726d66548d3712fa24a68a044adf4c8fd8c53cb8e3e4f38f6cad"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json",
+      "sha256": "cb0dd8c4c2e16c0c349adf23748e1454d83b7bc969749fa1ee3d4ac0f92de839"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/README.md",
+      "sha256": "b01f2b7e0f517a1c22c0e2332293c87f8c64623d8e747335146fccab81770691"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json",
+      "sha256": "38f13725d9965fa77137e8ce9705af6101fb0149e5517f9c7c92bcc16db2e2db"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json",
+      "sha256": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json",
+      "sha256": "3ba970b0a458cf2a47e1d289e47d890c3706a9e4dbae50713bbfa102fff5a1eb"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/v16-correction-progress-before-figure-closure.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/v16-correction-progress-before-figure-closure.md",
+      "sha256": "a0fe34ade72a6eae02fd838f55037a9c1f0d73f725d34ae76b852b102e11d6a8"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/provenance.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/provenance.json",
+      "sha256": "ff2e4f30754a61dde5dbe24b30096ebe39a80480c74a12037d95f6e480ebce52"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "v16-cause-correction-plan-2026-10-19.md",
+      "resolved": "00_nucleo/diagnostics/v16-cause-correction-plan-2026-10-19.md",
+      "sha256": "208f0039009589586bbe24c6fa6e28ae6849dcf7264a70ba5db3a2c85fd30cb5"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json",
+      "sha256": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270"
+    },
+    {
+      "source": "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md",
+      "target": "../../lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md",
+      "resolved": "lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md",
+      "sha256": "b7d98542a049cfb698837c2c8633ab94a1a656c8d155d7dfcc9769013fbccab0"
+    }
+  ],
+  "ancestry_preserved": true,
+  "commands": [
+    {
+      "name": "layout",
+      "argv": [
+        "python3",
+        "lab/tools/ci/check_mature_layout.py"
+      ],
+      "utc_start": "2026-10-21T01:13:09.673607+00:00",
+      "utc_end": "2026-10-21T01:13:11.775405+00:00",
+      "exit": 0
+    },
+    {
+      "name": "strict-lineage",
+      "argv": [
+        "lab/target/linter/debug/crystalline-lint",
+        ".",
+        "--checks",
+        "v1,v5,v15,v26",
+        "--fail-on",
+        "warning"
+      ],
+      "utc_start": "2026-10-21T01:13:11.775629+00:00",
+      "utc_end": "2026-10-21T01:13:16.849225+00:00",
+      "exit": 0
+    },
+    {
+      "name": "reverse-lineage",
+      "argv": [
+        "python3",
+        "lab/tools/ci/check_reverse_lineage.py"
+      ],
+      "utc_start": "2026-10-21T01:13:16.849497+00:00",
+      "utc_end": "2026-10-21T01:13:17.295876+00:00",
+      "exit": 0
+    },
+    {
+      "name": "full-lint",
+      "argv": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint.py",
+        "--output",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint-closure-docs",
+        "--expected-v16",
+        "0"
+      ],
+      "utc_start": "2026-10-21T01:13:17.296120+00:00",
+      "utc_end": "2026-10-21T01:13:23.295877+00:00",
+      "exit": 0
+    },
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "utc_start": "2026-10-21T01:13:23.296136+00:00",
+      "utc_end": "2026-10-21T01:13:23.341315+00:00",
+      "exit": 0
+    }
+  ],
+  "report_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/README.md": "b01f2b7e0f517a1c22c0e2332293c87f8c64623d8e747335146fccab81770691",
+    "lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json": "38f13725d9965fa77137e8ce9705af6101fb0149e5517f9c7c92bcc16db2e2db",
+    "lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json": "cf434ba8ed58e3681c50ab7ebfeb65f29b6b6782105fa3480e3a975aac89e270",
+    "00_nucleo/diagnostics/v16-correction-progress-2026-10-19.md": "9f5efda4f5cfbe933f88db4b28e1583f4e8f20fd45ee7a26a7c7ad95eacef1f5",
+    "lab/results/v16-corrections-2026-10-19/batch-g/close_reports.py": "20701fa49882ca11a2bca6a3d926a27fbb7314536002a1e8cfd585fc894b3b99",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validate_closure.py": "2d5716d9145941c96e8f1ee7001c9a803cabc8fc5cef1645cacab1f9e36fe8f6",
+    "lab/results/v16-corrections-2026-10-19/batch-g/preserve_evidence.py": "fecf865d9f68344e8f8d1cf9b3d0c5e025fb3be85790effb650bfeccefb83b02",
+    "lab/results/v16-corrections-2026-10-19/batch-g/commit_batch.py": "2c49752f834dafc9af63304e884e1ddb2097b5b420681d881db1211087c3463b"
+  }
+}

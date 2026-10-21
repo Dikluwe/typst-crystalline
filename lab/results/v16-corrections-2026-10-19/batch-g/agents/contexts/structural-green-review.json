@@ -1,0 +1,3108 @@
+{
+  "utc": "2026-10-20T23:54:23.338055+00:00",
+  "kind": "independent raw compiler/source reconstruction audit; no Cargo/source/L0 edits",
+  "candidate_snapshot": "sealed candidate2 before any subsequent raw-footer/hash correction",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "original_rust_inputs": 997,
+  "original_inputs_match_lint_final_snapshot": true,
+  "exact_single_sentinel_enum_insertions": 3,
+  "probe_input_drift_recorded": [],
+  "commands": [
+    {
+      "name": "core-witnesses",
+      "raw_log_sha256": "42f32c7758b1626cda323d2f59b95d8361978e22ad80291a7c23f16ed967f6d7",
+      "error_count": 212,
+      "codes": {
+        "E0004": 212
+      },
+      "selected_matches_with_primary_e0004": 5
+    },
+    {
+      "name": "core-bridge-0",
+      "raw_log_sha256": "a6a9fcb7fc0ac57f8ce42037e685997b30c1813a26c05d0693f4535e6fd9e47e",
+      "error_count": 0,
+      "codes": {},
+      "selected_matches_with_primary_e0004": 0
+    },
+    {
+      "name": "infra-witnesses",
+      "raw_log_sha256": "cebf227b3f9d1e66cbc7b3fcfa082524aa9a4835ed7a4774904f5b50bc4be537",
+      "error_count": 25,
+      "codes": {
+        "E0004": 25
+      },
+      "selected_matches_with_primary_e0004": 13
+    }
+  ],
+  "selected_core_primary_witnesses": 5,
+  "selected_infra_primary_witnesses": 13,
+  "selected_total": 18,
+  "all_selected_independently_attributed": [
+    {
+      "id": "V16-049",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "target_match_line": 54,
+      "target_byte_start": 1888,
+      "target_byte_end": 1903,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/realize/bare_math.rs:54:11\n     |\n  54 |     match content {\n     |           ^^^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 181 ~         | Content::Dynamic(_) => false,\n 182 ~         &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 6452,
+                  "byte_start": 6452,
+                  "column_end": 39,
+                  "column_start": 39,
+                  "expansion": null,
+                  "file_name": "01_core/src/compiler/realize/bare_math.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 181,
+                  "line_start": 181,
+                  "suggested_replacement": ",\n        &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 39,
+                      "highlight_start": 39,
+                      "text": "        | Content::Dynamic(_) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 1901,
+              "byte_start": 1894,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "01_core/src/compiler/realize/bare_math.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 54,
+              "line_start": 54,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-050",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "target_match_line": 199,
+      "target_byte_start": 6916,
+      "target_byte_end": 6928,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/realize/bare_math.rs:199:15\n     |\n 199 |         match node {\n     |               ^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 357 ~             | Content::Dynamic(_) => Ok(None),\n 358 ~             &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 12984,
+                  "byte_start": 12984,
+                  "column_end": 46,
+                  "column_start": 46,
+                  "expansion": null,
+                  "file_name": "01_core/src/compiler/realize/bare_math.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 357,
+                  "line_start": 357,
+                  "suggested_replacement": ",\n            &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 46,
+                      "highlight_start": 46,
+                      "text": "            | Content::Dynamic(_) => Ok(None),"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 6926,
+              "byte_start": 6922,
+              "column_end": 19,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/compiler/realize/bare_math.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 199,
+              "line_start": 199,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 19,
+                  "highlight_start": 15,
+                  "text": "        match node {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-051",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "target_match_line": 90,
+      "target_byte_start": 3105,
+      "target_byte_end": 3118,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/realize/mod.rs:90:70\n     |\n  90 |             let needs_flattening = children.iter().any(|child| match child {\n     |                                                                      ^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 214 ~                 | Content::Dynamic(_) => false,\n 215 ~                 &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 8140,
+                  "byte_start": 8140,
+                  "column_end": 47,
+                  "column_start": 47,
+                  "expansion": null,
+                  "file_name": "01_core/src/compiler/realize/mod.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 214,
+                  "line_start": 214,
+                  "suggested_replacement": ",\n                &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 47,
+                      "highlight_start": 47,
+                      "text": "                | Content::Dynamic(_) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 3116,
+              "byte_start": 3111,
+              "column_end": 75,
+              "column_start": 70,
+              "expansion": null,
+              "file_name": "01_core/src/compiler/realize/mod.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 90,
+              "line_start": 90,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 75,
+                  "highlight_start": 70,
+                  "text": "            let needs_flattening = children.iter().any(|child| match child {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-052",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "target_match_line": 236,
+      "target_byte_start": 9047,
+      "target_byte_end": 9059,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/realize/mod.rs:236:15\n     |\n 236 |         match node {\n     |               ^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 373 ~             | Content::Dynamic(_) => {},\n 374 +             &entities::content::Content::TektV16EvolutionProbe => todo!()\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10393,
+                  "column_end": 17,
+                  "column_start": 10,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 10,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 14241,
+                  "byte_start": 14241,
+                  "column_end": 40,
+                  "column_start": 40,
+                  "expansion": null,
+                  "file_name": "01_core/src/compiler/realize/mod.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 373,
+                  "line_start": 373,
+                  "suggested_replacement": ",\n            &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 40,
+                      "highlight_start": 40,
+                      "text": "            | Content::Dynamic(_) => {}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 9057,
+              "byte_start": 9053,
+              "column_end": 19,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/compiler/realize/mod.rs",
+              "is_primary": true,
+              "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 236,
+              "line_start": 236,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 19,
+                  "highlight_start": 15,
+                  "text": "        match node {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-074",
+      "file": "01_core/src/entities/content/equality.rs",
+      "target_match_line": 11,
+      "target_byte_start": 246,
+      "target_byte_end": 267,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 114 more not covered\n  --> 01_core/src/entities/content/equality.rs:11:15\n   |\n11 |         match (self, other) {\n   |               ^^^^^^^^^^^^^ patterns `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 114 more not covered\n   |\n   = note: the matched value is of type `(&entities::content::Content, &entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms\n   |\n463~             ) => false,\n464~             _ => todo!(),\n   |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&entities::content::Content, &entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 22074,
+                  "byte_start": 22074,
+                  "column_end": 23,
+                  "column_start": 23,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/equality.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 463,
+                  "line_start": 463,
+                  "suggested_replacement": ",\n            _ => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 23,
+                      "highlight_start": 23,
+                      "text": "            ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 114 more not covered",
+          "spans": [
+            {
+              "byte_end": 265,
+              "byte_start": 252,
+              "column_end": 28,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/equality.rs",
+              "is_primary": true,
+              "label": "patterns `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 114 more not covered",
+              "line_end": 11,
+              "line_start": 11,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 28,
+                  "highlight_start": 15,
+                  "text": "        match (self, other) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-088",
+      "file": "03_infra/src/export/html/document.rs",
+      "target_match_line": 57,
+      "target_byte_start": 2461,
+      "target_byte_end": 2476,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/export/html/document.rs:57:11\n     |\n  57 |     match content {\n     |           ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 186 ~         | Content::Dynamic(..) => None,\n 187 ~         &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 6801,
+                  "byte_start": 6801,
+                  "column_end": 39,
+                  "column_start": 39,
+                  "expansion": null,
+                  "file_name": "03_infra/src/export/html/document.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 186,
+                  "line_start": 186,
+                  "suggested_replacement": ",\n        &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 39,
+                      "highlight_start": 39,
+                      "text": "        | Content::Dynamic(..) => None,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 2474,
+              "byte_start": 2467,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/export/html/document.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 57,
+              "line_start": 57,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-089",
+      "file": "03_infra/src/export/html/encoding.rs",
+      "target_match_line": 14,
+      "target_byte_start": 409,
+      "target_byte_end": 424,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/export/html/encoding.rs:14:25\n     |\n  14 |         content = match content {\n     |                         ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 134 ~             | Content::Dynamic(..) => return content,\n 135 ~             &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 4872,
+                  "byte_start": 4872,
+                  "column_end": 53,
+                  "column_start": 53,
+                  "expansion": null,
+                  "file_name": "03_infra/src/export/html/encoding.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 134,
+                  "line_start": 134,
+                  "suggested_replacement": ",\n            &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 53,
+                      "highlight_start": 53,
+                      "text": "            | Content::Dynamic(..) => return content,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 422,
+              "byte_start": 415,
+              "column_end": 32,
+              "column_start": 25,
+              "expansion": null,
+              "file_name": "03_infra/src/export/html/encoding.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 14,
+              "line_start": 14,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 32,
+                  "highlight_start": 25,
+                  "text": "        content = match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-092",
+      "file": "03_infra/src/pipeline/bundle.rs",
+      "target_match_line": 335,
+      "target_byte_start": 12210,
+      "target_byte_end": 12225,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline/bundle.rs:335:11\n     |\n 335 |     match content {\n     |           ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 555 ~         | Content::Dynamic(..) => content.clone(),\n 556 ~         &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 21264,
+                  "byte_start": 21264,
+                  "column_end": 50,
+                  "column_start": 50,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/bundle.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 555,
+                  "line_start": 555,
+                  "suggested_replacement": ",\n        &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 50,
+                      "highlight_start": 50,
+                      "text": "        | Content::Dynamic(..) => content.clone(),"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 12223,
+              "byte_start": 12216,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/bundle.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 335,
+              "line_start": 335,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-093",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "target_match_line": 270,
+      "target_byte_start": 10396,
+      "target_byte_end": 10417,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline/context_stabilization.rs:270:23\n     |\n 270 |                 match producer_root {\n     |                       ^^^^^^^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 390 ~                     | Content::Dynamic(..) => None,\n 391 ~                     &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 15792,
+                  "byte_start": 15792,
+                  "column_end": 51,
+                  "column_start": 51,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/context_stabilization.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 390,
+                  "line_start": 390,
+                  "suggested_replacement": ",\n                    &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 51,
+                      "highlight_start": 51,
+                      "text": "                    | Content::Dynamic(..) => None,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 10415,
+              "byte_start": 10402,
+              "column_end": 36,
+              "column_start": 23,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/context_stabilization.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 270,
+              "line_start": 270,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 36,
+                  "highlight_start": 23,
+                  "text": "                match producer_root {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-094",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "target_match_line": 638,
+      "target_byte_start": 25138,
+      "target_byte_end": 25159,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline/context_stabilization.rs:638:31\n     |\n 638 |                         match producer_root {\n     |                               ^^^^^^^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 758 ~                             | Content::Dynamic(..) => None,\n 759 ~                             &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 31494,
+                  "byte_start": 31494,
+                  "column_end": 59,
+                  "column_start": 59,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/context_stabilization.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 758,
+                  "line_start": 758,
+                  "suggested_replacement": ",\n                            &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 59,
+                      "highlight_start": 59,
+                      "text": "                            | Content::Dynamic(..) => None,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 25157,
+              "byte_start": 25144,
+              "column_end": 44,
+              "column_start": 31,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/context_stabilization.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 638,
+              "line_start": 638,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 44,
+                  "highlight_start": 31,
+                  "text": "                        match producer_root {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-095",
+      "file": "03_infra/src/pipeline/html.rs",
+      "target_match_line": 306,
+      "target_byte_start": 11383,
+      "target_byte_end": 11415,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline/html.rs:306:15\n     |\n 306 |         match html_callback_root(node) {\n     |               ^^^^^^^^^^^^^^^^^^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 433 ~             | Content::Dynamic(..) => {},\n 434 +             &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 16183,
+                  "byte_start": 16183,
+                  "column_end": 41,
+                  "column_start": 41,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/html.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 433,
+                  "line_start": 433,
+                  "suggested_replacement": ",\n            &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 41,
+                      "highlight_start": 41,
+                      "text": "            | Content::Dynamic(..) => {}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 11413,
+              "byte_start": 11389,
+              "column_end": 39,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/html.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 306,
+              "line_start": 306,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 39,
+                  "highlight_start": 15,
+                  "text": "        match html_callback_root(node) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-096",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "target_match_line": 15,
+      "target_byte_start": 718,
+      "target_byte_end": 731,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 03_infra/src/pipeline/paged.rs:15:30\n    |\n 15 |         \"text.font\" => match value {\n    |                              ^^^^^ pattern `&typst_core::entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `typst_core::entities::value::Value` defined here\n   --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/value.rs:82:1\n    |\n 82 | pub enum Value {\n    | ^^^^^^^^^^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&typst_core::entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n 56 ~             | Value::SpotColorant(..) => false,\n 57 ~             &typst_core::entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::value::Value` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 2496,
+                  "byte_start": 2482,
+                  "column_end": 15,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/value.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 82,
+                  "line_start": 82,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 15,
+                      "highlight_start": 1,
+                      "text": "pub enum Value {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 10383,
+                  "byte_start": 10362,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/value.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 231,
+                  "line_start": 231,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::value::Value`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 2082,
+                  "byte_start": 2082,
+                  "column_end": 47,
+                  "column_start": 47,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 56,
+                  "line_start": 56,
+                  "suggested_replacement": ",\n            &typst_core::entities::value::Value::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 47,
+                      "highlight_start": 47,
+                      "text": "            | Value::SpotColorant(..) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::value::Value::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 729,
+              "byte_start": 724,
+              "column_end": 35,
+              "column_start": 30,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::value::Value::TektV16EvolutionProbe` not covered",
+              "line_end": 15,
+              "line_start": 15,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 35,
+                  "highlight_start": 30,
+                  "text": "        \"text.font\" => match value {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-097",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "target_match_line": 94,
+      "target_byte_start": 3533,
+      "target_byte_end": 3548,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline/paged.rs:94:11\n     |\n  94 |     match content {\n     |           ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 254 ~         | Content::Dynamic(..) => false,\n 255 ~         &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(), // Unproved: retain the ordinary complete layout cycle.\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 9527,
+                  "byte_start": 9527,
+                  "column_end": 40,
+                  "column_start": 40,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 254,
+                  "line_start": 254,
+                  "suggested_replacement": ",\n        &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 40,
+                      "highlight_start": 40,
+                      "text": "        | Content::Dynamic(..) => false, // Unproved: retain the ordinary complete layout cycle."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 3546,
+              "byte_start": 3539,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 94,
+              "line_start": 94,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-098",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "target_match_line": 345,
+      "target_byte_start": 12645,
+      "target_byte_end": 12670,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, _)` not covered\n   --> 03_infra/src/pipeline/paged.rs:345:30\n    |\n345 |     let same_carrier = match (content, &first) {\n    |                              ^^^^^^^^^^^^^^^^^ pattern `(&typst_core::entities::content::Content::TektV16EvolutionProbe, _)` not covered\n    |\n    = note: the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n591 ~         ) => false,\n592 ~         (&typst_core::entities::content::Content::TektV16EvolutionProbe, _) => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 21779,
+                  "byte_start": 21779,
+                  "column_end": 19,
+                  "column_start": 19,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 591,
+                  "line_start": 591,
+                  "suggested_replacement": ",\n        (&typst_core::entities::content::Content::TektV16EvolutionProbe, _) => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 19,
+                      "highlight_start": 19,
+                      "text": "        ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, _)` not covered",
+          "spans": [
+            {
+              "byte_end": 12668,
+              "byte_start": 12651,
+              "column_end": 47,
+              "column_start": 30,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "pattern `(&typst_core::entities::content::Content::TektV16EvolutionProbe, _)` not covered",
+              "line_end": 345,
+              "line_start": 345,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 47,
+                  "highlight_start": 30,
+                  "text": "    let same_carrier = match (content, &first) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-099",
+      "file": "03_infra/src/pipeline.rs",
+      "target_match_line": 517,
+      "target_byte_start": 22061,
+      "target_byte_end": 22073,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/pipeline.rs:517:23\n     |\n 517 |                 match node {\n     |                       ^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 650 ~                     | Content::Dynamic(..) => {},\n 651 ~                     &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!() // Descendants were visited by the enclosing L1 traversal.\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 28102,
+                  "byte_start": 28102,
+                  "column_end": 49,
+                  "column_start": 49,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 650,
+                  "line_start": 650,
+                  "suggested_replacement": ",\n                    &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 49,
+                      "highlight_start": 49,
+                      "text": "                    | Content::Dynamic(..) => {} // Descendants were visited by the enclosing L1 traversal."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 22071,
+              "byte_start": 22067,
+              "column_end": 27,
+              "column_start": 23,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 517,
+              "line_start": 517,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 27,
+                  "highlight_start": 23,
+                  "text": "                match node {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-101",
+      "file": "03_infra/src/query_helpers.rs",
+      "target_match_line": 215,
+      "target_byte_start": 8193,
+      "target_byte_end": 8205,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe` not covered\n   --> 03_infra/src/query_helpers.rs:215:11\n    |\n215 |     match kind {\n    |           ^^^^ pattern `typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe` not covered\n    |\nnote: `typst_core::entities::element_kind::ElementKind` defined here\n   --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/element_kind.rs:16:1\n    |\n 16 | pub enum ElementKind {\n    | ^^^^^^^^^^^^^^^^^^^^\n...\n 97 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `typst_core::entities::element_kind::ElementKind`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n245 ~         | ElementKind::ContextBlock => 0,\n246 ~         typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::element_kind::ElementKind` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 564,
+                  "byte_start": 544,
+                  "column_end": 21,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/element_kind.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 16,
+                  "line_start": 16,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 21,
+                      "highlight_start": 1,
+                      "text": "pub enum ElementKind {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 4620,
+                  "byte_start": 4599,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/element_kind.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 97,
+                  "line_start": 97,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `typst_core::entities::element_kind::ElementKind`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 9355,
+                  "byte_start": 9355,
+                  "column_end": 41,
+                  "column_start": 41,
+                  "expansion": null,
+                  "file_name": "03_infra/src/query_helpers.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 245,
+                  "line_start": 245,
+                  "suggested_replacement": ",\n        typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 41,
+                      "highlight_start": 41,
+                      "text": "        | ElementKind::ContextBlock => 0,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 8203,
+              "byte_start": 8199,
+              "column_end": 15,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/query_helpers.rs",
+              "is_primary": true,
+              "label": "pattern `typst_core::entities::element_kind::ElementKind::TektV16EvolutionProbe` not covered",
+              "line_end": 215,
+              "line_start": 215,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 15,
+                  "highlight_start": 11,
+                  "text": "    match kind {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-102",
+      "file": "03_infra/src/query_helpers.rs",
+      "target_match_line": 250,
+      "target_byte_start": 9421,
+      "target_byte_end": 9436,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/query_helpers.rs:250:11\n     |\n 250 |     match content {\n     |           ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 376 ~         | Content::Dynamic(_) => 0,\n 377 ~         &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 13471,
+                  "byte_start": 13471,
+                  "column_end": 35,
+                  "column_start": 35,
+                  "expansion": null,
+                  "file_name": "03_infra/src/query_helpers.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 376,
+                  "line_start": 376,
+                  "suggested_replacement": ",\n        &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 35,
+                      "highlight_start": 35,
+                      "text": "        | Content::Dynamic(_) => 0,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 9434,
+              "byte_start": 9427,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/query_helpers.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 250,
+              "line_start": 250,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    },
+    {
+      "id": "V16-103",
+      "file": "03_infra/src/query_helpers.rs",
+      "target_match_line": 381,
+      "target_byte_start": 13537,
+      "target_byte_end": 13552,
+      "raw_primary_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 03_infra/src/query_helpers.rs:381:11\n     |\n 381 |     match content {\n     |           ^^^^^^^ pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `typst_core::entities::content::Content` defined here\n    --> /repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs:233:1\n     |\n 233 | pub enum Content {\n     | ^^^^^^^^^^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&typst_core::entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 507 ~         | Content::Dynamic(_) => 0,\n 508 ~         &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "`typst_core::entities::content::Content` defined here",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 10400,
+                  "byte_start": 10384,
+                  "column_end": 17,
+                  "column_start": 1,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": true,
+                  "label": "",
+                  "line_end": 233,
+                  "line_start": 233,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 17,
+                      "highlight_start": 1,
+                      "text": "pub enum Content {"
+                    }
+                  ]
+                },
+                {
+                  "byte_end": 65742,
+                  "byte_start": 65721,
+                  "column_end": 26,
+                  "column_start": 5,
+                  "expansion": null,
+                  "file_name": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-green/01_core/src/entities/content.rs",
+                  "is_primary": false,
+                  "label": "not covered",
+                  "line_end": 1309,
+                  "line_start": 1309,
+                  "suggested_replacement": null,
+                  "suggestion_applicability": null,
+                  "text": [
+                    {
+                      "highlight_end": 26,
+                      "highlight_start": 5,
+                      "text": "    TektV16EvolutionProbe,"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `&typst_core::entities::content::Content`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 17587,
+                  "byte_start": 17587,
+                  "column_end": 35,
+                  "column_start": 35,
+                  "expansion": null,
+                  "file_name": "03_infra/src/query_helpers.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 507,
+                  "line_start": 507,
+                  "suggested_replacement": ",\n        &typst_core::entities::content::Content::TektV16EvolutionProbe => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 35,
+                      "highlight_start": 35,
+                      "text": "        | Content::Dynamic(_) => 0,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+          "spans": [
+            {
+              "byte_end": 13550,
+              "byte_start": 13543,
+              "column_end": 18,
+              "column_start": 11,
+              "expansion": null,
+              "file_name": "03_infra/src/query_helpers.rs",
+              "is_primary": true,
+              "label": "pattern `&typst_core::entities::content::Content::TektV16EvolutionProbe` not covered",
+              "line_end": 381,
+              "line_start": 381,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 18,
+                  "highlight_start": 11,
+                  "text": "    match content {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ]
+    }
+  ],
+  "copied_core_bridge": {
+    "insertions": 212,
+    "changed_core_files": 104,
+    "reconstructed_from_raw_suggestions": true,
+    "infra_source_edits": 0,
+    "no_runtime_execution": true
+  },
+  "tuple_axis_reviews": [
+    {
+      "phase": "baseline",
+      "name": "V16-074-new-left-old-right",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "8b4b8b78d58893f237b230e612064412b87fd55085ffe57193bba41816fe824a",
+      "raw_log_sha256": "816c990ae5932ddea06111703208c086b8e8f86abf68d105d7ed099e6b13d71f",
+      "error_codes": {
+        "E0004": 207
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "baseline",
+      "name": "V16-074-old-left-new-right",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,",
+      "source_sha256": "7893c2bf29bb79a1e0fa707ef93d53c373abf4ab2dd0e171c2cdb54784ce00fb",
+      "raw_log_sha256": "e768c3faf9c6ffdf0c4ea848913efd2eddbea361082b05c1a206c0f9c338ca07",
+      "error_codes": {
+        "E0004": 207
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "baseline",
+      "name": "V16-074-new-new",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "1aa256e5b1f11e33a0c8c71844a9287db305d8e794c9d08936db64a2f54342b0",
+      "raw_log_sha256": "219e18e72df7e23069e8317c4cd0c4de384423b493a5d75a7792f75919dc7716",
+      "error_codes": {
+        "E0004": 207
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "baseline",
+      "name": "V16-098-new-left-old-right",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "4a21ba88220c1a8230889558234d3b1aee518b7d72a0f0f13ddd10b1c5604fdb",
+      "raw_log_sha256": "934534af0ab542ca3add78cc029b7340cdc75f844cc3b29a78c6210ecc34a0fc",
+      "error_codes": {
+        "E0004": 9
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    },
+    {
+      "phase": "baseline",
+      "name": "V16-098-old-left-new-right",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,",
+      "source_sha256": "49d47cc9571c26f28cee4e7c8617fba73e8b8152828c241c6998fd2946a0b267",
+      "raw_log_sha256": "3d0d5b754b4f3311f4ebfbe91647d37ef15044145d00b12dcb67ee521698e8e9",
+      "error_codes": {
+        "E0004": 9
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    },
+    {
+      "phase": "baseline",
+      "name": "V16-098-new-new",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "616851f0b48f8f71c893870c75e859837bb2fab3a0aa6d12ec62aee8942876ec",
+      "raw_log_sha256": "d25b89f13a2044d36506dbcc67ec2ee09ac2cef487d481241f64fead93231934",
+      "error_codes": {
+        "E0004": 9
+      },
+      "primary_target_e0004": [],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    },
+    {
+      "phase": "green",
+      "name": "V16-074-new-left-old-right",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "57732a990e6ceb4753affdee735017ba7bbc8873f4c248bf2c345f8a648509fd",
+      "raw_log_sha256": "6471c484871ba81f48c5754b18167018a37a22012f899b312ae507aac888beac",
+      "error_codes": {
+        "E0004": 212
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 113 more not covered\n  --> 01_core/src/entities/content/equality.rs:11:15\n   |\n11 |         match (self, other) {\n   |               ^^^^^^^^^^^^^ patterns `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 113 more not covered\n   |\n   = note: the matched value is of type `(&entities::content::Content, &entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms\n   |\n465~             ) => false,\n466~             _ => todo!(),\n   |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&entities::content::Content, &entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 22121,
+                  "byte_start": 22121,
+                  "column_end": 23,
+                  "column_start": 23,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/equality.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 465,
+                  "line_start": 465,
+                  "suggested_replacement": ",\n            _ => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 23,
+                      "highlight_start": 23,
+                      "text": "            ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 113 more not covered",
+          "spans": [
+            {
+              "byte_end": 265,
+              "byte_start": 252,
+              "column_end": 28,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/equality.rs",
+              "is_primary": true,
+              "label": "patterns `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Empty)`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Text(_))`, `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::Space)` and 113 more not covered",
+              "line_end": 11,
+              "line_start": 11,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 28,
+                  "highlight_start": 15,
+                  "text": "        match (self, other) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "green",
+      "name": "V16-074-old-left-new-right",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,",
+      "source_sha256": "a20bacc9c7e8046df790831ab5fb2a7940c7013234d07e7bc386d03ab7ac5fe7",
+      "raw_log_sha256": "844c2bad84291a676d55086816b674ecc50e09069536c927df6a77c939be3321",
+      "error_codes": {
+        "E0004": 212
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&entities::content::Content::Empty, &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Text(_), &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Space, &entities::content::Content::TektV16EvolutionProbe)` and 113 more not covered\n  --> 01_core/src/entities/content/equality.rs:11:15\n   |\n11 |         match (self, other) {\n   |               ^^^^^^^^^^^^^ patterns `(&entities::content::Content::Empty, &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Text(_), &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Space, &entities::content::Content::TektV16EvolutionProbe)` and 113 more not covered\n   |\n   = note: the matched value is of type `(&entities::content::Content, &entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms\n   |\n465~             ) => false,\n466~             _ => todo!(),\n   |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&entities::content::Content, &entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 22121,
+                  "byte_start": 22121,
+                  "column_end": 23,
+                  "column_start": 23,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/equality.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 465,
+                  "line_start": 465,
+                  "suggested_replacement": ",\n            _ => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 23,
+                      "highlight_start": 23,
+                      "text": "            ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&entities::content::Content::Empty, &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Text(_), &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Space, &entities::content::Content::TektV16EvolutionProbe)` and 113 more not covered",
+          "spans": [
+            {
+              "byte_end": 265,
+              "byte_start": 252,
+              "column_end": 28,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/equality.rs",
+              "is_primary": true,
+              "label": "patterns `(&entities::content::Content::Empty, &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Text(_), &entities::content::Content::TektV16EvolutionProbe)`, `(&entities::content::Content::Space, &entities::content::Content::TektV16EvolutionProbe)` and 113 more not covered",
+              "line_end": 11,
+              "line_start": 11,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 28,
+                  "highlight_start": 15,
+                  "text": "        match (self, other) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "green",
+      "name": "V16-074-new-new",
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "b7fcb4970078311ea08c7a0ba08b939b86c9dcb845d47b30a4b5e7c933069eec",
+      "raw_log_sha256": "a7fa95adcd94dfff5ac6cf55d370d3b0ab8bf31184a0dcdb3c83dc51776f96b8",
+      "error_codes": {
+        "E0004": 212
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe)` not covered\n  --> 01_core/src/entities/content/equality.rs:11:15\n   |\n11 |         match (self, other) {\n   |               ^^^^^^^^^^^^^ pattern `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe)` not covered\n   |\n   = note: the matched value is of type `(&entities::content::Content, &entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n   |\n465~             ) => false,\n466~             (&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe) => todo!(),\n   |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&entities::content::Content, &entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 28059,
+                  "byte_start": 28059,
+                  "column_end": 23,
+                  "column_start": 23,
+                  "expansion": null,
+                  "file_name": "01_core/src/entities/content/equality.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 465,
+                  "line_start": 465,
+                  "suggested_replacement": ",\n            (&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe) => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 23,
+                      "highlight_start": 23,
+                      "text": "            ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "byte_end": 265,
+              "byte_start": 252,
+              "column_end": 28,
+              "column_start": 15,
+              "expansion": null,
+              "file_name": "01_core/src/entities/content/equality.rs",
+              "is_primary": true,
+              "label": "pattern `(&entities::content::Content::TektV16EvolutionProbe, &entities::content::Content::TektV16EvolutionProbe)` not covered",
+              "line_end": 11,
+              "line_start": 11,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 28,
+                  "highlight_start": 15,
+                  "text": "        match (self, other) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": false
+    },
+    {
+      "phase": "green",
+      "name": "V16-098-new-left-old-right",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 345,
+        "byte_start": 12645,
+        "byte_end": 12670,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "36a2c6f787d15dab267beb61346382949a1b84a0ed7acc2eb3e03475947b22e1",
+      "raw_log_sha256": "982a2b9aa99daf71c019ebb970fb7165e337c3d198456e238b67841c98397a7e",
+      "error_codes": {
+        "E0004": 25
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Source(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::ShowRecipe(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Realized(_))` and 117 more not covered\n   --> 03_infra/src/pipeline/paged.rs:345:30\n    |\n345 |     let same_carrier = match (content, &first) {\n    |                              ^^^^^^^^^^^^^^^^^ patterns `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Source(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::ShowRecipe(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Realized(_))` and 117 more not covered\n    |\n    = note: the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms\n    |\n593 ~         ) => false,\n594 ~         _ => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 21826,
+                  "byte_start": 21826,
+                  "column_end": 19,
+                  "column_start": 19,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 593,
+                  "line_start": 593,
+                  "suggested_replacement": ",\n        _ => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 19,
+                      "highlight_start": 19,
+                      "text": "        ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Source(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::ShowRecipe(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Realized(_))` and 117 more not covered",
+          "spans": [
+            {
+              "byte_end": 12668,
+              "byte_start": 12651,
+              "column_end": 47,
+              "column_start": 30,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "patterns `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Source(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::ShowRecipe(_))`, `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::Realized(_))` and 117 more not covered",
+              "line_end": 345,
+              "line_start": 345,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 47,
+                  "highlight_start": 30,
+                  "text": "    let same_carrier = match (content, &first) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    },
+    {
+      "phase": "green",
+      "name": "V16-098-old-left-new-right",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 345,
+        "byte_start": 12645,
+        "byte_end": 12670,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,",
+      "source_sha256": "c404d0bf5756f8c73ccad1647557399879d31c8200e5cf0312c8ba3a6bd0e305",
+      "raw_log_sha256": "4db6853e359dd2949c38e90f0ccd730e85e1740345c7b7ffb5a5fb73cf3061e8",
+      "error_codes": {
+        "E0004": 25
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&typst_core::entities::content::Content::Source(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::ShowRecipe(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::Realized(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)` and 117 more not covered\n   --> 03_infra/src/pipeline/paged.rs:345:30\n    |\n345 |     let same_carrier = match (content, &first) {\n    |                              ^^^^^^^^^^^^^^^^^ patterns `(&typst_core::entities::content::Content::Source(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::ShowRecipe(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::Realized(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)` and 117 more not covered\n    |\n    = note: the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms\n    |\n593 ~         ) => false,\n594 ~         _ => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern as shown, or multiple match arms",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 21826,
+                  "byte_start": 21826,
+                  "column_end": 19,
+                  "column_start": 19,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 593,
+                  "line_start": 593,
+                  "suggested_replacement": ",\n        _ => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 19,
+                      "highlight_start": 19,
+                      "text": "        ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&typst_core::entities::content::Content::Source(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::ShowRecipe(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::Realized(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)` and 117 more not covered",
+          "spans": [
+            {
+              "byte_end": 12668,
+              "byte_start": 12651,
+              "column_end": 47,
+              "column_start": 30,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "patterns `(&typst_core::entities::content::Content::Source(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::ShowRecipe(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)`, `(&typst_core::entities::content::Content::Realized(_), &typst_core::entities::content::Content::TektV16EvolutionProbe)` and 117 more not covered",
+              "line_end": 345,
+              "line_start": 345,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 47,
+                  "highlight_start": 30,
+                  "text": "    let same_carrier = match (content, &first) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    },
+    {
+      "phase": "green",
+      "name": "V16-098-new-new",
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 345,
+        "byte_start": 12645,
+        "byte_end": 12670,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,",
+      "source_sha256": "c928215500d37fc7c3ac80f2969b3e2535df1f6534c99e6688f935f56943590b",
+      "raw_log_sha256": "681dde13d760080f434803f78b6d1ab39e9689edbe1cb6424328152a79e2ff00",
+      "error_codes": {
+        "E0004": 25
+      },
+      "primary_target_e0004": [
+        {
+          "rendered": "error[E0004]: non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe)` not covered\n   --> 03_infra/src/pipeline/paged.rs:345:30\n    |\n345 |     let same_carrier = match (content, &first) {\n    |                              ^^^^^^^^^^^^^^^^^ pattern `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe)` not covered\n    |\n    = note: the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n593 ~         ) => false,\n594 ~         (&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe) => todo!(),\n    |\n\n",
+          "$message_type": "diagnostic",
+          "children": [
+            {
+              "children": [],
+              "code": null,
+              "level": "note",
+              "message": "the matched value is of type `(&typst_core::entities::content::Content, &typst_core::entities::content::Content)`",
+              "rendered": null,
+              "spans": []
+            },
+            {
+              "children": [],
+              "code": null,
+              "level": "help",
+              "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+              "rendered": null,
+              "spans": [
+                {
+                  "byte_end": 27764,
+                  "byte_start": 27764,
+                  "column_end": 19,
+                  "column_start": 19,
+                  "expansion": null,
+                  "file_name": "03_infra/src/pipeline/paged.rs",
+                  "is_primary": true,
+                  "label": null,
+                  "line_end": 593,
+                  "line_start": 593,
+                  "suggested_replacement": ",\n        (&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe) => todo!()",
+                  "suggestion_applicability": "HasPlaceholders",
+                  "text": [
+                    {
+                      "highlight_end": 19,
+                      "highlight_start": 19,
+                      "text": "        ) => false,"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "level": "error",
+          "message": "non-exhaustive patterns: `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe)` not covered",
+          "spans": [
+            {
+              "byte_end": 12668,
+              "byte_start": 12651,
+              "column_end": 47,
+              "column_start": 30,
+              "expansion": null,
+              "file_name": "03_infra/src/pipeline/paged.rs",
+              "is_primary": true,
+              "label": "pattern `(&typst_core::entities::content::Content::TektV16EvolutionProbe, &typst_core::entities::content::Content::TektV16EvolutionProbe)` not covered",
+              "line_end": 345,
+              "line_start": 345,
+              "suggested_replacement": null,
+              "suggestion_applicability": null,
+              "text": [
+                {
+                  "highlight_end": 47,
+                  "highlight_start": 30,
+                  "text": "    let same_carrier = match (content, &first) {"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "code": "E0004",
+            "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+          }
+        }
+      ],
+      "snapshot_only_added_exact_mask": true,
+      "mask_covers_other_two_directions_only": true,
+      "copied_core_bridge_used": true
+    }
+  ],
+  "tuple_results": {
+    "baseline_original_absorbs_each_direction": 6,
+    "candidate_each_direction_primary_e0004": 6,
+    "all_logs_only_e0004_errors": true,
+    "exact_mask_only_target_mutations": true
+  },
+  "current_source_drift_from_reviewed_candidate_snapshot": [],
+  "evidence_sha256": {
+    "structural-green/receipt.json": "dd6025cb0e5f761f9d1266548ab00d5b4660788db3abb0ee7e13408d26f9fa56",
+    "structural-green/original-sources.json.gz": "7788e1d4eb5628a33eca63c2ee2d5422d8b702946f77fa19a9834bc69f009c25",
+    "structural-green/enum-mutations.json.gz": "72b46ceda953f9d8f936bfd3d55a049fc7bf70b39d57786b69ff551db8f46c2f",
+    "structural-green/core-probe-only-bridges.json.gz": "374dc8300db2e25bd2ca5c200056ffecb78b2b4fe7628627174b81bb31d07038",
+    "structural-green/bridged-core-sources.json.gz": "fcab75a9223e02538edfbacbac45cb35bfe70fdc2927fb487c67bdf198975cd8",
+    "tuple-axes-baseline/receipt.json": "85c91b8a21212f3e29a73fec0978dd7e4081af83966e8d7efa9bb67a229a41bd",
+    "tuple-axes-green/receipt.json": "5dd101660a9ae39de904cfda28cfe026f7b541da313462408c6d83bab85eae4d"
+  },
+  "limits": [
+    "Compiler E0004 obligations protect future explicit decisions, not current runtime language parity or each grouped alternative.",
+    "All tuple masks exist only in disposable real-workspace copies, cover the other two new tuple classes and never execute. No toy enum or unselected error is accepted as selected evidence.",
+    "If productive inputs subsequently change, this report remains historical candidate2 proof and final receipts must be rebound/revalidated as needed."
+  ]
+}

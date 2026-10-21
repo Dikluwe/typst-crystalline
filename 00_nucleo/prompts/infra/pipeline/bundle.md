@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/bundle
-Hash do Código: 62d659d7
+Hash do Código: 6f2aa8da
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -153,3 +153,107 @@ Extend only private introspect_bundle_with_runtime_for_pipeline with actual html
 ### Acceptance and limits
 
 L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+
+## Supported table visual descendants in final HTML projection
+
+### Evidence before decision
+
+At baseline4382891, `03_infra/src/pipeline/bundle.rs:321–390` converts Heading in
+explicit prose/HTML containers but leaves Table, TableCell, TableHeader and
+TableFooter unchanged. Current-pin probes in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json`
+show plain Table text accepted by both engines, while table-cell, table-header
+and isolated Cell Headings are accepted by the oracle and rejected by the
+product. The independent footer source is retained in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/footer-oracle-control/receipt.json`.
+Link text itself is unsupported, so Link-heading failure does not justify adding
+Link projection. Existing level6 heading DOM matches; standalone warning omission
+and detached bundle warning origins remain uncertified diagnostic boundaries.
+
+`03_infra/src/export/html/table.rs:70–126` selects resolved plan rows including
+footer rows, but the raw fallback emits only header and ordinary children.
+`00_nucleo/prompts/infra/export/html/table.md` explicitly preserves that fallback
+without inventing separate footer rendering. The field projection still retains
+and converts a raw footer; using the same diagnostic sink for that dormant field
+would create a deep-heading warning for absent output. This is an observed
+internal renderer boundary, not a ratified language default or an exemption from
+language parity. The exact current-pin public resolved-footer source, output,
+message and two hints are measured before the decision in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-deep-oracle/receipt.json`;
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-readonly-plan.json`
+retains the source-level distinction and prior owner hashes.
+
+
+### Contract and acceptance
+
+Project only these already HTML-supported Table/Cell/Header/Footer visual
+children. A resolved Table transforms active plan cells and preserves dormant
+raw source fields; a raw Table transforms existing header, children and footer
+in their visual order. A Cell in a Table row slot transforms its resolved visual when present, then
+standalone visual, then body. A Cell emitted through ordinary inline content
+transforms standalone visual when present, otherwise body, even when a dormant
+resolved snapshot also exists. Recurse into the selected visual with ordinary
+inline selection: a resolved table plan can contain an inner Cell with both
+snapshots. Preserve every unselected snapshot. This distinction follows the
+actual renderer; never transform both snapshots or emit duplicate warnings. Clone and preserve nonvisual metadata,
+presence, placement, spans, kinds, repeat flags and complete snapshots. Caption
+remains currently unrendered data and contributes neither new output nor warnings.
+
+Keep retained field conversion distinct from emitted diagnostic effects. A raw
+Table footer remains projected exactly as a field, with its metadata and nested
+content intact, while its currently unrendered branch creates no deep-heading
+warning. A private emitted/dormant state follows every owner-local recursive
+edge, including Source, Styled, Realized.visual and nested Tables; dormant state
+is monotonic and never reactivates through a wrapper or nested container. This
+state is independent of Table-row versus ordinary-inline Cell selection. Only
+an emitted Heading may create its existing diagnostic. Do not create then
+filter/discard warnings, match messages to suppress them, or change any global
+walker, renderer, supported kind, public API, target/default or pipeline phase.
+The same standalone Footer and resolved Table footer remain emitted and retain
+the exact deep-heading warning and both hints once.
+
+
+Preserve recursive causal carriers/styles and keep HtmlFrame a terminal paged
+island, including frames in cells. A blanket map must not preconvert its body.
+Unsupported semantic containers retain their export error. No callback, recipe
+replay, semantic reindexing or global-snapshot mutation is allowed.
+
+Verify actual bundle Table/Cell/Header/Footer heading output, sections/spans,
+and resolved/standalone forms through public preparation. Inactive raw/caption
+snapshots remain intact. Heading offset/deep warning occurs once in visual order;
+frames containing Headings stay unconverted and emit no semantic HTML heading
+warning. Preserve unsupported Link behavior and existing raw footer-emission
+limits. This bounded ADR-0127 parity correction changes no public API, pipeline
+phase, target/default or table-layout algorithm; it certifies no complete
+Table/HTML or diagnostic parity.
+
+Require raw deep-footer controls for direct content, Source→Styled→Realized.visual
+and a nested Table: retained fields are still converted to div/aria-level7,
+raw-rendered footer output remains absent and no phantom warning is produced.
+The emitted standalone and provenance-bound public resolved-footer positives
+must preserve the complete warning message and the two exact hint texts once.
+Keep every preexisting raw-field, snapshot, caption, frame, section and public
+preparation assertion unchanged. This preserves the observed raw fallback; it
+does not declare its footer omission an intended language divergence.
+
+
+### Nested prepared cell selection evidence
+
+The provenance-bound diagnostic run at
+`lab/results/v16-corrections-2026-10-19/batch-g/bundle-diagnostic/receipt.json`
+records body/header/footer Table heading failures while the standalone-cell
+control succeeds. `01_core/src/compiler/realize/table_cells.rs:934–972` can retain
+resolved data while constructing standalone data; `:1347–1357` places that Cell
+product inside the outer resolved visual. `03_infra/src/export/html/table.rs:44–50`
+selects resolved data only for direct Table row slots, whereas
+`03_infra/src/export/html/inline.rs:110–115` selects standalone data or body for
+an ordinarily emitted Cell. These are source-mechanical causes of the measured
+language failure, not a new language distinction.
+
+The owner-local projection must follow those exact emission boundaries. Carry
+Table-row selection through the renderer's flattened Sequence/Header/Footer
+slots, then resume ordinary selection inside the chosen Cell visual. Do not
+invent Source flattening, change the generic walker, widen unsupported content,
+replace the renderer, or discard raw/resolved/standalone snapshots. The existing
+four unchanged public-preparation source assertions remain required acceptance.

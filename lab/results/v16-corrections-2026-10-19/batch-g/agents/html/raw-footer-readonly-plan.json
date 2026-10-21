@@ -1,0 +1,43 @@
+{
+  "utc": "2026-10-20T23:50:26.885338+00:00",
+  "mode": "Read-only draft during global source/L0 freeze; no execution or productive change",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "inputs": {
+    "03_infra/src/pipeline/bundle.rs": "91aa0aaf3a2575e47127a30c8cc813fe4cfe3605cc2b46a717dd5cc416315cf0",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "8b0fa001c05dbabf79f2986f1b18ded106b7959b5e6c04e0619a385c8b3f84d2",
+    "03_infra/src/export/html/table.rs": "a96602189d9271c512ce66c1b04b71fc0636041997a7a5696b3029bdf21b2ec5",
+    "00_nucleo/prompts/infra/export/html/table.md": "1d1acde75cc119b68b9de441efcf14d6877de935457104279a107420c6e1fa15",
+    "03_infra/src/export/html/inline.rs": "d0f09f7857c00165a14252eb0f6e02fb2a105272adde13e9e4764d3dd927d0ef"
+  },
+  "evidence": {
+    "owner_contract": "bundle.md requires raw footer field projection and no dormant-caption effects; existing raw field test asserts footer Heading(1) becomes h2.",
+    "renderer_contract": "html/table.md requires raw header/ordinary children and explicitly forbids inventing separate footer.",
+    "renderer_source": "html/table.rs raw fallback emits header and children, then closes table; ignores table.footer. Resolved branch independently emits tfoot rows.",
+    "current_projection": "bundle.rs raw Table calls heading conversion on footer with shared warning sink, so level6 raw footer would produce a diagnostic even though raw renderer omits its node.",
+    "classification": "A source-level causal inconsistency, not yet counted as an executed semantic RED. Current public resolved footer rendering test and CLI policy must remain unchanged."
+  },
+  "draft_tests": "raw-footer-controls-draft.rs",
+  "planned_exact_acceptance": [
+    "Raw deep footer field still transforms to div/aria7 and repeat=false; raw Table body renders; footer remains absent from output; warning vector must be empty. Exercise direct, Source\u2192Styled\u2192Realized.visual, and nested Table footer fields so dormant state cannot reactivate.",
+    "Standalone/emitted Footer with same Heading(6) retains exact deep-warning message/two hints once and output text.",
+    "Add actual compile_to_bundle_files deep-footer source control after release: resolved tfoot output and exactly one existing deep-warning payload; do not alter existing four sources or assertions."
+  ],
+  "bounded_proposal": [
+    "Keep field projection and diagnostic admission separate in the private HTML owner. A raw footer is projected as a retained field but is not admitted as emitted diagnostic content.",
+    "Pass a private emitted/dormant traversal state through EVERY local recursive projection call, including Source/Styled/Realized.visual/nested Table. Dormant is monotonic: no recursive wrapper or nested table can reactivate emitted effects. Only raw Table.footer changes emitted to dormant; table_row_slot remains an independent selection axis. Heading conversion remains exact in either state, while warning creation belongs only to emitted traversal.",
+    "All ordinary roots, standalone Footer, resolved table cells, header/body and nested selected Cell visual remain emitted when their parent is emitted. Existing HtmlFrame island opacity remains.",
+    "Do not collect warnings and discard/filter afterward; do not match warning text or weaken checks; do not change renderer/global map/public API/phase/defaults; do not discard or stop projecting retained footer fields."
+  ],
+  "next_gate": "Parent must authorize L0/test addition then record actual focused RED before productive repair. All existing tests remain byte-for-byte unchanged.",
+  "draft_tests_sha256": "1092c6522a5db66094854e39efadc28f7fa9842487b847352dad853fbf841331",
+  "draft_test_count": 3,
+  "oracle_deep_footer_receipt": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-deep-oracle/receipt.json",
+    "sha256": "3f8eab22bc6b3390b47bf3fc2162ff2dd1ab47b23b5837cb92d32ab681e7eb32",
+    "result": "Current pinned oracle succeeds with resolved tfoot/div aria7 output and exact single deep-heading message/two hints; bundle experimental warning is separate."
+  },
+  "limits": [
+    "Raw footer omission is observed existing internal domain/renderer behavior, not a newly ratified language default or intended vanilla divergence.",
+    "Oracle measurement certifies only the exact public resolved-footer source; synthetic raw-footer warning acceptance is owned by the existing raw renderer contract."
+  ]
+}

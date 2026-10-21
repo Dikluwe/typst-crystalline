@@ -1,0 +1,24 @@
+{
+  "utc_start": "2026-10-21T00:16:40.246546+00:00",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--wait",
+    "--pipe",
+    "--collect",
+    "--unit=tekt-batch-g-focused-green-final",
+    "-p",
+    "MemoryMax=12G",
+    "-p",
+    "MemoryHigh=10G",
+    "-p",
+    "MemorySwapMax=0",
+    "--setenv=PATH=/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+    "--working-directory=/repos/Antigravity/typst-crystalline",
+    "python3",
+    "lab/results/v16-corrections-2026-10-19/batch-g/integrate_final.py"
+  ],
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "utc_end": "2026-10-21T00:19:15.210571+00:00",
+  "exit": 0
+}

@@ -1,0 +1,1 @@
+{ let a = title([A]); let b = title([B]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }

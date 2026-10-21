@@ -1,0 +1,246 @@
+{
+  "utc_start": "2026-10-20T23:06:09.177824+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": "",
+  "binaries": {
+    "oracle": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    },
+    "product": {
+      "path": "lab/target/product/debug/typst",
+      "sha256": "47773b808cf589b7e0f31602b2d791856196ae92ee49d0af24184ca4cfd90f76"
+    }
+  },
+  "cases": [
+    {
+      "name": "bundle-link-text",
+      "source": "#document(\"one.html\")[#link(\"https://example.org\")[TEXT]]\n",
+      "source_sha256": "0db442c20401e781e0d4ac479bf69c3f6c24fde2adf9ffc540cf44b73c145d76",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-link-text.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-link-text-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.409801+00:00",
+          "utc_end": "2026-10-20T23:06:09.417244+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\">TEXT</a></p></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-link-text.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-link-text-product-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.417794+00:00",
+          "utc_end": "2026-10-20T23:06:09.432223+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {}
+        }
+      }
+    },
+    {
+      "name": "bundle-table-text",
+      "source": "#document(\"one.html\")[#table(columns:1,[TEXT])]\n",
+      "source_sha256": "cf1bd95e56ec722008b5ec4f7d6efe64e5f66b8a0f54fed57811bb1bc2aff53b",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-text.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-text-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.432503+00:00",
+          "utc_end": "2026-10-20T23:06:09.439627+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tr><td>TEXT</td></tr></table></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-text.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-text-product-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.439891+00:00",
+          "utc_end": "2026-10-20T23:06:09.454572+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tbody><tr><td>TEXT</td></tr></tbody></table></body></html>"
+          }
+        }
+      }
+    },
+    {
+      "name": "bundle-table-heading",
+      "source": "#document(\"one.html\")[#table(columns:1,[#heading([H])])]\n",
+      "source_sha256": "bad44f2a31aaa5f1cc535482d45a26491440b3623a80a360f8a3e8d769d13fce",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-heading-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.454975+00:00",
+          "utc_end": "2026-10-20T23:06:09.462009+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tr><td><h2>H</h2></td></tr></table></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-table-heading-product-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.462288+00:00",
+          "utc_end": "2026-10-20T23:06:09.478281+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {}
+        }
+      }
+    },
+    {
+      "name": "bundle-cell-heading",
+      "source": "#document(\"one.html\")[#table.cell[#heading([H])]]\n",
+      "source_sha256": "712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-cell-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-cell-heading-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.478598+00:00",
+          "utc_end": "2026-10-20T23:06:09.485848+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h2>H</h2></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-cell-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-cell-heading-product-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.486151+00:00",
+          "utc_end": "2026-10-20T23:06:09.502018+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {}
+        }
+      }
+    },
+    {
+      "name": "bundle-tableheader-heading",
+      "source": "#document(\"one.html\")[#table(columns:1,table.header([#heading([H])]),[TEXT])]\n",
+      "source_sha256": "457bfdd51069bad3332915d2b1ea5d6dfb3a5eaa18a0995570a29e2505d802dd",
+      "runs": {
+        "oracle": {
+          "argv": [
+            "lab/typst-original/target/release/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-tableheader-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-tableheader-heading-oracle-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.502314+00:00",
+          "utc_end": "2026-10-20T23:06:09.509837+00:00",
+          "exit": 0,
+          "stdout": "",
+          "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {
+            "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><thead><tr><th><h2>H</h2></th></tr></thead><tbody><tr><td>TEXT</td></tr></tbody></table></body></html>"
+          }
+        },
+        "product": {
+          "argv": [
+            "lab/target/product/debug/typst",
+            "compile",
+            "--features",
+            "html,bundle",
+            "--format",
+            "bundle",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-tableheader-heading.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/bundle-tableheader-heading-product-out"
+          ],
+          "utc_start": "2026-10-20T23:06:09.510109+00:00",
+          "utc_end": "2026-10-20T23:06:09.527101+00:00",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: HTML export does not yet support this content\n\nwarning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n",
+          "html": {}
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-20T23:06:09.527160+00:00",
+  "binary_unchanged": true
+}

@@ -1,0 +1,187 @@
+{
+  "cases": [
+    {
+      "name": "title-alias",
+      "expression": "{ let a = title([A]); let b = a; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "title-equal",
+      "expression": "{ let a = title([A]); let b = title([A]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "title-different",
+      "expression": "{ let a = title([A]); let b = title([B]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "title-nested-sequence",
+      "expression": "{ let a = [X#title([A])]; let b = [X#title([A])]; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "title-nested-block",
+      "expression": "{ let a = block(title([A])); let b = block(title([A])); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "html-alias",
+      "expression": "{ let a = html.elem(\"div\", [A]); let b = a; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-same",
+      "expression": "{ let a = html.elem(\"div\", [A]); let b = html.elem(\"div\", [A]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-tag",
+      "expression": "{ let a = html.elem(\"div\", [A]); let b = html.elem(\"span\", [A]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-body",
+      "expression": "{ let a = html.elem(\"div\", [A]); let b = html.elem(\"div\", [B]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-unset-empty",
+      "expression": "{ let a = html.elem(\"div\"); let b = html.elem(\"div\", []); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-unset-none",
+      "expression": "{ let a = html.elem(\"div\"); let b = html.div(); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-none-empty",
+      "expression": "{ let a = html.div(); let b = html.div([]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-absent-empty",
+      "expression": "{ let a = html.elem(\"div\", [A]); let b = html.elem(\"div\", [A], attrs: (:)); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-same",
+      "expression": "{ let a = html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\")); let b = html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\")); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-order",
+      "expression": "{ let a = html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\")); let b = html.elem(\"div\", [A], attrs: (class: \"b\", id: \"a\")); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-different",
+      "expression": "{ let a = html.elem(\"div\", [A], attrs: (id: \"a\")); let b = html.elem(\"div\", [A], attrs: (id: \"b\")); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-order-sequence",
+      "expression": "{ let a = [X#html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\"))]; let b = [X#html.elem(\"div\", [A], attrs: (class: \"b\", id: \"a\"))]; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-order-title",
+      "expression": "{ let a = title(html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\"))); let b = title(html.elem(\"div\", [A], attrs: (class: \"b\", id: \"a\"))); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-order-block",
+      "expression": "{ let a = block(html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\"))); let b = block(html.elem(\"div\", [A], attrs: (class: \"b\", id: \"a\"))); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-attrs-order-frame",
+      "expression": "{ let a = html.frame(html.elem(\"div\", [A], attrs: (id: \"a\", class: \"b\"))); let b = html.frame(html.elem(\"div\", [A], attrs: (class: \"b\", id: \"a\"))); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-frame-alias",
+      "expression": "{ let a = html.frame([A]); let b = a; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-frame-same",
+      "expression": "{ let a = html.frame([A]); let b = html.frame([A]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "html-frame-different",
+      "expression": "{ let a = html.frame([A]); let b = html.frame([B]); (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "context-alias",
+      "expression": "{ let a = context [A]; let b = a; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "context-separate-same",
+      "expression": "{ let a = context [A]; let b = context [A]; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "context-separate-different",
+      "expression": "{ let a = context [A]; let b = context [B]; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "context-nested-sequence",
+      "expression": "{ let a = {let c = context [A]; [X#c]}; let b = a; (equal: a == b, unequal: a != b, member: a in (b,), nested: (value: (a,)) == (value: (b,)), left: repr(a), right: repr(b)) }",
+      "features": []
+    },
+    {
+      "name": "html-tristate-fields",
+      "expression": "{let a=html.elem(\"div\");let b=html.div();let c=html.div([]);(a: a.fields(),b: b.fields(),c: c.fields())}",
+      "features": [
+        "html"
+      ]
+    },
+    {
+      "name": "title-fields",
+      "expression": "title([A]).fields()",
+      "features": []
+    }
+  ]
+}

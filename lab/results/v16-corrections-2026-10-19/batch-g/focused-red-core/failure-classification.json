@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-20T23:18:30.513105+00:00",
+  "class": "invalid RED harness; no test executed",
+  "code": "E0308",
+  "cause": "New realization test used querySelector where actual ShowRule requires showSelector. cfg-only fixture construction correction required; no productive fix or suppressed test.",
+  "source": "01_core/src/compiler/realize/mod.rs",
+  "line": 575,
+  "raw_receipt_sha256": "ff224b68557b530dce24e9e49aaa42b22e3dbe9a1fcae4d0be2662a7103e0de1"
+}

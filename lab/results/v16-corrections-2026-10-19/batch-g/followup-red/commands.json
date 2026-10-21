@@ -1,0 +1,54 @@
+[
+  {
+    "name": "seal",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reseal.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reseal-followup-before-implementation"
+    ],
+    "utc_start": "2026-10-21T00:06:37.488989+00:00",
+    "utc_end": "2026-10-21T00:06:58.085018+00:00",
+    "exit": 0
+  },
+  {
+    "name": "core-depth",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py",
+      "--output",
+      "focused-followup-red-core",
+      "--package",
+      "typst-core",
+      "--expected-total",
+      "20",
+      "--expected-fail",
+      "carrier_debug_transparency_reaches_the_same_visible_depth_boundary",
+      "--expected-fail",
+      "carrier_hash_compatibility_covers_selected_old_and_new_content_families",
+      "--expected-fail",
+      "debug_retains_visible_max_depth_and_iterates_carriers_without_consuming_originals"
+    ],
+    "utc_start": "2026-10-21T00:06:58.085261+00:00",
+    "utc_end": "2026-10-21T00:08:21.326294+00:00",
+    "exit": 0
+  },
+  {
+    "name": "infra-footer",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/run_tests.py",
+      "--output",
+      "focused-followup-red-infra",
+      "--package",
+      "typst-infra",
+      "--expected-total",
+      "32",
+      "--expected-fail",
+      "batch_g_html_raw_footer_projection_has_no_unemitted_warning"
+    ],
+    "utc_start": "2026-10-21T00:08:21.326643+00:00",
+    "utc_end": "2026-10-21T00:08:49.094880+00:00",
+    "exit": 1
+  }
+]

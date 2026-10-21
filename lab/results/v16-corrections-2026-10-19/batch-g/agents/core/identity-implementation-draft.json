@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-21T00:09:23.583978+00:00",
+  "status": "Lab-only patch; active sources/L0 untouched during RED freeze",
+  "base_source_sha256": "e8fbb700e03331c551a6b984b8b10ce55164f24774fc4e6169c07f2145101b00",
+  "candidate_source_sha256": "d2701975d2f22070b38388477a7f25c917db06d1e3da49d51715dc7bdfe96a7f",
+  "patch_sha256": "04c544a61f9f6b87b0c345d57430ce72b6d401d9af1dc1545d68965fe643ce93",
+  "ordinary_complement_count": 116,
+  "four_carrier_borrowed_iterative": true,
+  "test_suffix_identical": true,
+  "execution": false
+}

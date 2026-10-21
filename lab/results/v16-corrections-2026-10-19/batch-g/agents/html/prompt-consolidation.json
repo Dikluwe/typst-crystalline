@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-20T23:39:01.779958+00:00",
+  "reason": "Consolidate only newly added Gsections into enduring contracts; preserve exact preconsolidation bytes/hash and unchanged preceding clauses",
+  "files": {
+    "00_nucleo/prompts/infra/export/html/document.md": {
+      "before_sha256": "691eeb4be8b8bfaa9dc427994b6148bbb651376fd6e7eebfc58c668b3fcdc5fb",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/prompt-history-before-g-consolidation/00_nucleo/prompts/infra/export/html/document.md",
+      "after_sha256": "c3e41d4b90e0cf26a38b2a73a8a3169429dd94c4ea043b9c072ca753a71b0a67"
+    },
+    "00_nucleo/prompts/infra/export/html/encoding.md": {
+      "before_sha256": "41d8387c1cd49ed70476b34650de61f78cfa1d280ed13096ec95ec94c1cbf2d0",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/prompt-history-before-g-consolidation/00_nucleo/prompts/infra/export/html/encoding.md",
+      "after_sha256": "971c92db63d39b99a409db5d2a53b70638223840806f25900b2add1d184c56aa"
+    },
+    "00_nucleo/prompts/infra/pipeline/bundle.md": {
+      "before_sha256": "9fbae1bca22fb731162e1a0dfe81f5ff7d99e3cf5440e81d195b9cf41f2a9a97",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/prompt-history-before-g-consolidation/00_nucleo/prompts/infra/pipeline/bundle.md",
+      "after_sha256": "b1e0f90515a8df99a076c2342b0dc0dff1871fa9a90f9072af921830350e2c84"
+    },
+    "00_nucleo/prompts/infra/pipeline/html.md": {
+      "before_sha256": "f5f8ddc10206a80eded428204179435f7e04d6f6fce42c13df3495f8e281f1fa",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/prompt-history-before-g-consolidation/00_nucleo/prompts/infra/pipeline/html.md",
+      "after_sha256": "eb59c471856c5a5ae940530227b6ec6d97f0cefd20efa42346cecbe855377b6a"
+    }
+  }
+}

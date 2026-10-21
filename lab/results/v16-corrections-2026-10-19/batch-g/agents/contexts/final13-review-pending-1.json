@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-21T00:22:48.568612+00:00",
+  "mode": "Final13 independent review in progress; evidence-only",
+  "available": {
+    "lint-final-2/after.sarif.gz": true,
+    "lint-delta-final.json": true,
+    "structural-green-final/receipt.json": true,
+    "tuple-axes-green-final/receipt.json": false,
+    "candidate-gates-final/receipt.json": false
+  },
+  "qualification": "Complete final structural/tuple/full-gate receipts are not yet available. No final GREEN/closure is inferred. Full13 lint review can proceed independently."
+}

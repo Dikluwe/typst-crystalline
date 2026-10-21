@@ -1,0 +1,338 @@
+{
+  "utc": "2026-10-20T23:37:29.962693+00:00",
+  "status": "Pre-candidate immutable source/oracle policies with exact measured warning omission; verifier hardened before candidate replay",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "oracle_receipt_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/footer-oracle-control/receipt.json": "195bf06a2275d4ef5d4d23f085accda7f02eda3eaa18503f4562a1982d379c13",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/receipt.json": "b844cc2f409227f1549352e8600908ccb6e9e3bcb9e4e2f82cac5a260236d361"
+  },
+  "dom_normalization": "Parse tags/attributes/text; preserve text exactly, including title/raw whitespace. Normalize only browser-implied tbody around direct table tr groups, so preexisting explicit-vs-implicit tbody is not mistaken for changed cell morphology. No whole-output byte comparator. Preserve document declarations, including doctype; case/whitespace normalize declarations only.",
+  "cases": [
+    {
+      "name": "metadata",
+      "source": "#metadata(1)\nA\n",
+      "source_sha256": "406608022d30434cff7f8490f8d843d4db4a1695fed65ae8be346501410c8db0",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "context-metadata",
+      "source": "#context { metadata(1) }\nA\n",
+      "source_sha256": "ff4df2b19ada4a597f8b794d5d0536ced8b9983ec6d60736c631814bb7e83b0c",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p>A</p></body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "link-heading",
+      "source": "#link(\"https://example.org\")[#heading([H])]\n",
+      "source_sha256": "20910f43f15192a2ba1b0db281d972c94ea12f5067e7eb531a3685576de8ee50",
+      "bundle": false,
+      "policy": {
+        "class": "explicit-unsupported-gap",
+        "dom_or_error_required": false,
+        "warning_payload_required": false,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\"><h2>H</h2></a></p></body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "bundle-link-heading",
+      "source": "#document(\"one.html\")[#link(\"https://example.org\")[#heading([H])]]\n",
+      "source_sha256": "88e2ec833ed0e5811c4321ccee5d9ae33a8d2f4dacd57f018d411099c73370d3",
+      "bundle": true,
+      "policy": {
+        "class": "explicit-unsupported-gap",
+        "dom_or_error_required": false,
+        "warning_payload_required": false,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\"><h2>H</h2></a></p></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "heading-six",
+      "source": "#heading(level:6)[H]\n",
+      "source_sha256": "05815f6a77bc37eec65d2e07964e08bb2bbcde2b9e4987b5761df542f423a917",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified.",
+        "allowed_missing_warnings": [
+          {
+            "severity": "warning",
+            "message": "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology",
+            "hints": [
+              "HTML only supports <h1> to <h6>, not <h7>",
+              "you may want to restructure your document so that it doesn't contain deep headings"
+            ]
+          }
+        ],
+        "warning_waiver": "Only this exact deep-heading warning may be absent, as measured before candidate. The exact HTML experimental feature warning and all its hints remain mandatory; extra or altered warnings fail."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\nwarning: heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/heading-six.typ:1:1\n  \u2502\n1 \u2502 #heading(level:6)[H]\n  \u2502  ^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: HTML only supports <h1> to <h6>, not <h7>\n  = hint: you may want to restructure your document so that it doesn't contain deep headings\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "bundle-heading-six",
+      "source": "#document(\"one.html\")[#heading(level:6)[H]]\n",
+      "source_sha256": "9f2cc76d2cdc8f3b7e975001f5c418d4711cab5652999c5d9139090f03529908",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><div role=\"heading\" aria-level=\"7\">H</div></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\nwarning: heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/bundle-heading-six.typ:1:23\n  \u2502\n1 \u2502 #document(\"one.html\")[#heading(level:6)[H]]\n  \u2502                        ^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: HTML only supports <h1> to <h6>, not <h7>\n  = hint: you may want to restructure your document so that it doesn't contain deep headings\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/initial-language-probes/receipt.json"
+    },
+    {
+      "name": "bundle-link-text",
+      "source": "#document(\"one.html\")[#link(\"https://example.org\")[TEXT]]\n",
+      "source_sha256": "0db442c20401e781e0d4ac479bf69c3f6c24fde2adf9ffc540cf44b73c145d76",
+      "bundle": true,
+      "policy": {
+        "class": "explicit-unsupported-gap",
+        "dom_or_error_required": false,
+        "warning_payload_required": false,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><p><a href=\"https://example.org\">TEXT</a></p></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json"
+    },
+    {
+      "name": "bundle-table-text",
+      "source": "#document(\"one.html\")[#table(columns:1,[TEXT])]\n",
+      "source_sha256": "cf1bd95e56ec722008b5ec4f7d6efe64e5f66b8a0f54fed57811bb1bc2aff53b",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tr><td>TEXT</td></tr></table></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json"
+    },
+    {
+      "name": "bundle-table-heading",
+      "source": "#document(\"one.html\")[#table(columns:1,[#heading([H])])]\n",
+      "source_sha256": "bad44f2a31aaa5f1cc535482d45a26491440b3623a80a360f8a3e8d769d13fce",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tr><td><h2>H</h2></td></tr></table></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json"
+    },
+    {
+      "name": "bundle-cell-heading",
+      "source": "#document(\"one.html\")[#table.cell[#heading([H])]]\n",
+      "source_sha256": "712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h2>H</h2></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json"
+    },
+    {
+      "name": "bundle-tableheader-heading",
+      "source": "#document(\"one.html\")[#table(columns:1,table.header([#heading([H])]),[TEXT])]\n",
+      "source_sha256": "457bfdd51069bad3332915d2b1ea5d6dfb3a5eaa18a0995570a29e2505d802dd",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><thead><tr><th><h2>H</h2></th></tr></thead><tbody><tr><td>TEXT</td></tr></tbody></table></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json"
+    },
+    {
+      "name": "bundle-footer-heading",
+      "source": "#document(\"one.html\")[#table(columns:1,[BODY],table.footer([#heading([FOOT])]))]\n",
+      "source_sha256": "9dc2f7e8f0dc261398e95eeacd35efb4571f18ea160a3aa3cf89cd35faf92e0d",
+      "bundle": true,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><table><tbody><tr><td>BODY</td></tr></tbody><tfoot><tr><td><h2>FOOT</h2></td></tr></tfoot></table></body></html>",
+        "stderr": "warning: bundle export is experimental\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/footer-oracle-control/receipt.json"
+    },
+    {
+      "name": "title-escaping",
+      "source": "#html.html[#html.head[#html.title[#text(\"A  B\\nC & < > \\\"\")]]#html.body[B]]\n",
+      "source_sha256": "b85f5b5b691d8e13d55b8787fb3573c20179ffe82ae6792559ad2180a2a60b4d",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html><head><title>A  B\nC &amp; &lt; > \"</title></head><body>B</body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/receipt.json"
+    },
+    {
+      "name": "title-nontext-rejected",
+      "source": "#html.html[#html.head[#html.title[#strong[NO]]]#html.body[B]]\n",
+      "source_sha256": "0e228dfedf89f093897318ab10a5c29775c3c53157fd61849b5d3aaa43a3508b",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 1,
+        "html": null,
+        "stderr": "error: HTML raw text element cannot have non-text children\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-nontext-rejected.typ:1:35\n  \u2502\n1 \u2502 #html.html[#html.head[#html.title[#strong[NO]]]#html.body[B]]\n  \u2502                                    ^^^^^^^^^^\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/receipt.json"
+    },
+    {
+      "name": "script-raw-escaping",
+      "source": "#html.script(\"if (a < b && c > d) { \\\"x\\\" }\")\n",
+      "source_sha256": "9bc72eca4127f3bce6eea6677f42474718a26d95f67583f5351675a2e2086b51",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 0,
+        "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><script>if (a < b && c > d) { \"x\" }</script></body></html>",
+        "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/receipt.json"
+    },
+    {
+      "name": "script-content-rejected",
+      "source": "#html.script[#strong[NO]]\n",
+      "source_sha256": "9937dc1ef6b447245e5c2e78f9261e6e112f750813e598fc19e8dba5c4a4a52f",
+      "bundle": false,
+      "policy": {
+        "class": "required-closure",
+        "dom_or_error_required": true,
+        "warning_payload_required": true,
+        "diagnostic_origin_required": false,
+        "limits": "Semantic DOM/error message and ordered warning/hint payload checked separately. Primary origins and complete stderr retained; existing standalone deep-heading warning omission and detached deep-heading origin are not certified."
+      },
+      "oracle": {
+        "exit": 1,
+        "html": null,
+        "stderr": "error: expected string, found content\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-content-rejected.typ:1:12\n  \u2502\n1 \u2502 #html.script[#strong[NO]]\n  \u2502             ^^^^^^^^^^^^^\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n"
+      },
+      "oracle_receipt": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/receipt.json"
+    }
+  ],
+  "limits": [
+    "Link remains explicitunsupportedgap, not a paritypass.",
+    "Standalone heading6 missing warning and bundle deep-warning primaryorigin remain measured unresolved diagnostic debt.",
+    "No claim of language production of synthetic LocatedMarker/LocatedFrame shapes; moduletests own those invariants.",
+    "Feature gates, warnings/errors and all output files captured; no renderer callbacks or Cargo execution by this runner.",
+    "Parsed diagnostic comparison includes severity/message/hints/primary origin and selected help lines, not complete trace/path/highlight equivalence. Raw stderr is retained; full-diagnostic parity is not claimed."
+  ]
+}

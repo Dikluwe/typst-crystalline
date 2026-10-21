@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-21T00:11:50.019286+00:00",
+  "source_before_sha256": "e8fbb700e03331c551a6b984b8b10ce55164f24774fc4e6169c07f2145101b00",
+  "source_after_sha256": "d2701975d2f22070b38388477a7f25c917db06d1e3da49d51715dc7bdfe96a7f",
+  "owner_sha256": "57285cabade2198b2bf1271f98c1cadfbae1336efb8c3bd3bbbe727f127de66f",
+  "test_suffix_byte_identical": true,
+  "nominal_formatter_byte_identical": true,
+  "closed_carriers": 4,
+  "closed_ordinary_alternatives": 116,
+  "cargo_fmt_seal": false,
+  "closed_match_line": 305,
+  "depth_check_line": 429
+}

@@ -1,5 +1,5 @@
 # L0 — html/document
-Hash do Código: 2f602cb5
+Hash do Código: 3531eac9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -39,8 +39,6 @@ to inline and their rendering to the external resolver.
 Check explicit html/body exclusivity, head as ordinary content, attributes/metadata,
 mixed paragraph boundaries, tables/frames and equivalent compact/pretty document DOM.
 
-
-## Realização com avaliação única
 
 ## Visual blocks, styled headings and explicit roots
 
@@ -194,3 +192,90 @@ carrier, retaining the existing passing direct-origin/heading controls. Recogniz
 ShowRecipe.body in the same borrowed original-root classification. Preserve all
 capture styles/rules/guards/file metadata untouched, never execute its callback or
 collapse it to infer identity. No new owner/API/phase, no Ref/SetPage expansion.
+
+
+## Located-root visual classification
+
+### Evidence before decision
+
+At baseline4382891, `03_infra/src/export/html/document.rs:28–46` uses
+bottom-up map_content. The contract in
+`00_nucleo/prompts/core/entities/content/traversal.md` suppresses a Located node's
+immediate-body callback and never revisits replacements. Thus Located(State),
+Located(Metadata), Located(Label(marker)) and a suppressed Realized root can
+miss the promised visual-root decision. Source hashes and measurements are in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/audit.json`.
+Direct and contextual Metadata language probes succeed; they do not establish
+external failure or language reachability of every synthetic Located shape.
+The exact local exporter regressions are preserved in the focused RED receipt
+`lab/results/v16-corrections-2026-10-19/batch-g/focused-red-infra-3/receipt.json`.
+
+### Contract and acceptance
+
+Classify the current visual root after peeling only existing causal carriers and
+Label roots. Preserve Realized Figure paragraph boundaries and use only its
+visual, never its original. Empty only State, StateUpdate and Metadata. Leave
+unresolved ContextBlock/StateDisplay and unsupported semantic nodes to the
+renderer diagnostic. Generic bottom-up child traversal, root suppression and
+replacement boundaries remain unchanged. Ordinary processed variants explicitly
+retain their content; this projection adds no supported semantic element and
+executes no transported recipe or callback.
+
+Verify direct/Located/double-Located/Source/Styled marker chains and Label bodies
+among text, Heading and explicit html/body roots. Preserve source/visual
+separation, all Figure product paragraphs/rich payloads and unsupported-producer
+errors. No global transparency, public API, target/default/phase or semantic
+indexing change is admitted. The internal correction follows ADR-0127 continuous
+flow; helper-level tests certify the local projection contract, not complete
+HTML language reachability.
+
+
+## Standalone Cell block-flow composition
+
+### Evidence before decision
+
+The current-pin source `bundle-cell-heading` in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/residual-container-probes/receipt.json`
+requires body/h2 for an isolated table.cell heading. The exact final-candidate
+attempt in `lab/results/v16-corrections-2026-10-19/batch-g/html-candidate/receipt.json`
+binds source SHA712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2,
+product SHA185e63b30415aaec44cca9115781a662077aa1edffab6aabe97166d7a82b1620,
+HEAD4382891f0d5f0839669597cb5c90a98f24cfb8bd, dirty inputs, UTC and argv.
+It emits body/p/h2 while exit and diagnostic payloads match. This is measured
+language morphology, not byte equivalence or a comparator-normalization issue.
+
+`03_infra/src/export/html/document.rs:253–320,357–419` classifies direct blocks,
+Source, Styled and Sequences but leaves a Cell to the paragraph fallback.
+`03_infra/src/export/html/inline.rs:110–115` then emits that Cell's standalone
+visual or body. The selected visual already contains the projected h2, so the
+outer paragraph survives incorrectly. `03_infra/src/export/html/table.rs:44–50`
+has a separate row-cell selection and owns td/th boundaries. The prior public
+preparation assertion checked the inner h2 substring; the frozen DOM policy also
+checks its actual outer form. Source hashes and the bounded causal reading are
+retained in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-block-flow-plan.json`.
+
+### Contract and acceptance
+
+In document block-presence detection, direct body composition and sequence
+accumulation, inspect the same borrowed Cell child as the ordinary inline
+renderer: standalone.visual when present, otherwise body. Its resolved snapshot
+is not the standalone-inline selection. Delegate that chosen child through the
+existing composition flow, inheriting the current StyleChain and paragraph quote
+state. A block child flushes adjacent paragraphs; plain inline or rich inline
+children remain in their surrounding paragraph. Preserve trimming, block resets,
+rich markup and all unselected Cell fields/snapshots.
+
+Do not peel Cells in project_visual_root or generic bottom-up traversal. A Table
+still reaches its dedicated renderer with nominal cells and exact td/th, span and
+resolved-row metadata intact. Do not change explicit html/body root recognition,
+support for semantic kinds, renderer dispatch, public API, target/default or
+pipeline phase. This is an ADR-0127 continuous correction inside existing HTML
+composition, not a new Cell mode or global transparency rule.
+
+Require direct isolated Cell h2 output without p/h2, and a mixed sequence with
+neighbor paragraphs and a rich heading child. Preserve a single paragraph for
+plain/Strong Cell content among inline text, and preserve a Table row's td/th
+and colspan/rowspan boundaries around a projected heading. The frozen standalone
+Cell language source must pass its original semantic DOM policy; all preceding
+tests, warning/error policies and unsupported-content diagnostics remain binding.

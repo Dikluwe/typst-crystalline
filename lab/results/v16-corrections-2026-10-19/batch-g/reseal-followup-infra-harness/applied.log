@@ -1,0 +1,3 @@
+Applied ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md hash-a=9a480b5e hash-b=fb371aa9
+
+Re-running analysis... ✅ 0 drift warnings remaining

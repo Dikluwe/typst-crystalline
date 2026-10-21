@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-20T23:45:55.939082+00:00",
+  "production_files": [
+    "03_infra/src/pipeline/bundle.rs"
+  ],
+  "owning_l0": "00_nucleo/prompts/infra/pipeline/bundle.md",
+  "before_archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/bundle-nested-visual-before",
+  "measured_red": "lab/results/v16-corrections-2026-10-19/batch-g/bundle-diagnostic/receipt.json",
+  "cause": "A table plan wraps another TableCell with both resolved and standalone snapshots. The row renderer chooses outer resolved; the nested inline renderer chooses standalone. Former projection chose resolved for both.",
+  "fix": "Owner-local table_row_slot selection follows direct row cells and flattened Sequence/Header/Footer. Selected visual recurses in ordinary inline mode. Source wrappers do not acquire raw-row flattening. Unselected snapshots remain unchanged; only selected branch contributes headings and warnings.",
+  "tests_byte_identical": true,
+  "current_sha256": {
+    "03_infra/src/pipeline/bundle.rs": "6314d985e78da9f7b9ba3c8c847e78735dbc4278b2eed975292472e16777d872",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "bc41c5971bcd10ffd2b4e6ee1d2b390200e91965afab87d03677df3357cbd138"
+  },
+  "structural_anchor": {
+    "file": "03_infra/src/pipeline/bundle.rs",
+    "function": "fn bundle_html_visual_content(",
+    "match": "match content {"
+  },
+  "validation": "Await parent serialized GREEN; no Cargo/fmt/seals performed by owner."
+}

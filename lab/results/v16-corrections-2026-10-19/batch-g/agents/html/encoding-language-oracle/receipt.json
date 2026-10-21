@@ -1,0 +1,83 @@
+{
+  "utc_start": "2026-10-20T23:36:36.412073+00:00",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "cases": [
+    {
+      "name": "title-escaping",
+      "source": "#html.html[#html.head[#html.title[#text(\"A  B\\nC & < > \\\"\")]]#html.body[B]]\n",
+      "source_sha256": "b85f5b5b691d8e13d55b8787fb3573c20179ffe82ae6792559ad2180a2a60b4d",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-escaping.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-escaping.html"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html><head><title>A  B\nC &amp; &lt; > \"</title></head><body>B</body></html>"
+    },
+    {
+      "name": "title-nontext-rejected",
+      "source": "#html.html[#html.head[#html.title[#strong[NO]]]#html.body[B]]\n",
+      "source_sha256": "0e228dfedf89f093897318ab10a5c29775c3c53157fd61849b5d3aaa43a3508b",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-nontext-rejected.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-nontext-rejected.html"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: HTML raw text element cannot have non-text children\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/title-nontext-rejected.typ:1:35\n  \u2502\n1 \u2502 #html.html[#html.head[#html.title[#strong[NO]]]#html.body[B]]\n  \u2502                                    ^^^^^^^^^^\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": null
+    },
+    {
+      "name": "script-raw-escaping",
+      "source": "#html.script(\"if (a < b && c > d) { \\\"x\\\" }\")\n",
+      "source_sha256": "9bc72eca4127f3bce6eea6677f42474718a26d95f67583f5351675a2e2086b51",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-raw-escaping.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-raw-escaping.html"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><script>if (a < b && c > d) { \"x\" }</script></body></html>"
+    },
+    {
+      "name": "script-content-rejected",
+      "source": "#html.script[#strong[NO]]\n",
+      "source_sha256": "9937dc1ef6b447245e5c2e78f9261e6e112f750813e598fc19e8dba5c4a4a52f",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "--features",
+        "html",
+        "--format",
+        "html",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-content-rejected.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-content-rejected.html"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, found content\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/encoding-language-oracle/script-content-rejected.typ:1:12\n  \u2502\n1 \u2502 #html.script[#strong[NO]]\n  \u2502             ^^^^^^^^^^^^^\n\nwarning: html export is under active development and incomplete\n = hint: its behaviour may change at any time\n = hint: do not rely on this feature for production use cases\n = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
+      "html": null
+    }
+  ],
+  "utc_end": "2026-10-20T23:36:36.494913+00:00"
+}

@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-20T23:51:53.838420+00:00",
+  "status": "Frozen before candidate replay; independently audited hardening",
+  "runner_sha256": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+  "policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+  "fixture_verifier_sha256": "d72f78536408c8a63ae0a7900434a0aa4f42e1b8ab2c1ebfa92d4f5ff27d49b3",
+  "independent_review": "lab/results/v16-corrections-2026-10-19/batch-g/agents/contexts/html-cli-hardening-review.json",
+  "hardening_receipt": "cli-hardening-receipt.json",
+  "invocation": "python3 lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py --build-receipt <fresh-G-build/receipt.json> --product lab/target/product/debug/typst --output <new-evidence-dir>",
+  "case_count": 16,
+  "required_count": 13,
+  "explicit_Link_gap_count": 3,
+  "limits": "Primary origins retained but not required; exact premeasured standalone deep-heading omission only; mandatory feature warning remains. Parsed diagnostic fields do not certify full trace/path/highlight equality."
+}

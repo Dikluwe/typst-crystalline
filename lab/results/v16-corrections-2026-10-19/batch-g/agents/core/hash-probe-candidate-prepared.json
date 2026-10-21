@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-21T00:13:14.358914+00:00",
+  "status": "Prepared only; runner/probe not executed",
+  "baseline_runner_sha256": "9753520931a31df98f8350447871821c637559612fcb9bdd06bbe463032c5018",
+  "baseline_archive": "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/hash-probe-runner-before-candidate/run_public_hash_probe.py",
+  "candidate_runner_sha256": "97bae110d5ec577f75a902aace0c82a143d73f1b398d3d68f34a774862f96ad2",
+  "probe_source_sha256": "8255fbf6dcda63bdc220d227a665e497f7560ccb8741bb5f2e32035db5d39cde",
+  "probe_source_byte_identical_to_archive": true,
+  "phase_before": "Six hash source/L0 owners must remain byte-identical to HEAD.",
+  "phase_candidate": "Only identity source/owner may differ among six hash owners; scope13/26 paths, successful frozen build and all inputs must match. Other four hash owners remain HEAD-identical.",
+  "candidate_acceptance": "Zero Eq/hash violations across exact unchanged366 rows; finite corpus only.",
+  "syntax_ast_checked": true,
+  "cargo_execution": false
+}

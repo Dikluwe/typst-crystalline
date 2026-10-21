@@ -1,0 +1,540 @@
+[
+  {
+    "name": "core-witnesses",
+    "utc_start": "2026-10-20T23:11:09.651126+00:00",
+    "utc_end": "2026-10-20T23:11:20.368441+00:00",
+    "argv": [
+      "cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--message-format=json"
+    ],
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-baseline",
+    "exit": 101,
+    "targets": [
+      {
+        "id": "V16-049",
+        "file": "01_core/src/compiler/realize/bare_math.rs",
+        "baseline": {
+          "after": "fn plain_without_bare_math(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn plain_without_bare_math(",
+          "anchor": "match content {"
+        },
+        "baseline_match_line": 54,
+        "reported_wildcard_line": 74,
+        "line": 54,
+        "byte_start": 1888,
+        "byte_end": 1903,
+        "witnesses": []
+      },
+      {
+        "id": "V16-050",
+        "file": "01_core/src/compiler/realize/bare_math.rs",
+        "baseline": {
+          "after": "fn prepare(",
+          "anchor": "match node {"
+        },
+        "green": {
+          "after": "fn prepare(",
+          "anchor": "match node {"
+        },
+        "baseline_match_line": 92,
+        "reported_wildcard_line": 131,
+        "line": 92,
+        "byte_start": 3429,
+        "byte_end": 3441,
+        "witnesses": []
+      },
+      {
+        "id": "V16-051",
+        "file": "01_core/src/compiler/realize/mod.rs",
+        "baseline": {
+          "after": "fn normalize_insertions(",
+          "anchor": "match child {"
+        },
+        "green": {
+          "after": "fn normalize_insertions(",
+          "anchor": "match child {"
+        },
+        "baseline_match_line": 90,
+        "reported_wildcard_line": 96,
+        "line": 90,
+        "byte_start": 3105,
+        "byte_end": 3118,
+        "witnesses": []
+      },
+      {
+        "id": "V16-052",
+        "file": "01_core/src/compiler/realize/mod.rs",
+        "baseline": {
+          "after": "fn observe_occurrences(",
+          "anchor": "match node {"
+        },
+        "green": {
+          "after": "fn observe_occurrences(",
+          "anchor": "match node {"
+        },
+        "baseline_match_line": 118,
+        "reported_wildcard_line": 139,
+        "line": 118,
+        "byte_start": 4305,
+        "byte_end": 4317,
+        "witnesses": []
+      },
+      {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "baseline": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        },
+        "green": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        },
+        "baseline_match_line": 11,
+        "reported_wildcard_line": 209,
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "witnesses": []
+      }
+    ],
+    "selected_e0004": 0,
+    "error_count": 207,
+    "other_errors": []
+  },
+  {
+    "name": "core-bridge-0",
+    "utc_start": "2026-10-20T23:11:20.392365+00:00",
+    "utc_end": "2026-10-20T23:11:29.201697+00:00",
+    "argv": [
+      "cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--message-format=json"
+    ],
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-baseline",
+    "exit": 101,
+    "targets": [],
+    "selected_e0004": 0,
+    "error_count": 4,
+    "other_errors": [
+      {
+        "rendered": "error[E0433]: failed to resolve: use of unresolved module or unlinked crate `element_kind`\n  --> 01_core/src/compiler/eval/selector_matching.rs:73:13\n   |\n73 |             element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n   |             ^^^^^^^^^^^^ use of unresolved module or unlinked crate `element_kind`\n   |\n   = help: if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`\nhelp: consider importing this enum\n   |\n12 + use crate::entities::element_kind::ElementKind;\n   |\nhelp: if you import `ElementKind`, refer to it directly\n   |\n73 -             element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n73 +             ElementKind::TektV16EvolutionProbe => todo!(),\n   |\n\n",
+        "$message_type": "diagnostic",
+        "children": [
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`",
+            "rendered": null,
+            "spans": []
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "consider importing this enum",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 417,
+                "byte_start": 417,
+                "column_end": 1,
+                "column_start": 1,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 12,
+                "line_start": 12,
+                "suggested_replacement": "use crate::entities::element_kind::ElementKind;\n",
+                "suggestion_applicability": "MaybeIncorrect",
+                "text": [
+                  {
+                    "highlight_end": 1,
+                    "highlight_start": 1,
+                    "text": "use crate::entities::content::Content;"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you import `ElementKind`, refer to it directly",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 3499,
+                "byte_start": 3485,
+                "column_end": 27,
+                "column_start": 13,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 73,
+                "line_start": 73,
+                "suggested_replacement": "",
+                "suggestion_applicability": "Unspecified",
+                "text": [
+                  {
+                    "highlight_end": 27,
+                    "highlight_start": 13,
+                    "text": "            element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "level": "error",
+        "message": "failed to resolve: use of unresolved module or unlinked crate `element_kind`",
+        "spans": [
+          {
+            "byte_end": 3497,
+            "byte_start": 3485,
+            "column_end": 25,
+            "column_start": 13,
+            "expansion": null,
+            "file_name": "01_core/src/compiler/eval/selector_matching.rs",
+            "is_primary": true,
+            "label": "use of unresolved module or unlinked crate `element_kind`",
+            "line_end": 73,
+            "line_start": 73,
+            "suggested_replacement": null,
+            "suggestion_applicability": null,
+            "text": [
+              {
+                "highlight_end": 25,
+                "highlight_start": 13,
+                "text": "            element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "code": "E0433",
+          "explanation": "An undeclared crate, module, or type was used.\n\nErroneous code example:\n\n```compile_fail,E0433\nlet map = HashMap::new();\n// error: failed to resolve: use of undeclared type `HashMap`\n```\n\nPlease verify you didn't misspell the type/module's name or that you didn't\nforget to import it:\n\n```\nuse std::collections::HashMap; // HashMap has been imported.\nlet map: HashMap<u32, u32> = HashMap::new(); // So it can be used!\n```\n\nIf you've expected to use a crate name:\n\n```compile_fail\nuse ferris_wheel::BigO;\n// error: failed to resolve: use of undeclared module or unlinked crate\n```\n\nMake sure the crate has been added as a dependency in `Cargo.toml`.\n\nTo use a module from your current crate, add the `crate::` prefix to the path.\n"
+        }
+      },
+      {
+        "rendered": "error[E0433]: failed to resolve: use of unresolved module or unlinked crate `element_kind`\n   --> 01_core/src/compiler/eval/observation/value.rs:706:14\n    |\n706 |             &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n    |              ^^^^^^^^^^^^ use of unresolved module or unlinked crate `element_kind`\n    |\n    = help: if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`\nhelp: consider importing this enum\n    |\n  9 + use crate::entities::element_kind::ElementKind;\n    |\nhelp: if you import `ElementKind`, refer to it directly\n    |\n706 -             &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n706 +             &ElementKind::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+        "$message_type": "diagnostic",
+        "children": [
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`",
+            "rendered": null,
+            "spans": []
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "consider importing this enum",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 220,
+                "byte_start": 220,
+                "column_end": 1,
+                "column_start": 1,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/eval/observation/value.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 9,
+                "line_start": 9,
+                "suggested_replacement": "use crate::entities::element_kind::ElementKind;\n",
+                "suggestion_applicability": "MaybeIncorrect",
+                "text": [
+                  {
+                    "highlight_end": 1,
+                    "highlight_start": 1,
+                    "text": "use super::*;"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you import `ElementKind`, refer to it directly",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 29507,
+                "byte_start": 29493,
+                "column_end": 28,
+                "column_start": 14,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/eval/observation/value.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 706,
+                "line_start": 706,
+                "suggested_replacement": "",
+                "suggestion_applicability": "Unspecified",
+                "text": [
+                  {
+                    "highlight_end": 28,
+                    "highlight_start": 14,
+                    "text": "            &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "level": "error",
+        "message": "failed to resolve: use of unresolved module or unlinked crate `element_kind`",
+        "spans": [
+          {
+            "byte_end": 29505,
+            "byte_start": 29493,
+            "column_end": 26,
+            "column_start": 14,
+            "expansion": null,
+            "file_name": "01_core/src/compiler/eval/observation/value.rs",
+            "is_primary": true,
+            "label": "use of unresolved module or unlinked crate `element_kind`",
+            "line_end": 706,
+            "line_start": 706,
+            "suggested_replacement": null,
+            "suggestion_applicability": null,
+            "text": [
+              {
+                "highlight_end": 26,
+                "highlight_start": 14,
+                "text": "            &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "code": "E0433",
+          "explanation": "An undeclared crate, module, or type was used.\n\nErroneous code example:\n\n```compile_fail,E0433\nlet map = HashMap::new();\n// error: failed to resolve: use of undeclared type `HashMap`\n```\n\nPlease verify you didn't misspell the type/module's name or that you didn't\nforget to import it:\n\n```\nuse std::collections::HashMap; // HashMap has been imported.\nlet map: HashMap<u32, u32> = HashMap::new(); // So it can be used!\n```\n\nIf you've expected to use a crate name:\n\n```compile_fail\nuse ferris_wheel::BigO;\n// error: failed to resolve: use of undeclared module or unlinked crate\n```\n\nMake sure the crate has been added as a dependency in `Cargo.toml`.\n\nTo use a module from your current crate, add the `crate::` prefix to the path.\n"
+        }
+      },
+      {
+        "rendered": "error[E0433]: failed to resolve: use of unresolved module or unlinked crate `element_kind`\n   --> 01_core/src/compiler/layout/references.rs:454:18\n    |\n454 |                 &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n    |                  ^^^^^^^^^^^^ use of unresolved module or unlinked crate `element_kind`\n    |\n    = help: if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`\nhelp: consider importing this enum\n    |\n  7 + use crate::entities::element_kind::ElementKind;\n    |\nhelp: if you import `ElementKind`, refer to it directly\n    |\n454 -                 &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n454 +                 &ElementKind::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+        "$message_type": "diagnostic",
+        "children": [
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you wanted to use a crate named `element_kind`, use `cargo add element_kind` to add it to your `Cargo.toml`",
+            "rendered": null,
+            "spans": []
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "consider importing this enum",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 154,
+                "byte_start": 154,
+                "column_end": 1,
+                "column_start": 1,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/layout/references.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 7,
+                "line_start": 7,
+                "suggested_replacement": "use crate::entities::element_kind::ElementKind;\n",
+                "suggestion_applicability": "MaybeIncorrect",
+                "text": [
+                  {
+                    "highlight_end": 1,
+                    "highlight_start": 1,
+                    "text": "use crate::{"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "if you import `ElementKind`, refer to it directly",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 18781,
+                "byte_start": 18767,
+                "column_end": 32,
+                "column_start": 18,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/layout/references.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 454,
+                "line_start": 454,
+                "suggested_replacement": "",
+                "suggestion_applicability": "Unspecified",
+                "text": [
+                  {
+                    "highlight_end": 32,
+                    "highlight_start": 18,
+                    "text": "                &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "level": "error",
+        "message": "failed to resolve: use of unresolved module or unlinked crate `element_kind`",
+        "spans": [
+          {
+            "byte_end": 18779,
+            "byte_start": 18767,
+            "column_end": 30,
+            "column_start": 18,
+            "expansion": null,
+            "file_name": "01_core/src/compiler/layout/references.rs",
+            "is_primary": true,
+            "label": "use of unresolved module or unlinked crate `element_kind`",
+            "line_end": 454,
+            "line_start": 454,
+            "suggested_replacement": null,
+            "suggestion_applicability": null,
+            "text": [
+              {
+                "highlight_end": 30,
+                "highlight_start": 18,
+                "text": "                &element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "code": "E0433",
+          "explanation": "An undeclared crate, module, or type was used.\n\nErroneous code example:\n\n```compile_fail,E0433\nlet map = HashMap::new();\n// error: failed to resolve: use of undeclared type `HashMap`\n```\n\nPlease verify you didn't misspell the type/module's name or that you didn't\nforget to import it:\n\n```\nuse std::collections::HashMap; // HashMap has been imported.\nlet map: HashMap<u32, u32> = HashMap::new(); // So it can be used!\n```\n\nIf you've expected to use a crate name:\n\n```compile_fail\nuse ferris_wheel::BigO;\n// error: failed to resolve: use of undeclared module or unlinked crate\n```\n\nMake sure the crate has been added as a dependency in `Cargo.toml`.\n\nTo use a module from your current crate, add the `crate::` prefix to the path.\n"
+        }
+      },
+      {
+        "rendered": "error[E0433]: failed to resolve: use of unresolved module or unlinked crate `element_kind`\n   --> 01_core/src/entities/element_kind.rs:126:13\n    |\n126 |             element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n    |             ^^^^^^^^^^^^ use of unresolved module or unlinked crate `element_kind`\n    |\nnote: enum `crate::compiler::introspect::walk::ElementKind` exists but is inaccessible\n   --> 01_core/src/entities/element_kind.rs:16:1\n    |\n 16 | pub enum ElementKind {\n    | ^^^^^^^^^^^^^^^^^^^^ not accessible\nhelp: there is a crate or module with a similar name\n    |\n126 -             element_kind::ElementKind::TektV16EvolutionProbe => todo!(),\n126 +             ElementKind::ElementKind::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+        "$message_type": "diagnostic",
+        "children": [
+          {
+            "children": [],
+            "code": null,
+            "level": "note",
+            "message": "enum `crate::compiler::introspect::walk::ElementKind` exists but is inaccessible",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 564,
+                "byte_start": 544,
+                "column_end": 21,
+                "column_start": 1,
+                "expansion": null,
+                "file_name": "01_core/src/entities/element_kind.rs",
+                "is_primary": true,
+                "label": "not accessible",
+                "line_end": 16,
+                "line_start": 16,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 21,
+                    "highlight_start": 1,
+                    "text": "pub enum ElementKind {"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "children": [],
+            "code": null,
+            "level": "help",
+            "message": "there is a crate or module with a similar name",
+            "rendered": null,
+            "spans": [
+              {
+                "byte_end": 5857,
+                "byte_start": 5845,
+                "column_end": 25,
+                "column_start": 13,
+                "expansion": null,
+                "file_name": "01_core/src/entities/element_kind.rs",
+                "is_primary": true,
+                "label": null,
+                "line_end": 126,
+                "line_start": 126,
+                "suggested_replacement": "ElementKind",
+                "suggestion_applicability": "MaybeIncorrect",
+                "text": [
+                  {
+                    "highlight_end": 25,
+                    "highlight_start": 13,
+                    "text": "            element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "level": "error",
+        "message": "failed to resolve: use of unresolved module or unlinked crate `element_kind`",
+        "spans": [
+          {
+            "byte_end": 5857,
+            "byte_start": 5845,
+            "column_end": 25,
+            "column_start": 13,
+            "expansion": null,
+            "file_name": "01_core/src/entities/element_kind.rs",
+            "is_primary": true,
+            "label": "use of unresolved module or unlinked crate `element_kind`",
+            "line_end": 126,
+            "line_start": 126,
+            "suggested_replacement": null,
+            "suggestion_applicability": null,
+            "text": [
+              {
+                "highlight_end": 25,
+                "highlight_start": 13,
+                "text": "            element_kind::ElementKind::TektV16EvolutionProbe => todo!(),"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "code": "E0433",
+          "explanation": "An undeclared crate, module, or type was used.\n\nErroneous code example:\n\n```compile_fail,E0433\nlet map = HashMap::new();\n// error: failed to resolve: use of undeclared type `HashMap`\n```\n\nPlease verify you didn't misspell the type/module's name or that you didn't\nforget to import it:\n\n```\nuse std::collections::HashMap; // HashMap has been imported.\nlet map: HashMap<u32, u32> = HashMap::new(); // So it can be used!\n```\n\nIf you've expected to use a crate name:\n\n```compile_fail\nuse ferris_wheel::BigO;\n// error: failed to resolve: use of undeclared module or unlinked crate\n```\n\nMake sure the crate has been added as a dependency in `Cargo.toml`.\n\nTo use a module from your current crate, add the `crate::` prefix to the path.\n"
+        }
+      }
+    ]
+  }
+]

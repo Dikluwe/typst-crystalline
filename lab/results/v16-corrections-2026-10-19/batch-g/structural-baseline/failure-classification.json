@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-20T23:12:19.455032+00:00",
+  "worker_sha256": "be92183b134141335658f4e88ccf53fb3a5dfbcdbbd7fd17bed7384c272aa2fe",
+  "classification": "Invalid infrastructure probe harness; initial real core witness phase is preserved but does not discharge infrared gate. Copied-core rustc suggestions use shortened element_kind::ElementKind paths that do not resolve in four modules. Correct only copied dependency qualification and rerun fresh baseline2. No productive source or semantic RED failure claimed.",
+  "selected_core": 0,
+  "other_core_witness_errors": 0,
+  "bridge_other_codes": [
+    "E0433"
+  ]
+}

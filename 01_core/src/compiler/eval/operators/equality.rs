@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/equality.md
-//! @prompt-hash 6eed4c3a
+//! @prompt-hash f8077a4c
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -151,24 +151,52 @@ fn content_language_eq(a: &Content, b: &Content) -> bool {
     fn project(content: &Content) -> Content {
         content
             .morph_canon()
-            .map_content(&mut |node| {
-                Ok(Some(match node {
-                    Content::Styled(styled) => {
-                        let mut body = styled.body.clone();
-                        while let Content::Styled(inner) = &body {
-                            body = inner.body.clone();
-                        }
-                        Content::styled(
-                            Box::new(body),
-                            crate::entities::style::Styles::new(),
-                        )
-                    }
-                    other => other.clone(),
-                }))
-            })
+            .map_content(&mut |node| Ok(Some(comparison_root(node))))
             .expect("content equality: comparison projection is total")
     }
     project(a) == project(b)
+}
+
+/// Normalize only comparison roots, including a Located body's suppressed root.
+/// This ephemeral value never leaves the language comparison operation.
+fn comparison_root(content: &Content) -> Content {
+    use crate::entities::content::{LocatedContent, RealizedContent, SourceContent};
+    use std::sync::Arc;
+
+    match content {
+        Content::Source(e) => Content::Source(Arc::new(SourceContent {
+            body: comparison_root(&e.body),
+            span: e.span,
+        })),
+        Content::ShowRecipe(e) => {
+            let mut projected = e.as_ref().clone();
+            projected.body = comparison_root(&e.body);
+            Content::ShowRecipe(Arc::new(projected))
+        }
+        Content::Located(e) => Content::Located(Arc::new(LocatedContent {
+            body: comparison_root(&e.body),
+            location: e.location,
+        })),
+        Content::Realized(e) => Content::Realized(Arc::new(RealizedContent {
+            original: e.original.clone(),
+            visual: comparison_root(&e.visual),
+        })),
+        Content::ContextBlock(e) => {
+            let mut projected = e.as_ref().clone();
+            // Context has no exposed language fields. Keep its nominal kind
+            // and unevaluated closure; omit only the private comparison id.
+            projected.id = 0;
+            Content::ContextBlock(Arc::new(projected))
+        }
+        Content::Styled(styled) => {
+            let mut body = styled.body.clone();
+            while let Content::Styled(inner) = &body {
+                body = inner.body.clone();
+            }
+            Content::styled(Box::new(body), crate::entities::style::Styles::new())
+        }
+        other => other.clone(),
+    }
 }
 
 /// Whether the selector's composition tree uses the P1339 element carrier.
@@ -808,5 +836,212 @@ mod figure_kind_filter_identity_tests {
             &Value::Func(Func::native("same", crate::compiler::stdlib::native_table)),
             &Value::Func(Func::native("same", crate::compiler::stdlib::native_heading))
         ));
+    }
+}
+
+#[cfg(test)]
+mod batch_g_context_tests {
+    use super::*;
+    use crate::entities::content::{LocatedContent, RealizedContent, SourceContent};
+    use crate::entities::elements::context_block::ContextBlockElem;
+    use crate::entities::file_id::FileId;
+    use crate::entities::func::Func;
+    use crate::entities::html::HtmlFrameElem;
+    use crate::entities::location::Location;
+    use crate::entities::span::Span;
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::value::IntrospectedContent;
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    fn context(id: u64, name: &'static str) -> Content {
+        Content::ContextBlock(Arc::new(ContextBlockElem {
+            id,
+            closure: Func::native(name, |_, _, _, _| {
+                panic!("comparison executed Context")
+            }),
+        }))
+    }
+
+    #[test]
+    fn batch_g_context_language_is_opaque_and_preserves_original_identity() {
+        let a = context(17, "first");
+        let b = context(99, "second");
+        assert!(values_eq(&Value::Content(a.clone()), &Value::Content(b.clone())));
+        let none_a = Value::LocatedContent(
+            IntrospectedContent::new(a.clone(), None),
+            Location::from_raw(4),
+        );
+        let none_b = Value::LocatedContent(
+            IntrospectedContent::new(b.clone(), None),
+            Location::from_raw(8),
+        );
+        assert!(values_eq(&Value::Content(a.clone()), &none_b));
+        assert!(values_eq(&none_a, &Value::Content(b.clone())));
+        assert!(values_eq(&none_a, &none_b));
+        assert_ne!(a, b, "mechanical identity remains owned by Context id");
+        let Content::ContextBlock(first) = &a else { unreachable!() };
+        let Content::ContextBlock(second) = &b else { unreachable!() };
+        assert_eq!((first.id, second.id), (17, 99));
+        assert!(!Arc::ptr_eq(&first.closure.0, &second.closure.0));
+        let Content::ContextBlock(projected) = a.morph_canon() else {
+            panic!("public morphology erased Context kind")
+        };
+        assert_eq!(projected.id, 17);
+        assert!(Arc::ptr_eq(&projected.closure.0, &first.closure.0));
+    }
+
+    #[test]
+    fn batch_g_context_language_reaches_suppressed_source_and_located_roots() {
+        let span = Span::from_range(FileId::from_raw(NonZeroU16::new(1).unwrap()), 2..7);
+        let a = context(17, "a");
+        let b = context(99, "b");
+        let left = [
+            Content::Source(Arc::new(SourceContent { body: a.clone(), span })),
+            Content::Located(Arc::new(LocatedContent {
+                body: a.clone(),
+                location: Location::from_raw(4),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("unrelated"),
+                visual: a.clone(),
+            })),
+        ];
+        let right = [
+            b.clone(),
+            Content::Source(Arc::new(SourceContent { body: b.clone(), span })),
+            Content::Located(Arc::new(LocatedContent {
+                body: b.clone(),
+                location: Location::from_raw(8),
+            })),
+        ];
+        for x in &left {
+            for y in &right {
+                assert!(content_language_eq(x, y));
+                assert!(content_language_eq(y, x));
+            }
+        }
+        assert_eq!(left[0].source_span(), span);
+        assert!(
+            matches!(&left[1],Content::Located(e) if e.location==Location::from_raw(4) && matches!(&e.body,Content::ContextBlock(c) if c.id==17))
+        );
+    }
+
+    #[test]
+    fn batch_g_context_language_projects_nominal_container_children() {
+        let a = context(17, "a");
+        let b = context(99, "b");
+        let wrap = |c: Content| {
+            vec![
+                Content::sequence(vec![Content::text("prefix"), c.clone()]),
+                Content::styled(
+                    c.clone(),
+                    Styles::from_iter([Style::Size(
+                        crate::entities::layout_types::Length::pt(12.0),
+                    )]),
+                ),
+                Content::title(c.clone()),
+                Content::HtmlFrame(Arc::new(HtmlFrameElem { body: c.clone() })),
+                Content::strong(c.clone()),
+                Content::emph(c),
+            ]
+        };
+        for (x, y) in wrap(a).into_iter().zip(wrap(b)) {
+            assert!(content_language_eq(&x, &y));
+        }
+    }
+
+    #[test]
+    fn batch_g_context_language_containers_and_operators_share_opaque_relation() {
+        let a = Value::Content(context(17, "a"));
+        let b = Value::Content(context(99, "b"));
+        assert_eq!(apply_binary(BinOp::Eq, a.clone(), b.clone()), Ok(Value::Bool(true)));
+        assert_eq!(
+            apply_binary(BinOp::Neq, a.clone(), b.clone()),
+            Ok(Value::Bool(false))
+        );
+        assert_eq!(
+            apply_binary(BinOp::In, a.clone(), Value::Array(vec![b.clone()])),
+            Ok(Value::Bool(true))
+        );
+        assert_eq!(
+            apply_binary(BinOp::NotIn, a.clone(), Value::Array(vec![b.clone()])),
+            Ok(Value::Bool(false))
+        );
+        let left =
+            Value::Dict([("c".into(), Value::Array(vec![a]))].into_iter().collect());
+        let right =
+            Value::Dict([("c".into(), Value::Array(vec![b]))].into_iter().collect());
+        assert!(values_eq(&left, &right));
+    }
+
+    #[test]
+    fn batch_g_context_language_preserves_snapshot_field_sets_and_other_kinds() {
+        let a = context(17, "a");
+        let b = context(99, "b");
+        let snapshot = |content: Content, n| {
+            Value::LocatedContent(
+                IntrospectedContent::new(
+                    content,
+                    Some([("meaning".into(), Value::Int(n))].into_iter().collect()),
+                ),
+                Location::from_raw(n as u128),
+            )
+        };
+        assert!(values_eq(&snapshot(a.clone(), 1), &snapshot(b.clone(), 1)));
+        assert!(!values_eq(&snapshot(a.clone(), 1), &snapshot(b.clone(), 2)));
+        let labelled = |content: Content, label: &str, location| {
+            Value::LocatedContent(
+                IntrospectedContent::new(
+                    content,
+                    Some(
+                        [
+                            ("meaning".into(), Value::Int(1)),
+                            (
+                                "label".into(),
+                                Value::Label(crate::entities::label::Label(label.into())),
+                            ),
+                        ]
+                        .into_iter()
+                        .collect(),
+                    ),
+                ),
+                Location::from_raw(location),
+            )
+        };
+        assert!(values_eq(
+            &labelled(a.clone(), "left", 4),
+            &labelled(b.clone(), "right", 8)
+        ));
+        let empty_some = Value::LocatedContent(
+            IntrospectedContent::new(a.clone(), Some(Default::default())),
+            Location::from_raw(11),
+        );
+        let no_snapshot = Value::LocatedContent(
+            IntrospectedContent::new(b.clone(), None),
+            Location::from_raw(19),
+        );
+        assert!(values_eq(&empty_some, &Value::Content(b.clone())));
+        assert!(values_eq(&Value::Content(b.clone()), &empty_some));
+        assert!(values_eq(&empty_some, &no_snapshot));
+        assert!(values_eq(&no_snapshot, &empty_some));
+
+        let extra = Value::LocatedContent(
+            IntrospectedContent::new(
+                b.clone(),
+                Some(
+                    [("meaning".into(), Value::Int(1)), ("extra".into(), Value::None)]
+                        .into_iter()
+                        .collect(),
+                ),
+            ),
+            Location::from_raw(2),
+        );
+        assert!(!values_eq(&snapshot(a.clone(), 1), &extra));
+        for other in [Content::Empty, Content::text("A"), Content::Space] {
+            assert!(!content_language_eq(&a, &other));
+            assert!(!content_language_eq(&other, &a));
+        }
+        assert!(!values_eq(&Value::Float(f64::NAN), &Value::Float(f64::NAN)));
     }
 }

@@ -1,0 +1,62 @@
+{
+  "runner_sha256": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+  "policy_sha256": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1",
+  "fixtures": [
+    {
+      "name": "exact-oracle",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "exact-deep-warning-omission",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "missing-doctype",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    },
+    {
+      "name": "wrong-doctype",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    },
+    {
+      "name": "missing-feature-warning",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    },
+    {
+      "name": "extra-warning",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    },
+    {
+      "name": "wrong-deep-warning",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    },
+    {
+      "name": "error-with-success-exit",
+      "expected": false,
+      "actual": true,
+      "pass": false
+    }
+  ],
+  "failed": [
+    "missing-doctype",
+    "wrong-doctype",
+    "missing-feature-warning",
+    "extra-warning",
+    "wrong-deep-warning",
+    "error-with-success-exit"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-20T23:34:13.026401+00:00",
+  "source": "03_infra/src/query_helpers.rs",
+  "before_sha256": "5911f5765c92085e8ffee615feed6aacf411231b3a17c58aeb4264124c768669",
+  "after_sha256": "e7965246af7b982ecff4d633c6f95521f2415f9aa1c72be2cd560f554135af08",
+  "closed_complements": {
+    "ElementKind": 15,
+    "list_Content": 118,
+    "enum_Content": 118
+  },
+  "tests_suffix_unchanged": true,
+  "semantics": "Preserved approximate policy; no runtime, signature, phase or configuration changes."
+}

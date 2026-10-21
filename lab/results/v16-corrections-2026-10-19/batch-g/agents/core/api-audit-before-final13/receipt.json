@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-21T00:19:34.688184+00:00",
+  "baseline_script_sha256": "32e942496033a9bf6ff02f943b0b9ab32a8acc261210768c6f950995f79a73cd",
+  "historical_reports": {
+    "api-scope-review-candidate2.json": "f41ac9dfbf923917fa577fe7c7d5467b89fbb71b8253010e8c88249a654ce558",
+    "api-scope-review-candidate2.md": "1ec00ac568b778d4f46e49c0a22e8cb5ec07ffd5581ad503b8a838f96a49551f"
+  }
+}

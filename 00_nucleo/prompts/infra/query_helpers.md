@@ -1,5 +1,5 @@
 # L0 — Query parsing, summaries and located results
-Hash do Código: c2721077
+Hash do Código: c5f39b73
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -54,8 +54,6 @@ For an entry with captured fields (`Some`), clone the complete IntrospectedConte
 
 Existing tests cover selectors, summaries, match ordering, label transport and neutral math/newline-space projections. Located values preserve public fields/labels through the L2 serializer. This prompt records the current consumer; it does not resolve archived approval/provenance gaps or certify fresh upstream parity.
 
-
-## Realização com avaliação única
 
 ## Causal realization index
 
@@ -177,3 +175,47 @@ promotion to semantic query. Continuous ADR-0127/no public-default-phase-unsafe-
 dependency-suppression; L0 first/scoped seals/existing fixtures-expectations-
 tolerances/selected RED→GREEN/full suite/build/all-targets/Rustdoc/fmt/lineage/
 full inventory, no simplification-mirror tests.
+
+## Closed approximate-summary decisions
+
+### Evidence before classification
+
+The clean batch-G baseline is commit
+`4382891f0d5f0839669597cb5c90a98f24cfb8bd`. Exact source/owner bytes, hashes,
+UTC and the current working-tree stat are retained in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/queries/audit.json`.
+`03_infra/src/query_helpers.rs:154-177` routes seven document kinds to the
+approximate helper and other kinds to the real introspector.
+At `:225-243`, direct calls for non-document kinds return zero.
+At `:246-272`, an all-item Sequence counts one group, including a manually
+constructed empty Sequence because `all(empty)` is true. A bare ListItem or
+EnumItem descends into its body; ordinary wrappers are terminal here.
+`01_core/src/entities/content/sequence.rs:15-21` normalizes empty/singleton
+inputs, so a raw Sequence is not interchangeable with `Content::sequence`.
+These are source-level observations of the existing approximate API, not
+fresh vanilla measurements or proof of a reachable CLI defect.
+
+### Decision and acceptance
+
+Preserve the existing List/Enum/Par/Link/Raw/Quote/Footnote branches and give
+every other current ElementKind an explicit zero disposition. Keep the
+summary's real-introspector route separate: Heading and Metadata can have
+positive summary counts while the direct approximate helper returns zero.
+For both group walkers, retain Sequence and matching-item recursion exactly;
+name every other current Content variant as intentionally untraversed by this
+legacy projection. Never infer that its children lack semantic content.
+
+Meaningful preservation controls distinguish raw empty from canonical empty,
+bare items from explicit one-item groups, opaque Styled wrappers from mixed
+Sequences, nested group bodies, and direct-helper zero from positive actual
+introspector summaries. Existing compiled-query and located-result tests remain
+binding. Closed-enum mutation in a disposable full workspace must change the
+three selected decisions from no diagnostic to exact primary E0004 witnesses.
+This is structural protection, separate from language acceptance.
+
+No public signature, target, phase, selector grammar or default path changes.
+The known approximate-group limits remain open; this repair does not ratify a
+new approximation or close list/enum language parity. Preserve all existing
+tests and diagnostics, validate ownership/Nuclei before scoped resealing, and
+require focused/full tests, all-target build, strict Clippy/Rustdoc, formatting,
+path and forward/reverse lineage gates plus the complete lint delta.

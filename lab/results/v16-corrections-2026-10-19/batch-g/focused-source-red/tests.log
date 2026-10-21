@@ -1,0 +1,34 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 44.83s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 2 tests
+test pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_generic_order_preserves_both_orientations_and_chain ... FAILED
+test pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload ... FAILED
+
+failures:
+
+---- pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_generic_order_preserves_both_orientations_and_chain stdout ----
+
+thread 'pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_generic_order_preserves_both_orientations_and_chain' (3260529) panicked at 03_infra/src/pipeline/context_stabilization.rs:2592:9:
+assertion `left == right` failed
+  left: [22]
+ right: [21, 22]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload stdout ----
+
+thread 'pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload' (3260530) panicked at 03_infra/src/pipeline/context_stabilization.rs:2625:9:
+assertion `left == right` failed
+  left: [7, 2]
+ right: [7, 2, 9]
+
+
+failures:
+    pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_generic_order_preserves_both_orientations_and_chain
+    pipeline::context_stabilization::batch_g_source_root_tests::batch_g_source_root_legacy_fallback_keeps_reverse_member_and_last_payload
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 1430 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-infra --lib`

@@ -1,0 +1,873 @@
+{
+  "utc": "2026-10-20T23:08:32.914906+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "status": "",
+  "diff_head_stat": "",
+  "mode": "AUDIT ONLY; no productive/L0/test edits or Cargo",
+  "scope_ids": [
+    "V16-093",
+    "V16-094",
+    "V16-096",
+    "V16-097",
+    "V16-098",
+    "V16-099"
+  ],
+  "source_and_owner_hashes": {
+    "00_nucleo/prompts/infra/pipeline.md": "4c7d7b3bc13a850c5cc10985817871b1bc14c6baee75c4a8a89407c87294684f",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "fbcff712435b9c600e2b6140641ee4e6569aedddb55516a6ec98ab5fd8a293e1",
+    "00_nucleo/prompts/infra/pipeline/paged.md": "72b87e230725c4285fe59265075c5124968b821f5c744de80d19d803f268e8e0",
+    "03_infra/src/pipeline.rs": "2bfdcc544bfaaab8a9a1cfe17b698fb5c96052bac684c0948efa8f24e6c8739a",
+    "03_infra/src/pipeline/context_stabilization.rs": "4254f747e74f0f343d4c7e2c8259bc8fd834b85e910d646b0b136e47f85a2f96",
+    "03_infra/src/pipeline/paged.rs": "1c1f745818f736e02e36d0c12272642f994d0b00baf96887dc711b59bb302e6e",
+    "01_core/src/entities/content.rs": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+    "01_core/src/entities/value.rs": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3",
+    "01_core/src/entities/content/traversal.rs": "2526cf4359a14caf278609c95ddd865c092feefe5bc27e31256f9a5c14c84f9c",
+    "lab/results/v16-cause-analysis-2026-10-19/case-index.md": "51a54eafd0bd53a56486b6c291ed4a50259d080f7d1719564e3b208f786125b2",
+    "lab/results/v16-cause-analysis-2026-10-19/entities-boundaries-analysis.md": "a897baadbd21c3c4a5ec2a9e27759d71c4e2cbee364f8e9a2bbd9691ef3b82e4",
+    "00_nucleo/adr/adr-0107-language-parity-not-mechanics.md": "6b1e052a28fbc4e1715e0dae435ff61f4372ec4d2f9fd8c8eb2f3ab936c32f07",
+    "00_nucleo/adr/adr-0108-anti-drift-measure-before-deciding.md": "1c93efdf8edcf1faa334dc5cbeac5c2fc0772efc701440ca09200daba7c735d5",
+    "00_nucleo/adr/adr-0109-atomization.md": "d2a32eef5cfba00de845c0ad7b57fa6abe3e74d9d10040ca0713e46cf6362299",
+    "00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md": "0497442287368b05b01503217a02992990d0493525701c408733c03a11e6d659",
+    "00_nucleo/adr/adr-0129-l0-owners-and-shared-tekt-nuclei.md": "edad6d849f85636caeb0a16bc0f9bb8912fd891c94510e802ab2d6bdb2d116cd",
+    "00_nucleo/adr/adr-0130-canonical-l0-prompt-references.md": "47a2c991cdd4687f50c61649a0645058a260e8619520e49cf7f6899d828117bc",
+    "00_nucleo/adr/adr-0131-owner-aligned-prompt-paths.md": "db6c01231f756857191f449e7b084703f019b9c4957e8ca6cc87f256b8603190"
+  },
+  "enum_catalogues": {
+    "01_core/src/entities/content.rs": {
+      "sha256": "692abb6fe3082460209ff85a2f65dfe9ae483504acf43d6e29929c173f457a36",
+      "variants": [
+        {
+          "variant": "Source",
+          "line": 234,
+          "shape": "tuple"
+        },
+        {
+          "variant": "ShowRecipe",
+          "line": 235,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Realized",
+          "line": 236,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Located",
+          "line": 237,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Empty",
+          "line": 239,
+          "shape": "unit"
+        },
+        {
+          "variant": "Text",
+          "line": 244,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Space",
+          "line": 246,
+          "shape": "unit"
+        },
+        {
+          "variant": "SpaceFromNewline",
+          "line": 248,
+          "shape": "unit"
+        },
+        {
+          "variant": "Parbreak",
+          "line": 251,
+          "shape": "unit"
+        },
+        {
+          "variant": "Sequence",
+          "line": 253,
+          "shape": "tuple"
+        },
+        {
+          "variant": "HtmlElem",
+          "line": 256,
+          "shape": "tuple"
+        },
+        {
+          "variant": "HtmlFrame",
+          "line": 258,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Par",
+          "line": 262,
+          "shape": "struct"
+        },
+        {
+          "variant": "Heading",
+          "line": 276,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Title",
+          "line": 281,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Strong",
+          "line": 286,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Emph",
+          "line": 289,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Raw",
+          "line": 294,
+          "shape": "tuple"
+        },
+        {
+          "variant": "ListItem",
+          "line": 297,
+          "shape": "tuple"
+        },
+        {
+          "variant": "EnumItem",
+          "line": 300,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Link",
+          "line": 303,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Equation",
+          "line": 312,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathSequence",
+          "line": 315,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathIdent",
+          "line": 318,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathText",
+          "line": 321,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathFrac",
+          "line": 325,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathAttach",
+          "line": 331,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathPrimes",
+          "line": 334,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathRoot",
+          "line": 339,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathStretch",
+          "line": 342,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathDelimited",
+          "line": 349,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathLr",
+          "line": 351,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathMid",
+          "line": 353,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOverbrace",
+          "line": 356,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUnderbrace",
+          "line": 359,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUnderbracket",
+          "line": 362,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUnderparen",
+          "line": 365,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUndershell",
+          "line": 368,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOverbracket",
+          "line": 371,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOverparen",
+          "line": 374,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOvershell",
+          "line": 377,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathAlignPoint",
+          "line": 382,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Linebreak",
+          "line": 387,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathMatrix",
+          "line": 393,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathCases",
+          "line": 399,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathAccent",
+          "line": 413,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathCancel",
+          "line": 429,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUnderline",
+          "line": 432,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOverline",
+          "line": 435,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathVec",
+          "line": 438,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathClassOverride",
+          "line": 446,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathLimitsOverride",
+          "line": 455,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathUnderover",
+          "line": 479,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathOp",
+          "line": 499,
+          "shape": "tuple"
+        },
+        {
+          "variant": "MathStyled",
+          "line": 523,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Label",
+          "line": 533,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Ref",
+          "line": 539,
+          "shape": "tuple"
+        },
+        {
+          "variant": "CounterDisplay",
+          "line": 551,
+          "shape": "tuple"
+        },
+        {
+          "variant": "CounterUpdate",
+          "line": 556,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Outline",
+          "line": 562,
+          "shape": "tuple"
+        },
+        {
+          "variant": "OutlineEntry",
+          "line": 565,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Figure",
+          "line": 573,
+          "shape": "tuple"
+        },
+        {
+          "variant": "FigureCaption",
+          "line": 580,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Image",
+          "line": 590,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Shape",
+          "line": 599,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Curve",
+          "line": 606,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Transform",
+          "line": 614,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Grid",
+          "line": 640,
+          "shape": "tuple"
+        },
+        {
+          "variant": "GridHeader",
+          "line": 648,
+          "shape": "tuple"
+        },
+        {
+          "variant": "GridFooter",
+          "line": 653,
+          "shape": "tuple"
+        },
+        {
+          "variant": "GridCell",
+          "line": 677,
+          "shape": "tuple"
+        },
+        {
+          "variant": "SetPage",
+          "line": 684,
+          "shape": "tuple"
+        },
+        {
+          "variant": "PageRun",
+          "line": 687,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Align",
+          "line": 692,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Place",
+          "line": 711,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Flush",
+          "line": 714,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Styled",
+          "line": 724,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Divider",
+          "line": 730,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Terms",
+          "line": 735,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TermItem",
+          "line": 741,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Quote",
+          "line": 756,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Document",
+          "line": 762,
+          "shape": "struct"
+        },
+        {
+          "variant": "Asset",
+          "line": 774,
+          "shape": "struct"
+        },
+        {
+          "variant": "SmartQuote",
+          "line": 801,
+          "shape": "tuple"
+        },
+        {
+          "variant": "PdfAttach",
+          "line": 804,
+          "shape": "tuple"
+        },
+        {
+          "variant": "PdfArtifact",
+          "line": 807,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Underline",
+          "line": 827,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Strike",
+          "line": 830,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Overline",
+          "line": 833,
+          "shape": "tuple"
+        },
+        {
+          "variant": "SmallCaps",
+          "line": 844,
+          "shape": "struct"
+        },
+        {
+          "variant": "Pad",
+          "line": 866,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Hide",
+          "line": 875,
+          "shape": "tuple"
+        },
+        {
+          "variant": "HSpace",
+          "line": 885,
+          "shape": "tuple"
+        },
+        {
+          "variant": "VSpace",
+          "line": 893,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Pagebreak",
+          "line": 904,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Colbreak",
+          "line": 925,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Stack",
+          "line": 940,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Boxed",
+          "line": 963,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Block",
+          "line": 982,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TableCell",
+          "line": 1009,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Bibliography",
+          "line": 1035,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Cite",
+          "line": 1064,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Footnote",
+          "line": 1092,
+          "shape": "tuple"
+        },
+        {
+          "variant": "FootnoteEntry",
+          "line": 1099,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TableHeader",
+          "line": 1126,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TableFooter",
+          "line": 1137,
+          "shape": "tuple"
+        },
+        {
+          "variant": "GridHLine",
+          "line": 1141,
+          "shape": "tuple"
+        },
+        {
+          "variant": "GridVLine",
+          "line": 1143,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TableHLine",
+          "line": 1145,
+          "shape": "tuple"
+        },
+        {
+          "variant": "TableVLine",
+          "line": 1147,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Table",
+          "line": 1170,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Repeat",
+          "line": 1192,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Columns",
+          "line": 1219,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Metadata",
+          "line": 1235,
+          "shape": "tuple"
+        },
+        {
+          "variant": "State",
+          "line": 1243,
+          "shape": "tuple"
+        },
+        {
+          "variant": "StateUpdate",
+          "line": 1252,
+          "shape": "tuple"
+        },
+        {
+          "variant": "StateDisplay",
+          "line": 1269,
+          "shape": "tuple"
+        },
+        {
+          "variant": "CounterDisplayCallback",
+          "line": 1294,
+          "shape": "tuple"
+        },
+        {
+          "variant": "ContextBlock",
+          "line": 1298,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Dynamic",
+          "line": 1308,
+          "shape": "tuple"
+        }
+      ],
+      "count": 120
+    },
+    "01_core/src/entities/value.rs": {
+      "sha256": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3",
+      "variants": [
+        {
+          "variant": "None",
+          "line": 85,
+          "shape": "unit"
+        },
+        {
+          "variant": "Bool",
+          "line": 87,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Int",
+          "line": 89,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Float",
+          "line": 91,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Str",
+          "line": 93,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Array",
+          "line": 97,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Dict",
+          "line": 99,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Module",
+          "line": 101,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Datetime",
+          "line": 103,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Func",
+          "line": 107,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Content",
+          "line": 111,
+          "shape": "tuple"
+        },
+        {
+          "variant": "LocatedContent",
+          "line": 115,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Auto",
+          "line": 119,
+          "shape": "unit"
+        },
+        {
+          "variant": "Length",
+          "line": 121,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Relative",
+          "line": 123,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Ratio",
+          "line": 125,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Angle",
+          "line": 127,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Color",
+          "line": 129,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Stroke",
+          "line": 134,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Fraction",
+          "line": 136,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Align",
+          "line": 142,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Location",
+          "line": 148,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Gradient",
+          "line": 154,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Regex",
+          "line": 158,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Tiling",
+          "line": 162,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Bytes",
+          "line": 166,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Decimal",
+          "line": 170,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Duration",
+          "line": 174,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Version",
+          "line": 178,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Selector",
+          "line": 183,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Symbol",
+          "line": 187,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Args",
+          "line": 191,
+          "shape": "tuple"
+        },
+        {
+          "variant": "State",
+          "line": 194,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Counter",
+          "line": 197,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Label",
+          "line": 201,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Dir",
+          "line": 204,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Path",
+          "line": 207,
+          "shape": "tuple"
+        },
+        {
+          "variant": "Type",
+          "line": 212,
+          "shape": "tuple"
+        },
+        {
+          "variant": "SpotColorant",
+          "line": 218,
+          "shape": "tuple"
+        }
+      ],
+      "count": 39
+    }
+  },
+  "declared_lineage": {
+    "03_infra/src/pipeline.rs": {
+      "prompt": "00_nucleo/prompts/infra/pipeline.md",
+      "prompt_hash": "4dfbf129"
+    },
+    "03_infra/src/pipeline/context_stabilization.rs": {
+      "prompt": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "prompt_hash": "d6ab9409"
+    },
+    "03_infra/src/pipeline/paged.rs": {
+      "prompt": "00_nucleo/prompts/infra/pipeline/paged.md",
+      "prompt_hash": "3d3dd73a"
+    }
+  },
+  "declared_code_hashes": {
+    "00_nucleo/prompts/infra/pipeline.md": "dde3a132",
+    "00_nucleo/prompts/infra/pipeline/context_stabilization.md": "29a19e1e",
+    "00_nucleo/prompts/infra/pipeline/paged.md": "16ce31b0"
+  },
+  "case_locations": {
+    "V16-093": "03_infra/src/pipeline/context_stabilization.rs:263–269",
+    "V16-094": "03_infra/src/pipeline/context_stabilization.rs:390–396",
+    "V16-096": "03_infra/src/pipeline/paged.rs:15–20",
+    "V16-097": "03_infra/src/pipeline/paged.rs:55–123",
+    "V16-098": "03_infra/src/pipeline/paged.rs:214–219",
+    "V16-099": "03_infra/src/pipeline.rs:509–536"
+  },
+  "audit_correction": "Legacy fallback preserves first ID encounter order but selects the last collector-map Arc/chain for that ID. Historical ledger wording first occurrence/chain is not an accurate combined description. Preserve current semantics rather than silently correcting it.",
+  "adr0127": "Continuous internal behavior-preserving nominal exhaustiveness after L0-first update; no public API/entity/default/phase/compatibility change. Current task remains audit-only until root releases next stage."
+}

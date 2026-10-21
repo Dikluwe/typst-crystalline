@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-20T23:52:15.984919+00:00",
+  "kind": "read-only contract/source/proposed-control review; no execution or source/L0 edits",
+  "inputs_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-readonly-plan.md": "d7037e802abfb7e5d6fd01ce76ad36046ce7d2222059cb9ec1919c7566eacb78",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-readonly-plan.json": "c80a7a7d3d01f453f61124b1cc8671a574767ba2ed1eafcf9f782137d215e1d0",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/raw-footer-controls-draft.rs": "19fc618959ffc7bb479dcebc4c26b52318e59cebebaaff8e5654983f70078e79",
+    "03_infra/src/pipeline/bundle.rs": "91aa0aaf3a2575e47127a30c8cc813fe4cfe3605cc2b46a717dd5cc416315cf0",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "8b0fa001c05dbabf79f2986f1b18ded106b7959b5e6c04e0619a385c8b3f84d2",
+    "03_infra/src/export/html/table.rs": "a96602189d9271c512ce66c1b04b71fc0636041997a7a5696b3029bdf21b2ec5",
+    "00_nucleo/prompts/infra/export/html/table.md": "1d1acde75cc119b68b9de441efcf14d6877de935457104279a107420c6e1fa15"
+  },
+  "causal_assessment": "Raw Table renderer emits header/body only; resolved renderer emits tfoot. Current raw-footer field projection traverses a nonemitted diagnostic edge. Creating a level6 heading warning there would be a phantom effect. Retained field projection can remain intact while diagnostic creation is admitted only on emitted paths.",
+  "adr0127": "Continuous internal invariant correction if bounded to private emitted/dormant traversal state and existing field projection; no new API, renderer support, phase, configuration, default product mode or compatibility contract.",
+  "required_invariants": [
+    "Do not collect then discard or filter diagnostics; condition warning creation at the actual emission edge.",
+    "Only raw Table.footer enters dormant state. Dormant state never reenters emitted through recursive carriers or nested tables/cells.",
+    "Diagnostic emission state is independent of table_row_slot renderer-selection context; propagate both correctly.",
+    "Keep all old/new assertions intact, retained raw-footer field conversion, nonvisual metadata and selected/unselected Cell snapshots.",
+    "Resolved tfoot and emitted standalone Footer keep existing deep-warning message and both ordered hints, once.",
+    "Keep all warnings on actual emitted content; neither disable a warning category nor deduplicate by text."
+  ],
+  "control_review": [
+    {
+      "control": "raw footer field projection + absent render/no warning",
+      "class": "public Rust/domain renderer-contract unit",
+      "qualification": "Protects current explicitly documented raw fallback limitation; it must not be promoted to Typst language acceptance. Current frontend generally uses resolved tables."
+    },
+    {
+      "control": "standalone emitted Footer deep warning",
+      "class": "public Rust/domain positive contrast",
+      "qualification": "Proves dormant state is not a global warning suppression; actual frontend standalone Footer admission is not certified by direct construction."
+    },
+    {
+      "control": "actual compile_to_bundle_files resolved deep footer",
+      "class": "language-level integration control",
+      "qualification": "Must retain FOOT in actual tfoot and exact warning payload; fresh pinned oracle measurement of this exact deep-footer source should precede final acceptance."
+    }
+  ],
+  "draft_improvements": [
+    "Replace standalone contains(message)/hints.len2 with exact message and both ordered hint strings, matching existing measured deep-heading contract.",
+    "Replace actual resolved-footer hints.len2 with exact ordered hints; retain expected ordinary feature diagnostic separately rather than silently ignoring extras.",
+    "Explicitly label raw omission as an existing uncured renderer debt, not desired language behavior."
+  ],
+  "not_claimed": [
+    "No new semantic RED has been executed by this reviewer.",
+    "This proposal does not fix raw-footer language rendering parity.",
+    "No decision is based on warning absence alone without the renderer edge proof."
+  ]
+}

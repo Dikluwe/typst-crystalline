@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-20T23:30:39.340664+00:00",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "kind": "source-causal audit, no runtime measurement or edit",
+  "source_sha256": {
+    "03_infra/src/pipeline/context_stabilization.rs": "80dc46c9617279b08dc06f56e2333e54011a9ede065d4d62aa7dd4a1418d2bda",
+    "03_infra/src/pipeline.rs": "0b2163ca8d5b0422c63218892ec4356ee01c05e5b044d392b11f4d85de1de6b5",
+    "01_core/src/entities/content/traversal.rs": "2526cf4359a14caf278609c95ddd865c092feefe5bc27e31256f9a5c14c84f9c",
+    "01_core/src/compiler/realize/mod.rs": "a72a66bcdd9bc13e2d5e04aa76d29a81b2ed01c5757b9f0750d805298475995c",
+    "01_core/src/compiler/realize/reference_supplements.rs": "abc23450585c0ba374bf8cbf88c9e3cd1076128a8dc509dc393757b1fee5abe6",
+    "00_nucleo/prompts/_nuclei/content/source-origin.toml": "a8664ae2636c8deed70e8d809da6d82d6372f0fa91139da5643c8c1ae8836a7d"
+  },
+  "counterexample": "Underline(Located(L, Source(span, ContextBlock(id))))",
+  "facts": [
+    "Collector descends Located then Source and includes id.",
+    "ordered_blocks direct Located/Source roots recurse correctly, but the generic-container callback receives Located with Source body after Context root callback was suppressed. Its immediate ContextBlock match returns None, dropping that collected actual member.",
+    "Legacy duplicate-ID fallback uses the same recognition and can omit this member while by_id includes it.",
+    "Source(Located(ContextBlock)) retains immediate Located recognition and works.",
+    "Ref capture constructs Located(bareContextBlock); ordinary finish_occurrences receives Source-transparent mapper nodes and generally produces Source(Located(ContextBlock)). No actual frontend reverse-orientation producer is proven by this audit.",
+    "locate accepts arbitrary Content and public SourceContent/LocatedContent fields have no orientation restriction. The source-origin nucleus and exhaustive collector/session contracts do not authorize dropping the valid reverse-orientation input."
+  ],
+  "classification": "Contract-level transparent Source handling is a bounded internal correction, but requires owning L0 clarification and meaningful unit RED before productive implementation. Do not broaden other carrier peeling or infer actual frontend parity from this shape alone.",
+  "proposed_tests": [
+    "Generic MathFrac/Underline containing Located(Source(Context)) must produce exactly one ordered collected member with original Arc/chain and preserve Source span.",
+    "Duplicate-ID legacy origin including that reverse-oriented producer must retain first-ID order and last-map payload/chain, one unselected initial execution per ID.",
+    "Keep Source(Located(Context)), bare, directLocated and actual Ref capture controls unchanged."
+  ],
+  "refuters": [
+    "An explicit ratified invariant forbidding Source inside Located would invalidate the claim of valid supported input; none was found.",
+    "An actual language fixture producing the reverse shape would upgrade frontend reachability from unproven to measured.",
+    "If actual unit execution does not lose the nested reverse member, recheck mapper callback suppression and withdraw the causal claim before fixing."
+  ],
+  "edits_made": false,
+  "cargo_run": false
+}

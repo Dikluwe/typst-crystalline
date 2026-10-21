@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-21T00:46:49.897668+00:00",
+  "mode": "Independent read-only implementation review; lab reports only; no Cargo/fmt/productive/L0 edits",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "diff_head_stat": " .../core/compiler/eval/operators/equality.md       |  80 +-\n .../prompts/core/compiler/realize/bare_math.md     |  39 +-\n 00_nucleo/prompts/core/compiler/realize/mod.md     |  45 +-\n .../prompts/core/entities/content/equality.md      |  71 +-\n .../prompts/core/entities/content/identity.md      |  80 +-\n 00_nucleo/prompts/infra/export/html/document.md    |  91 ++-\n 00_nucleo/prompts/infra/export/html/encoding.md    |  26 +-\n 00_nucleo/prompts/infra/pipeline.md                |  13 +-\n 00_nucleo/prompts/infra/pipeline/bundle.md         | 106 ++-\n .../infra/pipeline/context_stabilization.md        |  15 +-\n 00_nucleo/prompts/infra/pipeline/html.md           |  40 +-\n 00_nucleo/prompts/infra/pipeline/paged.md          |  13 +-\n 00_nucleo/prompts/infra/query_helpers.md           |  48 +-\n 01_core/src/compiler/eval/operators/equality.rs    | 267 ++++++-\n 01_core/src/compiler/realize/bare_math.rs          | 349 ++++++++-\n 01_core/src/compiler/realize/mod.rs                | 354 ++++++++-\n 01_core/src/entities/content/equality.rs           | 406 +++++++++-\n 01_core/src/entities/content/identity.rs           | 326 +++++++-\n 03_infra/src/export/html/document.rs               | 419 ++++++++++-\n 03_infra/src/export/html/encoding.rs               | 184 ++++-\n 03_infra/src/pipeline.rs                           | 224 +++++-\n 03_infra/src/pipeline/bundle.rs                    | 504 ++++++++++++-\n 03_infra/src/pipeline/context_stabilization.rs     | 823 ++++++++++++++++++++-\n 03_infra/src/pipeline/html.rs                      | 442 ++++++++++-\n 03_infra/src/pipeline/paged.rs                     | 626 +++++++++++++++-\n 03_infra/src/query_helpers.rs                      | 363 ++++++++-\n 26 files changed, 5817 insertions(+), 137 deletions(-)\n",
+  "inputs_sha256": {
+    "03_infra/src/export/html/document.rs": "8c584ce08e3336a52ad28c35663a43a0e8545dd38740f88d0c149713f62c54ce",
+    "00_nucleo/prompts/infra/export/html/document.md": "f053bc3c205f0388ce7ff50d4ed2af00c9f2e9fd0aba792e8d6453621d006c6e",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-flow-before-production/03_infra/src/export/html/document.rs": "aae30cf6b3585e31f0c3ced0d50517d00505ed68943d5bf60d3207991e668657",
+    "lab/results/v16-corrections-2026-10-19/batch-g/focused-cell-red-infra/receipt.json": "04be5f1c51f72cb8a64010ce1eeb5e35dc0109475cf4c3e363c06291ba0a3e35",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-flow-production-ready.json": "17ea5dc860fe5d1c45ff93233c4fa1b5ad4c91190f983e9e1d47ac6de1e9b7f8",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cell-flow-production.patch": "70dae6c68248d46d2034624344c884a88aa05752ac4515a643337099e3f5282c",
+    "03_infra/src/export/html/inline.rs": "d0f09f7857c00165a14252eb0f6e02fb2a105272adde13e9e4764d3dd927d0ef",
+    "03_infra/src/export/html/table.rs": "a96602189d9271c512ce66c1b04b71fc0636041997a7a5696b3029bdf21b2ec5",
+    "03_infra/src/pipeline/bundle.rs": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+    "lab/results/v16-corrections-2026-10-19/batch-g/focused-cell-red-infra/tests.log": "de1f5487350299285dcf07d9ad9e8454a74b3fddb0b36b9d5f2ca44f1ffe7bd7"
+  },
+  "classification": "ADR-0127 continuous existing HTML composition correction; no new API/default/mode/phase or compatibility promise.",
+  "findings": [],
+  "actual_red": {
+    "tests": 36,
+    "passed": 34,
+    "failed": [
+      "export::html::document::batch_g_cell_flow_tests::batch_g_html_root_cell_uses_selected_block_flow",
+      "export::html::document::batch_g_cell_flow_tests::batch_g_html_sequence_cell_flushes_neighboring_paragraphs"
+    ],
+    "compiler_error_codes": [],
+    "changed_inputs": [],
+    "before_source_equals_actual_red_input": true,
+    "raw_assertions": [
+      {
+        "source_line": 859,
+        "left": "<p><h2>H</h2></p>",
+        "right": "<h2>H</h2>"
+      },
+      {
+        "source_line": 869,
+        "left": "<p>Before<h2><strong>H</strong></h2>After</p>",
+        "right": "<p>Before</p><h2><strong>H</strong></h2><p>After</p>"
+      }
+    ],
+    "public_fixture_setup_completed_before_first_root_assertion": true
+  },
+  "component_review": {
+    "selection": {
+      "status": "PASS",
+      "helper": "document.rs::inline_cell_visual",
+      "mechanism": "Borrowed standalone.visual when Some, else body; resolved snapshot never selected here. No mutation, clone, callback or new shared state.",
+      "priority_control": "Unchanged root test loops raw fallback and public realize_document-prepared Cell with distinct standalone, resolved and body."
+    },
+    "composition": {
+      "status": "PASS",
+      "has_block": "Recurses into selected child through existing block detection.",
+      "render_body": "Delegates selected child with unchanged mode,resolver,StyleChain.",
+      "append_block": "Delegates with same mode,resolver,StyleChain,out,paragraph and SmartQuoteContext; no extra reset or new inline flow.",
+      "limits": "State/chain preservation source-reviewed; four new tests do not independently certify every Styled/locale/SmartQuote combination."
+    },
+    "preservation": {
+      "status": "PASS",
+      "exact_preformat_productive_delta_reconstructs_ready_source": true,
+      "exact_preformat_all_test_suffix_unchanged": true,
+      "postformat_old_test_modules_byte_identical": true,
+      "postformat_new_tests_equal_except_outside_literal_whitespace_optional_trailing_commas": true,
+      "all_test_literal_strings_identical": true,
+      "entry_projection_and_explicit_roots_unchanged_by_patch": true,
+      "inline_table_bundle_sources_unchanged_since_plan": true,
+      "rows": "Separate resolved-first Table row selection and td/th spans unchanged.",
+      "errors": "Selected unsupported producers retain renderer error; no emptying/catch/suppression.",
+      "global_projection": "No project_visual_root, generic map, explicit roots, Figure boundary or semantic index change."
+    }
+  },
+  "remaining_gates": "Implementation source-reviewed only. Parent owns unchanged36 GREEN, seals, full lint/structural/integration and fresh original-policy CLI. Prior full12 is historical after required CLI failure."
+}

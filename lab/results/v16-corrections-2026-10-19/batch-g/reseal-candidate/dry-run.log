@@ -1,0 +1,12 @@
+Would fix ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md old=3212f8dc hash-a=f8077a4c hash-b=9126a6cf
+Would fix ./01_core/src/compiler/realize/bare_math.rs prompt=00_nucleo/prompts/core/compiler/realize/bare_math.md old=c4c5c1ed hash-a=c8f739b2 hash-b=35e7b028
+Would fix ./01_core/src/compiler/realize/mod.rs prompt=00_nucleo/prompts/core/compiler/realize/mod.md old=74580e33 hash-a=87403de5 hash-b=55677093
+Would fix ./01_core/src/entities/content/equality.rs prompt=00_nucleo/prompts/core/entities/content/equality.md old=4e6dcee2 hash-a=8d671d62 hash-b=c814a03a
+Would fix ./03_infra/src/export/html/document.rs prompt=00_nucleo/prompts/infra/export/html/document.md old=3d0b66a5 hash-a=8e0e44ae hash-b=8bda264b
+Would fix ./03_infra/src/export/html/encoding.rs prompt=00_nucleo/prompts/infra/export/html/encoding.md old=6367f2fb hash-a=44e9a9ab hash-b=c421616c
+Would fix ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md old=ffe963cb hash-a=5a242515 hash-b=3b6c781d
+Would fix ./03_infra/src/pipeline/context_stabilization.rs prompt=00_nucleo/prompts/infra/pipeline/context_stabilization.md old=c8fafccb hash-a=c319d05d hash-b=bb35e5f9
+Would fix ./03_infra/src/pipeline/html.rs prompt=00_nucleo/prompts/infra/pipeline/html.md old=3b86deb9 hash-a=627fd360 hash-b=e046d357
+Would fix ./03_infra/src/pipeline/paged.rs prompt=00_nucleo/prompts/infra/pipeline/paged.md old=946052e7 hash-a=bde0cb01 hash-b=40730c4f
+Would fix ./03_infra/src/pipeline.rs prompt=00_nucleo/prompts/infra/pipeline.md old=b772ea34 hash-a=f59d6dd0 hash-b=9d4eeafe
+Would fix ./03_infra/src/query_helpers.rs prompt=00_nucleo/prompts/infra/query_helpers.md old=4e60a29a hash-a=4e60a29a hash-b=c5f39b73

@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-21T00:43:15.323534+00:00",
+  "status": "L0 first and four appended tests only, frozen for parent actual RED; no productive implementation/Cargo/fmt/seal",
+  "source_sha256": "78b4582bacff713b005cb50600c3a78a1baf3eb6dce3bd585f9509e22244b928",
+  "l0_sha256": "1049d946df30523e99cfaa5206125d8459d5d001c7109c09247ae295a9ca0515",
+  "all_preexisting_source_bytes_preserved": true,
+  "test_module": "batch_g_cell_flow_tests",
+  "expected_red": [
+    "batch_g_html_root_cell_uses_selected_block_flow",
+    "batch_g_html_sequence_cell_flushes_neighboring_paragraphs"
+  ],
+  "expected_preservation": [
+    "batch_g_html_plain_cell_preserves_inline_paragraph",
+    "batch_g_html_table_row_cell_keeps_td_boundary"
+  ],
+  "priority_control": "Root-cell test loops raw fallback plus public realize_document prepared Cell cloned with distinct lexical body/resolved visual versus selected standalone visual; no private stage fields constructed.",
+  "test_names_count_unchanged": 4
+}

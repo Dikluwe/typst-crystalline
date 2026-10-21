@@ -1,0 +1,177 @@
+{
+  "utc": "2026-10-21T00:18:52.674589+00:00",
+  "mode": "independent read-only owner-local implementation review; no Cargo/source/L0 edits",
+  "observed_source_sha256": "be45aff0d4978a3ba158560584419d45c4c053809793f963605b6ef77c12706f",
+  "owner_sha256": "5c9e08b465d89e18f3d6d9c37a9a7253bee00ba0365468c8cc43b1aa88ceb2e2",
+  "production_ready_receipt_sha256": "a2b83335baf50c5e95b22e1c0f5b06ee85fc1a8e51fcb419a3368b6dfc85177b",
+  "before_production_source_sha256": "9b50910fc66680d1feb37b27b4e19650edfc87df22fc3dcea954254f4b3339bf",
+  "source_now_formatted_or_sealed_since_owner_ready": true,
+  "all_old_new_test_literal_and_expression_tokens_retained": true,
+  "test_formatting_qualification": "Root formatting may change whitespace and optional trailing commas; all exact string literals and all other tokens remain the same. Owner also archived pre-format production proof that test bytes were unchanged.",
+  "emission_graph": {
+    "entry_mode": [
+      "false table_row_slot",
+      "true emitted"
+    ],
+    "child_edges": 21,
+    "inherit_emitted_edges": 20,
+    "only_dormant_edge": [
+      "footer",
+      "warnings",
+      "true",
+      "false"
+    ],
+    "no_recursive_entry_wrapper_calls": true,
+    "no_edge_reactivates_emitted": true,
+    "all_edges": [
+      [
+        "&e.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&e.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&e.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&e.visual",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&label.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&heading.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "item",
+        "warnings",
+        "table_row_slot",
+        "emitted"
+      ],
+      [
+        "&styled.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&strong.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&emph.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "cell",
+        "warnings",
+        "true",
+        "emitted"
+      ],
+      [
+        "header",
+        "warnings",
+        "true",
+        "emitted"
+      ],
+      [
+        "child",
+        "warnings",
+        "true",
+        "emitted"
+      ],
+      [
+        "footer",
+        "warnings",
+        "true",
+        "false"
+      ],
+      [
+        "&resolved.visual",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&standalone.visual",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&cell.body",
+        "warnings",
+        "false",
+        "emitted"
+      ],
+      [
+        "&header.body",
+        "warnings",
+        "table_row_slot",
+        "emitted"
+      ],
+      [
+        "&footer.body",
+        "warnings",
+        "table_row_slot",
+        "emitted"
+      ]
+    ]
+  },
+  "warning_ownership": {
+    "one_creation_guard": "if emitted",
+    "warning_push_sites": 1,
+    "same_heading_conversion_and_warning_literal_payloads": true,
+    "no_collect_then_discard_or_filter": true,
+    "raw_field_conversion_remains": true
+  },
+  "renderer_source_unchanged": true,
+  "source_bound_deep_footer_oracle_sha256": "3f8eab22bc6b3390b47bf3fc2162ff2dd1ab47b23b5837cb92d32ab681e7eb32",
+  "contract_assessment": [
+    "Private effect-admission state is independent of table_row_slot, preserving renderer-selected Cell visuals.",
+    "Source/Styled/Realized.visual/nested Table/Cell/Header/Footer all propagate dormant state without reentering the emitted entry wrapper.",
+    "Only the unrendered raw Table.footer edge becomes dormant; retained fields still convert and emitted standalone/resolved footers still warn.",
+    "No message/hint change, public mode/API/phase/renderer/global mapper change or warning-text filtering is present.",
+    "L0 explicitly keeps raw omission as an observed internal limit, not ratified language behavior; fresh pinned actual resolved-footer source retains emitted tfoot and exact existing warning/two hints."
+  ],
+  "finding": "No substantive implementation finding; bounded existing invariant correction matches the L0 and approved plan.",
+  "pending": [
+    "Actual GREEN for all existing/new controls after root fmt/seal.",
+    "Final source-bound CLI, structural/lint note inventory and13-pair API/ownership/lineage validation.",
+    "Known raw-footer omission and detached deep-warning origin remain explicit debts, not parity successes."
+  ]
+}

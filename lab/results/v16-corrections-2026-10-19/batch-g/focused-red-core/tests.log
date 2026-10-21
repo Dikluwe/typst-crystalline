@@ -1,0 +1,24 @@
+   Compiling syntect v5.3.0
+   Compiling criterion v0.5.1
+   Compiling two-face v0.4.5
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/realize/mod.rs:575:23
+    |
+575 |             selector: Selector::Kind(crate::entities::element_kind::ElementKind::Heading),
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `entities::show::Selector`, found `entities::selector::Selector`
+    |
+    = note: `entities::selector::Selector` and `entities::show::Selector` have similar names, but are actually distinct types
+note: `entities::selector::Selector` is defined in module `crate::entities::selector` of the current crate
+   --> 01_core/src/entities/selector.rs:27:1
+    |
+ 27 | pub enum Selector {
+    | ^^^^^^^^^^^^^^^^^
+note: `entities::show::Selector` is defined in module `crate::entities::show` of the current crate
+   --> 01_core/src/entities/show.rs:63:1
+    |
+ 63 | pub enum Selector {
+    | ^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `typst-core` (lib test) due to 1 previous error

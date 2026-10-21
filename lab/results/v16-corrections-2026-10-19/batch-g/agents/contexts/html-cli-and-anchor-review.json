@@ -1,0 +1,366 @@
+{
+  "utc": "2026-10-20T23:41:42.348220+00:00",
+  "review_mode": "read-only source/oracle-policy verification; parser-only counterexample, no Cargo or product replay",
+  "policy_sha256": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1",
+  "runner_sha256": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+  "targets_sha256": "8a397c98fbc77a2e6c835f880ecaa79779bc0b7c683e1e8962a772a1780d1b2d",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "verified_cases": [
+    {
+      "name": "metadata",
+      "source_sha256": "406608022d30434cff7f8490f8d843d4db4a1695fed65ae8be346501410c8db0",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "context-metadata",
+      "source_sha256": "ff4df2b19ada4a597f8b794d5d0536ced8b9983ec6d60736c631814bb7e83b0c",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "link-heading",
+      "source_sha256": "20910f43f15192a2ba1b0db281d972c94ea12f5067e7eb531a3685576de8ee50",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "explicit-unsupported-gap",
+      "warning_required": false,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-link-heading",
+      "source_sha256": "88e2ec833ed0e5811c4321ccee5d9ae33a8d2f4dacd57f018d411099c73370d3",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "explicit-unsupported-gap",
+      "warning_required": false,
+      "origin_required": false
+    },
+    {
+      "name": "heading-six",
+      "source_sha256": "05815f6a77bc37eec65d2e07964e08bb2bbcde2b9e4987b5761df542f423a917",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "required-closure",
+      "warning_required": false,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-heading-six",
+      "source_sha256": "9f2cc76d2cdc8f3b7e975001f5c418d4711cab5652999c5d9139090f03529908",
+      "oracle_receipt_sha256": "4c94586ef7be7ae2cd2a68a345b52d7011449345e8fcf8d42545aae2ecf6426e",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-link-text",
+      "source_sha256": "0db442c20401e781e0d4ac479bf69c3f6c24fde2adf9ffc540cf44b73c145d76",
+      "oracle_receipt_sha256": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+      "class": "explicit-unsupported-gap",
+      "warning_required": false,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-table-text",
+      "source_sha256": "cf1bd95e56ec722008b5ec4f7d6efe64e5f66b8a0f54fed57811bb1bc2aff53b",
+      "oracle_receipt_sha256": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-table-heading",
+      "source_sha256": "bad44f2a31aaa5f1cc535482d45a26491440b3623a80a360f8a3e8d769d13fce",
+      "oracle_receipt_sha256": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-cell-heading",
+      "source_sha256": "712a1e5d9c534085224efa8bba378dc9faf05bcf7cb2ec569c6dcd12d56f3cd2",
+      "oracle_receipt_sha256": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-tableheader-heading",
+      "source_sha256": "457bfdd51069bad3332915d2b1ea5d6dfb3a5eaa18a0995570a29e2505d802dd",
+      "oracle_receipt_sha256": "a3b3d85329f11dbb3ba5ae3a51c2604e6b9b2973e7f28d666df56c3a151211fd",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "bundle-footer-heading",
+      "source_sha256": "9dc2f7e8f0dc261398e95eeacd35efb4571f18ea160a3aa3cf89cd35faf92e0d",
+      "oracle_receipt_sha256": "195bf06a2275d4ef5d4d23f085accda7f02eda3eaa18503f4562a1982d379c13",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "title-escaping",
+      "source_sha256": "b85f5b5b691d8e13d55b8787fb3573c20179ffe82ae6792559ad2180a2a60b4d",
+      "oracle_receipt_sha256": "b844cc2f409227f1549352e8600908ccb6e9e3bcb9e4e2f82cac5a260236d361",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "title-nontext-rejected",
+      "source_sha256": "0e228dfedf89f093897318ab10a5c29775c3c53157fd61849b5d3aaa43a3508b",
+      "oracle_receipt_sha256": "b844cc2f409227f1549352e8600908ccb6e9e3bcb9e4e2f82cac5a260236d361",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "script-raw-escaping",
+      "source_sha256": "9bc72eca4127f3bce6eea6677f42474718a26d95f67583f5351675a2e2086b51",
+      "oracle_receipt_sha256": "b844cc2f409227f1549352e8600908ccb6e9e3bcb9e4e2f82cac5a260236d361",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    },
+    {
+      "name": "script-content-rejected",
+      "source_sha256": "9937dc1ef6b447245e5c2e78f9261e6e112f750813e598fc19e8dba5c4a4a52f",
+      "oracle_receipt_sha256": "b844cc2f409227f1549352e8600908ccb6e9e3bcb9e4e2f82cac5a260236d361",
+      "class": "required-closure",
+      "warning_required": true,
+      "origin_required": false
+    }
+  ],
+  "counts": {
+    "total": 16,
+    "required": 13,
+    "explicit_gap": 3
+  },
+  "semantics_preserved_by_comparator": [
+    "Exact source strings/digests and all recorded oracle exit/HTML/stderr fields match immutable raw receipts.",
+    "DOM preserves tag structure, sorted attribute payloads, exact text/whitespace/raw-script data; only the declared implied-tbody table-row grouping is intentionally normalized.",
+    "Rejected raw-title/script content requires oracle exit/error payload and absence of HTML.",
+    "Three Link gaps are excluded from required acceptance and receive required_pass null, rather than a false parity pass.",
+    "Build receipt success, exact current frozen inputs and binary SHA are required before replay and checked afterward; policy SHA unchanged is required."
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "acceptance blind spot",
+      "detail": "heading-six disables the whole warning payload requirement although the stated debt is specifically the omitted deep-heading warning. This permits loss/change of the independent mandatory HTML-feature warning, or unexpected warnings, in required_pass.",
+      "recommendation": "Match all nonwaived warnings exactly; waive only absence of the one measured deep-heading warning, recording the gap separately."
+    },
+    {
+      "id": "R2",
+      "severity": "acceptance blind spot",
+      "detail": "HTMLParser ignores the doctype declaration; parser-only execution confirms identical semantic_dom for same document with and without <!DOCTYPE html>. Doctype changes can select browser quirks mode and are not the declared tbody-only normalization.",
+      "recommendation": "Retain and compare doctype semantics explicitly, without reverting to whole-output byte equality."
+    },
+    {
+      "id": "R3",
+      "severity": "acceptance blind spot",
+      "detail": "For oracle-success cases, main_match compares exit and DOM but does not require error payload equality. An unexpected error diagnostic alongside exit0 could receive required_pass while strict_comparison records a difference.",
+      "recommendation": "Require equal error payload on every case, including successful ones."
+    },
+    {
+      "id": "R4",
+      "severity": "scope qualification",
+      "detail": "complete_diagnostic_fields and strict_comparison refer only to parsed severity/message/hints/origin line-column/help fields, not every raw stderr trace/highlight/path. All raw stderr is retained and diagnostic origin is explicitly outside required scope.",
+      "recommendation": "Describe parsed diagnostic completeness precisely; do not label strict success as full diagnostic parity."
+    }
+  ],
+  "structural_anchors": [
+    {
+      "id": "V16-049",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "green_after": "fn plain_without_bare_math(",
+      "green_anchor": "match content {",
+      "line": 54,
+      "byte_start": 1888,
+      "byte_end": 1903,
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c"
+    },
+    {
+      "id": "V16-050",
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "green_after": "fn prepare(",
+      "green_anchor": "match node {",
+      "line": 199,
+      "byte_start": 6916,
+      "byte_end": 6928,
+      "source_sha256": "d008a1754dc6a4b328e8a43f5f7859f78fd9213570a9c8a085399e0467d8ab7c"
+    },
+    {
+      "id": "V16-051",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "green_after": "fn normalize_insertions(",
+      "green_anchor": "match child {",
+      "line": 90,
+      "byte_start": 3105,
+      "byte_end": 3118,
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925"
+    },
+    {
+      "id": "V16-052",
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "green_after": "fn observe_occurrences(",
+      "green_anchor": "match node {",
+      "line": 236,
+      "byte_start": 9047,
+      "byte_end": 9059,
+      "source_sha256": "041f7c263ee0ecffcc20b2692baee997612e1c1ce8c57962808789949a313925"
+    },
+    {
+      "id": "V16-074",
+      "file": "01_core/src/entities/content/equality.rs",
+      "green_after": "impl PartialEq for Content",
+      "green_anchor": "match (self, other) {",
+      "line": 11,
+      "byte_start": 246,
+      "byte_end": 267,
+      "source_sha256": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee"
+    },
+    {
+      "id": "V16-088",
+      "file": "03_infra/src/export/html/document.rs",
+      "green_after": "fn project_visual_root(",
+      "green_anchor": "match content {",
+      "line": 57,
+      "byte_start": 2461,
+      "byte_end": 2476,
+      "source_sha256": "32f654468c314aad8cab392b9a50c4150015cd6f6c37354b3494275bf4633ced"
+    },
+    {
+      "id": "V16-089",
+      "file": "03_infra/src/export/html/encoding.rs",
+      "green_after": "fn visual_content(",
+      "green_anchor": "match content {",
+      "line": 14,
+      "byte_start": 409,
+      "byte_end": 424,
+      "source_sha256": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e"
+    },
+    {
+      "id": "V16-092",
+      "file": "03_infra/src/pipeline/bundle.rs",
+      "green_after": "fn bundle_html_semantic_content(",
+      "green_anchor": "match content {",
+      "line": 327,
+      "byte_start": 12013,
+      "byte_end": 12028,
+      "source_sha256": "aaba99863462a200884ab24b5ba449f09dd2e20ed1a8545b1dc1ac0e0a6655a3"
+    },
+    {
+      "id": "V16-093",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "green_after": "fn ordered_blocks(",
+      "green_anchor": "match producer_root {",
+      "line": 270,
+      "byte_start": 10396,
+      "byte_end": 10417,
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810"
+    },
+    {
+      "id": "V16-094",
+      "file": "03_infra/src/pipeline/context_stabilization.rs",
+      "green_after": "let blocks = blocks.unwrap_or_else(",
+      "green_anchor": "match producer_root {",
+      "line": 638,
+      "byte_start": 25138,
+      "byte_end": 25159,
+      "source_sha256": "669455dc1249ff8a944f98629ae2246b194c10e2e02819465a5dec927977e810"
+    },
+    {
+      "id": "V16-095",
+      "file": "03_infra/src/pipeline/html.rs",
+      "green_after": "fn collect_html_frames(",
+      "green_anchor": "match html_callback_root(node) {",
+      "line": 306,
+      "byte_start": 11383,
+      "byte_end": 11415,
+      "source_sha256": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e"
+    },
+    {
+      "id": "V16-096",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "green_after": "fn page_independent_style(",
+      "green_anchor": "match value {",
+      "line": 15,
+      "byte_start": 718,
+      "byte_end": 731,
+      "source_sha256": "bc6724297f7022975e4c8f3e866b0bc1ef44b8d7d320544f5a79f24a013b2ed6"
+    },
+    {
+      "id": "V16-097",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "green_after": "fn initial_layout_independent(",
+      "green_anchor": "match content {",
+      "line": 94,
+      "byte_start": 3533,
+      "byte_end": 3548,
+      "source_sha256": "bc6724297f7022975e4c8f3e866b0bc1ef44b8d7d320544f5a79f24a013b2ed6"
+    },
+    {
+      "id": "V16-098",
+      "file": "03_infra/src/pipeline/paged.rs",
+      "green_after": "let same_carrier =",
+      "green_anchor": "match (content, &first) {",
+      "line": 345,
+      "byte_start": 12645,
+      "byte_end": 12670,
+      "source_sha256": "bc6724297f7022975e4c8f3e866b0bc1ef44b8d7d320544f5a79f24a013b2ed6"
+    },
+    {
+      "id": "V16-099",
+      "file": "03_infra/src/pipeline.rs",
+      "green_after": "fn collect_context_blocks_into(",
+      "green_anchor": "match node {",
+      "line": 517,
+      "byte_start": 22061,
+      "byte_end": 22073,
+      "source_sha256": "42487948f7aa7192bfabc6f67cd05c17e4384489c794af1cb1ce76fe8bd33065"
+    },
+    {
+      "id": "V16-101",
+      "file": "03_infra/src/query_helpers.rs",
+      "green_after": "fn count_element_in_content(",
+      "green_anchor": "match kind {",
+      "line": 215,
+      "byte_start": 8193,
+      "byte_end": 8205,
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087"
+    },
+    {
+      "id": "V16-102",
+      "file": "03_infra/src/query_helpers.rs",
+      "green_after": "fn count_list_groups(",
+      "green_anchor": "match content {",
+      "line": 250,
+      "byte_start": 9421,
+      "byte_end": 9436,
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087"
+    },
+    {
+      "id": "V16-103",
+      "file": "03_infra/src/query_helpers.rs",
+      "green_after": "fn count_enum_groups(",
+      "green_anchor": "match content {",
+      "line": 381,
+      "byte_start": 13537,
+      "byte_end": 13552,
+      "source_sha256": "da38f1627688d6749753d1afa493601bfdb33c83d6b0448ec49ff915049fb087"
+    }
+  ],
+  "anchor_assessment": "All18 current selected IDs resolve to distinct real source ranges. 093/094 retain separate inner match producer_root decisions; 088 maps old callback obligation to its productive project_visual_root helper, and095 targets collect_html_frames root-reclassified callback rather than merely its unwrapping helper. Actual compiler primary-span witnesses are still required.",
+  "pending": [
+    "No candidate CLI replay is reviewed here.",
+    "No actual compiler/product failure is inferred from verifier blind spots.",
+    "Structural GREEN, isolated tuple axes and full diagnostic multiset review await their final receipts."
+  ]
+}

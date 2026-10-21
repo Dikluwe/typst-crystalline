@@ -1,0 +1,5 @@
+Applied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=4e1b9ce7 hash-b=db6c5773
+Applied ./03_infra/src/pipeline/bundle.rs prompt=00_nucleo/prompts/infra/pipeline/bundle.md hash-a=9a480b5e hash-b=e1fe3faa
+Applied ./03_infra/src/pipeline/paged.rs prompt=00_nucleo/prompts/infra/pipeline/paged.md hash-a=bde0cb01 hash-b=595f7222
+
+Re-running analysis... ✅ 0 drift warnings remaining

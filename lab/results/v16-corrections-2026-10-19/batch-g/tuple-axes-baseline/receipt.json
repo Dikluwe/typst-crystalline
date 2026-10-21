@@ -1,0 +1,691 @@
+{
+  "utc_end": "2026-10-20T23:28:07.081482+00:00",
+  "phase": "baseline",
+  "baseline_head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "base_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/structural-baseline-2/receipt.json",
+  "base_receipt_sha256": "824afb25424bd3b29ced26bbb324869854bdada4bc847368be094c08301961e1",
+  "original_sources_sha256": "fe6c944ebb517d9daba328c0a9696984bff589713dad013d6538375eee9aca1b",
+  "domain_variants": [
+    [
+      "Source",
+      "("
+    ],
+    [
+      "ShowRecipe",
+      "("
+    ],
+    [
+      "Realized",
+      "("
+    ],
+    [
+      "Located",
+      "("
+    ],
+    [
+      "Empty",
+      ","
+    ],
+    [
+      "Text",
+      "("
+    ],
+    [
+      "Space",
+      ","
+    ],
+    [
+      "SpaceFromNewline",
+      ","
+    ],
+    [
+      "Parbreak",
+      ","
+    ],
+    [
+      "Sequence",
+      "("
+    ],
+    [
+      "HtmlElem",
+      "("
+    ],
+    [
+      "HtmlFrame",
+      "("
+    ],
+    [
+      "Par",
+      " {"
+    ],
+    [
+      "Heading",
+      "("
+    ],
+    [
+      "Title",
+      "("
+    ],
+    [
+      "Strong",
+      "("
+    ],
+    [
+      "Emph",
+      "("
+    ],
+    [
+      "Raw",
+      "("
+    ],
+    [
+      "ListItem",
+      "("
+    ],
+    [
+      "EnumItem",
+      "("
+    ],
+    [
+      "Link",
+      "("
+    ],
+    [
+      "Equation",
+      "("
+    ],
+    [
+      "MathSequence",
+      "("
+    ],
+    [
+      "MathIdent",
+      "("
+    ],
+    [
+      "MathText",
+      "("
+    ],
+    [
+      "MathFrac",
+      "("
+    ],
+    [
+      "MathAttach",
+      "("
+    ],
+    [
+      "MathPrimes",
+      "("
+    ],
+    [
+      "MathRoot",
+      "("
+    ],
+    [
+      "MathStretch",
+      "("
+    ],
+    [
+      "MathDelimited",
+      "("
+    ],
+    [
+      "MathLr",
+      "("
+    ],
+    [
+      "MathMid",
+      "("
+    ],
+    [
+      "MathOverbrace",
+      "("
+    ],
+    [
+      "MathUnderbrace",
+      "("
+    ],
+    [
+      "MathUnderbracket",
+      "("
+    ],
+    [
+      "MathUnderparen",
+      "("
+    ],
+    [
+      "MathUndershell",
+      "("
+    ],
+    [
+      "MathOverbracket",
+      "("
+    ],
+    [
+      "MathOverparen",
+      "("
+    ],
+    [
+      "MathOvershell",
+      "("
+    ],
+    [
+      "MathAlignPoint",
+      "("
+    ],
+    [
+      "Linebreak",
+      "("
+    ],
+    [
+      "MathMatrix",
+      "("
+    ],
+    [
+      "MathCases",
+      "("
+    ],
+    [
+      "MathAccent",
+      "("
+    ],
+    [
+      "MathCancel",
+      "("
+    ],
+    [
+      "MathUnderline",
+      "("
+    ],
+    [
+      "MathOverline",
+      "("
+    ],
+    [
+      "MathVec",
+      "("
+    ],
+    [
+      "MathClassOverride",
+      "("
+    ],
+    [
+      "MathLimitsOverride",
+      "("
+    ],
+    [
+      "MathUnderover",
+      "("
+    ],
+    [
+      "MathOp",
+      "("
+    ],
+    [
+      "MathStyled",
+      "("
+    ],
+    [
+      "Label",
+      "("
+    ],
+    [
+      "Ref",
+      "("
+    ],
+    [
+      "CounterDisplay",
+      "("
+    ],
+    [
+      "CounterUpdate",
+      "("
+    ],
+    [
+      "Outline",
+      "("
+    ],
+    [
+      "OutlineEntry",
+      "("
+    ],
+    [
+      "Figure",
+      "("
+    ],
+    [
+      "FigureCaption",
+      "("
+    ],
+    [
+      "Image",
+      "("
+    ],
+    [
+      "Shape",
+      "("
+    ],
+    [
+      "Curve",
+      "("
+    ],
+    [
+      "Transform",
+      "("
+    ],
+    [
+      "Grid",
+      "("
+    ],
+    [
+      "GridHeader",
+      "("
+    ],
+    [
+      "GridFooter",
+      "("
+    ],
+    [
+      "GridCell",
+      "("
+    ],
+    [
+      "SetPage",
+      "("
+    ],
+    [
+      "PageRun",
+      "("
+    ],
+    [
+      "Align",
+      "("
+    ],
+    [
+      "Place",
+      "("
+    ],
+    [
+      "Flush",
+      "("
+    ],
+    [
+      "Styled",
+      "("
+    ],
+    [
+      "Divider",
+      "("
+    ],
+    [
+      "Terms",
+      "("
+    ],
+    [
+      "TermItem",
+      "("
+    ],
+    [
+      "Quote",
+      "("
+    ],
+    [
+      "Document",
+      " {"
+    ],
+    [
+      "Asset",
+      " {"
+    ],
+    [
+      "SmartQuote",
+      "("
+    ],
+    [
+      "PdfAttach",
+      "("
+    ],
+    [
+      "PdfArtifact",
+      "("
+    ],
+    [
+      "Underline",
+      "("
+    ],
+    [
+      "Strike",
+      "("
+    ],
+    [
+      "Overline",
+      "("
+    ],
+    [
+      "SmallCaps",
+      " {"
+    ],
+    [
+      "Pad",
+      "("
+    ],
+    [
+      "Hide",
+      "("
+    ],
+    [
+      "HSpace",
+      "("
+    ],
+    [
+      "VSpace",
+      "("
+    ],
+    [
+      "Pagebreak",
+      "("
+    ],
+    [
+      "Colbreak",
+      "("
+    ],
+    [
+      "Stack",
+      "("
+    ],
+    [
+      "Boxed",
+      "("
+    ],
+    [
+      "Block",
+      "("
+    ],
+    [
+      "TableCell",
+      "("
+    ],
+    [
+      "Bibliography",
+      "("
+    ],
+    [
+      "Cite",
+      "("
+    ],
+    [
+      "Footnote",
+      "("
+    ],
+    [
+      "FootnoteEntry",
+      "("
+    ],
+    [
+      "TableHeader",
+      "("
+    ],
+    [
+      "TableFooter",
+      "("
+    ],
+    [
+      "GridHLine",
+      "("
+    ],
+    [
+      "GridVLine",
+      "("
+    ],
+    [
+      "TableHLine",
+      "("
+    ],
+    [
+      "TableVLine",
+      "("
+    ],
+    [
+      "Table",
+      "("
+    ],
+    [
+      "Repeat",
+      "("
+    ],
+    [
+      "Columns",
+      "("
+    ],
+    [
+      "Metadata",
+      "("
+    ],
+    [
+      "State",
+      "("
+    ],
+    [
+      "StateUpdate",
+      "("
+    ],
+    [
+      "StateDisplay",
+      "("
+    ],
+    [
+      "CounterDisplayCallback",
+      "("
+    ],
+    [
+      "ContextBlock",
+      "("
+    ],
+    [
+      "Dynamic",
+      "("
+    ]
+  ],
+  "commands": [
+    {
+      "name": "V16-074-new-left-old-right",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:13.119615+00:00",
+      "utc_end": "2026-10-20T23:27:20.771055+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 207,
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,"
+    },
+    {
+      "name": "V16-074-old-left-new-right",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:20.988039+00:00",
+      "utc_end": "2026-10-20T23:27:28.447521+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 207,
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,"
+    },
+    {
+      "name": "V16-074-new-new",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:28.578520+00:00",
+      "utc_end": "2026-10-20T23:27:36.079150+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-074",
+        "file": "01_core/src/entities/content/equality.rs",
+        "line": 11,
+        "byte_start": 246,
+        "byte_end": 267,
+        "anchor": {
+          "after": "impl PartialEq for Content",
+          "anchor": "match (self, other) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 207,
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,"
+    },
+    {
+      "name": "V16-098-new-left-old-right",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:36.312519+00:00",
+      "utc_end": "2026-10-20T23:27:46.547932+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-infra",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 9,
+      "mask": "(_, Content::TektV16EvolutionProbe) => false,"
+    },
+    {
+      "name": "V16-098-old-left-new-right",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:46.685489+00:00",
+      "utc_end": "2026-10-20T23:27:56.859329+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-infra",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 9,
+      "mask": "(Content::TektV16EvolutionProbe, _) => false,"
+    },
+    {
+      "name": "V16-098-new-new",
+      "phase": "baseline",
+      "utc_start": "2026-10-20T23:27:57.003205+00:00",
+      "utc_end": "2026-10-20T23:28:07.081117+00:00",
+      "argv": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-infra",
+        "--lib",
+        "--message-format=json"
+      ],
+      "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/tekt-batch-g-axes-baseline",
+      "exit": 101,
+      "target": {
+        "id": "V16-098",
+        "file": "03_infra/src/pipeline/paged.rs",
+        "line": 214,
+        "byte_start": 8314,
+        "byte_end": 8339,
+        "anchor": {
+          "after": "let same_carrier =",
+          "anchor": "match (content, &first) {"
+        }
+      },
+      "selected_witnesses": [],
+      "other_errors": [],
+      "error_count": 9,
+      "mask": "(Content::TektV16EvolutionProbe, Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..)) | (Content::Source(..) | Content::ShowRecipe(..) | Content::Realized(..) | Content::Located(..) | Content::Empty | Content::Text(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(..) | Content::HtmlElem(..) | Content::HtmlFrame(..) | Content::Par { .. } | Content::Heading(..) | Content::Title(..) | Content::Strong(..) | Content::Emph(..) | Content::Raw(..) | Content::ListItem(..) | Content::EnumItem(..) | Content::Link(..) | Content::Equation(..) | Content::MathSequence(..) | Content::MathIdent(..) | Content::MathText(..) | Content::MathFrac(..) | Content::MathAttach(..) | Content::MathPrimes(..) | Content::MathRoot(..) | Content::MathStretch(..) | Content::MathDelimited(..) | Content::MathLr(..) | Content::MathMid(..) | Content::MathOverbrace(..) | Content::MathUnderbrace(..) | Content::MathUnderbracket(..) | Content::MathUnderparen(..) | Content::MathUndershell(..) | Content::MathOverbracket(..) | Content::MathOverparen(..) | Content::MathOvershell(..) | Content::MathAlignPoint(..) | Content::Linebreak(..) | Content::MathMatrix(..) | Content::MathCases(..) | Content::MathAccent(..) | Content::MathCancel(..) | Content::MathUnderline(..) | Content::MathOverline(..) | Content::MathVec(..) | Content::MathClassOverride(..) | Content::MathLimitsOverride(..) | Content::MathUnderover(..) | Content::MathOp(..) | Content::MathStyled(..) | Content::Label(..) | Content::Ref(..) | Content::CounterDisplay(..) | Content::CounterUpdate(..) | Content::Outline(..) | Content::OutlineEntry(..) | Content::Figure(..) | Content::FigureCaption(..) | Content::Image(..) | Content::Shape(..) | Content::Curve(..) | Content::Transform(..) | Content::Grid(..) | Content::GridHeader(..) | Content::GridFooter(..) | Content::GridCell(..) | Content::SetPage(..) | Content::PageRun(..) | Content::Align(..) | Content::Place(..) | Content::Flush(..) | Content::Styled(..) | Content::Divider(..) | Content::Terms(..) | Content::TermItem(..) | Content::Quote(..) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(..) | Content::PdfAttach(..) | Content::PdfArtifact(..) | Content::Underline(..) | Content::Strike(..) | Content::Overline(..) | Content::SmallCaps { .. } | Content::Pad(..) | Content::Hide(..) | Content::HSpace(..) | Content::VSpace(..) | Content::Pagebreak(..) | Content::Colbreak(..) | Content::Stack(..) | Content::Boxed(..) | Content::Block(..) | Content::TableCell(..) | Content::Bibliography(..) | Content::Cite(..) | Content::Footnote(..) | Content::FootnoteEntry(..) | Content::TableHeader(..) | Content::TableFooter(..) | Content::GridHLine(..) | Content::GridVLine(..) | Content::TableHLine(..) | Content::TableVLine(..) | Content::Table(..) | Content::Repeat(..) | Content::Columns(..) | Content::Metadata(..) | Content::State(..) | Content::StateUpdate(..) | Content::StateDisplay(..) | Content::CounterDisplayCallback(..) | Content::ContextBlock(..) | Content::Dynamic(..), Content::TektV16EvolutionProbe) => false,"
+    }
+  ],
+  "note": "Each mask covers the other two future tuple classes; only selected residual axis must still demand an explicit decision. Actual copied core dependency is bridged only for infrastructure checks; no runtime execution or productive mutation."
+}

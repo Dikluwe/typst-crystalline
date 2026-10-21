@@ -1,0 +1,35 @@
+--- before/agents/core/replay_equality.py
++++ after/agents/core/replay_equality.py
+@@ -3,6 +3,12 @@
+ import argparse,subprocess,json,hashlib,datetime
+ A=argparse.ArgumentParser();A.add_argument('--product',type=Path,required=True);A.add_argument('--build-receipt',type=Path,required=True);A.add_argument('--out',type=Path,required=True);a=A.parse_args()
+ P=Path(__file__).resolve().parent;R=Path.cwd();sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();utc=lambda:datetime.datetime.now(datetime.timezone.utc).isoformat()
++def language_json_values(actual_stdout,oracle_stdout):
++ # Invalid oracle evidence is a harness error; invalid candidate JSON fails its check.
++ expected=json.loads(oracle_stdout)
++ try:actual=json.loads(actual_stdout)
++ except ValueError:return False,None,expected
++ return True,actual,expected
+ b=json.loads(a.build_receipt.read_text());assert b['exit']==0 and b['changed_inputs']==[];assert sha(a.product)==b['product_sha256'];assert all(sha(R/n)==d for n,d in b['inputs'].items())
+ assert not a.out.exists();a.out.mkdir(parents=True)
+ r={'utc_start':utc(),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'build_receipt':str(a.build_receipt),'build_receipt_sha256':sha(a.build_receipt),'product_sha256':sha(a.product),'inputs':b['inputs'],'runner_sha256':sha(__file__),'cases':[]}
+@@ -23,8 +29,8 @@
+    row['rendered_text']=text;row['checks']['both_emissions']=' '.join(text.split())==' '.join(oracle['text'].split())=='AB';row['required']=True
+   else:
+    argv=[str(product),*oracle['argv'][1:]];p=subprocess.run(argv,capture_output=True,text=True,timeout=30);row['run']={'argv':argv,'exit':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
+-   try:actual=json.loads(p.stdout);expected=json.loads(oracle['stdout'])
+-   except ValueError:actual=None;expected=None
++   actual_json_valid,actual,expected=language_json_values(p.stdout,oracle['stdout'])
++   row['checks']['json_output']=actual_json_valid
+    if group=='equality-probes' and c['name']=='html-tristate-fields':
+     row['required']=False;row['classification']='Existing HTML fields {} discrepancy; observed comparison retained open, not accepted as parity.';row['checks']['observed_fields_match']=actual==expected and p.returncode==0
+    elif group=='equality-probes' and c['name']!='title-fields':
+@@ -32,7 +38,7 @@
+     for k in ['equal','unequal','member','nested']:row['checks'][k]=isinstance(actual,dict) and actual.get(k)==expected[k]
+     row['repr_observation']={'actual':{k:actual.get(k) for k in ['left','right']} if isinstance(actual,dict) else None,'oracle':{k:expected[k] for k in ['left','right']}}
+     row['repr_note']='Stored independently; known baseline title/frame/empty-attrs repr presentation differences are outside selected equality closure.'
+-   else:row['required']=True;row['checks']['language_values']=p.returncode==oracle['exit']==0 and actual==expected
++   else:row['required']=True;row['checks']['language_values']=p.returncode==oracle['exit']==0 and actual_json_valid and actual==expected
+   row['pass']=all(row['checks'].values());r['cases'].append(row);print(group,c['name'],row['required'],row['pass'],flush=True)
+ r['utc_end']=utc();r['changed_inputs']=[n for n,d in b['inputs'].items() if sha(R/n)!=d];r['binary_unchanged']=sha(a.product)==r['product_sha256'];r['required_failures']=[c['name'] for c in r['cases'] if c['required'] and not c['pass']];r['open_observed_comparisons']=[c['name'] for c in r['cases'] if not c['required'] and not c['pass']]
+ (a.out/'receipt.json').write_text(json.dumps(r,indent=2)+'\n');assert not r['changed_inputs'] and r['binary_unchanged'];print('required_failures',r['required_failures'])

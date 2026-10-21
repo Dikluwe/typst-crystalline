@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-20T23:40:41.396597+00:00",
+  "reviewer_role": "Independent HTML4/query reviewer; self-audit of own core comparison projection explicitly separated",
+  "snapshot_sha256": {
+    "03_infra/src/export/html/document.rs": "32f654468c314aad8cab392b9a50c4150015cd6f6c37354b3494275bf4633ced",
+    "03_infra/src/export/html/encoding.rs": "fdca6cd59c6972e844de2047b8e627b509bfcfe56346902aa77980369a27c81e",
+    "03_infra/src/pipeline/html.rs": "fc2e888c88d48441b584adef636290c8c3a08a192c53213e1a2cb943e5d2a14e",
+    "03_infra/src/pipeline/bundle.rs": "aaba99863462a200884ab24b5ba449f09dd2e20ed1a8545b1dc1ac0e0a6655a3",
+    "00_nucleo/prompts/infra/export/html/document.md": "744cc1c9859013bad091a744d5a406aba438c6378de3ffae684252af363fc649",
+    "00_nucleo/prompts/infra/export/html/encoding.md": "f98d9765183832abb04ef034cd830aacdeb8701e953e1ccde2eca7b39185aa49",
+    "00_nucleo/prompts/infra/pipeline/html.md": "ab5595d4abd74fc6d998a3b0c9eab395f14b01fc6d579912a36a1175b020ce01",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "36c021a877662639de65bb8cbfa19f6143fe01b6344113fb307ba90cdc26810a",
+    "01_core/src/compiler/eval/operators/equality.rs": "e0b9c0bf16975992f07816691585b2c68e597e9e9260b41c36373cd480d72b9f",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "89e8f21fe8230a505ee12e5bf2d3de3588e1f2f70c58248777b63d8c33df6471",
+    "01_core/src/entities/content/equality.rs": "8b39779331011e73dd6d67a0f2a92b744d97066a6bffff45a5c88416da1ed7ee"
+  },
+  "status": "No actionable contract defect found in reviewed scope; integration/structural/equality replay proof remains root-owned",
+  "independent_html_review": {
+    "document": "project_visual_root classifies transported immediate roots recursively through Source/Located/ShowRecipe/Label and Realized.visual. It empties only State/StateUpdate/Metadata, preserves unsupported producers for errors, and retains Figure-origin paragraph boundaries without rendering original. Existing mapper semantics are unchanged.",
+    "encoding": "visual_content peels only four existing causal carriers, then explicitly stops on every other current variant. Styled handling remains with raw/title owners. Raw nontext rejection, title quote state and wrapped linebreak-space absorption remain; no new input kind admitted.",
+    "html_frames": "html_callback_root peels only Source/Located. Stopping at ShowRecipe/Realized avoids double observation because their child/visual roots are visited normally. Frame count and collection use same event predicate; suppressed Located(Styled(Frame)) root gets style attachment, nested frames remain bottom-up and originals excluded. Exact Context ID membership/duplicates/collisions/page-none checks remain strict.",
+    "bundle": "Only already-supported Table/Cell/Header/Footer descendant projection added. Resolved plan cells or raw child/header/footer selected correctly; TableCell order resolved\u2192standalone\u2192body matches actual visual() source. Nonvisual fields cloned; dormant raw/caption fields not transformed. Caption warnings/emission not fabricated; HtmlFrame remains terminal paged island. Unsupported Link/other containers left to existing errors."
+  },
+  "core_self_audit": {
+    "not_independent": true,
+    "private_comparison": "comparison_root is private and only called within content_language_eq projection. It clones Context with ephemeralid0 but retains original Func; only local compared values observe it. No engine/value/snapshot/locator/global/public-morph/hash publication or execution. Internal Source/Located/ShowRecipe/Realized roots are reclassified only to cover suppressed roots; Styled policy stays local; original Realized snapshot untouched.",
+    "identity_boundary": "Mechanical Context Eq/Hash still uses documented id. Query/introspection/ObservationEq/occurrence arena files untouched. Opaque language equality never implies occurrence/closure interchangeability or emittedAB deduplication.",
+    "closed_pair": "Actual Content\u00d7Content dispatch explicitly covers every current axis. Transparent carriers are handled on either axis above the finite116\u00d7116 remainder. No new variant inherits false silently; tuple6 actual compiler proof still required.",
+    "identity_passthrough": "Private comparison_root other.clone returns the entire already-mapped node; it is not neutral false/None/Empty. Future opaque-kind language policy needs its own explicit decision; public Eq and traversal remain compiler-closed. Pinned lint proof remains required."
+  },
+  "retained_limits": [
+    "No full HTML/Table/Frame or equality parity claim. Unsupported Link/text and other semantic containers remain unsupported; table caption remains unrendered data in this path.",
+    "Observed HTML fields and title/frame/empty-attrs repr differences remain outside selected correction.",
+    "Historical Metadata/State/StateUpdate mechanical false and bare-Math quantitative threshold remain, with no suppression or performance claim.",
+    "Synthetic transported-root controls prove the existing Content contract; this review does not invent frontend reachability or source-CLI parity for unmeasured orientations."
+  ],
+  "findings": [],
+  "no_mutations_or_cargo": true
+}

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-20T23:44:26.605711+00:00",
+  "purpose": "Exact pre-candidate verifier/policy archive before R1/R2/R3 hardening",
+  "sha256": {
+    "replay_cli.py": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+    "cli-policies.json": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1"
+  }
+}

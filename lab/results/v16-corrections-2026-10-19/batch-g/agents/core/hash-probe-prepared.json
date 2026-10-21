@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-20T23:52:31.080284+00:00",
+  "status": "Unexecuted probe revision; previous source/runner archived before adding a baseline nested-Value mechanical control",
+  "reason": "Keep nested Value floating-zero Eq/Debug hash issue separately visible from new Content equality domains; no new language or root Hash exception",
+  "rows": 366,
+  "sha256": {
+    "public_hash_probe.rs": "8255fbf6dcda63bdc220d227a665e497f7560ccb8741bb5f2e32035db5d39cde",
+    "run_public_hash_probe.py": "9753520931a31df98f8350447871821c637559612fcb9bdd06bbe463032c5018"
+  }
+}

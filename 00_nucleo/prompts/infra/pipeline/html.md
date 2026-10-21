@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/html
-Hash do Código: 2e8c2d4b
+Hash do Código: e046d357
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/html.rs`
@@ -86,3 +86,41 @@ RED before code; gate authorizes only Heading facade, not separately scoped five
 State helpers/new public fields. Existing Styled/other callback boundaries stay.
 Workspace/doctests/build/Clippy/Rustdoc/fmt/V1-V5-V15-V26/reverse/no V16 growth,
 sequential12GiB/High8GiB/swap0/job1. RAM gain needs measurement, not intent.
+
+
+## Frame observer accounts for suppressed callback roots
+
+### Evidence before decision
+
+At baseline4382891, `03_infra/src/pipeline/html.rs:158–200` uses map_content for
+frame_count and collection. `01_core/src/entities/content/traversal.rs:436`
+suppresses a Located immediate-body callback. Located(HtmlFrame) loses its Frame
+event; Located(Styled(Frame)) loses the Styled event carrying effective styles.
+The same root suppression affects expected Context IDs within an island. Exact
+source/hash evidence and local regressions are retained in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/html/audit.json` and
+`lab/results/v16-corrections-2026-10-19/batch-g/focused-red-infra-3/receipt.json`.
+These helper cases do not establish external language reachability of every
+transport shape.
+
+### Contract and acceptance
+
+Observe suppressed roots locally by peeling only Source/Located chains before
+the Frame/Styled or expected Context-ID decision. Do not peel ShowRecipe/Realized
+in this callback: generic traversal already observes their body/visual roots.
+Other nonframe callback events remain explicitly inert while generic traversal
+visits their descendants. Frame counting and collection use identical root-event
+recognition. Preserve bottom-up nested order, exactly-once occurrences, captured
+style precedence and reverse ancestor attachment.
+
+Verify direct/Located/doubleLocated/Source/Styled combinations, siblings/nested
+Frame event order and effective font sizes. Counts agree with collection;
+ShowRecipe/Realized visual frames appear once and original frames never appear.
+Expected Context ID discovery uses the same root observation and retains exact
+matching against detailed intrinsic positions. Duplicate IDs, missing mappings,
+collisions and unequal ID sets fail closed; never accept a placeholder or relax
+these guards. Intrinsic positions introduce no public HTML page or PageStore.
+
+Preserve layout/resolver/pretty behavior. This owner-local ADR-0127 correction
+adds no global traversal transparency, public visitor/API, container catalogue,
+phase, target or default and makes no complete frame-language parity claim.

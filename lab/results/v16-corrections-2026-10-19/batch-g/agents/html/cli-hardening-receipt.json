@@ -1,0 +1,143 @@
+{
+  "utc": "2026-10-20T23:44:53.166075+00:00",
+  "scope": "Lab-only verifier hardening before any candidate replay; original sources/oracle unchanged",
+  "archive": "cli-hardening-before",
+  "before": {
+    "utc": "2026-10-20T23:44:26.605711+00:00",
+    "purpose": "Exact pre-candidate verifier/policy archive before R1/R2/R3 hardening",
+    "sha256": {
+      "replay_cli.py": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+      "cli-policies.json": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1"
+    }
+  },
+  "current_sha256": {
+    "replay_cli.py": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+    "cli-policies.json": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+    "test_replay_verifier.py": "d72f78536408c8a63ae0a7900434a0aa4f42e1b8ab2c1ebfa92d4f5ff27d49b3",
+    "cli-hardening-green.json": "b23b72e20ff5becfecb4a8a8853131032b911433e5c2d63c6e30454ac538f6e2"
+  },
+  "actual_red": {
+    "runner_sha256": "e8ba5dadd6bfb1cbbaeaf703fdfb802ef518cf29b5501460d52c3ce868cc52e1",
+    "policy_sha256": "f3d5a3339b362b1fcfa070c8e202128314f0769400f50c854e2468d725131ef1",
+    "fixtures": [
+      {
+        "name": "exact-oracle",
+        "expected": true,
+        "actual": true,
+        "pass": true
+      },
+      {
+        "name": "exact-deep-warning-omission",
+        "expected": true,
+        "actual": true,
+        "pass": true
+      },
+      {
+        "name": "missing-doctype",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      },
+      {
+        "name": "wrong-doctype",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      },
+      {
+        "name": "missing-feature-warning",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      },
+      {
+        "name": "extra-warning",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      },
+      {
+        "name": "wrong-deep-warning",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      },
+      {
+        "name": "error-with-success-exit",
+        "expected": false,
+        "actual": true,
+        "pass": false
+      }
+    ],
+    "failed": [
+      "missing-doctype",
+      "wrong-doctype",
+      "missing-feature-warning",
+      "extra-warning",
+      "wrong-deep-warning",
+      "error-with-success-exit"
+    ]
+  },
+  "actual_green": {
+    "runner_sha256": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+    "policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+    "fixtures": [
+      {
+        "name": "exact-oracle",
+        "expected": true,
+        "actual": true,
+        "pass": true
+      },
+      {
+        "name": "exact-deep-warning-omission",
+        "expected": true,
+        "actual": true,
+        "pass": true
+      },
+      {
+        "name": "missing-doctype",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      },
+      {
+        "name": "wrong-doctype",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      },
+      {
+        "name": "missing-feature-warning",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      },
+      {
+        "name": "extra-warning",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      },
+      {
+        "name": "wrong-deep-warning",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      },
+      {
+        "name": "error-with-success-exit",
+        "expected": false,
+        "actual": false,
+        "pass": true
+      }
+    ],
+    "failed": []
+  },
+  "changes": [
+    "Only exact previously measured deep-heading warning omission is optional; mandatory feature warning and hints remain, extra/changed warnings fail.",
+    "DOM preserves document declarations, so missing or wrong doctype fails.",
+    "Successful DOM/exit match also requires oracle error-payload equality (empty on successful oracle).",
+    "Parsed diagnostic fields are named precisely; no full trace/path/highlight equivalence claim."
+  ],
+  "frozen_case_sources_and_oracles_unchanged": true
+}

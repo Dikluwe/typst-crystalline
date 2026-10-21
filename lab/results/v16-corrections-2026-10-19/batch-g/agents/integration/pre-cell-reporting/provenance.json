@@ -1,0 +1,55 @@
+{
+  "utc": "2026-10-21T00:44:09.170412+00:00",
+  "state": "These report/commit helpers were not executed; their earlier draft bytes are archived before binding fresh cycle3 receipts. Gates remain mandatory.",
+  "files": [
+    {
+      "path": "close_reports.py",
+      "before_sha256": "77bc4e1945dc70950e7fe39eabea2ae2ab1fd5127f89156cb3cce557947e8186",
+      "after_sha256": "2cfc5f297484beac02b5b4dc65ee76fc58e1b7473b30940d377107415ecf3034"
+    },
+    {
+      "path": "validate_closure.py",
+      "before_sha256": "1741fa5064f2f7007e45fd56b1b22f3d05bdbefe0396b6ad21ad0c2c1c5fc24e",
+      "after_sha256": "3d8082d21171861ccb345e87b1de3baf3b4c03e5ba76178b7b6ce9a186ab44ef"
+    },
+    {
+      "path": "preserve_evidence.py",
+      "before_sha256": "004a940dd428bf49f068c6115f860564a42e3b4c3f690d9883af8d21d7a2cb07",
+      "after_sha256": "004a940dd428bf49f068c6115f860564a42e3b4c3f690d9883af8d21d7a2cb07"
+    },
+    {
+      "path": "commit_batch.py",
+      "before_sha256": "8e2b5a47947c7274a160d99b611b8f8c20d0ba1d8890543261a692a50003107d",
+      "after_sha256": "51fa117c7e372b9a2a52701cee9b22c8930843b8fe172bafab0b84a26332f957"
+    }
+  ],
+  "literal_replacements": {
+    "validation-final-2": "validation-final-3",
+    "final-gates-launch.json": "gates-3-launch.json",
+    "final-acceptance-launch.json": "acceptance-3-launch.json",
+    "acceptance-worker-state.json": "acceptance-worker-state-3.json",
+    "candidate-build-final": "candidate-build-3",
+    "focused-green-final-": "focused-green-3-",
+    "lint-delta-final.json": "lint-delta-3.json",
+    "lint-final-2": "lint-final-3",
+    "structural-green-final": "structural-green-3",
+    "tuple-axes-green-final": "tuple-axes-green-3",
+    "acceptance-final": "acceptance-3",
+    "equality-candidate": "equality-candidate-3",
+    "html-candidate": "html-candidate-3",
+    "hash-candidate-final": "hash-candidate-3",
+    "api-scope-review-final13": "api-scope-review-final13-3",
+    "final13-structural-review": "final13-structural-review-3",
+    "final13-lint-review": "final13-lint-review-3",
+    "figure-policy-replay": "figure-policy-replay-3",
+    "reference-corpora": "reference-corpora-3",
+    "figure-target-controls": "figure-target-controls-3",
+    "reseal-candidate-final": "reseal-candidate-3",
+    "hash-final-review": "hash-final-review-3",
+    "final-acceptance-review": "final-acceptance-review-3",
+    "integration-final": "integration-3",
+    "[20, 32]": "[20, 36]",
+    "**20 core + 32 infra tests**": "**20 core + 36 infra tests**",
+    "All 52 focused tests": "All 56 focused tests"
+  }
+}

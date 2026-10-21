@@ -1,9 +1,10 @@
 # V16 correction progress
 
-Status: batches A–F are complete within their recorded acceptance scopes.
-The full pinned linter reports **18 remaining V16 errors**, assigned to the
-remaining batch G work. This is neither a zero-violation result nor complete
-Typst language parity. No alerts, severities or contracts were weakened.
+Status: batches A–G are complete within their recorded acceptance scopes.
+The full pinned linter reports **0 errors and 0 warnings**, with V19=1,339 and
+V20=905 informational notes still visible. All 105 original V16 findings are
+closed. This does not establish complete Typst language parity. No alerts,
+severities or contracts were weakened.
 
 ## Measurements and acceptance
 
@@ -24,12 +25,35 @@ coverage. The linter remains pinned to commit
 | F: initial conversions and exhaustive decisions | 37 → 21 | [Partial checkpoint](../../lab/results/v16-corrections-2026-10-19/batch-f/README.md), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json) |
 | F: approved Circle origin and explicit radius | 21 → 20 | [Report](../../lab/results/v16-corrections-2026-10-19/circle-origin/README.md) |
 | F: approved Figure/Grid and contextual Ref supplements | 20 → 18 | [Final report](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md), [closure ledger](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json) |
+| G: explicit decisions and causal/visual projections | 18 → 0 | [Final report](../../lab/results/v16-corrections-2026-10-19/batch-g/README.md), [closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json) |
 
-The current Figure measurement starts at HEAD
+G's final measurement uses HEAD `4382891f0d5f0839669597cb5c90a98f24cfb8bd`
+plus the exact dirty-state sources/L0 recorded in its receipts. All 2,174
+outside-scope diagnostic objects are unchanged. The thirteen exclusive owners,
+twenty-five effective Nuclei and 2,142 frozen inputs passed forward/reverse
+lineage and canonical path checks. All 56 focused tests and twelve complete
+integrated gates pass. Actual enum evolution demands all eighteen original
+decisions and six isolated tuple-axis decisions; additional identity witnesses
+are recorded separately. A real-root 366-comparison probe confirms the repaired
+invisible-carrier depth defect no longer violates either measured Eq/Hash law.
+No complete Hash, language or performance claim follows from these controls.
+
+The fresh G product also replays the previous Figure policies: 77 required,
+five debts and two negative controls retain their distinct meanings; all forty
+required reference cases across six matrices pass. Target controls remain 10/11,
+with SetPage headers still failing. Current G CLI policies and their existing
+HTML, diagnostic and representation gaps remain separate from those inherited
+limits. Exact binary/source identities, UTC, failed attempts and independent
+review are in the G report.
+
+The following Figure paragraphs retain the preceding F checkpoint and its
+scope; their counts and source state are historical, not the current G lint.
+
+The Figure checkpoint measurement starts at HEAD
 `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` on
 `codex/tekt-mature-layout`, with the exact uncommitted implementation identified
 by the final receipts. V16-055 is repaired; the associated substitution correction
-also removes V16-100. The separate V16-099 collector is still open. All 1,606
+also removes V16-100. The separate V16-099 collector remained open at F and is now repaired in G. All 1,606
 outside-scope diagnostic objects match the baseline exactly. V19=1,315 and
 V20=905 remain visible with a complete message/multiplicity/location review.
 
@@ -74,3 +98,9 @@ and its [hash/provenance](../../lab/results/v16-corrections-2026-10-19/figure-ki
 retain all earlier checkpoints. The original [cause-correction plan](v16-cause-correction-plan-2026-10-19.md)
 remains the historical inventory and scheduling baseline, not authorization to
 skip current L0 or outstanding contracts.
+
+The [G gap ledger](../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json)
+retains all inherited ledgers by hash and records query approximation, unsupported
+HTML/diagnostic boundaries, raw-footer behavior and unmeasured performance.
+The [complete A–F diagnostic](../../lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md)
+preserves the state before G; the original inventory remains historical.

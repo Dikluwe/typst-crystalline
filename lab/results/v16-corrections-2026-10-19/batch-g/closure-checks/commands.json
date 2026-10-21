@@ -1,0 +1,61 @@
+[
+  {
+    "name": "layout",
+    "argv": [
+      "python3",
+      "lab/tools/ci/check_mature_layout.py"
+    ],
+    "utc_start": "2026-10-21T01:13:09.673607+00:00",
+    "utc_end": "2026-10-21T01:13:11.775405+00:00",
+    "exit": 0
+  },
+  {
+    "name": "strict-lineage",
+    "argv": [
+      "lab/target/linter/debug/crystalline-lint",
+      ".",
+      "--checks",
+      "v1,v5,v15,v26",
+      "--fail-on",
+      "warning"
+    ],
+    "utc_start": "2026-10-21T01:13:11.775629+00:00",
+    "utc_end": "2026-10-21T01:13:16.849225+00:00",
+    "exit": 0
+  },
+  {
+    "name": "reverse-lineage",
+    "argv": [
+      "python3",
+      "lab/tools/ci/check_reverse_lineage.py"
+    ],
+    "utc_start": "2026-10-21T01:13:16.849497+00:00",
+    "utc_end": "2026-10-21T01:13:17.295876+00:00",
+    "exit": 0
+  },
+  {
+    "name": "full-lint",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint-closure-docs",
+      "--expected-v16",
+      "0"
+    ],
+    "utc_start": "2026-10-21T01:13:17.296120+00:00",
+    "utc_end": "2026-10-21T01:13:23.295877+00:00",
+    "exit": 0
+  },
+  {
+    "name": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "utc_start": "2026-10-21T01:13:23.296136+00:00",
+    "utc_end": "2026-10-21T01:13:23.341315+00:00",
+    "exit": 0
+  }
+]

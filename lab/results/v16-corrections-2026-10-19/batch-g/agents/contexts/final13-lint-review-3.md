@@ -1,0 +1,9 @@
+# Independent complete lint review
+
+Raw baseline/final SARIF and complete root multiset delta independently agree. The13-pair uncommitted candidate at HEAD4382891f0d5f0839669597cb5c90a98f24cfb8bd changes18 V16 errors to0, with no added error or warning. All2174 complete out-of-scope diagnostic objects remain identical, including multiplicity, message, pattern and physical location. Final2142 input hashes match current files; the pinned linter binary is unchanged and both scans report no input drift.
+
+Baseline notes are1315 V19/905 V20; candidate notes are1339 V19/905 V20. The complete47 removed/53 added objects consist of18 removed original V16s,25 identical V19 payloads moved physically,4 identical V20 payloads moved physically, and24 new enabled V19 grouped-arm reminders. No note payload is lost or unexplained. JSON retains every complete before/after diagnostic and classifies each new group against its productive decision.
+
+The new groups name finite complements for realization, HTML transport/collection, query grouping, Source-root producer recognition and conservative page proofs. Two-axis nominal products retain distinct pointer/equality boundaries; Source consumption does not admit unrelated carriers. Existing deep-pattern reminders stay visible. Executing a grouped arm does not demonstrate each alternative ran: structural enum-growth and tuple-axis witnesses complement bounded language tests, and neither zero V16 nor this audit claims full parity.
+
+The separate Cell selection/composition/preservation audit is bound by SHA-256 in JSON. Against the historical final-2 snapshot, all complete diagnostic objects are identical (zero additions/removals); no note is added or lost. This does not promote historical full12 results to current source validation.

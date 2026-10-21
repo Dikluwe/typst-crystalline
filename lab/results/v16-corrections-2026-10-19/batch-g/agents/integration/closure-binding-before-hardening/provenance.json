@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-21T00:52:00.017197+00:00",
+  "state": "Exact unexecuted closure drafts reviewed before strengthening fresh-candidate and documentation-digest guards. No productive or acceptance-policy change.",
+  "sha256": {
+    "close_reports.py": "75ddd033bee69d69583db8254d3756c99f08576de2c19bb12ddbff806c2e1691",
+    "validate_closure.py": "3d8082d21171861ccb345e87b1de3baf3b4c03e5ba76178b7b6ce9a186ab44ef",
+    "preserve_evidence.py": "004a940dd428bf49f068c6115f860564a42e3b4c3f690d9883af8d21d7a2cb07",
+    "commit_batch.py": "51fa117c7e372b9a2a52701cee9b22c8930843b8fe172bafab0b84a26332f957"
+  }
+}

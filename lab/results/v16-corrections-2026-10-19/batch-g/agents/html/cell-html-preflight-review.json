@@ -1,0 +1,42 @@
+{
+  "utc": "2026-10-21T00:49:15.459575+00:00",
+  "status": "PROVISIONAL preflight PASS; final build3/replay3/full gates still required",
+  "receipt": "lab/results/v16-corrections-2026-10-19/batch-g/html-cell-green/receipt.json",
+  "receipt_sha256": "06e530238cdfe21f56756bbc1d8cafd00649faf592909e4cc2daf298feb45f0f",
+  "build_receipt_sha256": "a51f515af254566d133f1875eca8d1fe9aef9440578c0d5759e410e6e418bf70",
+  "binary_sha256": "ced5125ee4b42a6ad9ac36db432d01b0e6bdafd93d2e042f8ea56b3a966f3fd9",
+  "current_frozen_input_count": 2142,
+  "required": 13,
+  "required_pass": 13,
+  "explicit_gaps": [
+    "link-heading",
+    "bundle-link-heading",
+    "bundle-link-text"
+  ],
+  "strict_comparison_failures": [
+    "link-heading",
+    "bundle-link-heading",
+    "heading-six",
+    "bundle-heading-six",
+    "bundle-link-text",
+    "title-nontext-rejected"
+  ],
+  "repaired_case": {
+    "name": "bundle-cell-heading",
+    "html_files": {
+      "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h2>H</h2></body></html>"
+    },
+    "checks": {
+      "exit": true,
+      "semantic_dom": true,
+      "error_payload": true,
+      "warning_payload": true,
+      "parsed_diagnostic_fields": true,
+      "admitted_warning_payload": true
+    }
+  },
+  "policy_sha256": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91",
+  "runner_sha256": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+  "source_and_policy_unchanged": true,
+  "limits": "No full HTML/diagnostic parity or final closure claim. Same immutable16 policies; three unsupported Link rows remain explicit gaps, known warning/origin differences remain strict failures."
+}

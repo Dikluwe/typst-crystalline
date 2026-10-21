@@ -1,5 +1,5 @@
 # L0 — entities/content/identity
-Hash do Código: 75ef7f38
+Hash do Código: 82734be4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -104,6 +104,84 @@ Styled, invalid markers, non-Equation bodies, carriers and Realized.visual
 selection. Actual native constructor identity is also exercised by the producer
 owner. Continuous ADR-0127 applies; keep owner-specific lineage and shared
 nucleus pins consistent before compiling and validating.
+
+## Carrier-transparent diagnostic depth
+
+### Measurement
+
+`lab/results/v16-corrections-2026-10-19/batch-g/hash-before/receipt.json`
+(SHA-256 `786b466c42e89682d021248a005ecda102a93011280e4f3851d9d897947a3664`)
+records the public Rust probe at HEAD
+`4382891f0d5f0839669597cb5c90a98f24cfb8bd`, with an uncommitted working
+tree bound to the complete input snapshot and successful candidate-build
+receipt SHA-256
+`395efdcf67420d63942b2d90bc4d906a8ffbc245aca8e18b640307d0e619951c`.
+Compilation and execution both returned zero between
+`2026-10-21T00:03:23.653097+00:00` and
+`2026-10-21T00:03:24.489288+00:00`; inputs and the actual core artifact
+remained unchanged. The receipt binds Rust 1.92.0, the probe, command arguments,
+real workspace dependency artifact and its SHA-256. The identity, Rust Hash
+and public content-hash owners and consumers were byte-identical to that HEAD.
+
+Of 366 actual rows, 248 equal pairs had different public content hashes and
+168 had different Rust hashes. Source/Located depth controls reproduce the
+cause in existing Strong/Sequence and newly comparable Title/HtmlFrame/HtmlElem,
+plus same-id Context and the two equivalent Space origins. At
+`identity.rs:296-319`, Debug counts each transparent carrier before delegating
+to its body or visual: a leaf below seven visible Strong nodes is exposed
+without a carrier but becomes `...` with one Source. At
+`content_hash.rs:25-29`, hashing the resulting Debug string makes this a
+compatibility violation, rather than a language identity or occurrence change.
+The nominal Rust Hash fallback has the same cause for nested carriers.
+
+The independent nested-Value Float(-0.0/0.0) hypothesis was refuted by its
+actual control: CounterDisplay Debug omits that payload, so its one equal pair
+has no public or Rust hash violation. No observed gap is inferred for that
+path. The finite corpus neither establishes nor weakens the global equal-value
+hash requirement. Original source/L0 bytes before this refinement remain in
+`lab/results/v16-corrections-2026-10-19/batch-g/agents/core/identity-red-preparation/before.json.gz`.
+
+### Contract
+
+Debug shall project Source.body, ShowRecipe.body, Located.body and
+Realized.visual by borrowed iterative descent before checking or incrementing
+the visible-depth counter. These four invisible carriers consume no visible
+level. Every other current Content alternative explicitly stops that descent;
+the closed classification must reject an unreviewed future variant at compile
+time. Do not clone nodes, recurse across the carrier chain, execute recipes or
+closures, inspect Realized.original, resolve styles or alter causal data.
+
+Keep MAX_DEPTH exactly eight, the existing depth counter and reset behavior,
+and all nominal payload formatting. Seven visible Strong nodes still expose
+their text; the eighth still truncates. This clause supersedes the earlier
+output-preservation requirement only where invisible carriers consumed that
+budget and broke established body/visual transparency and equal-value hashing.
+It changes neither elem_name nor any other nominal Debug output. Source spans,
+Locations and captured recipe state remain stored and untouched.
+
+Both existing hash algorithms remain unchanged. The public hash owner permits
+numeric results to change with separately specified Debug changes; that does
+not exempt equal values from equal hashes. Do not introduce a weaker Hash law,
+a new global, a public entity/signature, a product default, a pipeline phase or
+an occurrence-identity projection. This is an internal diagnostic-formula
+correction under ADR-0127 continuous flow, justified by the measured violation
+and existing Source/carrier invisibility. It grants no unrelated Debug or
+hashing rewrite and makes no universal parity claim.
+
+### Acceptance and limits
+
+Three owner-local functional regressions must fail before the correction and
+pass afterward: one leaf at the visible boundary across all four carriers and
+representative old/new equality families preserves Eq and Debug; public and
+Rust hashes agree for selected equal pairs with deep carrier chains; visible
+MAX_DEPTH remains effective while a 512-carrier chain selects only the visual
+and retains original data without executing stored panic-if-called closures.
+Keep the existing tests and payloads unchanged. Compiler-negative extension
+checks must protect the actual closed carrier classifier and nominal formatter
+independently of these functional tests. Repeat the source-bound public probe,
+focused/full regression suites and structural/ownership/lineage gates with
+unchanged inputs during each measurement. This bounded correction does not
+certify every Content/Value equality pair or broader language parity.
 
 ## Historical provenance
 

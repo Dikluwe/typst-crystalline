@@ -1,0 +1,98 @@
+[
+  {
+    "name": "g-hash",
+    "utc_start": "2026-10-21T01:05:29.042035+00:00",
+    "utc_end": "2026-10-21T01:05:55.500799+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/hash_measurement_candidate_3.py"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "g-equality",
+    "utc_start": "2026-10-21T01:05:55.501095+00:00",
+    "utc_end": "2026-10-21T01:05:57.679835+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/core/replay_equality.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "--out",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate-3"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "g-html",
+    "utc_start": "2026-10-21T01:05:57.681783+00:00",
+    "utc_end": "2026-10-21T01:05:58.765626+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "f-policies",
+    "utc_start": "2026-10-21T01:05:58.765920+00:00",
+    "utc_end": "2026-10-21T01:06:16.770430+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/replay.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/figure-policy-replay-3",
+      "--phase",
+      "candidate"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "f-references",
+    "utc_start": "2026-10-21T01:06:16.772335+00:00",
+    "utc_end": "2026-10-21T01:06:57.678138+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_reference_acceptance.py",
+      "--build",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3"
+    ],
+    "exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "name": "f-targets",
+    "utc_start": "2026-10-21T01:06:57.684927+00:00",
+    "utc_end": "2026-10-21T01:07:02.778838+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target_controls.py",
+      "--product",
+      "lab/target/product/debug/typst",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/figure-target-controls-3"
+    ],
+    "exit": 1,
+    "expected_exit": 1
+  }
+]

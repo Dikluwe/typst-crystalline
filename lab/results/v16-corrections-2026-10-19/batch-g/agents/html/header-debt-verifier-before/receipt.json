@@ -1,0 +1,5 @@
+{
+  "utc": "2026-10-21T00:28:50.672194+00:00",
+  "sha256": "4cd87f40793926197aa3210daa81691e1153ea325f6ae3addab01d52f300fe14",
+  "purpose": "Before exact historical header-debt guard, candidate acceptance not executed"
+}

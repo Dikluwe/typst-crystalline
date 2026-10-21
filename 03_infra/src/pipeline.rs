@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 4dfbf129
+//! @prompt-hash f59d6dd0
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -533,7 +533,121 @@ fn collect_context_blocks_into(
                         let inner_chain = chain.push_styles(styles);
                         collect_context_blocks_into(inner, &inner_chain, map);
                     }
-                    _ => {} // neutro: N16[β] — Content não-ContextBlock/Styled é ignorado na colecta de blocos de contexto
+                    Content::Source(..)
+                    | Content::Empty
+                    | Content::Text(..)
+                    | Content::Space
+                    | Content::SpaceFromNewline
+                    | Content::Parbreak
+                    | Content::Sequence(..)
+                    | Content::HtmlElem(..)
+                    | Content::HtmlFrame(..)
+                    | Content::Par { .. }
+                    | Content::Heading(..)
+                    | Content::Title(..)
+                    | Content::Strong(..)
+                    | Content::Emph(..)
+                    | Content::Raw(..)
+                    | Content::ListItem(..)
+                    | Content::EnumItem(..)
+                    | Content::Link(..)
+                    | Content::Equation(..)
+                    | Content::MathSequence(..)
+                    | Content::MathIdent(..)
+                    | Content::MathText(..)
+                    | Content::MathFrac(..)
+                    | Content::MathAttach(..)
+                    | Content::MathPrimes(..)
+                    | Content::MathRoot(..)
+                    | Content::MathStretch(..)
+                    | Content::MathDelimited(..)
+                    | Content::MathLr(..)
+                    | Content::MathMid(..)
+                    | Content::MathOverbrace(..)
+                    | Content::MathUnderbrace(..)
+                    | Content::MathUnderbracket(..)
+                    | Content::MathUnderparen(..)
+                    | Content::MathUndershell(..)
+                    | Content::MathOverbracket(..)
+                    | Content::MathOverparen(..)
+                    | Content::MathOvershell(..)
+                    | Content::MathAlignPoint(..)
+                    | Content::Linebreak(..)
+                    | Content::MathMatrix(..)
+                    | Content::MathCases(..)
+                    | Content::MathAccent(..)
+                    | Content::MathCancel(..)
+                    | Content::MathUnderline(..)
+                    | Content::MathOverline(..)
+                    | Content::MathVec(..)
+                    | Content::MathClassOverride(..)
+                    | Content::MathLimitsOverride(..)
+                    | Content::MathUnderover(..)
+                    | Content::MathOp(..)
+                    | Content::MathStyled(..)
+                    | Content::Label(..)
+                    | Content::Ref(..)
+                    | Content::CounterDisplay(..)
+                    | Content::CounterUpdate(..)
+                    | Content::Outline(..)
+                    | Content::OutlineEntry(..)
+                    | Content::Figure(..)
+                    | Content::FigureCaption(..)
+                    | Content::Image(..)
+                    | Content::Shape(..)
+                    | Content::Curve(..)
+                    | Content::Transform(..)
+                    | Content::Grid(..)
+                    | Content::GridHeader(..)
+                    | Content::GridFooter(..)
+                    | Content::GridCell(..)
+                    | Content::SetPage(..)
+                    | Content::PageRun(..)
+                    | Content::Align(..)
+                    | Content::Place(..)
+                    | Content::Flush(..)
+                    | Content::Divider(..)
+                    | Content::Terms(..)
+                    | Content::TermItem(..)
+                    | Content::Quote(..)
+                    | Content::Document { .. }
+                    | Content::Asset { .. }
+                    | Content::SmartQuote(..)
+                    | Content::PdfAttach(..)
+                    | Content::PdfArtifact(..)
+                    | Content::Underline(..)
+                    | Content::Strike(..)
+                    | Content::Overline(..)
+                    | Content::SmallCaps { .. }
+                    | Content::Pad(..)
+                    | Content::Hide(..)
+                    | Content::HSpace(..)
+                    | Content::VSpace(..)
+                    | Content::Pagebreak(..)
+                    | Content::Colbreak(..)
+                    | Content::Stack(..)
+                    | Content::Boxed(..)
+                    | Content::Block(..)
+                    | Content::TableCell(..)
+                    | Content::Bibliography(..)
+                    | Content::Cite(..)
+                    | Content::Footnote(..)
+                    | Content::FootnoteEntry(..)
+                    | Content::TableHeader(..)
+                    | Content::TableFooter(..)
+                    | Content::GridHLine(..)
+                    | Content::GridVLine(..)
+                    | Content::TableHLine(..)
+                    | Content::TableVLine(..)
+                    | Content::Table(..)
+                    | Content::Repeat(..)
+                    | Content::Columns(..)
+                    | Content::Metadata(..)
+                    | Content::State(..)
+                    | Content::StateUpdate(..)
+                    | Content::StateDisplay(..)
+                    | Content::CounterDisplayCallback(..)
+                    | Content::Dynamic(..) => {} // Descendants were visited by the enclosing L1 traversal.
                 }
                 Ok(None)
             });
@@ -961,5 +1075,111 @@ impl Timings {
             self.render_ms,
             self.total_ms,
         )
+    }
+}
+
+#[cfg(test)]
+mod batch_g_collection_tests {
+    use super::*;
+    use typst_core::entities::content::{
+        LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+    };
+    use typst_core::entities::elements::math_frac::MathFracElem;
+    use typst_core::entities::elements::underline::UnderlineElem;
+    use typst_core::entities::func::Func;
+    use typst_core::entities::layout_types::Length;
+    use typst_core::entities::locator::Locator;
+    use typst_core::entities::style::{Style, Styles};
+
+    fn producer(id: u64) -> Arc<ContextBlockElem> {
+        Arc::new(ContextBlockElem {
+            id,
+            closure: Func::native("collection-witness", |_ctx, _args, _world, _file| {
+                Ok(Value::None)
+            }),
+        })
+    }
+
+    #[test]
+    fn batch_g_generic_collection_preserves_located_source_and_visual_projection() {
+        let bare = producer(11);
+        let located = producer(12);
+        let hidden = producer(13);
+        let visual = producer(14);
+        let tree = Content::MathFrac(Arc::new(MathFracElem {
+            num: Content::Underline(Arc::new(UnderlineElem {
+                body: Content::sequence(vec![
+                    Content::ContextBlock(bare.clone()),
+                    Content::Source(Arc::new(SourceContent {
+                        span: Span::detached(),
+                        body: Content::Located(Arc::new(LocatedContent {
+                            location: Locator::new().next(),
+                            body: Content::ContextBlock(located.clone()),
+                        })),
+                    })),
+                ]),
+                stroke: None,
+                offset: None,
+                extent: None,
+            })),
+            den: Content::Realized(Arc::new(RealizedContent {
+                original: Content::ContextBlock(hidden),
+                visual: Content::ContextBlock(visual.clone()),
+            })),
+            style: None,
+            num_deparenthesized: false,
+            denom_deparenthesized: false,
+            line: true,
+        }));
+        let collected = collect_context_blocks(&tree, &StyleChain::default_chain());
+        assert_eq!(collected.len(), 3);
+        for (id, expected) in [(11, bare), (12, located), (14, visual)] {
+            assert!(Arc::ptr_eq(&collected[&id].0, &expected));
+        }
+        assert!(!collected.contains_key(&13));
+        let substituted = substitute_context_blocks(
+            tree,
+            &HashMap::from([
+                (11, Content::text("BARE")),
+                (12, Content::text("LOCATED")),
+                (14, Content::text("VISUAL")),
+            ]),
+        );
+        assert_eq!(substituted.plain_text(), "(BARELOCATED)/(VISUAL)");
+    }
+
+    #[test]
+    fn batch_g_generic_collection_uses_captured_chain_then_inner_delta_and_last_payload()
+    {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let first = producer(7);
+        let last = producer(7);
+        let styles = |size| Styles::from_iter([Style::Size(Length::pt(size))]);
+        let recipe = Content::ShowRecipe(Arc::new(ShowRecipeContent {
+            body: Content::styled(
+                Box::new(Content::ContextBlock(last.clone())),
+                styles(30.0),
+            ),
+            textual: false,
+            context_id_floor: 8,
+            rules: Arc::from([]),
+            styles: StyleChain::default_chain().push_styles(&styles(20.0)),
+            guards: vec![],
+            file: world.main(),
+        }));
+        let tree = Content::Underline(Arc::new(UnderlineElem {
+            body: Content::sequence(vec![Content::ContextBlock(first), recipe]),
+            stroke: None,
+            offset: None,
+            extent: None,
+        }));
+        let chain = StyleChain::default_chain().push_styles(&styles(40.0));
+        let collected = collect_context_blocks(&tree, &chain);
+        assert_eq!(collected.len(), 1);
+        assert!(Arc::ptr_eq(&collected[&7].0, &last));
+        assert_eq!(collected[&7].1.size(), 30.0);
     }
 }

@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-21T00:05:19.618696+00:00",
+  "archive": "raw-footer-before-tests",
+  "production_prefix_byte_identical": true,
+  "all_prior_source_bytes_preserved_except_final_module_brace_insertion": true,
+  "new_tests": [
+    "batch_g_html_raw_footer_projection_has_no_unemitted_warning",
+    "batch_g_html_emitted_standalone_footer_still_warns",
+    "batch_g_html_public_resolved_footer_keeps_deep_warning_once"
+  ],
+  "expected_red": [
+    "batch_g_html_raw_footer_projection_has_no_unemitted_warning"
+  ],
+  "expected_preservation": [
+    "batch_g_html_emitted_standalone_footer_still_warns",
+    "batch_g_html_public_resolved_footer_keeps_deep_warning_once"
+  ],
+  "source_sha256": "aa82b6daaacc535667906f060bc901c6b8c71027e6ccf6957276ed168da4148f",
+  "l0_sha256": "2df71f76e998fb81d0cdabdc81db412b1685793661bf7f8260888ce2cd005c27",
+  "status": "L0 first and tests only, frozen for parent actual RED; no productive implementation/Cargo/fmt/seals."
+}

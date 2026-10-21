@@ -1,0 +1,83 @@
+[
+  {
+    "name": "complete-lint",
+    "utc_start": "2026-10-20T23:47:22.788182+00:00",
+    "utc_end": "2026-10-20T23:47:28.476353+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint-final",
+      "--expected-v16",
+      "0"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "complete-lint-delta",
+    "utc_start": "2026-10-20T23:47:28.476709+00:00",
+    "utc_end": "2026-10-20T23:47:28.660667+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/lint_delta.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "structural-evolution",
+    "utc_start": "2026-10-20T23:47:28.660960+00:00",
+    "utc_end": "2026-10-20T23:48:01.524023+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/structural.py",
+      "green",
+      "--name",
+      "green"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "tuple-axes",
+    "utc_start": "2026-10-20T23:48:01.524294+00:00",
+    "utc_end": "2026-10-20T23:48:57.909388+00:00",
+    "argv": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/tuple_axes.py",
+      "--base",
+      "structural-green",
+      "--name",
+      "green"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "clean-real-products",
+    "utc_start": "2026-10-20T23:48:57.909749+00:00",
+    "utc_end": "2026-10-20T23:48:58.467657+00:00",
+    "argv": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "full-validation",
+    "utc_start": "2026-10-20T23:48:58.467960+00:00",
+    "utc_end": "2026-10-21T00:01:33.350697+00:00",
+    "argv": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/validation-final"
+    ],
+    "exit": 1
+  }
+]

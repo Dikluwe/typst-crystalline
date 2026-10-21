@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 3d3dd73a
+//! @prompt-hash bde0cb01
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -17,7 +17,43 @@ fn page_independent_style(key: &str, value: &Value, captured: bool) -> bool {
             Value::Array(families) => {
                 families.iter().all(|family| matches!(family, Value::Str(_)))
             }
-            _ => false,
+            Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => false,
         },
         "eval.flow.scope" => matches!(value, Value::Bool(_)),
         "text.size" | "par.linebreaks" | "page.width" | "page.height"
@@ -120,7 +156,102 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
                 && delta.background.as_ref().is_none_or(Option::is_none)
                 && delta.foreground.as_ref().is_none_or(Option::is_none)
         }
-        _ => false, // Deliberate fail-closed boundary: not an assumption of purity.
+        Content::ShowRecipe(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false, // Unproved: retain the ordinary complete layout cycle.
     }
 }
 
@@ -216,7 +347,248 @@ pub(super) fn realize_outlines_for_pipeline(
         (Content::Styled(a), Content::Styled(b)) => Arc::ptr_eq(a, b),
         (Content::Located(a), Content::Located(b)) => Arc::ptr_eq(a, b),
         (Content::Realized(a), Content::Realized(b)) => Arc::ptr_eq(a, b),
-        _ => false,
+        (
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..),
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..),
+        ) => false,
     };
     if same_carrier {
         return (Ok((first, introspector.clone())), warnings);
@@ -1218,5 +1590,251 @@ mod context_discovery_tests {
             borrowed.iter().map(|(id, _)| *id).collect::<Vec<_>>(),
             vec![1, 3, 4, 6, 7]
         );
+    }
+}
+
+#[cfg(test)]
+mod batch_g_reuse_proof_tests {
+    use super::*;
+    use typst_core::entities::content::{
+        LocatedContent, RealizedContent, SetPageDelta, SourceContent,
+    };
+    use typst_core::entities::elements::grid::GridElem;
+    use typst_core::entities::elements::underline::UnderlineElem;
+    use typst_core::entities::func::Func;
+    use typst_core::entities::layout_types::Length;
+    use typst_core::entities::locator::Locator;
+    use typst_core::entities::page_running::PageMarginal;
+    use typst_core::entities::sides::Sides;
+    use typst_core::entities::style::{Style, Styles};
+
+    #[test]
+    fn batch_g_font_proof_accepts_only_strings_or_all_string_arrays_without_evaluation() {
+        for value in [
+            Value::Str("Family".into()),
+            Value::Array(vec![]),
+            Value::Array(vec![Value::Str("One".into()), Value::Str("Two".into())]),
+        ] {
+            assert!(page_independent_style("text.font", &value, false));
+            assert!(page_independent_style("text.font", &value, true));
+        }
+        for value in [
+            Value::None,
+            Value::Auto,
+            Value::Bool(false),
+            Value::Int(0),
+            Value::Float(1.0),
+            Value::Length(Length::pt(10.0)),
+            Value::Content(Content::text("Family")),
+            Value::Func(Func::native(
+                "must-not-evaluate",
+                |_ctx, _args, _world, _file| {
+                    panic!("a font proof must not execute a function")
+                },
+            )),
+            Value::Array(vec![Value::Str("Family".into()), Value::Int(1)]),
+            Value::Array(vec![Value::Array(vec![Value::Str("Family".into())])]),
+        ] {
+            assert!(!page_independent_style("text.font", &value, false));
+            assert!(!page_independent_style("text.font", &value, true));
+        }
+        assert!(!page_independent_style(
+            "unknown.key",
+            &Value::Str("Family".into()),
+            false
+        ));
+    }
+
+    #[test]
+    fn batch_g_layout_proof_checks_source_both_realized_branches_and_marginals() {
+        let source = |body| {
+            Content::Source(Arc::new(SourceContent { body, span: Span::detached() }))
+        };
+        assert!(initial_layout_independent(&source(Content::text("PHYSICAL"))));
+        let heading = || Content::heading(1, Content::text("DYNAMIC"));
+        assert!(!initial_layout_independent(&source(heading())));
+        for (original, visual) in [
+            (heading(), Content::text("PHYSICAL")),
+            (Content::text("PHYSICAL"), heading()),
+        ] {
+            assert!(!initial_layout_independent(&Content::Realized(Arc::new(
+                RealizedContent { original, visual }
+            ))));
+        }
+        assert!(!initial_layout_independent(&Content::Underline(Arc::new(
+            UnderlineElem {
+                body: Content::text("VALID BUT UNPROVED"),
+                stroke: None,
+                offset: None,
+                extent: None,
+            }
+        ))));
+        assert!(initial_layout_independent(&Content::SetPage(Arc::new(
+            SetPageDelta::default()
+        ))));
+        for delta in [
+            SetPageDelta {
+                header: Some(PageMarginal::Auto),
+                ..SetPageDelta::default()
+            },
+            SetPageDelta {
+                footer: Some(PageMarginal::None),
+                ..SetPageDelta::default()
+            },
+        ] {
+            assert!(initial_layout_independent(&Content::SetPage(Arc::new(delta))));
+        }
+        for delta in [
+            SetPageDelta { numbering: Some(None), ..SetPageDelta::default() },
+            SetPageDelta {
+                header: Some(PageMarginal::Content(Arc::new(Content::text("HEADER")))),
+                ..SetPageDelta::default()
+            },
+            SetPageDelta {
+                background: Some(Some(Arc::new(Content::Empty))),
+                ..SetPageDelta::default()
+            },
+        ] {
+            assert!(!initial_layout_independent(&Content::SetPage(Arc::new(delta))));
+        }
+    }
+
+    #[test]
+    fn batch_g_layout_proof_visits_table_caption_and_grid_cells_header_footer() {
+        let table = Content::table_with_caption(
+            vec![],
+            vec![],
+            vec![Content::text("CELL")],
+            Some(Content::text("CAPTION")),
+        );
+        assert!(initial_layout_independent(&table));
+        let Content::Table(mut elem) = table else { panic!("table fixture") };
+        Arc::make_mut(&mut elem).caption =
+            Some(Content::heading(1, Content::text("CAPTION")));
+        assert!(!initial_layout_independent(&Content::Table(elem)));
+        let grid = GridElem {
+            source_order: None,
+            columns: vec![],
+            rows: vec![],
+            cells: vec![Content::text("CELL")],
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::ZERO),
+            header: Some(Content::text("HEADER")),
+            footer: Some(Content::text("FOOTER")),
+            stroke: None,
+            fill: None,
+        };
+        assert!(initial_layout_independent(&Content::Grid(Arc::new(grid.clone()))));
+        let dynamic = Content::heading(1, Content::text("DYNAMIC"));
+        for changed in [
+            GridElem { cells: vec![dynamic.clone()], ..grid.clone() },
+            GridElem { header: Some(dynamic.clone()), ..grid.clone() },
+            GridElem { footer: Some(dynamic), ..grid },
+        ] {
+            assert!(!initial_layout_independent(&Content::Grid(Arc::new(changed))));
+        }
+    }
+
+    #[test]
+    fn batch_g_unproved_context_still_compiles_through_the_ordinary_full_cycle() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#context [FULLCYCLE]".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let (module, _) = eval_to_module_with_sink(&world, &source);
+        assert!(!initial_layout_independent(module.unwrap().content().unwrap()));
+        let (result, warnings) = compile_to_paged_document_full_error(
+            &world,
+            &source,
+            false,
+            &mut Timings::default(),
+        );
+        let document =
+            result.expect("false proof selects the full cycle, not a language error");
+        assert!(warnings.is_empty());
+        assert_eq!(document.pages.len(), 1);
+        assert_eq!(document.plain_text(), "FULLCYCLE");
+    }
+
+    #[test]
+    fn batch_g_outline_phase_preserves_all_four_shared_carriers_and_semantic_index() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let heading = Content::heading(1, Content::text("TITLE"));
+        let carriers = [
+            Content::Sequence(vec![heading.clone(), Content::text("TAIL")].into()),
+            Content::styled(
+                Box::new(heading.clone()),
+                Styles::from_iter([Style::Size(Length::pt(20.0))]),
+            ),
+            Content::Located(Arc::new(LocatedContent {
+                location: Locator::new().next(),
+                body: heading.clone(),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: heading,
+                visual: Content::text("VISIBLE"),
+            })),
+        ];
+        for content in carriers {
+            let mut intr = introspect_with_introspector(&content);
+            intr.outline_prefix_widths.insert(7, vec![Some(13.0)]);
+            let (result, warnings) =
+                realize_outlines_for_pipeline(&content, &intr, &world, &source);
+            let (output, index) = result.unwrap();
+            assert!(warnings.is_empty());
+            assert_eq!(output.plain_text(), content.plain_text());
+            assert_eq!(
+                index.query_by_kind(ElementKind::Heading),
+                intr.query_by_kind(ElementKind::Heading)
+            );
+            assert_eq!(index.outline_prefix_widths, intr.outline_prefix_widths);
+            match (&content, &output) {
+                (Content::Sequence(before), Content::Sequence(after)) => assert!(Arc::ptr_eq(before, after)),
+                (Content::Styled(before), Content::Styled(after)) => assert!(Arc::ptr_eq(before, after)),
+                (Content::Located(before), Content::Located(after)) => assert!(Arc::ptr_eq(before, after)),
+                (Content::Realized(before), Content::Realized(after)) => assert!(Arc::ptr_eq(before, after)),
+                _ => panic!("the unchanged actual outline phase must retain its exact qualified carrier"),
+            }
+        }
+    }
+
+    #[test]
+    fn batch_g_unqualified_outline_root_uses_general_prefix_observation() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        for content in [
+            Content::text("TEXT"),
+            Content::Source(Arc::new(SourceContent {
+                body: Content::heading(1, Content::text("TITLE")),
+                span: Span::detached(),
+            })),
+        ] {
+            let mut intr = introspect_with_introspector(&content);
+            intr.outline_prefix_widths.insert(7, vec![Some(13.0)]);
+            let (result, warnings) =
+                realize_outlines_for_pipeline(&content, &intr, &world, &source);
+            let (output, index) = result.unwrap();
+            assert!(warnings.is_empty());
+            assert_eq!(output.plain_text(), content.plain_text());
+            assert_eq!(
+                index.query_by_kind(ElementKind::Heading),
+                intr.query_by_kind(ElementKind::Heading)
+            );
+            assert!(
+                index.outline_prefix_widths.is_empty(),
+                "unqualified roots retain ordinary observed-prefix stabilization"
+            );
+        }
     }
 }

@@ -1,0 +1,7 @@
+# Raw footer field projection and emitted diagnostics
+
+The current bundle L0 requires retained raw-footer field conversion, and the new field test asserts it. The table renderer L0 explicitly retains its raw-footer omission; the current fallback emits only header and ordinary children. A raw deep footer therefore exposes a mismatch between retained field projection and diagnostic admission. This is source evidence; no new test has been executed during freeze.
+
+The draft controls in `raw-footer-controls-draft.rs` preserve both contracts: raw footer still converts to a semantic div/aria7 field, remains absent from raw rendering, and contributes no phantom warning; the identical emitted standalone footer still produces its existing exact warning and hints. A resolved public-preparation deep-footer control should also remain positive.
+
+The bounded repair would distinguish local emitted/dormant traversal state, carrying it through the complete existing owner-local recursion. Only the raw Table.footer edge becomes dormant. It remains projected, while diagnostic creation is limited to emitted nodes. This is effect admission by the actual renderer boundary, not collecting then discarding/filtering messages. No message match, renderer expansion, generic-walker change, new public API or phase is proposed. All original/new tests stay unchanged; additions require L0 first and actual RED before implementation.

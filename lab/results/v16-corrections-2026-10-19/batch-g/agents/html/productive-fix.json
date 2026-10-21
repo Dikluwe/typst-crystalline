@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-20T23:35:01.613426+00:00",
+  "status": "Productive HTML4 correction written after actual9RED+3preservation and lineage preflight; GREEN not yet claimed",
+  "files": {
+    "03_infra/src/export/html/document.rs": {
+      "before_sha256": "517835a95a4a97d5ea23ca0fa574a3e4a666ca973ef7d422f4d7b6d824a06081",
+      "after_sha256": "a69c5f8952cc47b41db08283149d241304ff4fbc622d5e1f6ed9f37469825a2b",
+      "all_old_new_tests_unchanged_sha256": "e6dfad68a9623d56c97cb3a1a645a0a47ddb9d5f191946344e3b95c52d49561c"
+    },
+    "03_infra/src/export/html/encoding.rs": {
+      "before_sha256": "2de96ccb8b345690e547bd2128c00ec43e8f85c7b439041b327080f356b0a0cf",
+      "after_sha256": "09c175a933e992c5bbf87201a40e886e0243bdac7f85870af1e32082a221b23d",
+      "all_old_new_tests_unchanged_sha256": "22945129b26a4f9ebdce8a4fe472265f90c55384367d196328e67504c4165591"
+    },
+    "03_infra/src/pipeline/bundle.rs": {
+      "before_sha256": "6a6392a7f8f91957697e1a2530e7c925ca7d3940c2d871926a7e592e95f4096b",
+      "after_sha256": "4334be24f7194355a1de680b28dadce60fad6e0025a8c28c23cacea4b9b12dfb",
+      "all_old_new_tests_unchanged_sha256": "80f9f0b99f289d5596403abb645239ca4dafc2ea20df3957c9cbf40ac72b89f5"
+    },
+    "03_infra/src/pipeline/html.rs": {
+      "before_sha256": "0be235be62e75ac9f2e8fa43f6342b77f5c7066ada66b552315c316a1a46665e",
+      "after_sha256": "a7cd5ddf542f32104b87d32d1208df844871826d17edcc954758af29406e9532",
+      "all_old_new_tests_unchanged_sha256": "476a94deecfaec4070048ef71a9a869cedb654b950d4f3dbba64ad2a69b06cd4"
+    }
+  },
+  "structural_decisions": [
+    {
+      "id": "V16-088",
+      "source": "03_infra/src/export/html/document.rs",
+      "function": "fn project_visual_root(",
+      "anchor": "match content {"
+    },
+    {
+      "id": "V16-089",
+      "source": "03_infra/src/export/html/encoding.rs",
+      "function": "fn visual_content(",
+      "anchor": "match content {"
+    },
+    {
+      "id": "V16-092",
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "function": "fn bundle_html_semantic_content(",
+      "anchor": "match content {"
+    },
+    {
+      "id": "V16-095",
+      "source": "03_infra/src/pipeline/html.rs",
+      "function": "fn collect_html_frames(",
+      "anchor": "match html_callback_root(node) {"
+    },
+    {
+      "id": "HTML local suppressed root",
+      "source": "03_infra/src/pipeline/html.rs",
+      "function": "fn html_callback_root(",
+      "anchor": "match content {"
+    }
+  ],
+  "limits": "No Link/Quote/unsupported kind expansion, global traversal change, public API/phase/default, callbacks, snapshot/index mutation, caption emission or matching relaxation. Frame ID equality/collision checks unchanged."
+}

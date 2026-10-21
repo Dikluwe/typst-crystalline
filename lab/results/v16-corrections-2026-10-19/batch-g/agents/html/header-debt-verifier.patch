@@ -1,0 +1,21 @@
+--- before/accept_final.py
++++ after/accept_final.py
+@@ -57,6 +57,11 @@
+      if case['query']:assert actual['runs'][1]['exit']==0
+  require_distribution(classes,'class',{'required-language':27,'required-error':12,'required-termination':1,'open-bilateral-gap':2,'refuted-fixture':1})
+  assert sum(c['class'].startswith('required-') for c in classes)==40
++def verify_header_debt(actual,preserved):
++ assert actual['name']==preserved['name']=='header-figure-boundary'
++ assert actual['source_sha256']==preserved['source_sha256']
++ assert actual['passed'] is False and preserved['passed'] is False
++ assert all(actual[field]==preserved[field] for field in ('returncode','text','stderr')), 'known header debt changed observable behavior'
+ def run(name,argv,expected_exit=0):
+  start=datetime.datetime.now(datetime.timezone.utc).isoformat();print(start,'START',name,flush=True)
+  with (out/(name+'.log')).open('w') as f:r=subprocess.run(argv,stdout=f,stderr=subprocess.STDOUT)
+@@ -78,4 +83,6 @@
+ require_rows(r['cases'],[c['name'] for c in target_cases])
+ assert r['oracle_receipt_sha256']==sha(target_oracle) and r['product']['sha256']==build_receipt['product_sha256'] and not r['changed_inputs']
+ assert all(actual['source_sha256']==expected['source_sha256'] for actual,expected in zip(r['cases'],target_cases))
++header_history=F/'candidate-target-controls-4/receipt.json';assert sha(header_history)=='f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922'
++verify_header_debt(next(c for c in r['cases'] if c['name']=='header-figure-boundary'),next(c for c in json.loads(header_history.read_text())['cases'] if c['name']=='header-figure-boundary'))
+ print('PASS required G/F acceptance; known header-figure-boundary remains a strict failure.',flush=True)

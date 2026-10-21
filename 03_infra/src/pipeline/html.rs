@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/html.md
-//! @prompt-hash 9049e636
+//! @prompt-hash 627fd360
 //! @layer L3
 //! @updated 2026-10-05
 //!
@@ -153,6 +153,135 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
     (html, warnings)
 }
 
+// Located suppresses its immediate-body callback; other containers already
+// expose their children. In particular, do not reobserve Realized/ShowRecipe.
+fn html_callback_root(mut content: &Content) -> &Content {
+    loop {
+        content = match content {
+            Content::Source(source) => &source.body,
+            Content::Located(located) => &located.body,
+            Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => return content,
+        };
+    }
+}
+
 /// P1493 — recolhe `html.frame` em ordem bottom-up e conserva a cadeia causal.
 /// O frame externo sucede os aninhados e torna-se a autoridade final do ponto.
 fn collect_html_frames(
@@ -162,7 +291,8 @@ fn collect_html_frames(
     fn frame_count(content: &Content) -> usize {
         let mut count = 0usize;
         let _ = content.map_content(&mut |node| {
-            count += usize::from(matches!(node, Content::HtmlFrame(_)));
+            count +=
+                usize::from(matches!(html_callback_root(node), Content::HtmlFrame(_)));
             Ok(None)
         });
         count
@@ -173,7 +303,7 @@ fn collect_html_frames(
         Vec<typst_core::entities::style::Styles>,
     )> = Vec::new();
     let _ = content.map_content(&mut |node| {
-        match node {
+        match html_callback_root(node) {
             Content::HtmlFrame(elem) => frames.push((elem.clone(), Vec::new())),
             Content::Styled(styled) => {
                 let inner = &styled.body;
@@ -183,7 +313,124 @@ fn collect_html_frames(
                     ancestors_inner_first.push(styles.clone());
                 }
             }
-            _ => {}
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {}
         }
         Ok(None)
     });
@@ -225,7 +472,7 @@ pub(super) fn html_frame_positions(
         let mut expected_ids = HashSet::new();
         let mut unique_ids = true;
         let _ = elem.body.map_content(&mut |node| {
-            if let Content::ContextBlock(context) = node {
+            if let Content::ContextBlock(context) = html_callback_root(node) {
                 unique_ids &= expected_ids.insert(context.id);
             }
             Ok(None)
@@ -278,5 +525,190 @@ mod p1465_tests {
 
         options.html.pretty = false;
         assert!(resolve_html_pretty(Some(true), &options));
+    }
+}
+
+#[cfg(test)]
+mod batch_g_html_frame_tests {
+    use super::*;
+    use typst_core::entities::{
+        content::{LocatedContent, RealizedContent, ShowRecipeContent, SourceContent},
+        elements::context_block::ContextBlockElem,
+        func::Func,
+        html::HtmlFrameElem,
+        location::Location,
+        locator::Locator,
+        style::{Style, Styles},
+    };
+    fn located(body: Content, location: Location) -> Content {
+        Content::Located(Arc::new(LocatedContent { body, location }))
+    }
+    fn frame(body: Content) -> Content {
+        Content::HtmlFrame(Arc::new(HtmlFrameElem { body }))
+    }
+    fn styled(body: Content, size: f64) -> Content {
+        Content::styled(
+            Box::new(body),
+            Styles::from_iter([Style::Size(
+                typst_core::entities::layout_types::Length::pt(size),
+            )]),
+        )
+    }
+    fn context(id: u64) -> Content {
+        Content::ContextBlock(Arc::new(ContextBlockElem {
+            id,
+            closure: Func::native("must-not-evaluate", |_, _, _, _| {
+                panic!("intrinsic position scan must not evaluate context")
+            }),
+        }))
+    }
+    #[test]
+    fn batch_g_html_located_frame_discovery_and_style_counts_agree() {
+        let mut locator = Locator::new();
+        let source = |body| {
+            Content::Source(Arc::new(SourceContent { body, span: Span::detached() }))
+        };
+        for content in [
+            located(frame(Content::text("A")), locator.next()),
+            located(located(frame(Content::text("A")), locator.next()), locator.next()),
+            located(source(frame(Content::text("A"))), locator.next()),
+            source(located(frame(Content::text("A")), locator.next())),
+        ] {
+            let frames =
+                collect_html_frames(&styled(content, 19.0), &StyleChain::default_chain());
+            assert_eq!(frames.len(), 1, "transported frame must contribute exactly once");
+            assert_eq!(frames[0].0.body.plain_text(), "A");
+            assert_eq!(frames[0].1.size(), 19.0);
+        }
+        let content = styled(
+            Content::sequence(vec![
+                located(styled(frame(Content::text("INNER")), 27.0), locator.next()),
+                frame(Content::text("SIBLING")),
+            ]),
+            19.0,
+        );
+        let frames = collect_html_frames(&content, &StyleChain::default_chain());
+        assert_eq!(
+            frames.iter().map(|(f, _)| f.body.plain_text()).collect::<Vec<_>>(),
+            ["INNER", "SIBLING"]
+        );
+        assert_eq!(
+            frames.iter().map(|(_, s)| s.size()).collect::<Vec<_>>(),
+            [27.0, 19.0],
+            "frame_count must not style unrelated siblings"
+        );
+    }
+    #[test]
+    fn batch_g_html_nested_frames_and_visual_carriers_are_once_only() {
+        let mut locator = Locator::new();
+        let nested = located(
+            frame(Content::sequence(vec![
+                frame(Content::text("INNER")),
+                Content::text("OUTER"),
+            ])),
+            locator.next(),
+        );
+        let frames = collect_html_frames(&nested, &StyleChain::default_chain());
+        assert_eq!(
+            frames.iter().map(|(f, _)| f.body.plain_text()).collect::<Vec<_>>(),
+            ["INNER", "INNEROUTER"]
+        );
+        let realized = Content::Realized(Arc::new(RealizedContent {
+            original: frame(Content::text("ORIGINAL")),
+            visual: frame(Content::text("VISUAL")),
+        }));
+        let recipe = Content::ShowRecipe(Arc::new(ShowRecipeContent {
+            body: frame(Content::text("RECIPE")),
+            textual: false,
+            context_id_floor: 0,
+            rules: Arc::from([]),
+            styles: StyleChain::empty(),
+            guards: vec![],
+            file: typst_core::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(1).unwrap(),
+            ),
+        }));
+        let frames = collect_html_frames(
+            &Content::sequence(vec![
+                located(realized, locator.next()),
+                located(recipe, locator.next()),
+            ]),
+            &StyleChain::default_chain(),
+        );
+        assert_eq!(
+            frames.iter().map(|(f, _)| f.body.plain_text()).collect::<Vec<_>>(),
+            ["VISUAL", "RECIPE"]
+        );
+    }
+    #[test]
+    fn batch_g_html_located_frame_positions_require_real_matching_context_ids() {
+        let mut locator = Locator::new();
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let mut candidate = typst_core::entities::introspector::TagIntrospector::empty();
+        let location = locator.next();
+        candidate.context_block_locations.insert(11, location);
+        let body = located(
+            frame(Content::sequence(vec![Content::text("A"), context(11)])),
+            locator.next(),
+        );
+        let positions = html_frame_positions(
+            &body,
+            &candidate,
+            FallbackFontMetrics::new(&world),
+            &source,
+        )
+        .unwrap();
+        assert!(
+            positions.contains_key(&location),
+            "Located frame cannot disappear from position collection"
+        );
+        assert_eq!(positions.len(), 1);
+        assert!(
+            candidate.page_store.total_pages().is_none(),
+            "intrinsic island must not add public pages"
+        );
+        let missing = frame(Content::sequence(vec![Content::text("A"), context(12)]));
+        assert!(html_frame_positions(
+            &missing,
+            &candidate,
+            FallbackFontMetrics::new(&world),
+            &source
+        )
+        .is_err());
+        let duplicate =
+            frame(Content::sequence(vec![Content::text("A"), context(11), context(11)]));
+        assert!(html_frame_positions(
+            &duplicate,
+            &candidate,
+            FallbackFontMetrics::new(&world),
+            &source
+        )
+        .is_err());
+    }
+    #[test]
+    fn batch_g_html_located_context_root_keeps_expected_id_matching_strict() {
+        let mut locator = Locator::new();
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let mut candidate = typst_core::entities::introspector::TagIntrospector::empty();
+        let location = locator.next();
+        candidate.context_block_locations.insert(21, location);
+        let body = frame(located(context(21), location));
+        let positions = html_frame_positions(
+            &body,
+            &candidate,
+            FallbackFontMetrics::new(&world),
+            &source,
+        )
+        .expect("actual located context marker must be included by the expected-id scan");
+        assert_eq!(positions.len(), 1);
+        assert!(positions.contains_key(&location));
     }
 }

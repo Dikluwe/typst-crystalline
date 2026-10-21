@@ -1,0 +1,90 @@
+{
+  "utc": "2026-10-20T23:12:17.412798+00:00",
+  "status": "L0-first/test-only ready, production prefixes equal clean archived baseline",
+  "tests": [
+    {
+      "name": "batch_g_html_located_markers_preserve_empty_visual_contribution",
+      "source": "03_infra/src/export/html/document.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_suppressed_realized_figure_keeps_visual_paragraphs",
+      "source": "03_infra/src/export/html/document.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_located_label_keeps_body_and_unresolved_producers_reject",
+      "source": "03_infra/src/export/html/document.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_textual_guards_do_not_accept_semantic_body_containers",
+      "source": "03_infra/src/export/html/encoding.rs",
+      "expected_old_result": "preservation PASS"
+    },
+    {
+      "name": "batch_g_html_title_wrapped_newline_space_origin_and_escaping_stay_exact",
+      "source": "03_infra/src/export/html/encoding.rs",
+      "expected_old_result": "preservation PASS"
+    },
+    {
+      "name": "batch_g_html_table_projection_preserves_sections_spans_and_dormant_caption",
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_bundle_public_preparation_projects_resolved_and_standalone_cells",
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_table_frame_island_is_not_preconverted",
+      "source": "03_infra/src/pipeline/bundle.rs",
+      "expected_old_result": "preservation PASS"
+    },
+    {
+      "name": "batch_g_html_located_frame_discovery_and_style_counts_agree",
+      "source": "03_infra/src/pipeline/html.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_nested_frames_and_visual_carriers_are_once_only",
+      "source": "03_infra/src/pipeline/html.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_located_frame_positions_require_real_matching_context_ids",
+      "source": "03_infra/src/pipeline/html.rs",
+      "expected_old_result": "functional RED"
+    },
+    {
+      "name": "batch_g_html_located_context_root_keeps_expected_id_matching_strict",
+      "source": "03_infra/src/pipeline/html.rs",
+      "expected_old_result": "functional RED"
+    }
+  ],
+  "recommended_command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "typst-infra",
+    "--lib",
+    "batch_g_html_",
+    "--",
+    "--test-threads=1"
+  ],
+  "current_hashes": {
+    "03_infra/src/export/html/document.rs": "d8ef24c0a6897eafa013bca1fa0fb91b574eb253788faa708bff48b01a7effd1",
+    "00_nucleo/prompts/infra/export/html/document.md": "8714366287c4e234fb500b6408ac3fd6b5644b1dd68281de7e8db6f8cbfe8871",
+    "03_infra/src/export/html/encoding.rs": "2e50ba99162dbdd32e3be55ed4c0be203960328f6699116ff7b45b1226e18776",
+    "00_nucleo/prompts/infra/export/html/encoding.md": "a42c7c5f06744f9d1a97d7874233ce47ea7f7e4cf76038547f1758fe34cde6d5",
+    "03_infra/src/pipeline/bundle.rs": "7cb3babf585793b22d3e276a1da10a3d7426453504d02e767c050b3cc6c29abc",
+    "00_nucleo/prompts/infra/pipeline/bundle.md": "1b24799eb2d3ccb625c2a5050381b44fb374b1ecd2830bd9db761899456b4aa7",
+    "03_infra/src/pipeline/html.rs": "b8880b64d9c1d68be0694535d4b1b7f4fc4b45ff491c07b90af08312287db131",
+    "00_nucleo/prompts/infra/pipeline/html.md": "3388e160609aa1686017d33b21f11b12a3c1f77f3be0624e5e49090cedaa5932"
+  },
+  "no_cargo_by_agent": true,
+  "notes": "12tests;9expected functionalRED,3preservation controls. Actual outcomes must be recorded; do not treat expectation as measurement. Footer oracle control verified actualcurrentpin before fixed expectations. Private Table stages are exercised through public bundle pipeline."
+}

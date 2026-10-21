@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash 2544b914
+//! @prompt-hash 9a480b5e
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -322,17 +322,36 @@ fn bundle_html_semantic_content(
     content: &Content,
     warnings: &mut Vec<SourceDiagnostic>,
 ) -> Content {
+    bundle_html_visual_content(content, warnings, false, true)
+}
+
+fn bundle_html_visual_content(
+    content: &Content,
+    warnings: &mut Vec<SourceDiagnostic>,
+    table_row_slot: bool,
+    emitted: bool,
+) -> Content {
     use typst_core::entities::html::{HtmlBody, HtmlElem};
 
     match content {
-        Content::Source(e) => bundle_html_semantic_content(&e.body, warnings),
-        Content::ShowRecipe(e) => bundle_html_semantic_content(&e.body, warnings),
-        Content::Located(e) => bundle_html_semantic_content(&e.body, warnings),
-        Content::Realized(e) => bundle_html_semantic_content(&e.visual, warnings),
+        Content::Source(e) => {
+            bundle_html_visual_content(&e.body, warnings, false, emitted)
+        }
+        Content::ShowRecipe(e) => {
+            bundle_html_visual_content(&e.body, warnings, false, emitted)
+        }
+        Content::Located(e) => {
+            bundle_html_visual_content(&e.body, warnings, false, emitted)
+        }
+        Content::Realized(e) => {
+            bundle_html_visual_content(&e.visual, warnings, false, emitted)
+        }
         // A frame is paginated independently. Its body must not be converted
         // into HTML nodes before the frame resolver sees it.
         Content::HtmlFrame(_) => content.clone(),
-        Content::Label(label) => bundle_html_semantic_content(&label.body, warnings),
+        Content::Label(label) => {
+            bundle_html_visual_content(&label.body, warnings, false, emitted)
+        }
         Content::Heading(heading) => {
             // Vanilla reserves h1 for the document title.
             let level = heading.level.saturating_add(1);
@@ -342,50 +361,237 @@ fn bundle_html_semantic_content(
                 let mut attrs = typst_core::entities::html::HtmlAttrs::default();
                 attrs.insert("role".into(), "heading".into());
                 attrs.insert("aria-level".into(), level.to_string().into());
-                warnings.push(
-                    SourceDiagnostic::warning(
-                        Span::detached(),
-                        format!("heading of level {} was transformed to <div role=\"heading\" aria-level=\"{}\">, which is not supported by all assistive technology", heading.level, level),
-                    ).with_hint(format!("HTML only supports <h1> to <h6>, not <h{}>", level))
-                     .with_hint("you may want to restructure your document so that it doesn't contain deep headings"),
-                );
+                if emitted {
+                    warnings.push(
+                        SourceDiagnostic::warning(
+                            Span::detached(),
+                            format!("heading of level {} was transformed to <div role=\"heading\" aria-level=\"{}\">, which is not supported by all assistive technology", heading.level, level),
+                        ).with_hint(format!("HTML only supports <h1> to <h6>, not <h{}>", level))
+                         .with_hint("you may want to restructure your document so that it doesn't contain deep headings"),
+                    );
+                }
                 ("div".into(), Some(attrs))
             };
             Content::HtmlElem(Arc::new(HtmlElem::new(
                 tag,
                 attrs,
-                HtmlBody::Content(Box::new(bundle_html_semantic_content(
+                HtmlBody::Content(Box::new(bundle_html_visual_content(
                     &heading.body,
                     warnings,
+                    false,
+                    emitted,
                 ))),
             )))
         }
         Content::Sequence(items) => Content::sequence(
             items
                 .iter()
-                .map(|item| bundle_html_semantic_content(item, warnings))
+                .map(|item| {
+                    bundle_html_visual_content(item, warnings, table_row_slot, emitted)
+                })
                 .collect(),
         ),
         Content::Styled(styled) => Content::styled(
-            bundle_html_semantic_content(&styled.body, warnings),
+            bundle_html_visual_content(&styled.body, warnings, false, emitted),
             styled.styles.clone(),
         ),
         Content::Par { body } => Content::Par {
-            body: Box::new(bundle_html_semantic_content(body, warnings)),
+            body: Box::new(bundle_html_visual_content(body, warnings, false, emitted)),
         },
-        Content::Strong(strong) => {
-            Content::strong(bundle_html_semantic_content(&strong.body, warnings))
-        }
-        Content::Emph(emph) => {
-            Content::emph(bundle_html_semantic_content(&emph.body, warnings))
-        }
+        Content::Strong(strong) => Content::strong(bundle_html_visual_content(
+            &strong.body,
+            warnings,
+            false,
+            emitted,
+        )),
+        Content::Emph(emph) => Content::emph(bundle_html_visual_content(
+            &emph.body, warnings, false, emitted,
+        )),
         Content::HtmlElem(elem) => Content::HtmlElem(Arc::new(HtmlElem::new(
             elem.tag.clone(),
             elem.attrs.clone(),
-            elem.body
-                .map_content(|body| bundle_html_semantic_content(body, warnings)),
+            elem.body.map_content(|body| {
+                bundle_html_visual_content(body, warnings, false, emitted)
+            }),
         ))),
-        _ => content.clone(),
+        Content::Table(table) => {
+            let mut table = table.as_ref().clone();
+            if let Some(resolved) = &table.resolved {
+                let mut resolved = resolved.as_ref().clone();
+                resolved.cells = resolved
+                    .cells
+                    .iter()
+                    .map(|cell| bundle_html_visual_content(cell, warnings, true, emitted))
+                    .collect();
+                table.resolved = Some(Arc::new(resolved));
+            } else {
+                table.header = table.header.as_ref().map(|header| {
+                    bundle_html_visual_content(header, warnings, true, emitted)
+                });
+                table.children = table
+                    .children
+                    .iter()
+                    .map(|child| {
+                        bundle_html_visual_content(child, warnings, true, emitted)
+                    })
+                    .collect();
+                // Preserve this raw field without admitting its unrendered effects.
+                table.footer = table.footer.as_ref().map(|footer| {
+                    bundle_html_visual_content(footer, warnings, true, false)
+                });
+            }
+            // Caption is currently unrendered table data, not an emitted child.
+            Content::Table(Arc::new(table))
+        }
+        Content::TableCell(cell) => {
+            let mut cell = cell.as_ref().clone();
+            if let (true, Some(resolved)) = (table_row_slot, &cell.resolved) {
+                let mut resolved = resolved.as_ref().clone();
+                resolved.visual = bundle_html_visual_content(
+                    &resolved.visual,
+                    warnings,
+                    false,
+                    emitted,
+                );
+                cell.resolved = Some(Arc::new(resolved));
+            } else if let Some(standalone) = &cell.standalone {
+                let mut standalone = standalone.as_ref().clone();
+                standalone.visual = bundle_html_visual_content(
+                    &standalone.visual,
+                    warnings,
+                    false,
+                    emitted,
+                );
+                cell.standalone = Some(Arc::new(standalone));
+            } else {
+                cell.body =
+                    bundle_html_visual_content(&cell.body, warnings, false, emitted);
+            }
+            Content::TableCell(Arc::new(cell))
+        }
+        Content::TableHeader(header) => {
+            let mut header = header.as_ref().clone();
+            header.body = bundle_html_visual_content(
+                &header.body,
+                warnings,
+                table_row_slot,
+                emitted,
+            );
+            Content::TableHeader(Arc::new(header))
+        }
+        Content::TableFooter(footer) => {
+            let mut footer = footer.as_ref().clone();
+            footer.body = bundle_html_visual_content(
+                &footer.body,
+                warnings,
+                table_row_slot,
+                emitted,
+            );
+            Content::TableFooter(Arc::new(footer))
+        }
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Title(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => content.clone(),
     }
 }
 
@@ -709,5 +915,251 @@ mod carrier_tests {
             assert_eq!(elem.body.content().unwrap().plain_text(), "Kept");
             assert!(warnings.is_empty());
         }
+    }
+}
+
+#[cfg(test)]
+mod batch_g_html_bundle_tests {
+    use super::*;
+    use typst_core::entities::{
+        compiler_features::{Feature, Features},
+        html::HtmlFrameElem,
+    };
+
+    #[test]
+    fn batch_g_html_table_projection_preserves_sections_spans_and_dormant_caption() {
+        let body = Content::table_with_caption(
+            vec![],
+            vec![],
+            vec![Content::table_cell(
+                Content::heading(1, Content::text("BODY")),
+                None,
+                None,
+                Some(2),
+                Some(3),
+            )],
+            Some(Content::heading(6, Content::text("DORMANT-CAPTION"))),
+        );
+        let Content::Table(original) = body else {
+            panic!("table constructor");
+        };
+        let mut table = original.as_ref().clone();
+        table.header = Some(Content::table_header(
+            Content::heading(6, Content::text("HEADER")),
+            false,
+        ));
+        table.footer = Some(Content::table_footer(
+            Content::heading(1, Content::text("FOOTER")),
+            false,
+        ));
+        let mut warnings = vec![];
+        let projected =
+            bundle_html_semantic_content(&Content::Table(Arc::new(table)), &mut warnings);
+        let Content::Table(table) = projected else {
+            panic!("table identity must remain");
+        };
+        let Content::TableCell(cell) = &table.children[0] else {
+            panic!("cell identity must remain");
+        };
+        assert_eq!((cell.colspan, cell.rowspan), (Some(2), Some(3)));
+        assert!(matches!(&cell.body,Content::HtmlElem(e) if e.tag=="h2"));
+        let Some(Content::TableHeader(header)) = &table.header else {
+            panic!("header retained");
+        };
+        assert!(!header.repeat);
+        assert!(
+            matches!(&header.body,Content::HtmlElem(e) if e.tag=="div" && e.attrs.as_ref().unwrap().get("aria-level").unwrap()=="7")
+        );
+        let Some(Content::TableFooter(footer)) = &table.footer else {
+            panic!("footer retained");
+        };
+        assert!(!footer.repeat);
+        assert!(matches!(&footer.body,Content::HtmlElem(e) if e.tag=="h2"));
+        assert!(
+            matches!(&table.caption,Some(Content::Heading(h)) if h.body.plain_text()=="DORMANT-CAPTION")
+        );
+        assert_eq!(warnings.len(), 1, "only emitted deep header contributes warning");
+        assert!(warnings[0].message.contains("heading of level 6"));
+    }
+
+    #[test]
+    fn batch_g_html_bundle_public_preparation_projects_resolved_and_standalone_cells() {
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        features.enable(Feature::Html);
+        for (source,expected) in [
+            ("#document(\"one.html\")[#table(columns:1,[#heading([BODY])])]", "<td><h2>BODY</h2></td>"),
+            ("#document(\"one.html\")[#table(columns:1,table.header([#heading([HEAD])]),[BODY])]", "<th><h2>HEAD</h2></th>"),
+            ("#document(\"one.html\")[#table.cell[#heading([CELL])]]", "<h2>CELL</h2>"),
+            ("#document(\"one.html\")[#table(columns:1,[BODY],table.footer([#heading([FOOT])]))]", "<td><h2>FOOT</h2></td>"),
+        ] {
+            let world=crate::world::SystemWorld::for_stdin(std::path::PathBuf::from("/tmp"),source.into());
+            let source=world.source(world.main()).unwrap();
+            let (result,_,_)=compile_to_bundle_files(&world,&source,BundleCompileOptions {
+                full_error:false,features,document_id:None,pdf_stream_mode:StreamMode::Verbose,
+                pdf_serialization:PdfSerializationMode::Compact,pdf_tagged_override:None,
+                pdf_pages_override:None,pdf_standard_override:None,png_ppi_override:None,
+                html_serialization:crate::export::HtmlSerializationMode::Vanilla,pretty_override:None,
+            });
+            let files=result.expect("supported table descendant must receive final HTML projection");
+            let html=String::from_utf8(files[0].data.clone()).unwrap();
+            assert!(html.contains(expected),"{html}");
+        }
+    }
+
+    #[test]
+    fn batch_g_html_table_frame_island_is_not_preconverted() {
+        let frame = Content::HtmlFrame(Arc::new(HtmlFrameElem {
+            body: Content::heading(6, Content::text("PAGED")),
+        }));
+        let table = Content::table(
+            vec![],
+            vec![],
+            vec![Content::table_cell(frame, None, None, None, None)],
+        );
+        let mut warnings = vec![];
+        let projected = bundle_html_semantic_content(&table, &mut warnings);
+        let Content::Table(t) = projected else {
+            panic!("table retained");
+        };
+        let Content::TableCell(c) = &t.children[0] else {
+            panic!("cell retained");
+        };
+        assert!(
+            matches!(&c.body,Content::HtmlFrame(f) if matches!(&f.body,Content::Heading(_)))
+        );
+        assert!(warnings.is_empty(), "paged island must not emit HTML heading warning");
+    }
+
+    #[test]
+    fn batch_g_html_raw_footer_projection_has_no_unemitted_warning() {
+        use typst_core::entities::content::{RealizedContent, SourceContent};
+        let deep = || Content::heading(6, Content::text("DORMANT-FOOT"));
+        let nested = Content::table(
+            vec![],
+            vec![],
+            vec![Content::table_cell(deep(), None, None, None, None)],
+        );
+        let transported = Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::styled(
+                Content::Realized(Arc::new(RealizedContent {
+                    original: Content::text("UNEMITTED-ORIGINAL"),
+                    visual: deep(),
+                })),
+                typst_core::entities::style::Styles::new(),
+            ),
+        }));
+        for (name, body) in [
+            ("direct", deep()),
+            ("source-styled-realized", transported),
+            ("nested-table", nested),
+        ] {
+            let Content::Table(table) = Content::table(
+                vec![],
+                vec![],
+                vec![Content::table_cell(Content::text("BODY"), None, None, None, None)],
+            ) else {
+                panic!("table constructor");
+            };
+            let mut table = table.as_ref().clone();
+            table.footer = Some(Content::table_footer(body, false));
+            let mut warnings = vec![];
+            let projected = bundle_html_semantic_content(
+                &Content::Table(Arc::new(table)),
+                &mut warnings,
+            );
+            let Content::Table(table) = &projected else {
+                panic!("table identity retained");
+            };
+            assert!(table.resolved.is_none(), "exercise actual raw renderer branch");
+            let Some(Content::TableFooter(footer)) = &table.footer else {
+                panic!("footer field retained");
+            };
+            assert!(!footer.repeat);
+            if name == "direct" {
+                assert!(
+                    matches!(&footer.body, Content::HtmlElem(e) if e.tag=="div" && e.attrs.as_ref().unwrap().get("aria-level").unwrap()=="7")
+                );
+            }
+            let field_html = crate::export::export_html(&footer.body)
+                .expect("retained field remains projected");
+            assert!(
+                field_html.contains("aria-level=\"7\">DORMANT-FOOT"),
+                "{name}: {field_html}"
+            );
+            let html = crate::export::export_html(&projected)
+                .expect("raw Table body is supported");
+            assert!(html.contains("<td>BODY</td>"));
+            assert!(
+                !html.contains("DORMANT-FOOT"),
+                "preserve current raw-footer rendering limit"
+            );
+            assert!(
+                warnings.is_empty(),
+                "{name}: unrendered footer contributes no deep-heading warning"
+            );
+        }
+    }
+
+    #[test]
+    fn batch_g_html_emitted_standalone_footer_still_warns() {
+        let footer = Content::table_footer(
+            Content::heading(6, Content::text("EMITTED-FOOT")),
+            false,
+        );
+        let mut warnings = vec![];
+        let projected = bundle_html_semantic_content(&footer, &mut warnings);
+        let html = crate::export::export_html(&projected)
+            .expect("standalone Footer body is supported");
+        assert!(html.contains("EMITTED-FOOT"));
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].message, "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology");
+        assert_eq!(warnings[0].hints, vec![
+            "HTML only supports <h1> to <h6>, not <h7>",
+            "you may want to restructure your document so that it doesn't contain deep headings",
+        ]);
+    }
+
+    #[test]
+    fn batch_g_html_public_resolved_footer_keeps_deep_warning_once() {
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        features.enable(Feature::Html);
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#document(\"one.html\")[#table(columns:1,[BODY],table.footer([#heading(level:6)[FOOT]]))]".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings, _) = compile_to_bundle_files(
+            &world,
+            &source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Vanilla,
+                pretty_override: None,
+            },
+        );
+        let files = result.expect("resolved footer remains supported");
+        let html = String::from_utf8(files[0].data.clone()).unwrap();
+        assert!(html.contains("<tfoot><tr><td><div role=\"heading\" aria-level=\"7\">FOOT</div></td></tr></tfoot>"), "{html}");
+        let deep = warnings
+            .iter()
+            .filter(|w| w.message.contains("heading of level 6"))
+            .collect::<Vec<_>>();
+        assert_eq!(deep.len(), 1);
+        assert_eq!(deep[0].message, "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology");
+        assert_eq!(deep[0].hints, vec![
+            "HTML only supports <h1> to <h6>, not <h7>",
+            "you may want to restructure your document so that it doesn't contain deep headings",
+        ]);
     }
 }

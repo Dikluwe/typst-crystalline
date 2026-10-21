@@ -1,0 +1,458 @@
+{
+  "utc": "2026-10-21T01:08:29.449147+00:00",
+  "status": "FINAL SCOPED ACCEPTANCE PASS; explicit known gaps remain",
+  "reviewer": "figure_realize_impl; independent receipt and policy review",
+  "head": "4382891f0d5f0839669597cb5c90a98f24cfb8bd",
+  "closure_binding": {
+    "stage": "final",
+    "passed": true,
+    "source_snapshot_sha256": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+    "build_receipt_sha256": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f",
+    "product_sha256": "ced5125ee4b42a6ad9ac36db432d01b0e6bdafd93d2e042f8ea56b3a966f3fd9",
+    "frozen_input_count": 2142,
+    "current_input_drift": []
+  },
+  "receipt_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/reseal-candidate-3/receipt.json.gz": "03581a1c50a12cac4932f028fcfcc1a3869d2eb0bcff4a2313d2903d6186563a",
+    "lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json": "184fd6f43c7cceeda94e41856117b3cf30181d1015ed49379c3cac31a21cdf6f",
+    "lab/results/v16-corrections-2026-10-19/batch-g/acceptance-3/commands.json": "1ff4b33fcecae3814e5f6d8aef918ae8d99f5c07086130d64957d82bf8bc0c81",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-commands.json": "a49e0a04c3ae3ad4a85779ada8013850fdd2658d881717ecb78b61b5b6c88cbc",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-freeze.json": "2ec57ed83fd5cd5069e23ed410aabbc1e1fbb2f3709b44bf6ed0c4afbe625159",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validation-final-3/validation-state.json.gz": "48cd62f87c3f800741bf61c7eddcddc55664e1850968f4bcf7f7e1ed044ffc47",
+    "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-3-typst-core/receipt.json": "177d09cb4eec58f56330b5cf39bbad7224c0ee002523c5c82ea1bc478b1b5fab",
+    "lab/results/v16-corrections-2026-10-19/batch-g/focused-green-3-typst-infra/receipt.json": "94863fd27f8e4ca345d1b9898a7c05b7e4031ca477df3d804b0b6364c9b2cbe4",
+    "lab/results/v16-corrections-2026-10-19/batch-g/hash-candidate-3/receipt.json": "6a5b2f43f48fec21ff02dd3701aace59f0786e2523ab9834c9335b3113738e17",
+    "lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate-3/receipt.json": "16af2314b21b904ba00b60ff5c65a2c67612acd1ab2bb257261bb54e604f96eb",
+    "lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3/receipt.json": "fd1ce100aad81fdde92f16008ff09353a714b12e56284923bc565d4345f472ef",
+    "lab/results/v16-corrections-2026-10-19/batch-g/figure-policy-replay-3/receipt.json": "215d7866561bfd1b16615119671f46419f87e2e776f69c2d326e4c4ad7a45da6",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/receipt.json": "da40fec8b7f3b7c11c142ec697f535fe4159690e8bc15cf1641cff4144c42be5",
+    "lab/results/v16-corrections-2026-10-19/batch-g/figure-target-controls-3/receipt.json": "e48467b251bc1532aceebd32fb95ba5e1e8a1942460f2c9fbbc72e1aa884d9ad",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/main/receipt.json": "c002accd793fca6ad3d5f63e28b0ddbb60c9d1b2ac2584385d39ee900c1f2738",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/additional/receipt.json": "c78df7aaf9151a32599d386333fd8763425d6a64abf1e623703537436f50127e",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/targeted/receipt.json": "f3b15c6e647ecfffccac3e3c5364b7fa8a64d335aa6d4c2d250f4a01da6176ed",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/origin/receipt.json": "15505979722173264b0e0deea22aa641773eea451edcddd89e3aeaef16daca92",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/origin-edge/receipt.json": "49fb02848e3219beaa3840c4a66a3f82abfd178437b657be47d80bcbada7dd8b",
+    "lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3/show-origin-selected/receipt.json": "c406d7c4d639d0f0fe7051a8e8db201a5aeef30246733827e31b5a48446c0139"
+  },
+  "worker_and_policy_sha256": {
+    "lab/results/v16-corrections-2026-10-19/batch-g/accept_3.py": "5244ec3600b4cf6397aa0cfdb7e53bae35d092d27a639862410820a392ea938b",
+    "lab/results/v16-corrections-2026-10-19/batch-g/validate_3.py": "26844c2dbc8f7c161251336110764a2e9a161acc9733477cdf0959fb09f6eda9",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/core/replay_equality.py": "741d7f0aac52de5293e7b6f4f357bba7ef70d7506fdd8453cdba80ddda969892",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py": "79ac951cba6308e98f1c775181e2a1333fc7c82670392abd170a9cc3e67cf289",
+    "lab/results/v16-corrections-2026-10-19/batch-g/agents/html/cli-policies.json": "7b2b719513cb91ad88ed16340a07eb3847531b9a26cde951ece5a8f9dfa7da91"
+  },
+  "measured": {
+    "full_gates": {
+      "passed": 12,
+      "total": 12,
+      "all_exit_zero": true,
+      "source_snapshot_equal": true
+    },
+    "focused_tests": {
+      "typst-core": 20,
+      "typst-infra": 36
+    },
+    "public_hash_probe": {
+      "finite_rows": 366,
+      "public_hash_violations": 0,
+      "std_hash_violations": 0,
+      "pass": true,
+      "scope": "Exactly the unchanged 366-row public probe; not a universal Content/Value Hash-law proof. The measured NestedValueFloat control refuted the proposed negative-zero gap."
+    },
+    "equality": {
+      "rows": 34,
+      "required_pass": 33,
+      "required": 33,
+      "explicit_gap_rows": [
+        "html-tristate-fields"
+      ],
+      "repr_differences_outside_selected_checks": [
+        "title-alias",
+        "title-equal",
+        "title-different",
+        "title-nested-sequence",
+        "title-nested-block",
+        "html-attrs-absent-empty",
+        "html-attrs-order-title",
+        "html-attrs-order-block",
+        "html-attrs-order-frame"
+      ]
+    },
+    "html": {
+      "rows": 16,
+      "required_pass": 13,
+      "required": 13,
+      "explicit_gap_cases": [
+        "link-heading",
+        "bundle-link-heading",
+        "bundle-link-text"
+      ],
+      "strict_comparison_failures": [
+        "link-heading",
+        "bundle-link-heading",
+        "heading-six",
+        "bundle-heading-six",
+        "bundle-link-text",
+        "title-nontext-rejected"
+      ],
+      "required_parsed_diagnostic_differences": [
+        {
+          "name": "heading-six",
+          "actual": [
+            {
+              "severity": "warning",
+              "message": "html export is under active development and incomplete",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases",
+                "see https://github.com/typst/typst/issues/5512 for more information"
+              ],
+              "origin": null,
+              "trace": []
+            }
+          ],
+          "oracle": [
+            {
+              "severity": "warning",
+              "message": "html export is under active development and incomplete",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases",
+                "see https://github.com/typst/typst/issues/5512 for more information"
+              ],
+              "origin": null,
+              "trace": []
+            },
+            {
+              "severity": "warning",
+              "message": "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology",
+              "hints": [
+                "HTML only supports <h1> to <h6>, not <h7>",
+                "you may want to restructure your document so that it doesn't contain deep headings"
+              ],
+              "origin": [
+                1,
+                1
+              ],
+              "trace": []
+            }
+          ]
+        },
+        {
+          "name": "bundle-heading-six",
+          "actual": [
+            {
+              "severity": "warning",
+              "message": "bundle export is experimental",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases"
+              ],
+              "origin": null,
+              "trace": []
+            },
+            {
+              "severity": "warning",
+              "message": "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology",
+              "hints": [
+                "HTML only supports <h1> to <h6>, not <h7>",
+                "you may want to restructure your document so that it doesn't contain deep headings"
+              ],
+              "origin": null,
+              "trace": []
+            }
+          ],
+          "oracle": [
+            {
+              "severity": "warning",
+              "message": "bundle export is experimental",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases"
+              ],
+              "origin": null,
+              "trace": []
+            },
+            {
+              "severity": "warning",
+              "message": "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology",
+              "hints": [
+                "HTML only supports <h1> to <h6>, not <h7>",
+                "you may want to restructure your document so that it doesn't contain deep headings"
+              ],
+              "origin": [
+                1,
+                23
+              ],
+              "trace": []
+            }
+          ]
+        },
+        {
+          "name": "title-nontext-rejected",
+          "actual": [
+            {
+              "severity": "error",
+              "message": "HTML raw text element cannot have non-text children",
+              "hints": [],
+              "origin": null,
+              "trace": []
+            },
+            {
+              "severity": "warning",
+              "message": "html export is under active development and incomplete",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases",
+                "see https://github.com/typst/typst/issues/5512 for more information"
+              ],
+              "origin": null,
+              "trace": []
+            }
+          ],
+          "oracle": [
+            {
+              "severity": "error",
+              "message": "HTML raw text element cannot have non-text children",
+              "hints": [],
+              "origin": [
+                1,
+                35
+              ],
+              "trace": []
+            },
+            {
+              "severity": "warning",
+              "message": "html export is under active development and incomplete",
+              "hints": [
+                "its behaviour may change at any time",
+                "do not rely on this feature for production use cases",
+                "see https://github.com/typst/typst/issues/5512 for more information"
+              ],
+              "origin": null,
+              "trace": []
+            }
+          ]
+        }
+      ],
+      "repaired_cell_case": {
+        "name": "bundle-cell-heading",
+        "semantic_dom_pass": true,
+        "strict_comparison_pass": true,
+        "html_files": {
+          "one.html": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h2>H</h2></body></html>"
+        }
+      }
+    },
+    "F_policies": {
+      "rows": 84,
+      "policy_pass": 84,
+      "dispositions": {
+        "required-closure": 77,
+        "preserved-known-debt": 5,
+        "negative-control-only": 2
+      },
+      "oracle_required_pass": 77,
+      "known_debt_rows": [
+        "selector-supplement-default",
+        "selector-supplement-callback",
+        "grid-footer-before-body",
+        "state-update-fields",
+        "grid-footer-fields"
+      ],
+      "negative_control_rows": [
+        "element-table-callback-target",
+        "name-table-callback-target"
+      ]
+    },
+    "reference_corpora": {
+      "matrices": 6,
+      "rows": 43,
+      "required_pass": 40,
+      "required": 40,
+      "classes": {
+        "required-language": 27,
+        "required-error": 12,
+        "open-bilateral-gap": 2,
+        "required-termination": 1,
+        "refuted-fixture": 1
+      },
+      "groups": [
+        {
+          "name": "main",
+          "rows": 31,
+          "required": 28,
+          "required_pass": 28,
+          "nonrequired_rows": [
+            "duplicate-label-first",
+            "bibliography-precedence",
+            "context-language-pt-fr"
+          ]
+        },
+        {
+          "name": "additional",
+          "rows": 4,
+          "required": 4,
+          "required_pass": 4,
+          "nonrequired_rows": []
+        },
+        {
+          "name": "targeted",
+          "rows": 2,
+          "required": 2,
+          "required_pass": 2,
+          "nonrequired_rows": []
+        },
+        {
+          "name": "origin",
+          "rows": 1,
+          "required": 1,
+          "required_pass": 1,
+          "nonrequired_rows": []
+        },
+        {
+          "name": "origin-edge",
+          "rows": 3,
+          "required": 3,
+          "required_pass": 3,
+          "nonrequired_rows": []
+        },
+        {
+          "name": "show-origin-selected",
+          "rows": 2,
+          "required": 2,
+          "required_pass": 2,
+          "nonrequired_rows": []
+        }
+      ]
+    },
+    "target_controls": {
+      "passed": 10,
+      "total": 11,
+      "known_strict_failure": {
+        "name": "header-figure-boundary",
+        "returncode": 0,
+        "text": "H Figure 1: HC B Figure 1: BC (1,)",
+        "stderr": "",
+        "passed": false,
+        "historical_receipt_sha256": "f79d6f40107bdbceec8df9ec4da7391a393431fd41569f6179652f6f52d2d922",
+        "same_historical_observation": true
+      }
+    },
+    "acceptance_commands": [
+      {
+        "name": "g-hash",
+        "utc_start": "2026-10-21T01:05:29.042035+00:00",
+        "utc_end": "2026-10-21T01:05:55.500799+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/hash_measurement_candidate_3.py"
+        ],
+        "exit": 0,
+        "expected_exit": 0
+      },
+      {
+        "name": "g-equality",
+        "utc_start": "2026-10-21T01:05:55.501095+00:00",
+        "utc_end": "2026-10-21T01:05:57.679835+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/core/replay_equality.py",
+          "--product",
+          "lab/target/product/debug/typst",
+          "--build-receipt",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+          "--out",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/equality-candidate-3"
+        ],
+        "exit": 0,
+        "expected_exit": 0
+      },
+      {
+        "name": "g-html",
+        "utc_start": "2026-10-21T01:05:57.681783+00:00",
+        "utc_end": "2026-10-21T01:05:58.765626+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/agents/html/replay_cli.py",
+          "--product",
+          "lab/target/product/debug/typst",
+          "--build-receipt",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+          "--output",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/html-candidate-3"
+        ],
+        "exit": 0,
+        "expected_exit": 0
+      },
+      {
+        "name": "f-policies",
+        "utc_start": "2026-10-21T01:05:58.765920+00:00",
+        "utc_end": "2026-10-21T01:06:16.770430+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/replay.py",
+          "--product",
+          "lab/target/product/debug/typst",
+          "--build-receipt",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+          "--output",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/figure-policy-replay-3",
+          "--phase",
+          "candidate"
+        ],
+        "exit": 0,
+        "expected_exit": 0
+      },
+      {
+        "name": "f-references",
+        "utc_start": "2026-10-21T01:06:16.772335+00:00",
+        "utc_end": "2026-10-21T01:06:57.678138+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/run_reference_acceptance.py",
+          "--build",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+          "--output",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/reference-corpora-3"
+        ],
+        "exit": 0,
+        "expected_exit": 0
+      },
+      {
+        "name": "f-targets",
+        "utc_start": "2026-10-21T01:06:57.684927+00:00",
+        "utc_end": "2026-10-21T01:07:02.778838+00:00",
+        "argv": [
+          "python3",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/target_controls.py",
+          "--product",
+          "lab/target/product/debug/typst",
+          "--build-receipt",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/candidate-build-3/receipt.json",
+          "--output",
+          "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-g/figure-target-controls-3"
+        ],
+        "exit": 1,
+        "expected_exit": 1
+      }
+    ]
+  },
+  "current_blocking_findings": [],
+  "limitations": [
+    "Passed means the scoped current contracts and required policies, not full Typst/HTML/diagnostic parity.",
+    "HTML three unsupported Link rows remain gaps. Standalone deep-heading warning omission, bundle deep-warning origin and nontext-title diagnostic origin remain recorded strict differences. DOCTYPE, mandatory feature warnings, no-success-error-payload and exact optional warning omission guards are unchanged.",
+    "Equality one HTML tri-state fields discrepancy and selected repr presentation differences remain open; no widening of mechanical/causal identity or closure execution is implied.",
+    "F84 means77 oracle-required passes+5 preserved known-debt policies+2 negative controls, not84 oracle parity passes.",
+    "Ref40 covers27 required-language,12 required-error and1 termination policy across6 matrices; three nonrequired rows are retained, not green certification.",
+    "Header target remains an exact historical strict failure at10/11. Its continued failed status cannot mask a crash/new diagnostic because exit/text/stderr/source are unchanged.",
+    "Hash evidence is the unchanged finite366-row probe with zero selected violations, not a universal Content/Value Hash-law proof.",
+    "Synthetic raw-footer omission remains observed internal renderer behavior, not a new ratified language default."
+  ],
+  "history_preserved": [
+    "final-acceptance-review-pending.json",
+    "final-acceptance-review-before-first-candidate.json",
+    "final-acceptance-review.json",
+    "cell-html-preflight-review.json"
+  ]
+}

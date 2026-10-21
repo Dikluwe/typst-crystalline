@@ -1,0 +1,91 @@
+{
+  "utc": "2026-10-20T23:33:10.000077+00:00",
+  "status": "Implemented within released four owners; awaiting root integration, no GREEN claimed",
+  "current_sha256": {
+    "01_core/src/compiler/realize/bare_math.rs": "62e742a8da5acbd4aa43d3312793d23a877a8087bc1c811736e49edf2b97764b",
+    "01_core/src/compiler/realize/mod.rs": "d2c9b86dc897bc55a6bfb5ecf9412a40711f2acb59337ce5ed500c221c80019f",
+    "01_core/src/entities/content/equality.rs": "3ae6f4ef82b55035ae741bb26dcea02263b60a5e4ab28db769c491242f934579",
+    "01_core/src/compiler/eval/operators/equality.rs": "5578b9a9ba3103ebccd47b18b79156a1c6f3bfb9fc053abe7a91fa164d61aace",
+    "00_nucleo/prompts/core/compiler/realize/bare_math.md": "f90a8aff16ed20ddada2901f58934410da553414aae13425b20f10e14dd17714",
+    "00_nucleo/prompts/core/compiler/realize/mod.md": "4d8fbd090c236790bab03c6d3fb618d729e3953c7cc7cad4bbfd4d7e63b09f74",
+    "00_nucleo/prompts/core/entities/content/equality.md": "954195ea34503181449205253294ba7cef21952c8b12eb908fb61ccba7ffb631",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md": "ad19937d49a19c77847d10151b20835eb90239a0e819ecb8fd2a39dd58b321aa"
+  },
+  "test_preservation_receipt": "implementation-receipt.json",
+  "structural_anchors": {
+    "V16-049": {
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "match_line": 54,
+      "domain": "Content",
+      "policy": "closed absence proof; remaining variants fail proof conservatively"
+    },
+    "V16-050": {
+      "file": "01_core/src/compiler/realize/bare_math.rs",
+      "match_line": 199,
+      "domain": "Content",
+      "policy": "closed preorder root callback, ordinary complement delegates traversal"
+    },
+    "V16-051": {
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "match_line": 90,
+      "domain": "Content",
+      "policy": "direct-child Sequence/unprotected Realized Sequence trigger only"
+    },
+    "V16-052": {
+      "file": "01_core/src/compiler/realize/mod.rs",
+      "match_line": 236,
+      "domain": "Content",
+      "policy": "node-local identifier observations; ordinary mapper descent retained"
+    },
+    "V16-074": {
+      "file": "01_core/src/entities/content/equality.rs",
+      "match_line": 11,
+      "domain": "Content \u00d7 Content",
+      "policy": "existing transparent axes, explicit same-kind policies, complete116-by116 nontransparent nominal remainder; future variant fails either axis/new-new"
+    }
+  },
+  "guarded_negative_inventory": [
+    {
+      "decision": "absence proof",
+      "positive": "Empty/Text/Space/newline, Equation/Located, known recursive proof wrappers",
+      "negative": "all explicit other variants remain not-proven, not empty or Mathy-certified"
+    },
+    {
+      "decision": "preorder preparation",
+      "positive": "Mathy and proof-positive early returns remain",
+      "negative": "Label non-Mathy returns Ok(None); Equation/Located preserve subtree; unknown ordinary complement still delegates mapper"
+    },
+    {
+      "decision": "flatten trigger",
+      "positive": "Sequence or unprotected Realized with Sequence visual",
+      "negative": "protected Realized with Sequence or nonSequence and unprotected nonSequence stay unflattened; original Empty visual marker retained"
+    },
+    {
+      "decision": "observation",
+      "positive": "Located locations, direct Context body, recipe floors/marker, Realized original plus normal visual",
+      "negative": "other nominal node roots no local IDs; eligible descendants still traversed; closures never executed"
+    },
+    {
+      "decision": "mechanical equality",
+      "positive": "Html ordered attrs/tag/presence/body, Title/Frame body, Context id",
+      "negative": "opposite attrs order/None-vs-empty/tri-state/body/tag/differentContextid and heterogeneous kinds; historicalMetadata/State/StateUpdate remain false"
+    },
+    {
+      "decision": "language projection",
+      "positive": "opaque nominal Context ephemeralid0, unchanged Styled map policy, suppressed transparent root traversal",
+      "negative": "Context vs Empty/Text/Space stays distinct; original Func/id/source/Location and public morphology retained; Somefieldsets/labels/None fallback/Figure relations preserved"
+    }
+  ],
+  "known_limits": [
+    "No universal language equality, render, source-field or morphology parity claim. Existing HTML fields {} and Title/empty-attrs representation discrepancies are separately measured and not fixed here.",
+    "Documented Metadata/State/StateUpdate mechanical always-false remains; this is not parity certification.",
+    "No performance gain claimed and historical bare-Math allocation threshold remains unmet.",
+    "No new API/entity/publicsignature/default/pipelinephase/Hash/ObservationEq/genericmapper/Nucleus/config/suppression; root must integrate and run actual focused/full/structural/equality replay gates."
+  ],
+  "commands_not_run": [
+    "Cargo",
+    "rustfmt/cargo fmt",
+    "hash reseal",
+    "commit"
+  ]
+}
