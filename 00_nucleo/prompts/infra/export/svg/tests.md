@@ -1,5 +1,5 @@
 # L0 — svg/tests
-Hash do Código: ebc29f59
+Hash do Código: 92c1be64
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -111,3 +111,7 @@ target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
 prepared transport, native-target integration and parity slices recorded as
 T1c/T2/T3 are complete only after integrated verification; broken/partial states
 are no production certificate. T4 and publication remain out of scope.
+
+## Nominal hyperlink interaction boundary regression
+
+The before measurement and source/L0 state in `lab/results/remaining-parity-2026-10-22/agents/repeat/link-overflow-source-before.json` establish an actually overflowing painted child that incorrectly inherits the outer URL in emitted SVG. Exercise the exporter through a real Page/Link/translated Group/opaque Shape graph: nominal anchor bounds are(8,8,10,10), while the child's actual paint is at(28,8)–(33,13). Verify that only the nominal hit rectangle descends from that anchor, and that the unchanged painted child remains present before it. This tests hyperlink activation ancestry, rather than declaring arbitrary XML order a language requirement. Productive behavior remains owned exclusively by `00_nucleo/prompts/infra/export/svg/navigation.md`. Preserve prior target/transform/decorative and font tests; no fixture or observer weakening.

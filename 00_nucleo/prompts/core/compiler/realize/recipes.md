@@ -1,12 +1,16 @@
 # L0 — compiler/realize/recipes
-Hash do Código: 993c0bac
+Hash do Código: a0cd5c4a
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
 consumer during materialization.
 
+
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
 
 ## Causal realization evidence and ratification
 
@@ -201,3 +205,165 @@ runtime phase. Source's first-origin and ordinary content mapping remain intact.
 Measurement before decision: realize_children:74–81 currently rewraps every Located root. For the narrow Paged captionless default Block product this would bind an actual Block or its replacement at the original Figure Location; walk.rs:415–467 intentionally skips an already indexed non-Figure/Table alias. Layout::realized::layout at realized.rs:558–576 already registers the immutable prepared original before the actual visual. Caller audit: realize_root:494–502 retains original Located Figure in Realized; its guards-empty path cannot bypass that special empty-rules Figure branch; Table entrypoints descend Figure children through ordinary visit/realize_root; sequences::capture_scope:94–109 admits only Empty/Sequence, not root Located Figure; completed products preserve their originals.
 
 For precisely an existing Located captionless Figure under Paged realization, return its actual default Block realization without rewrapping that product at Figure Location. Keep the surrounding canonical Realized.original unchanged. Full-caption Figure numeric Location transport and all other Located cases retain existing behavior. A replacement product's own Located objects remain exactly as returned; do not force Figure identity onto Strong/Block/other output or broaden canonical alias traversal. No new public API/phase/registry rule. Verify same original label/query Location and page capture plus a normally reached raw Context/nested Figure body, independently of the None-pruning control.
+
+## Deferred physical page-template capture
+
+### Measured boundary and ratification
+
+At the implementation baseline, `recipes.rs:25–38` delegates ordinary child
+visits to the generic preorder mapper; `:73–110` specially coordinates reached
+roots, while SetPage/PageRun remain generic complements. The entity mapper is
+SetPage-opaque and traverses PageRun static fields. Consequently this consumer
+must own the operational interception rather than changing the global catalogue.
+
+The frozen bilateral `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json`
+compares source-bound executables against vanilla commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`: raw SetPage headers/footers
+render but their Figure/Context contributions are absent from productive
+semantic stores; overwritten headers remain inert. Native PageRun already
+prepares raw static fields before knowing physical repetitions, so repeating
+that prepared raw object would incorrectly turn independent insertions into
+aliases. These are language effects, morphology, order and Location/page
+observations, not a requirement to copy upstream mechanics.
+
+The separate `lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json`
+SHA-256 6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05
+refutes freezing creation-time 10pt as insertion styles: the measured header
+uses page-effective 20pt, then inherited page-effective 30pt on the next page.
+Explicit inner header18pt/footer12pt remain binding preservation controls.
+
+The approved review is `lab/results/set-page-header-2026-10-21/review.md`,
+SHA-256 cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039.
+The direct human decision is preserved in
+`lab/results/set-page-header-implementation-2026-10-21/approval.json`.
+It authorizes only the frozen five public facades, opaque carriers and physical
+page phase; it does not authorize additional public contracts or generic
+observer/traversal changes. The implementation baseline is HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`. Exact owning source/L0 bytes,
+SHA-256, UTC and working-tree state before these amendments are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/before.json`.
+
+### Capture and insertion environment
+
+After the parent's/root's show decision permits a reached SetPage, capture raw
+Content in background/header/footer/foreground using the existing immutable
+ShowRecipe (`textual=false`). Capture full lexical rules/guards/file/context-ID
+floor and nearest proven Source; run no descendant, kind preview, Figure
+supplement, closure, counter/state update or Context producer. Omitted, Auto,
+None and explicit Empty retain their distinct fields. Preserve an existing
+captured recipe or prepared Located alias rather than recapturing its environment.
+
+Apply the same boundary to PageRun: capture its four operational templates and
+realize only its ordinary lexical body; retain lexical restoration/configuration
+semantics. Generic maps and ordinary nonoperational recipe behavior are unchanged.
+No inspection clone with cleared semantic fields may be published as a snapshot.
+Any feature-owned interception must stop automatic descent after rebuilding this
+boundary; replacements still prune hidden fields before capture.
+
+Only an actual typed physical request permits later template insertion. Retain
+lexical capture and actual page-effective environment as separate private
+provenance. At that boundary, rebase only the operational ambient capture root
+onto the actual page environment; preserve explicit inner Styled deltas, genuine
+captured local recipe deltas and prepared aliases. Do not install creation10pt
+as insertion style, substitute a last-body style heuristic, collapse raw chains
+or rewrite unrelated ShowRecipe semantics. Existing pending recipe entry/restoration
+remains causal; all borrowed Engine/context state restores on every Result path.
+
+Acceptance requires capture without effects, overridden/hidden inert templates,
+page-effective20/30 and explicit inner18/12, captured local/global rules, sources,
+prepared alias reuse and fresh raw repetitions. Existing Figure/Ref, contextual,
+Table/Cell, textual, termination and HTML contracts remain independently binding.
+
+## Retained actual Context producer witness
+
+Measured recipes.rs:240–248 creates a fresh ContextBlockElem Arc at each raw
+running-template replay although the context-occurrence owner has already
+certified its operator cohort and creation slot. The integrated descendant-query
+RED and exact pre-correction sources are preserved under the physical-page
+implementation's runtime-observation-1 and agents/realization/stable-context-before.
+For the existing instantiating-template branch, delegate construction to the
+context-occurrence owner's private helper: it preserves an immutable producer Arc
+only within a certified running cohort and only for the same retained ID and
+actual owned Func representation. Outside that boundary construction stays fresh.
+Do not execute the closure, compare by function address/name/body/ID, weaken
+observations or equate fresh style carriers. Generated reference producers retain
+the existing exclusion. This changes no public API, recipe order or phase.
+
+## Prepared operational Context transport re-entry
+
+Source-boundary-9 certifies actual request chains20/30, while round8 integrated
+Context execution observes11 because the custom-only capture delta loses its
+ambient chain at L3 collection. The page-running owner defines an authenticated
+passive ShowRecipe over an already prepared Context carrier. Before entering
+realize_pending, recognize only that owner's exact body-local prepared transport
+and return the node unchanged. Its marker must not be recognized by inherited
+StyleChain lookup: fresh captured Table recipes can copy the ambient chain without
+a new head delta. The original operational template marker is not this prepared
+transport and must still execute normally. Preserve all ordinary pending-rule,
+Table/Cell, Source and Context instantiation behavior. No generic observer/map,
+public API or phase changes. Require unchanged integrated style RED controls,
+prepared Context identity on revisit and actual fresh pending products executing
+under inherited metadata.
+
+
+## Guarded paragraph packets retain inline authority (2026-10-22)
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/repeat/inline-paragraph-correction-before.json`
+retains the exact uncommitted source/L0, HEAD, diffstat and UTC before this
+correction. Candidate-8's successful build receipt and archived source identify
+product SHA-256 `339e5a90739470d82799ac70a4841854d24d9950d93f1b1648d4aef9f84d3d42`.
+Its unchanged `composition_show_par_preserves_inline_style_without_extra_paragraph`
+test fails in `candidate-8/validation/tests-domain-infra.log:7901-7914`: two
+emitted Par nodes instead of one. The bilateral receipt
+`agents/repeat/inline-paragraph-before/bilateral/measurement.json.gz` under the
+same result root binds that executable and the ratified oracle to the exact
+source `#show par: set text(fill: red)` followed by
+`alpha *beta gamma* delta`. Product emits three actual PDF text baselines;
+oracle emits one, with the same four words and successful diagnostics-free
+compilation. This is an extra language block boundary, not output-byte parity.
+
+`eval/markup.rs:26-68` evaluates Strong's markup body recursively;
+`eval/markup_stream.rs:333-350` intercepts paragraphs at that nested markup
+frontier as well as the assembled outer flow. The captured packet therefore
+need not be an independent paragraph root. `recipes.rs:501-560` keeps applied
+outer RuleIds active during emitted-child realization. `realize_pending` installs
+both inherited and captured guards before its all-Par preparation branch.
+The newly scoped singleton entry currently wraps even a packet whose entire Par
+recipe set is already guarded, creating the inner block without an eligible
+recipe. The shared RuleId revocation contract supplies the causal distinction;
+style fields, names, numeric values or text equality do not.
+
+### Bounded correction and acceptance
+
+For a nonempty exclusively Par-rule packet, establish a scoped singleton flow
+only when at least one of its captured Par RuleIds remains unguarded in the
+installed causal environment. If every captured Par recipe is guarded, retain
+the preexisting `realize_node` preparation, which leaves singleton Text inline
+while preserving existing authored Sequence, Par, container and Source handling.
+Then coordinate the result through the same realization path and restore all
+lexical state as before. Explicit Par remains an authored boundary; no rule is
+removed, guard weakened, callback replayed or product swallowed. Genuine root
+packets with eligible recipes retain the corrected scoped singleton entry.
+
+The existing realization owner remains sole owner of both transformations; the
+eval rules hub may reexport its existing crate-private `realize_node` beside
+`realize_paragraphs` solely for this delegation. Add no public signature, field,
+flag, phase, global state or second paragraph algorithm. Preserve the unchanged
+inline regression, the four singleton/frontier controls, original paragraph
+identity/function/product-effect tests and local recipe/guard controls. Recheck
+actual bilateral text/baselines, complete suites, strict Clippy/rustdoc, raw
+parity, hashes and lineage without suppressions or changed tolerances.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+Measured symbol-render-v2-before/receipt.json and pinned typst-realize/src/lib.rs:242-260,317-345 show the kind-dependent boundary precedes native show rules: outside math convert direct/source-wrapped Symbol to Text before root rules and textual grouping; inside math retain Symbol and apply textual regex per element before native element rules. Preserve source spans, wrappers, guards and existing realization order without phase migration. Adjacent textual runs may span the converted symbol.
+
+Actual math depth excludes textual grouping of adjacent elements (including Symbol), preserving the measured per-element regex rule. Outside math, normalize selected Symbol to Text before existing grouping so compatible adjacent text/symbol/text captures can match one regex.

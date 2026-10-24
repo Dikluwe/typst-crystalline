@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_flush.md
-//! @prompt-hash e4fd1dab
+//! @prompt-hash bf90ec1b
 //! @layer L1
-//! @updated 2026-07-23
+//! @updated 2026-10-24
 //!
 //! Flush dos footnote bodies pendentes (`flush_pending_footnote_bodies`):
 //! greedy measure-then-fit, defer cross-page, aviso quando o body excede
@@ -18,12 +18,36 @@ use super::helpers::{item_pos, translate_frame_item};
 use super::metrics::FontMetrics;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    pub(super) fn drain_pending_footnotes(
+        &mut self,
+        bottom_y: Option<f64>,
+        certified_only: bool,
+    ) {
+        let mut stalled = false;
+        while !self.pending_footnote_bodies.is_empty()
+            && (!certified_only
+                || self
+                    .pending_footnote_frames
+                    .first()
+                    .and_then(Option::as_ref)
+                    .is_some_and(|frame| frame.source_lines))
+        {
+            let before =
+                super::footnote_fragments::pending_work(&self.pending_footnote_frames);
+            self.new_page();
+            self.flush_footnote_region(bottom_y, stalled);
+            let after =
+                super::footnote_fragments::pending_work(&self.pending_footnote_frames);
+            stalled = after >= before;
+        }
+    }
+
     /// **P304 (P295.1)** — flush dos footnote bodies pendentes no
     /// rodapé da página actual. Cada body é layoutado num sub-frame
     /// (`layout_sub_frame`) e posicionado em Y absoluto
     /// bottom-up: a primeira footnote fica imediatamente acima do
     /// limite inferior `page_h - margin`, a segunda abaixo dela, etc.
-    /// Marker `[N]: ` prepende cada body para identificação.
+    /// O marcador formatado da chamada prepende cada body para identificação.
     ///
     /// **P305 (P295.2)** — overflow multi-página: bodies que não
     /// cabem no espaço disponível ficam no buffer; próximo
@@ -44,13 +68,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `#columns()` devem ser empilhadas abaixo do conteúdo, não no fundo
     /// da página).
     pub(super) fn flush_pending_footnote_bodies(&mut self, bottom_y: Option<f64>) {
+        self.flush_footnote_region(bottom_y, false);
+    }
+
+    pub(super) fn advance_footnote_region(&mut self, force: bool) {
+        if force
+            && self.current_page_is_empty()
+            && !self.pending_footnote_bodies.is_empty()
+        {
+            self.flush_footnote_region(None, true);
+        }
+        self.new_page();
+    }
+
+    fn flush_footnote_region(&mut self, bottom_y: Option<f64>, terminal_force: bool) {
         use crate::entities::content::Content;
         if self.pending_footnote_bodies.is_empty() {
             return;
         }
         let saved_link_scopes = self.pause_link_items();
-        let bodies: Vec<(u32, Box<Content>)> =
+        let bodies: Vec<(u32, Box<Content>, Content)> =
             std::mem::take(&mut self.pending_footnote_bodies);
+        let mut plans = std::mem::take(&mut self.pending_footnote_plans);
+        plans.resize(bodies.len(), None);
+        let mut frames = std::mem::take(&mut self.pending_footnote_frames);
+        frames.resize(bodies.len(), None);
         let margin = self.page_config.margin;
         let page_w = self.regions.current.width;
         let page_h = self.regions.current.height;
@@ -74,31 +116,65 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o texto ainda não flushado para current_items também ocupa
         // espaço; ignorá-lo faz a nota sobrepor o conteúdo principal
         // (especialmente em colunas).
-        let item_top_y = |it: &FrameItem| match it {
-            FrameItem::TextSeparator { .. } => 0.0,
-            FrameItem::Text { pos, .. } => pos.y.0,
-            FrameItem::TextShaped { pos, .. } => pos.y.0,
-            FrameItem::Line { start, .. } => start.y.0,
-            FrameItem::Glyph { pos, .. } => pos.y.0,
-            FrameItem::Image { pos, .. } => pos.y.0,
-            FrameItem::Shape { pos, .. } => pos.y.0,
-            FrameItem::Group { pos, .. } => pos.y.0,
-            FrameItem::Link { .. } => 0.0,
-            FrameItem::TextReplacement { items, .. }
-            | FrameItem::Semantic { items, .. } => items
-                .iter()
-                .map(|child| crate::compiler::layout::helpers::item_pos(child).1)
-                .fold(0.0, f64::max),
+        let item_top_y = |it: &FrameItem| {
+            if super::html_frame::is_context_marker_only_tree(it) {
+                return 0.0;
+            }
+            match it {
+                FrameItem::TextSeparator { .. } => 0.0,
+                FrameItem::Text { pos, .. } => pos.y.0,
+                FrameItem::TextShaped { pos, .. } => pos.y.0,
+                FrameItem::Line { start, .. } => start.y.0,
+                FrameItem::Glyph { pos, .. } => pos.y.0,
+                FrameItem::Image { pos, .. } => pos.y.0,
+                FrameItem::Shape { pos, .. } => pos.y.0,
+                FrameItem::Group { pos, .. } => pos.y.0,
+                FrameItem::Link { .. } => 0.0,
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. } => items
+                    .iter()
+                    .map(|child| crate::compiler::layout::helpers::item_pos(child).1)
+                    .fold(0.0, f64::max),
+            }
         };
-        let top_safe = self
-            .regions
-            .current
-            .current_items
-            .iter()
-            .map(item_top_y)
-            .chain(self.regions.current.current_line.iter().map(item_top_y))
-            .fold(margin.top, f64::max)
-            .max(self.regions.current.cursor_y.0);
+        // A prepared baseline on a fresh physical page occupies no note area.
+        // Keep explicit spacing and causal blank lines distinct from that state.
+        let unused_physical_baseline = !self.is_sub_frame
+            && !super::html_frame::items_have_causal_line(
+                &self.regions.current.current_items,
+            )
+            && !super::html_frame::items_have_causal_line(
+                &self.regions.current.current_line,
+            )
+            && self.flow_placement_end.is_none()
+            && self.last_flush_advance == 0.0
+            && self.regions.current.cursor_y.0
+                == margin.top + self.line_assumed_ascent.unwrap_or(0.0);
+        let flow_bottom = if frames
+            .first()
+            .and_then(Option::as_ref)
+            .is_some_and(|frame| frame.source_lines)
+            && !super::html_frame::items_have_causal_line(
+                &self.regions.current.current_line,
+            ) {
+            self.flow_placement_end
+                .map(|(end, _)| end)
+                .unwrap_or(self.regions.current.cursor_y.0)
+        } else {
+            self.regions.current.cursor_y.0
+        };
+        let top_safe = if unused_physical_baseline {
+            margin.top
+        } else {
+            self.regions
+                .current
+                .current_items
+                .iter()
+                .map(item_top_y)
+                .chain(self.regions.current.current_line.iter().map(item_top_y))
+                .fold(margin.top, f64::max)
+                .max(flow_bottom)
+        };
         let available_h = (area_bot - top_safe).max(0.0);
 
         // P305 — greedy measure-then-fit. Bodies que cabem ficam
@@ -119,17 +195,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             Vec<super::PendingAlignYEntry>,
         )> = Vec::new();
         let mut acc_h = 0.0_f64;
-        let mut remainder: Vec<(u32, Box<Content>)> = Vec::new();
+        let mut separator_size = None;
+        let mut continuation_anchor = false;
+        let mut entry_gaps = Vec::new();
+        let mut remainder: Vec<(u32, Box<Content>, Content)> = Vec::new();
         let mut overflow = false;
-        for (n, body) in bodies.into_iter() {
-            if overflow {
-                remainder.push((n, body));
+        let mut remainder_plans = Vec::new();
+        let mut remainder_frames = Vec::new();
+        let region =
+            (self.pages.len(), self.current_column, self.segmented_par_line_column);
+        for (((n, body, prefix), planned), captured) in
+            bodies.into_iter().zip(plans).zip(frames)
+        {
+            let blocked = captured
+                .as_ref()
+                .is_some_and(|frame| frame.deferred_region == Some(region));
+            if overflow || blocked {
+                overflow = true;
+                remainder.push((n, body, prefix));
+                remainder_plans.push(planned);
+                remainder_frames.push(captured);
                 continue;
             }
-            let combined = Content::sequence(vec![
-                Content::text(format!("[{}] ", n)),
-                (*body).clone(),
-            ]);
+            let pass_before = self.page_running_pass.clone();
+            let captures_before = self.position_captures.len();
+            let nested_bodies_before = self.pending_footnote_bodies.len();
+            let nested_plans_before = self.pending_footnote_plans.len();
             // P772g (encerra achado B de P772f) — origin_x real (`left_x`,
             // não 0.0): esta emissão é um "consumidor absoluto" de
             // `layout_sub_frame` (ver 00_nucleo/prompts/core/compiler/layout/mod.md
@@ -139,36 +230,125 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // origin_x=0.0 e depois somasse `target_x=left_x` inteiro a
             // todos os itens (como acontecia antes), a origem seria somada
             // duas vezes para o `Place` aninhado.
-            let (h, items, deco, orphaned_x, orphaned_y) = self.layout_sub_frame(
-                &combined,
-                super::sub_frame::SubLayoutRegion {
-                    origin_x: left_x,
-                    width: avail_w,
-                    height: None,
-                    align_rtl: true,
-                    unconstrained_height: true,
-                },
-            );
-            let fits = acc_h + h <= available_h;
-            // Defensive: primeiro body emite mesmo se > available_h SE
-            // body > full_avail (não fits em nenhuma página).
-            let force_emit = measured.is_empty() && h > full_avail;
+            let already_captured = captured.is_some();
+            let frame = captured.unwrap_or_else(|| {
+                self.capture_footnote_frame(&prefix, &body, planned.clone())
+            });
+            let clearance = if measured.is_empty() { frame.outer_size.0 } else { 0.0 };
+            // ref: lab/typst-original/crates/typst-library/src/model/footnote.rs:288
+            let gap = frame.outer_size.0 * 0.5;
+            let overhead = clearance + gap;
+            let continuation =
+                frame.source_lines && frame.line_continuation && unused_physical_baseline;
+            let remaining = if continuation {
+                (full_avail - acc_h).max(0.0)
+            } else {
+                (available_h - acc_h - overhead).max(0.0)
+            };
+            if frame.height <= remaining {
+                continuation_anchor |= continuation;
+                if measured.is_empty() {
+                    separator_size = Some(frame.outer_size);
+                }
+                entry_gaps.push(gap);
+                acc_h += overhead + frame.height;
+                measured.push((
+                    frame.height,
+                    frame.items,
+                    frame.deco,
+                    frame.orphaned_x,
+                    frame.orphaned_y,
+                ));
+                continue;
+            }
+            let frame = if already_captured {
+                match super::footnote_fragments::split_frame(frame, remaining, full_avail)
+                {
+                    Ok((head, mut tail)) => {
+                        continuation_anchor |= continuation;
+                        tail.deferred_region = Some(region);
+                        if measured.is_empty() {
+                            separator_size = Some(head.outer_size);
+                        }
+                        entry_gaps.push(gap);
+                        acc_h += overhead + head.height;
+                        measured.push((
+                            head.height,
+                            head.items,
+                            head.deco,
+                            head.orphaned_x,
+                            head.orphaned_y,
+                        ));
+                        overflow = true;
+                        remainder.push((n, body, prefix));
+                        remainder_plans.push(planned);
+                        remainder_frames.push(Some(tail));
+                        continue;
+                    }
+                    Err(frame) => *frame,
+                }
+            } else {
+                frame
+            };
+            if frame.source_lines
+                && !frame.line_continuation
+                && unused_physical_baseline
+                && measured.is_empty()
+            {
+                let mut frame = frame;
+                if self.page_column_notes
+                    && self
+                        .page_columns
+                        .is_some_and(|count| self.current_column + 1 < count)
+                {
+                    frame.deferred_region = Some(region);
+                    overflow = true;
+                    remainder.push((n, body, prefix));
+                    remainder_plans.push(planned);
+                    remainder_frames.push(Some(frame));
+                    continue;
+                }
+                frame.line_continuation = true;
+                frame.deferred_region = Some(region);
+                separator_size = Some(frame.outer_size);
+                acc_h += overhead;
+                overflow = true;
+                remainder.push((n, body, prefix));
+                remainder_plans.push(planned);
+                remainder_frames.push(Some(frame));
+                continue;
+            }
+            let force_emit = measured.is_empty()
+                && ((!frame.source_lines && frame.height > full_avail) || terminal_force);
             if force_emit {
-                // **P595** — body maior do que a página/coluna inteira:
-                // emite-se para evitar loop infinito, mas o utilizador
-                // deve ser avisado de que o conteúdo pode ser truncado
-                // ou sobreposto.
                 self.layout_warnings.push(format!(
                     "footnote body [{}] exceeds available column/page height and may be truncated or overlap content",
                     n
                 ));
-            }
-            if fits || force_emit {
-                acc_h += h;
-                measured.push((h, items, deco, orphaned_x, orphaned_y));
+                if measured.is_empty() {
+                    separator_size = Some(frame.outer_size);
+                }
+                entry_gaps.push(gap);
+                acc_h += overhead + frame.height;
+                measured.push((
+                    frame.height,
+                    frame.items,
+                    frame.deco,
+                    frame.orphaned_x,
+                    frame.orphaned_y,
+                ));
             } else {
+                if !already_captured {
+                    self.page_running_pass = pass_before;
+                    self.position_captures.truncate(captures_before);
+                    self.pending_footnote_bodies.truncate(nested_bodies_before);
+                    self.pending_footnote_plans.truncate(nested_plans_before);
+                    self.pending_footnote_frames.truncate(nested_plans_before);
+                }
                 overflow = true;
-                remainder.push((n, body));
+                remainder.push((n, body, prefix));
+                remainder_plans.push(planned);
+                remainder_frames.push(already_captured.then_some(frame));
             }
         }
 
@@ -179,12 +359,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_y absoluto exacto (não baseline), subtrair ascender
         // do offset de translação — paridade pattern `emit_deferred_float`
         // (P245) + `layout_place` (placement.rs).
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
+
         // P305 — clamp Y inicial ao top_safe para evitar overlap em
         // defensive emit (body > full_avail). Se acc_h ≤ available_h,
         // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).
-        let mut y_cursor = (area_bot - acc_h).max(top_safe);
-        for (h, items, deco, orphaned_x, orphaned_y) in measured {
+        let mut y_cursor = if continuation_anchor {
+            area_bot - acc_h
+        } else {
+            (area_bot - acc_h).max(top_safe)
+        };
+        if let Some(size) = separator_size {
+            y_cursor += size.0;
+            // ref: lab/typst-original/crates/typst-library/src/model/footnote.rs:259
+            let thickness = size.0 * 0.05;
+            self.regions.current.current_items.push(FrameItem::Line {
+                start: Point { x: Pt(left_x), y: Pt(y_cursor) },
+                end: Point { x: Pt(left_x + avail_w * 0.3), y: Pt(y_cursor) },
+                thickness,
+                color: Some(crate::entities::color::Color::rgb(0, 0, 0)),
+                cap: crate::entities::geometry::LineCap::Butt,
+            });
+        }
+        for ((h, items, deco, orphaned_x, orphaned_y), gap) in
+            measured.into_iter().zip(entry_gaps)
+        {
+            y_cursor += gap;
             // **P908** — `target_y_logical` (pré-ascender) rebaseia
             // `origin_y`/`applied_y` das entradas órfãs (quantidades sem
             // ascender embutido — mesma distinção física-vs-lógica de
@@ -193,7 +392,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // (pós-subtracção) só é correcto para os `FrameItem`s reais
             // abaixo, cujo `pos.y` já é baseline.
             let target_y_logical = y_cursor;
-            let target_y = y_cursor - ascender.0;
+            let target_y = y_cursor;
             // P772g — sub-frame já iniciado em `left_x` (não 0.0, ver acima),
             // logo os itens "normais" já vêm absolutos em x; footnotes não
             // têm alinhamento horizontal próprio (sempre ancoradas a
@@ -401,6 +600,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         start_x: Pt(target_x + seg.start_x.val()),
                         end_x: Pt(target_x + seg.end_x.val()),
                         baseline_y: Pt(target_y + seg.baseline_y.val()),
+                        piece_line: seg.piece_line,
                     });
                 }
             }
@@ -411,7 +611,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // próxima página. `new_page()` chama este método; iteração
         // automática até buffer vazio. `finish()` itera explicitamente
         // via loop com new_page() se buffer não-vazio pós-flush final.
+        remainder.append(&mut self.pending_footnote_bodies);
+        remainder_plans.append(&mut self.pending_footnote_plans);
+        remainder_frames.append(&mut self.pending_footnote_frames);
         self.pending_footnote_bodies = remainder;
+        self.pending_footnote_plans = remainder_plans;
+        self.pending_footnote_frames = remainder_frames;
+        self.footnote_reserved_height = 0.0;
         self.resume_link_items(saved_link_scopes);
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
-//! @prompt-hash ad7423e0
+//! @prompt-hash 47dfafc4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -43,7 +43,7 @@ fn caption_content_value(value: &Value, span: Span) -> SourceResult<Content> {
             }),
         )),
         Value::Str(text) => Ok(Content::text(text.as_str())),
-        Value::Symbol(symbol) => Ok(Content::text(symbol.value.clone())),
+        Value::Symbol(symbol) => Ok(Content::Symbol(symbol.value.clone())),
         Value::None => Ok(Content::Empty),
         other => Err(vec![SourceDiagnostic::error(
             span,
@@ -65,7 +65,7 @@ pub fn native_figure(
         Some(Value::Content(c)) => c.clone(),
         Some(Value::LocatedContent(c, _)) => c.content().clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(Value::Symbol(s)) => Content::text(s.value.clone()),
+        Some(Value::Symbol(s)) => Content::Symbol(s.value.clone()),
         Some(Value::None) => Content::Empty,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -88,7 +88,7 @@ pub fn native_figure(
         Some(Value::Content(c)) => Some(c.clone()),
         Some(Value::LocatedContent(c, _)) => Some(c.content().clone()),
         Some(Value::Str(s)) => Some(Content::text(s.as_str())),
-        Some(Value::Symbol(s)) => Some(Content::text(s.value.clone())),
+        Some(Value::Symbol(s)) => Some(Content::Symbol(s.value.clone())),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 value_span(Some("caption")),

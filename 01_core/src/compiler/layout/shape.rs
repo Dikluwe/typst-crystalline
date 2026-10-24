@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape.md
-//! @prompt-hash a0b1e89c
+//! @prompt-hash 8504cb61
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -278,6 +278,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         layouter.regions.current.cursor_y += Pt(resolved_h);
     }
+    layouter.record_flow_baseline(None);
     layouter.record_flow_placement_end(shape_base.0 + resolved_h);
     layouter.record_flow_width_at(pos.x.0, resolved_w);
 }

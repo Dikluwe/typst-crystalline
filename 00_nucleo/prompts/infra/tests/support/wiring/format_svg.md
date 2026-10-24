@@ -1,5 +1,5 @@
 # L0 — infra/tests/support/wiring/format_svg
-Hash do Código: 0e5d8532
+Hash do Código: 60872586
 
 **Layer:** L3, test-only.
 **Exclusive consumer:** `03_infra/tests/support/wiring/format_svg.rs`.
@@ -84,3 +84,23 @@ the aggregate and requires empty failures, with its unchanged suite-specific
 prefix/message join. Existing expect_json checks status, stderr and stdout in
 the same order, retaining legitimate per-suite differences. Never ignore failures
 or change trimming, strings or tolerances.
+
+
+## Numeric SVG page artifact reader (2026-10-22)
+
+The exact C9 RED wiring evidence and before-source inventory are retained in
+`lab/results/remaining-parity-2026-10-22/agents/repeat/svg-pages-harness-before.json`
+and `candidate-9/validation/tests-wiring.log:341-365` under the same results root.
+The independent L4 serialization scenario must consume the approved CLI's full
+numbered SVG output rather than a nonexistent literal multipage path.
+
+Own a test-private filesystem reader receiving the fresh output directory.
+Inspect every SVG file there; require canonical positive numeric names
+`main-N.svg`, no nonnumeric SVG, no duplicate page index, nonempty output and
+contiguous indexes beginning at one. Read all bytes in numeric physical order;
+propagate directory/file/name/coverage errors without truncation, fallback or
+first-page selection. Add only a restricted `pub(super)` helper, never a
+production-library reexport. Keep TempDir/Checks bodies, errors, cleanup and
+success policy unchanged. XML/pretty/canonical and independent PDF page-count
+acceptance remain the L4 scenario owner's responsibility. Preserve all existing
+suite expectations and no production API/phase/default/tolerance changes.

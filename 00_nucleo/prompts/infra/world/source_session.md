@@ -1,5 +1,5 @@
 # L0 — infra/system-world/source_session
-Hash do Código: 0b4baa9c
+Hash do Código: d619ab61
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
@@ -62,3 +62,28 @@ resources and unchanged controls; workspace suite/all-target Clippy/build/Rustdo
 fmt/lineage, scoped resealing. No default-value changes or new_without_default
 suppression. Original package provenance is archived in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/infra/world/source_session.md`.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+
+## Approved World metadata integration controls
+
+The approved metadata proposal is pinned in `lab/results/world-metadata-errors-2026-10-22/approval.json`. Healthy dependency results and directory/path lookup fixtures must explicitly require successful Result acquisition while retaining all existing content, identity, source-session and dependency assertions. Test registry and slot poison without catching production panics or reusing poisoned state; assert exact existing FileError errors, unknown-id versus poison distinction, no mutation, and no silent root/empty-graph fallback. Record an actual runtime RED before changing implementations. No other public API, phase, flag or diagnostic policy change is authorized.

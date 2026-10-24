@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/html.md
-//! @prompt-hash d52a08d3
+//! @prompt-hash ae8d50ab
 //! @layer L1
 
 use std::sync::Arc;
@@ -1028,7 +1028,7 @@ mod p1471_tests {
 
     fn world() -> TestWorld {
         TestWorld {
-            source: Source::detached(""),
+            source: Source::detached("").expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         }

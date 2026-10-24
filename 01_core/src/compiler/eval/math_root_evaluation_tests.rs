@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math_root_evaluation_tests.md
-//! @prompt-hash 00d2cb18
+//! @prompt-hash 2dcf8af5
 //! @layer L1
 #![cfg(test)]
 //!
@@ -25,7 +25,7 @@ impl TestWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id, text.to_string()),
+            source: Source::new(id, text.to_string()).expect("valid Source test fixture"),
         }
     }
 }
@@ -90,6 +90,7 @@ fn find_root(
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

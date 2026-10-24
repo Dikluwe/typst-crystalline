@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/rust_hash.md
-//! @prompt-hash 72e25ee1
+//! @prompt-hash a7632e40
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -49,6 +49,7 @@ impl std::hash::Hash for Content {
             | Self::Link(..)
             | Self::Equation(..)
             | Self::MathSequence(..)
+            | Self::Symbol(..)
             | Self::MathIdent(..)
             | Self::MathText(..)
             | Self::MathFrac(..)

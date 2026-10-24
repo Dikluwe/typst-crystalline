@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/tests.md
-//! @prompt-hash 272a2aea
+//! @prompt-hash 17cfe645
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -1635,4 +1635,47 @@ fn prepared_nested_cells_keep_resources_and_drop_decorative_links() {
     assert!(svg.contains("fill=\"url(#p1)\""));
     assert!(!svg.contains("<a ") && !svg.contains("example.invalid"));
     assert!(!svg.contains("data-crystalline-fill-fallback"));
+}
+
+#[test]
+fn svg_link_overflow_keeps_visual_ink_outside_nominal_anchor() {
+    let visual = FrameItem::Group {
+        paint_root: false,
+        pos: Point { x: Pt(8.0), y: Pt(8.0) },
+        matrix: TransformMatrix::translate(20.0, 0.0),
+        clip_mask: None,
+        inner_width: 5.0,
+        inner_height: 5.0,
+        items: vec![FrameItem::Shape {
+            pos: Point::ZERO,
+            kind: ShapeKind::Rect,
+            width: 5.0,
+            height: 5.0,
+            fill: Some(Paint::Solid(Color::rgb(255, 0, 0))),
+            stroke: None,
+            fill_rule: Default::default(),
+            parent_bbox_at_emit: None,
+        }],
+    };
+    let page = p1227_page(vec![FrameItem::Link {
+        target: LinkTarget::Url("https://example.org/outer".into()),
+        items: vec![visual],
+        pos: Point { x: Pt(8.0), y: Pt(8.0) },
+        size: Size { width: Pt(10.0), height: Pt(10.0) },
+    }]);
+    let svg = export_svg(&page, &SvgOptions::default());
+    assert_eq!(svg.matches("<a ").count(), 1);
+    let start = svg.find("<a ").expect("the nominal hyperlink must remain");
+    let anchor = svg[start..].split("</a>").next().expect("closed anchor");
+    assert!(anchor.contains("xlink:href=\"https://example.org/outer\""));
+    assert!(anchor.contains("x=\"8\" y=\"8\" width=\"10\" height=\"10\""));
+    assert!(anchor.contains("data-crystalline-link-hit-area=\"true\""));
+    assert!(
+        !anchor.contains("fill=\"#ff0000\""),
+        "opaque overflow must not activate the outer URL through SVG ancestry: {svg}"
+    );
+    assert!(
+        svg[..start].contains("fill=\"#ff0000\""),
+        "overflow paint must survive outside the anchor"
+    );
 }

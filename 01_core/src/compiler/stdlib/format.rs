@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/format.md
-//! @prompt-hash 0ec122c0
+//! @prompt-hash 90bbaaf8
 //! @layer L1
 //! @updated 2026-09-20
 
@@ -304,7 +304,7 @@ mod p1471_tests {
 
     fn world() -> TestWorld {
         TestWorld {
-            source: Source::detached(""),
+            source: Source::detached("").expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         }

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/space.md
-//! @prompt-hash 7221b849
+//! @prompt-hash 00e27e8d
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use super::{html_frame, FontMetrics, ImageSizer, Layouter};
 
@@ -13,6 +13,7 @@ pub(super) fn advance<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     origin: TextSeparatorOrigin,
 ) {
+    let literal_break = std::mem::take(&mut layouter.literal_script_break_pending);
     let style = if origin == TextSeparatorOrigin::Literal {
         layouter.style.clone()
     } else {
@@ -21,6 +22,7 @@ pub(super) fn advance<M: FontMetrics, S: ImageSizer>(
     let width = super::text_measure::space(&layouter.metrics, &style);
     if html_frame::items_have_material(&layouter.regions.current.current_line)
         || origin == TextSeparatorOrigin::Literal
+        || literal_break
     {
         layouter.regions.current.cursor_x += layouter
             .text_tracking_state
@@ -64,7 +66,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     // Não criar linha nem baseline por espaços iniciais de markup.
     if !duplicate_weak
-        && html_frame::items_have_material(&layouter.regions.current.current_line)
+        && (html_frame::items_have_material(&layouter.regions.current.current_line)
+            || layouter.literal_script_break_pending)
     {
         advance(layouter, origin);
         if !matches!(
@@ -73,7 +76,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         ) && layouter.regions.current.cursor_x.0
             > super::paragraph_indent::bounds(layouter).1
         {
+            let had_causal_line = html_frame::items_have_causal_line(
+                &layouter.regions.current.current_line,
+            );
             layouter.flush_line();
+            if had_causal_line && layouter.last_block_descent_y.is_none() {
+                // A trailing weak separator can close the final real line.
+                // Keep its causal bottom, not the predicted next baseline.
+                layouter.last_block_descent_y = Some(layouter.prev_line_baseline);
+            }
         }
     }
     layouter.text_bidi = previous_span;

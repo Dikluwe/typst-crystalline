@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 8d534ae8
+//! @prompt-hash 22c6a9f6
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -649,6 +649,7 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -766,7 +767,10 @@ fn declared_content_field_access(
 fn is_matrix_or_cell_content(content: &crate::entities::content::Content) -> bool {
     use crate::entities::content::Content;
     match content {
-        Content::MathMatrix(_) | Content::TableCell(_) => true,
+        Content::MathMatrix(_)
+        | Content::TableCell(_)
+        | Content::MathVec(_)
+        | Content::MathCases(_) => true,
         Content::Located(e) => is_matrix_or_cell_content(&e.body),
         Content::Source(e) => is_matrix_or_cell_content(&e.body),
         Content::ShowRecipe(e) => is_matrix_or_cell_content(&e.body),
@@ -790,6 +794,7 @@ fn is_matrix_or_cell_content(content: &crate::entities::content::Content) -> boo
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -810,12 +815,10 @@ fn is_matrix_or_cell_content(content: &crate::entities::content::Content) -> boo
         | Content::MathOvershell(..)
         | Content::MathAlignPoint(..)
         | Content::Linebreak(..)
-        | Content::MathCases(..)
         | Content::MathAccent(..)
         | Content::MathCancel(..)
         | Content::MathUnderline(..)
         | Content::MathOverline(..)
-        | Content::MathVec(..)
         | Content::MathClassOverride(..)
         | Content::MathLimitsOverride(..)
         | Content::MathUnderover(..)
@@ -988,7 +991,7 @@ mod builtin_module_identity_tests {
     }
     fn world(text: &str) -> TestWorld {
         TestWorld {
-            source: Source::detached(text),
+            source: Source::detached(text).expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         }

@@ -1,9 +1,12 @@
 # L0 — compiler/stdlib/structural/math/cases
-Hash do Código: 406a641b
+Hash do Código: 7c67daff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/cases.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 ## Measurement before decision
 
@@ -20,3 +23,11 @@ Own the delimiter cast shared by cases and matrix. Accept none, a single valid d
 ## Acceptance
 
 The P1430 regression filter and full core suite remain green. A local regression verifies that a closing delimiter maps to its opening partner and retains its side. `cargo build` and `crystalline-lint .` have no new blocking violations. Header ownership is 1:1. No speedup is claimed without separate measurement.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

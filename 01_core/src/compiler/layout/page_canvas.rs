@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_canvas.md
-//! @prompt-hash 417f6259
+//! @prompt-hash 781ca461
 //! @layer L1
 //!
 //! Composição isolada dos layers decorativos da página (ADR-0109 forma B).
@@ -20,21 +20,32 @@ pub(super) fn layout_layer<M: FontMetrics, S: ImageSizer>(
     bleed: PageBleed,
     trim_width: f64,
     trim_height: f64,
+    slot: super::PageRunningSlot,
 ) -> Vec<FrameItem> {
     let Some(content) = content else { return vec![] };
     let canvas_width = trim_width + bleed.horizontal();
     let canvas_height = trim_height + bleed.vertical();
     let saved_link_scopes = std::mem::take(&mut layouter.link_capture.active);
-    let (_, items, _, _, _) = layouter.layout_sub_frame(
-        content,
-        SubLayoutRegion {
-            origin_x: 0.0,
-            width: canvas_width,
-            height: Some(canvas_height),
-            align_rtl: false,
-            unconstrained_height: false,
-        },
-    );
+    let region = SubLayoutRegion {
+        origin_x: 0.0,
+        width: canvas_width,
+        height: Some(canvas_height),
+        align_rtl: false,
+        unconstrained_height: false,
+    };
+    let items = if layouter.page_running_pass.is_some() {
+        let rect = crate::entities::layout_types::Rect {
+            x: Pt(-bleed.left),
+            y: Pt(-bleed.top),
+            w: Pt(canvas_width),
+            h: Pt(canvas_height),
+        };
+        layouter.running_content(slot, rect).map_or_else(Vec::new, |body| {
+            layouter.layout_running_sub_frame(&body, slot, region)
+        })
+    } else {
+        layouter.layout_sub_frame(content, region).1
+    };
     layouter.link_capture.active = saved_link_scopes;
     vec![FrameItem::Group {
         paint_root: false,

@@ -1,10 +1,6 @@
 # L0 — Query parsing, summaries and located results
-Hash do Código: c5f39b73
+Hash do Código: a52d6aa3
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/query_helpers.rs`
@@ -13,6 +9,13 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 ```
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Current evidence
 
@@ -219,3 +222,31 @@ new approximation or close list/enum language parity. Preserve all existing
 tests and diagnostics, validate ownership/Nuclei before scoped resealing, and
 require focused/full tests, all-target build, strict Clippy/Rustdoc, formatting,
 path and forward/reverse lineage gates plus the complete lint delta.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: be7de2de
+Hash do Código: 66731837
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -222,3 +222,161 @@ require exactly one full `Figure 1: legenda` caption and the exact visible suffi
 `Figura 1`. This preserves the explicit override and both exact numbers, rejects
 `Figura 10`, and retains empty layout errors. No source fixture or production
 behavior changes; nonwhitespace characters and their order remain untouched.
+
+
+## Measured Repeat test correction — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/nested-fractions-repeat-2026-10-21/core-interim-red/receipt.json.gz`
+preserves UTC `2026-10-22T01:40:02.778850+00:00`–`2026-10-22T01:42:27.009317+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, exact changed-file
+stat, all frozen input hashes, full Cargo command/log and `changed_inputs=[]`.
+The actual full-core run has 7810 passes, four assertion failures and five
+preexisting ignored tests. These two old Repeat expectations are among its
+explicit failures; no test deletion, ignore or tolerance change follows.
+
+Bilateral `repeat-before/measurement.json.gz` in that result root (SHA-256
+`e6d3c085c28062ad22fdb3b1575108d3a778842a50bf0e5c7fa8381b445e88e0`)
+records UTC `2026-10-22T01:15:47.337768+00:00`–`2026-10-22T01:16:29.201630+00:00`,
+the same HEAD, exact dirty state and inputs, baseline product SHA-256
+`94208ba4526d7bda97d4519aa8eb12212bd13dc1f8932552f235940e73238485`,
+and ratified vanilla commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Observable body content, typed payload, defaults and accepted arguments are
+language requirements; the candidate's wrapper depth is mechanics under
+ADR-0107. This correction follows ADR-0108 and ADR-0127 continuous flow.
+
+### Scoped correction and acceptance
+
+The old `layout_repeat_renderiza_body_no_contexto_actual` test at
+`01_core/src/compiler/layout/tests.rs:8688–8695` searches only page-root Text
+items and reports zero after the corrected Repeat places complete prepared
+frames. The new independent Repeat tests pass in the same full-core receipt,
+and bilateral root-prefix/multiline witnesses establish repeated visible
+content rather than single-inline mechanics. Existing
+`frame_items_recursive` at this consumer's lines678–743 already composes each
+ancestor Group position/matrix and descends transparent semantic wrappers;
+`document_frame_items` at lines973–978 applies it to every body page.
+
+Use that established observer for the same `repeat[X]` fixture, preserving
+the exact existing `count_x >= 1` Text assertion. Rename/comment the test for
+its current complete-frame language obligation; do not demand flat output or
+change source, metrics, page configuration, count threshold or tolerance.
+No observer helper, productive behavior or unrelated test is authorized by
+this correction. Run the owned test and the full core gate; do not call the
+prior flat-observer failure a new productive language regression.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+
+## Weak pagebreak parity correction — 2026-10-23
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/baseline.json` binds the uncommitted source/L0/config state to HEAD, dirty stat and UTC; `before/receipt.json` binds both verified executables, inputs, commands and observations. `pagebreak.rs:21-58` ignores weak and always requests transitions; `finish.rs:103-106` requires the newly opened page unless it is a PageRun boundary. `page_run.rs:126-131` unconditionally closes its body. The pinned source `lab/typst-original/crates/typst-library/src/layout/page.rs:554-557` explicitly defines skipping weak breaks on empty pages; its tests `tests/suite/layout/pagebreak.typ:15-24,61-76` document weak/material distinctions. Initial, repeated, terminal and strong/weak controls plus parity and explicit PageRun probes distinguish language intent from mechanics. Page membership, content and geometry are observables; the private successor flag is a chosen mechanism. The inference that an optional successor suffices is refuted by lost notes/placed content, changed strong/parity empties, or leaked rollback state.
+
+### Decision and exclusive responsibility
+
+Add semantic regression tests for weak pagebreak page membership: terminal/initial/repeated breaks, strong combinations, parity-directed breaks, explicit PageRun boundaries including empty bodies, placed content, notes, running decorations, and flow-suffix checkpoint restoration. Tests assert language-visible page/text membership rather than implementation call counts.
+
+This is an ADR-0127 continuous-flow language-parity correction: L0 first, reseal, RED→GREEN and complete revalidation. No public contract, default mode, pipeline phase or compatibility change is authorized. Existing nucleus obligations and unrelated limits remain binding.
+
+
+## Refutation: unpainted material and required successors
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/edge-after/receipt.json` and `unpainted-before/receipt.json` bind the first candidate executable to UTC/inputs/commands; its build and source state are in `validation.json` and `final-source.json.gz`. These controls refute painting alone as page materiality: hidden text, zero/fractional horizontal spacing and zero/weak/strong vertical spacing can require a page without paint; empty/metadata-only Hide does not. `h_space.rs:27-45` advances or queues spacing without an item, `v_space.rs:20-42` records advancement, and `hide.rs:20-28` removes only painted output. `pagebreak.rs:42-44` also overwrites an empty strong successor's requiredness during weak parity adjustment, dropping a required final page. These are language-visible page obligations, not a request to copy upstream collection mechanics. The earlier painting-only hypothesis was rejected, not qualified by changing the oracle or deleting its cases.
+
+### Exclusive correction
+
+Require RED→GREEN on hidden/empty/metadata-only bodies, zero/absolute/fractional horizontal spacing and zero/weak/strong vertical spacing, both terminal and between weak breaks, plus initially empty and strong successor pages under weak parity adjustment.
+
+L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.
+
+
+## R1 — retain the formatted entry marker (2026-10-23)
+
+Measurement before decision: `lab/results/footnote-markers-r1-2026-10-23/baseline.json` and `before/receipt.json` bind exact HEAD, uncommitted changed-file list, source archive, UTC, executable and fixed oracle identities. Successful note and note-successor probes expose generated `[1]` instead of `1`; custom exposes decimal bracket footers despite correctly formatted inline `a` and `(ii)`. Source `footnote.rs:45–48` formats the call; `footnote_fragments.rs:286` and `footnote_flush.rs:156` independently synthesize brackets. Oracle `typst-library/src/model/footnote.rs:305–338` realizes the original note numbering as superscript in its entry. This is visible language morphology; internal queue representation is mechanics.
+
+Classification: ADR-0127 continuous parity correction, private layout metadata only, no public contract, default mode, pipeline phase or compatibility change.
+
+Exclusive obligation: Adapt the direct pending-note fixture to the private tuple including the generated prefix, retaining its original demand/clearance assertions. Marker regressions belong to footnote and footnote_fragments owners.
+
+Acceptance: tests first must demonstrate actual marker failure before implementation and pass afterward. Cover default, custom and intentionally bracketed numbering, literal body brackets, captured and uncaptured emission, and checkpoint preservation. Reuse generated Content rather than export text replacement. Preserve the existing body styles and note-area model, source admissions, diagnostic behavior and unrelated tests. Full build, tests, lineage and linter gates are required. This does not certify broader entry typography, column placement, nested-note body completeness, call/body migration or oversized-note continuation; measured prior limits remain open.
+
+
+### R1 legacy test migration after full validation
+
+Measurement: the source-bound first full run in `lab/results/footnote-markers-r1-2026-10-23/validation-first/` reports three obsolete positive `[1]` assertions and a column counter test whose `y > 400` filter actually counted footer-body digits instead of inline calls. This precedes the correction. Update only those marker assertions to require two native superscript `1` carriers (call and entry), excluding numeric body text; retain all body, page, no-loop, overlap and warning assertions. Partition column call markers above the midpoint and entry markers below it, and require the exact causal sequence 1,2,3 separately in each region. This strengthens the intended semantic obligation; it does not preserve the defective bracket morphology or historical accidental filter.
+
+
+### R1 test exhaustivity and guard gate
+
+Measurement before decision: `lab/results/footnote-markers-r1-2026-10-23/full-lint-complete.log` records V16 for the new test collector and V17 for the column test guard after all functional gates and replays passed. This amendment owns a test-form correction, not a runtime layout change. Keep the column marker predicate inside the selected text branch rather than a compound decision guard; retain the same superscript, number and midpoint conditions. Revalidate final lineage, full lint and the established suite without suppressions or weakened observations.
+
+
+## R5 — physical painting observer migration (2026-10-24)
+
+### Measurement before classification
+
+`lab/results/construction/diagnostics/painting-r5-2026-10-24/test-observer-migration-before.json`
+preserves exact source/L0, HEAD cf21f47a3b63f0e9fc5308925e1d0b67925e7227,
+uncommitted tree, full diffstat and UTC. `validation-attempt3/validation-state.json.gz`
+freezes the tested productive state; `tests-domain-infra.log:7947-7977,9517-9528`
+records four failures. Three root Grid observers at tests.rs:9422,9487,9701
+require seven/twenty-six segments, explicitly including duplicate shared borders.
+Their actual corrected six/seventeen are not by themselves parity evidence.
+The independent original Table raster now has zero changed pixels in PDF/SVG
+at72/600dpi (`candidate2/receipt.json`), and the actual preimplementation alpha
+regression is preserved in `red-core-tests/test.log`.
+Integration tests.rs:1714-1737 reads raw m/l operands and ignores cm: local(0,0)
+→(100,50) under Y reflection is wrongly judged to ascend. The independent
+coordinate interpreter and bilateral signed-line experiment preserve physical
+downward direction. Counts/operator representation are mechanics under ADR-0107;
+coverage, dimensions, alpha and transformed endpoints are language observables.
+
+Continuous ADR-0127 test-only observer correction introduces no public contract,
+product default, phase or compatibility change. This narrowly supersedes blanket
+assertion/count preservation only for the four named mechanical expectations;
+all input fixtures, font sizes, dimensions, actual geometry/diagnostic assertions
+and all other tests/thresholds remain unchanged. L0 first, restricted reciprocal
+resealing, focused GREEN and full final-source validation are required. The prior
+four functional RED→GREEN regressions remain required, not replaced by this
+migration. Neither aborted/failed validation nor edited counts certify success.
+
+### Exclusive owner obligation
+
+Retain all three existing Grid fixtures. Replace aggregate segment totals in
+p227/p888 with physical border coverage: expected column boundaries from fixed
+track widths, expected row boundaries from fixed heights or the equal Auto rows,
+single stroke contribution at every boundary/cell midpoint, full vertical and
+horizontal extents including half-thickness endpoint extensions, no gaps or
+duplicate contributions. Keep strict width==abs(dx), height==abs(dy), nonzero
+line assertions in p887; call the coverage observer instead of expecting seven
+records. Use a test-only private helper in this owner with tight coordinate
+checks, no FrameStroke PartialEq or production frame rewrite. No general frame
+visitor/schema mutation or normalization of actual paint is authorized.
+
+## R8: workspace superscript and oversized-note acceptance
+Measurement before decision: validation-complete3/tests-domain-infra.log in footnote-layout-r8-2026-10-24 records p448 expecting upward movement as a larger frame y and p595 expecting an oversized warning for a now-certified splittable text note. Actual R8 paired PDFs/SVGs establish downward frame coordinates and upward superscript; change p448 to smaller y, retaining reduced size. large-note-controls/receipt.json distinguishes splittable lorem200 (successful, no warning) from an indivisible block(height:500pt,breakable:false) on a 200pt page (existing warning). Preserve the defensive-warning test by making its oversized body explicitly indivisible; add a separate certified multiline continuation test with START/END once and both call/entry markers, no oversized warning. Do not suppress warnings for uncertified or indivisible oversized frames, weaken content assertions, or alter unrelated tests. No new public/default/pipeline contract.

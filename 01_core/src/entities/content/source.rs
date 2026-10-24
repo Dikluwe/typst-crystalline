@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/source.md
-//! @prompt-hash ea6111ab
+//! @prompt-hash 6a4faead
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -42,6 +42,7 @@ impl Content {
             | Self::Link(..)
             | Self::Equation(..)
             | Self::MathSequence(..)
+            | Self::Symbol(..)
             | Self::MathIdent(..)
             | Self::MathText(..)
             | Self::MathFrac(..)

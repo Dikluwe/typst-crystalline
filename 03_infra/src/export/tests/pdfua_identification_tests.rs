@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfua_identification_tests.md
-//! @prompt-hash 4ecec022
+//! @prompt-hash 0c3b8333
 //! @layer L3
 //! @updated 2026-09-23
 //!
@@ -32,6 +32,7 @@ fn export_with_standard(standard: PdfStandards) -> Vec<u8> {
         None,
         standard,
     )
+    .output
 }
 
 fn xmp_packet(pdf: &[u8]) -> String {

@@ -1,9 +1,13 @@
 # L0 — core/compiler/math/layout/math_cases_layout_tests
-Hash do Código: 4678d861
+Hash do Código: a97c489d
 
 
 **Layer:** L1 (tests)
 **Exclusive consumer:** `01_core/src/compiler/math/layout/math_cases_layout_tests.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Consumer evidence
 
@@ -152,3 +156,32 @@ Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
 zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
 CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
 complete parity.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

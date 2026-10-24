@@ -1,12 +1,15 @@
 # L0 — html/encoding
-Hash do Código: c421616c
+Hash do Código: 3d0187ae
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/encoding.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
 
+
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+
 
 ## Consumer evidence
 
@@ -117,3 +120,11 @@ Verify strict nontext rejection and title SmartQuote/raw rejection; script/style
 constructor guards remain unchanged. A new Content variant must require review
 at this exact productive stopping decision. This internal ADR-0127 correction
 changes no API, phase, default or accepted textual input.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

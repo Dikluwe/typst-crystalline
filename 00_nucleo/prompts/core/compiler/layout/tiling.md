@@ -1,5 +1,5 @@
 # L0 — tiling
-Hash do Código: a84e2e4d
+Hash do Código: e62c303d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -60,3 +60,8 @@ Cell controls cover origin, Auto/explicit/empty, signed spacing, relative offset
 Preparation tests cannot substitute for integrated fill/stroke/resources/clipping/affine Parent/native targets/Solid-Gradient/page semantics and complete suite/build/doc/fmt/lineage. Metadata alone closed neither stroke transport nor native PDF/SVG/raster patterns; final native migration supersedes temporary-adapter incompleteness only when all approved transport/integration/verification are demonstrated. No production/tiling parity from build or one-cell structure alone. Remaining publication scope is separate.
 
 Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.
+
+
+## Planned replay fixture compatibility
+
+The actual core cfg compilation in `lab/results/set-page-header-implementation-2026-10-21/domain-red/receipt.json` fails before executing semantic assertions: the private flow replay list now retains `(Content, Option<source cursor>)`, while the existing tiling isolation fixture supplies bare Content and reads plain_text directly. This is a harness migration, not semantic RED. The approved opaque physical-page protocol changes no tiling behavior or public API. Migrate only that existing cfg fixture to `(original Content, None)` and project tuple Content when asserting the unchanged exact `outer replay` value. Preserve every count, expectation and productive algorithm, including transaction isolation.

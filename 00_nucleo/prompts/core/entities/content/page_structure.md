@@ -1,14 +1,17 @@
 # L0 — core/entities/content/page_structure
-Hash do Código: e3beb24c
+Hash do Código: f7563f73
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/page_structure.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Evidence before specification
 
@@ -41,3 +44,48 @@ Retain with/without-column controls, located/pending occurrences, origin, effect
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/page_structure.md` preserves the original evidence and chronology.
+
+## Complete-suite Source transparency regression — 2026-10-22
+
+### Evidence before correction
+
+`lab/results/remaining-parity-2026-10-22/candidate-7/validation/tests-domain-infra.log`
+SHA-256 `e5900986d7df6f773083e7b95a967d76d451bccb7afe12a93e326d04b98ac8da`
+records the complete unfiltered core/infra run. Its frozen inputs are retained in
+`candidate-7/validation/validation-state.json.gz` and the unchanged-input check in
+`candidate-7/validation/validation-freeze.json` at
+`2026-10-22T14:53:49.321659+00:00`, under that same result root. The source-bound
+build receipt `candidate-7/candidate-build/receipt.json`, SHA-256
+`bcdd2171a19fd1e93bc4934388c35e8fb79563c957994fd9d6bae176930dd9fe`, retains
+UTC `2026-10-22T14:44:18.153459+00:00`–`2026-10-22T14:44:36.818708+00:00`,
+exact HEAD/uncommitted diffstat, inputs, source archive and product SHA-256
+`91cba2e532c185020023aed9a0c031540e57f4b966673649b9a5b1cd8935ec95`.
+The existing test bodies are unchanged from the initial baseline archive.
+Six page-column layout regressions show missing implicit Columns after actual
+SetPage gained its proven Source origin: four one-page requirements observe two
+pages, and two RTL requirements begin in the wrong column. Bare-only SetPage
+classification in content/page_structure.rs prevents the transform. Four further
+observer failures stop at Source instead of examining the actual SetPage/Heading
+body. Three separate paragraph failures have another owner and are not evidence
+to change page configuration or remove Source. These actual failures supersede
+focused-suite confidence; no warning/test/geometry threshold is waived.
+
+### Exclusive correction and acceptance
+
+Read Source.body through existing source_body only at the existing SetPage and
+Pagebreak kind-classification points in wrap_page_columns/page_column_segments.
+Keep original carrier objects and source spans in emitted output, original body
+order, marker scope boundaries, child indices and all page/column settings.
+Do not project ShowRecipe/Located/Realized, execute recipes, remove source
+origins, change public API/phase or broaden implicit-column scope. Existing
+nominal no-change protocol remains intact. Add a local sourced SetPage/Pagebreak
+regression and confirm RED before productive classification changes. The six
+original layout assertions and physical-page figure/query test remain unchanged.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

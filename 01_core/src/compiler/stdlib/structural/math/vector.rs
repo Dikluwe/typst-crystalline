@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/vector.md
-//! @prompt-hash 68649499
+//! @prompt-hash b1e6714c
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -203,18 +203,7 @@ pub fn native_math_vec(
 ) -> SourceResult<Value> {
     let mut children = Vec::with_capacity(args.items.len());
     for value in &args.items {
-        let child = match value {
-            Value::Content(content) => content.clone(),
-            Value::LocatedContent(content, _) => content.content().clone(),
-            Value::Str(text) => Content::text(text.as_str()),
-            Value::Symbol(symbol) => Content::MathText(symbol.value.clone()),
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("expected content, found {}", vanilla_type_name_class(other)),
-                )])
-            }
-        };
+        let child = super::casts::math_lr_content_value(value, args.span)?;
         children.push(child);
     }
 

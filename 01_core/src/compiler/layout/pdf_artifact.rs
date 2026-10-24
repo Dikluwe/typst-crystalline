@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/pdf_artifact.md
-//! @prompt-hash ec0a5461
+//! @prompt-hash 52a97919
 //! @layer L1
 //! @updated 2026-08-30
 
@@ -97,7 +97,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .current_line
             .push(marker(elem.kind, start.clone()));
     }
-    layouter.layout_content(&elem.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::PdfArtifactBody,
+        &elem.body,
+    );
     if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         layouter
             .regions

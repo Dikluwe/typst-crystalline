@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/outline.md
-//! @prompt-hash 7257e516
+//! @prompt-hash cb03f156
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -25,7 +25,15 @@ pub(super) fn layout_destination_link<M: FontMetrics, S: ImageSizer>(
     body: &Content,
     label: Label,
 ) {
-    layouter.layout_link_capture(body, LinkTarget::Destination(label), true);
+    let cursor = layouter.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::StyledBody,
+    );
+    layouter.layout_link_capture_planned(
+        body,
+        LinkTarget::Destination(label),
+        true,
+        cursor,
+    );
 }
 
 /// Gera a Tabela de Conteúdos visual.
@@ -60,7 +68,10 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
             layouter.flush_line();
             layouter.block_chain_active = true;
         }
-        layouter.layout_content(body);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::OutlineRealizedBody,
+            body,
+        );
         // P1411 — o outline é bloco: texto inline produzido por um callback
         // contextual não pode vazar pendente para o bloco seguinte.
         layouter.flush_line();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/math_cases.md
-//! @prompt-hash 5fa599db
+//! @prompt-hash 7f505e68
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -55,6 +55,26 @@ impl Hash for MathCasesElem {
 }
 
 impl Element for MathCasesElem {
+    fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::value::Value;
+        match field {
+            "children" => Some(Value::Array(
+                self.children.iter().cloned().map(Value::Content).collect(),
+            )),
+            "delim" if self.explicit.delim => Some(Value::Array(
+                [self.delim.0, self.delim.1]
+                    .into_iter()
+                    .map(|c| {
+                        c.map(|c| Value::Str(c.to_string().into())).unwrap_or(Value::None)
+                    })
+                    .collect(),
+            )),
+            "reverse" if self.explicit.reverse => Some(Value::Bool(self.reverse)),
+            "gap" if self.explicit.gap => Some(Value::Relative(self.gap)),
+            _ => None,
+        }
+    }
+
     fn plain_text(&self) -> String {
         self.children
             .iter()

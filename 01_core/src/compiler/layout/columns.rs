@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns.md
-//! @prompt-hash 04a61bd1
+//! @prompt-hash a941dee6
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 //!
 //! Atomização (ADR-0109, P377): o layout de `Columns` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -167,7 +167,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // 2. Resolver gutter (Length → f64 Pt; default ~4% page width).
     let gutter_pt = match e.gutter {
         Some(g) => g.resolve_pt(layouter.style.size.0),
-        None => page_width * super::COLUMNS_DEFAULT_GUTTER_RATIO,
+        None => usable_width * super::COLUMNS_DEFAULT_GUTTER_RATIO,
     };
 
     // 3. column_width = (usable_width - (count-1)*gutter) / count.
@@ -181,7 +181,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let column_region_width = column_width + margins.horizontal();
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
-    let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
+    let split = if layouter.page_running_pass.is_some() {
+        segmented::split_with_source_indices(&e.body, count)
+    } else {
+        let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
+        segmented::SplitSource {
+            segments,
+            had_colbreak,
+            source_indices: vec![],
+            sequence: false,
+            outer_styled: false,
+        }
+    };
+    let segments = &split.segments;
+    let had_colbreak = split.had_colbreak;
 
     // 5. Posições horizontais das colunas (origem x absoluta na página).
     let column_x_offsets: Vec<f64> = (0..count)
@@ -208,26 +221,100 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
 
     if had_colbreak {
+        let routes = source_segment_routes(layouter, &split);
         layout_segmented(
             layouter,
-            &segments,
+            segments,
+            &column_x_offsets,
+            column_region_width,
+            margins.left,
+            e.page_columns,
+            routes
+                .as_ref()
+                .map(|(routes, _)| (routes.as_slice(), split.outer_styled)),
+        );
+        if let Some((_, scopes)) = routes {
+            for scope in scopes.into_iter().rev() {
+                layouter.end_planned_packet(scope);
+            }
+        }
+    } else {
+        layout_flow(
+            layouter,
+            if layouter.page_running_pass.is_some() { &e.body } else { &segments[0] },
+            count,
             &column_x_offsets,
             column_region_width,
             margins.left,
             e.page_columns,
         );
-    } else {
-        layout_flow(
-            layouter,
-            &segments[0],
-            count,
-            &column_x_offsets,
-            column_region_width,
-            margins.left,
-        );
     }
 
     leave_flow_block(layouter);
+}
+
+/// Retain constructor-chosen source addresses while the legacy geometry copies segments.
+fn source_segment_routes<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    split: &segmented::SplitSource,
+) -> Option<(
+    Vec<Vec<super::page_running_requests::Cursor>>,
+    Vec<super::page_running_requests::PacketScope>,
+)> {
+    use crate::compiler::introspect::page_running::PlanEdge;
+    let mut cursor = layouter.planned_child_cursor(PlanEdge::ColumnsBody)?;
+    let mut scopes = vec![];
+    while let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::SourceBody) {
+        scopes.push(layouter.begin_planned_packet(cursor.clone()));
+        cursor.packet = child;
+    }
+    if let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::StyledBody) {
+        scopes.push(layouter.begin_planned_packet(cursor.clone()));
+        cursor.packet = child;
+        while let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::SourceBody) {
+            scopes.push(layouter.begin_planned_packet(cursor.clone()));
+            cursor.packet = child;
+        }
+    }
+    if split.sequence {
+        scopes.push(layouter.begin_planned_packet(cursor.clone()));
+        layouter.observe_page_environment();
+    }
+    let routes = split
+        .source_indices
+        .iter()
+        .map(|indices| {
+            indices
+                .iter()
+                .filter_map(|index| {
+                    let packet = if split.sequence {
+                        cursor.plan.child(cursor.packet, PlanEdge::SequencePart(*index))
+                    } else {
+                        (*index == 0).then_some(cursor.packet)
+                    };
+                    match packet {
+                        Some(packet) => Some(super::page_running_requests::Cursor {
+                            packet,
+                            ..cursor.clone()
+                        }),
+                        None => {
+                            layouter.layout_errors.push(
+                                crate::entities::source_result::SourceDiagnostic::error(
+                                    layouter.current_source_span,
+                                    "invalid original column source index",
+                                ),
+                            );
+                            if let Some(pass) = &mut layouter.page_running_pass {
+                                pass.invalid = true;
+                            }
+                            None
+                        }
+                    }
+                })
+                .collect()
+        })
+        .collect();
+    Some((routes, scopes))
 }
 
 #[cfg(test)]
@@ -468,5 +555,90 @@ mod p1494_tests {
         assert!(!has_visible_content(&only_spaces));
         let with_text = Content::sequence(vec![only_spaces, Content::text("A")]);
         assert!(has_visible_content(&with_text));
+    }
+}
+
+#[cfg(test)]
+mod r8_column_note_tests {
+    use super::*;
+    use crate::entities::{
+        elements::{colbreak::ColbreakElem, footnote::FootnoteElem},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, PageMargins},
+    };
+    use comemo::Track;
+    fn body(notes: bool) -> Content {
+        let mut parts = vec![Content::text("ALPHA")];
+        if notes {
+            parts.push(Content::Footnote(std::sync::Arc::new(FootnoteElem {
+                body: Content::text("FIRST"),
+                numbering: None,
+            })));
+        }
+        parts.push(Content::Colbreak(std::sync::Arc::new(ColbreakElem {
+            weak: false,
+            weak_explicit: false,
+        })));
+        parts.push(Content::text("BETA"));
+        Content::sequence(parts)
+    }
+    #[test]
+    fn r8_default_gutter_uses_available_region_width() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.regions.current.width = 300.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec =
+            crate::entities::layout_types::PageMarginSpec::uniform(20.0);
+        layout(
+            &mut l,
+            &ColumnsElem {
+                count: 2,
+                gutter: None,
+                body: body(false),
+                page_columns: false,
+            },
+        );
+        let doc = l.finish();
+        let x = doc
+            .pages
+            .iter()
+            .flat_map(|p| super::super::tests::frame_items_recursive(&p.items))
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "BETA" => {
+                    Some(pos.x.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert!((x - 155.2).abs() < 1e-8, "actual BETA x={x}");
+    }
+    #[test]
+    fn r8_container_note_remains_in_enclosing_page_queue() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        layout(
+            &mut l,
+            &ColumnsElem {
+                count: 2,
+                gutter: None,
+                body: body(true),
+                page_columns: false,
+            },
+        );
+        assert_eq!(l.pending_footnote_bodies.len(), 1);
+        assert_eq!(l.pending_footnote_frames.len(), 1);
     }
 }

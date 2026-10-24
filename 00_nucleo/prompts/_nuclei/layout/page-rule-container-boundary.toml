@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "page-rule-container-boundary"
+title = "Reached HTML page-setting boundaries and diagnostics"
+[[claims]]
+id = "causal-insertion"
+level = "must"
+statement = "The private eval.page.container Styled marker denotes direct ContentBlock insertion in an existing Html markup target when its reached emitted static projection contains a nonempty SetPageDelta. Construction alone, returned content and initial Bundle evaluation do not create this marker; no callback or operational template is executed to decide it."
+[[claims]]
+id = "html-projection"
+level = "must"
+statement = "The existing emitted HTML projection follows Realized.visual and prepared emitted children, preserves nearest Source origins and causal order, warns for reached nonempty page settings outside marked or semantic containers, and rejects page configuration inside marked containers, HtmlFrame or Block. Empty page settings are inert; paged siblings and dormant templates do not warn."
+[[claims]]
+id = "no-new-phase"
+level = "must-not"
+statement = "Boundary recognition must not create a public API, entity field or new pipeline phase, infer location from source text, sort diagnostics after the fact, enter dormant page producers, or convert the body of an actual paged HtmlFrame into HTML."

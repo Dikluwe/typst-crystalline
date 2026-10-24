@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/encoding.md
-//! @prompt-hash 44e9a9ab
+//! @prompt-hash 61dc96d8
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -35,6 +35,7 @@ fn visual_content(mut content: &Content) -> &Content {
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)

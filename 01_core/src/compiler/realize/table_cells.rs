@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/table_cells.md
-//! @prompt-hash 82201ecd
+//! @prompt-hash ef2d5b3a
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -26,6 +26,11 @@ pub(super) fn needs_preparation(content: &Content) -> bool {
                 needs = true;
                 return Ok(Some(node.clone()));
             }
+            Content::SetPage(_) => return Ok(Some(node.clone())),
+            Content::PageRun(page) => {
+                needs |= needs_preparation(&page.body);
+                return Ok(Some(node.clone()));
+            }
             Content::Source(_)
             | Content::ShowRecipe(_)
             | Content::Realized(_)
@@ -49,6 +54,7 @@ pub(super) fn needs_preparation(content: &Content) -> bool {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -97,8 +103,6 @@ pub(super) fn needs_preparation(content: &Content) -> bool {
             | Content::GridHeader(_)
             | Content::GridFooter(_)
             | Content::GridCell(_)
-            | Content::SetPage(_)
-            | Content::PageRun(_)
             | Content::Align(_)
             | Content::Place(_)
             | Content::Flush(_)
@@ -150,6 +154,25 @@ pub(super) fn needs_preparation(content: &Content) -> bool {
         Ok(None)
     });
     needs
+}
+
+pub(super) fn finish_selected_occurrences(
+    cell: &crate::entities::elements::table_cell::TableCellElem,
+    ctx: &mut EvalContext,
+) -> SourceResult<Content> {
+    let mut cell = cell.clone();
+    if let Some(resolved) = &cell.resolved {
+        let mut resolved = (**resolved).clone();
+        resolved.visual = super::finish_occurrence_root(&resolved.visual, ctx, true)?;
+        cell.resolved = Some(Arc::new(resolved));
+    } else if let Some(standalone) = &cell.standalone {
+        let mut standalone = (**standalone).clone();
+        standalone.visual = super::finish_occurrence_root(&standalone.visual, ctx, true)?;
+        cell.standalone = Some(Arc::new(standalone));
+    } else {
+        cell.body = super::finish_occurrence_root(&cell.body, ctx, true)?;
+    }
+    Ok(Content::TableCell(Arc::new(cell)))
 }
 
 fn captured_recipe(
@@ -223,6 +246,7 @@ fn captured_recipe(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -476,6 +500,12 @@ fn walk_node(
             b.body = walk(&b.body, ctx, engine)?;
             Content::Boxed(Arc::new(b))
         }
+        Content::SetPage(_) | Content::PageRun(_) => {
+            let captured = super::page_running::capture(node, ctx, engine);
+            return super::page_running::map_body(&captured, |body| {
+                walk(body, ctx, engine)
+            });
+        }
         Content::Realized(_)
         | Content::Located(_)
         | Content::Empty
@@ -496,6 +526,7 @@ fn walk_node(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -544,8 +575,6 @@ fn walk_node(
         | Content::GridHeader(_)
         | Content::GridFooter(_)
         | Content::GridCell(_)
-        | Content::SetPage(_)
-        | Content::PageRun(_)
         | Content::Align(_)
         | Content::Place(_)
         | Content::Flush(_)
@@ -745,6 +774,7 @@ fn argument_defaults(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -1067,6 +1097,7 @@ fn finish_cell_product(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -1214,13 +1245,17 @@ fn table(
     }
     let result = product.map_content_pre(&mut |child| {
         match child {
+            Content::SetPage(_) | Content::PageRun(_) => {
+                let captured = super::page_running::capture(child, ctx, engine);
+                super::page_running::map_body(&captured, |body| walk(body, ctx, engine))
+            }
             Content::Table(e) if e.resolved.is_none()=>Ok(Some(prepare_table(e,ctx,engine)?)),
             Content::Located(e) if matches!(&e.body,Content::Table(t) if t.resolved.is_none())=>{
                 let Content::Table(t)=&e.body else{unreachable!()};
                 Ok(Some(Content::Located(Arc::new(LocatedContent {location:e.location,body:prepare_table(t,ctx,engine)?}))))
             },
             Content::ShowRecipe(_) | Content::Styled(_) | Content::TableCell(_)=>Ok(Some(walk(child,ctx,engine)?)),
-            Content::Source(_) | Content::Realized(_) | Content::Located(_) | Content::Empty | Content::Text(_) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(_) | Content::HtmlElem(_) | Content::HtmlFrame(_) | Content::Par { .. } | Content::Heading(_) | Content::Title(_) | Content::Strong(_) | Content::Emph(_) | Content::Raw(_) | Content::ListItem(_) | Content::EnumItem(_) | Content::Link(_) | Content::Equation(_) | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_) | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_) | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathUnderbrace(_) | Content::MathUnderbracket(_) | Content::MathUnderparen(_) | Content::MathUndershell(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_) | Content::Linebreak(_) | Content::MathMatrix(_) | Content::MathCases(_) | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_) | Content::MathOverline(_) | Content::MathVec(_) | Content::MathClassOverride(_) | Content::MathLimitsOverride(_) | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_) | Content::Label(_) | Content::Ref(_) | Content::CounterDisplay(_) | Content::CounterUpdate(_) | Content::Outline(_) | Content::OutlineEntry(_) | Content::Figure(_) | Content::FigureCaption(_) | Content::Image(_) | Content::Shape(_) | Content::Curve(_) | Content::Transform(_) | Content::Grid(_) | Content::GridHeader(_) | Content::GridFooter(_) | Content::GridCell(_) | Content::SetPage(_) | Content::PageRun(_) | Content::Align(_) | Content::Place(_) | Content::Flush(_) | Content::Divider(_) | Content::Terms(_) | Content::TermItem(_) | Content::Quote(_) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(_) | Content::PdfAttach(_) | Content::PdfArtifact(_) | Content::Underline(_) | Content::Strike(_) | Content::Overline(_) | Content::SmallCaps { .. } | Content::Pad(_) | Content::Hide(_) | Content::HSpace(_) | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_) | Content::Stack(_) | Content::Boxed(_) | Content::Block(_) | Content::Bibliography(_) | Content::Cite(_) | Content::Footnote(_) | Content::FootnoteEntry(_) | Content::TableHeader(_) | Content::TableFooter(_) | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_) | Content::Table(_) | Content::Repeat(_) | Content::Columns(_) | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::ContextBlock(_) | Content::Dynamic(_)=>Ok(None),
+            Content::Source(_) | Content::Realized(_) | Content::Located(_) | Content::Empty | Content::Text(_) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(_) | Content::HtmlElem(_) | Content::HtmlFrame(_) | Content::Par { .. } | Content::Heading(_) | Content::Title(_) | Content::Strong(_) | Content::Emph(_) | Content::Raw(_) | Content::ListItem(_) | Content::EnumItem(_) | Content::Link(_) | Content::Equation(_) | Content::MathSequence(_) | Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_) | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_) | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathUnderbrace(_) | Content::MathUnderbracket(_) | Content::MathUnderparen(_) | Content::MathUndershell(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_) | Content::Linebreak(_) | Content::MathMatrix(_) | Content::MathCases(_) | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_) | Content::MathOverline(_) | Content::MathVec(_) | Content::MathClassOverride(_) | Content::MathLimitsOverride(_) | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_) | Content::Label(_) | Content::Ref(_) | Content::CounterDisplay(_) | Content::CounterUpdate(_) | Content::Outline(_) | Content::OutlineEntry(_) | Content::Figure(_) | Content::FigureCaption(_) | Content::Image(_) | Content::Shape(_) | Content::Curve(_) | Content::Transform(_) | Content::Grid(_) | Content::GridHeader(_) | Content::GridFooter(_) | Content::GridCell(_) | Content::Align(_) | Content::Place(_) | Content::Flush(_) | Content::Divider(_) | Content::Terms(_) | Content::TermItem(_) | Content::Quote(_) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(_) | Content::PdfAttach(_) | Content::PdfArtifact(_) | Content::Underline(_) | Content::Strike(_) | Content::Overline(_) | Content::SmallCaps { .. } | Content::Pad(_) | Content::Hide(_) | Content::HSpace(_) | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_) | Content::Stack(_) | Content::Boxed(_) | Content::Block(_) | Content::Bibliography(_) | Content::Cite(_) | Content::Footnote(_) | Content::FootnoteEntry(_) | Content::TableHeader(_) | Content::TableFooter(_) | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_) | Content::Table(_) | Content::Repeat(_) | Content::Columns(_) | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::ContextBlock(_) | Content::Dynamic(_)=>Ok(None),
         }
     });
     ctx.recipe_protected_locations.truncate(depth);
@@ -1467,7 +1502,8 @@ mod v16_table_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

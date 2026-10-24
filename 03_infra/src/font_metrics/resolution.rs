@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/resolution.md
-//! @prompt-hash 7c358032
+//! @prompt-hash cd68cced
 //! @layer L3
-//! @updated 2026-10-10
+//! @updated 2026-10-24
 
 use super::FallbackFontMetrics;
 use crate::fallback_fonts::{fallback_font_list_for, text_fallback_font_list};
@@ -164,6 +164,22 @@ impl FallbackFontMetrics<'_> {
     /// (**P838** — scoring de similaridade do vanilla, com `like` = `FontInfo`
     /// da primeira primária). Isto alinha a fonte usada na medição com a
     /// usada no shaping, que aplica o mesmo scoring.
+    pub(super) fn covering_text(
+        &self,
+        c: char,
+        primary: &[FontCandidate],
+        variant: &FontVariant,
+    ) -> Option<FontCandidate> {
+        primary
+            .iter()
+            .find(|candidate| {
+                self.cached_face(candidate.slot_idx)
+                    .is_some_and(|face| face.face().glyph_index(c).is_some())
+            })
+            .copied()
+            .or_else(|| self.covering(c, primary, variant))
+    }
+
     pub(super) fn covering(
         &self,
         c: char,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/figure.md
-//! @prompt-hash 5b63362a
+//! @prompt-hash 124c6ac8
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -254,7 +254,7 @@ impl Element for FigureElem {
                     .map(Some)
                     .or(self.kind.as_ref().map(|kind| kind.as_ref()))?;
                 Some(match kind {
-                    None => Value::Auto,
+                    Option::None => Value::Auto,
                     Some(FigureKind::Element(function)) => Value::Func(function.clone()),
                     Some(FigureKind::Name(name)) => Value::Str(name.clone()),
                 })
@@ -656,7 +656,8 @@ mod figure_kind_contract_tests {
                 panic!("identity must not mutate plugins")
             }
         }
-        let source = crate::entities::source::Source::detached("none");
+        let source = crate::entities::source::Source::detached("none")
+            .expect("valid Source test fixture");
         let closure = || {
             FigureKind::Element(Func::closure(ClosureRepr {
                 name: Some("table".into()),

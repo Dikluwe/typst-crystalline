@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md
-//! @prompt-hash 92a6bb65
+//! @prompt-hash 20adc897
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -143,7 +143,8 @@ fn text<M: FontMetrics, S: ImageSizer>(
     if !text.chars().all(|c| {
         c == ' '
             || ((c as u32) <= 0x024f
-                && (c.is_alphanumeric() || matches!(c, ',' | '.' | '!' | '?' | '\'')))
+                && (c.is_alphanumeric()
+                    || matches!(c, ',' | '.' | ':' | '!' | '?' | '\'')))
     }) {
         return None;
     }
@@ -335,6 +336,56 @@ mod tests {
         l.chain = l.chain.push_custom("text.hyphenate", Value::Bool(false));
         l
     }
+    #[test]
+    fn prose_colon_preparation_preserves_word_and_fragment_adjacency() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        let body = Content::sequence(vec![
+            Content::text("label"),
+            Content::text(": next:part 12:34"),
+        ]);
+        let p = prepare(&mut l, &body).expect("colon belongs to the textual word");
+        let words: Vec<_> = p
+            .words
+            .iter()
+            .map(|w| w.fragments.iter().map(|f| f.text.as_str()).collect::<String>())
+            .collect();
+        assert_eq!(words, ["label:", "next:part", "12:34"]);
+        assert!(l.regions.current.current_line.is_empty());
+        assert!(prepare(&mut l, &Content::text("label: 漢字")).is_none());
+    }
+
+    #[test]
+    fn prose_colon_continuation_uses_existing_widow_cost() {
+        use crate::entities::layout_types::{PageMarginSpec, PageMargins, Pt, Ratio};
+        for (cost, expected) in [(1.0, vec![2, 2]), (0.0, vec![3, 1])] {
+            let intr = TagIntrospector::empty();
+            let mut l = make(&intr);
+            l.page_config.width = 100.0;
+            l.page_config.height = 45.0;
+            l.page_config.margin = PageMargins::uniform(0.0);
+            l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+            l.regions.current.width = 100.0;
+            l.regions.current.height = 45.0;
+            l.regions.current.cursor_x = Pt(0.0);
+            l.regions.current.line_start_x = Pt(0.0);
+            l.regions.current.cursor_y = Pt(0.0);
+            l.chain = l.chain.push_custom("text.costs.widow", Value::Ratio(Ratio(cost)));
+            let text = "aaaaaaaaaaaa: bbbbbbbbbbbb cccccccccccc dddddddddddd";
+            l.layout_content(&Content::text(text));
+            let doc = l.finish();
+            let pages: Vec<_> = doc.pages.iter().map(|p| p.plain_text()).collect();
+            assert_eq!(
+                pages.iter().map(|p| p.split_whitespace().count()).collect::<Vec<_>>(),
+                expected
+            );
+            assert_eq!(
+                pages.join(" ").split_whitespace().collect::<Vec<_>>(),
+                text.split_whitespace().collect::<Vec<_>>()
+            );
+        }
+    }
+
     #[test]
     fn preparation_preserves_adjacency_and_separator_origins() {
         let intr = TagIntrospector::empty();

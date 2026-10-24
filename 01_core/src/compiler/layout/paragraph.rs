@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph.md
-//! @prompt-hash 3a661776
+//! @prompt-hash 6954dd68
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -33,6 +33,7 @@ pub(super) fn prepared_text_body(content: &Content) -> &Content {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -494,6 +495,7 @@ fn paragraph_body(content: &Content) -> ParagraphBody<'_> {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -638,6 +640,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     body: &Content,
 ) {
+    layout_with_edge(
+        layouter,
+        body,
+        Some(crate::compiler::introspect::page_running::PlanEdge::ParagraphBody),
+    );
+}
+
+pub(super) fn layout_with_edge<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    edge: Option<crate::compiler::introspect::page_running::PlanEdge>,
+) {
     let had_previous_text =
         html_frame::items_have_material(&layouter.regions.current.current_line)
             || layouter.terminal_paragraph_line;
@@ -659,7 +673,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         && (layouter.bidi_cursor.is_some()
             || !super::paragraph_plan::try_layout(layouter, body))
     {
-        layouter.layout_content(body);
+        if let Some(edge) = edge {
+            layouter.layout_planned_child(edge, body);
+        } else {
+            layouter.layout_content(body);
+        }
     }
     if empty_body {
         let size = layouter.style.size.val();
@@ -856,6 +874,94 @@ mod tests {
         }
     }
 
+    #[test]
+    fn remaining_parity_root_bidi_singleton_preserves_complete_utf8_spans_and_scope() {
+        use crate::entities::{bidi_context::ParagraphBidiSegment, dir::Dir};
+        for (dir, text, words) in
+            [(Dir::RTL, "ABC aa aa مرحبا", 4), (Dir::LTR, "123 456 مرحبا", 3)]
+        {
+            let intr = TagIntrospector::empty();
+            let mut l = make(&intr, false);
+            let root = Content::styled(
+                Content::text(text),
+                Styles::new().push_custom("text.dir", Value::Dir(dir)),
+            );
+            l.layout_content(&root);
+            assert!(!l.bidi_scope_active, "root scope must restore its parent");
+            assert!(l.bidi_cursor.is_none(), "root cursor must not escape");
+            assert!(l.active_paragraph_dir.is_none(), "root direction must restore");
+            let doc = l.finish();
+            let mut emitted = Vec::new();
+            let mut baselines = Vec::new();
+            for page in &doc.pages {
+                for item in &page.items {
+                    if let FrameItem::Text { text, bidi, pos, .. } = item {
+                        let span = bidi.as_ref().expect("complete singleton origin");
+                        let ParagraphBidiSegment::Text { text: original, .. } =
+                            &span.input().segments()[span.segment()]
+                        else {
+                            panic!("text requires an original text segment")
+                        };
+                        assert_eq!(span.input().base_dir(), dir);
+                        assert_eq!(original.get(span.range()), Some(text.as_str()));
+                        emitted.push(text.as_str());
+                        if !baselines.contains(&pos.y.0) {
+                            baselines.push(pos.y.0);
+                        }
+                    }
+                }
+            }
+            assert_eq!(emitted.len(), words);
+            assert_eq!(emitted.join(" "), text);
+            assert!(baselines.len() > 1, "fixture must exercise actual wraps");
+        }
+    }
+
+    #[test]
+    fn remaining_parity_root_bidi_opaque_refuses_partial_textual_descendants() {
+        use crate::entities::dir::Dir;
+        fn inspect(items: &[FrameItem], texts: &mut usize) {
+            for item in items {
+                match item {
+                    FrameItem::Text { bidi, .. } | FrameItem::TextShaped { bidi, .. } => {
+                        *texts += 1;
+                        assert!(
+                            bidi.is_none(),
+                            "opaque root cannot certify a descendant"
+                        );
+                    }
+                    FrameItem::TextSeparator { bidi, .. } => assert!(bidi.is_none()),
+                    FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => inspect(items, texts),
+                    FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, false);
+        let body = Content::styled(
+            Content::sequence(vec![
+                Content::text("ABC aa"),
+                Content::Space,
+                Content::text("مرحبا"),
+            ]),
+            Styles::new().push_custom("text.dir", Value::Dir(Dir::RTL)),
+        );
+        l.layout_content(&Content::link("https://example.org/bidi-refusal", body));
+        assert!(!l.bidi_scope_active);
+        assert!(l.bidi_cursor.is_none());
+        let mut texts = 0;
+        for page in &l.finish().pages {
+            inspect(&page.items, &mut texts);
+        }
+        assert!(texts >= 3, "refusal must retain the actual text");
+    }
+
     pub(super) fn audit_content(src: &str) -> Content {
         use crate::{
             compiler::eval::eval_for_test,
@@ -881,7 +987,8 @@ mod tests {
                 Self {
                     library: Library::new(),
                     book: FontBook::new(),
-                    source: Source::new(id, text.to_string()),
+                    source: Source::new(id, text.to_string())
+                        .expect("valid Source test fixture"),
                 }
             }
         }

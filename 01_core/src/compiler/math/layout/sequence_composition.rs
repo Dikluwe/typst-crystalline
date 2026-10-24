@@ -1,12 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md
-//! @prompt-hash 084ea91a
+//! @prompt-hash d0bb0aa3
 //! @layer L1
 //! @updated 2026-10-17
 
 use super::*;
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
+    pub(super) fn layout_symbol(&self, text: &EcoString, style: &TextStyle) -> MathBox {
+        use unicode_segmentation::UnicodeSegmentation;
+        let glyphs: Vec<Content> = text
+            .graphemes(true)
+            .map(|cluster| Content::MathIdent(cluster.into()))
+            .collect();
+        self.layout_sequence(&glyphs, style)
+    }
+
     pub(super) fn layout_sequence(
         &self,
         nodes: &[Content],
@@ -81,6 +90,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                                 | Content::Link(_)
                                 | Content::Equation(_)
                                 | Content::MathSequence(_)
+                                | Content::Symbol(_)
                                 | Content::MathIdent(_)
                                 | Content::MathText(_)
                                 | Content::MathFrac(_)

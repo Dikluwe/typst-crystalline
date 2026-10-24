@@ -1,5 +1,8 @@
 # L0 — figure
-Hash do Código: b8d09974
+Hash do Código: 5b57acbd
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/figure.rs`
@@ -47,3 +50,14 @@ The approved resolved supplement is Content. Flattening it with plain_text befor
 Root's frozen target caption control reports pinned oracle `A B Figure 2` versus candidate `AB Figure 2`: consecutive Figure bodies were merged into one paragraph. Figure is a block language object independently of whether it has a caption. Add a rendered text and baseline-order RED control for two prepared captionless Figures followed by ordinary text before changing dispatch. The bounded correction must end the preceding paragraph before each body and finish the Figure's emitted paragraph before following content, preserving numbering/action/snapshot identity and existing body/caption order. No public API, new mode or eval/layout transfer; this is an internal morphology correction at the owning renderer.
 
 Functional RED was observed by the orchestrator in `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/integration-tests-6/tests.log`: `figure_blocks_keep_adjacent_bodies_and_following_text_in_separate_paragraphs` emitted ALPHA, BETA and TAIL at the same baseline. Use the existing paragraph owner before the Figure body and after its final emitted body/caption; perform no paragraph mutation before a missing productive snapshot has been rejected.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Route FigureBody, FigureCaption and actually selected FigureSelectedSupplement through exact source-plan edges while retaining body/prefix/caption ordering, snapshot validation, typed numbering and paragraph boundaries. A generated numeric/separator prefix is nonadmitting; the rich selected supplement and caption keep their own source routes inside generated wrappers. Do not infer an edge by comparing Content, execute a dormant supplement or count technical caption wrappers as new language elements. Preserve the legacy synthetic helper entrypoint and all existing fixtures.

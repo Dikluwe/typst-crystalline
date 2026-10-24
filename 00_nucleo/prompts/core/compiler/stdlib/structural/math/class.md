@@ -1,9 +1,12 @@
 # L0 — compiler/stdlib/structural/math/class
-Hash do Código: b4f8b064
+Hash do Código: a465ee23
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/class.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 ## Measurement before decision
 
@@ -18,3 +21,39 @@ The shared `vanilla_type_name_class` remains owned by the parent because other n
 ## Acceptance
 
 Existing `math_class` and P825 regressions plus a local invalid-internal-class test remain green. The full core suite, `cargo build` and `crystalline-lint .` remain green. Header ownership is 1:1. No speedup is claimed without measurement.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R4 — measured public mathematical projection / qualified conversion
+
+### Measurement before decision
+
+`lab/results/math-fields-r4-2026-10-23/baseline.json` and `before/receipt.json`
+retain UTC, HEAD, complete uncommitted diff stat, source map, archived sources
+and binary SHA-256. The oracle is pinned bd5ebec285505889e8ff1d4f68804ab147a699f3
+(tree cac836c07e4dec2a89219370428292393a3216b5). The before probe records
+fields/has/at and accepted/rejected constructor values rather than inferring
+intent from implementation. Upstream math/matrix.rs:45–67,238–272 and
+math/mod.rs:227–234 declare the already existing language fields. Local
+content_methods.rs:151–158,378–380 omits these projections; frac.rs:43–53
+and root.rs:27–38 reject supported operands. These are language semantics
+and morphology, distinct from byte or Rust algorithm parity.
+
+### Exclusive correction and gate
+
+Convert the second positional through casts::math_lr_content_value at the existing detached span. Preserve class-domain and argument-order validation. Replace only invalid body type diagnostics with the measured common content-cast diagnostic.
+
+This R4 clause supersedes only conflicting historical operand/field clauses
+above. Internal parity correction follows continuous ADR-0127: L0 first,
+reseal, actual functional RED before implementation, GREEN and full validation.
+No new public Rust field/signature/trait method, default mode or phase change.
+Preserve other semantics and all received changes. Record source-bound builds,
+full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
+A–H and R1–R3 without reclassifying their existing limitations as parity.

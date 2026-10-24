@@ -1,0 +1,54 @@
+tekt = 1
+kind = "nucleus"
+id = "physical-page-occurrences"
+title = "Source-owned physical page occurrence protocol"
+
+[[claims]]
+id = "source-authority"
+level = "must"
+statement = "An immutable source plan owns transient packet addresses, typed child edges, complete style-environment frontiers and source-parent relations independently of language Location identity. Public Content is unchanged."
+
+[[claims]]
+id = "physical-order"
+level = "must"
+statement = "Accepted page contributions use Background, Header, body, Footer, Foreground order at their source-owned semantic page anchor, including zero-paint and derived work. A deferred child retains its source-callsite anchor and source order even when its sealed geometric position is on a later page. Geometry does not reorder semantic admissions. Raw repetitions are distinct occurrences; existing explicit aliases preserve identity."
+
+[[claims]]
+id = "dormant-templates"
+level = "must"
+statement = "Captured SetPage and PageRun templates reserve existing identities without execution or semantic admission. Overwritten templates with no physical insertion remain inert. Capture is not an emitted occurrence."
+
+[[claims]]
+id = "effective-environment"
+level = "must"
+statement = "Request authority includes the actual page-effective style frontier as well as source/template authority, physical slot and finite geometry. Saved operational rules, guards, source and context floor do not freeze creation-time ambient styles; explicit inner styles and prepared aliases survive insertion."
+
+[[claims]]
+id = "opaque-matching"
+level = "must-not"
+statement = "Request matching must not infer producer identity or complete environment equivalence from Location, Content equality, Func equality, Debug, hashes, collapsed styles or a newly allocated retry-local address."
+
+[[claims]]
+id = "transactional-admission"
+level = "must"
+statement = "Checkpoint, rollback, subframe, deferred float and footnote paths preserve packet ownership, physical page assignment, trace events, pending requests and consumed-resolution state atomically. Measurement contributes no semantic admissions."
+
+[[claims]]
+id = "source-derived-index"
+level = "must"
+statement = "The semantic index is populated incrementally from source-owned packets in accepted source-anchor order, including retained deferred source order independently of later geometric placement. Source parents are independent of physical flattening. Per-store position sealing remains authoritative; painted-frame traversal is not a semantic reconstruction."
+
+[[claims]]
+id = "retained-execution"
+level = "must"
+statement = "Requested realization and substitution use the existing retained arena, frames and Context session budget. Layout remains pure and never executes Funcs. No source re-evaluation, alternate Context solver or fake operational Location is introduced."
+
+[[claims]]
+id = "complete-result"
+level = "must"
+statement = "Only a candidate with complete source/body/slot coverage, valid authority and consumed running, math and paragraph-line inputs may expose a completed document. Rejected candidates cannot export a tentative document or leak transcript effects."
+
+[[claims]]
+id = "compatibility"
+level = "must"
+statement = "The approved page-running protocol uses new opaque facades without changing existing public layout callback request fields, outcome variants, Content variants, entity fields or legacy entrypoint signatures. Accessibility decoration does not erase language query and counter occurrences."

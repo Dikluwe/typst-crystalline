@@ -1,9 +1,10 @@
 # L0 — heading
-Hash do Código: 034555bc
+Hash do Código: 4b925a3d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml sha256:67e2de824eb08850828b20d39da52b8d33c59ced2138ddb4e8a2a9113aaa3cf1
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 **Layer:** L1
@@ -53,3 +54,14 @@ Internal continuous-flow ADR-0127 corrections preserve public signatures/default
 Owner RED→GREEN: Heading after automatic Block stays fixed when weak par.spacing exceeds own above; a larger explicit below still moves Heading by the legitimate delta. Cover levels 1/2/3, initial Heading and restored-style invariance. Revalidate Heading→Block bilaterally; rerun 78 pairs, nested/regional controls, bibliography without/with title, colors and prior corpus. Require workspace/doctests, strict Clippy, Rustdoc/fmt, V1/V5/V15/V26/reverse and differential Tekt under 12GiB/High8GiB/swap0/jobs1/debug0/incremental0. Do not delete notes or certify the whole objective.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Route the actual body through `HeadingBody` under its source plan, preserving canonical root and derived post-child facts on their accepted physical pages. Generated numbering/decorations and all preflight measurement remain unplanned. Keep every existing style/geometry/margin/strategy/restore formula and static delegation; do not use source equality or a wrapper Location to recover a missing route.

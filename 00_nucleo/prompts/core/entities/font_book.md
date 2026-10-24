@@ -1,5 +1,5 @@
 # L0 — entities/font_book — exact Unicode coverage and font metadata
-Hash do Código: 4582deac
+Hash do Código: b5dede98
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/font_book.rs`
@@ -93,3 +93,40 @@ Decision: express the invalid interval with explicit Range start/end fields,
 and a single valid interval with `std::iter::once`. Preserve all bounds and
 assertions. These are test-fixture spellings only; never turn the invalid range
 into a descending iterator or expand a range collection into codepoints.
+
+
+## R6 immutable coverage storage sharing — 2026-10-24
+
+### Evidence before classification
+
+`lab/results/construction/diagnostics/pdf-resources-r6-2026-10-24/coverage-before.json`
+and its full source archive retain HEAD/dirty diffstat/UTC and exact inputs.
+font_book.rs:160–161 derives Clone over a private Vec<u32>; world/fonts.rs:207–217
+clones populated system/math/project FontInfo while composing the ordered catalog.
+The exact set is immutable, but this copies every run allocation. The received
+allocation profile attributes974768 large requested bytes to fresh_catalog;
+requests are not peak live heap. Recipe-only "z" still fails the fixed aggregate
+RSS3% gate (ratio0.97259); no threshold reduction is permitted.
+
+### Private representation correction and acceptance
+
+Supersede only the earlier requirement to retain private Vec storage and deep
+Clone. Store completed canonical runs as a private Arc<[u32]>; builders still use
+local Vec then seal immutable runs. Clone shares storage in constant time. Retain
+Coverage's public name/constructors/signatures, FontInfo public field types,
+FontBook order/ranking, exact membership/ordered iteration, canonical lengths,
+content equality/hash/debug/default. No public field, new API, mutation method,
+dependency, global state, I/O or pipeline change. This private representation
+correction is continuous under ADR-0127 and required RAM discipline ADR-0029/0030.
+No repr/ABI is promised by this opaque type. Do not expose Arc as a new API.
+
+Before implementation add a nonempty sparse coverage clone resource test that
+preserves membership/equality/hash and then requires no second runs allocation;
+confirm runtime RED and GREEN. Pointer sharing observes only the mechanical
+no-copy requirement, never language identity. Existing canonical-vector tests
+may borrow a slice to observe the same exact values independently of private
+storage; preserve all values and assertions. Keep independent set-oracle,
+metadata/fallback and catalog tests. Shared backing is immutable after source
+drop. Retain only with source-bound full-output preservation and the original
+size/RSS gates, including historical single/plural stress controls; an unchanged
+or worse resource result refutes the performance hypothesis.

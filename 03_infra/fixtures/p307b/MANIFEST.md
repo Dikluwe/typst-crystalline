@@ -9,7 +9,7 @@ e ADR-0098 §"Evolução pós-P307".
 Este ficheiro é **operacional** (tabela de bytes/md5 actualizada
 quando fixtures são regenerados). A documentação de propósito,
 critério de escolha e protocolo de regeneração vive no L0
-`infra/export-fixtures.md`.
+`00_nucleo/prompts/infra/pdf_snapshot_tests.md`.
 
 ---
 
@@ -17,17 +17,17 @@ critério de escolha e protocolo de regeneração vive no L0
 
 | Source | Output (bytes) | md5 (8 prefix) | Cluster exercitado |
 |---|---:|---|---|
-| `01-markup-plain.typ` | 2277 | `0c88172f` | API + Helvetica + escape_pdf_string |
-| `02-markup-heading.typ` | 2754 | `1f3960b2` | Helvetica + emit_text |
-| `03-text-styling.typ` | 2464 | `d6f74d6c` | Bold/italic via Styled → /F2/F3 |
+| `01-markup-plain.typ` | 2283 | `5ed3522e` | API + Helvetica + escape_pdf_string |
+| `02-markup-heading.typ` | 2762 | `2bfaac81` | Helvetica + emit_text |
+| `03-text-styling.typ` | 2475 | `c4e7092e` | Bold/italic via Styled → /F2/F3 |
 | `04-shapes.typ` | 2326 | `62f7c824` | Shape kinds (rect, circle) + paint solid |
 | `05-gradient-linear.typ` | 14129 | `28eb4d9c` | Linear fill Pattern (P1483) |
 | `06-gradient-conic.typ` | 13477 | `cb26a495` | Conic fill Pattern + Coons (geometria 2026-10-14) |
-| `07-multi-feature.typ` | 15115 | `413771c4` | Integração (heading + gradient + multi-página) |
+| `07-multi-feature.typ` | 15126 | `4dd86255` | Integração (heading + gradient + multi-página) |
 | `08-image-jpeg.typ` | 3541 | `b605897f` | JPEG XObject + dedup + zlib |
-| `09-cidfont.typ` | 6768 | `388eb3c5` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
+| `09-cidfont.typ` | 6788 | `17b6f14a` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
 
-**Total**: 62.851 bytes de referência distribuídos por 9 fixtures.
+**Total**: 62.907 bytes de referência distribuídos por 9 fixtures.
 
 ## Cobertura por cluster
 
@@ -218,3 +218,24 @@ com UTC/status/diffstat/hashes na captura anterior e gerações registradas.
 - 04-shapes: 2326 bytes, SHA-256 `5f61fb7580ff1c2af97c099083470b5b8ed9cb274e6c2310e02c2c72ef1cda80`.
 
 - 07-multi-feature: 15115 bytes, SHA-256 `4c3634884134e213f4048c9a904b966989c478c81c93b1c867b93d1f07b6d56d`.
+
+
+### Precisão de coordenadas PDF — lote F, 2026-10-23
+
+Referências 01/02/03/07/09 regeneradas pelo harness existente após a correção
+intencional de precisão de `/W`, `TJ` e origens compactas `Td`. As referências
+anteriores e o estado exato foram preservados em
+`lab/results/pdf-bbox-precision-2026-10-23/snapshots/before/` e `before.json`.
+Somente os cinco casos afetados foram selecionados; duas gerações determinísticas
+com `UPDATE_P307B_SNAPSHOTS=1`, Compact/Disabled/epoch0, produziram hashes iguais.
+Os quatro PDFs restantes ficaram byte-idênticos. Os nove testes sem UPDATE
+passaram; o mecanismo de comparação binária permanece intacto.
+
+A sonda controlada usa os mesmos inputs/fontes/epoch nos modos Compact e Verbose;
+seus compactos coincidem com as novas referências. Texto, caixas, pintura em600dpi
+e validade PDF são medidos em `snapshots/comparison.json`; diferenças contra os
+bytes antigos são correções de precisão, não novos alvos de paridade binária.
+Receitas, fonte da sonda, comandos, hashes e validação completa estão em
+`lab/results/pdf-bbox-precision-2026-10-23/`. HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, working tree não commitado;
+UTC/diffstat/inputs exatos em `validated-state.json` e `snapshots/before.json`.

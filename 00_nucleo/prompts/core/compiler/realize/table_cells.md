@@ -1,15 +1,19 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: 13ca9f93
+Hash do Código: b02c909b
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
-- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/realize/table_cells.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
+
 
 ## Ratified Table insertion and incomplete Cell scope
 
@@ -620,3 +624,115 @@ freezing obsolete whitelist. Functional Context tests owned by
 Change no semantic selector recognition/matching/Mathy catalogue/Table-Cell
 preparation/aliases/wrappers/public interface. Capture retains rules without
 claiming they match every element. Silence no lint or language expectation.
+
+## Operational page templates during Table preparation
+
+### Measurement and approved boundary
+
+At the implementation baseline, `table_cells.rs:17–143` detects unresolved
+Table/Cell through generic preorder traversal, and `:400–425` delegates other
+roots back to that catalogue. SetPage is opaque there but PageRun descendants
+include operational templates. A Table present only in an unused PageRun header
+must not select or execute preparation before a physical insertion. This is a
+boundary ownership fact, not evidence for changing Table placement or semantics.
+
+The frozen bilateral `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json`
+compares source-bound executables against vanilla commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`: raw SetPage headers/footers
+render but their Figure/Context contributions are absent from productive
+semantic stores; overwritten headers remain inert. Native PageRun already
+prepares raw static fields before knowing physical repetitions, so repeating
+that prepared raw object would incorrectly turn independent insertions into
+aliases. These are language effects, morphology, order and Location/page
+observations, not a requirement to copy upstream mechanics.
+
+The separate `lab/results/set-page-header-2026-10-21/ambient-baseline/receipt.json`
+SHA-256 6291efca219a3558ad2192f99f1208d64ad3e70b38ec96db2d417527549fcb05
+refutes freezing creation-time 10pt as insertion styles: the measured header
+uses page-effective 20pt, then inherited page-effective 30pt on the next page.
+Explicit inner header18pt/footer12pt remain binding preservation controls.
+
+The approved review is `lab/results/set-page-header-2026-10-21/review.md`,
+SHA-256 cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039.
+The direct human decision is preserved in
+`lab/results/set-page-header-implementation-2026-10-21/approval.json`.
+It authorizes only the frozen five public facades, opaque carriers and physical
+page phase; it does not authorize additional public contracts or generic
+observer/traversal changes. The implementation baseline is HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`. Exact owning source/L0 bytes,
+SHA-256, UTC and working-tree state before these amendments are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/before.json`.
+
+### Exclusive preservation rule
+
+The borrowed needs-preparation decision and every effectful Table/Cell walk
+intercept SetPage/PageRun operational fields before generic descent. Delegate
+capture/reconstruction to the realization page-running owner: preserve all four
+raw templates and their presence/capture/source data; visit only PageRun's lexical
+body. A pending operational recipe is data here, not an emitted Table argument.
+An actual requested contribution later enters the existing normal Table order:
+Table show → placement/defaults → Cell show → actually emitted child realization.
+
+Keep capture restoration, Table/Cell aliases, Source transparency, row-major
+effects, guards and existing termination unchanged. Do not globally suppress
+ShowRecipe, clear template fields, add a new table/page carrier, execute layout
+callbacks or infer that the absence of body Tables permits inspecting dormant
+fields. Reserve-only identifier scanning remains with the realization hub and
+creates no semantic member. Generic entity traversal stays unchanged.
+
+Require Table/Cell effects in overridden/hidden operational templates to be
+absent before admission and present exactly for actual physical insertions;
+require an ordinary body Table nested in PageRun to prepare normally. Preserve
+all existing Table/Cell language, property, source, termination and layout
+acceptance. No API beyond the frozen physical-page package is introduced here.
+
+## Selected visual occurrence finishing in the operational path
+
+The source-boundary-9 exact full-source Table control fails during evaluation,
+before any Pending layout. TableCell::visual selects resolved.visual before
+standalone.visual; its generic map_content_if_changed currently chooses standalone
+first. Operational finish_occurrences fell back to that generic mapping during
+child recursion, so the selected resolved visual can remain raw while only a
+dormant standalone copy is located. The existing-only provisional source index
+correctly rejects that incomplete canonical body. Exact before source/L0 bytes
+are retained in agents/realization/context-transport-before.
+
+A private feature helper finishes only the actual selected visual: resolved first,
+else standalone, else body. Reenter the parent-owned operational finishing mode
+for that one selected subtree. Clone only the selected retained plan's visual
+field and preserve all properties, guards, stage, raw body and nonselected
+snapshots. Do not change the public generic mapper or Table/Cell snapshot
+contracts; dormant content receives no allocation or callbacks. The parent keeps
+its existing root/Located/Source identity rules. Require the unchanged full-source
+Table/default/header/footer controls, existing aliases and old non-operational
+Table behavior. Passive Context ShowRecipe re-entry delegates to the recipe owner,
+which must not execute that authenticated prepared transport; fresh unmarked
+recipes remain ordinary.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

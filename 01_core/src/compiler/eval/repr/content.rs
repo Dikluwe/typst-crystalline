@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/content.md
-//! @prompt-hash f59d698b
+//! @prompt-hash ea26da74
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -21,7 +21,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::Located(e) => repr_content(&e.body),
         Content::Realized(e) => repr_content(&e.visual),
         Content::Empty => "[]".to_string(),
-        Content::Text(t) => format!("[{}]", t.as_str()),
+        Content::Text(t) | Content::Symbol(t) => format!("[{}]", t.as_str()),
         Content::Space | Content::SpaceFromNewline => "[ ]".to_string(),
         Content::Parbreak => "parbreak()".to_string(),
         Content::Par { body } => format!("par(body: {})", repr_content(body)),
@@ -313,7 +313,7 @@ pub fn repr_content(c: &Content) -> String {
                 .children
                 .iter()
                 .map(|child| match child {
-                    Content::MathIdent(_) | Content::MathText(_) => {
+                    Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_) => {
                         repr_cases_child(child)
                     }
                     Content::MathSequence(_) => repr_cases_child(child),
@@ -427,7 +427,7 @@ pub fn repr_content(c: &Content) -> String {
                     // P1292-C v7: uma folha math direta continua armazenada
                     // como math (logo layout/igualdade não mudam), mas sua
                     // projeção pública é a de Content textual `[x]`.
-                    Content::MathIdent(_) | Content::MathText(_) => {
+                    Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_) => {
                         repr_p1293_math_field(child)
                     }
                     // Estruturas e markup conservam o formatter próprio; a

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr.md
-//! @prompt-hash 00878f91
+//! @prompt-hash 5c7d703b
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -283,7 +283,7 @@ mod tests {
         use crate::entities::func::{ClosureParam, ClosureRepr};
         use crate::entities::scope::{Capturer, Scope};
         use crate::entities::source::Source;
-        let source = Source::detached("x + 1");
+        let source = Source::detached("x + 1").expect("valid Source test fixture");
         let body = source.root().clone();
         let f = crate::entities::func::Func::closure(ClosureRepr {
             name: Some("f".into()),

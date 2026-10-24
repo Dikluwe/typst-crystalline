@@ -1,5 +1,5 @@
 # L0 — infra/shaper/font_selection
-Hash do Código: 16aac30f
+Hash do Código: ad84d4b4
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/font_selection.rs`
@@ -9,7 +9,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 ```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
 - 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:bb9850c42a48ec519f605159d6aea76b305b0ccf6643ef6a4f8137720c76c898
 ```
 
@@ -100,3 +100,28 @@ changed_families_variants_and_math_match_fresh_in_both_orders use fixed-size arr
 with same cases/orders/iterations/expectations. No resolution/coverage/cache/
 segmentation change; selected GREEN then existing suite/build/all-target Clippy/
 fmt/doc/lineage with scoped seals, no new suppressions/syntax-mirror tests.
+
+## Measured R3 geometry correction — 2026-10-23
+
+### Measurement before decision
+
+`lab/results/math-geometry-r3-2026-10-23/{baseline.json,baseline-source.json.gz,before/receipt.json,reductions/receipt.json}` retain the received R2 state, UTC, dirty HEAD/stat, full source map, exact inputs, binary hashes and commands. Oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`, SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Seven of 19 render probes fail 0.001 pt: five at 0.92119 pt vertical, unicode at 2.136005 pt, and selected-multichar at 0.492 pt. Isolated alpha without show has the same vertical error; adjacent ordinary text refutes a show-specific cause. Markup base and variation form both select NewCMMath rather than oracle FreeMono. Symbol arrow has omitted per-letter italic correction; sum happens to match.
+
+Pinned `math/mod.rs:49–102` admits the normalized inline frame; `math/ir/resolve.rs:326–358` resolves each Symbol grapheme to a glyph; `inline/shaping.rs:929–936` uses ordinary fallback without inferring math from a font table. Current `equation.rs:49–52` installs the outer text strut before measurement, `math/layout/mod.rs:1354–1373` treats an entire Symbol as one glyph run, and `shaper/font_selection.rs:66–70` injects math fallback for ordinary DejaVu Sans because it has MATH. Coordinates, selected visual glyphs and source identity are observable output; storage/algorithm are mechanics. These are internal parity corrections under continuous ADR-0127, with no public contract/default/phase/compatibility change. Refutation requires bilateral PDF and SVG coordinates, adjacent-text, ordinary base/variation and grapheme controls; a passing glyph count alone is insufficient.
+
+### Exclusive obligation
+Activate the additional mathematical chain only from explicit math mode. A primary MATH table is a font capability, not a language-mode signal; declared math families remain declared first even outside math. This clause supersedes the earlier primary_has_math trigger, not declared-family order or explicit math fallback. Keep authored variation selectors attached to their base when evaluating run coverage, without preferring a different font solely for a selector's cmap entry; preserve the complete text for the shaper's variation selection. Use the same finite Unicode selector ranges as the existing font-metrics predicate (FE00–FE0F and E0100–E01EF), without widening the format-control set. Preserve global similarity, dense slot interning, cache keys, script boundaries and bidi controls. Test a MATH-capable body primary, true/false mode cache transitions and base-plus-selector run identity.
+
+Require actual RED→GREEN, scoped resealing with valid V15/V26, full workspace validation, unchanged 0.001 pt bounds and preservation of received changes.
+
+
+## R8 read-only selected-face access
+
+Evidence: red-cache-multiline.json/log under the R8 diagnostic root confirms
+native-feature cache contamination, while the snowman refuter confirms the
+existing longest-covering selection must stay unchanged. Add only a descendant
+read-only accessor to the existing FaceCache for an already selected global slot.
+Do not select/rank/intern a different candidate, reload a cached face, apply axes
+to the cached base or expose a new public API. The shaping owner clones the face,
+applies its existing variations and owns feature certification. Full selection,
+font-cache, warm/cold script and workspace/lineage tests remain required.

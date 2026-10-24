@@ -1,5 +1,5 @@
 # L0 — svg/geometry
-Hash do Código: 32089e90
+Hash do Código: 37de4684
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -113,3 +113,27 @@ needs another ADR-0127 gate. Validate build/fmt/strict/reverse lineage/Tekt no n
 errors/warnings, existing Counter/coverage tests under 12 GiB, zero swap, one job.
 Prior full suite is evidence for identical executable code, not a fresh run;
 no lint-attribute mirror tests or new performance comparison for metadata.
+
+## Stroke-only line paint (2026-10-22)
+
+### Measurement before decision
+
+The source-bound underline observations in
+`lab/results/remaining-parity-2026-10-22/underline-before/measurement.json.gz`
+retain UTC, uncommitted HEAD/diffstat, successful candidate-build binding, exact
+programs and full SVGs. `noto-11` agrees in line coordinates and thickness, but
+its line inherits the SVG default black fill where the pinned oracle emits
+no fill. DejaVu/Nimbus also expose independent font-metric differences.
+`03_infra/src/export/svg/geometry.rs:21–29` writes stroke attributes without
+a fill declaration. This does not authorize changing geometry tolerances,
+font selection, layout metrics, cap policy or any public signature.
+
+### Required paint transport and acceptance
+
+A `FrameItem::Line` represents stroke-only paint. Emit an explicit no-fill
+declaration so ancestor/default fill cannot become its effective fill. Preserve
+its endpoints, supplied thickness and color, existing butt cap and transport
+through enclosing groups. Test default and explicit stroke colors inside a
+colored enclosing group. Re-run the unchanged effective-paint comparison; font
+metrics remain the layout/provider owners' responsibility. This is an internal
+export parity correction under ADR-0127 continuous flow.

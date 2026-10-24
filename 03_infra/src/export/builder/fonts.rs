@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/fonts.md
-//! @prompt-hash 134e299e
+//! @prompt-hash 9c07fa22
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use super::navigation::PageIndexConverter;
 use super::resources::{colorspace_resource_entry, has_rgb_jpeg, merge_bitmap_xobjects};
@@ -33,6 +33,7 @@ use crate::export::xobject_resources_for_page;
 use crate::export::FontKey;
 use crate::export::ImageXObject;
 use crate::export::PageContext;
+use crate::export::PdfExport;
 use crate::export::StreamMode;
 use crate::font_metrics::build_math_glyph_reverse_map;
 use crate::font_variant::axis_variations_for_font_variant;
@@ -416,7 +417,7 @@ impl PdfBuilder {
         doc: &PagedDocument,
         face: &Face<'_>,
         font_data: &[u8],
-    ) -> (Vec<u8>, f64) {
+    ) -> PdfExport<(Vec<u8>, f64)> {
         // **P1468** — ver nota equivalente em `build_helvetica`.
         let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
         let n = pic.exported_count();
@@ -561,7 +562,7 @@ impl PdfBuilder {
             && used_ids.iter().all(|gid| bitmap_glyphs.contains_key(gid));
 
         let (img_refs, ptr_to_idx, mut img_xobjects) =
-            scan_all_images(doc, first_img_id, icc_profile_id);
+            scan_all_images(doc, first_img_id, icc_profile_id, &mut self.warnings);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
@@ -595,6 +596,7 @@ impl PdfBuilder {
             bitmap_refs.insert(
                 *gid,
                 crate::export::bitmap_glyphs::BitmapGlyphRef {
+                    type3_code: None,
                     name: name.clone(),
                     width: bmp.payload.width,
                     height: bmp.payload.height,
@@ -609,6 +611,9 @@ impl PdfBuilder {
                 main_obj_id: main_id,
                 smask_obj_id: smask_id,
             });
+        }
+        if bitmap_only && bitmap_refs.len() <= 256 {
+            certify_bitmap_codes(&mut bitmap_refs);
         }
         img_xobjects.extend(bitmap_xobjects);
         next_sub_id = next_bitmap_id;
@@ -697,88 +702,99 @@ impl PdfBuilder {
         let (cid_subtype, font_file_key, stream_subtype, font_stream_data) =
             font_embedding_data(&embed_font_data);
 
-        // Type0 font (F1)
-        self.add(
-            font_id,
-            format!(
-                "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
+        if bitmap_only && bitmap_refs.len() <= 256 {
+            self.add_bitmap_type3(
+                font_id,
+                face,
+                &bitmap_refs,
+                doc,
+                &bitmap_res_entries,
+                &mut next_sub_id,
+            );
+        } else {
+            // Type0 font (F1)
+            self.add(
+                font_id,
+                format!(
+                    "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
                /Encoding /Identity-H \
                /DescendantFonts [{cidfont_id} 0 R] \
                /ToUnicode {to_unicode_id} 0 R >>"
-            ),
-        );
+                ),
+            );
 
-        // CIDFont
-        self.add(
-            cidfont_id,
-            format!(
-                "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
+            // CIDFont
+            self.add(
+                cidfont_id,
+                format!(
+                    "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
                /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
                /FontDescriptor {font_descriptor_id} 0 R \
                /DW 500 \
                /W [{widths}] >>"
-            ),
-        );
+                ),
+            );
 
-        // FontDescriptor — P760/P1051: métricas reais da fonte embutida
-        let full_face = ttf_parser::Face::parse(font_data, 0).ok();
-        let fd = full_face
-            .as_ref()
-            .or(subset_face.as_ref())
-            .map(font_descriptor_metrics)
-            .unwrap_or_default();
-        // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
-        // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
-        // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
-        let font_file_entry = if bitmap_only {
-            String::new()
-        } else {
-            format!("{font_file_key} {font_stream_id} 0 R")
-        };
-        self.add(
-            font_descriptor_id,
-            format!(
-                "<< /Type /FontDescriptor /FontName /{base_font_name} \
+            // FontDescriptor — P760/P1051: métricas reais da fonte embutida
+            let full_face = ttf_parser::Face::parse(font_data, 0).ok();
+            let fd = full_face
+                .as_ref()
+                .or(subset_face.as_ref())
+                .map(font_descriptor_metrics)
+                .unwrap_or_default();
+            // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
+            // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
+            // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
+            let font_file_entry = if bitmap_only {
+                String::new()
+            } else {
+                format!("{font_file_key} {font_stream_id} 0 R")
+            };
+            self.add(
+                font_descriptor_id,
+                format!(
+                    "<< /Type /FontDescriptor /FontName /{base_font_name} \
                /Flags 32 \
                /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
                /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
                /CapHeight {:.5} /StemV 80 \
                {font_file_entry} >>",
-                fd.font_bbox[0],
-                fd.font_bbox[1],
-                fd.font_bbox[2],
-                fd.font_bbox[3],
-                fd.italic_angle,
-                fd.ascent,
-                fd.descent,
-                fd.cap_height
-            ),
-        );
+                    fd.font_bbox[0],
+                    fd.font_bbox[1],
+                    fd.font_bbox[2],
+                    fd.font_bbox[3],
+                    fd.italic_angle,
+                    fd.ascent,
+                    fd.descent,
+                    fd.cap_height
+                ),
+            );
 
-        // Font data stream — P516: usa subset se possível, senão fonte completa.
-        // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
-        // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
-        // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
-        // manter a numeração do xref (não é referenciado pelo descritor).
-        if bitmap_only {
-            self.add_bytes(
-                font_stream_id,
-                b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
-            );
-        } else {
-            self.add_bytes(
-                font_stream_id,
-                build_font_stream(stream_subtype, font_stream_data),
-            );
+            // Font data stream — P516: usa subset se possível, senão fonte completa.
+            // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
+            // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
+            // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
+            // manter a numeração do xref (não é referenciado pelo descritor).
+            if bitmap_only {
+                self.add_bytes(
+                    font_stream_id,
+                    b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
+                );
+            } else {
+                self.add_bytes(
+                    font_stream_id,
+                    build_font_stream(stream_subtype, font_stream_data),
+                );
+            }
+
+            // ToUnicode CMap stream
+            let cmap = to_unicode_cmap(&to_unicode_mappings);
+            let cmap_len = cmap.len();
+            let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+            cmap_obj.extend_from_slice(&cmap);
+            cmap_obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(to_unicode_id, cmap_obj);
         }
-
-        // ToUnicode CMap stream
-        let cmap = to_unicode_cmap(&to_unicode_mappings);
-        let cmap_len = cmap.len();
-        let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
-        cmap_obj.extend_from_slice(&cmap);
-        cmap_obj.extend_from_slice(b"\nendstream");
-        self.add_bytes(to_unicode_id, cmap_obj);
 
         // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
         // **P1477** — perfil selecionado pela versão efetiva do PDF.
@@ -837,7 +853,8 @@ impl PdfBuilder {
         self.emit_pdfua_viewer_preferences();
         self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
-        (self.serialize(), subset_ms)
+        let warnings = std::mem::take(&mut self.warnings);
+        PdfExport { output: (self.serialize(), subset_ms), warnings }
     }
 
     // ── Caminho Multi-font (Passo 146, ADR-0055 decisão 5) ───────────────────
@@ -847,7 +864,7 @@ impl PdfBuilder {
         doc: &PagedDocument,
         fonts: &[FontKey],
         faces: &[Face<'_>],
-    ) -> (Vec<u8>, f64) {
+    ) -> PdfExport<(Vec<u8>, f64)> {
         // **P1468** — ver nota equivalente em `build_helvetica`.
         let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
         let n_pages = pic.exported_count();
@@ -978,11 +995,11 @@ impl PdfBuilder {
                     };
                     let applied = instance.is_some();
                     if !axis_vars.is_empty() && !applied {
-                        eprintln!(
+                        self.warn(format!(
                             "Aviso: falha ao instanciar fonte variável para {:?}/{:?}; \
                              a usar instância default.",
                             font_list, font_variant,
-                        );
+                        ));
                     }
                     (
                         instance.unwrap_or_else(|| font_bytes.clone()),
@@ -1071,7 +1088,7 @@ impl PdfBuilder {
             .collect();
 
         let (img_refs, ptr_to_idx, mut img_xobjects) =
-            scan_all_images(doc, first_img_id, icc_profile_id);
+            scan_all_images(doc, first_img_id, icc_profile_id, &mut self.warnings);
 
         // P263 — gradient pre-pass.
         let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
@@ -1112,6 +1129,7 @@ impl PdfBuilder {
                 refs.insert(
                     *gid,
                     crate::export::bitmap_glyphs::BitmapGlyphRef {
+                        type3_code: None,
                         name: name.clone(),
                         width: bmp.payload.width,
                         height: bmp.payload.height,
@@ -1126,6 +1144,9 @@ impl PdfBuilder {
                     main_obj_id: main_id,
                     smask_obj_id: smask_id,
                 });
+            }
+            if refs.len() <= 256 {
+                certify_bitmap_codes(&mut refs);
             }
             per_font_bitmap.push(Some(refs));
         }
@@ -1214,6 +1235,19 @@ impl PdfBuilder {
 
         // Emit objectos por font (5 cada).
         for (fi, _) in fonts.iter().enumerate() {
+            if let Some(refs) = &per_font_bitmap[fi] {
+                if refs.values().all(|reference| reference.type3_code.is_some()) {
+                    self.add_bitmap_type3(
+                        fonts_start + 5 * fi,
+                        &faces[fi],
+                        refs,
+                        &bound_views[fi],
+                        &bitmap_res_entries,
+                        &mut next_sub_id,
+                    );
+                    continue;
+                }
+            }
             let font_data = &per_font_embed_data[fi];
             let type0_id = fonts_start + 5 * fi;
             let cidfont_id = type0_id + 1;
@@ -1380,7 +1414,112 @@ impl PdfBuilder {
         self.emit_pdfua_viewer_preferences();
         self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
-        (self.serialize(), subset_ms)
+        let warnings = std::mem::take(&mut self.warnings);
+        PdfExport { output: (self.serialize(), subset_ms), warnings }
+    }
+}
+
+fn certify_bitmap_codes(
+    refs: &mut HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
+) {
+    let mut ids = refs.keys().copied().collect::<Vec<_>>();
+    ids.sort_unstable();
+    for (code, gid) in ids.into_iter().enumerate() {
+        refs.get_mut(&gid).unwrap().type3_code =
+            Some(u8::try_from(code).expect("at most256 certified glyphs"));
+    }
+}
+
+impl PdfBuilder {
+    fn add_bitmap_type3(
+        &mut self,
+        font_id: usize,
+        face: &Face<'_>,
+        refs: &HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
+        doc: &PagedDocument,
+        resources: &[String],
+        next: &mut usize,
+    ) {
+        let mut ids = refs.keys().copied().collect::<Vec<_>>();
+        ids.sort_unstable();
+        let mut bounds =
+            [f64::INFINITY, f64::INFINITY, f64::NEG_INFINITY, f64::NEG_INFINITY];
+        let mut procs = Vec::new();
+        let mut widths = Vec::new();
+        let mut names = Vec::new();
+        let mut unicode = Vec::new();
+        let clusters: HashMap<u16, String> =
+            collect_shaped_cluster_texts(doc).into_iter().collect();
+        let reverse = build_math_glyph_reverse_map(face);
+        let upem = f64::from(face.units_per_em().max(1));
+        for gid in ids {
+            let bmp = &refs[&gid];
+            let code = bmp.type3_code.expect("certified source code");
+            let scale = upem / f64::from(bmp.pixels_per_em.max(1));
+            let x = f64::from(bmp.bearing_x) * scale;
+            let y = f64::from(bmp.bearing_y) * scale;
+            let w = f64::from(bmp.width) * scale;
+            let h = f64::from(bmp.height) * scale;
+            bounds[0] = bounds[0].min(x);
+            bounds[1] = bounds[1].min(y);
+            bounds[2] = bounds[2].max(x + w);
+            bounds[3] = bounds[3].max(y + h);
+            let width = face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0);
+            let id = *next;
+            *next += 1;
+            let stream = format!(
+                "{width} 0 d0\nq\n{w:.9} 0 0 {h:.9} {x:.9} {y:.9} cm\n/{} Do\nQ\n",
+                bmp.name
+            );
+            self.add_bytes(
+                id,
+                format!("<< /Length {} >>\nstream\n{stream}endstream", stream.len())
+                    .into_bytes(),
+            );
+            procs.push(format!("/g{code} {id} 0 R"));
+            names.push(format!("/g{code}"));
+            widths.push(width.to_string());
+            if let Some(hex) = clusters
+                .get(&gid)
+                .cloned()
+                .or_else(|| reverse.get(&gid).map(|&c| char_to_utf16_hex(c)))
+            {
+                unicode.push((code, hex));
+            }
+        }
+        let cmap_id = *next;
+        *next += 1;
+        let descriptor_id = *next;
+        *next += 1;
+        let mut cmap=String::from("/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /CrystallineBitmapUnicode def\n/CMapType 2 def\n1 begincodespacerange\n<00> <FF>\nendcodespacerange\n");
+        for chunk in unicode.chunks(100) {
+            cmap.push_str(&format!("{} beginbfchar\n", chunk.len()));
+            for (code, hex) in chunk {
+                cmap.push_str(&format!("<{code:02X}> <{hex}>\n"));
+            }
+            cmap.push_str("endbfchar\n");
+        }
+        cmap.push_str(
+            "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n",
+        );
+        self.add_bytes(
+            cmap_id,
+            format!("<< /Length {} >>\nstream\n{cmap}endstream", cmap.len()).into_bytes(),
+        );
+        let bbox = format!(
+            "{:.9} {:.9} {:.9} {:.9}",
+            bounds[0], bounds[1], bounds[2], bounds[3]
+        );
+        let family = face
+            .names()
+            .into_iter()
+            .find(|n| n.name_id == 6)
+            .and_then(|n| n.to_string())
+            .unwrap_or_else(|| "CrystallineBitmap".to_string())
+            .replace(' ', "");
+        self.add(descriptor_id,format!("<< /Type /FontDescriptor /FontName /{family} /Flags 131077 /ItalicAngle 0 /Ascent {:.9} /Descent {:.9} /FontBBox [{bbox}] >>",bounds[3],bounds[1]));
+        let matrix = 1.0 / upem;
+        self.add(font_id,format!("<< /Type /Font /Subtype /Type3 /Name /{family} /FontDescriptor {descriptor_id} 0 R /FontBBox [{bbox}] /FontMatrix [{matrix:.15} 0 0 {matrix:.15} 0 0] /CharProcs << {} >> /Encoding << /Type /Encoding /Differences [0 {}] >> /FirstChar 0 /LastChar {} /Widths [{}] /Resources << /XObject << {} >> >> /ToUnicode {cmap_id} 0 R >>",procs.join(" "),names.join(" "),refs.len()-1,widths.join(" "),resources.join(" ")));
     }
 }
 
@@ -1439,6 +1578,109 @@ mod variable_instance_tests {
                     text.contains(widths),
                     "PDF widths must describe the requested instance: {widths}"
                 );
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod r10_bitmap_text_tests {
+    use super::*;
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    use typst_core::entities::{
+        content::Content,
+        font_book::FontVariant,
+        font_list::FontList,
+        font_variations::FontVariations,
+        layout_types::{Page, Point, Pt, TextStyle},
+        shaped_glyph::ShapedGlyph,
+        world_types::Font,
+    };
+    #[test]
+    fn r10_bitmap_source_character_survives_both_pdf_modes_and_font_paths() {
+        let bytes = include_bytes!("../../../fixtures/fonts/raster-glyph.ttf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let gid = face.glyph_index('☃').unwrap().0;
+        let family = FontList::single("Crystalline Raster Fixture".into());
+        let style = TextStyle {
+            size: Pt(12.0),
+            font: Some(family.clone()),
+            ..TextStyle::default()
+        };
+        let doc = PagedDocument::new(vec![Page {
+            width: 100.0,
+            height: 100.0,
+            logical_number: 1,
+            numbering: None,
+            supplement: Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![FrameItem::TextShaped {
+                pos: Point { x: Pt(10.0), y: Pt(20.0) },
+                text: "☃".into(),
+                style,
+                glyphs: vec![ShapedGlyph {
+                    glyph_id: gid,
+                    x_advance: 750,
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: '☃',
+                }],
+                units_per_em: 1000,
+                bidi: None,
+                font: Some(Font::from_data(bytes.to_vec())),
+            }],
+        }]);
+        let fonts = vec![(
+            (family, FontVariant::default(), FontVariations::default()),
+            bytes.to_vec(),
+        )];
+        let mut replaced = doc.clone();
+        replaced.pages[0].items = vec![FrameItem::TextReplacement {
+            text: "☃".into(),
+            items: doc.pages[0].items.clone(),
+        }];
+        let mut reference = None;
+        for document in [&doc, &replaced] {
+            for mode in [StreamMode::Compact, StreamMode::Verbose] {
+                let outputs = [
+                    crate::export::export_pdf_with_font(document, bytes, mode),
+                    crate::export::export_pdf_multifont(document, &fonts, mode),
+                ];
+                for pdf in outputs {
+                    let mut child = Command::new("pdftotext")
+                        .args(["-bbox", "-", "-"])
+                        .stdin(Stdio::piped())
+                        .stdout(Stdio::piped())
+                        .stderr(Stdio::piped())
+                        .spawn()
+                        .expect("PDF validation requires pdftotext");
+                    child.stdin.take().unwrap().write_all(&pdf).unwrap();
+                    let out = child.wait_with_output().unwrap();
+                    assert!(
+                        out.status.success(),
+                        "{}",
+                        String::from_utf8_lossy(&out.stderr)
+                    );
+                    let observed = String::from_utf8_lossy(&out.stdout)
+                        .lines()
+                        .find(|line| line.contains(">☃</word>"))
+                        .map(str::to_string);
+                    if let Some(expected) = &reference {
+                        assert_eq!(&observed,expected,"source-identical replacement preserves actual bitmap glyph coordinates");
+                    } else {
+                        reference = Some(observed.clone());
+                    }
+                    assert!(
+                        String::from_utf8_lossy(&out.stdout).contains(">☃</word>"),
+                        "bitmap paint must retain its source character: {}",
+                        String::from_utf8_lossy(&out.stdout)
+                    );
+                }
             }
         }
     }

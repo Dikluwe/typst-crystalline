@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash c5bfdbc7
+//! @prompt-hash dae6ef64
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 //!
 //! Sub-layout de conteúdo numa região isolada.
 //! Extraído de `layout/mod.rs` no Passo 629 (sub-passo A) e refactorizado
@@ -39,7 +39,82 @@ pub(crate) struct SubLayoutRegion {
     pub unconstrained_height: bool,
 }
 
+enum Purpose {
+    Ordinary,
+    Footnote,
+    Repeat,
+}
+
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    pub(super) fn layout_sub_frame_planned(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+        geometric: bool,
+        planned: Option<super::page_running_requests::Cursor>,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            geometric,
+            planned,
+            None,
+            Purpose::Ordinary,
+        )
+    }
+
+    pub(super) fn layout_repeat_piece(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+        planned: Option<super::page_running_requests::Cursor>,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            true,
+            planned,
+            None,
+            Purpose::Repeat,
+        )
+    }
+
+    pub(super) fn layout_sub_frame_footnote(
+        &mut self,
+        combined: &Content,
+        region: SubLayoutRegion,
+        prefix: &Content,
+        cursor: Option<super::page_running_requests::Cursor>,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        let prefix = cursor.map(|cursor| (prefix, cursor));
+        self.layout_sub_frame_with_origin(
+            combined,
+            region,
+            false,
+            None,
+            prefix,
+            Purpose::Footnote,
+        )
+    }
+
     /// Layout de conteúdo numa região isolada.
     ///
     /// Salva o estado completo do layouter, cria um frame temporário com
@@ -73,7 +148,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Vec<PendingAlignXEntry>,
         Vec<PendingAlignYEntry>,
     ) {
-        self.layout_sub_frame_with_origin(content, region, false)
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            false,
+            None,
+            None,
+            Purpose::Ordinary,
+        )
     }
 
     pub(super) fn layout_sub_frame_at_geometric_origin(
@@ -87,7 +169,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Vec<PendingAlignXEntry>,
         Vec<PendingAlignYEntry>,
     ) {
-        self.layout_sub_frame_with_origin(content, region, true)
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            true,
+            None,
+            None,
+            Purpose::Ordinary,
+        )
     }
 
     fn layout_sub_frame_with_origin(
@@ -95,6 +184,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         content: &Content,
         region: SubLayoutRegion,
         geometric_origin: bool,
+        planned: Option<super::page_running_requests::Cursor>,
+        generated_prefix: Option<(&Content, super::page_running_requests::Cursor)>,
+        purpose: Purpose,
     ) -> (
         f64,
         Vec<FrameItem>,
@@ -104,12 +196,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ) {
         #[cfg(test)]
         super::tests::record_cell_sub_frame();
+        let (preserve_footnote_capture, nonexpanding_piece) = match purpose {
+            Purpose::Ordinary => (false, false),
+            Purpose::Footnote => (true, false),
+            Purpose::Repeat => (false, true),
+        };
+        let saved_literal_script_break =
+            std::mem::take(&mut self.literal_script_break_pending);
+        let saved_horizontal_offset =
+            std::mem::replace(&mut self.text_horizontal_offset, Pt(0.0));
+        let saved_piece_alignment = self.piece_alignment.take();
+        self.piece_alignment =
+            nonexpanding_piece.then(|| super::repeat::PieceAlignment::new(region.width));
+        let saved_running = (planned.is_none() && generated_prefix.is_none())
+            .then(|| self.page_running_pass.take());
+        let saved_footnote_capture =
+            (!preserve_footnote_capture).then(|| self.footnote_capture.take());
+        let saved_footnote_reserve =
+            std::mem::replace(&mut self.footnote_reserved_height, 0.0);
 
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
         let saved_line = std::mem::take(&mut self.regions.current.current_line);
         self.open_link_segments();
         // Pending indices belong to this line, not to the shared layouter.
+        let saved_inline_allocation = self.inline_allocation.take();
         let saved_fr = std::mem::take(&mut self.regions.current.pending_fr);
         let saved_fr_widths = std::mem::take(&mut self.pending_fr_natural_widths);
         let saved_repeats = std::mem::take(&mut self.pending_repeats);
@@ -145,6 +256,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Some((region.width, region.height.unwrap_or(parent_height)));
         let saved_sub_frame_origin_y = self.sub_frame_origin_y;
         let saved_flow_placement_end = self.flow_placement_end.take();
+        let saved_flow_baseline = self.flow_baseline.take();
         let saved_flow_frame_extent =
             std::mem::replace(&mut self.flow_frame_extent, (region.origin_x, 0.0));
         let saved_block_place_region = self.block_place_region.take();
@@ -260,7 +372,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let pending_x_before = self.pending_align_centering.len();
         let pending_y_before = self.pending_align_v_centering.len();
 
-        self.layout_content(content);
+        if let Some((prefix, cursor)) = generated_prefix {
+            self.layout_content(prefix);
+            if let Some(body) =
+                cursor.plan.node(cursor.packet).map(|node| node.content.clone())
+            {
+                self.layout_planned_cursor(cursor, &body, false);
+            }
+        } else if let Some(cursor) = planned {
+            self.layout_planned_cursor(cursor, content, false);
+        } else {
+            self.layout_content(content);
+        }
 
         let orphaned_align_x = self.pending_align_centering.split_off(pending_x_before);
         let orphaned_align_y = self.pending_align_v_centering.split_off(pending_y_before);
@@ -272,7 +395,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         // **P625** — alinhar linha RTL antes de a drenar, do mesmo modo
         // que `flush_line` e `finish` fazem no fluxo principal.
-        if region.align_rtl || self.explicit_line_alignment.is_some() {
+        if region.align_rtl
+            || self.explicit_line_alignment.is_some()
+            || self.piece_alignment.is_some()
+        {
             self.align_current_line_rtl();
         }
 
@@ -341,21 +467,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.regions.current.cursor_y += Pt(extra);
         }
 
+        if had_items {
+            self.record_flow_baseline(Some(self.regions.current.cursor_y.0));
+        }
+
         // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
         // segmento da última linha do sub-frame (que este flush manual
         // drena sem passar por `flush_line`, daí a decoração nunca ter
         // sido capturada aqui antes desta correcção).
         if had_items {
             let decoration_start = Pt(super::paragraph_indent::bounds(self).0);
+            let piece_line = super::repeat::piece_line(self);
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(DecoSegment {
                     start_x: decoration_start,
                     end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
+                    piece_line,
                 });
             }
         }
         self.close_link_line_segments();
+        super::repeat::commit_piece_line(self);
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -390,6 +523,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // equação de bloco, quando existe) antes de o estado ser restaurado.
         // O chamador (`transform.rs`) usa-o para derivar o descent do frame.
         self.last_sub_frame_flow_width = self.flow_frame_extent.1;
+        self.last_sub_frame_baseline = self.flow_baseline;
         self.last_sub_frame_width = (self.regions.current.cursor_x.0
             - self.regions.current.line_start_x.0)
             .max(0.0);
@@ -399,8 +533,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.last_block_descent_y = saved_last_block_descent_y;
 
         // Recuperar items do sub-frame e restaurar estado.
-        let cell_items =
+        let mut cell_items =
             std::mem::replace(&mut self.regions.current.current_items, saved_items);
+        let completed_piece_alignment = self.piece_alignment.take();
+        self.piece_alignment = saved_piece_alignment;
+        self.text_horizontal_offset = saved_horizontal_offset;
+        self.literal_script_break_pending = saved_literal_script_break;
         self.regions.current.cursor_x = saved_x;
         self.regions.current.cursor_y = saved_y;
         self.regions.current.line_start_x = saved_line_start_x;
@@ -410,6 +548,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.pending_fr = saved_fr;
         self.pending_fr_natural_widths = saved_fr_widths;
         self.pending_repeats = saved_repeats;
+        self.inline_allocation = saved_inline_allocation;
         self.justify_opportunities = saved_justify;
         self.bidi_scope_active = saved_bidi_scope;
         self.bidi_cursor = saved_bidi_cursor;
@@ -424,6 +563,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.relative_region_size = saved_relative_region;
         self.sub_frame_origin_y = saved_sub_frame_origin_y;
         self.flow_placement_end = saved_flow_placement_end;
+        self.flow_baseline = saved_flow_baseline;
         self.flow_frame_extent = saved_flow_frame_extent;
         self.block_place_region = saved_block_place_region;
         self.block_auto_width = saved_block_auto_width;
@@ -446,9 +586,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.prev_margin_is_parbreak = saved_prev_margin_is_parbreak;
         // **P772x** — recuperar segmentos locais e restaurar o collector
         // ambiente (LIFO — ver comentário no início da função).
-        let deco_segments = self.decoration_lines_collector.take().unwrap_or_default();
+        let mut deco_segments =
+            self.decoration_lines_collector.take().unwrap_or_default();
+        if let Some(scope) = completed_piece_alignment {
+            scope.settle(
+                &mut cell_items,
+                &mut deco_segments,
+                self.last_sub_frame_flow_width.min(region.width),
+            );
+        }
         self.decoration_lines_collector = saved_collector;
 
+        if let Some(saved) = saved_running {
+            self.page_running_pass = saved;
+        }
+        self.footnote_reserved_height = saved_footnote_reserve;
+        if let Some(saved) = saved_footnote_capture {
+            self.footnote_capture = saved;
+        }
         (cell_height, cell_items, deco_segments, orphaned_align_x, orphaned_align_y)
     }
 
@@ -462,11 +617,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ///
     /// O caller é responsável por configurar `regions.current.width` antes
     /// de chamar (por exemplo, `boxed.rs` clampa a largura ao width do box).
-    pub(super) fn layout_sub_frame_inline(
+    pub(super) fn layout_sub_frame_inline_planned(
         &mut self,
         content: &Content,
         region: SubLayoutRegion,
+        planned: Option<super::page_running_requests::Cursor>,
     ) -> (f64, Vec<FrameItem>) {
+        let saved_literal_script_break =
+            std::mem::take(&mut self.literal_script_break_pending);
+        let saved_horizontal_offset =
+            std::mem::replace(&mut self.text_horizontal_offset, Pt(0.0));
+        let saved_piece_alignment = self.piece_alignment.take();
+        let saved_running = planned.is_none().then(|| self.page_running_pass.take());
+        let saved_footnote_capture = self.footnote_capture.take();
+        let saved_footnote_reserve =
+            std::mem::replace(&mut self.footnote_reserved_height, 0.0);
         // A variante inline opera sobre a linha horizontal do pai e não usa
         // região geométrica própria. Se estes campos vierem preenchidos, o
         // caller provavelmente queria `layout_sub_frame`.
@@ -487,7 +652,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             super::paragraph_indent::State::fragment(content),
         );
         let saved_escape = self.pending_bib_escape.take();
-        self.layout_content(content);
+        if let Some(cursor) = planned {
+            self.layout_planned_cursor(cursor, content, false);
+        } else {
+            self.layout_content(content);
+        }
         self.cell_bidi_allowed = saved_cell_bidi_allowed;
 
         // Isolar a cauda da `current_line` que foi adicionada pelo body.
@@ -539,6 +708,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         self.paragraph_indent = saved_indent;
         self.pending_bib_escape = saved_escape;
+        if let Some(saved) = saved_running {
+            self.page_running_pass = saved;
+        }
+        self.footnote_reserved_height = saved_footnote_reserve;
+        self.footnote_capture = saved_footnote_capture;
+        self.piece_alignment = saved_piece_alignment;
+        self.text_horizontal_offset = saved_horizontal_offset;
+        self.literal_script_break_pending = saved_literal_script_break;
         (height, aligned_body_tail)
     }
 }
@@ -711,13 +888,46 @@ mod pending_line_isolation {
     use comemo::Track;
 
     fn text_positions(items: &[FrameItem]) -> Vec<(String, f64)> {
-        items
-            .iter()
-            .filter_map(|item| match item {
-                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.0)),
-                _ => None,
-            })
-            .collect()
+        use crate::entities::layout_types::TransformMatrix;
+        fn walk(
+            items: &[FrameItem],
+            transform: TransformMatrix,
+            out: &mut Vec<(String, f64)>,
+        ) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, pos, .. }
+                    | FrameItem::TextShaped { text, pos, .. } => {
+                        if !text.is_empty() {
+                            out.push((
+                                text.to_string(),
+                                transform.apply(pos.x.0, pos.y.0).0,
+                            ));
+                        }
+                    }
+                    FrameItem::Group { pos, matrix, items, .. } => walk(
+                        items,
+                        transform
+                            .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                            .concat(matrix),
+                        out,
+                    ),
+                    FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => {
+                        walk(items, transform, out)
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(items, TransformMatrix::identity(), &mut out);
+        out
     }
 
     fn in_origins(
@@ -864,5 +1074,91 @@ mod pending_line_isolation {
     #[test]
     fn parent_repeat_survives_a_child_line_flush() {
         parent_survives(true);
+    }
+}
+
+#[cfg(test)]
+mod inline_allocation_scope_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    #[test]
+    fn independent_subframe_keeps_parent_first_baseline_and_publishes_only_its_own() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        for parent in [None, Some(None), Some(Some(0.0)), Some(Some(37.0))] {
+            l.flow_baseline = parent;
+            l.last_sub_frame_baseline = Some(Some(-101.0));
+            l.layout_sub_frame_at_geometric_origin(
+                &Content::text("LOCAL"),
+                SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: 80.0,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+            );
+            assert_eq!(l.flow_baseline, parent);
+            let actual = l.metrics.text_edges(l.style.size, &l.style).0 .0;
+            assert_eq!(l.last_sub_frame_baseline, Some(Some(actual)));
+            l.layout_sub_frame_at_geometric_origin(
+                &Content::Empty,
+                SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: 80.0,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+            );
+            assert_eq!(l.flow_baseline, parent);
+            assert_eq!(l.last_sub_frame_baseline, None);
+        }
+    }
+
+    #[test]
+    fn independent_subframe_cannot_consume_exterior_fraction_assignment() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let node = Arc::new(super::super::sequence::inline_allocation::Node::Fraction {
+            width: 0.0,
+        });
+        l.inline_allocation = Some(node.clone());
+        let (_, items, _, _, _) = l.layout_sub_frame_at_geometric_origin(
+            &Content::boxed_fractional(Content::text("LOCAL"), 1.0),
+            SubLayoutRegion {
+                origin_x: 0.0,
+                width: 80.0,
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            },
+        );
+        assert!(!items.is_empty());
+        assert!(
+            (l.last_sub_frame_flow_width - 80.0).abs() < 1e-9,
+            "the local Box must get its own region, not the exterior zero share"
+        );
+        assert!(l
+            .inline_allocation
+            .as_ref()
+            .is_some_and(|saved| Arc::ptr_eq(saved, &node)));
     }
 }

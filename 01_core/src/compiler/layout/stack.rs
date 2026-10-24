@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/stack.md
-//! @prompt-hash 99862da1
+//! @prompt-hash 3f3c5635
 //! @layer L1
 //! @updated 2026-08-21
 //!
@@ -165,8 +165,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let base_x = layouter.regions.current.line_start_x.0;
         let mut sub_frames = Vec::with_capacity(children.len());
 
-        for child in children.iter() {
-            let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame(
+        for (i, child) in children.iter().enumerate() {
+            let planned = layouter.planned_child_cursor(
+                crate::compiler::introspect::page_running::PlanEdge::StackChild(i),
+            );
+            let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame_planned(
                 child,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: base_x,
@@ -175,6 +178,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     align_rtl: false,
                     unconstrained_height: true,
                 },
+                false,
+                planned,
             );
 
             layouter.record_flow_width_at(base_x, layouter.last_sub_frame_flow_width);
@@ -231,7 +236,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             if i > 0 && space_pt > 0.0 {
                 cur_x += space_pt;
             }
-            let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame(
+            let planned = layouter.planned_child_cursor(
+                crate::compiler::introspect::page_running::PlanEdge::StackChild(i),
+            );
+            let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame_planned(
                 child,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: base_x,
@@ -240,6 +248,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     align_rtl: false,
                     unconstrained_height: true,
                 },
+                false,
+                planned,
             );
 
             if i > 0 && space_pt > 0.0 {

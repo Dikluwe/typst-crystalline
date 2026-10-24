@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/diagnostic.md
-//! @prompt-hash 40824df1
+//! @prompt-hash 3208447c
 //! @layer L2
 //! @updated 2026-08-23
 //!
@@ -114,6 +114,24 @@ pub fn format_diagnostic(
     sources: &[DiagnosticSource],
     colored: bool,
 ) -> String {
+    format_diagnostic_impl(diag, sources, colored, false)
+}
+
+/// Format a diagnostic while retaining traces whose source is unavailable.
+pub fn format_diagnostic_with_unresolved_traces(
+    diag: &SourceDiagnostic,
+    sources: &[DiagnosticSource],
+    colored: bool,
+) -> String {
+    format_diagnostic_impl(diag, sources, colored, true)
+}
+
+fn format_diagnostic_impl(
+    diag: &SourceDiagnostic,
+    sources: &[DiagnosticSource],
+    colored: bool,
+    retain_unresolved: bool,
+) -> String {
     use codespan_reporting::diagnostic::{Diagnostic, Label};
     use codespan_reporting::term;
     use codespan_reporting::term::termcolor::Buffer;
@@ -124,7 +142,12 @@ pub fn format_diagnostic(
     let label = diag.span.id().and_then(|id| {
         let item = find(id)?;
         let range = item.source.span_byte_range(diag.span)?;
-        (range.end <= item.source.text().len()).then(|| Label::primary(id, range))
+        let text = item.source.text();
+        (range.start <= range.end
+            && range.end <= text.len()
+            && text.is_char_boundary(range.start)
+            && text.is_char_boundary(range.end))
+        .then(|| Label::primary(id, range))
     });
     let diagnostic = match diag.severity {
         Severity::Error => Diagnostic::error(),
@@ -136,19 +159,16 @@ pub fn format_diagnostic(
 
     let mut buffer = if colored { Buffer::ansi() } else { Buffer::no_color() };
     let config = term::Config { tab_width: 2, ..Default::default() };
-    term::emit(&mut buffer, &config, &files, &diagnostic)
-        .expect("fontes e ranges de diagnóstico foram validados");
-    let mut out = String::from_utf8(buffer.into_inner())
-        .expect("codespan-reporting produz UTF-8 válido");
+    let mut out = match term::emit(&mut buffer, &config, &files, &diagnostic) {
+        Ok(()) => match String::from_utf8(buffer.into_inner()) {
+            Ok(rendered) => rendered,
+            Err(invalid) => String::from_utf8_lossy(invalid.as_bytes()).into_owned(),
+        },
+        Err(_) => fallback_diagnostic(diag),
+    };
 
     let mut traced = false;
     for point in &diag.trace {
-        let Some(id) = point.span.id() else { continue };
-        let Some(item) = find(id) else { continue };
-        let source = &item.source;
-        let Some((line, col)) = source.span_to_line_col(point.span) else {
-            continue;
-        };
         let kind = match &point.v {
             typst_core::entities::source_result::Tracepoint::Call(Some(name)) => {
                 format!("while calling `{name}`")
@@ -166,6 +186,19 @@ pub fn format_diagnostic(
                 format!("while including `{name}`")
             }
         };
+        let resolved = point.span.id().and_then(&find).and_then(|item| {
+            item.source
+                .span_to_line_col(point.span)
+                .map(|position| (item, position))
+        });
+        let Some((item, (line, col))) = resolved else {
+            if retain_unresolved {
+                out.push_str(&format!("  {kind} (source unavailable)\n"));
+                traced = true;
+            }
+            continue;
+        };
+        let source = &item.source;
         out.push_str(&format!("  {kind} at {}:{line}:{col}\n", item.name));
 
         let Some(range) = source.span_byte_range(point.span) else { continue };
@@ -190,6 +223,19 @@ pub fn format_diagnostic(
     out
 }
 
+fn fallback_diagnostic(diag: &SourceDiagnostic) -> String {
+    let severity = match diag.severity {
+        Severity::Error => "error",
+        Severity::Warning => "warning",
+    };
+    let mut out = format!("{severity}: {}\n", diag.message);
+    for hint in &diag.hints {
+        out.push_str(&format!(" = hint: {hint}\n"));
+    }
+    out.push('\n');
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use std::num::NonZeroU16;
@@ -201,6 +247,7 @@ mod tests {
 
     fn source(id: u16, text: &str) -> Source {
         Source::new(FileId::from_raw(NonZeroU16::new(id).unwrap()), text.to_string())
+            .expect("valid Source test fixture")
     }
 
     fn strip_ansi(input: &str) -> String {
@@ -283,6 +330,23 @@ mod tests {
     }
 
     #[test]
+    fn invalid_principal_ranges_retain_diagnostic_without_location_or_panic() {
+        let src = source(2, "áx");
+        let expected = "error: boom\n = hint: keep\n\n";
+        for (start, end) in [(9, 1), (2, 1), (1, 2), (0, 1)] {
+            let diag =
+                SourceDiagnostic::error(Span::from_range(src.id(), start..end), "boom")
+                    .with_hint("keep");
+            let source = DiagnosticSource::new(src.clone(), "input.typ");
+            assert_eq!(
+                format_diagnostic(&diag, std::slice::from_ref(&source), false),
+                expected
+            );
+            assert_eq!(strip_ansi(&format_diagnostic(&diag, &[source], true)), expected);
+        }
+    }
+
+    #[test]
     fn p1139_colored_preserves_semantics() {
         let src = source(2, "x");
         let diag = SourceDiagnostic::warning(Span::from_range(src.id(), 0..1), "careful");
@@ -314,5 +378,62 @@ mod tests {
         let out =
             format_diagnostic(&diag, &[DiagnosticSource::new(src, "input.typ")], false);
         assert!(out.contains("  while calling `f` at input.typ:1:1\n    f(…)\n"));
+    }
+    #[test]
+    fn unresolved_traces_preserve_every_kind_order_and_color() {
+        let src = source(2, "x");
+        let missing = Span::from_range(src.id(), 0..1);
+        let mut diag =
+            SourceDiagnostic::error(Span::detached(), "boom").with_hint("keep");
+        for (kind, span) in [
+            (Tracepoint::Call(Some("f".into())), missing),
+            (Tracepoint::Call(None), Span::detached()),
+            (Tracepoint::Show("heading".into()), missing),
+            (Tracepoint::Import("a.typ".into()), missing),
+            (Tracepoint::Include("b.typ".into()), missing),
+        ] {
+            diag.trace.push(Spanned::new(kind, span));
+        }
+        let expected = "error: boom\n = hint: keep\n\n  while calling `f` (source unavailable)\n  while calling function (source unavailable)\n  while showing heading element (source unavailable)\n  while importing `a.typ` (source unavailable)\n  while including `b.typ` (source unavailable)\n\n";
+        assert_eq!(format_diagnostic_with_unresolved_traces(&diag, &[], false), expected);
+        assert_eq!(
+            strip_ansi(&format_diagnostic_with_unresolved_traces(&diag, &[], true)),
+            expected
+        );
+        assert_eq!(
+            format_diagnostic(&diag, &[], false),
+            "error: boom\n = hint: keep\n\n"
+        );
+    }
+
+    #[test]
+    fn unresolved_traces_preserve_mixed_and_invalid_positions() {
+        let src = source(2, "x");
+        let absent = source(3, "y");
+        let mut diag = SourceDiagnostic::error(Span::detached(), "boom");
+        diag.trace
+            .push(Spanned::new(Tracepoint::Call(None), Span::from_range(src.id(), 0..1)));
+        let sources = [DiagnosticSource::new(src.clone(), "real.typ")];
+        for colored in [false, true] {
+            assert_eq!(
+                format_diagnostic_with_unresolved_traces(&diag, &sources, colored),
+                format_diagnostic(&diag, &sources, colored)
+            );
+        }
+        diag.trace.push(Spanned::new(
+            Tracepoint::Import("missing".into()),
+            Span::from_range(absent.id(), 0..1),
+        ));
+        diag.trace.push(Spanned::new(
+            Tracepoint::Include("invalid".into()),
+            Span::from_range(src.id(), 100..101),
+        ));
+        let out = format_diagnostic_with_unresolved_traces(&diag, &sources, false);
+        assert_eq!(out, "error: boom\n\n  while calling function at real.typ:1:0\n    x\n  while importing `missing` (source unavailable)\n  while including `invalid` (source unavailable)\n\n");
+        assert_eq!(
+            strip_ansi(&format_diagnostic_with_unresolved_traces(&diag, &sources, true)),
+            out
+        );
+        assert!(!format_diagnostic(&diag, &sources, false).contains("source unavailable"));
     }
 }

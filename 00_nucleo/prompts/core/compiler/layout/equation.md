@@ -1,8 +1,10 @@
 # L0 — equation
-Hash do Código: dab87237
+Hash do Código: cef420b1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
@@ -88,3 +90,158 @@ Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait me
 Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
 Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.
+
+
+## Planned direct Equation source bridge
+
+### Measurement before correction
+
+`lab/results/set-page-header-implementation-2026-10-21/route-probes11/receipt.json`
+records the source-bound diagnostic11 product and the pinned vanilla
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Actual public syntax
+`math.equation(metadata("equation-child"))` and
+`math.equation(figure([EQUATION CHILD], caption: none))` both succeed in the
+oracle and fail source-plan verification in the product. Ordinary `$a + b$`
+succeeds with equal typed observations in both. Exact before source/L0 bytes,
+hashes, UTC and working-tree provenance are archived in
+`agents/layout/equation-bridge-before.json.gz` under that implementation root.
+
+The source plan already declares EquationBody and recursively plans the direct
+body according to the existing semantic partition. The equation painter calls
+MathLayouter without that cursor; its external bridge creates an isolated
+unplanned Layouter. Therefore required direct-body facts cannot be admitted by
+actual painting. This is a missing internal handoff within the human-approved
+physical-page phase, not authorization to open terminal MathSequence subtrees.
+
+### Exclusive correction
+
+For an installed source plan, inspect exactly the declared EquationBody subtree
+for required operations. Without such operations retain the existing math path.
+Otherwise paint the transformed direct body once through the parent Layouter's
+existing planned subframe before constructing the borrowing MathLayouter. This
+preserves the actual tracked introspector, image sizer, callback transcripts,
+queues, diagnostics, source pass and append-only position capture namespace in
+one existing transaction. Save and restore lexical chain/style and margin-collapse
+state. Project the same math TextStyle onto the actual lexical chain; apply the
+math-default transformation once. Compose that actual frame through the existing
+math width/anchor/extent algorithm without a second painter. Final outer marker
+projection supplies physical positions. Preserve public signatures, Formula,
+stable Equation Location and callback budget; no synthetic semantic admission.
+
+### Acceptance
+
+Require actual metadata and Figure direct-body source admissions exactly once,
+complete trace, actual second-page positions and a once-only visible Figure body.
+Retain terminal MathSequence behavior with no newly admitted opaque descendants
+and unchanged rendered text. Replay the two actual public-syntax RED programs,
+callback/geometry controls, full lineage and strict validation. This finite repair
+does not establish general embedded math/callback/footnote parity.
+
+The direct nonlocatable zero-paint CounterUpdate control compares the actual
+Formula frame extent with the unchanged unplanned equation painter, while
+requiring its actual source admission. Authenticated packet markers must remain
+available for final projection without becoming visible ink or math-axis ascent.
+This control does not reinterpret inherited Metadata Location-marker geometry as
+a newly measured regression or promise general hidden-math parity.
+
+The planned external path transports its returned Image and Link FrameItems and
+translates Semantic children into the same equation origin as other items. The
+legacy unplanned Image/Link branches remain unchanged. This preserves the actual
+painter output and authenticated position markers rather than substituting text
+or retaining external local coordinates as final physical positions.
+
+
+## Opaque physical trace storage
+
+The source-bound Clippy RED in
+`lab/results/set-page-deferred-corrections-2026-10-21/candidate-2/validation-remainder/clippy.log:83–113`
+identifies oversized private pass variants and the public result's opaque trace
+storage. Exact before texts, SHA-256, UTC and working-tree state are in
+`lab/results/set-page-report-blockers-2026-10-21/agents/layout/trace-callers-before.json.gz`
+and `agents/layout/before.json.gz` under that evidence root.
+
+The trace owner retains every existing source, admission, request, sealed geometry
+and completeness value behind one compiler-private owning payload Box. Access
+those same fields through `trace.data`; preserve exact mutation/read order,
+cloning, authority, geometry, verification and acceptance. This is private storage
+indirection only: the public opaque PageRunningTrace and all public fields and
+function signatures stay unchanged. No new semantic fact, source traversal, phase,
+callback, diagnostic suppression or relaxed gate is authorized.
+
+## Measured display-equation continuation — 2026-10-23
+
+### Evidence before decision
+
+`lab/results/math-continuation-2026-10-23/{baseline.json,baseline-source.json.gz,before/receipt.json}`
+retain UTC, uncommitted HEAD, exact dirty stat, sources/configuration, commands,
+inputs and binaries. Pre-D product is frozen C, SHA-256
+`c63a1efdab3870f883c7a8511afccabc4fcb92a1e354151dabf7253571af4fe6`.
+Oracle remains commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+The original 35 expressions distribute 6/7/6/6/6/4 versus 6/6/6/6/6/5.
+The first formula on page two is 6.72358pt too high by the PDF observer.
+Thirteen expressions retain the transition. On a 100pt page, four simple
+fractions distribute 3+1 versus 2+2, with the resumed formula too high.
+
+`equation.rs:197–223` submits normalized inline extent only for !block;
+block placement uses raw extent, but the Formula's Group is intentionally
+opaque to `line_commit.rs:105–138`. Its ordinary root admission at 580–615
+therefore sees only an exterior strut, missing the full descent and installing
+that strut on migration. `equation.rs:591–608` also discards block-collapse
+bookkeeping when flush changes the page and retains the old captured baseline
+for later numbering. Pinned `math/mod.rs:115–190` measures display frames and
+`flow/distribute.rs:369–399` admits the complete block height. Language geometry,
+line/page membership and spacing govern acceptance, not upstream machinery.
+A changed fitting first page, inline slack, duplicate body/callback, misplaced
+number, lost source position, broken rollback or no-progress overflow refutes
+this correction.
+
+### Exclusive internal correction
+
+For block equations only, pass the already measured raw ascent/descent to the
+existing canonical line-extent aggregator after the block baseline is installed;
+record that actually installed ascent, including zero. Preserve the inline
+0.7-leading normalization exactly. Do not inspect Formula children to recover
+metrics or add a second page-admission algorithm, new state, glyph measurement,
+body evaluation or public interface. Ordinary/reserved-region and rollback
+policies remain with their owning line/region protocols.
+
+After closing a block equation, use its settled baseline in the actual region
+for block-below/descent state and equation-number placement even when closure
+moved it. Preserve explicit top suppression, first-page geometry, centering,
+auto-width fixups, source-owned occurrences, once-only callbacks and numbering.
+Do not compensate with page-specific offsets, alter the oracle or discard pages.
+
+Require genuine geometry/continuation and following-text-spacing RED→GREEN;
+bilateral original/reduced/small-page equations, inline/block, fractions/roots,
+leading/gaps, numbers, overflow and existing rollback/source controls. Retain
+all PDF-box failures at the original threshold and independently check SVG
+geometry; this does not close separate export precision or multiline-math debt.
+ADR-0127 continuous flow applies: no public contract/default/phase/compatibility
+change. L0 precedes code; reseal only this owner with valid ownership/Nucleus
+graph, then complete the full validation gates under one job/12GiB/high8GiB/no
+swap while preserving prior changes.
+
+The same before matrix's explicit-break case preserves words/pages but starts
+its second fraction at y31.505 instead of y5.996: root region transition resets
+collapse state but the equation reuses the previous region's baseline. At a
+truly empty root region only, with no causal flow placement or block chain,
+use the geometric region top plus raw ascent. Consult existing physical-empty
+witnesses (including unpainted material and deferred insertions), never infer
+emptiness from lack of visible glyphs alone. Columns/subframes and deliberate
+vertical flow remain under their existing protocols. Revalidate explicit/weak
+breaks and VSpace/hidden-material controls; no new page-intent state is needed.
+
+## Measured R3 geometry correction — 2026-10-23
+
+### Measurement before decision
+
+`lab/results/math-geometry-r3-2026-10-23/{baseline.json,baseline-source.json.gz,before/receipt.json,reductions/receipt.json}` retain the received R2 state, UTC, dirty HEAD/stat, full source map, exact inputs, binary hashes and commands. Oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`, SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Seven of 19 render probes fail 0.001 pt: five at 0.92119 pt vertical, unicode at 2.136005 pt, and selected-multichar at 0.492 pt. Isolated alpha without show has the same vertical error; adjacent ordinary text refutes a show-specific cause. Markup base and variation form both select NewCMMath rather than oracle FreeMono. Symbol arrow has omitted per-letter italic correction; sum happens to match.
+
+Pinned `math/mod.rs:49–102` admits the normalized inline frame; `math/ir/resolve.rs:326–358` resolves each Symbol grapheme to a glyph; `inline/shaping.rs:929–936` uses ordinary fallback without inferring math from a font table. Current `equation.rs:49–52` installs the outer text strut before measurement, `math/layout/mod.rs:1354–1373` treats an entire Symbol as one glyph run, and `shaper/font_selection.rs:66–70` injects math fallback for ordinary DejaVu Sans because it has MATH. Coordinates, selected visual glyphs and source identity are observable output; storage/algorithm are mechanics. These are internal parity corrections under continuous ADR-0127, with no public contract/default/phase/compatibility change. Refutation requires bilateral PDF and SVG coordinates, adjacent-text, ordinary base/variation and grapheme controls; a passing glyph count alone is insufficient.
+
+### Exclusive obligation
+For inline equations admit the already measured normalized ascent through existing ensure_line_baseline, before placement, instead of first installing the outer text top. Keep the existing canonical maximum for mixed text, 0.7-leading slack, bounds edges, block continuation, actual callback/source bridge and Formula envelope. Do not add a coordinate compensation, reread glyph geometry, new state or phase. Test initial math-only baseline and mixed before/after text using distinct injected font edges, then replay all prior continuation controls.
+
+Require actual RED→GREEN, scoped resealing with valid V15/V26, full workspace validation, unchanged 0.001 pt bounds and preservation of received changes.

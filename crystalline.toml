@@ -188,6 +188,16 @@ types = ["Def", "Module", "ModifierSet", "Symbol", "SYM", "EMOJI"]
 types = ["Mmap"]
 
 
+# Fixed-profile CMYK projection: only audited pure mathematical helpers.
+# ColorProfile is used only for its associated colorants_matrix function;
+# profile instances, defaults and runtime factories remain forbidden by L0.
+[l1_allowed_external.moxcms]
+types = ["ColorPrimaries", "ColorProfile", "Hypercube", "Lab", "Matrix3f", "Matrix3d", "TransferCharacteristics", "WHITE_POINT_D65"]
+
+# Existing pinned asset, read as an immutable embedded byte slice.
+[l1_allowed_external.typst_assets]
+types = ["icc", "CMYK_TO_XYZ"]
+
 [orphan_exceptions]
 # No ownerless documents remain in active L0. Process templates live in lab/tools/workflows.
 

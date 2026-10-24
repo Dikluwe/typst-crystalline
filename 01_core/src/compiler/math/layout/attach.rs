@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/attach.md
-//! @prompt-hash 6209ecd0
+//! @prompt-hash 50307db4
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -203,6 +203,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     | Content::Link(_)
                     | Content::Equation(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)
@@ -326,6 +327,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -424,7 +426,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             | Content::Dynamic(_) => {
                 self.block
                     && match unwrapped_base {
-                        Content::MathIdent(s) | Content::MathText(s) => {
+                        Content::Symbol(s)
+                        | Content::MathIdent(s)
+                        | Content::MathText(s) => {
                             let ch = s.chars().next().unwrap_or(' ');
                             (symbols::is_large_operator(ch)
                                 && !symbols::is_integral_char(ch))
@@ -588,9 +592,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // Extrair chars para consulta a MathGlyphKern
         let base_char: Option<char> = match unwrapped_base {
-            Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
+            Content::Symbol(s) | Content::MathIdent(s) | Content::MathText(s) => {
+                s.chars().next()
+            }
             Content::MathOp(e) => match e.text.source_body() {
-                Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => {
+                Content::Text(s)
+                | Content::MathText(s)
+                | Content::Symbol(s)
+                | Content::MathIdent(s) => {
                     if s == "sum" {
                         Some('∑')
                     } else if s == "product" {
@@ -840,7 +849,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let extract_char = |c: Option<&Content>| -> Option<char> {
             let c = c?;
             match c.source_body() {
-                Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
+                Content::Symbol(s) | Content::MathIdent(s) | Content::MathText(s) => {
+                    s.chars().next()
+                }
                 Content::Source(_)
                 | Content::ShowRecipe(_)
                 | Content::Realized(_)
@@ -972,7 +983,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let is_op = match unwrapped_base {
             Content::MathOp(_) => true,
-            Content::MathIdent(s) | Content::MathText(s) => s
+            Content::Symbol(s) | Content::MathIdent(s) | Content::MathText(s) => s
                 .chars()
                 .next()
                 .map(|ch| symbols::is_large_operator(ch) || symbols::is_integral_char(ch))
@@ -1101,7 +1112,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // true; uma variante/assembly extensível (`Glyph`) força false.
         fn content_is_text_like(c: &Content) -> bool {
             match c.source_body() {
-                Content::MathIdent(_) | Content::MathText(_) | Content::MathOp(_) => true,
+                Content::Symbol(_)
+                | Content::MathIdent(_)
+                | Content::MathText(_)
+                | Content::MathOp(_) => true,
                 Content::MathDelimited(e) => content_is_text_like(&e.body),
                 Content::MathSequence(xs) | Content::Sequence(xs) => {
                     xs.iter().all(content_is_text_like)
@@ -1248,7 +1262,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // não apenas da variante escolhida. Operadores grandes continuam
         // não-text-like no inline mesmo usando o glifo base.
         let is_extended_shape_glyph = match unwrapped_base {
-            Content::MathIdent(s) | Content::MathText(s) if s.chars().count() == 1 => {
+            Content::Symbol(s) | Content::MathIdent(s) | Content::MathText(s)
+                if s.chars().count() == 1 =>
+            {
                 s.chars().next().is_some_and(symbols::is_large_operator)
             }
             Content::Source(_)
@@ -1274,6 +1290,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1379,11 +1396,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let glyph_ascent = self.metrics.text_edges(style.size, style).0.val().abs();
         let is_nested_attach = matches!(base, Content::MathAttach(_));
         let is_multi_letter_text_op = match unwrapped_base {
-            Content::MathIdent(s) | Content::MathText(s) => s.chars().count() > 1,
+            Content::Symbol(s) | Content::MathIdent(s) | Content::MathText(s) => {
+                s.chars().count() > 1
+            }
             Content::MathOp(e) => match e.text.source_body() {
-                Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => {
-                    s.chars().count() > 1
-                }
+                Content::Text(s)
+                | Content::MathText(s)
+                | Content::Symbol(s)
+                | Content::MathIdent(s) => s.chars().count() > 1,
                 Content::Source(_)
                 | Content::ShowRecipe(_)
                 | Content::Realized(_)

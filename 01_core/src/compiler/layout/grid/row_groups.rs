@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/row_groups.md
-//! @prompt-hash 27a899e5
+//! @prompt-hash 3fbf6f75
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -96,6 +96,7 @@ pub(super) fn combine_cells(
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -214,6 +215,348 @@ pub(super) fn combine_cells(
     Ok(combined_cells)
 }
 
+/// Parallel source addresses for the exact existing row-group projection.
+pub(super) fn planned_sources(
+    root: Option<super::super::page_running_requests::Cursor>,
+    cells: &[Content],
+    header: Option<&Content>,
+    footer: Option<&Content>,
+    num_cols: usize,
+) -> crate::entities::source_result::SourceResult<
+    Option<Vec<Option<super::super::page_running_requests::Cursor>>>,
+> {
+    use super::super::page_running_requests::Cursor;
+    use crate::compiler::introspect::page_running::PlanEdge;
+    fn invalid() -> Vec<crate::entities::source_result::SourceDiagnostic> {
+        vec![crate::entities::source_result::SourceDiagnostic::error(
+            crate::entities::span::Span::detached(),
+            "invalid source-owned grid projection",
+        )]
+    }
+    fn child(
+        cursor: &Cursor,
+        edge: PlanEdge,
+    ) -> crate::entities::source_result::SourceResult<Cursor> {
+        let packet = cursor.plan.child(cursor.packet, edge).ok_or_else(invalid)?;
+        let mut result = cursor.clone();
+        result.packet = packet;
+        Ok(result)
+    }
+    fn group(
+        content: &Content,
+        mut cursor: Cursor,
+        num_cols: usize,
+        header: bool,
+    ) -> crate::entities::source_result::SourceResult<Vec<Option<Cursor>>> {
+        let mut body = content;
+        match content {
+            Content::GridHeader(e) => {
+                if header {
+                    body = &e.body;
+                    cursor = child(&cursor, PlanEdge::GridHeaderBody)?;
+                }
+            }
+            Content::TableHeader(e) => {
+                if header {
+                    body = &e.body;
+                    cursor = child(&cursor, PlanEdge::TableHeaderBody)?;
+                }
+            }
+            Content::GridFooter(e) => {
+                if !header {
+                    body = &e.body;
+                    cursor = child(&cursor, PlanEdge::GridFooterBody)?;
+                }
+            }
+            Content::TableFooter(e) => {
+                if !header {
+                    body = &e.body;
+                    cursor = child(&cursor, PlanEdge::TableFooterBody)?;
+                }
+            }
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::Symbol(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {}
+        }
+        let mut routes = if let Content::Sequence(items) = body {
+            (0..items.len())
+                .map(|index| child(&cursor, PlanEdge::SequencePart(index)).map(Some))
+                .collect::<crate::entities::source_result::SourceResult<Vec<_>>>()?
+        } else {
+            vec![Some(cursor)]
+        };
+        let remainder = routes.len() % num_cols;
+        if remainder != 0 {
+            routes.resize(routes.len() + num_cols - remainder, None);
+        }
+        Ok(routes)
+    }
+    let Some(root) = root else { return Ok(None) };
+    let node = root.plan.node(root.packet).ok_or_else(invalid)?;
+    let (body_edge, header_edge, footer_edge): (
+        fn(usize) -> PlanEdge,
+        PlanEdge,
+        PlanEdge,
+    ) = match &node.content {
+        Content::Grid(_) => {
+            (PlanEdge::GridCell, PlanEdge::GridHeader, PlanEdge::GridFooter)
+        }
+        Content::Table(table) => (
+            if table.resolved.is_some() {
+                PlanEdge::TableResolvedCell
+            } else {
+                PlanEdge::TableRawChild
+            },
+            PlanEdge::TableHeader,
+            PlanEdge::TableFooter,
+        ),
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::Symbol(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => return Err(invalid()),
+    };
+    let mut routes = Vec::new();
+    if let Some(header) = header {
+        routes.extend(group(header, child(&root, header_edge)?, num_cols, true)?);
+    }
+    for index in 0..cells.len() {
+        routes.push(Some(child(&root, body_edge(index))?));
+    }
+    if let Some(footer) = footer {
+        routes.extend(group(footer, child(&root, footer_edge)?, num_cols, false)?);
+    }
+    Ok(Some(routes))
+}
+
 fn table_group_view(content: &Content) -> Content {
     match content.source_body() {
         Content::TableHeader(header) => {
@@ -249,6 +592,7 @@ fn table_group_view(content: &Content) -> Content {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -401,6 +745,7 @@ pub(in crate::compiler::layout) fn table_groups(
                     | Content::Link(_)
                     | Content::Equation(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)
@@ -531,7 +876,8 @@ mod v16_table_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

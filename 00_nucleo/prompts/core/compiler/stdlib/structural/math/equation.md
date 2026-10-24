@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/equation
-Hash do Código: 2e911906
+Hash do Código: 58dc3260
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
@@ -52,3 +52,31 @@ Record real baseline RED and corrected GREEN, then the existing suites/lineage.
 ## Regression acceptance
 
 P1140 regressions and a local test of supplement/alt cast distinction remain green. The full core suite, `cargo build` and `crystalline-lint .` remain green. Header ownership is 1:1. No speedup is claimed without measurement.
+
+
+## R4 — measured public mathematical projection / qualified conversion
+
+### Measurement before decision
+
+`lab/results/math-fields-r4-2026-10-23/baseline.json` and `before/receipt.json`
+retain UTC, HEAD, complete uncommitted diff stat, source map, archived sources
+and binary SHA-256. The oracle is pinned bd5ebec285505889e8ff1d4f68804ab147a699f3
+(tree cac836c07e4dec2a89219370428292393a3216b5). The before probe records
+fields/has/at and accepted/rejected constructor values rather than inferring
+intent from implementation. Upstream math/matrix.rs:45–67,238–272 and
+math/mod.rs:227–234 declare the already existing language fields. Local
+content_methods.rs:151–158,378–380 omits these projections; frac.rs:43–53
+and root.rs:27–38 reject supported operands. These are language semantics
+and morphology, distinct from byte or Rust algorithm parity.
+
+### Exclusive correction and gate
+
+Delegate the one positional body conversion to casts::math_lr_content_value. Preserve explicit-option transport, constructor marker and all other validation.
+
+This R4 clause supersedes only conflicting historical operand/field clauses
+above. Internal parity correction follows continuous ADR-0127: L0 first,
+reseal, actual functional RED before implementation, GREEN and full validation.
+No new public Rust field/signature/trait method, default mode or phase change.
+Preserve other semantics and all received changes. Record source-bound builds,
+full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
+A–H and R1–R3 without reclassifying their existing limitations as parity.

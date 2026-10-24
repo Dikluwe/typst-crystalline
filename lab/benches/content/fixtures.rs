@@ -7,6 +7,7 @@ pub fn representative() -> Vec<Content> {
     vec![
         Content::Empty,
         text(),
+        Content::Symbol("⪬︀".into()),
         Content::Space,
         Content::SpaceFromNewline,
         Content::Parbreak,

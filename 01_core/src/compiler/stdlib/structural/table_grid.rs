@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash 559b1edc
+//! @prompt-hash 6cdb4ba9
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -727,6 +727,7 @@ pub fn native_table_header(
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -926,6 +927,7 @@ fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1473,7 +1475,8 @@ mod v16_table_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

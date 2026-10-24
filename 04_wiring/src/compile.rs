@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash 4bb65f2a
+//! @prompt-hash 09a51025
 //! @layer L4
 //! @updated 2026-10-08
 
-use super::{diagnostics::drain_to_stderr, Published};
+use super::{diagnostics, Published};
 use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use std::process::ExitCode;
@@ -14,13 +14,13 @@ use typst_core::entities::document_format_options::{
     PdfAccessibility, PdfArchival, PdfStandard, PdfStandards,
 };
 use typst_core::entities::source_result::SourceDiagnostic;
+use typst_core::entities::world_types::{FileError, FileResult};
 use typst_infra::pipeline::{
     compile_to_bundle_files,
     compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
-    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
-    BundleCompileOptions, BundleFile,
+    compile_to_svg_output_files, BundleCompileOptions, BundleFile,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{CompileIntent, OutputFormat};
@@ -38,9 +38,17 @@ const HTML_EXPERIMENTAL_WARNING: &str = concat!(
     " = hint: see https://github.com/typst/typst/issues/5512 for more information\n\n",
 );
 
-fn report_in_order(status: impl FnOnce(), diagnostics: impl FnOnce()) {
-    status();
-    diagnostics();
+fn report_in_order(
+    status: impl FnOnce() -> std::io::Result<()>,
+    diagnostics: impl FnOnce() -> std::io::Result<()>,
+) -> std::io::Result<()> {
+    status()?;
+    diagnostics()
+}
+
+fn write_stdout_to(out: &mut impl Write, bytes: &[u8]) -> std::io::Result<()> {
+    out.write_all(bytes)?;
+    out.flush()
 }
 
 fn write_bundle_output(destination: &Path, files: &[BundleFile]) -> std::io::Result<()> {
@@ -79,24 +87,49 @@ fn write_bundle_output(destination: &Path, files: &[BundleFile]) -> std::io::Res
     Ok(())
 }
 
-pub(super) fn run_compile(intent: CompileIntent) -> ExitCode {
-    let mut report_status = |_, _| {};
-    run_compile_observed(intent, &mut report_status).0
+fn after_metadata<T>(
+    dependencies: &FileResult<Vec<PathBuf>>,
+    diagnostic_errors: &[FileError],
+    publish: impl FnOnce() -> T,
+) -> Result<T, Vec<FileError>> {
+    let mut errors = Vec::new();
+    if let Err(error) = dependencies {
+        errors.push(error.clone());
+    }
+    errors.extend_from_slice(diagnostic_errors);
+    if errors.is_empty() {
+        Ok(publish())
+    } else {
+        Err(errors)
+    }
+}
+
+pub(super) fn run_compile(intent: CompileIntent) -> std::io::Result<ExitCode> {
+    let mut report_status = |_, _| Ok(());
+    run_compile_observed(intent, &mut report_status).map(|outcome| outcome.0)
 }
 
 pub(super) fn run_compile_observed(
     intent: CompileIntent,
-    report_status: &mut impl FnMut(ExitCode, bool),
-) -> (ExitCode, Vec<PathBuf>, bool, Option<Published>) {
-    run_compile_observed_with_sessions(intent, report_status, None, None)
+    report_status: &mut impl FnMut(ExitCode, bool) -> std::io::Result<()>,
+) -> std::io::Result<(ExitCode, FileResult<Vec<PathBuf>>, Option<Published>)> {
+    let mut written_outputs = Vec::new();
+    run_compile_observed_with_sessions(
+        intent,
+        report_status,
+        None,
+        None,
+        &mut written_outputs,
+    )
 }
 
 pub(super) fn run_compile_observed_with_sessions(
     intent: CompileIntent,
-    report_status: &mut impl FnMut(ExitCode, bool),
+    report_status: &mut impl FnMut(ExitCode, bool) -> std::io::Result<()>,
     font_session: Option<std::sync::Arc<typst_infra::world::FontCatalogSession>>,
     source_session: Option<std::sync::Arc<typst_infra::world::SourceSession>>,
-) -> (ExitCode, Vec<PathBuf>, bool, Option<Published>) {
+    written_outputs: &mut Vec<PathBuf>,
+) -> std::io::Result<(ExitCode, FileResult<Vec<PathBuf>>, Option<Published>)> {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
     let CompileIntent {
@@ -125,12 +158,12 @@ pub(super) fn run_compile_observed_with_sessions(
 
     if output_format == OutputFormat::Bundle {
         if output == Path::new("-") {
-            eprintln!("error: cannot write bundle to standard output");
-            return (ExitCode::from(2), vec![input], false, None);
+            diagnostics::write_stderr("error: cannot write bundle to standard output\n")?;
+            return Ok((ExitCode::from(2), Ok(vec![input]), None));
         }
         if !features.contains(typst_core::entities::compiler_features::Feature::Bundle) {
-            eprintln!("error: bundle export is only available when `--features bundle` is passed\n = hint: bundle export is experimental");
-            return (ExitCode::from(1), vec![input], false, None);
+            diagnostics::write_stderr("error: bundle export is only available when `--features bundle` is passed\n = hint: bundle export is experimental\n")?;
+            return Ok((ExitCode::from(1), Ok(vec![input]), None));
         }
     }
 
@@ -149,9 +182,13 @@ pub(super) fn run_compile_observed_with_sessions(
     {
         report_in_order(
             || report_status(ExitCode::from(1), false),
-            || eprintln!("error: cannot enable PDF tags when exporting a page range"),
-        );
-        return (ExitCode::from(1), vec![input], false, None);
+            || {
+                diagnostics::write_stderr(
+                    "error: cannot enable PDF tags when exporting a page range\n",
+                )
+            },
+        )?;
+        return Ok((ExitCode::from(1), Ok(vec![input]), None));
     }
 
     // **P1469** (escopo reduzido — contrato de linguagem) — gate CLI-only
@@ -194,17 +231,19 @@ pub(super) fn run_compile_observed_with_sessions(
                     || report_status(ExitCode::from(1), false),
                     || {
                         if with_hint {
-                            eprintln!(
-                                "error: cannot disable PDF tags when exporting a {name} document\n = hint: using --pages implies --pdf-tagged=false"
-                            );
+                            diagnostics::write_stderr(&format!(
+                                "error: cannot disable PDF tags when exporting a {name} document\n = hint: using --pages implies --pdf-tagged=false\n"
+                            ))?;
                         } else {
-                            eprintln!(
-                                "error: cannot disable PDF tags when exporting a {name} document"
-                            );
+                            diagnostics::write_stderr(&format!(
+                                "error: cannot disable PDF tags when exporting a {name} document\n"
+                            ))?;
                         }
+
+                        Ok(())
                     },
-                );
-                return (ExitCode::from(1), vec![input], false, None);
+                )?;
+                return Ok((ExitCode::from(1), Ok(vec![input]), None));
             }
         }
 
@@ -226,10 +265,12 @@ pub(super) fn run_compile_observed_with_sessions(
                             for hint in &diag.hints {
                                 message.push_str(&format!("\n = hint: {hint}"));
                             }
-                            eprintln!("{message}");
+                            diagnostics::write_stderr(&format!("{message}\n"))?;
+
+                            Ok(())
                         },
-                    );
-                    return (ExitCode::from(1), vec![input], false, None);
+                    )?;
+                    return Ok((ExitCode::from(1), Ok(vec![input]), None));
                 }
             }
         }
@@ -246,16 +287,18 @@ pub(super) fn run_compile_observed_with_sessions(
                     || report_status(ExitCode::from(1), false),
                     || {
                         if error.kind() == std::io::ErrorKind::NotFound {
-                            eprintln!(
-                                "error: root directory not found (searched at {})",
+                            diagnostics::write_stderr(&format!(
+                                "error: root directory not found (searched at {})\n",
                                 root.display()
-                            );
+                            ))?;
                         } else {
-                            eprintln!("error: {error}");
+                            diagnostics::write_stderr(&format!("error: {error}\n"))?;
                         }
+
+                        Ok(())
                     },
-                );
-                return (ExitCode::from(1), vec![], false, None);
+                )?;
+                return Ok((ExitCode::from(1), Ok(vec![]), None));
             }
         };
         let mut bytes = Vec::new();
@@ -263,9 +306,13 @@ pub(super) fn run_compile_observed_with_sessions(
             if error.kind() != std::io::ErrorKind::BrokenPipe {
                 report_in_order(
                     || report_status(ExitCode::from(2), false),
-                    || eprintln!("error: failed to read source from stdin: {error}"),
-                );
-                return (ExitCode::from(2), vec![], false, None);
+                    || {
+                        diagnostics::write_stderr(&format!(
+                            "error: failed to read source from stdin: {error}\n"
+                        ))
+                    },
+                )?;
+                return Ok((ExitCode::from(2), Ok(vec![]), None));
             }
         }
         let text = match String::from_utf8(bytes) {
@@ -274,10 +321,12 @@ pub(super) fn run_compile_observed_with_sessions(
                 report_in_order(
                     || report_status(ExitCode::from(1), false),
                     || {
-                        eprintln!("error: file is not valid UTF-8\n = hint: a file without an extension is not usually a Typst file\n")
+                        diagnostics::write_stderr("error: file is not valid UTF-8\n = hint: a file without an extension is not usually a Typst file\n\n")?;
+
+                        Ok(())
                     },
-                );
-                return (ExitCode::from(1), vec![], false, None);
+                )?;
+                return Ok((ExitCode::from(1), Ok(vec![]), None));
             }
         };
         SystemWorld::for_stdin(stdin_root, text)
@@ -288,13 +337,15 @@ pub(super) fn run_compile_observed_with_sessions(
                 report_in_order(
                     || report_status(ExitCode::from(2), false),
                     || {
-                        eprintln!(
-                            "error: input path must have a file name: {}",
+                        diagnostics::write_stderr(&format!(
+                            "error: input path must have a file name: {}\n",
                             input.display()
-                        )
+                        ))?;
+
+                        Ok(())
                     },
-                );
-                return (ExitCode::from(2), vec![input], false, None);
+                )?;
+                return Ok((ExitCode::from(2), Ok(vec![input]), None));
             }
         };
         let created = match source_session {
@@ -308,9 +359,9 @@ pub(super) fn run_compile_observed_with_sessions(
             Err(error) => {
                 report_in_order(
                     || report_status(ExitCode::from(2), false),
-                    || eprintln!("error: {error}"),
-                );
-                return (ExitCode::from(2), vec![input], false, None);
+                    || diagnostics::write_stderr(&format!("error: {error}\n")),
+                )?;
+                return Ok((ExitCode::from(2), Ok(vec![input]), None));
             }
         }
     };
@@ -329,9 +380,20 @@ pub(super) fn run_compile_observed_with_sessions(
         Err(e) => {
             report_in_order(
                 || report_status(ExitCode::from(2), false),
-                || eprintln!("error: failed to load source: {:?}", e),
-            );
-            return (ExitCode::from(2), world.dependencies(), false, None);
+                || {
+                    diagnostics::write_stderr(&format!(
+                        "error: failed to load source: {:?}\n",
+                        e
+                    ))
+                },
+            )?;
+            let dependencies = world.dependencies();
+            if let Err(error) = &dependencies {
+                diagnostics::write_stderr(&format!(
+                    "error: failed to acquire compilation metadata: {error}\n"
+                ))?;
+            }
+            return Ok((ExitCode::from(2), dependencies, None));
         }
     };
 
@@ -360,6 +422,7 @@ pub(super) fn run_compile_observed_with_sessions(
     let emit_html_experimental_warning = matches!(&output_format, OutputFormat::Html)
         && features.contains(typst_core::entities::compiler_features::Feature::Html);
     let mut bundle_files: Option<Vec<BundleFile>> = None;
+    let mut svg_outputs: Option<Vec<(PathBuf, Vec<u8>)>> = None;
     let mut published: Option<Published> = None;
     let (result, warnings, timings): (
         Result<Vec<u8>, Vec<SourceDiagnostic>>,
@@ -464,27 +527,25 @@ pub(super) fn run_compile_observed_with_sessions(
             }
         }
         OutputFormat::Svg => {
-            if timings_json.is_some() {
-                let (r, w, t) =
-                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
-                        &world,
-                        &source,
-                        full_error,
-                        features,
-                        pretty_override,
-                    );
-                (r.map(|s| s.into_bytes()), w, t)
+            let (result, warnings, measured_timings) = compile_to_svg_output_files(
+                &world,
+                &source,
+                full_error,
+                features,
+                pretty_override,
+                pages.clone(),
+                &output,
+            );
+            let result = result.map(|files| {
+                svg_outputs = Some(files);
+                Vec::new()
+            });
+            let timings = if timings_json.is_some() {
+                measured_timings
             } else {
-                let (r, w, _) =
-                    compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override(
-                        &world,
-                        &source,
-                        full_error,
-                        features,
-                        pretty_override,
-                    );
-                (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
-            }
+                typst_infra::pipeline::Timings::default()
+            };
+            (result, warnings, timings)
         }
         OutputFormat::Html => {
             let html_serialization = match html_serialization {
@@ -508,80 +569,115 @@ pub(super) fn run_compile_observed_with_sessions(
     };
     let has_warnings = !warnings.is_empty();
     let dependencies = world.dependencies();
-    let mut errors = None;
+    let (error_text, mut diagnostic_errors) = match &result {
+        Err(errors) => diagnostics::prepare(&world, errors, &input, colored),
+        Ok(_) => (String::new(), Vec::new()),
+    };
+    let (warning_text, warning_errors) =
+        diagnostics::prepare(&world, &warnings, &input, colored);
+    diagnostic_errors.extend(warning_errors);
     let mut operational_error = None;
 
-    let exit_code = match result {
-        Ok(output_bytes) => {
-            let write_result = if let Some(files) = bundle_files.as_ref() {
-                write_bundle_output(&output, files)
-            } else if output == Path::new("-") {
-                std::io::stdout().lock().write_all(&output_bytes)
-            } else {
-                std::fs::write(&output, &output_bytes)
-            };
-            if let Err(e) = write_result {
-                operational_error =
-                    Some(format!("error: failed to write {}: {}", output.display(), e));
-            } else if let Some(path) = timings_json.as_ref() {
-                if let Err(e) = std::fs::write(path, timings.to_json()) {
+    let exit_code = match after_metadata(&dependencies, &diagnostic_errors, || {
+        match result {
+            Ok(output_bytes) => {
+                let write_result = if let Some(files) = bundle_files.as_ref() {
+                    written_outputs.push(output.clone());
+                    write_bundle_output(&output, files)
+                } else if let Some(files) = svg_outputs.as_ref() {
+                    files.iter().try_for_each(|(path, bytes)| {
+                        if path == Path::new("-") {
+                            write_stdout_to(&mut std::io::stdout().lock(), bytes)
+                        } else {
+                            written_outputs.push(path.clone());
+                            std::fs::write(path, bytes)
+                        }
+                    })
+                } else if output == Path::new("-") {
+                    write_stdout_to(&mut std::io::stdout().lock(), &output_bytes)
+                } else {
+                    written_outputs.push(output.clone());
+                    std::fs::write(&output, &output_bytes)
+                };
+                if let Err(e) = write_result {
                     operational_error = Some(format!(
-                        "error: failed to write timings {}: {}",
-                        path.display(),
+                        "error: failed to write {}: {}",
+                        output.display(),
                         e
                     ));
+                } else if let Some(path) = timings_json.as_ref() {
+                    if let Err(e) = std::fs::write(path, timings.to_json()) {
+                        operational_error = Some(format!(
+                            "error: failed to write timings {}: {}",
+                            path.display(),
+                            e
+                        ));
+                    }
+                }
+                if operational_error.is_some() {
+                    ExitCode::from(2)
+                } else {
+                    if let Some(files) = bundle_files.take() {
+                        published = Some(Published::Bundle(files));
+                    } else if output_format == OutputFormat::Html {
+                        published = Some(Published::Html(
+                            String::from_utf8_lossy(&output_bytes).into_owned(),
+                        ));
+                    }
+                    ExitCode::SUCCESS
                 }
             }
-            if operational_error.is_some() {
-                ExitCode::from(2)
-            } else {
-                if let Some(files) = bundle_files.take() {
-                    published = Some(Published::Bundle(files));
-                } else if output_format == OutputFormat::Html {
-                    published = Some(Published::Html(
-                        String::from_utf8_lossy(&output_bytes).into_owned(),
-                    ));
+            Err(_) => {
+                if let Some(path) = timings_json.as_ref() {
+                    if let Err(e) = std::fs::write(path, timings.to_json()) {
+                        operational_error = Some(format!(
+                            "error: failed to write timings {}: {}",
+                            path.display(),
+                            e
+                        ));
+                    }
                 }
-                ExitCode::SUCCESS
+                if operational_error.is_some() {
+                    ExitCode::from(2)
+                } else {
+                    ExitCode::from(1)
+                }
             }
         }
-        Err(compilation_errors) => {
-            errors = Some(compilation_errors);
-            if let Some(path) = timings_json.as_ref() {
-                if let Err(e) = std::fs::write(path, timings.to_json()) {
-                    operational_error = Some(format!(
-                        "error: failed to write timings {}: {}",
-                        path.display(),
-                        e
-                    ));
-                }
-            }
-            if operational_error.is_some() {
-                ExitCode::from(2)
-            } else {
-                ExitCode::from(1)
-            }
+    }) {
+        Ok(exit_code) => exit_code,
+        Err(errors) => {
+            operational_error = Some(
+                errors
+                    .iter()
+                    .map(|error| {
+                        format!("error: failed to acquire compilation metadata: {error}")
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+            );
+            ExitCode::from(2)
         }
     };
 
     report_in_order(
         || report_status(exit_code, has_warnings),
         || {
-            if let Some(errors) = errors.as_deref() {
-                drain_to_stderr(&world, errors, &input, colored);
-            }
+            diagnostics::write_stderr(&error_text)?;
             if emit_html_experimental_warning {
-                eprint!("{HTML_EXPERIMENTAL_WARNING}");
+                diagnostics::write_stderr(HTML_EXPERIMENTAL_WARNING)?;
             }
             if output_format == OutputFormat::Bundle {
-                eprint!("{BUNDLE_EXPERIMENTAL_WARNING}");
+                diagnostics::write_stderr(BUNDLE_EXPERIMENTAL_WARNING)?;
             }
-            drain_to_stderr(&world, &warnings, &input, colored);
+            diagnostics::write_stderr(&warning_text)?;
             if let Some(error) = operational_error {
-                eprintln!("{error}");
+                diagnostics::write_stderr(&format!("{error}\n"))?;
             }
+
+            Ok(())
         },
-    );
+    )?;
 
     // P204G (M8): logging opt-in. `CRYSTALLINE_MEASUREMENTS=1`
     // dump cache_stats + introspector_call_counts no fim do
@@ -590,19 +686,25 @@ pub(super) fn run_compile_observed_with_sessions(
     if std::env::var("CRYSTALLINE_MEASUREMENTS").as_deref() == Ok("1") {
         let stats = typst_infra::measurements::cache_stats();
         let counts = typst_infra::measurements::introspector_call_counts();
-        eprintln!(
-            "[crystalline] cache_stats: evict_calls={} last_max_age={}",
+        diagnostics::write_stderr(&format!(
+            "[crystalline] cache_stats: evict_calls={} last_max_age={}\n",
             stats.evict_calls, stats.last_max_age,
-        );
-        eprintln!("[crystalline] introspector_call_counts: total={}", counts.total,);
+        ))?;
+        diagnostics::write_stderr(&format!(
+            "[crystalline] introspector_call_counts: total={}\n",
+            counts.total,
+        ))?;
         for (method, count) in &counts.per_method {
             if *count > 0 {
-                eprintln!("[crystalline]   {}: {}", method, count);
+                diagnostics::write_stderr(&format!(
+                    "[crystalline]   {}: {}\n",
+                    method, count
+                ))?;
             }
         }
     }
 
-    (exit_code, dependencies, has_warnings, published)
+    Ok((exit_code, dependencies, published))
 }
 
 #[cfg(test)]
@@ -632,15 +734,213 @@ mod tests {
             || {
                 order.borrow_mut().push("status");
                 status_calls.set(status_calls.get() + 1);
+                Ok(())
             },
             || {
                 order.borrow_mut().push("diagnostics");
                 diagnostics_calls.set(diagnostics_calls.get() + 1);
+                Ok(())
             },
-        );
+        )
+        .expect("healthy status and diagnostic fixture");
 
         assert_eq!(&*order.borrow(), &["status", "diagnostics"]);
         assert_eq!(status_calls.get(), 1);
         assert_eq!(diagnostics_calls.get(), 1);
+    }
+}
+
+#[cfg(test)]
+mod metadata_tests {
+    use super::*;
+    use std::cell::{Cell, RefCell};
+
+    #[test]
+    fn metadata_failure_blocks_real_publication_and_preserves_prior_bytes() {
+        let path = std::env::temp_dir()
+            .join(format!("tekt-metadata-publication-{}", std::process::id()));
+        std::fs::write(&path, b"previous valid artifact").expect("destination fixture");
+        let called = Cell::new(false);
+        let dependency_error =
+            FileError::Other("file identity registry lock is poisoned".into());
+        let source_error = FileError::Other("source slots lock is poisoned".into());
+        for (deps, errors, expected) in [
+            (Err(dependency_error.clone()), vec![], vec![dependency_error.clone()]),
+            (Ok(vec![]), vec![source_error.clone()], vec![source_error.clone()]),
+            (
+                Err(dependency_error.clone()),
+                vec![source_error.clone()],
+                vec![dependency_error, source_error],
+            ),
+        ] {
+            let outcome = after_metadata(&deps, &errors, || {
+                called.set(true);
+                std::fs::write(&path, b"must not be published")
+            });
+            assert_eq!(outcome.unwrap_err(), expected);
+            assert!(!called.get());
+            assert_eq!(std::fs::read(&path).unwrap(), b"previous valid artifact");
+        }
+        let outcome = after_metadata(&Ok(vec![]), &[], || {
+            std::fs::write(&path, b"new healthy artifact")
+        });
+        assert!(matches!(outcome, Ok(Ok(()))));
+        assert_eq!(std::fs::read(&path).unwrap(), b"new healthy artifact");
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn metadata_status_precedes_retained_diagnostics_and_operational_errors() {
+        let order = RefCell::new(Vec::new());
+        let status_calls = Cell::new(0);
+        let outcome: Result<(), Vec<FileError>> =
+            after_metadata(&Err(FileError::Other("poison".into())), &[], || {
+                panic!("must not publish")
+            });
+        assert_eq!(outcome, Err(vec![FileError::Other("poison".into())]));
+        report_in_order(
+            || {
+                status_calls.set(status_calls.get() + 1);
+                order.borrow_mut().push("status2");
+                Ok(())
+            },
+            || {
+                order.borrow_mut().extend([
+                    "original error",
+                    "original warning",
+                    "operational error",
+                ]);
+                Ok(())
+            },
+        )
+        .expect("healthy status and diagnostic fixture");
+        assert_eq!(status_calls.get(), 1);
+        assert_eq!(
+            *order.borrow(),
+            ["status2", "original error", "original warning", "operational error"]
+        );
+    }
+}
+
+#[cfg(test)]
+mod stderr_order_tests {
+    use super::*;
+    use std::cell::Cell;
+    #[test]
+    fn stderr_failed_status_stops_diagnostics_without_retry() {
+        let status_calls = Cell::new(0);
+        let diagnostic_calls = Cell::new(0);
+        let error = report_in_order(
+            || {
+                status_calls.set(status_calls.get() + 1);
+                Err(std::io::Error::from_raw_os_error(28))
+            },
+            || {
+                diagnostic_calls.set(diagnostic_calls.get() + 1);
+                Ok(())
+            },
+        )
+        .expect_err("status write must fail");
+        assert_eq!(error.raw_os_error(), Some(28));
+        assert_eq!((status_calls.get(), diagnostic_calls.get()), (1, 0));
+    }
+    #[test]
+    fn stderr_failed_diagnostics_preserves_error_after_single_status() {
+        let status_calls = Cell::new(0);
+        let diagnostic_calls = Cell::new(0);
+        let error = report_in_order(
+            || {
+                status_calls.set(status_calls.get() + 1);
+                Ok(())
+            },
+            || {
+                diagnostic_calls.set(diagnostic_calls.get() + 1);
+                Err(std::io::Error::from_raw_os_error(32))
+            },
+        )
+        .expect_err("diagnostic flush must fail");
+        assert_eq!(error.raw_os_error(), Some(32));
+        assert_eq!((status_calls.get(), diagnostic_calls.get()), (1, 1));
+    }
+}
+
+#[cfg(test)]
+mod document_stdout_tests {
+    use super::write_stdout_to;
+    use std::io::{self, Write};
+
+    #[derive(Default)]
+    struct Sink {
+        bytes: Vec<u8>,
+        fail_write: bool,
+        fail_flush: bool,
+        flushes: usize,
+    }
+
+    impl Write for Sink {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            if self.fail_write {
+                return Err(io::Error::from_raw_os_error(32));
+            }
+            let n = bytes.len().min(2);
+            self.bytes.extend_from_slice(&bytes[..n]);
+            Ok(n)
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            self.flushes += 1;
+            if self.fail_flush {
+                Err(io::Error::from_raw_os_error(28))
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    #[test]
+    fn document_stdout_short_writes_complete_and_flush_once() {
+        let mut out = Sink::default();
+        let bytes = b"<!DOCTYPE html><p>Unicode: \xCE\xB1</p>";
+        write_stdout_to(&mut out, bytes).unwrap();
+        assert_eq!(out.bytes, bytes);
+        assert_eq!(out.flushes, 1);
+    }
+
+    #[test]
+    fn document_stdout_write_error_preserves_cause_without_flush() {
+        let mut out = Sink { fail_write: true, ..Sink::default() };
+        assert_eq!(
+            write_stdout_to(&mut out, b"html").unwrap_err().raw_os_error(),
+            Some(32)
+        );
+        assert!(out.bytes.is_empty());
+        assert_eq!(out.flushes, 0);
+    }
+
+    #[test]
+    fn document_stdout_flush_only_error_is_not_success() {
+        let mut out = Sink { fail_flush: true, ..Sink::default() };
+        assert_eq!(
+            write_stdout_to(&mut out, b"html").unwrap_err().raw_os_error(),
+            Some(28)
+        );
+        assert_eq!(out.bytes, b"html");
+        assert_eq!(out.flushes, 1);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn document_stdout_buffered_full_device_is_not_success() {
+        let file = std::fs::OpenOptions::new().write(true).open("/dev/full").unwrap();
+        let mut out = io::BufWriter::with_capacity(4096, file);
+        assert_eq!(
+            write_stdout_to(&mut out, b"<p>short HTML</p>")
+                .unwrap_err()
+                .raw_os_error(),
+            Some(28)
+        );
+        // Do not let BufWriter's Drop retry the failed flush.
+        let (_, pending) = out.into_parts();
+        assert_eq!(pending.unwrap(), b"<p>short HTML</p>");
     }
 }

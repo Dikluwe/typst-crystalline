@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table.md
-//! @prompt-hash aafab3e6
+//! @prompt-hash a002946c
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -82,11 +82,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P459 — caption posicionada ACIMA da table (vanilla default).
     if let Some(cap) = &e.caption {
         if let Some(prefix) = caption_prefix {
-            let captioned =
-                Content::Sequence(vec![Content::text(prefix), cap.clone()].into());
-            layouter.layout_content(&captioned);
+            let parts = vec![Content::text(prefix), cap.clone()];
+            if let Some(cursor) = layouter.planned_child_cursor(
+                crate::compiler::introspect::page_running::PlanEdge::TableCaption,
+            ) {
+                super::sequence::layout_mixed_source_parts(
+                    layouter,
+                    &parts,
+                    &[None, Some(cursor)],
+                );
+            } else {
+                layouter.layout_content(&Content::Sequence(parts.into()));
+            }
         } else {
-            layouter.layout_content(cap);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::TableCaption,
+                cap,
+            );
         }
         layouter.layout_content(&Content::linebreak());
     }
@@ -96,14 +108,34 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
     // P1050 — passa e.align e e.inset (default 5pt) para layout_grid.
     let completed_pages_before = layouter.pages.len();
+    let planned = layouter
+        .page_running_pass
+        .as_ref()
+        .is_some_and(|pass| pass.cursor.is_some());
     let visual_children = e.resolved.as_ref().map_or_else(
-        || e.children.iter().map(visual_content).collect::<Vec<_>>(),
+        || {
+            if planned {
+                e.children.clone()
+            } else {
+                e.children.iter().map(visual_content).collect::<Vec<_>>()
+            }
+        },
         |r| r.cells.clone(),
     );
-    let visual_header =
-        if e.resolved.is_some() { None } else { e.header.as_ref().map(visual_content) };
-    let visual_footer =
-        if e.resolved.is_some() { None } else { e.footer.as_ref().map(visual_content) };
+    let visual_header = if e.resolved.is_some() {
+        None
+    } else if planned {
+        e.header.clone()
+    } else {
+        e.header.as_ref().map(visual_content)
+    };
+    let visual_footer = if e.resolved.is_some() {
+        None
+    } else if planned {
+        e.footer.clone()
+    } else {
+        e.footer.as_ref().map(visual_content)
+    };
     layouter.layout_grid(super::grid::GridLayoutInput {
         columns: &e.columns,
         rows: &e.rows,

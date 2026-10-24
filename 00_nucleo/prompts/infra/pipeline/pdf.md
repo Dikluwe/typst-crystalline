@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/pdf
-Hash do Código: 3ff43fc0
+Hash do Código: 0f32a119
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/pdf.rs`
@@ -151,3 +151,12 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+## PDF export warning integration
+
+Destructure every approved `PdfExport` result at the existing render junction,
+append its diagnostics to the pipeline warning vector in export occurrence order,
+and preserve the public pipeline tuple signatures. Malformed images remain
+errors at the existing validation gate. Preserve PDF bytes, subset/render timing,
+all zero/one/many-font and oracle routes, resolved options and diagnostic content.
+L4 remains the publication owner; this pipeline performs no direct stderr write.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 23b3110d
+//! @prompt-hash e1a08b81
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -148,6 +148,27 @@ pub(super) fn content_field(
                 .unwrap_or(ContentField::Unset),
             _ => ContentField::Undeclared,
         },
+        Content::MathVec(_) => match field {
+            "delim" | "align" | "gap" | "children" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::MathCases(_) => match field {
+            "delim" | "reverse" | "gap" | "children" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::MathClassOverride(_) => match field {
+            "class" | "body" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
         Content::MathMatrix(_) => match field {
             "rows" | "delim" | "align" | "augment" | "row-gap" | "column-gap" => c
                 .get_field(field)
@@ -192,7 +213,7 @@ pub(super) fn content_field(
             "body" => ContentField::Set(Value::Content(t.body.clone())),
             _ => ContentField::Undeclared,
         },
-        Content::Text(t) => match field {
+        Content::Text(t) | Content::Symbol(t) | Content::MathText(t) => match field {
             "text" => ContentField::Set(Value::Str(t.clone())),
             _ => ContentField::Undeclared,
         },
@@ -259,7 +280,6 @@ pub(super) fn content_field(
         | Content::Link(..)
         | Content::MathSequence(..)
         | Content::MathIdent(..)
-        | Content::MathText(..)
         | Content::MathFrac(..)
         | Content::MathAttach(..)
         | Content::MathPrimes(..)
@@ -277,13 +297,10 @@ pub(super) fn content_field(
         | Content::MathOverparen(..)
         | Content::MathOvershell(..)
         | Content::MathAlignPoint(..)
-        | Content::MathCases(..)
         | Content::MathAccent(..)
         | Content::MathCancel(..)
         | Content::MathUnderline(..)
         | Content::MathOverline(..)
-        | Content::MathVec(..)
-        | Content::MathClassOverride(..)
         | Content::MathLimitsOverride(..)
         | Content::MathUnderover(..)
         | Content::MathOp(..)
@@ -375,6 +392,10 @@ pub(super) fn content_set_fields(
         Content::Boxed(_) => &["width", "height"],
         Content::Block(_) => &["width", "height", "body"],
         Content::FigureCaption(_) => &["position", "separator", "body"],
+        Content::MathVec(_) => &["delim", "align", "gap", "children"],
+        Content::MathCases(_) => &["delim", "reverse", "gap", "children"],
+        Content::MathClassOverride(_) => &["class", "body"],
+        Content::MathText(_) => &["text"],
         Content::MathMatrix(_) => {
             &["delim", "align", "augment", "row-gap", "column-gap", "rows"]
         }
@@ -454,7 +475,7 @@ pub(super) fn content_set_fields(
                 &[]
             }
         }
-        Content::Text(_) => &["text"],
+        Content::Text(_) | Content::Symbol(_) => &["text"],
         Content::Raw(_) => &["text", "block", "lang"],
         Content::Transform(e) => match e.operation {
             crate::entities::elements::transform::TransformOperation::Matrix(_) => &[],
@@ -487,7 +508,6 @@ pub(super) fn content_set_fields(
         | Content::Link(..)
         | Content::MathSequence(..)
         | Content::MathIdent(..)
-        | Content::MathText(..)
         | Content::MathFrac(..)
         | Content::MathAttach(..)
         | Content::MathRoot(..)
@@ -498,13 +518,10 @@ pub(super) fn content_set_fields(
         | Content::MathOverparen(..)
         | Content::MathOvershell(..)
         | Content::MathAlignPoint(..)
-        | Content::MathCases(..)
         | Content::MathAccent(..)
         | Content::MathCancel(..)
         | Content::MathUnderline(..)
         | Content::MathOverline(..)
-        | Content::MathVec(..)
-        | Content::MathClassOverride(..)
         | Content::MathLimitsOverride(..)
         | Content::MathUnderover(..)
         | Content::MathOp(..)
@@ -614,6 +631,7 @@ pub(super) fn equation_descendant(
         | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -756,7 +774,7 @@ pub(crate) fn native_sequence(
             Value::Content(content) => Ok(content.clone()),
             Value::LocatedContent(content, _) => Ok(content.content().clone()),
             Value::Str(text) => Ok(Content::text(text.clone())),
-            Value::Symbol(symbol) => Ok(Content::text(symbol.value.clone())),
+            Value::Symbol(symbol) => Ok(Content::Symbol(symbol.value.clone())),
             Value::None => Ok(Content::Empty),
             other @ (Value::Bool(..)
             | Value::Int(..)
@@ -858,6 +876,7 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         Content::Realized(e) => return content_elem_func(&e.visual),
         Content::Equation(_) => crate::compiler::stdlib::native_math_equation,
         Content::Empty | Content::Sequence(_) => native_sequence,
+        Content::Symbol(_) => native_symbol_element,
         Content::Text(_) => crate::compiler::stdlib::native_text,
         Content::MathMatrix(_) => crate::compiler::stdlib::native_math_mat,
         Content::TableCell(_) => crate::compiler::stdlib::native_table_cell,
@@ -1101,6 +1120,7 @@ pub(super) fn content_method_with_fields(
         }
         // Semantic receivers keep their own method dispatch.
         Content::Empty
+        | Content::Symbol(..)
         | Content::Text(..)
         | Content::Space
         | Content::SpaceFromNewline
@@ -1362,6 +1382,40 @@ static_content_native!(native_content_has_static, "content.has", "has");
 static_content_native!(native_content_at_static, "content.at", "at");
 static_content_native!(native_content_fields_static, "content.fields", "fields");
 static_content_native!(native_content_location_static, "content.location", "location");
+
+/// Native content element constructor; distinct from the raw symbol value type.
+pub(crate) fn native_symbol_element(
+    _ctx: &mut crate::compiler::eval::EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: crate::entities::file_id::FileId,
+) -> SourceResult<Value> {
+    if args.named.contains_key("text") {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `text` is positional",
+        )
+        .with_hint("try removing `text:`")]);
+    }
+    let Some(value) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: text")]);
+    };
+    let value_span = args
+        .occurrences
+        .as_ref()
+        .and_then(|items| items.iter().find(|arg| arg.name.is_none()))
+        .map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span));
+    let Value::Str(text) = value else {
+        return Err(vec![SourceDiagnostic::error(
+            value_span,
+            format!("expected string, found {}", vanilla_type_name(value)),
+        )]);
+    };
+    if args.items.len() > 1 || !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    Ok(Value::Content(crate::entities::content::Content::Symbol(text.clone())))
+}
 
 #[cfg(test)]
 mod matrix_morphology_tests {
@@ -1837,5 +1891,103 @@ mod v16_e_reflection_tests {
             }
             assert!(matches!(content_field(&entry, "body"), ContentField::Undeclared));
         }
+    }
+}
+
+#[cfg(test)]
+mod r4_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::elements::math_cases::MathCasesExplicit;
+    use crate::entities::elements::math_vec::MathVecExplicit;
+    use crate::entities::layout_types::{HAlign, Length};
+    use crate::entities::rel::Rel;
+
+    #[test]
+    fn r4_math_fields_preserve_presence_and_native_children() {
+        let symbol = Content::Symbol("α".into());
+        let gap = Rel { rel: 0.0, abs: Length::em(1.0) };
+        let cases = [
+            (Content::MathText("12".into()), vec!["text"]),
+            (Content::math_vec(vec![symbol.clone()]), vec!["children"]),
+            (
+                Content::math_cases_full(
+                    vec![symbol.clone()],
+                    (Some('{'), None),
+                    false,
+                    gap,
+                    MathCasesExplicit::default(),
+                ),
+                vec!["children"],
+            ),
+            (
+                Content::math_class_override(
+                    crate::entities::math_class::MathClass::Relation,
+                    symbol.clone(),
+                ),
+                vec!["class", "body"],
+            ),
+            (
+                Content::math_vec_full(
+                    vec![symbol.clone()],
+                    ('[', ']'),
+                    HAlign::Left,
+                    gap,
+                    MathVecExplicit { delim: true, align: true, gap: true },
+                ),
+                vec!["delim", "align", "gap", "children"],
+            ),
+            (
+                Content::math_cases_full(
+                    vec![symbol.clone()],
+                    (Some('['), Some(']')),
+                    true,
+                    gap,
+                    MathCasesExplicit { delim: true, reverse: true, gap: true },
+                ),
+                vec!["delim", "reverse", "gap", "children"],
+            ),
+        ];
+        let mut failures = Vec::new();
+        for (content, expected) in cases {
+            let observed = content_set_fields(&content);
+            let keys: Vec<_> = observed.iter().map(|(key, _)| *key).collect();
+            if keys != expected {
+                failures.push(format!("{content:?}: {keys:?} != {expected:?}"));
+            }
+            for field in expected {
+                if !matches!(content_field(&content, field), ContentField::Set(_))
+                    || content.get_field(field).is_none()
+                {
+                    failures.push(format!("{content:?}: missing {field}"));
+                }
+            }
+            assert!(matches!(
+                content_field(&content, "unknown"),
+                ContentField::Undeclared
+            ));
+            if let Some((_, Value::Array(children))) =
+                observed.iter().find(|(k, _)| *k == "children")
+            {
+                assert_eq!(children, &vec![Value::Content(symbol.clone())]);
+            }
+        }
+        for content in [
+            Content::math_vec(vec![]),
+            Content::math_cases_full(
+                vec![],
+                (Some('{'), None),
+                false,
+                gap,
+                MathCasesExplicit::default(),
+            ),
+        ] {
+            for field in ["delim", "gap"] {
+                if !matches!(content_field(&content, field), ContentField::Unset) {
+                    failures.push(format!("{content:?}: {field} must be Unset"));
+                }
+            }
+        }
+        assert!(failures.is_empty(), "{failures:?}");
     }
 }

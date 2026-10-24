@@ -1,7 +1,11 @@
 # L0 — compiler/realize/figure_kind
-Hash do Código: 8407e51a
+Hash do Código: 7595737d
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/realize/figure_kind.rs`.
+
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 
 ## Approved Figure/Grid kind repair (2026-10-19)
@@ -27,3 +31,12 @@ Reached-body invariant validation is pure and separate from first-kind selection
 `lab/results/v16-corrections-2026-10-19/figure-kind-implementation/integration-tests-2/tests.log` records the failing `figure_kind_annotations_respect_explicit_presence`: an implicit (`annotation_explicit=false`) retained Table annotation incorrectly infers Table. The approved semantic partition already requires explicit present annotation for all eight brace/bracket/paren/shell variants. Gate annotation descent on `annotation_explicit`, retaining body-first order and no evaluation. The RED covers each carrier under false and true presence. The represented-root target control separately encountered Title's existing restricted Rust PartialEq; assert the exact retained Title Arc rather than broadening Content equality or changing target semantics.
 
 The private typed Value projection remains owned by the productive counter-key constructor and entity getter. Do not keep an unused duplicate kind_value converter or count its enum-extension failure as a production witness. Structural acceptance targets actual semantic inspection, descriptor resolution/validation, visual demand, key construction, and entity Eq/Hash.
+
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

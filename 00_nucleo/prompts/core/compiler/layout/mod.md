@@ -1,9 +1,17 @@
 # L0 — Layout engine coordination
-Hash do Código: 20ab61b0
+Hash do Código: 141f30e9
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/mod.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:4a93d5c55bf975b506b6f02ae484a91fdf7449716f9248dea2fcaa6b7b0738b6
@@ -14,6 +22,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 - 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml sha256:ec315f38498aa37ead497fdcb72cdd7e401cd00752baf5a535c2b5fae69374ed
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
@@ -26,11 +35,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/layout/mod.rs`
-**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 ## Evidence before specification
 
@@ -174,3 +178,403 @@ Nearest Source span must survive the public layout_content entrypoint's source_b
 ### Returned styled occurrence root transport
 
 `figure-kind-implementation/integration-tests-2/tests.log` records real RED: Located(Styled(prepared Figure)) changes Location 71 to 72. Direct Located(Figure) bypasses the ordinary gate, but Styled recursion reenters it. Add private scoped transported_root_location:Option<Location>, initially None. Located installs it only while descending transparent Source/Styled/ShowRecipe root carriers, restoring the previous slot afterwards. The first ordinary locatable root consumes the transported identity without allocation or duplicate position publication. An ordinary nonlocatable non-Styled container clears it before children; a nested Figure never borrows its parent's identity. Direct Located(Figure) needs no pending slot. Preserve standard style_scope behavior and all styles rather than copying its business logic. Checkpoint copies/restores this transient root context. Require exact-identity and nested-child regression, existing position/suffix tests unchanged.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Own the approved `layout_with_page_running` facade and private optional planned state on Layouter. Preserve every legacy public signature and legacy unplanned path. The new facade installs a PageRunningBody source authority and explicit root cursor, with no Content wrappers or changed language fields. Native dispatch remains exhaustive/form B. Planned source children descend through their declared typed field/index; normalization of Source/Located/Realized/ShowRecipe preserves exact plan edges and original-versus-visual ownership. Root and post-child work use the index owner's closed phase domain, including nonlocatable zero-paint contributions. Unplanned/generated-only calls cannot borrow the caller's cursor by accident. Keep selected running-template bindings and page-effective environment as private sidecars, never PageConfig fields. Install no Engine and execute no Func. The new approved facade is the only additional public function owned here; its declaration is exactly the frozen API package.
+
+### Acceptance and preserved boundaries
+
+Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+
+The existing FigureCaption and FootnoteEntry standalone arms remain zero-render. Their canonical source children retain the same introspection traversal as the existing walk, through exact typed child packets without painting or activating a new feature mode. Prospective bibliography children/identities require the same actual membership proof as the Ref owner. Deferred packet tokens reserve semantic callsite order independently of final Location geometry; the protocol owner defines reservation and rollback.
+
+
+## Private deferred Note frame transport
+
+### Measurement before correction
+
+`lab/results/set-page-deferred-corrections-2026-10-21/red-2/tests.log` records
+the actual missing Note-subtree admissions. The later root-controlled fitting
+measurement and pinned oracle page-text evidence distinguish a complete Note frame
+from its accepted prefix and continuing suffix. The oracle keeps NOTE TEXT/START
+in the first page and emits the later Figure in the second; whole-body deferral
+or moving the complete call does not establish that language behavior. Exact
+before bytes/hashes/HEAD/dirty state for this owner are archived in
+`lab/results/set-page-deferred-corrections-2026-10-21/agents/index/note-transport-before.json.gz`.
+The root authorizes an internal layout parity correction, with no eval/layout
+phase change, public contract, new identity source or attempt budget.
+
+### Exclusive transport obligation
+
+Store three layout-private carriers: DeferredFootnoteFrame owns captured
+height/items/decorations/orphan alignments and certified FootnoteBreak values;
+FootnoteBreak owns item_count/height; FootnoteCapture owns breaks/atomic_depth/
+origin_y/enabled. The feature alone sets enabled from its exhaustive cut
+certification; transport never grants eligibility. Keep the optional captured frame queue aligned with existing numbered
+Content and exact source-cursor queues. Initialize frames empty, reserved height
+zero and capture None. Register private `footnote_fragments`; its exclusive owner
+implements certification, reservation and frame selection, not this hub.
+
+Store private footnote_reserved_height independently of physical page dimensions.
+The root page_bottom_limit subtracts that reserved height, while subframes keep
+their local height and Auto remains infinite. Do not modify PageConfig or
+regions.current.height to encode notes. The earlier terminal-only no-stored-field/
+new-note-model restriction is superseded only for these private captured carriers.
+No public Layouter/entity field, Content variant or public signature is added.
+
+Validate actual split Note text/page/counter/query/identity and no-fit progress,
+plus existing no-break notes, columns, subframes, rollback, floats and running
+content controls. Preserve strict trace coverage/foreign authority, warnings,
+canonical owner paths and forward/reverse lineage; no suppression or fixture
+weakening. These transport declarations alone do not certify general pagination.
+
+
+## Certified consumed note-spacing boundary
+
+`lab/results/set-page-deferred-corrections-2026-10-21/break-5/receipt.json` and
+`break-5/tests.log` prove a certified START cut6.6pt followed by actual source
+VSpace180pt; preserving that entire trailing gap in the tail yields222.9pt and
+incorrectly triggers the oversized warning. Current pinned upstream
+`lab/typst-original/crates/typst-layout/src/flow/distribute.rs:219–227` consumes
+absolute spacing in its current region, `:391–394` stops before the following
+non-fitting block, and `:650` clamps the emitted frame size to that region.
+
+Add only private FootnoteBreak.gap_start_height: Option<f64>. None identifies an
+ordinary line/atomic boundary. Some retains the actual occupied prefix height
+before a source-owned consumed VSpace ending at this boundary. Checkpoints and
+queue/frame clones transport it exactly. The feature owner may clamp only this
+certified trailing-gap prefix to actual remaining region height while consuming
+the original source space once; it must not trim arbitrary paint or unknown gaps.
+
+
+## Exact decoration ownership at a certified cut
+
+`lab/results/set-page-deferred-corrections-2026-10-21/decoration-red-2/receipt.json`
+and its test log establish the real split defect: the valid actual first-line
+cut returns no head decoration where the original capture owns one. The earlier
+`decoration-red` failed an invalid precondition equating preexisting decoration
+and text baselines; that refuted premise and original test remain archived.
+Preserve the original decoration baseline offset exactly.
+
+Private FootnoteBreak.deco_count records the actual ambient collector length at
+each source-owned committed line/atomic/spacing boundary. Partition the original
+DecoSegment vector at that exact count, preserving order and segment identity;
+shift only the tail's baseline by the same actual cut height as its painted line.
+Tail cut witnesses subtract the consumed decoration count just as they subtract
+the consumed item count. Never compare absolute decoration baselines to normalized
+cut heights or change the decoration producer to conceal the mismatch. Preserve
+the unchanged V2 causal guard and all original source/painter controls.
+
+
+## Private assigned-width transport (2026-10-21)
+
+### Measurement before specification
+
+`lab/results/nested-fractions-repeat-2026-10-21/measurement-before-decision.json`
+pins four fresh bilateral receipts and their UTC intervals, HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, exact uncommitted source inputs and
+`git diff HEAD --stat`. Product SHA-256 `94208ba4526d7bda97d4519aa8eb12212bd13dc1f8932552f235940e73238485`
+is compared with pinned vanilla `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+binary SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+`boxed.rs:196–305` mixes child fraction boundaries into the exterior denominator.
+Pinned `typst-layout/src/inline/line.rs:577–591` allocates the final Box width
+before its actual body. `word_layout.rs:31–44` shows why translation of paint
+prepared at a provisional width cannot repair general body wrapping.
+These are observable language geometry/effect requirements; tree representation
+is private mechanics, and source inspection alone does not certify parity.
+
+### Exclusive transport contract
+
+Store private `inline_allocation: Option<Arc<sequence::inline_allocation::Node>>`,
+initially None. The immutable allocation tree carries only certified geometry
+for the actual ordered source traversal; no Location, source identity or effect
+authority is inferred from it. Sequence owns preparation and scoped consumption,
+Box/h own use. None differs from an assigned zero. Preserve all existing public
+fields/signatures, typed source edges, callback ordering and runtime contracts.
+
+This is an internal layout parity correction under ADR-0127 continuous flow:
+no public entity field, trait method, signature, flag/default, compatibility or
+eval/realize/layout phase change. L0 precedes meaningful RED→GREEN and scoped
+resealing. Require actual nested/weighted/zero-width/source-once/decoration,
+subframe-restoration and rejected-suffix tests, all prior geometry controls,
+bilateral parity, full workspace tests, Clippy/rustdoc/fmt, hashes and canonical
+forward/reverse lineage, with every warning retained.
+
+
+## Private first-flow baseline witness
+
+### Measurement before correction
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/zero-source-after/measurement.json.gz`
+binds actual source, candidate/oracle SHA-256, fonts, HEAD, uncommitted diffstat
+and UTC. Zero-copy Repeat loses its prepared baseline, moving adjacent BEFORE/TAIL
+while its body height remains real. Source inspection at pinned
+`lab/typst-original/crates/typst-layout/src/repeat.rs:19–29`,
+`inline/box.rs:32–47,79–89`, and `flow/distribute.rs:689–699` shows that
+a prepared frame retains baseline even without copies, and the FIRST actual
+in-flow frame decides baseline presence. The local Box paint scan cannot see it.
+Exact preamendment owners/sources and state are archived in
+`lab/results/nested-fractions-repeat-2026-10-21/baseline-witness-before.json`.
+These are language geometry obligations; private carrier representation is mechanics.
+
+### Exclusive private obligation
+
+Own private flow_baseline and last_sub_frame_baseline, both Option<Option<f64>>, initially None. Outer None means no certified frame decision; Some(None) means an admitted first frame without a baseline; Some(Some(y)) carries its actual baseline. Do not invent paint, font metrics, dimensions or source actions. Preserve public entities/signatures and existing dispatch.
+
+Require genuine RED→GREEN for empty Repeat baseline, positive copies, earlier Text,
+earlier empty frame, nested insets/shift, Shape/empty controls, LIFO and checkpoint
+restoration, then the same pinned bilateral SVG/PDF observations without relaxing
+1e-8 geometry or semantic membership. Unknown legacy producers retain their
+previous fallback unless a measured owning frame explicitly supplies a decision.
+This is an ADR-0127 continuous private layout correction, with no public contract,
+new product mode/default, compatibility break or eval/layout phase change.
+L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
+zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+Own optional private Repeat piece-alignment state initialized absent. Own the private optional line association on DecoSegment; it is not source identity, a packet, a Location or a public FrameItem field. State belongs to the current local geometry scope only.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+
+## Complete singleton bidi entry after statement whitespace correction
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/baseline-source.json.gz` binds the
+uncommitted source at HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`,
+UTC `2026-10-22T11:48:34.231064+00:00`; the companion `baseline.json.gz`
+retains the exact changed-file list, diffstat and product identity. Candidate-7's
+`validation/tests-domain-infra.log:7934-7938,9512-9515` records the unchanged
+source-context tests failing after the statement-whitespace correction. These
+records establish a lost certified context, not general bidi parity.
+
+The exact baseline comparison leaves paragraph/sequence/bidi-origin/style-scope
+and their failing tests unchanged. `compiler/lexer/markup.rs:346-384` keeps a
+space before an alphanumeric character inside Text. The new statement filter in
+`compiler/eval/markup_stream.rs:85-91` correctly removes the post-statement
+newline; its normalization/lexical-style fold now permits direct Styled(Text)
+instead of relying on an incidental leading Empty to retain Sequence. Only
+Sequence and explicit Par currently install complete logical context; Text
+consumes an existing cursor, and Styled dispatches its actual body. Restoring
+forbidden whitespace, inserting a virtual Sequence/Par, or independently
+certifying a descendant of an opaque enclosing object would be incorrect.
+
+### Exclusive dispatch integration
+
+Delegate the existing content-body entry to the private complete-entry wrapper
+owned by `00_nucleo/prompts/core/compiler/layout/bidi_origin.md`, then execute
+the original body dispatcher once. Keep the dispatcher static/exhaustive and
+thin; no certificate logic in the hub, new source edge/virtual tree, locator or
+admission event, field, phase or public signature. Both normal and planned
+Located body dispatch use this same boundary. Existing Sequence/Par authority,
+opaque-root refusal, source spans, callbacks, transactions and route admission
+must remain intact. The called owner governs temporary bidi-state restoration.
+
+
+## Weak pagebreak parity correction — 2026-10-23
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/baseline.json` binds the uncommitted source/L0/config state to HEAD, dirty stat and UTC; `before/receipt.json` binds both verified executables, inputs, commands and observations. `pagebreak.rs:21-58` ignores weak and always requests transitions; `finish.rs:103-106` requires the newly opened page unless it is a PageRun boundary. `page_run.rs:126-131` unconditionally closes its body. The pinned source `lab/typst-original/crates/typst-library/src/layout/page.rs:554-557` explicitly defines skipping weak breaks on empty pages; its tests `tests/suite/layout/pagebreak.typ:15-24,61-76` document weak/material distinctions. Initial, repeated, terminal and strong/weak controls plus parity and explicit PageRun probes distinguish language intent from mechanics. Page membership, content and geometry are observables; the private successor flag is a chosen mechanism. The inference that an optional successor suffices is refuted by lost notes/placed content, changed strong/parity empties, or leaked rollback state.
+
+### Decision and exclusive responsibility
+
+Store a private weak-page-successor flag, initially false, distinct from the existing PageRun boundary. This is internal layout state, without public entity/trait/signature changes. Physical-page materiality must include closed page-column buffers when deciding whether a weak break can collapse.
+
+This is an ADR-0127 continuous-flow language-parity correction: L0 first, reseal, RED→GREEN and complete revalidation. No public contract, default mode, pipeline phase or compatibility change is authorized. Existing nucleus obligations and unrelated limits remain binding.
+
+
+## Refutation: unpainted material and required successors
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/edge-after/receipt.json` and `unpainted-before/receipt.json` bind the first candidate executable to UTC/inputs/commands; its build and source state are in `validation.json` and `final-source.json.gz`. These controls refute painting alone as page materiality: hidden text, zero/fractional horizontal spacing and zero/weak/strong vertical spacing can require a page without paint; empty/metadata-only Hide does not. `h_space.rs:27-45` advances or queues spacing without an item, `v_space.rs:20-42` records advancement, and `hide.rs:20-28` removes only painted output. `pagebreak.rs:42-44` also overwrites an empty strong successor's requiredness during weak parity adjustment, dropping a required final page. These are language-visible page obligations, not a request to copy upstream collection mechanics. The earlier painting-only hypothesis was rejected, not qualified by changing the oracle or deleting its cases.
+
+### Exclusive correction
+
+Store a private page_has_unpainted_material witness, initially false, alongside weak-successor state. Only owning feature adapters record explicit unpainted page material; isolated subframes must not mark their parent page. This witness describes admitted language content, not guessed painting emptiness.
+
+L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R1 — retain the formatted entry marker (2026-10-23)
+
+Measurement before decision: `lab/results/footnote-markers-r1-2026-10-23/baseline.json` and `before/receipt.json` bind exact HEAD, uncommitted changed-file list, source archive, UTC, executable and fixed oracle identities. Successful note and note-successor probes expose generated `[1]` instead of `1`; custom exposes decimal bracket footers despite correctly formatted inline `a` and `(ii)`. Source `footnote.rs:45–48` formats the call; `footnote_fragments.rs:286` and `footnote_flush.rs:156` independently synthesize brackets. Oracle `typst-library/src/model/footnote.rs:305–338` realizes the original note numbering as superscript in its entry. This is visible language morphology; internal queue representation is mechanics.
+
+Classification: ADR-0127 continuous parity correction, private layout metadata only, no public contract, default mode, pipeline phase or compatibility change.
+
+Exclusive obligation: Store each pending footnote as a private tuple of diagnostic number, original boxed body and generated entry-prefix Content. Existing cursor/frame queues remain aligned. No public entity or API changes.
+
+Acceptance: tests first must demonstrate actual marker failure before implementation and pass afterward. Cover default, custom and intentionally bracketed numbering, literal body brackets, captured and uncaptured emission, and checkpoint preservation. Reuse generated Content rather than export text replacement. Preserve the existing body styles and note-area model, source admissions, diagnostic behavior and unrelated tests. Full build, tests, lineage and linter gates are required. This does not certify broader entry typography, column placement, nested-note body completeness, call/body migration or oversized-note continuation; measured prior limits remain open.
+
+
+## R8 private note geometry reference
+
+Evidence precedes storage: the R8 source-bound before/receipt.json under
+lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24 and pinned
+flow/compose.rs:892–900,979–989 distinguish85% entry text from outer-size gap0.5em
+and clearance1em. Nested entry size stays at root entry size. Store only a private
+outer_size: Pt in DeferredFootnoteFrame and FootnoteCapture, captured before entry
+scaling and copied through splits/checkpoints. These are descendant-only layout
+carriers, not public entities or APIs. The fragment owner calculates geometry;
+the hub owns initialization/transport only. Require existing RED→GREEN, source
+once, nesting/split/rollback controls and complete validation. ADR-0127 continuous.
+
+R8 legacy capture dispatch: hooks currently run only from
+page_running_requests.rs:522–542, while ordinary layout_content clears the source
+cursor and bypasses those hooks. candidate2/split-{p}.svg places END at228.2788pt
+on a100pt page. Wrap only ordinary captured-content dispatch with the same
+feature-owned begin/end atomic and completed-spacing hooks, once per dispatch;
+planned dispatch already owns its hooks and must not receive them twice. No new
+source packet, source re-evaluation or phase. The note feature still exclusively
+certifies boundaries. Source callbacks/counters and rollback remain unchanged.
+
+
+## R8 horizontal superscript compensation is paint-only
+
+Source evidence precedes this correction: pinned inline/line.rs:458–484 applies
+script compensation by Frame::translate without changing advance. The approved
+metrics tuple supplies this offset; current text.rs adds it to cursor_x, which
+also shifts following text. The existing real font fixtures have zero X offset,
+so injected nonzero provider controls are necessary refuters, not font-name cases.
+Keep logical advance, wrapping, justification and source identity unchanged;
+translate only the text/highlight paint of the actual script run. This is private
+formula/state correction, no new public field/API/phase (ADR-0127 continuous).
+Own a private text_horizontal_offset: Pt, initially zero; child text and word owners set/use it. No geometry formula in the hub.
+Require nonzero injected offset and following-text/rollback/subframe RED→GREEN, actual-font controls and complete validation.
+
+
+R8 continuation line-top certificate: svg-candidate3/receipt.json measures END
+at the correct page/baseline but its separator4.675pt too high, exactly0.5em of
+entry9.35pt. split_frame currently rebases tail items by the preceding source-gap
+end, retaining the interline leading before the continuation. Store a private
+FootnoteBreak.tail_start: Option<f64> certified by the actual next ordinary text
+line's top after baseline admission, in the same normalized coordinate system.
+The feature sets this once per actual boundary, only with enabled capture and
+outside atomic depth; no arbitrary Y slicing or source identity inference. Use
+that certified tail origin for item/deco/orphan/break rebasing and tail height;
+head height/positive-source-gap capacity remain unchanged. Preserve None for
+uncertified or script/math first-line geometry. The hub owns storage only.
+
+
+R8 reentrant-drain evidence: candidate4/receipt.json and svg-candidate4/receipt.json
+move END back onto page1 after terminal clearance is corrected. finish.rs drains
+once, then next_region drains the same region again before commit. The newly
+normalized short tail now fits below its own head on that repeated drain, which
+is not a new page. Add only private DeferredFootnoteFrame.deferred_region recording
+(pages.len(), current_column, segmented_par_line_column) for a split tail. The
+flush owner marks the actual region at acceptance of the head and refuses that
+tail and following queued notes while the same region is still active. A genuine
+page/column sibling permits the tail; checkpoint/split transport preserves the
+stamp. Initialize unmeasured/root captures with None. This stamp is physical
+progress metadata, never source identity or a new pipeline phase/public contract.
+The mod owner stores it; fitting remains exclusively in footnote_flush. Require
+END on exactly the next region, no duplicate/lost body, reentry/rollback and
+page-column controls plus all final gates.
+
+## R8 private physical-region type name
+Measurement before decision: validation-complete5/clippy.log reports type_complexity at DeferredFootnoteFrame.deferred_region. Name the same private tuple (physical page index, column index, optional segmented paragraph column) as FootnoteRegion and retain Option<FootnoteRegion> in the frame. No value, equality, dispatch, field visibility, public contract or runtime policy changes; no lint suppression. Preserve passing functional gates and rerun full final validation after the canonical reseal.
+
+
+## R9 — long notes with explicit line breaks (2026-10-24)
+
+Measurement precedes this correction: long-footnotes-r9-2026-10-24/baseline.json and before/receipt.json under lab/results/construction/diagnostics/ bind HEAD, exact dirty stat, UTC,2162 inputs and current R8/pinned oracle binaries. h80-n5 places1/2/2 body lines versus0/2/3; both-zero instead requires1/3/1; orphan-zero requires1/2/2. h80-n6 through n9 lose late words because finish.rs:75 bounds drain by queued note count. following-flow incorrectly reserves a non-admitted first fragment and sends TAIL to another page. Original bytes and failed controls remain immutable.
+Pinned flow/collect.rs:196–239 resolves strictly positive widow/orphan costs, protects first two/last two and whole-three, ignoring empty neighboring lines. flow/compose.rs:650–730 budgets the first entry against current flow+separator+gap, while757–777 inserts already laid out future-region spill. These source structures are not mandated; physical words/pages, source effects and geometry are language observables.
+Classification: private vanilla-parity/correctness correction, ADR-0127 continuous flow. No public field, trait, signature, mode/default, eval/layout phase or compatibility break. Preserve prior gates, callbacks once, static exhaustive dispatch, source anchors and pure injected metrics; no arbitrary painted-frame semantic inference or hard-coded font/page fixtures.
+
+### Exclusive owning obligation
+
+Own only private storage: DeferredFootnoteFrame gains source-line certification and continuation booleans, initially false, and FootnoteBreak an optional protected-group height, initially None. Fragment owner authenticates these from original source plus actual committed-line witnesses. Preserve them across clones/checkpoints and splits; root is not continuation, accepted certified line-tail is. Keep actual deferred_region stamps. No formulas/selection/admission in the hub. All public interfaces unchanged.
+
+Acceptance: source-backed module RED→GREEN before implementation, independent positive/zero/negative cost refuters, complete long-note words/markers, no-progress warning escape, actual PDF/SVG physical geometry at unchanged0.001pt, R8 and A–H/R1–R7 preservation, resource recipe, complete workspace/Clippy/fmt/Rustdoc/lint and both lineage gates. Preserve failed attempts and all received unrelated changes.
+
+
+## R9 — source page-column admission and drain
+
+Evidence before decision: candidate2 and candidate3 receipts under lab/results/construction/diagnostics/long-footnotes-r9-2026-10-24 preserve exact inputs, dirty stat, UTC and binaries. The first passes40/41; the wider68-case matrix refutes retaining context only at segmented exit: page-columns follows columns/flow.rs:119–126, which closes active columns before terminal draining. cols2-h80-n2 also measures Alpha atx20 versus155.2pt; cols2-h100-n3 unnecessarily defers a fitting whole-three entry. Pinned flow/compose.rs:650–777 measures admission at the source carrier and retains future column regions. These physical positions/pages are language, private state/dispatch is mechanics. This supersedes the refuted column follow-up saved in l0-column-followup.json, whose source changes were withdrawn without changing received code.
+
+Classification: private parity/correctness, ADR-0127 continuous flow; no public field/signature/default/phase/compatibility change.
+
+Exclusive owning obligation: Store a private page_column_notes boolean, initially false, distinguishing an active source page-column flow from an ordinary columns container. Keep source-line frame/break certificates as specified; discard the refuted queued column-context design.
+
+Require actual carrier-column RED→GREEN before implementation, the wider68-case PDF/SVG contract at unchanged0.001pt, original R8 and A–H/R1–R7 controls, unchanged effects, resources, full workspace validation, both lineage gates and preservation audits.
+
+
+## R10 — source superscript runs and mandatory breaks
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,baseline-audit.json,approved-metrics.md,approval.json}` binds received R9 source/UTC/dirty stat and pinned bd5ebec2 binaries. Six of fifteen controls fail the unchanged complete physical words/pages and0.001pt gate: three literal-newline cases, Nimbus hard break, and Nimbus/Liberation mixed fallback. Pinned inline/collect.rs:191-196 includes mandatory breaks in source script text; inline/shaping.rs:970-1004,1090-1107,1167-1217 retains outer size, actual face/run and full causal coverage. This is language geometry and source preservation, not a byte/algorithm obligation. Font-specific synthetic metrics cannot be guessed from the primary face after fallback. The exact additive FontMetrics::text_superscript_runs contract was approved at SHA65d01600110f9bffea1eaff0ca349f737ab426e384fb891e88d8f6504cf911b9; every other public method/field/default/phase stays unchanged.
+
+Classification: approved public method plus private parity integration under ADR-0127. No font I/O, callbacks, dynamic evaluation or font-name coefficients in L1. Require real module RED→GREEN before runtime code, default/override/borrowed contract tests, source partition and restoration, native/synthetic/mixed-face/warm-cold/explicit-size refuters; all original controls, R8/R9 and A–H/R1–R7 replays, PDF/SVG0.001pt and full workspace/lineage/resources validation. Preserve all historical observations and unrelated received input bytes.
+
+### Exclusive owning obligation
+
+Store only a private superscript_source_break boolean, initially false. The style-scope owner authenticates/restores it; text uses it only for a superscript request. The hub owns no new scan, rendering or font selection.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+Store an additional private literal_script_break_pending boolean, initially false, and delegate its source-boundary observation to the text owner at existing dispatch entry. No predicate/formula/selection in the hub and no new phase or source dispatch.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

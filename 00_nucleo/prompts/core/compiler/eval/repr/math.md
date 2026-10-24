@@ -1,8 +1,11 @@
 # L0 — compiler/eval/repr/math
-Hash do Código: 484bec78
+Hash do Código: e88e9ef8
+
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
+
 
 ## Ownership and evidence
 
@@ -48,3 +51,11 @@ full workspace suite, all-targets Clippy with warnings/unfulfilled expectations
 as errors, fmt, Rustdoc warnings as errors, strict/reverse V1/V5/V15/V26 lineage
 and SARIF without new warnings, under 12 GiB, zero swap and one job. No memory/
 performance/global-parity claim without independent measurement.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

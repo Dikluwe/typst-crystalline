@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/realized.md
-//! @prompt-hash 9118dda7
+//! @prompt-hash fe4dea7c
 //! @layer L1
 //! @updated 2026-10-16
 
@@ -43,6 +43,7 @@ fn needs_fresh_index(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -173,6 +174,7 @@ fn prepared_locations(content: &Content, locations: &mut Vec<Location>) -> bool 
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -330,6 +332,7 @@ fn block_equation_origin(content: &Content) -> bool {
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -457,6 +460,7 @@ fn textual_product(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -566,11 +570,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if separate {
         super::parbreak::layout(layouter);
     }
-    register_origins(layouter, original);
+    if !layouter.register_planned_original() {
+        register_origins(layouter, original);
+    }
     if separate {
-        super::paragraph::layout(layouter, visual);
+        super::paragraph::layout_with_edge(
+            layouter,
+            visual,
+            Some(crate::compiler::introspect::page_running::PlanEdge::RealizedVisual),
+        );
     } else {
-        layouter.layout_content(visual);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::RealizedVisual,
+            visual,
+        );
     }
 }
 

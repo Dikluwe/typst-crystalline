@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/tests.md
-//! @prompt-hash 4431ef25
+//! @prompt-hash 6a97012d
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -19,6 +19,168 @@ fn default_style() -> TextStyle {
 
 fn size10_style() -> TextStyle {
     TextStyle::regular(Pt(10.0))
+}
+
+#[test]
+fn remaining_math_raw_metrics_follow_actual_text_face_and_preserve_math_glyphs() {
+    struct DistinctFaces;
+    impl FontMetrics for DistinctFaces {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            size * (text.chars().count() as f64 * if style.math { 0.4 } else { 0.75 })
+        }
+        fn vertical_metrics(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (size * 0.8, size * 1.2)
+        }
+        fn cap_height(&self, size: Pt, _: &TextStyle) -> Pt {
+            size * 0.7
+        }
+        fn text_edges(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (size * 0.7, Pt(0.0))
+        }
+        fn text_ink_bounds(&self, _: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if style.math {
+                (size * 0.55, size * 0.125)
+            } else {
+                (size * 0.73, size * 0.21)
+            }
+        }
+    }
+    for size in [11.0, 17.0] {
+        let style = TextStyle { math: true, ..TextStyle::regular(Pt(size)) };
+        let metrics = DistinctFaces;
+        let ml = MathLayouter::new(&metrics, false, &style);
+        let ident = Content::MathIdent("x".into());
+        let before = ml.layout_node(&ident, &style);
+        for text in ["12pt", "34em"] {
+            let raw_content = Content::raw(text, Some("typc".into()), false);
+            let actual = ml.layout_node(&raw_content, &style);
+            let normal = TextStyle {
+                // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:663
+                size: style.size * 0.8,
+                math: false,
+                font: Some(crate::entities::font_list::FontList::single(
+                    "DejaVu Sans Mono".into(),
+                )),
+                bold: false,
+                italic: false,
+                ..style.clone()
+            };
+            let expected_width = metrics.advance(text, normal.size, &normal).val();
+            let (top, bottom) = metrics.text_ink_bounds(text, normal.size, &normal);
+            assert!(
+                (actual.width - expected_width).abs() < 1e-8,
+                "Raw advance must use its actual normal text face: {} vs {}",
+                actual.width,
+                expected_width
+            );
+            assert!((actual.ascent - top.val()).abs() < 1e-8);
+            assert!((actual.descent - bottom.val()).abs() < 1e-8);
+            assert_eq!(actual.items.len(), 1);
+            let FrameItem::Text { pos, text: painted, style: emitted, .. } =
+                &actual.items[0]
+            else {
+                panic!("actual Raw text run must survive");
+            };
+            assert_eq!(painted.as_str(), text);
+            assert_eq!(emitted.font, normal.font);
+            assert_eq!(emitted.size, normal.size);
+            assert!(emitted.fill.is_some(), "numeric token paint remains");
+            assert!(pos.y.val().abs() < 1e-8);
+        }
+        let after = ml.layout_node(&ident, &style);
+        let width = metrics.advance("x", style.size, &style).val();
+        let (top, bottom) = metrics.text_ink_bounds("x", style.size, &style);
+        for actual in [before, after] {
+            assert!((actual.width - width).abs() < 1e-8);
+            assert!((actual.ascent - top.val()).abs() < 1e-8);
+            assert!((actual.descent - bottom.val()).abs() < 1e-8);
+        }
+    }
+}
+
+#[test]
+fn remaining_math_raw_uses_real_token_styles_and_baseline() {
+    let style = TextStyle { math: true, ..default_style() };
+    let ml = MathLayouter::new(&FixedMetrics, false, &style);
+    let raw = Content::raw("12pt", Some("typc".into()), false);
+    for body in [
+        raw.clone(),
+        Content::Sequence(Arc::from(vec![raw.clone()])),
+        Content::styled(
+            raw.clone(),
+            crate::entities::style::Styles::new().push_custom(
+                "test.raw.transport",
+                crate::entities::value::Value::Bool(true),
+            ),
+        ),
+    ] {
+        let measured = ml.layout_node(&body, &style);
+        assert_eq!(measured.items.len(), 1, "actual Raw run: {:?}", measured.items);
+        let (pos, text, emitted) = match &measured.items[0] {
+            FrameItem::Text { pos, text, style, .. }
+            | FrameItem::TextShaped { pos, text, style, .. } => (pos, text, style),
+            item => panic!("Raw must emit its actual text run: {item:?}"),
+        };
+        assert_eq!(text.as_str(), "12pt");
+        assert!((emitted.size.val() - 12.0 * 0.8).abs() < 1e-8);
+        assert_eq!(
+            emitted.font,
+            Some(crate::entities::font_list::FontList::single("DejaVu Sans Mono".into()))
+        );
+        assert_eq!(
+            emitted.fill,
+            Some(crate::entities::color::Color::Srgb {
+                r: 0xb6 as f32 / 255.0,
+                g: 0x01 as f32 / 255.0,
+                b: 0x57 as f32 / 255.0,
+                a: 1.0,
+            })
+        );
+        assert!(!emitted.italic);
+        assert!(!emitted.bold);
+        assert!(pos.x.val().abs() < 1e-8);
+        assert!(
+            pos.y.val().abs() < 1e-8,
+            "declared text baseline must not become axis centered"
+        );
+        let (top, bottom) = FixedMetrics.text_edges(emitted.size, emitted);
+        assert!((measured.ascent - top.val()).abs() < 1e-8);
+        assert!((measured.descent - bottom.val().abs()).abs() < 1e-8);
+        assert!(
+            (measured.width - FixedMetrics.text_width(text, emitted.size, emitted).val())
+                .abs()
+                < 1e-8
+        );
+    }
+}
+
+#[test]
+fn remaining_math_plain_text_and_ident_keep_baseline_route() {
+    let style = TextStyle { math: true, ..default_style() };
+    let ml = MathLayouter::new(&FixedMetrics, false, &style);
+    for (body, text_item) in
+        [(Content::text("abc"), true), (Content::MathIdent("abc".into()), false)]
+    {
+        let measured = ml.layout_node(&body, &style);
+        assert_eq!(measured.items.len(), 1);
+        let (pos, text, emitted) = match &measured.items[0] {
+            FrameItem::Text { pos, text, style, .. }
+            | FrameItem::TextShaped { pos, text, style, .. } => (pos, text, style),
+            item => panic!("plain text control must retain its own text run: {item:?}"),
+        };
+        assert_eq!(text.as_str(), "abc");
+        assert_eq!(emitted.size, style.size);
+        assert_eq!(emitted.fill, style.fill);
+        assert_eq!(emitted.font, style.font);
+        assert_eq!(emitted.math_text_item, text_item);
+        assert!(emitted.math);
+        assert!(pos.y.val().abs() < 1e-8);
+        assert!(
+            (measured.width - FixedMetrics.text_width(text, emitted.size, emitted).val())
+                .abs()
+                < 1e-8
+        );
+    }
 }
 
 // ── Testes herdados do Passo 36 (adaptados para nova API) ─────────────

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/style_chain.md
-//! @prompt-hash be6fefe5
+//! @prompt-hash 83dbe8c7
 //! @layer L1
-//! @updated 2026-10-10
+//! @updated 2026-10-24
 //!
 //! Passo 99 (ADR-0038): `StyleChain` aceita uma colecção `Styles` via
 //! `push_styles`. **Lote F-4 (P338): a dualidade de backing colapsou** —
@@ -852,6 +852,7 @@ impl From<&StyleChain> for TextStyle {
             dir: None,
             subscript: chain.subscript(),
             superscript: chain.superscript(),
+            superscript_native: None,
             highlight: chain.highlight(),
             highlight_radius: chain.highlight_radius(),
             highlight_extent: chain.highlight_extent(),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/repeat.md
-//! @prompt-hash 21d51947
+//! @prompt-hash 3a0011ef
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -20,11 +20,8 @@ use super::*;
 /// - `justify: bool`. Default **`true`** (paridade vanilla;
 ///   distribuição de espaço residual diferida per ADR-0054).
 ///
-/// **Limitação aceite (perfil ADR-0054 graded)**: o algoritmo de
-/// runtime que calcula `floor(available / (body_width + gap))`
-/// está diferido — Layouter executa single-render do body
-/// (suficiente para paridade estrutural, exhaustive pattern-match
-/// e walk de counters/labels dentro do body).
+/// Gap accepts signed Length values. Complete flow repetition is owned by
+/// `compiler/layout/repeat.rs`; this constructor preserves the source payload.
 pub fn native_repeat(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -66,13 +63,6 @@ pub fn native_repeat(
                         ),
                     )]
                 })?;
-                if len.abs.0 < 0.0 || len.em < 0.0 {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        "repeat(gap:): valor negativo não suportado neste passo (P156J)"
-                            .to_string(),
-                    )]);
-                }
                 gap = Some(len);
             }
             "justify" => match value {
@@ -125,5 +115,63 @@ pub(crate) fn extract_count(args: &Args, fn_name: &str) -> SourceResult<usize> {
             args.span,
             format!("{}: argumento posicional count obrigatório ausente", fn_name),
         )]),
+    }
+}
+
+#[cfg(test)]
+mod nested_inline_repeat_native_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::{
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    #[test]
+    fn nested_inline_repeat_native_preserves_signed_gap_and_default_justify() {
+        let world = TestWorld::default();
+        let mut args = Args::positional(vec![Value::Str("X".into())]);
+        args.named.insert("gap".into(), Value::Length(Length::pt(-1.0)));
+        let value = native_repeat(&mut EvalContext::new(), &args, &world, world.main())
+            .expect("signed Length gap is accepted by the ratified oracle");
+        let Value::Content(Content::Repeat(repeated)) = value else {
+            panic!("expected Repeat content")
+        };
+        assert_eq!(repeated.gap, Some(Length::pt(-1.0)));
+        assert!(repeated.justify);
+        assert_eq!(repeated.body.plain_text(), "X");
     }
 }

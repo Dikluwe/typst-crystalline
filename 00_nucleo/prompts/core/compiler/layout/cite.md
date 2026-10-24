@@ -1,8 +1,9 @@
 # L0 — cite
-Hash do Código: 20dc096a
+Hash do Código: 452fd034
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/cite.rs`
@@ -23,3 +24,34 @@ Use cached CSL Content for the requested citation form/key when available, then 
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Source-planned citation supplement
+
+### Evidence before decision
+
+At the approved physical-page implementation baseline, cite.rs:43, :75, :101
+and :159 render the actual rich supplement with ordinary layout_content; the
+CSL cache and local fallback text use that same generic call but are generated
+content, not source child packets. The exact source and L0 bytes before this
+amendment are retained in
+lab/results/set-page-header-implementation-2026-10-21/agents/realization/citation-routing/before.json.
+The approved five-facade package and physical-page Nucleus require the actual
+selected source child to retain its typed plan edge without assigning source
+identity to generated citation text. This is source-routing mechanics, not a new
+citation syntax, numbering rule, callback or target.
+
+### Exclusive routing contract
+
+In every existing cached, ibid., op. cit. and local fallback branch, render the
+actual supplement through layout_planned_child(CitationSupplement, supplement).
+Keep the current style chain and citation-state update order. Cached CSL Content
+and generated fallback/prefix strings remain unplanned. An ordinary Cite root
+uses its own source edge; an actual bibliography-selected raw Ref uses the
+conditional CitationSupplement edge under that Ref packet. A merely prospective
+bibliography candidate does not authorize traversal or query membership.
+
+Legacy rendering with no planned cursor preserves ordinary behavior through the
+private adapter. Preserve all forms, style and empty-supplement precedence,
+public signatures, errors, geometry and language morphology. Require actual
+bibliography/non-bibliography controls and causal source supplement membership
+with no generic Ref-field traversal or layout callback.

@@ -1,9 +1,10 @@
 # L0 — html/inline
-Hash do Código: 914edc58
+Hash do Código: 1bf7cc4c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
 **Layer:** L3
@@ -169,3 +170,36 @@ fallback/error/short-circuit/effects, scoped resealing, build/full workspace sui
 all-target Clippy warnings/unfulfilled expectations as errors/fmt/Rustdoc warnings
 as errors/strict V1/V5/V15/V26/reverse lineage/SARIF no new warnings under 12 GiB,
 zero swap, one job. No unmeasured memory/performance/global-parity claim.
+
+## Measured remaining HTML and Length parity correction
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/measurement-before-decision.json`
+pins receipt SHA-256 `96025a9ff9d2c5a6057e9873285e43e4e81501bb40b55fe43b1244743e8ed09c`,
+UTC `2026-10-22T11:53:10.657191+00:00`–`2026-10-22T11:53:35.064880+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, complete dirty stat,
+source archive, commands/fonts/fixtures/build/tool and verified oracle pins.
+All provenance checks pass. Oracle commit is `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Length rendering, numeric Raw paint, page warnings, native page aliases and two
+container refusals differ. False-condition/uninserted/scalar controls pass. The
+coordinator froze exact source rejection in `lab/results/remaining-parity-2026-10-22/html-negative-policy.json`
+before implementation; no failed render is waived. Pinned `foundations/value.rs:192–205`,
+`text/raw.rs:563–606` and `typst-realize/src/lib.rs:635–655` distinguish actual
+content morphology, token styles, target-specific warnings and container errors.
+
+### Exclusive correction and acceptance
+
+Extend only the existing inline typc atom slice with a completely recognized numeric
+expression using the existing pure Code lexer. Preserve exact tokens/space and render
+code data-lang typc with numeric/operator color spans, using existing escaping/mode.
+Unrecognized or block Raw retains the existing unsupported-content error; do not
+pretend all Raw syntax is supported or invoke paged layout. Add RED actual numeric
+HTML morphology/color tests; keep Bool/Auto and unsupported Raw controls.
+
+Internal continuous ADR-0127 parity correction: no public field/trait/signature,
+new mode/default, phase or compatibility break. L0 precedes code and meaningful
+RED→GREEN; validate paths, valid owner/Nucleus graph, restricted hashes, tests,
+build, strict Clippy/rustdoc, reverse lineage and complete unsuppressed Tekt.

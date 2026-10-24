@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/eval.md
-//! @prompt-hash af10cc21
+//! @prompt-hash 301d58c5
 //! @layer L4
 //! @updated 2026-10-06
 
-use super::diagnostics::drain_to_stderr_with_primary;
+use super::diagnostics::prepare_with_primary;
+use super::diagnostics::write_stderr;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -12,7 +13,7 @@ use typst_core::contracts::world::World;
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, EvalIntent};
 
-pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
+pub(super) fn run_eval(intent: EvalIntent) -> std::io::Result<ExitCode> {
     let (world, contextual_source) = match intent.input.as_deref() {
         None => (
             SystemWorld::for_eval(PathBuf::from("."))
@@ -23,20 +24,30 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
         Some(path) if path == Path::new("-") => {
             let mut text = String::new();
             if let Err(error) = std::io::stdin().lock().read_to_string(&mut text) {
-                eprintln!("error: failed to read source from stdin: {error}");
-                return ExitCode::from(2);
+                write_stderr(&format!(
+                    "error: failed to read source from stdin: {error}\n"
+                ))?;
+                return Ok(ExitCode::from(2));
             }
             let root = match std::env::current_dir() {
                 Ok(root) => root,
                 Err(error) => {
-                    eprintln!("error: failed to acquire current directory: {error}");
-                    return ExitCode::from(2);
+                    write_stderr(&format!(
+                        "error: failed to acquire current directory: {error}\n"
+                    ))?;
+                    return Ok(ExitCode::from(2));
                 }
             };
             let world = SystemWorld::for_stdin(root, text)
                 .with_fonts_and_system(&[])
                 .with_custom_ca(intent.cert_path.clone());
-            let source = world.source(world.main()).expect("preloaded stdin Source");
+            let source = match world.source(world.main()) {
+                Ok(source) => source,
+                Err(error) => {
+                    write_stderr(&format!("error: failed to load source: {error:?}\n"))?;
+                    return Ok(ExitCode::from(2));
+                }
+            };
             (world, Some(source))
         }
         Some(path) => {
@@ -45,23 +56,26 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
                 .filter(|parent| !parent.as_os_str().is_empty())
                 .unwrap_or(Path::new("."));
             let Some(main) = path.file_name() else {
-                eprintln!("error: input path must have a file name: {}", path.display());
-                return ExitCode::from(2);
+                write_stderr(&format!(
+                    "error: input path must have a file name: {}\n",
+                    path.display()
+                ))?;
+                return Ok(ExitCode::from(2));
             };
             let world = match SystemWorld::new(root, main) {
                 Ok(world) => world
                     .with_fonts_and_system(&[])
                     .with_custom_ca(intent.cert_path.clone()),
                 Err(error) => {
-                    eprintln!("error: {error}");
-                    return ExitCode::from(2);
+                    write_stderr(&format!("error: {error}\n"))?;
+                    return Ok(ExitCode::from(2));
                 }
             };
             let source = match world.source(world.main()) {
                 Ok(source) => source,
                 Err(error) => {
-                    eprintln!("error: failed to load source: {error:?}");
-                    return ExitCode::from(2);
+                    write_stderr(&format!("error: failed to load source: {error:?}\n"))?;
+                    return Ok(ExitCode::from(2));
                 }
             };
             (world, Some(source))
@@ -70,8 +84,10 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
     let eval_source = match world.source_for_expression(intent.expression) {
         Ok(source) => source,
         Err(error) => {
-            eprintln!("error: failed to acquire expression source: {error}");
-            return ExitCode::from(2);
+            write_stderr(&format!(
+                "error: failed to acquire expression source: {error}\n"
+            ))?;
+            return Ok(ExitCode::from(2));
         }
     };
     let (result, warnings) = match contextual_source.as_ref() {
@@ -87,36 +103,47 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
             intent.features,
         ),
     };
-    if let Err(errors) = &result {
-        drain_to_stderr_with_primary(
+    let (error_text, mut metadata_errors) = match &result {
+        Err(errors) => prepare_with_primary(
             &world,
             errors,
             Path::new("<input-expression>"),
             intent.colored,
             Some(&eval_source),
-        );
-    }
-    drain_to_stderr_with_primary(
+        ),
+        Ok(_) => (String::new(), Vec::new()),
+    };
+    let (warning_text, warning_errors) = prepare_with_primary(
         &world,
         &warnings,
         Path::new("<input-expression>"),
         intent.colored,
         Some(&eval_source),
     );
+    metadata_errors.extend(warning_errors);
+    write_stderr(&format!("{error_text}{warning_text}"))?;
+    if !metadata_errors.is_empty() {
+        for error in metadata_errors {
+            write_stderr(&format!(
+                "error: failed to acquire diagnostic metadata: {error}\n"
+            ))?;
+        }
+        return Ok(ExitCode::from(2));
+    }
     let value = match result {
         Ok(value) => value,
-        Err(_) => return ExitCode::from(1),
+        Err(_) => return Ok(ExitCode::from(1)),
     };
     let bytes = match cli::serialize_eval(&value, intent.format, intent.pretty) {
         Ok(bytes) => bytes,
         Err(error) => {
-            eprintln!("error: {error}");
-            return ExitCode::from(1);
+            write_stderr(&format!("error: {error}\n"))?;
+            return Ok(ExitCode::from(1));
         }
     };
     if let Err(error) = std::io::stdout().lock().write_all(&bytes) {
-        eprintln!("error: failed to write eval output: {error}");
-        return ExitCode::from(2);
+        write_stderr(&format!("error: failed to write eval output: {error}\n"))?;
+        return Ok(ExitCode::from(2));
     }
-    ExitCode::SUCCESS
+    Ok(ExitCode::SUCCESS)
 }

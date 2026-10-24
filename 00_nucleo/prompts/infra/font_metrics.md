@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics
-Hash do Código: 5e716e38
+Hash do Código: d0406708
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml sha256:0ac6e8504aee9a06e2ae9ffc717bb4f878a3b71d37d1851fda9b93a93aacd39c
 
@@ -66,3 +66,19 @@ allocation/paired-time gate, documents equivalent to the preceding release and
 many-identity refuters; core/infra/build/lint. Language acceptance observes
 selection/metrics/origin/effects/geometry, never vanilla mechanics or inferred
 hash hits. Remove on divergence or robust regression.
+
+
+## R8 — approved font-backed superscript integration
+
+Evidence before decision: the source-bound `footnote-layout-r8-2026-10-24/before/receipt.json`,
+`font-tables.json` and `red-geometry.json` under `lab/results/construction/diagnostics/`
+record wrong 0.65 scaling/positive baseline and font-dependent pinned geometry at
+bd5ebec285505889e8ff1d4f68804ab147a699f3. `approval.json` binds the human-approved
+FontMetrics::text_superscript_metrics addition. OS/2/whole-run GSUB are text metrics;
+MATH constants and fixture/font-name coefficients are not substitutes. This private
+integration follows ADR-0127 continuous parity flow, superseding only superscript
+scaling/feature assumptions below. Keep subscript behavior and unrelated folds.
+Expose the existing private single-face superscript helper within L3 for shaping;
+no new public API. Preserve resolution, caches and all unrelated behavior.
+
+Require actual RED→GREEN tests, fixed-pin PDF/SVG controls, unchanged geometry tolerance and complete workspace/lineage validation.

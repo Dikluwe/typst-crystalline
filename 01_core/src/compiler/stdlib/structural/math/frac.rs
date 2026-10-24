@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/frac.md
-//! @prompt-hash 6c90128e
+//! @prompt-hash 9eece1f9
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -41,16 +41,7 @@ fn math_frac_style(
 }
 
 fn math_frac_operand(value: &Value, span: Span) -> SourceResult<Content> {
-    match value {
-        Value::Content(content) => Ok(content.clone()),
-        Value::LocatedContent(content, _) => Ok(content.content().clone()),
-        Value::Str(text) => Ok(Content::text(text.as_str())),
-        Value::None => Ok(Content::Empty),
-        other => Err(vec![SourceDiagnostic::error(
-            span,
-            format!("expected content, found {}", vanilla_type_name_class(other)),
-        )]),
-    }
+    super::casts::math_lr_content_value(value, span)
 }
 
 /// Parser/constructor compartilhado por `math.frac` e pelo bare `frac`.

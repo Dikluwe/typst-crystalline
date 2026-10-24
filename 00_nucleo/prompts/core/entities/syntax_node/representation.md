@@ -1,5 +1,5 @@
 # L0 — entities/syntax-node/representation
-Hash do Código: 6ae1f5cc
+Hash do Código: e51d3ff0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/syntax_node/representation.rs`
@@ -90,3 +90,40 @@ case. ADR-0127 continuous flow applies to this internal preservation change:
 L0 first, no public/default/phase/compatibility change, pure L1 and existing
 1:1 ownership. Valid V15/V26 precedes restricted resealing
 and regression/build/lint gates.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+### Checked numbering failure
+
+The pre-edit source inventory and snapshot under
+`lab/results/panic-elimination-2026-10-22/baseline-reconciled/` record
+unconditional Span::from_number unwraps and unchecked subtraction, division,
+addition, multiplication and child slicing in the existing numbering functions.
+Before Source can map failure to a diagnostic, both numbering implementations
+must return existing Unnumberable for an invalid midpoint, reversed/empty or
+insufficient interval, invalid child interval, zero/inconsistent descendant count
+or arithmetic overflow. Preserve successful numbering values, FULL layout,
+existing equal-edge renumbering, COW/caches and partial-mutation contract on Err.
+Use checked operations/borrows and existing NumberingResult; do not saturate or
+replace invalid spans with detached values. Add direct RED controls without
+allocating enormous trees, retaining all valid/clone/edge tests. Leaf/inner kind
+and placeholder fallibility is a separate pending contract; this bounded change
+does not claim the entire syntax representation panic-free.

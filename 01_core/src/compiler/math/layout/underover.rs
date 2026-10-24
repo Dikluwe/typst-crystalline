@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/underover.md
-//! @prompt-hash 9ebab6c4
+//! @prompt-hash 56d33af4
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -57,6 +57,7 @@ fn piece_char(content: &Content) -> Option<char> {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -192,6 +193,7 @@ fn nested_spreader(content: &Content) -> Option<char> {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -318,6 +320,7 @@ fn base_char_for_attachment(content: &Content) -> Option<char> {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -611,6 +614,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/geometry.md
-//! @prompt-hash ec643abd
+//! @prompt-hash 061856af
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -19,6 +19,7 @@ pub(super) fn render_line(
     color: Option<Color>,
 ) {
     xml.start_element("line");
+    xml.write_attribute("fill", "none");
     xml.write_attribute("x1", &fmt_num(start.x.0));
     xml.write_attribute("y1", &fmt_num(start.y.0));
     xml.write_attribute("x2", &fmt_num(end.x.0));
@@ -319,4 +320,35 @@ pub(super) fn path_items_to_svg(items: &[PathItem], offset: &Point) -> String {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod remaining_line_paint_tests {
+    use super::*;
+    use typst_core::entities::layout_types::Pt;
+
+    #[test]
+    fn remaining_svg_line_is_stroke_only_under_inherited_fill() {
+        for color in [None, Some(Color::rgb(30, 60, 90))] {
+            let mut xml = XmlWriter::new(xmlwriter::Options::default());
+            xml.start_element("g");
+            xml.write_attribute("fill", "green");
+            render_line(
+                &mut xml,
+                &Point { x: Pt(2.0), y: Pt(3.0) },
+                &Point { x: Pt(9.0), y: Pt(3.0) },
+                0.7,
+                color.clone(),
+            );
+            xml.end_element();
+            let svg = xml.end_document();
+            let line = svg.split("<line").nth(1).expect("actual line paint");
+            assert!(line.contains("fill=\"none\""), "line inherits fill: {svg}");
+            assert!(line.contains("x1=\"2\""));
+            assert!(line.contains("x2=\"9\""));
+            assert!(line.contains("stroke-width=\"0.7\""));
+            let expected = color_to_css(color.unwrap_or(Color::rgb(0, 0, 0)));
+            assert!(line.contains(&format!("stroke=\"{expected}\"")));
+        }
+    }
 }

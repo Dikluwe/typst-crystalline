@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/place.md
-//! @prompt-hash 503210b6
+//! @prompt-hash 8ffb7a2a
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -43,8 +43,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P245 — float real: layout body em sub-frame,
         // capturar items + dimensões, push ao buffer.
         let avail_w_page = layouter.available_width();
+        let planned = layouter.planned_child_cursor(
+            crate::compiler::introspect::page_running::PlanEdge::PlaceBody,
+        );
+        let planned = layouter.defer_planned_cursor(planned);
         let (body_height, body_items, deco_segments, orphaned_align_x, orphaned_align_y) =
-            layouter.layout_sub_frame(
+            layouter.layout_sub_frame_planned(
                 body,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: 0.0,
@@ -53,6 +57,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     align_rtl: false,
                     unconstrained_height: true,
                 },
+                false,
+                planned,
             );
         // **P904 (Item 3)** — mesmo bug/fix de `placement.rs::layout_place`
         // (ramo `float: false`): `measure_content` devolvia `(0.0, 0.0)`
@@ -514,6 +520,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     start_x: Pt(target_x + seg.start_x.val()),
                     end_x: Pt(target_x + seg.end_x.val()),
                     baseline_y: Pt(target_y + seg.baseline_y.val()),
+                    piece_line: seg.piece_line,
                 });
             }
         }
@@ -579,6 +586,7 @@ mod v16_d_tests {
                             start_x: Pt(1.0),
                             end_x: Pt(5.0),
                             baseline_y: Pt(8.0),
+                            piece_line: None,
                         }],
                         orphaned_align_x: vec![(
                             vec![0],

@@ -1,9 +1,10 @@
 # L0 — infra/export/fonts
-Hash do Código: ad60f016
+Hash do Código: de5b061b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d286c7b15a39f05d3792706ade43933abbab24ec298e92998fe3151f41c7c340
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -46,7 +47,7 @@ complete UTF-16BE text; later glyphs in the cluster receive empty hex. Preserve
 ligatures and non-BMP surrogate pairs, not truncated u16 codepoints.
 
 widths_array accepts current (gid, hex) pairs and converts the effective face's
-advance to rounded 1/1000 text units, retaining missing-advance fallback 500.
+advance to fractional 1/1000 text units, retaining missing-advance fallback 500.
 to_unicode_cmap accepts GID-to-UTF-16BE strings, Identity-UCS codespace 0000–FFFF,
 and batches bfchar entries at no more than 100. Empty input produces a valid
 empty map without an empty bfchar batch.
@@ -161,3 +162,38 @@ target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
 prepared transport, native-target integration and parity slices recorded as
 T1c/T2/T3 are complete only after integrated verification; broken/partial states
 are no production certificate. T4 and publication remain out of scope.
+
+## Fractional PDF font-space precision (batch F)
+
+### Measurement before classification
+
+`lab/results/pdf-bbox-precision-2026-10-23/baseline.json` freezes the unchanged
+validated E working tree, source hashes, HEAD, diffstat, UTC and binary identities.
+`before.json` reproduces Hello maximum xMax error0.003652pt and Table maximum
+xMax error0.007417pt at the ratified bd5ebec2 oracle; `causal-width-only.json`
+keeps the failed width-only PDF mutation. This is diagnostic output, not an
+accepted binary. Source fonts.rs:223 quantizes /W; text.rs:223–245 quantizes
+nominal-minus-shaped advance; runs.rs:207–248 quantizes boundary and glyph cursor.
+The retained oracle Hello content stream has fractional TJ58.59375 versus local59,
+and fractional /W751.9531 versus local752. These are measured serialization
+losses; neither byte identity nor a guessed upstream intention is acceptance.
+
+### Correction and acceptance
+
+For this owner's existing PDF responsibility, supersede earlier preservation of
+integer text-unit rounding. Preserve effective face fractional widths, shaped
+advance differences, x offsets, tracking residue and absolute run boundaries;
+use the actually serialized fractional advance for the coalesced cursor. Retain
+existing units, missing metrics fallbacks, GID remapping, subset/face identity,
+operators, Tc=0, graphic scopes, bitmap and Type1 policies. No layout adjustment,
+new public contract, default, phase, flag or font exception. Existing rounded
+models are historical evidence, not current requirements.
+
+Inference: combined width/TJ precision explains the strict box failures; residual
+PDF box or independent painted-origin errors would refute completeness. Require
+real module RED→GREEN with non1000 UPEM, remapping, offsets, fractional boundary
+and tracking controls, then unchanged0.001pt word/page boxes on Hello/Table,
+prose/math preservation, independent PDF/SVG placements and higher-resolution
+painting. Keep original failed receipts. Do not round measured coordinates,
+widen tolerance or substitute raster agreement for text-selection acceptance.
+Reseal lineage and pass all workspace validation plus full crystalline lint.

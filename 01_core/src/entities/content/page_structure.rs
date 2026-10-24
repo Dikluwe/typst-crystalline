@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/page_structure.md
-//! @prompt-hash 7f49362b
+//! @prompt-hash 4b232b80
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -23,7 +23,7 @@ impl Content {
                 let mut current: Vec<Self> = Vec::new();
                 for child in seq.iter() {
                     for piece in Self::page_column_segments(child) {
-                        if matches!(piece, Self::Pagebreak(_)) {
+                        if matches!(piece.source_body(), Self::Pagebreak(_)) {
                             if !current.is_empty() {
                                 pieces.push(Self::sequence(current));
                                 current = Vec::new();
@@ -43,9 +43,9 @@ impl Content {
                 let inner_pieces = Self::page_column_segments(&styled.body);
                 inner_pieces
                     .into_iter()
-                    .map(|piece| match piece {
+                    .map(|piece| match piece.source_body() {
                         Self::Pagebreak(_) => piece,
-                        other => Self::styled(other, styled.styles.clone()),
+                        _ => Self::styled(piece, styled.styles.clone()),
                     })
                     .collect()
             }
@@ -67,6 +67,7 @@ impl Content {
             | Self::Link(_)
             | Self::Equation(_)
             | Self::MathSequence(_)
+            | Self::Symbol(_)
             | Self::MathIdent(_)
             | Self::MathText(_)
             | Self::MathFrac(_)
@@ -192,7 +193,7 @@ impl Content {
                 // colunas. Isto evita alterar a estrutura AST de documentos que
                 // não usam `#set page(columns:)` (preserva snapshots P307b).
                 let needs_wrap = parts.iter().any(
-                    |p| matches!(p, Self::SetPage(delta) if delta.columns.is_some()),
+                    |p| matches!(p.source_body(), Self::SetPage(delta) if delta.columns.is_some()),
                 );
                 if !needs_wrap {
                     return Ok(None);
@@ -202,7 +203,7 @@ impl Content {
                 let mut out = Vec::with_capacity(parts_vec.len());
                 let mut i = 0;
                 while i < parts_vec.len() {
-                    let count = match &parts_vec[i] {
+                    let count = match parts_vec[i].source_body() {
                         Self::SetPage(delta) => delta.columns,
                         _ => None,
                     };
@@ -212,7 +213,7 @@ impl Content {
                         let mut j = i + 1;
                         while j < parts_vec.len()
                             && !matches!(
-                                &parts_vec[j],
+                                parts_vec[j].source_body(),
                                 Self::SetPage(_) | Self::Pagebreak(_)
                             )
                         {
@@ -227,7 +228,7 @@ impl Content {
                         let body = Self::sequence(parts_vec[i + 1..j].to_vec());
                         let segments = Self::page_column_segments(&body);
                         for piece in segments {
-                            match piece {
+                            match piece.source_body() {
                                 Self::Pagebreak(_) => out.push(piece),
                                 _ => out.push(Self::Columns(Arc::new(ColumnsElem {
                                     count,
@@ -256,6 +257,81 @@ impl Content {
 mod page_structure_tests {
     use super::Content;
     use std::sync::Arc;
+
+    #[test]
+    fn remaining_parity_root_page_columns_classify_sourced_markers() {
+        use crate::entities::{file_id::FileId, span::Span, style::Styles};
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let first_span = Span::from_range(file, 0..10);
+        let break_span = Span::from_range(file, 20..30);
+        let second_span = Span::from_range(file, 40..50);
+        let first = Content::SetPage(Arc::new(super::SetPageDelta {
+            columns: Some(2),
+            ..Default::default()
+        }))
+        .with_source_span(first_span);
+        let second = Content::SetPage(Arc::new(super::SetPageDelta {
+            columns: Some(3),
+            ..Default::default()
+        }))
+        .with_source_span(second_span);
+        let page_break = Content::pagebreak(false, None).with_source_span(break_span);
+        let wrapped = Content::sequence(vec![
+            first.clone(),
+            Content::styled(
+                Content::sequence(vec![
+                    Content::text("A"),
+                    page_break.clone(),
+                    Content::text("B"),
+                ]),
+                Styles::default(),
+            ),
+            second,
+            Content::text("C"),
+        ])
+        .wrap_page_columns();
+        let Content::Sequence(parts) = wrapped else { panic!("ordered page segments") };
+        assert_eq!(
+            parts.len(),
+            6,
+            "sourced markers retain their original boundaries: {parts:?}"
+        );
+        assert_eq!(parts[0].source_span(), first_span);
+        assert!(
+            matches!(parts[0].source_body(), Content::SetPage(delta) if delta.columns == Some(2))
+        );
+        for (index, count, text) in [(1, 2, "A"), (3, 2, "B"), (5, 3, "C")] {
+            let Content::Columns(columns) = parts[index].source_body() else {
+                panic!("implicit column section {index}")
+            };
+            assert_eq!(columns.count, count);
+            assert!(columns.page_columns);
+            assert_eq!(columns.body.plain_text(), text);
+        }
+        assert_eq!(parts[2].source_span(), break_span);
+        assert!(matches!(parts[2].source_body(), Content::Pagebreak(_)));
+        assert_eq!(parts[4].source_span(), second_span);
+        assert!(
+            matches!(parts[4].source_body(), Content::SetPage(delta) if delta.columns == Some(3))
+        );
+
+        // A marker directly in this Sequence ends its existing implicit group.
+        let flat = Content::sequence(vec![
+            first,
+            Content::text("A"),
+            page_break,
+            Content::text("B"),
+        ])
+        .wrap_page_columns();
+        let Content::Sequence(parts) = flat else { panic!("flat marker boundary") };
+        assert_eq!(parts.len(), 4);
+        assert_eq!(parts[0].source_span(), first_span);
+        assert!(matches!(parts[1].source_body(), Content::Columns(columns)
+            if columns.count == 2 && columns.body.plain_text() == "A"));
+        assert_eq!(parts[2].source_span(), break_span);
+        assert!(matches!(parts[2].source_body(), Content::Pagebreak(_)));
+        assert!(matches!(parts[3].source_body(), Content::Text(text) if text == "B"));
+    }
 
     #[test]
     fn wrapping_plain_content_preserves_it() {

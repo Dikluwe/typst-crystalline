@@ -1,5 +1,5 @@
 # L0 — v space
-Hash do Código: 728f3474
+Hash do Código: eb5465b8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -40,3 +40,16 @@ The certified-anchor slice (historical B1) covers line, shape, Block, Align, Gri
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
 L0 precedes RED→GREEN and restricted resealing. Revalidate complete suite, HTML/context, PDF/SVG, build/doc/fmt/check, lineage and warning inventory, with the bilateral corpus. This correction does not certify general VSpace collapse, negative/fraction acceptance, shape defaults, RTL alignment or Block Auto. Weak-collapse gaps and the broader vertical-flow work remain open; this contract does not close those axes.
+
+
+## Refutation: unpainted material and required successors
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/edge-after/receipt.json` and `unpainted-before/receipt.json` bind the first candidate executable to UTC/inputs/commands; its build and source state are in `validation.json` and `final-source.json.gz`. These controls refute painting alone as page materiality: hidden text, zero/fractional horizontal spacing and zero/weak/strong vertical spacing can require a page without paint; empty/metadata-only Hide does not. `h_space.rs:27-45` advances or queues spacing without an item, `v_space.rs:20-42` records advancement, and `hide.rs:20-28` removes only painted output. `pagebreak.rs:42-44` also overwrites an empty strong successor's requiredness during weak parity adjustment, dropping a required final page. These are language-visible page obligations, not a request to copy upstream collection mechanics. The earlier painting-only hypothesis was rejected, not qualified by changing the oracle or deleting its cases.
+
+### Exclusive correction
+
+Record actual explicit vertical-spacing admission as unpainted page material outside isolated subframes, including zero and weak spacing. The page admission witness does not implement or modify geometric spacing collapse.
+
+L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.

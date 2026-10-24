@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/math_cases_layout_tests.md
-//! @prompt-hash 80a4d681
+//! @prompt-hash 4430b0cd
 //! @layer L1
 #![cfg(test)]
 
@@ -31,7 +31,7 @@ impl TestWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id(), text.into()),
+            source: Source::new(id(), text.into()).expect("valid Source test fixture"),
         }
     }
 }
@@ -98,6 +98,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

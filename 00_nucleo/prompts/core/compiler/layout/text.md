@@ -1,5 +1,5 @@
 # L0 — text
-Hash do Código: ecf82cf1
+Hash do Código: 8cb95f0b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
@@ -63,3 +63,113 @@ Prefix controls require RED→GREEN same actual prefix/body page, continuation i
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## Source-scope refinement measurement (2026-10-21)
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/scope-refuters/measurement.json.gz`
+records exact source/font bytes, UTC, HEAD, dirty state, commands, diagnostics,
+PDF/SVG and source-bound prototype binary
+`380224b96e7d12e15f7d8ee02ad2200d96664eb14f0bbe879fbd3eb265bd96d7`
+against oracle commit bd5ebec285505889e8ff1d4f68804ab147a699f3, tree
+cac836c07e4dec2a89219370428292393a3216b5, executable SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9. All six sources compile
+without errors. Global-flow-tail paints joined PAB and Q at134.05884 in the
+prototype, versus PA and BQ at215.79541 in the oracle. Fraction-rounding-residual
+paints joined AB and Q at226.88379, versus A at8, B at36.686947 and Q at225.4.
+These are source-language positions; PDF token grouping alone does not certify
+source deletion. Zero-width controls retain the visible source body and fixed
+sibling, including coincident A/Q; an empty zero Box has its own real baseline.
+
+`eval/markup_stream.rs:305` adds `eval.flow.scope` to a complete lexical tail;
+`layout/paragraph_prepare.rs:65–99` already positively classifies bounded text
+fields/channels. Rejecting every custom delta propagates Blocked into such a
+complete tail. The initial arithmetic model in
+`agents/box/rounding-certificate-analysis.json` is withdrawn as a causal proof:
+Python's compensated builtin sum did not model the current Rust ordered sum.
+`agents/box/rounding-ordered-fold-correction.json` preserves that refutation
+and a separate provisional ordered-fold analysis; it is not compiler evidence.
+`lab/results/nested-fractions-repeat-2026-10-21/corrected-certificate-red/`
+retains the exact input/source state, UTC, full test log and receipt. Its
+corrected scope test fails at actual29.8 versus expected133.2, while fourteen
+controls, including the
+rounding geometry control, pass. Preserve their exact test inputs/tolerances.
+No arithmetic correction follows from the refuted model or its passing control;
+retain the existing normalized ratios and strict cursor<=right proof unchanged.
+
+### Refinement decision and refuters
+
+Expose a private effective_style_in(&StyleChain, &TextStyle) facade delegating
+to the existing text/style owner's pure from_parts policy. It serves inert
+certified lexical measurement without emitting content, admitting source,
+changing state, choosing fonts or repeating script scaling. Existing emission
+and effective_style(Layouter) callers keep their current single resolution.
+Do not duplicate precedence or style formulas in this facade. This remains an
+internal ADR-0127 correction with current source/evaluation phases unchanged.
+
+
+## R8 — approved font-backed superscript integration
+
+Evidence before decision: the source-bound `footnote-layout-r8-2026-10-24/before/receipt.json`,
+`font-tables.json` and `red-geometry.json` under `lab/results/construction/diagnostics/`
+record wrong 0.65 scaling/positive baseline and font-dependent pinned geometry at
+bd5ebec285505889e8ff1d4f68804ab147a699f3. `approval.json` binds the human-approved
+FontMetrics::text_superscript_metrics addition. OS/2/whole-run GSUB are text metrics;
+MATH constants and fixture/font-name coefficients are not substitutes. This private
+integration follows ADR-0127 continuous parity flow, superseding only superscript
+scaling/feature assumptions below. Keep subscript behavior and unrelated folds.
+Actual text emission uses the private actual-run resolver; install its style only
+for that run and add horizontal compensation once at admission. Preserve original
+Bidi spans, source identity and restoration. Empty text and ordinary prose retain
+their existing paths. Do not reapply a script scale in measurement or paint.
+
+Require actual RED→GREEN tests, fixed-pin PDF/SVG controls, unchanged geometry tolerance and complete workspace/lineage validation.
+
+
+## R8 horizontal superscript compensation is paint-only
+
+Source evidence precedes this correction: pinned inline/line.rs:458–484 applies
+script compensation by Frame::translate without changing advance. The approved
+metrics tuple supplies this offset; current text.rs adds it to cursor_x, which
+also shifts following text. The existing real font fixtures have zero X offset,
+so injected nonzero provider controls are necessary refuters, not font-name cases.
+Keep logical advance, wrapping, justification and source identity unchanged;
+translate only the text/highlight paint of the actual script run. This is private
+formula/state correction, no new public field/API/phase (ADR-0127 continuous).
+Install the actual-run horizontal offset as a scoped private paint offset and restore it with style; never add it to cursor_x. Preserve native/synthetic font size and absolute baseline shift.
+Require nonzero injected offset and following-text/rollback/subframe RED→GREEN, actual-font controls and complete validation.
+
+
+## R10 — source superscript runs and mandatory breaks
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,baseline-audit.json,approved-metrics.md,approval.json}` binds received R9 source/UTC/dirty stat and pinned bd5ebec2 binaries. Six of fifteen controls fail the unchanged complete physical words/pages and0.001pt gate: three literal-newline cases, Nimbus hard break, and Nimbus/Liberation mixed fallback. Pinned inline/collect.rs:191-196 includes mandatory breaks in source script text; inline/shaping.rs:970-1004,1090-1107,1167-1217 retains outer size, actual face/run and full causal coverage. This is language geometry and source preservation, not a byte/algorithm obligation. Font-specific synthetic metrics cannot be guessed from the primary face after fallback. The exact additive FontMetrics::text_superscript_runs contract was approved at SHA65d01600110f9bffea1eaff0ca349f737ab426e384fb891e88d8f6504cf911b9; every other public method/field/default/phase stays unchanged.
+
+Classification: approved public method plus private parity integration under ADR-0127. No font I/O, callbacks, dynamic evaluation or font-name coefficients in L1. Require real module RED→GREEN before runtime code, default/override/borrowed contract tests, source partition and restoration, native/synthetic/mixed-face/warm-cold/explicit-size refuters; all original controls, R8/R9 and A–H/R1–R7 replays, PDF/SVG0.001pt and full workspace/lineage/resources validation. Preserve all historical observations and unrelated received input bytes.
+
+### Exclusive owning obligation
+
+Validate the entire provider UTF-8 partition before emitting any run. Only script text uses the new method; ordinary text/planning remains intact. Apply returned effective style and paint-only offset once per actual run, retain source text/spans and restore all outer state. For script literal LF/CRLF, admit/flush original-flow lines through the existing linebreak owner rather than leaving multiline paint in a single word. Flush with the original outer line style, restore temporary bidi cursor around generated internal boundaries, and retain consecutive/initial/terminal empty-line causes. Invalid partitions preserve the previous single-run path, without partial admission or lost/duplicated text.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+For adjacent authenticated provider ranges on the same material line, delegate any generated style-change tracking interval to text_tracking once, before normal word admission; do not charge it across a source CR/LF. Preserve ordinary equal-style boundaries. Own a private one-boundary pending literal-script-break cause: generated LF sets it; actual following text consumes it; a static before-content observer retains it only through transparent Sequence/Styled/Strong/Emph/Source/Located/Realized/ShowRecipe/Empty and Space carriers, clearing it at every other original constructor. The hub only delegates this observer. Do not create an empty painted/semantic strut merely to retain a following space.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

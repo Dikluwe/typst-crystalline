@@ -1,21 +1,26 @@
 # L0 — core/compiler/math/layout/mod
-Hash do Código: 51b6e32e
+Hash do Código: 76c13a35
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/math/layout/mod.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/math/layout/mod.rs`
 
 ## Consumer evidence
 
@@ -477,3 +482,94 @@ creates Location. The regression owner adds two public display tests for Source
 Linebreak/MathAlignPoint with identical baselines/positions. Previous 27 controls
 stay, total 29 and expected RED 5 passing/24 failing. No contract/phase/default/
 public API change.
+
+
+## Planned direct Equation source bridge
+
+### Measurement before correction
+
+`lab/results/set-page-header-implementation-2026-10-21/route-probes11/receipt.json`
+records the source-bound diagnostic11 product and the pinned vanilla
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Actual public syntax
+`math.equation(metadata("equation-child"))` and
+`math.equation(figure([EQUATION CHILD], caption: none))` both succeed in the
+oracle and fail source-plan verification in the product. Ordinary `$a + b$`
+succeeds with equal typed observations in both. Exact before source/L0 bytes,
+hashes, UTC and working-tree provenance are archived in
+`agents/layout/equation-bridge-before.json.gz` under that implementation root.
+
+The source plan already declares EquationBody and recursively plans the direct
+body according to the existing semantic partition. The equation painter calls
+MathLayouter without that cursor; its external bridge creates an isolated
+unplanned Layouter. Therefore required direct-body facts cannot be admitted by
+actual painting. This is a missing internal handoff within the human-approved
+physical-page phase, not authorization to open terminal MathSequence subtrees.
+
+### Exclusive correction
+
+Keep existing public constructors and measured signatures unchanged. Provide
+compiler-private math-default and style-projection helpers for the owning parent
+painter and a measured entry consuming its already painted opaque external frame.
+Apply math-default once before painting and use the same existing MathBox-to-extent
+composition afterwards. The no-plan/no-required-facts path remains unchanged,
+including terminal MathSequence coverage and callback occurrence rules. No new
+MathLayouter field, public API or pipeline stage is introduced.
+
+## Measured Raw morphology inside math
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/math-length-before/receipt.json.gz`
+SHA-256 `d94a39c8bd3fb37880866dbd1e4b6ee9004fc77eab39d0bcdf7bb78090a165bc`
+retains UTC `2026-10-22T13:18:01.270679+00:00`–`2026-10-22T13:18:04.556564+00:00`,
+exact coordination HEAD/dirty stat, both immutable sources, font bytes, commands,
+cached product's separate verified archived build/source and ratified oracle pins.
+Length interpolation and explicit inline typc Raw inside an Equation already
+compile with equal nonspace text but differ in numeric paint and SVG geometry:
+maximum glyph-origin delta `1.1204531249999832pt`, product/oracle root heights
+`68.57484375pt`/`67.4765625pt`. These are preexisting debts in that cached source;
+they do not establish a new regression caused by the display adapter. All
+source/binary/archive/font/worker guards pass.
+
+Pinned `lab/typst-original/crates/typst-library/src/text/raw.rs:657–669` gives
+Raw its Mono font and 0.8 relative size; `typst-layout/src/rules.rs:657–680`
+realizes Raw lines to styled text. `typst-library/src/math/ir/resolve.rs:127–150`
+realizes content before math resolution and `typst-layout/src/math/text.rs:17–39`
+lays out actual text into a frame. The current pure math catch-all flattens Raw
+to plain_text, losing its language morphology. The existing external bridge
+already preserves actual text/glyph baselines; only baseline-less frames use
+axis centering. No new layout formula follows from the measured delta.
+
+### Exclusive obligation
+
+Classify Raw as requiring actual normal layout in needs_external_layout,
+including existing recursive Sequence/Styled wrappers. Delegate through the
+unchanged pure external bridge so the existing Raw owner applies its defaults,
+lexical overrides, token paint and real text baseline. Preserve the existing
+Text/MathIdent paths and P994 baseline protections; do not flatten Raw to text,
+introduce a source fixture special case, axis-offset patch, new helper/API,
+phase or altered bridge. Existing bridge limits remain explicit. Meaningful
+causal font/size/paint/baseline RED tests must precede the dispatch correction;
+complete bilateral geometry and paint of both frozen sources is required for
+closure. Internal parity correction follows ADR-0127 continuous flow.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Measured R3 geometry correction — 2026-10-23
+
+### Measurement before decision
+
+`lab/results/math-geometry-r3-2026-10-23/{baseline.json,baseline-source.json.gz,before/receipt.json,reductions/receipt.json}` retain the received R2 state, UTC, dirty HEAD/stat, full source map, exact inputs, binary hashes and commands. Oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`, SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Seven of 19 render probes fail 0.001 pt: five at 0.92119 pt vertical, unicode at 2.136005 pt, and selected-multichar at 0.492 pt. Isolated alpha without show has the same vertical error; adjacent ordinary text refutes a show-specific cause. Markup base and variation form both select NewCMMath rather than oracle FreeMono. Symbol arrow has omitted per-letter italic correction; sum happens to match.
+
+Pinned `math/mod.rs:49–102` admits the normalized inline frame; `math/ir/resolve.rs:326–358` resolves each Symbol grapheme to a glyph; `inline/shaping.rs:929–936` uses ordinary fallback without inferring math from a font table. Current `equation.rs:49–52` installs the outer text strut before measurement, `math/layout/mod.rs:1354–1373` treats an entire Symbol as one glyph run, and `shaper/font_selection.rs:66–70` injects math fallback for ordinary DejaVu Sans because it has MATH. Coordinates, selected visual glyphs and source identity are observable output; storage/algorithm are mechanics. These are internal parity corrections under continuous ADR-0127, with no public contract/default/phase/compatibility change. Refutation requires bilateral PDF and SVG coordinates, adjacent-text, ordinary base/variation and grapheme controls; a passing glyph count alone is insufficient.
+
+### Exclusive obligation
+Keep MathIdent's existing lexical behavior. Dispatch native Symbol to the existing sequence owner for grapheme-wise composition, preserving the complete authored payload and style transformation. Each grapheme gets the existing glyph geometry/italic correction and class/spacing/large-operator logic; never split a variation selector or combining sequence from its base. No public identity rewrite, name lookup, added field or shaping/export compensation. Test per-grapheme advances and positions with deliberately nonadditive injected glyph metrics, plus selector/combining cluster and unchanged MathIdent/Text controls.
+
+Require actual RED→GREEN, scoped resealing with valid V15/V26, full workspace validation, unchanged 0.001 pt bounds and preservation of received changes.

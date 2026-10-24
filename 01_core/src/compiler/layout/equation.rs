@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/equation.md
-//! @prompt-hash be67e395
+//! @prompt-hash e5db1252
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -47,9 +47,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // topo da página/região suprimem o spacing acima (paridade vanilla,
         // medido: `$x^2$` sozinho → baseline = margin + ascent).
         let was_initial_baseline_pending = self.initial_baseline_pending;
-        if !block {
-            self.ensure_initial_baseline();
-        }
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
         // Lote F-2 S2 (P335): o "ativo" é **assado** no `EquationElem` (escopo
@@ -111,6 +108,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // outside the callback-aware document entrypoint. They still need a
         // pure transcript for callback-free equations; production always
         // installs the attempt-wide state before reaching this point.
+        let saved_chain = self.block_chain_active;
+        let saved_below = self.prev_block_below_pending;
+        let saved_prev_descent = self.prev_block_equation_descent;
+        let planned_frame = self.planned_equation_body_cursor().map(|cursor| {
+            let content = math::layout::prepare_direct_body(body);
+            let saved_style = self.style.clone();
+            let saved_lexical_chain = self.chain.clone();
+            self.chain =
+                self.chain.push_styles(&math::layout::external_styles(&math_style));
+            self.style = math_style.clone();
+            let (height, items, _, _, _) = self.layout_sub_frame_planned(
+                &content,
+                super::SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: f64::INFINITY,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+                false,
+                Some(cursor),
+            );
+            let width = self.last_sub_frame_width;
+            self.chain = saved_lexical_chain;
+            self.style = saved_style;
+            math::layout::PlannedExternalFrame { content, height, width, items }
+        });
         let fallback_callback_pass =
             math::layout::callbacks::MathCallbackPassState::new(None);
         let callback_pass = self.math_callback_pass.unwrap_or(&fallback_callback_pass);
@@ -128,13 +152,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // os items são os mesmos de `layout_equation`.
         // **P1108** — Preservar o estado de colapso de margens antes da medição matemática
         // (que pode rodar sub_frame/layout_node interno).
-        let saved_chain = self.block_chain_active;
-        let saved_below = self.prev_block_below_pending;
-        let saved_prev_descent = self.prev_block_equation_descent;
 
+        let planned_external = planned_frame.is_some();
         let (math_items, extent) = {
-            let (items, mut ext) =
-                math_layouter.layout_equation_measured(body, &math_style);
+            let (items, mut ext) = match planned_frame {
+                Some(frame) => {
+                    math_layouter.layout_equation_from_external(frame, &math_style)
+                }
+                None => math_layouter.layout_equation_measured(body, &math_style),
+            };
             if block && numbering_active {
                 let (top_edge, _) = self.metrics.text_edges(math_style.size, &math_style);
                 ext.ascent = ext.ascent.max(top_edge.0);
@@ -174,6 +200,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 if bottom_is_bounds { ext.descent } else { -bottom_edge.0 };
             let inline_ascent = edge_ascent.max(ext.ascent - slack);
             let inline_descent = edge_descent.max(ext.descent - slack).max(0.0);
+            self.ensure_line_baseline(inline_ascent);
             self.note_inline_extent(inline_ascent, inline_descent);
         }
 
@@ -201,7 +228,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.regions.current.cursor_y = Pt(ext.ascent);
                 self.prev_block_below_pending = 0.0;
                 self.initial_baseline_pending = false;
-            } else if was_initial_baseline_pending {
+            } else if was_initial_baseline_pending
+                || (!self.is_sub_frame
+                    && !self.column_mode
+                    && self.page_columns.is_none()
+                    && super::pagebreak::page_is_empty(self)
+                    && self.flow_placement_end.is_none()
+                    && !self.block_chain_active)
+            {
                 // Topo da página: baseline = margin + ext.ascent
                 self.regions.current.cursor_y =
                     Pt(self.page_config.margin.top + ext.ascent);
@@ -243,6 +277,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         Pt(prev_baseline + prev_descent + gap + ext.ascent);
                 }
             }
+            // The block baseline already incorporates its raw ascent. Hand
+            // that same extent to whole-line admission before any migration.
+            self.line_assumed_ascent = Some(ext.ascent);
+            self.note_inline_extent(ext.ascent, ext.descent);
             self.prev_line_baseline = self.regions.current.cursor_y.0;
 
             // **P1102** — A posição horizontal da equação de bloco deve ser capturada
@@ -405,7 +443,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Image { .. } => {} // imagens não ocorrem em math inline
+                FrameItem::Image { .. } if planned_external => {
+                    let mut item = item;
+                    super::helpers::offset_frame_item(&mut item, offset_x.0, offset_y.0);
+                    self.regions.current.current_line.push(item);
+                }
+                FrameItem::Image { .. } => {} // legacy unplanned path
                 // **P994** — `Shape`/`Group` OCORREM desde P994: o catch-all
                 // de `layout_node` (`layout_external`) embute conteúdo externo
                 // (`box()`/`block()`/`pad()`/…) como `Group` (com `Shape`s de
@@ -461,8 +504,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Link { .. } => {} // links não ocorrem em math inline
-                FrameItem::Semantic { kind, placement, alt, items } => {
+                FrameItem::Link { .. } if planned_external => {
+                    let mut item = item;
+                    super::helpers::offset_frame_item(&mut item, offset_x.0, offset_y.0);
+                    self.regions.current.current_line.push(item);
+                }
+                FrameItem::Link { .. } => {} // legacy unplanned path
+                FrameItem::Semantic { kind, placement, alt, mut items } => {
+                    if planned_external {
+                        for child in &mut items {
+                            super::helpers::offset_frame_item(
+                                child, offset_x.0, offset_y.0,
+                            );
+                        }
+                    }
                     self.regions.current.current_line.push(FrameItem::Semantic {
                         kind,
                         placement,
@@ -537,23 +592,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Guardar a baseline da linha antes do flush; usada para posicionar o
         // número à direita verticalmente alinhado com a equação.
-        let equation_baseline_y = self.regions.current.cursor_y;
+        let mut equation_baseline_y = self.regions.current.cursor_y;
 
         if block {
-            let pages_before = self.pages.len();
             self.flush_line();
-            if self.pages.len() == pages_before {
-                let ext = extent.expect("bloco tem extent medido (P813)");
-                let spacing =
-                    Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
-                self.prev_line_baseline = equation_baseline_y.0;
-                self.prev_block_equation_descent = ext.descent;
-                self.last_equation_descent = ext.descent;
-                self.prev_block_below_pending = spacing.0;
-                self.block_chain_active = true;
-                self.prev_margin_is_parbreak = false;
-                self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
-            }
+            // Closure may migrate the entire formula. Its settled baseline
+            // owns both the following block margin and marginal numbering.
+            equation_baseline_y = Pt(self.prev_line_baseline);
+            let ext = extent.expect("bloco tem extent medido (P813)");
+            let spacing =
+                Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
+            self.prev_block_equation_descent = ext.descent;
+            self.last_equation_descent = ext.descent;
+            self.prev_block_below_pending = spacing.0;
+            self.block_chain_active = true;
+            self.prev_margin_is_parbreak = false;
+            self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
         }
 
         // Acrescentar número da equação à direita da página (P456).
@@ -898,6 +952,98 @@ mod smoke {
         }
     }
 
+    fn continuation_document(
+        count: usize,
+        after: bool,
+    ) -> crate::entities::layout_types::PagedDocument {
+        let mut parts = vec![Content::SetPage(std::sync::Arc::new(
+            crate::entities::content::SetPageDelta {
+                width: Some(PageDimension::Length(150.0)),
+                height: Some(PageDimension::Length(90.0)),
+                margin: Some(PageMarginSpec::uniform(10.0)),
+                ..Default::default()
+            },
+        ))];
+        for _ in 0..count {
+            parts.push(Content::equation(
+                Content::math_frac(
+                    Content::MathIdent("a".into()),
+                    Content::MathIdent("b".into()),
+                ),
+                true,
+            ));
+        }
+        if after {
+            parts.push(Content::text("AFTER"));
+        }
+        layout(&Content::styled(
+            Content::sequence(parts),
+            crate::entities::style::Styles::from_iter([
+                crate::entities::style::Style::Size(
+                    crate::entities::layout_types::Length::pt(12.0),
+                ),
+            ]),
+        ))
+    }
+
+    fn continuation_bounds(items: &[FrameItem]) -> Vec<(f64, f64)> {
+        items
+            .iter()
+            .filter_map(|item| {
+                if let FrameItem::Semantic {
+                    kind: SemanticKind::Formula, items, ..
+                } = item
+                {
+                    if let Some(FrameItem::Group { pos, inner_height, .. }) =
+                        items.first()
+                    {
+                        return Some((pos.y.0, pos.y.0 + inner_height));
+                    }
+                }
+                None
+            })
+            .collect()
+    }
+
+    #[test]
+    fn math_continuation_commits_complete_display_frames_inside_each_region() {
+        let doc = continuation_document(8, false);
+        let mut total = 0;
+        for (index, page) in doc.pages.iter().enumerate() {
+            let bounds = continuation_bounds(&page.items);
+            total += bounds.len();
+            assert!(!bounds.is_empty(), "no manufactured blank page {index}");
+            for (top, bottom) in bounds {
+                assert!(top >= 10.0 - 1e-9, "page {index}: top {top}");
+                assert!(bottom <= 80.0 + 1e-9, "page {index}: bottom {bottom}");
+            }
+        }
+        assert_eq!(total, 8);
+    }
+
+    #[test]
+    fn math_continuation_restores_block_spacing_after_migration() {
+        let doc = continuation_document(3, true);
+        let page = doc.pages.last().unwrap();
+        let (_, bottom) = *continuation_bounds(&page.items).last().expect("last display");
+        let after_y = page
+            .items
+            .iter()
+            .find_map(|item| {
+                if let FrameItem::Text { pos, text, .. } = item {
+                    (text.as_str() == "AFTER").then_some(pos.y.0)
+                } else {
+                    None
+                }
+            })
+            .expect("following text shares the last display page");
+        // Existing below=1.2em and cap-height=0.7em, for the 12pt FixedMetrics fixture.
+        assert!(
+            (after_y - bottom - 22.8).abs() < 1e-9,
+            "bottom={bottom} after={after_y}"
+        );
+    }
+
     #[test]
     fn p1293_formula_com_marcador_nao_duplica_avanco_e_pagina_finita_preserva_width() {
         let terminal = page_auto(vec![attach_with_post("R")]);
@@ -949,5 +1095,306 @@ mod smoke {
             formula_group(&finite.pages[0].items),
             Some(FrameItem::Group { paint_root: false, .. })
         ));
+    }
+}
+
+#[cfg(test)]
+mod physical_page_direct_body_tests {
+    use super::*;
+    use crate::compiler::introspect::page_running::PlanPhase;
+    use crate::compiler::{
+        eval::EvalContext,
+        introspect::{
+            introspect_with_introspector, page_running::prepare_page_running_body,
+        },
+        layout::{
+            layout, layout_with_page_running, FixedMetrics, PageRunningLayoutInputs,
+            SealedPageRunning,
+        },
+        realize::context_occurrences::ContextOccurrenceArena,
+    };
+    use crate::entities::{
+        elements::pagebreak::PagebreakElem, image_sizer::NullImageSizer, value::Value,
+    };
+    use std::sync::Arc;
+
+    fn planned(
+        body: Content,
+        second_page: bool,
+    ) -> crate::compiler::layout::PageRunningDocument {
+        let equation = Content::equation(body, false);
+        let origin = if second_page {
+            Content::sequence(vec![
+                Content::text("FIRST PAGE"),
+                Content::Pagebreak(Arc::new(PagebreakElem {
+                    weak: false,
+                    weak_explicit: false,
+                    to: None,
+                })),
+                equation,
+            ])
+        } else {
+            equation
+        };
+        let intr = introspect_with_introspector(&origin);
+        let mut arena = ContextOccurrenceArena::new(&origin);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        let body = arena
+            .evaluate(&mut frame, &mut ctx, |ctx| prepare_page_running_body(&origin, ctx))
+            .unwrap();
+        let store = SealedPageRunning::new(vec![]).unwrap();
+        match layout_with_page_running(
+            &body,
+            intr,
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: Some(&store) },
+        )
+        .into_result()
+        {
+            Ok(document) => document,
+            Err(_) => panic!(
+                "direct Equation body facts require an actual complete paint trace"
+            ),
+        }
+    }
+
+    #[test]
+    fn physical_page_equation_direct_metadata_keeps_membership_and_actual_page() {
+        let document =
+            planned(Content::metadata(Value::Str("DIRECT CHILD".into())), true);
+        let metadata: Vec<_> = document
+            .trace
+            .data
+            .admissions
+            .iter()
+            .filter_map(|event| {
+                let node = event.plan.node(event.packet).unwrap();
+                (event.phase == PlanPhase::Root
+                    && matches!(&node.content, Content::Metadata(_)))
+                .then(|| node.location.expect("actual Metadata occurrence"))
+            })
+            .collect();
+        assert_eq!(metadata.len(), 1, "the actual child is admitted once");
+        let position = document
+            .document
+            .extracted_positions
+            .position_of(metadata[0])
+            .expect("paint-derived Metadata position");
+        assert_eq!(
+            position.page.get(),
+            2,
+            "external local page1 is not its final physical page"
+        );
+        assert!(position.point.x.0.is_finite() && position.point.y.0.is_finite());
+        assert_eq!(
+            document.trace.data.positions.position_of(metadata[0]),
+            Some(position)
+        );
+    }
+
+    #[test]
+    fn physical_page_equation_direct_figure_paints_once_with_actual_page() {
+        let document =
+            planned(Content::figure(Content::text("ONLY-ONCE"), None, None, None), true);
+        let figures: Vec<_> = document
+            .trace
+            .data
+            .admissions
+            .iter()
+            .filter_map(|event| {
+                let node = event.plan.node(event.packet).unwrap();
+                (event.phase == PlanPhase::Root
+                    && matches!(&node.content, Content::Figure(_)))
+                .then(|| node.location.expect("actual Figure occurrence"))
+            })
+            .collect();
+        assert_eq!(figures.len(), 1, "the actual Figure body is admitted once");
+        assert_eq!(
+            document.document.plain_text().matches("ONLY-ONCE").count(),
+            1,
+            "the actual external painter runs once"
+        );
+        let position = document
+            .document
+            .extracted_positions
+            .position_of(figures[0])
+            .expect("paint-derived Figure position");
+        assert_eq!(position.page.get(), 2);
+        assert_eq!(document.trace.data.positions.position_of(figures[0]), Some(position));
+    }
+
+    #[test]
+    fn physical_page_equation_terminal_math_preserves_opaque_children_and_render() {
+        let math = Content::MathSequence(
+            vec![
+                Content::metadata(Value::Str("OPAQUE".into())),
+                Content::MathIdent("x".into()),
+            ]
+            .into(),
+        );
+        let legacy = layout(&Content::equation(math.clone(), false));
+        let document = planned(math, false);
+        assert_eq!(document.document.plain_text(), legacy.plain_text());
+        assert_eq!(document.document.pages.len(), legacy.pages.len());
+        assert!(
+            !document.trace.data.admissions.iter().any(|event| matches!(
+                &event.plan.node(event.packet).unwrap().content,
+                Content::Metadata(_)
+            )),
+            "the existing terminal MathSequence partition is not opened"
+        );
+    }
+    #[test]
+    fn physical_page_equation_zero_paint_action_keeps_legacy_formula_extent() {
+        fn formula_extent(items: &[FrameItem]) -> Option<(f64, f64)> {
+            for item in items {
+                match item {
+                    FrameItem::Semantic {
+                        kind: SemanticKind::Formula, items, ..
+                    } => {
+                        for child in items {
+                            if let FrameItem::Group {
+                                inner_width, inner_height, ..
+                            } = child
+                            {
+                                return Some((*inner_width, *inner_height));
+                            }
+                        }
+                    }
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => {
+                        if let Some(extent) = formula_extent(items) {
+                            return Some(extent);
+                        }
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. } => {}
+                }
+            }
+            None
+        }
+        let action = Content::counter_update(
+            "zero-paint",
+            crate::entities::counter_update::CounterUpdate::step(),
+        );
+        let legacy = layout(&Content::equation(action.clone(), false));
+        let actual = planned(action, false);
+        assert_eq!(
+            actual
+                .trace
+                .data
+                .admissions
+                .iter()
+                .filter(|event| {
+                    event.phase == PlanPhase::Root
+                        && matches!(
+                            &event.plan.node(event.packet).unwrap().content,
+                            Content::CounterUpdate(_)
+                        )
+                })
+                .count(),
+            1,
+            "the zero-paint action is actually admitted"
+        );
+        let expected = formula_extent(&legacy.pages[0].items).expect("legacy formula");
+        let observed =
+            formula_extent(&actual.document.pages[0].items).expect("planned formula");
+        assert_eq!(observed, expected, "source markers do not acquire mathematical ink");
+        assert_eq!(actual.document.plain_text(), legacy.plain_text());
+        assert_eq!(actual.document.pages.len(), legacy.pages.len());
+    }
+}
+
+#[cfg(test)]
+mod r3_geometry_tests {
+    use super::*;
+    use crate::compiler::layout::{layout_with_introspector_and_metrics, FixedMetrics};
+    use crate::entities::{image_sizer::NullImageSizer, introspector::TagIntrospector};
+
+    #[derive(Clone)]
+    struct Edges;
+    impl FontMetrics for Edges {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, _: Pt, style: &TextStyle) -> Pt {
+            Pt(if style.math { 7.0 } else { 9.0 })
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            (self.cap_height(size, style), Pt(0.0))
+        }
+    }
+
+    #[test]
+    fn r3_geometry_initial_inline_math_uses_measured_top_and_mixed_maximum() {
+        for placement in [0, 1, 2, 3, 4, 5] {
+            let equation = Content::equation(Content::MathIdent("a".into()), false);
+            let body = match placement {
+                0 => equation,
+                1 => Content::sequence(vec![Content::text("T"), equation]),
+                2 => Content::sequence(vec![equation, Content::text("T")]),
+                3 => Content::sequence(vec![equation.clone(), Content::Space, equation]),
+                4 => Content::sequence(vec![
+                    equation,
+                    Content::Linebreak(std::sync::Arc::new(
+                        crate::entities::elements::linebreak::LinebreakElem {
+                            justify: false,
+                            justify_explicit: false,
+                        },
+                    )),
+                ]),
+                5 => Content::sequence(vec![equation, Content::Space]),
+                _ => unreachable!(),
+            };
+            let body = Content::sequence(vec![
+                Content::SetPage(std::sync::Arc::new(
+                    crate::entities::content::SetPageDelta {
+                        margin: Some(
+                            crate::entities::layout_types::PageMarginSpec::uniform(0.0),
+                        ),
+                        ..Default::default()
+                    },
+                )),
+                body,
+            ]);
+            let document = layout_with_introspector_and_metrics(
+                &body,
+                TagIntrospector::empty(),
+                Edges,
+                NullImageSizer,
+                12.0,
+            )
+            .unwrap();
+            let formula = document.pages[0]
+                .items
+                .iter()
+                .find(|item| {
+                    matches!(
+                        item,
+                        FrameItem::Semantic { kind: SemanticKind::Formula, .. }
+                    )
+                })
+                .expect("formula retained");
+            let FrameItem::Semantic { items, .. } = formula else { panic!("formula") };
+            let FrameItem::Group { pos, items, .. } = &items[0] else { panic!("group") };
+            let FrameItem::Text { pos: glyph, .. } = &items[0] else { panic!("glyph") };
+            assert_eq!(
+                pos.y.0 + glyph.y.0,
+                if placement == 0 || placement == 5 { 7.0 } else { 9.0 }
+            );
+        }
     }
 }

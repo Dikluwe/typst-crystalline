@@ -144,3 +144,27 @@ are preserved in
 `lab/results/construction/diagnostics/linhagem-ci-release-2026-10-13.md`, with
 the follow-up at
 `lab/results/construction/diagnostics/correcoes-producao-2026-10-13.md`.
+
+## Legacy symbol contract gate
+
+`test_symbols_probe.py` exercises the diagnostic classifier for the approved
+native-Symbol contract, including the twelve bare legacy math extensions.
+They require native `symbol` content, the original complete glyph and the
+existing deprecation policy. Equal glyphs in `text` content remain identity
+drift. Qualified legacy representations retain their namespace warning rules.
+These extensions are absent from the pinned oracle: success remains `EXTENSION`,
+never a new parity `MATCH`. Unexpected oracle results remain baseline defects.
+
+The helper lives in excluded `lab/`, outside productive L0 ownership; it tests
+the existing approved contract in `00_nucleo/prompts/core/entities/content.md`
+and its pinned native-symbol Nucleus without changing or resealing that contract.
+Run its tests and the real probe with explicit binary paths:
+
+```sh
+python3 -m unittest discover -s lab/tools/ci -p test_symbols_probe.py -v
+python3 lab/parity/tools/p1495_symbols_probe.py --vanilla lab/typst-original/target/release/typst --crystalline lab/target/product/release/typst --details
+```
+
+The historical pre-R7 failure receipts remain unchanged. Fresh R7 receipts and
+full validation are under
+`lab/results/construction/diagnostics/legacy-symbol-gate-r7-2026-10-24/`.

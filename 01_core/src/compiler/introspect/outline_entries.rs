@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/outline_entries.md
-//! @prompt-hash 2ae80781
+//! @prompt-hash 70a5dd26
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -12,6 +12,13 @@ use super::*;
 pub(super) fn materialize_outline_entries(
     locator: &mut Locator,
     intr: &mut TagIntrospector,
+) {
+    materialize_outline_entries_with(intr, || locator.next());
+}
+
+pub(super) fn materialize_outline_entries_with(
+    intr: &mut TagIntrospector,
+    mut allocate: impl FnMut() -> Location,
 ) {
     use crate::entities::elements::outline::OutlineTarget;
     use crate::entities::layout_types::Length;
@@ -26,7 +33,8 @@ pub(super) fn materialize_outline_entries(
         .cloned()
         .unwrap_or_default();
     for (outline_index, outline) in outlines.into_iter().enumerate() {
-        if outline.target != OutlineTarget::Headings {
+        if outline.target != OutlineTarget::Headings || outline.realized_body().is_some()
+        {
             continue;
         }
         let mut entry_locations = Vec::new();
@@ -56,7 +64,7 @@ pub(super) fn materialize_outline_entries(
                 Value::LocatedContent(source, *source_location),
             );
             fields.insert("fill".into(), Value::Content(fill));
-            let entry_location = locator.next();
+            let entry_location = allocate();
             intr.elements.insert(
                 entry_location,
                 crate::entities::value::IntrospectedContent::new(entry, Some(fields)),

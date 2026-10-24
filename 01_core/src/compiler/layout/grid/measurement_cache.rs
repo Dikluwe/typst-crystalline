@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/measurement_cache.md
-//! @prompt-hash f2c18885
+//! @prompt-hash 637ffc25
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -79,6 +79,7 @@ fn simple_placement(content: &Content) -> bool {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -239,6 +240,7 @@ fn token(content: &Content) -> Option<&ecow::EcoString> {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)

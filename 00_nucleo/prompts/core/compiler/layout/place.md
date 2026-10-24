@@ -1,11 +1,12 @@
 # L0 — place
-Hash do Código: 2d2290bc
+Hash do Código: 61b643d9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -101,3 +102,82 @@ This is observed local source behavior, not a new bilateral result or inferred u
 Close the existing optional horizontal decision explicitly: Some(Center) uses half the available-minus-body width, Some(Right/End) uses all of it, and None/Some(Left/Start) uses zero. Retain the nonnegative clamp and physical Start/End interpretation, including bodies wider than the region. Do not certify RTL resolution, dx/dy/scope or clipping beyond existing contracts. Translate body, orphan alignment coordinates and active decoration segments in the same frame, retaining insertion indices and lexical links. A new HAlign must fail exhaustiveness inside Some at this exact match.
 
 ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.
+
+## Source-owned physical page child transport
+
+### Measurement and approved scope
+
+At the implementation baseline, `place.rs:40–61` selects the
+actual body/subframe or deferred-body operation. Exact source/L0 texts, full
+SHA-256, UTC, HEAD and working-tree state before this amendment are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/child-adapters/before.json`.
+The approved review SHA-256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+and human `approval.json` under the implementation evidence ratify this finite
+physical-page source-routing phase. Existing geometry is preservation, not a new
+claim of upstream intent, global page parity or completed historical proposals.
+
+### Exclusive routing contract
+
+The floating source body uses PlaceBody through the planned subframe route. Its packet markers remain with the existing DeferredFloat items through later accepted placement and the same translation; measuring or capturing a float is not final physical admission. Preserve every alignment, clearance, scope, reservation, fit and flow formula. Nonfloating source body descent belongs to the placement owner.
+
+Use private parent-descendant protocol helpers with explicit typed source edges;
+no new public API, entity field/variant, generic mapper, callback execution,
+source re-evaluation, result cache or layout-from-Frame semantic reconstruction.
+Retain legacy behavior when the planned cursor is absent. Actual source packets,
+source parentage and physical placement remain distinct; measurement cannot
+publish actions, consume transcripts or leak tentative diagnostics. Preserve
+existing current styles, original/visual identity, per-store position sealing and
+all stated geometry/effect/error limits. In particular, deferred footnote/float
+causality versus later physical placement requires source-bound language controls;
+this routing amendment does not declare that universal paint order is semantics.
+
+Require actual nested source Context/Figure/label/counter cases, repeated pages,
+no-paint children, wrong-edge/foreign cursor rejection, measurement inertness,
+retained/deferred/rollback and existing geometry/baseline/clip/float/note tests.
+No old assertion, fixture, diagnostic or explicit pending limitation is weakened.
+L0-first source-current RED→GREEN, scoped lineage/graph/seals and full established
+gates remain mandatory before completion.
+
+### Deferred float semantic anchor
+
+Fresh pinned source evidence oracle-place-floats/receipt.json under the approved
+physical-page implementation records a Place float child on page2 with counter3,
+preceding SECOND on page1 counter4 and Header2 counter5. This refutes deriving
+semantic counter order from the float's later frame placement. At the existing
+float branch only, retain the PlaceBody cursor through defer_planned_cursor before
+actual sublayout/enqueue. The private protocol preserves source-anchor order while
+position markers still record actual page/point. Preserve all formulas, queues,
+rollback and the nonfloat branch; no callback, new public API or eager dormant
+source admission is introduced.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+Preserve decoration metadata through existing local and deferred placement translations, including test fixtures with absent metadata. No fitting, phase or source-identity change.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.

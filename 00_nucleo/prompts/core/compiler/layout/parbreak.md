@@ -1,5 +1,5 @@
 # L0 — parbreak
-Hash do Código: 6aa85c3f
+Hash do Código: 983ccd84
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -56,3 +56,42 @@ Causal-end certified producers line/shape/Block/Align/Grid/Raw/VSpace do not com
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+
+## Remaining inline source correction — 2026-10-22
+
+### Measurement before specification
+
+`lab/results/remaining-parity-2026-10-22/baseline-nine/measurement.json.gz` (SHA-256 `320e226fc9eb1b606cb155c4bfcba26046c2398f6fe0339102f1fd870ebd2aa1`, UTC 2026-10-22T11:48:44.824207+00:00–2026-10-22T11:49:15.381299+00:00)
+records the exact nine immutable sources, ratified oracle commit/tree/executable,
+source-bound baseline product `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`,
+HEAD/dirty stat/source archive, font bytes, commands and full PDF/SVG observations.
+The exact inspected L0/source hashes are preserved in
+`lab/results/remaining-parity-2026-10-22/agents/inline/investigation-state.json`.
+These are source-language geometry/text observations, not required execution
+mechanics. Preserve all historical refusals and failed candidates as evidence;
+only the explicitly measured subsets below supersede their conservative limits.
+
+### Carry the settled inline descent into the pending paragraph boundary
+
+`context-source-once` has identical word sequence and STATE=1, while the final
+STATE baseline/autoheight are7.642578125pt too small:16pt Box height minus its
+actual8.357421875pt text baseline. `line_commit.rs:911–926` records the true
+physical line end, but positive weak-margin admission in `cursor.rs:131` uses
+previous baseline+pending descent, with the inline descent not carried.
+
+After actual causal line closure, retain its valid settled physical descent
+in the existing pending block-boundary state before weak paragraph spacing
+prepares the next unit. Derive it from the actual accepted flow end and
+previous baseline, never paint, Content-kind guesses or fixture offsets.
+Preserve source flow witness validity at the changed cursor, existing weak/
+strong margin collapse, empty/double boundaries, terminal autoheight, ordinary
+text-only paragraphs, explicit Box baselines and finite-region rollback.
+No new hub state, public signature or phase is required.
+
+Require a genuine declared-metric RED for P+40pt fractional Box[A], paragraph
+break, NEXT: NEXT starts after actual Box bottom+declared paragraph spacing+
+NEXT's actual top. Preserve all markers once and terminal autoheight. Add
+text-only/zero-height/baseline-shift/double-break and next-block controls.
+The unchanged source corpus must close the original Context geometry, without
+interpreting positional error as duplicated state effects or weakening reads.

@@ -1,13 +1,16 @@
 # L0 — html/document
-Hash do Código: 3531eac9
+Hash do Código: e57959c8
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/document.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
+
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 
 
 ## Consumer evidence
@@ -279,3 +282,74 @@ plain/Strong Cell content among inline text, and preserve a Table row's td/th
 and colspan/rowspan boundaries around a projected heading. The frozen standalone
 Cell language source must pass its original semantic DOM policy; all preceding
 tests, warning/error policies and unsupported-content diagnostics remain binding.
+
+## Empty sequence children after visual-carrier projection (2026-10-22)
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/repeat/realized-empty-probes-before/receipt.json`
+(SHA-256 `d06880fcd432de80a343585cb17b9c9067aa58ffa68fbb93eda1c9efc58dade9`)
+binds the exact sources, C11 binary/source archive, pinned vanilla and UTC
+2026-10-22T16:41:17.865825+00:00 through 16:41:18.335595+00:00. Both binaries
+produce an empty HTML body for `#show heading: none\n#heading[A]#heading[B]`.
+The Figure suppression control requires separate A/B paragraphs in vanilla;
+C11 instead merges A/B. Retaining the Realized record through bundle preparation
+restores the existing Figure-origin classifier without executing its original.
+
+The frozen regression receipt
+`lab/results/remaining-parity-2026-10-22/red19-realized-empty-preservation/receipt.json.gz`
+(SHA-256 `789d1e0f40284a74c45fca302b168fffff288132f6d6bc552c2482cc6c6d062f`)
+binds its uncommitted input state and UTC 2026-10-22T16:43:09.652687+00:00 through
+16:43:31.002369+00:00. Eleven controls pass, including the original adjacent
+Figure paragraphs and suppressed Figure A/B separation; the exact suppressed
+Heading source alone fails with `<body><p></p></body>`. The final bottom-up visual
+projection turns nonFigure Realized products into literal Empty children after
+bundle normalization has already finished. The remaining Sequence then reaches
+the inline paragraph fallback. This is a language morphology regression, not a
+warning waiver or text-comparator adjustment.
+
+### Responsibility and acceptance
+
+After its children have been visually projected, normalize a Sequence containing
+literal Empty children by removing only those children and rebuilding with the
+existing Content::sequence constructor. Zero remaining children become Empty;
+one remaining child is retained directly. A Sequence without a literal Empty
+child is unchanged. This narrowly extends the ordinary-variant preservation
+clause above; it adds no producer support or traversal/replacement recursion.
+
+Preserve Parbreak boundaries introduced by the existing Figure-origin classifier,
+explicit Par nodes even when empty, Styled, HtmlFrame and all other non-Empty
+children in their original order. Never infer emptiness from serialized text,
+discard a Realized original before classification or execute a dormant original.
+Keep the exact empty-body Heading regression, Figure two-paragraph regression,
+suppressed Figure A/B control, pipeline zero-warning criteria and unchanged CLI
+F/G diagnostic criteria. Public APIs, pipeline phases and target behavior outside
+this bounded internal parity correction remain unchanged.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

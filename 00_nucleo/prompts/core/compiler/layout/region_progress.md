@@ -1,5 +1,5 @@
 # L0 — region progress
-Hash do Código: 8fecc2b1
+Hash do Código: 11009ffb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -73,3 +73,65 @@ Require RED→GREEN before implementation and source→layout/bilateral controls
 Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change, preserving earlier refused/scalar paths. Regional certification expands only same-size/leading prepared text, zero baseline_offset, finite nonnegative edges, faces with different tops/descents; variable sizes/leading remain outside it. Require RED→GREEN four added regressions/prior controls,30+20 regional PDFs,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1, recording failed attempts. No full variable-metrics parity claim.
 
 Current-API mixed-face tests include smaller-top next line fitting despite forecast and first baseline after transition with a different face. Keep KnownTop actual-block-boundary RED unchanged; variable size/leading and opaque/future content remain excluded.
+
+
+## Private deferred Note frame transport
+
+### Measurement before correction
+
+`lab/results/set-page-deferred-corrections-2026-10-21/red-2/tests.log` records
+the actual missing Note-subtree admissions. The later root-controlled fitting
+measurement and pinned oracle page-text evidence distinguish a complete Note frame
+from its accepted prefix and continuing suffix. The oracle keeps NOTE TEXT/START
+in the first page and emits the later Figure in the second; whole-body deferral
+or moving the complete call does not establish that language behavior. Exact
+before bytes/hashes/HEAD/dirty state for this owner are archived in
+`lab/results/set-page-deferred-corrections-2026-10-21/agents/index/note-transport-before.json.gz`.
+The root authorizes an internal layout parity correction, with no eval/layout
+phase change, public contract, new identity source or attempt budget.
+
+### Exclusive transport obligation
+
+Reset the closed region's private footnote_reserved_height only after its
+Note flush and page commit, together with existing float reservations. Preserve
+actual deferred Note frames/cursors for the next region; never discard or
+rebuild the continuing body merely to reset its old regional reservation. A
+feature-owned hook may establish the next region's reservation from that exact
+retained frame, without a Content re-evaluation or geometry-derived identity.
+
+Validate actual split Note text/page/counter/query/identity and no-fit progress,
+plus existing no-break notes, columns, subframes, rollback, floats and running
+content controls. Preserve strict trace coverage/foreign authority, warnings,
+canonical owner paths and forward/reverse lineage; no suppression or fixture
+weakening. These transport declarations alone do not certify general pagination.
+
+After the next physical/column region geometry is installed and its old reserve
+is reset, call the feature-owned refresh_footnote_reservation hook for its exact
+retained frame remainder. Do so after start_next_column as well as after a new
+physical page, without feature geometry formulas in this coordinator.
+
+
+## Weak pagebreak parity correction — 2026-10-23
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/baseline.json` binds the uncommitted source/L0/config state to HEAD, dirty stat and UTC; `before/receipt.json` binds both verified executables, inputs, commands and observations. `pagebreak.rs:21-58` ignores weak and always requests transitions; `finish.rs:103-106` requires the newly opened page unless it is a PageRun boundary. `page_run.rs:126-131` unconditionally closes its body. The pinned source `lab/typst-original/crates/typst-library/src/layout/page.rs:554-557` explicitly defines skipping weak breaks on empty pages; its tests `tests/suite/layout/pagebreak.typ:15-24,61-76` document weak/material distinctions. Initial, repeated, terminal and strong/weak controls plus parity and explicit PageRun probes distinguish language intent from mechanics. Page membership, content and geometry are observables; the private successor flag is a chosen mechanism. The inference that an optional successor suffices is refuted by lost notes/placed content, changed strong/parity empties, or leaked rollback state.
+
+### Decision and exclusive responsibility
+
+Clear weak-successor state on an ordinary regional transition; the explicit weak-break owner may mark the newly opened successor optional after its requested transitions. Preserve overflow, columns, deferred tails, notes and floats.
+
+This is an ADR-0127 continuous-flow language-parity correction: L0 first, reseal, RED→GREEN and complete revalidation. No public contract, default mode, pipeline phase or compatibility change is authorized. Existing nucleus obligations and unrelated limits remain binding.
+
+
+## Refutation: unpainted material and required successors
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/edge-after/receipt.json` and `unpainted-before/receipt.json` bind the first candidate executable to UTC/inputs/commands; its build and source state are in `validation.json` and `final-source.json.gz`. These controls refute painting alone as page materiality: hidden text, zero/fractional horizontal spacing and zero/weak/strong vertical spacing can require a page without paint; empty/metadata-only Hide does not. `h_space.rs:27-45` advances or queues spacing without an item, `v_space.rs:20-42` records advancement, and `hide.rs:20-28` removes only painted output. `pagebreak.rs:42-44` also overwrites an empty strong successor's requiredness during weak parity adjustment, dropping a required final page. These are language-visible page obligations, not a request to copy upstream collection mechanics. The earlier painting-only hypothesis was rejected, not qualified by changing the oracle or deleting its cases.
+
+### Exclusive correction
+
+Reset unpainted page material only after the physical page is committed; a column transition within that page preserves the witness.
+
+L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.

@@ -19,6 +19,7 @@ fn family(content: &Content) -> Family {
         Content::Located(content) => family(&content.body),
         Content::Empty
         | Content::Text(_)
+        | Content::Symbol(_)
         | Content::Space
         | Content::SpaceFromNewline
         | Content::Parbreak

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/binom.md
-//! @prompt-hash 009984e6
+//! @prompt-hash cf8f3553
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -73,8 +73,11 @@ pub(crate) fn math_binom_from_args(args: &Args) -> SourceResult<Content> {
     let upper = p1293_math_content(upper, args.span)?;
     let lower = lower_values
         .iter()
-        .map(|value| p1293_math_content(value, args.span))
-        .collect::<SourceResult<Vec<_>>>()?;
+        .map(|value| {
+            crate::compiler::eval::value_to_display_content(value.clone())
+                .unwrap_or(Content::Empty)
+        })
+        .collect();
     Ok(math_binom_content(upper, lower))
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/main.md
-//! @prompt-hash d100a165
+//! @prompt-hash a3086da0
 //! @layer L4
 //! @updated 2026-09-26
 
@@ -20,15 +20,23 @@ use typst_infra::watch::Published;
 use typst_shell::cli::{self, RunIntent};
 
 fn main() -> ExitCode {
-    match cli::parse() {
-        RunIntent::Compile(intent) => compile::run_compile(intent),
+    let result = match cli::parse() {
+        RunIntent::Compile(intent) => {
+            compile::run_compile(intent).map_err(|error| vec![error])
+        }
         RunIntent::Watch(intent) => watch::run_watch(intent),
-        RunIntent::Eval(intent) => eval::run_eval(intent),
-        RunIntent::Query(intent) => query::run_query(intent),
-        RunIntent::Fonts(intent) => fonts::run_fonts(intent),
-        RunIntent::Completions(intent) => completions::run_completions(intent),
-        RunIntent::Info(intent) => info::run_info(intent),
-        RunIntent::Init(intent) => init::run_init(intent),
+        RunIntent::Eval(intent) => eval::run_eval(intent).map_err(|error| vec![error]),
+        RunIntent::Query(intent) => query::run_query(intent).map_err(|error| vec![error]),
+        RunIntent::Fonts(intent) => fonts::run_fonts(intent).map_err(|error| vec![error]),
+        RunIntent::Completions(intent) => {
+            completions::run_completions(intent).map_err(|error| vec![error])
+        }
+        RunIntent::Info(intent) => info::run_info(intent).map_err(|error| vec![error]),
+        RunIntent::Init(intent) => init::run_init(intent).map_err(|error| vec![error]),
+    };
+    match result {
+        Ok(exit_code) => exit_code,
+        Err(_) => ExitCode::from(2),
     }
 }
 

@@ -1,13 +1,16 @@
 # L0 — entities/content
-Hash do Código: 91785886
+Hash do Código: 7800c661
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
+
 
 ## Contract
 
@@ -236,3 +239,94 @@ Acceptance includes baseline probes and cross-Source/import aliases, multiple ce
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content.md` preserves the original evidence and chronology.
+
+
+## Approved native Symbol declaration — batch E
+
+**Status: approved by the repository owner on 2026-10-23: “Confirmo a adição
+de Content::Symbol(EcoString) proposta no L0.” The ADR-0127 public gate is satisfied.**
+The approved Source declaration above remains unchanged. This proposal adds only
+the following variant to the public enum owned by this prompt:
+
+```rust
+// Additional Content variant, approved:
+Symbol(EcoString),
+```
+
+### Measurement before classification
+
+The frozen pre-E working tree and complete input hashes are recorded in
+`lab/results/symbol-identity-2026-10-23/baseline.json`, with source text in
+`baseline-source.json.gz`. The fresh bilateral `before/receipt.json` reproduces
+all 16 historical carrier differences: equal complete Unicode strings but
+`func: text` locally versus `func: symbol` upstream. All 146 previously matching
+cases still match; the 36 local extensions still succeed locally and fail
+upstream and are not parity successes. Additional reflection probes are in
+`additional/receipt.json`. These observations measure language morphology and
+reflection, not Rust equality, implementation structure or output-byte parity.
+
+Local `compiler/eval/markup_stream.rs:567` turns raw Symbol values into Text;
+`compiler/eval/math/expression.rs:33-60,179` separately creates MathText or
+MathIdent for symbol-producing expressions. The closed enum in the exclusive
+consumer has no native Symbol leaf. Pinned upstream
+`crates/typst-library/src/foundations/symbol.rs:451-475` declares a text-bearing
+SymbolElem; `foundations/value.rs:191-205` inserts it for Symbol values and
+`crates/typst-eval/src/math.rs:39,83-87` preserves grapheme/shorthand identity.
+Upstream here means commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, not moving main.
+
+### Approved declaration and limits
+
+Symbol stores the selected, complete Unicode text in an EcoString, including
+variation selectors and multi-character strings accepted by the content element
+constructor. It does not store a symbol namespace, modifier table, variant name
+or the raw Value::Symbol object. Equal selected text has equal native Symbol
+morphology even when reached through different raw symbol values. It remains
+distinct from Text with identical text. The raw symbol value type and its
+variant/modifier operations retain their existing contract.
+
+This owner declares data only. Existing exclusive owners must separately specify
+and implement insertion, fields, native function identity/callability, selectors,
+language equality, representation, traversal, realization, layout and export.
+Required observable integration is a native symbol content element with sole
+public field `text`, repr `[<text>]`, and a callable element function that is
+**distinct from** the global raw-symbol value constructor. Its function can
+construct symbol content from a string such as `"xy"` and can form a field
+selector. Symbol content does not acquire raw symbol `.variants()` methods.
+No new public struct, trait, function signature or ElementKind variant is
+proposed. Do not implement native identity through Dynamic, styling markers,
+Unicode-based inference, or a JSON-only alias.
+
+Preserve all other Content variants, Source/Located/Realized transport, immutable
+occurrence semantics, style and effect ordering. Preserve complete textual output
+and math metrics. This declaration authorizes no eval/layout phase move: exact
+existing realization boundaries must be measured and specified by their owners.
+In particular, symbol identity before realization does not imply immunity from
+textual show rules: pinned upstream `typst-realize/src/lib.rs:317-345,1040`
+handles regex in math and converts symbols to textual content outside math.
+The numeric MathText field mismatch is separate evidence, not authorization to
+reclassify all MathText as Symbol. No changes to the 36 extension classifications
+or to the oracle pin are authorized.
+
+### Acceptance after approval
+
+Update each affected exclusive L0 before its productive consumer, share any
+cross-owner declarative obligations only through pinned Tekt Nuclei, and validate
+V15/V26 before resealing. Add meaningful failing Rust tests before implementation
+and retain RED evidence, then GREEN evidence. Recheck the 16 differences, the 146
+matches, the 36 extensions and reflection of markup/code-tail/math/emoji/runtime
+symbols, full Unicode text, fields/has/at, function equality/callability, selector
+matching, language equality and styled bodies. Measure show/regex behavior and
+rendered text/geometry against the pinned oracle; preserve A–D controls.
+Run the complete repository validation runner, workspace build, strict/reverse
+lineage, full crystalline-lint with zero violations, and diff whitespace checks.
+Record exact dirty state, input hashes, binary identities, UTC and commands for
+each measurement. Until implementation and those gates, batch E remains open.
+
+## Approved batch E integration
+
+Measured inputs: `lab/results/symbol-identity-2026-10-23/baseline.json`,
+`before/receipt.json` and `additional/receipt.json`; see the shared nucleus for
+the approved native leaf contract. This owner retains its existing responsibility.
+Declare the approved Symbol(EcoString) enum variant; no additional public types or signatures.
+Preserve all pre-existing working-tree changes, effects and other variants.

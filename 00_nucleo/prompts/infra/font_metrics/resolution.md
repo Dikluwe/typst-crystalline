@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/resolution
-Hash do Código: a3cf993c
+Hash do Código: 37d6df7d
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/resolution.rs`
@@ -8,7 +8,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
 - 00_nucleo/prompts/_nuclei/fonts/primary-resolution-cache.toml sha256:0ac6e8504aee9a06e2ae9ffc717bb4f878a3b71d37d1851fda9b93a93aacd39c
 ```
 
@@ -103,3 +103,30 @@ and productive algorithm. Use ..Type::default() for other fields, remove mut onl
 when no mutations remain; no new types/builders/APIs/suppression. Preserve names/
 inputs/expectations/tolerances; selected RED→GREEN/all-target Clippy/workspace
 suite/build/fmt/Rustdoc/lineage/scoped resealing, no initializer-syntax tests.
+
+R3 fallback-selection pin correction: consume explicit semantic math mode for additional mathematical fallback; a font table alone does not change language mode. This consumer retains its existing operations. Evidence and refuters: `00_nucleo/prompts/infra/shaper/font_selection.md` and source-bound R3 receipts. Catalog entries, declared families, public contracts and phases remain unchanged.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+Own a private covering_text helper: choose the first actual primary face covering a character, then use existing authoritative global coverage/scoring when none covers it. Reuse existing cache/variant/face data. Preserve covering's MATH priority and every existing caller; new script resolution and ordinary direct text advance opt into explicit text semantics. This supersedes no mathematical selection rule or ordinary longest-run shaper.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

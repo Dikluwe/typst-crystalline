@@ -1249,6 +1249,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "moxcms"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb85c154ba489f01b25c0d36ae69a87e4a1c73a72631fc6c0eb6dde34a73e44b"
+dependencies = [
+ "num-traits",
+ "pxfm",
+]
+
+[[package]]
 name = "num-bigint"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1518,6 +1528,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "pxfm"
+version = "0.1.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83f9b339b02259ada5c0f4a389b7fb472f933aa17ce176fd2ad98f28bb401fde"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -2396,6 +2415,7 @@ dependencies = [
  "libm",
  "lipsum",
  "memmap2",
+ "moxcms",
  "regex",
  "roxmltree",
  "rust_decimal",
@@ -2408,6 +2428,7 @@ dependencies = [
  "time",
  "toml",
  "two-face",
+ "typst-assets",
  "unicode-ident",
  "unicode-math-class",
  "unicode-normalization",

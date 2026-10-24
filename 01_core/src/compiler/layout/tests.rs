@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash d443061c
+//! @prompt-hash 03a2a27c
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -27,6 +27,14 @@ use crate::entities::{
     style::Styles,
     value::Value,
 };
+
+fn r1_native_note_marker_count(doc: &PagedDocument, marker: &str) -> usize {
+    doc.pages.iter().flat_map(|page| frame_items_recursive(&page.items))
+        .filter(|item| matches!(item,
+            FrameItem::Text { text, style, .. } | FrameItem::TextShaped { text, style, .. }
+            if text.as_str() == marker && style.superscript))
+        .count()
+}
 
 fn solid_frame_color(
     paint: &crate::entities::frame_paint::FramePaint,
@@ -2012,7 +2020,7 @@ fn p448_superscript_desloca_baseline_para_cima() {
         .find(|(t, _, _)| t == "b")
         .map(|(_, y, s)| (*y, *s))
         .unwrap();
-    assert!(y_sup > y_normal, "sobrescrito deve subir acima da baseline normal");
+    assert!(y_sup < y_normal, "sobrescrito deve subir acima da baseline normal");
     assert!(size_sup.0 < 11.0, "sobrescrito deve reduzir o corpo tipográfico");
 }
 
@@ -2141,7 +2149,8 @@ fn pipeline_parse_eval_layout() {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string())
+                    .expect("valid Source test fixture"),
             }
         }
     }
@@ -2867,7 +2876,8 @@ fn layout_test(src: &str) -> PagedDocument {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string())
+                    .expect("valid Source test fixture"),
             }
         }
     }
@@ -6146,7 +6156,8 @@ mod tests_set_rule_integration {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string())
+                    .expect("valid Source test fixture"),
             }
         }
     }
@@ -7691,7 +7702,8 @@ mod tests_show_rule_integration {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string())
+                    .expect("valid Source test fixture"),
             }
         }
     }
@@ -8682,17 +8694,16 @@ mod tests_show_rule_integration {
     }
     // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ─────────────────
 
-    /// `Content::Repeat` renderiza body single-render no contexto actual
-    /// (paridade estrutural; algoritmo dinâmico defere per ADR-0054).
+    /// Repetition preserves visible body content through complete frame wrappers.
     #[test]
-    fn layout_repeat_renderiza_body_no_contexto_actual() {
+    fn layout_repeat_preserves_body_across_complete_frames() {
         let r = Content::repeat(Content::text("X"), None, true);
         let doc = layout(&r);
-        // Body deve aparecer pelo menos uma vez (single-render).
-        let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
+        let count_x = document_frame_items(&doc)
+            .into_iter()
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
             .count();
-        assert!(count_x >= 1, "repeat[X] deve emitir pelo menos um Text 'X'");
+        assert!(count_x >= 1, "repeat[X] must emit at least one Text 'X'");
     }
 
     /// **P218 (DEBT-56 sub-fase b segundo sub-passo)** — `Content::Columns`
@@ -9113,25 +9124,29 @@ mod tests_show_rule_integration {
             page_columns: true,
         }));
         let doc = layout(&cols);
-        // Filtrar apenas os markers inline (corpo das colunas), excluindo
-        // os prefixos das notas de rodapé.
-        let markers: Vec<_> = doc.pages[0]
-            .items
-            .iter()
-            .filter_map(|it| match it {
-                FrameItem::Text { text, pos, .. } if pos.y.0 > 400.0 => {
-                    let s = text.as_str();
-                    // **P1020** — markers sem brackets: "1", "2", "3".
-                    if s == "1" || s == "2" || s == "3" {
-                        Some(s.to_string())
-                    } else {
-                        None
+        // Separar chamadas e entradas pelo ponto médio; números do body
+        // não são marcadores, mesmo quando o texto coincide com o contador.
+        let markers = |footer: bool| -> Vec<String> {
+            frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .filter_map(|it| match it {
+                    FrameItem::Text { text, pos, style, .. }
+                    | FrameItem::TextShaped { text, pos, style, .. } => {
+                        if style.superscript
+                            && (pos.y.0 > doc.pages[0].height / 2.0) == footer
+                            && matches!(text.as_str(), "1" | "2" | "3")
+                        {
+                            Some(text.to_string())
+                        } else {
+                            None
+                        }
                     }
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(markers, vec!["1", "2", "3"]);
+                    _ => None,
+                })
+                .collect()
+        };
+        assert_eq!(markers(false), vec!["1", "2", "3"], "chamadas causais");
+        assert_eq!(markers(true), vec!["1", "2", "3"], "entradas correspondentes");
     }
 
     /// **P537** — num documento de uma coluna, footnotes continuam a ser
@@ -9343,15 +9358,95 @@ mod tests_show_rule_integration {
 
     // ── Passo 227 (Fase 5 Layout Categoria A.1) — stroke render E2E ──
 
-    /// P888 (achado 3 de P885, secção 7 de P887) — Grid 2×2 uniforme com
-    /// stroke passa a emitir segmentos **fundidos**, não 4 por célula.
-    /// Verticais fundem entre as 2 linhas (3 fronteiras de coluna → 3
-    /// segmentos, um por fronteira, cada um cobrindo as 2 linhas). Horizontais
-    /// fundem dentro de cada linha (2 colunas mesmo stroke → 1 run) mas não
-    /// entre linhas (sem dedup topo/fundo entre vizinhas, decisão registada
-    /// em `typst-passo-888-relatorio.md`) → 2 linhas × (topo + fundo) = 4.
-    /// Total esperado: 3 + 4 = 7 (era >= 16 antes de P888, 4 por célula ×
-    /// 4 células, sem fusão nenhuma).
+    // Observe physical coverage, including shared-edge alpha multiplicity.
+    fn assert_uniform_grid_border_coverage(
+        doc: &PagedDocument,
+        cols: usize,
+        rows: usize,
+        cell_width: f64,
+        fixed_row_height: Option<f64>,
+    ) {
+        use crate::entities::geometry::ShapeKind;
+        let close = |a: f64, b: f64| (a - b).abs() < 1e-6;
+        assert_eq!(doc.pages.len(), 1);
+        let mut lines = Vec::new();
+        for item in &doc.pages[0].items {
+            if let FrameItem::Shape {
+                pos,
+                kind: ShapeKind::Line { dx, dy },
+                stroke: Some(stroke),
+                ..
+            } = item
+            {
+                assert!(close(stroke.thickness, 1.0));
+                assert!(*dx >= 0.0 && *dy >= 0.0 && (*dx > 0.0 || *dy > 0.0));
+                lines.push((*pos, *dx, *dy, stroke.thickness));
+            }
+        }
+        let mut xs: Vec<_> = lines
+            .iter()
+            .filter(|(_, dx, _, _)| *dx == 0.0)
+            .map(|(p, _, _, _)| p.x.0)
+            .collect();
+        let mut ys: Vec<_> = lines
+            .iter()
+            .filter(|(_, _, dy, _)| *dy == 0.0)
+            .map(|(p, _, _, _)| p.y.0)
+            .collect();
+        xs.sort_by(f64::total_cmp);
+        xs.dedup_by(|a, b| close(*a, *b));
+        ys.sort_by(f64::total_cmp);
+        ys.dedup_by(|a, b| close(*a, *b));
+        assert_eq!(xs.len(), cols + 1, "missing column boundary");
+        assert_eq!(ys.len(), rows + 1, "missing row boundary");
+        let row_height = fixed_row_height.unwrap_or((ys[rows] - ys[0]) / rows as f64);
+        assert!(row_height > 0.0);
+        for (i, x) in xs.iter().enumerate() {
+            assert!(close(*x, xs[0] + i as f64 * cell_width));
+        }
+        for (i, y) in ys.iter().enumerate() {
+            assert!(close(*y, ys[0] + i as f64 * row_height));
+        }
+        for (p, dx, dy, thickness) in &lines {
+            if *dy == 0.0 {
+                assert!(close(p.x.0, xs[0] - thickness / 2.0));
+                assert!(close(*dx, cols as f64 * cell_width + thickness));
+            } else {
+                assert_eq!(*dx, 0.0);
+                assert!(close(p.y.0, ys[0] - thickness / 2.0));
+                assert!(close(*dy, rows as f64 * row_height + thickness));
+            }
+        }
+        for &y in &ys {
+            for col in 0..cols {
+                let x = xs[0] + (col as f64 + 0.5) * cell_width;
+                let contributions = lines
+                    .iter()
+                    .filter(|(p, dx, dy, _)| {
+                        *dy == 0.0 && close(p.y.0, y) && p.x.0 < x && x < p.x.0 + dx
+                    })
+                    .count();
+                assert_eq!(
+                    contributions, 1,
+                    "horizontal paint multiplicity at ({x},{y})"
+                );
+            }
+        }
+        for &x in &xs {
+            for row in 0..rows {
+                let y = ys[0] + (row as f64 + 0.5) * row_height;
+                let contributions = lines
+                    .iter()
+                    .filter(|(p, dx, dy, _)| {
+                        *dx == 0.0 && close(p.x.0, x) && p.y.0 < y && y < p.y.0 + dy
+                    })
+                    .count();
+                assert_eq!(contributions, 1, "vertical paint multiplicity at ({x},{y})");
+            }
+        }
+    }
+
+    /// Historical name retained; R5 checks one physical contribution per boundary.
     #[test]
     fn p227_grid_stroke_renderiza_4_lines_per_cell() {
         use crate::entities::geometry::Stroke;
@@ -9387,40 +9482,10 @@ mod tests_show_rule_integration {
             },
         ));
         let doc = layout(&with_stroke);
-        let line_count: usize = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter(|item| {
-                matches!(
-                    item,
-                    FrameItem::Shape {
-                        kind: crate::entities::geometry::ShapeKind::Line { .. },
-                        ..
-                    }
-                )
-            })
-            .count();
-        // P888 — 3 verticais fundidos (uma por fronteira de coluna, cada
-        // um cobrindo as 2 linhas) + 4 horizontais (2 linhas × topo/fundo,
-        // cada um fundido dentro da linha, sem dedup entre linhas) = 7.
-        assert_eq!(
-            line_count, 7,
-            "Grid 2x2 stroke uniforme deve emitir 7 lines fundidas (3 verticais + \
-             4 horizontais), recebeu {}",
-            line_count
-        );
+        assert_uniform_grid_border_coverage(&doc, 2, 2, 50.0, None);
     }
 
-    /// P888 (achado 3 de P885, secção 7 de P887) — grid maior (5 colunas ×
-    /// 10 linhas, o mesmo tamanho do cenário de benchmark `05-tables.typ`)
-    /// com stroke uniforme deve fundir os verticais **ao longo de todas as
-    /// 10 linhas** (não só entre 2, como nos testes 2x2/1x2 acima) — 6
-    /// fronteiras de coluna × 1 segmento cada (cobrindo as 10 linhas) = 6,
-    /// mais 10 linhas × (topo + fundo) = 20 horizontais = 26 no total. Isto
-    /// é a garantia de que a fusão vertical realmente escala com o número
-    /// de linhas (o ganho principal sobre a "Opção β" antiga, que emitia
-    /// 4 × 50 = 200 para esta mesma grelha).
+    /// R5 preserves all 5×10 boundary positions, full vertical extents and single paint.
     #[test]
     fn p888_grid_5x10_stroke_uniforme_funde_verticais_entre_10_linhas() {
         use crate::entities::geometry::Stroke;
@@ -9455,28 +9520,7 @@ mod tests_show_rule_integration {
             },
         ));
         let doc = layout(&g);
-        let line_count: usize = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter(|item| {
-                matches!(
-                    item,
-                    FrameItem::Shape {
-                        kind: crate::entities::geometry::ShapeKind::Line { .. },
-                        ..
-                    }
-                )
-            })
-            .count();
-        assert_eq!(
-            line_count, 26,
-            "Grid 5x10 stroke uniforme deve emitir 26 lines fundidas (6 verticais \
-             cobrindo as 10 linhas + 20 horizontais), recebeu {} — a fusão vertical \
-             entre múltiplas linhas é o ganho principal sobre a Opção β antiga \
-             (que emitia 200 para esta mesma grelha, 4 por célula × 50 células)",
-            line_count
-        );
+        assert_uniform_grid_border_coverage(&doc, num_cols, num_rows, 20.0, Some(15.0));
     }
 
     /// P888 — quando duas células vizinhas têm `effective_stroke`
@@ -9678,15 +9722,8 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        // P888 fundiu os segmentos (7 esperados para este grid 2x2, ver
-        // `p227_grid_stroke_renderiza_4_lines_per_cell` acima) — a
-        // verificação de bounding-box em si (width==dx.abs(), height==
-        // dy.abs()) continua válida e vale a pena manter independentemente
-        // da contagem exacta.
-        assert_eq!(
-            checked, 7,
-            "esperava 7 Lines fundidas verificadas, verificou {checked}"
-        );
+        assert!(checked > 0, "bounding-box checks must not be vacuous");
+        assert_uniform_grid_border_coverage(&doc, 2, 2, 50.0, None);
     }
 
     #[test]
@@ -16145,7 +16182,8 @@ mod p622_parbreak {
                 Self {
                     library: Library::new(),
                     book: FontBook::new(),
-                    source: Source::new(id, text.to_string()),
+                    source: Source::new(id, text.to_string())
+                        .expect("valid Source test fixture"),
                 }
             }
         }
@@ -20163,7 +20201,12 @@ mod p292_style_font_tests {
             .collect::<Vec<_>>()
             .join(" ");
         assert!(text.contains("CABE"), "body 'CABE' no rodapé");
-        assert!(text.contains("[1]"), "marker [1] inline");
+        assert_eq!(
+            r1_native_note_marker_count(&doc, "1"),
+            2,
+            "chamada e entrada presentes"
+        );
+        assert!(!text.contains("[1]"), "sem colchetes gerados");
     }
 
     #[test]
@@ -20206,7 +20249,12 @@ mod p292_style_font_tests {
             })
             .collect::<Vec<_>>()
             .join(" ");
-        assert!(combined.contains("[1]"), "marker [1] presente");
+        assert_eq!(
+            r1_native_note_marker_count(&doc, "1"),
+            2,
+            "chamada e entrada presentes"
+        );
+        assert!(!combined.contains("[1]"), "sem colchetes gerados");
     }
 
     #[test]
@@ -20268,7 +20316,7 @@ Goodbye #footnote[Nota B] moon."#,
         let doc = layout_test(
             r#"#set page(columns: 2, height: 200pt)
 #lorem(10)#footnote[
-  Esta nota é maior do que a coluna inteira. #lorem(200)
+  #block(height: 500pt, breakable: false)[Esta nota é maior do que a coluna inteira.]
 ]
 #lorem(10)"#,
         );
@@ -20281,11 +20329,30 @@ Goodbye #footnote[Nota B] moon."#,
         );
         // Marker e parte do body devem ser visíveis no documento.
         let combined = doc.plain_text();
-        assert!(combined.contains("[1]"), "marker [1] presente");
+        assert_eq!(
+            r1_native_note_marker_count(&doc, "1"),
+            2,
+            "chamada e entrada presentes"
+        );
+        assert!(!combined.contains("[1]"), "sem colchetes gerados");
         assert!(
             combined.contains("Esta nota é maior do que a coluna inteira"),
             "início do body presente"
         );
+    }
+
+    #[test]
+    fn r8_certified_long_note_continues_without_oversized_warning() {
+        let doc = layout_test(
+            r#"#set page(columns:2,height:200pt)
+Alpha#footnote[START #lorem(200) END]"#,
+        );
+        assert!(doc.layout_warnings.is_empty(), "{:?}", doc.layout_warnings);
+        let text = doc.plain_text();
+        assert_eq!(text.matches("START").count(), 1);
+        assert_eq!(text.matches("END").count(), 1);
+        assert_eq!(r1_native_note_marker_count(&doc, "1"), 2);
+        assert!(doc.pages.len() > 1);
     }
 
     #[test]
@@ -24710,7 +24777,11 @@ fn regional_demand_terminal_note_keeps_conservative_clearance() {
     l.layout_word("TAIL");
     l.shift_current_line_y(78.0 - l.regions.current.cursor_y.0);
     l.regions.current.cursor_y = Pt(78.0);
-    l.pending_footnote_bodies.push((1, Box::new(Content::text("NOTE"))));
+    l.pending_footnote_bodies.push((
+        1,
+        Box::new(Content::text("NOTE")),
+        Content::sequence(vec![Content::superscript(Content::text("1")), Content::Space]),
+    ));
     let doc = l.finish();
     assert_eq!(doc.pages.len(), 2, "the note must not occupy the last line clearance");
     assert_eq!(doc.pages[0].plain_text(), "TAIL");
@@ -26305,6 +26376,171 @@ mod figure_kind_cause_regressions {
                 "#show block: none\n#block[#figure([A], supplement: it => panic(\"unreached\"))]\nDONE"
             ),
             "DONE"
+        );
+    }
+}
+
+mod weak_pagebreak_regressions {
+    use super::*;
+
+    fn document(body: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:300pt,height:400pt,margin:20pt)\n{body}"))
+    }
+
+    #[test]
+    fn weak_pagebreak_terminal_initial_and_repeated() {
+        for body in [
+            "One #pagebreak(weak:true)",
+            "One #pagebreak(weak:true)\n",
+            "#for i in range(1) [One #pagebreak(weak:true)]",
+            "#pagebreak(weak:true)One",
+            "One #pagebreak(weak:true)#pagebreak(weak:true)",
+        ] {
+            let doc = document(body);
+            assert_eq!(doc.pages.len(), 1, "{body}");
+            assert_eq!(page_index_containing_weak(&doc, "One"), Some(1), "{body}");
+        }
+        assert_eq!(document("#pagebreak(weak:true)").pages.len(), 1);
+    }
+
+    fn page_index_containing_weak(doc: &PagedDocument, needle: &str) -> Option<usize> {
+        doc.pages
+            .iter()
+            .position(|page| {
+                frame_items_recursive(&page.items).iter().any(|item| {
+                matches!(item, FrameItem::Text { text, .. } if text.contains(needle))
+            })
+            })
+            .map(|index| index + 1)
+    }
+
+    #[test]
+    fn weak_pagebreak_preserves_strong_empty_pages() {
+        for body in [
+            "One #pagebreak()",
+            "One #pagebreak()#pagebreak(weak:true)",
+            "One #pagebreak(weak:true)#pagebreak()",
+            "#pagebreak()",
+        ] {
+            assert_eq!(document(body).pages.len(), 2, "{body}");
+        }
+        assert_eq!(document("One #pagebreak()#pagebreak()").pages.len(), 3);
+    }
+
+    #[test]
+    fn weak_pagebreak_parity_keeps_required_intermediate_pages() {
+        for (body, count, target) in [
+            ("One #pagebreak(weak:true,to:\"odd\")", 2, None),
+            ("One #pagebreak(weak:true,to:\"odd\")Two", 3, Some(3)),
+            ("#pagebreak(weak:true,to:\"odd\")Two", 1, Some(1)),
+            ("#pagebreak(weak:true,to:\"even\")Two", 2, Some(2)),
+        ] {
+            let doc = document(body);
+            assert_eq!(doc.pages.len(), count, "{body}");
+            assert_eq!(page_index_containing_weak(&doc, "Two"), target, "{body}");
+        }
+    }
+
+    #[test]
+    fn weak_pagebreak_page_runs_and_material_successors() {
+        for (body, count) in [
+            ("#page[One]#pagebreak(weak:true)", 1),
+            ("#page[One #pagebreak(weak:true)]", 1),
+            ("#page[One]#pagebreak(weak:true)Two", 2),
+            ("One #pagebreak(weak:true)#page[]", 2),
+            ("One #pagebreak(weak:true)Two", 2),
+            ("One #pagebreak(weak:true)#place(right)[placed]#pagebreak(weak:true)Three", 3),
+            ("One#footnote[NOTE] #pagebreak(weak:true)", 1),
+            ("#set page(header:[HEAD],footer:[FOOT])\nOne #pagebreak(weak:true)", 1),
+        ] {
+            assert_eq!(document(body).pages.len(), count, "{body}");
+        }
+    }
+
+    #[test]
+    fn weak_pagebreak_after_page_run_material_starts_another_page() {
+        let doc = document("#page[One]Two #pagebreak(weak:true)Three");
+        assert_eq!(doc.pages.len(), 3);
+        assert_eq!(page_index_containing_weak(&doc, "One"), Some(1));
+        assert_eq!(page_index_containing_weak(&doc, "Two"), Some(2));
+        assert_eq!(page_index_containing_weak(&doc, "Three"), Some(3));
+    }
+
+    #[test]
+    fn weak_pagebreak_checkpoint_restores_optional_successor() {
+        use comemo::Track;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut layouter = Layouter::new(
+            FixedMetrics,
+            crate::entities::image_sizer::NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        layouter.layout_content(&Content::text("One"));
+        layouter.layout_content(&Content::pagebreak(true, None));
+        let checkpoint = layouter.capture_flow_suffix_checkpoint();
+        layouter.layout_content(&Content::HSpace(std::sync::Arc::new(
+            crate::entities::elements::h_space::HSpaceElem {
+                amount: crate::entities::elements::h_space::Spacing::Absolute(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
+                weak: false,
+                weak_explicit: false,
+            },
+        )));
+        layouter.layout_content(&Content::pagebreak(false, None));
+        layouter.restore_flow_suffix_checkpoint(checkpoint);
+        let doc = layouter.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(page_index_containing_weak(&doc, "One"), Some(1));
+    }
+
+    #[test]
+    fn weak_pagebreak_retains_unpainted_language_content() {
+        for body in [
+            "#h(0pt)",
+            "#h(10pt)",
+            "#h(1fr)",
+            "#v(0pt)",
+            "#v(10pt)",
+            "#v(10pt,weak:true)",
+            "#hide[Hidden]",
+        ] {
+            let doc = document(&format!(
+                "One#pagebreak(weak:true){body}#pagebreak(weak:true)Two"
+            ));
+            assert_eq!(doc.pages.len(), 3, "{body}");
+            assert_eq!(page_index_containing_weak(&doc, "One"), Some(1));
+            assert_eq!(page_index_containing_weak(&doc, "Two"), Some(3));
+            assert_eq!(page_index_containing_weak(&doc, "Hidden"), None);
+        }
+        for body in ["#hide[]", "#hide[#metadata(1)]"] {
+            let doc = document(&format!(
+                "One#pagebreak(weak:true){body}#pagebreak(weak:true)Two"
+            ));
+            assert_eq!(doc.pages.len(), 2, "{body}");
+        }
+        for body in ["#hide[Hidden]", "#h(0pt)", "#h(1fr)", "#v(0pt)"] {
+            assert_eq!(
+                document(&format!("One#pagebreak(weak:true){body}")).pages.len(),
+                2,
+                "{body}"
+            );
+        }
+    }
+
+    #[test]
+    fn weak_pagebreak_parity_retains_initial_and_strong_required_successors() {
+        assert_eq!(document(r#"#pagebreak(weak:true,to:"even")"#).pages.len(), 2);
+        assert_eq!(
+            document(r#"One#pagebreak()#pagebreak(weak:true,to:"odd")"#)
+                .pages
+                .len(),
+            3
+        );
+        assert_eq!(
+            document(r#"#page[One]#pagebreak(weak:true,to:"odd")"#).pages.len(),
+            2
         );
     }
 }

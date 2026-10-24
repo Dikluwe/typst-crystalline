@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md
-//! @prompt-hash 1f9d3cde
+//! @prompt-hash 7f3c8c2d
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -48,7 +48,7 @@ pub(super) fn prepare<M: FontMetrics>(
     if alphabetic_end == 0
         || !text[alphabetic_end..]
             .chars()
-            .all(|c| matches!(c, '.' | ',' | '!' | '?'))
+            .all(|c| matches!(c, '.' | ',' | ':' | '!' | '?'))
     {
         return None;
     }
@@ -367,6 +367,129 @@ mod tests {
         word.hyphenation = prepare(&FixedMetrics, &word).unwrap();
         word
     }
+    #[test]
+    fn r2_hyphenation_colon_preserves_candidates_ranges_and_source_text() {
+        let plain = word("representação", true).hyphenation.unwrap();
+        for suffix in [":", "::", ":!?"] {
+            let text = format!("representação{suffix}");
+            let w = word(&text, true);
+            let h = w.hyphenation.as_ref().unwrap();
+            assert_eq!(h.lengths, plain.lengths, "punctuation is not a syllable");
+            assert_eq!(
+                &h.offsets[..h.offsets.len() - 1],
+                &plain.offsets[..plain.offsets.len() - 1]
+            );
+            assert_eq!(h.offsets.last(), Some(&text.len()));
+            assert!(h.offsets.iter().all(|&offset| text.is_char_boundary(offset)));
+            let measured = prepare(&NonAdditive, &w).unwrap().unwrap();
+            let count = text.chars().count() as f64;
+            assert_eq!(measured.widths[measured.offsets.len() - 1], count * count);
+            let p = Prepared {
+                words: vec![w],
+                trailing: Vec::new(),
+                right_overhang: 0.0,
+            };
+            for strategy in [Strategy::Simple, Strategy::Optimized] {
+                let lines = select(&p, 60.0, 12.0, true, strategy, LineCosts::default());
+                assert!(lines.len() > 1);
+                let fragments: Vec<_> = lines
+                    .iter()
+                    .flat_map(|line| &line.words)
+                    .flat_map(|word| &word.fragments)
+                    .collect();
+                let source: String = fragments
+                    .iter()
+                    .filter(|f| f.replacement.is_none())
+                    .map(|f| f.text.as_str())
+                    .collect();
+                assert_eq!(source, text);
+                let generated: Vec<_> =
+                    fragments.iter().filter(|f| f.replacement.is_some()).collect();
+                assert!(!generated.is_empty());
+                assert!(
+                    generated
+                        .iter()
+                        .all(|f| f.text == "-"
+                            && f.replacement.as_deref() == Some("\u{ad}"))
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn r2_hyphenation_colon_continuation_uses_existing_widow_cost() {
+        use crate::entities::{
+            content::Content,
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::{Length, PageMarginSpec, PageMargins, Ratio},
+            value::Value,
+        };
+        use comemo::Track;
+        for tracking in [None, Some(0.0)] {
+            for (cost, expected) in [(0.0, vec![3, 1]), (1.0, vec![2, 2])] {
+                let intr = TagIntrospector::empty();
+                let mut l = super::super::Layouter::new(
+                    FixedMetrics,
+                    NullImageSizer,
+                    12.0,
+                    (&intr as &dyn Introspector).track(),
+                );
+                l.page_config.width = 100.0;
+                l.page_config.height = 45.0;
+                l.page_config.margin = PageMargins::uniform(0.0);
+                l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+                l.regions.current.width = 100.0;
+                l.regions.current.height = 45.0;
+                l.regions.current.cursor_x = Pt(0.0);
+                l.regions.current.line_start_x = Pt(0.0);
+                l.regions.current.cursor_y = Pt(0.0);
+                l.chain = l
+                    .chain
+                    .push_custom("text.hyphenate", Value::Bool(true))
+                    .push_custom("text.costs.widow", Value::Ratio(Ratio(cost)));
+                if let Some(tracking) = tracking {
+                    l.chain = l.chain.push_custom(
+                        "text.tracking",
+                        Value::Length(Length::pt(tracking)),
+                    );
+                }
+                l.style = TextStyle::from(&l.chain);
+                let text = "aaaaaaaaaaaa: bbbbbbbbbbbb cccccccccccc dddddddddddd";
+                l.layout_content(&Content::text(text));
+                let doc = l.finish();
+                let pages: Vec<_> =
+                    doc.pages.iter().map(|page| page.plain_text()).collect();
+                assert_eq!(
+                    pages
+                        .iter()
+                        .map(|page| page.split_whitespace().count())
+                        .collect::<Vec<_>>(),
+                    expected
+                );
+                assert_eq!(
+                    pages.join(" ").split_whitespace().collect::<Vec<_>>(),
+                    text.split_whitespace().collect::<Vec<_>>()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn r2_hyphenation_unsupported_words_and_mixed_policies_stay_refused() {
+        for text in [":", "12:34", "12:", "repre:sentação", "repre'sentação"] {
+            let mut w = word("representação", true);
+            w.fragments[0].text = text.into();
+            assert!(prepare(&FixedMetrics, &w).is_none(), "{text}");
+        }
+        assert!(word("representação:", false).hyphenation.is_none());
+        let mut mixed = word("representação", true);
+        let mut other = mixed.fragments[0].clone();
+        other.hyphenate = false;
+        mixed.fragments.push(other);
+        assert!(prepare(&FixedMetrics, &mixed).is_none());
+    }
+
     #[test]
     fn hyphenation_ranges_are_unicode_safe_and_reassemble_the_word() {
         let w = word("representação", true);

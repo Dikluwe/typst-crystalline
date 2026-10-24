@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/quote.md
-//! @prompt-hash 73f03927
+//! @prompt-hash a694ba17
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -44,7 +44,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if !open.is_empty() {
             layouter.layout_content(&Content::text(open));
         }
-        layouter.layout_content(&e.body);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::QuoteBody,
+            &e.body,
+        );
         if !close.is_empty() {
             layouter.layout_content(&Content::text(close));
         }
@@ -52,7 +55,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.flush_line();
             layouter.regions.current.cursor_x = margin_pt + layouter.style.size;
             layouter.layout_content(&Content::text("— "));
-            layouter.layout_content(a);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::QuoteAttribution,
+                a,
+            );
         }
         layouter.flush_line();
         layouter.regions.current.cursor_x = margin_pt;
@@ -61,13 +67,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if !open.is_empty() {
             layouter.layout_content(&Content::text(open));
         }
-        layouter.layout_content(&e.body);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::QuoteBody,
+            &e.body,
+        );
         if !close.is_empty() {
             layouter.layout_content(&Content::text(close));
         }
         if let Some(a) = &e.attribution {
             layouter.layout_content(&Content::text(" — "));
-            layouter.layout_content(a);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::QuoteAttribution,
+                a,
+            );
         }
     }
 }

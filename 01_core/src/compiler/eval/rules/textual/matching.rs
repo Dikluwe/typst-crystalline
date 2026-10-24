@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/textual/matching.md
-//! @prompt-hash eabdd854
+//! @prompt-hash d202e6df
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -217,7 +217,9 @@ fn significant_bounds(parts: &[Content]) -> Option<(usize, usize)> {
             Content::Realized(done) if !super::is_product(part) => {
                 significant_bounds(std::slice::from_ref(&done.visual))
             }
-            Content::Text(text) if !text.is_empty() => Some((0, text.len())),
+            Content::Text(text) | Content::Symbol(text) if !text.is_empty() => {
+                Some((0, text.len()))
+            }
             Content::Source(_)
             | Content::ShowRecipe(_)
             | Content::Realized(_)
@@ -239,6 +241,7 @@ fn significant_bounds(parts: &[Content]) -> Option<(usize, usize)> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -428,7 +431,7 @@ pub(super) fn textual_piece(content: &Content) -> Option<String> {
             .collect::<Option<Vec<_>>>()
             .map(|v| v.concat()),
         Content::Empty => Some(String::new()),
-        Content::Text(text) => Some(text.to_string()),
+        Content::Text(text) | Content::Symbol(text) => Some(text.to_string()),
         Content::Space | Content::SpaceFromNewline => Some(" ".to_string()),
         // A quebra explícita é fronteira destrutiva, nunca texto agregado.
         Content::ShowRecipe(_)
@@ -548,7 +551,7 @@ pub(super) fn textual_piece(content: &Content) -> Option<String> {
 
 fn has_real_text(content: &Content) -> bool {
     match content {
-        Content::Text(text) => !text.is_empty(),
+        Content::Text(text) | Content::Symbol(text) => !text.is_empty(),
         Content::Source(e) => has_real_text(&e.body),
         Content::Located(e) => has_real_text(&e.body),
         Content::Realized(e) => !super::is_product(content) && has_real_text(&e.visual),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running.md
-//! @prompt-hash 9c2fc9b9
+//! @prompt-hash d3205745
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -51,18 +51,29 @@ fn layout_content<M: FontMetrics, S: ImageSizer>(
     width: f64,
     height: f64,
     y: f64,
+    slot: super::PageRunningSlot,
 ) -> Vec<FrameItem> {
     let saved_link_scopes = std::mem::take(&mut layouter.link_capture.active);
-    let (_, items, _, _, _) = layouter.layout_sub_frame(
-        content,
-        SubLayoutRegion {
-            origin_x: 0.0,
-            width,
-            height: Some(height.max(0.0)),
-            align_rtl: false,
-            unconstrained_height: false,
-        },
-    );
+    let region = SubLayoutRegion {
+        origin_x: 0.0,
+        width,
+        height: Some(height.max(0.0)),
+        align_rtl: false,
+        unconstrained_height: false,
+    };
+    let items = if layouter.page_running_pass.is_some() {
+        let rect = crate::entities::layout_types::Rect {
+            x: Pt(layouter.page_config.margin.left),
+            y: Pt(y),
+            w: Pt(width),
+            h: Pt(height.max(0.0)),
+        };
+        layouter.running_content(slot, rect).map_or_else(Vec::new, |body| {
+            layouter.layout_running_sub_frame(&body, slot, region)
+        })
+    } else {
+        layouter.layout_sub_frame(content, region).1
+    };
     layouter.link_capture.active = saved_link_scopes;
     vec![FrameItem::Group {
         paint_root: false,
@@ -82,12 +93,24 @@ pub(super) fn explicit_layers<M: FontMetrics, S: ImageSizer>(
 ) -> Vec<FrameItem> {
     let config = layouter.page_config.clone();
     let width = (page_width - config.margin.horizontal()).max(0.0);
-    let font_size = layouter.style.size.0;
+    let font_size = layouter
+        .page_running_pass
+        .as_ref()
+        .map_or(layouter.style.size.0, |pass| {
+            crate::entities::layout_types::TextStyle::from(&pass.chain).size.0
+        });
     let ha = resolve_offset(config.header_ascent, config.margin.top, font_size);
     let fd = resolve_offset(config.footer_descent, config.margin.bottom, font_size);
     let mut out = vec![];
     if let PageMarginal::Content(content) = &config.header {
-        out.extend(layout_content(layouter, content, width, config.margin.top - ha, 0.0));
+        out.extend(layout_content(
+            layouter,
+            content,
+            width,
+            config.margin.top - ha,
+            0.0,
+            super::PageRunningSlot::Header,
+        ));
     }
     if let PageMarginal::Content(content) = &config.footer {
         out.extend(layout_content(
@@ -96,6 +119,7 @@ pub(super) fn explicit_layers<M: FontMetrics, S: ImageSizer>(
             width,
             config.margin.bottom - fd,
             page_height - config.margin.bottom + fd,
+            super::PageRunningSlot::Footer,
         ));
     }
     out

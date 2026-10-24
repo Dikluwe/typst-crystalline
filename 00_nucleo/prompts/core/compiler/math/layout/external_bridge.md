@@ -1,7 +1,8 @@
 # L0 — compiler/math/layout/external_bridge
-Hash do Código: 43dd3b3f
+Hash do Código: 6df29002
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 ## Ownership and evidence
@@ -58,3 +59,37 @@ push. Reseal only after implementation and a valid graph. RG1 remains independen
 
 The bridge adapter supplies Style::Size with absolute Length converted from
 resolved Pt. Preserve origin, box, glyphs and effective external-bridge size.
+
+
+## Planned direct Equation source bridge
+
+### Measurement before correction
+
+`lab/results/set-page-header-implementation-2026-10-21/route-probes11/receipt.json`
+records the source-bound diagnostic11 product and the pinned vanilla
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Actual public syntax
+`math.equation(metadata("equation-child"))` and
+`math.equation(figure([EQUATION CHILD], caption: none))` both succeed in the
+oracle and fail source-plan verification in the product. Ordinary `$a + b$`
+succeeds with equal typed observations in both. Exact before source/L0 bytes,
+hashes, UTC and working-tree provenance are archived in
+`agents/layout/equation-bridge-before.json.gz` under that implementation root.
+
+The source plan already declares EquationBody and recursively plans the direct
+body according to the existing semantic partition. The equation painter calls
+MathLayouter without that cursor; its external bridge creates an isolated
+unplanned Layouter. Therefore required direct-body facts cannot be admitted by
+actual painting. This is a missing internal handoff within the human-approved
+physical-page phase, not authorization to open terminal MathSequence subtrees.
+
+### Exclusive correction
+
+Factor the existing typed TextStyle projection and external-frame composition.
+The planned path consumes the frame painted once by the parent Layouter using its
+actual resources and transaction; it never creates a second temporary painter.
+The existing unplanned temporary-painter path remains unchanged. Retain real
+FrameItems for final position projection, but exclude authenticated private
+position markers from the planned frame's ink/width/empty-paint calculations.
+A marker-only zero-paint action retains zero extent and all markers; markers are
+not visible shapes. Preserve existing plain-text fallback and baseline/axis
+anchoring. This does not authorize new math descendant coverage or public APIs.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md
-//! @prompt-hash 86c0befd
+//! @prompt-hash 946d7c96
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -130,6 +130,7 @@ pub(super) fn textual_content_fields(value: &Value) -> Result<Dict, String> {
             | Content::EnumItem(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -284,6 +285,7 @@ fn is_equation_constructor_content(content: &crate::entities::content::Content) 
         | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)

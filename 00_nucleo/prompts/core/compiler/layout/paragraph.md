@@ -1,9 +1,18 @@
 # L0 — paragraph
-Hash do Código: f2df1ef9
+Hash do Código: 1987af3a
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/paragraph.rs`
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:447289c8c45df27081c71b98e7aa32b1fbaab3883018f585540285e658122090
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
@@ -11,11 +20,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
-
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/layout/paragraph.rs`
 
 
 ## Evidence before specification
@@ -89,3 +93,76 @@ Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait me
 Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
 Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Retain the complete existing paragraph closure/preparation/strategy/empty-body and restoration algorithm. Add a private planned entrypoint taking the exact owning child edge; ordinary Par uses ParagraphBody and generated Realized block-equation text uses RealizedVisual. Only the eventual fallback emission descends that typed edge; speculative text planning remains nonadmitting. Text-only fast paths may omit only packets whose complete source-plan semantic-effect classifier proves nonrequired; no Metadata/update/label/derived work can disappear. The existing private layout wrapper remains the native Par entrypoint and delegates ParagraphBody; when no plan is installed the existing unplanned path is retained.
+
+
+## Complete singleton bidi entry after statement whitespace correction
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/baseline-source.json.gz` binds the
+uncommitted source at HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`,
+UTC `2026-10-22T11:48:34.231064+00:00`; the companion `baseline.json.gz`
+retains the exact changed-file list, diffstat and product identity. Candidate-7's
+`validation/tests-domain-infra.log:7934-7938,9512-9515` records the unchanged
+source-context tests failing after the statement-whitespace correction. These
+records establish a lost certified context, not general bidi parity.
+
+The exact baseline comparison leaves paragraph/sequence/bidi-origin/style-scope
+and their failing tests unchanged. `compiler/lexer/markup.rs:346-384` keeps a
+space before an alphanumeric character inside Text. The new statement filter in
+`compiler/eval/markup_stream.rs:85-91` correctly removes the post-statement
+newline; its normalization/lexical-style fold now permits direct Styled(Text)
+instead of relying on an incidental leading Empty to retain Sequence. Only
+Sequence and explicit Par currently install complete logical context; Text
+consumes an existing cursor, and Styled dispatches its actual body. Restoring
+forbidden whitespace, inserting a virtual Sequence/Par, or independently
+certifying a descendant of an opaque enclosing object would be incorrect.
+
+### Exclusive regression tests
+
+Add direct singleton Styled(Text) tests with mixed UTF-8 words under RTL and
+LTR lexical bases, exact original subranges after wrapping, and restored parent
+scope/direction/cursor. Add a root opaque Link whose body contains the same
+textual Sequence; inspect its nested text and require None throughout rather
+than allowing descendant recertification. Keep the existing source-to-layout and
+pipeline expectations unchanged. Bidi preparation/body dispatch remain owned by
+bidi_origin/mod; this owner supplies regression tests, not a competing algorithm.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

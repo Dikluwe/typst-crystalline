@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 83398942
+//! @prompt-hash 17ab8bea
 //! @layer L2
 //! @updated 2026-10-17
 //!
@@ -934,6 +934,23 @@ pub fn build_commit() -> Option<&'static str> {
     option_env!("TYPST_COMMIT_SHA")
 }
 
+fn write_argument_error_to(
+    out: &mut impl std::io::Write,
+    message: &str,
+) -> std::io::Result<()> {
+    out.write_all(message.as_bytes())?;
+    out.flush()
+}
+
+fn exit_argument_error(message: &str) -> ! {
+    let stderr = std::io::stderr();
+    let mut out = stderr.lock();
+    if let Err(_error) = write_argument_error_to(&mut out, message) {
+        std::process::exit(2);
+    }
+    std::process::exit(2);
+}
+
 fn compile_intent(
     args: CompileArgs,
     html_serialization: HtmlSerialization,
@@ -981,8 +998,7 @@ fn compile_intent(
     // P617 — validar UUID antes de converter para bytes; erro claro em L2.
     let document_id = args.document_id.as_deref().and_then(parse_uuid_bytes);
     if args.document_id.is_some() && document_id.is_none() {
-        eprintln!("error: invalid document ID: expected a UUID (e.g., f81d4fae-7dec-11d0-a765-00a0c91e6bf6)");
-        std::process::exit(2);
+        exit_argument_error("error: invalid document ID: expected a UUID (e.g., f81d4fae-7dec-11d0-a765-00a0c91e6bf6)\n");
     }
 
     // P694 — validar `--input chave=valor` (split no primeiro `=`; chave não
@@ -992,8 +1008,9 @@ fn compile_intent(
         match parse_input_entry(raw) {
             Some(pair) => inputs.push(pair),
             None => {
-                eprintln!("error: invalid input '{raw}': expected the form key=value");
-                std::process::exit(2);
+                exit_argument_error(&format!(
+                    "error: invalid input '{raw}': expected the form key=value\n"
+                ));
             }
         }
     }
@@ -1188,6 +1205,7 @@ fn is_equation_constructor_content(
         | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -1315,6 +1333,7 @@ fn content_to_semantic(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -1574,7 +1593,7 @@ fn content_to_semantic(
             ("alt".into(), SemanticValue::Null),
             ("body".into(), content_to_semantic(&equation.body)),
         ]),
-        Content::MathIdent(text) | Content::MathText(text) => {
+        Content::Symbol(text) | Content::MathIdent(text) | Content::MathText(text) => {
             fields.push(("text".into(), SemanticValue::String(text.to_string())))
         }
         Content::MathAttach(attach) => {
@@ -1816,7 +1835,7 @@ fn content_semantic_func_name(
         Content::SmartQuote(_) => "smartquote",
         Content::MathAttach(_) => "attach",
         Content::MathText(_) => "text",
-        Content::MathIdent(_) => "symbol",
+        Content::Symbol(_) | Content::MathIdent(_) => "symbol",
         Content::Text(..)
         | Content::Space
         | Content::SpaceFromNewline
@@ -4219,5 +4238,84 @@ mod v16_e_serialization_tests {
         assert_eq!(keys(&outer), ["func", "child", "styles"]);
         assert_eq!(json(&outer)["func"], "styled");
         assert_eq!(json(&outer)["child"]["func"], "equation");
+    }
+}
+
+#[cfg(test)]
+mod argument_stderr_tests {
+    use super::write_argument_error_to;
+    use std::io::{self, Write};
+
+    struct Sink {
+        bytes: Vec<u8>,
+        limit: usize,
+        write_error: Option<i32>,
+        flush_error: Option<i32>,
+        flushes: usize,
+    }
+
+    impl Write for Sink {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            if let Some(code) = self.write_error {
+                return Err(io::Error::from_raw_os_error(code));
+            }
+            let count = bytes.len().min(self.limit);
+            self.bytes.extend_from_slice(&bytes[..count]);
+            Ok(count)
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            self.flushes += 1;
+            match self.flush_error {
+                Some(code) => Err(io::Error::from_raw_os_error(code)),
+                None => Ok(()),
+            }
+        }
+    }
+
+    fn sink() -> Sink {
+        Sink {
+            bytes: Vec::new(),
+            limit: 3,
+            write_error: None,
+            flush_error: None,
+            flushes: 0,
+        }
+    }
+
+    #[test]
+    fn argument_stderr_completes_partial_writes_and_preserves_literal_bytes() {
+        for message in [
+            "error: invalid document ID: expected a UUID (e.g., f81d4fae-7dec-11d0-a765-00a0c91e6bf6)\n",
+            "error: invalid input 'bad': expected the form key=value\n",
+        ] {
+            let mut out = sink();
+            write_argument_error_to(&mut out, message).expect("healthy test sink");
+            assert_eq!(out.bytes, message.as_bytes());
+            assert_eq!(out.flushes, 1);
+        }
+    }
+
+    #[test]
+    fn argument_stderr_retains_actual_write_failure_without_flush() {
+        let mut out = sink();
+        out.write_error = Some(28);
+        let error = write_argument_error_to(&mut out, "error: invalid input\n")
+            .expect_err("injected write failure");
+        assert_eq!(error.raw_os_error(), Some(28));
+        assert!(out.bytes.is_empty());
+        assert_eq!(out.flushes, 0);
+    }
+
+    #[test]
+    fn argument_stderr_retains_actual_flush_failure_after_original_bytes() {
+        let mut out = sink();
+        out.flush_error = Some(5);
+        let message = "error: invalid input\n";
+        let error = write_argument_error_to(&mut out, message)
+            .expect_err("injected flush failure");
+        assert_eq!(error.raw_os_error(), Some(5));
+        assert_eq!(out.bytes, message.as_bytes());
+        assert_eq!(out.flushes, 1);
     }
 }

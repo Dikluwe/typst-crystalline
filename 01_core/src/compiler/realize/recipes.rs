@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash 57dc9644
+//! @prompt-hash fecd59bc
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -65,6 +65,11 @@ pub(super) fn realize_children(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    if ctx.recipe_math_depth == 0 {
+        if let Some(text) = symbol_text(content) {
+            return realize(&text, ctx, engine);
+        }
+    }
     let old_math = ctx.recipe_math_depth;
     let mut first = true;
     let result = content.map_content_pre_with_origin(&mut |node, origin| {
@@ -103,6 +108,12 @@ pub(super) fn realize_children(
                         return super::figure::realize_children(figure, ctx, engine)
                             .map(Some)
                     }
+                    Content::SetPage(_) | Content::PageRun(_) => {
+                        let captured = super::page_running::capture(node, ctx, engine);
+                        return super::page_running::map_body(&captured, |body| {
+                            realize(body, ctx, engine)
+                        });
+                    }
                     Content::Equation(_) => ctx.recipe_math_depth += 1,
                     Content::Source(_)
                     | Content::ShowRecipe(_)
@@ -124,6 +135,7 @@ pub(super) fn realize_children(
                     | Content::EnumItem(_)
                     | Content::Link(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)
@@ -170,8 +182,6 @@ pub(super) fn realize_children(
                     | Content::GridHeader(_)
                     | Content::GridFooter(_)
                     | Content::GridCell(_)
-                    | Content::SetPage(_)
-                    | Content::PageRun(_)
                     | Content::Align(_)
                     | Content::Place(_)
                     | Content::Flush(_)
@@ -233,16 +243,28 @@ fn visit(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Content>> {
+    // Kind-specific normalization precedes native show rules. Mathematical
+    // symbols retain identity, and textual regex rules run per element there.
+    if let Content::Symbol(text) = node {
+        if ctx.recipe_math_depth == 0 {
+            return realize(&Content::Text(text.clone()), ctx, engine).map(Some);
+        }
+        if engine.show_rules.iter().any(|rule| {
+            !engine.active_guards.contains(&rule.id)
+                && selector_matching::is_text_rule(&rule.selector)
+                && !selector_matching::textual_match_ranges(&rule.selector, text)
+                    .is_empty()
+        }) {
+            return textual::realize_captured_text(node.clone(), ctx, engine).map(Some);
+        }
+    }
     match node {
         Content::ContextBlock(block) => {
             let content = if super::context_occurrences::instantiating_template(ctx)
                 && !super::reference_supplements::is_reference_supplement_producer(block)
             {
-                Content::ContextBlock(Arc::new(
-                    crate::entities::elements::context_block::ContextBlockElem {
-                        id: super::context_occurrences::next_context_id(ctx),
-                        closure: block.closure.clone(),
-                    },
+                Content::ContextBlock(super::context_occurrences::instantiate_context(
+                    block, ctx,
                 ))
             } else {
                 node.clone()
@@ -250,7 +272,10 @@ fn visit(
             return Ok(Some(super::prepare_context_recipe(content, ctx, engine)));
         }
         Content::ShowRecipe(recipe) => {
-            return realize_pending(recipe, ctx, engine).map(Some)
+            if super::page_running::is_context_transport(recipe) {
+                return Ok(Some(node.clone()));
+            }
+            return realize_pending(recipe, ctx, engine).map(Some);
         }
         Content::Realized(done) => return realize_completed(done, ctx, engine).map(Some),
         Content::Styled(styled) => {
@@ -292,6 +317,15 @@ fn visit(
             }
             return realize_parts(parts.to_vec(), ctx, engine).map(Some);
         }
+        Content::SetPage(_) | Content::PageRun(_) => {
+            if has_root_effect(node, engine, ctx)? {
+                return realize_root(node, ctx, engine).map(Some);
+            }
+            let captured = super::page_running::capture(node, ctx, engine);
+            return super::page_running::map_body(&captured, |body| {
+                realize(body, ctx, engine)
+            });
+        }
         Content::Source(_)
         | Content::Located(_)
         | Content::Empty
@@ -312,6 +346,7 @@ fn visit(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -360,8 +395,6 @@ fn visit(
         | Content::GridHeader(_)
         | Content::GridFooter(_)
         | Content::GridCell(_)
-        | Content::SetPage(_)
-        | Content::PageRun(_)
         | Content::Align(_)
         | Content::Place(_)
         | Content::Flush(_)
@@ -417,7 +450,9 @@ fn visit(
     if matches!(node, Content::Ref(_)) {
         return super::reference_supplements::capture(node, ctx, engine).map(Some);
     }
-    if textual::can_group(node) {
+    if textual::can_group(node)
+        && !(ctx.recipe_math_depth > 0 && matches!(node, Content::Symbol(_)))
+    {
         return textual::realize_captured_text(node.clone(), ctx, engine).map(Some);
     }
     Ok(None)
@@ -568,10 +603,19 @@ fn realize_parts(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    if ctx.recipe_math_depth == 0 {
+        for part in &mut parts {
+            if let Some(text) = symbol_text(part) {
+                *part = text;
+            }
+        }
+    }
     textual::space::normalize_markup_spaces(&mut parts);
     let sequence_rules = super::sequences::snapshot(engine).is_some();
+    let in_math = ctx.recipe_math_depth > 0;
     let groupable = |part: &Content| {
-        textual::can_group(part)
+        !in_math
+            && textual::can_group(part)
             && !(sequence_rules
                 && matches!(part.source_body(), Content::Empty | Content::Sequence(_)))
     };
@@ -645,7 +689,15 @@ fn realize_pending(
             .iter()
             .all(|rule| selector_matching::is_par_rule(&rule.selector))
     {
-        let body = crate::compiler::eval::rules::realize_paragraphs(pending.body.clone());
+        let body = if pending
+            .rules
+            .iter()
+            .any(|rule| !engine.active_guards.contains(&rule.id))
+        {
+            crate::compiler::eval::rules::realize_paragraphs(pending.body.clone())
+        } else {
+            crate::compiler::eval::rules::realize_node(&pending.body)
+        };
         realize(&body, ctx, engine)
     } else {
         realize(&pending.body, ctx, engine)
@@ -700,4 +752,15 @@ fn realize_completed(
             visual,
         }))
     })
+}
+
+/// Normalize only a direct leaf, preserving its lexical origin. Containers keep
+/// their own realization boundary, especially equations and styled subtrees.
+fn symbol_text(content: &Content) -> Option<Content> {
+    match content.source_body() {
+        Content::Symbol(text) => {
+            Some(Content::Text(text.clone()).with_source_span(content.source_span()))
+        }
+        _ => None,
+    }
 }

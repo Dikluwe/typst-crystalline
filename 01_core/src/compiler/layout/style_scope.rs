@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/style_scope.md
-//! @prompt-hash bad4f25d
+//! @prompt-hash bcd1c93e
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 
 use crate::entities::{
     content::Content,
@@ -44,6 +44,11 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
         != &crate::entities::style_chain::StyleDelta::empty())
         .then(|| layouter.text_tracking_state.enter());
     let prev_style = layouter.style.clone();
+    let previous_script_break = layouter.superscript_source_break;
+    if styles.delta().superscript == Some(true) {
+        layouter.superscript_source_break = script_has_mandatory_break(body);
+    }
+
     let mut delta = styles.delta().clone();
     let owns_raw_block = delta
         .custom
@@ -140,7 +145,10 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     if let Some(label) = outline_destination {
         outline::layout_destination_link(layouter, body, label);
     } else if pdf_label {
-        let (_, items) = layouter.layout_sub_frame_inline(
+        let cursor = layouter.planned_child_cursor(
+            crate::compiler::introspect::page_running::PlanEdge::StyledBody,
+        );
+        let (_, items) = layouter.layout_sub_frame_inline_planned(
             body,
             sub_frame::SubLayoutRegion {
                 origin_x: 0.0,
@@ -149,6 +157,7 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
                 align_rtl: false,
                 unconstrained_height: true,
             },
+            cursor,
         );
         layouter.regions.current.current_line.push(FrameItem::Semantic {
             kind: SemanticKind::Label,
@@ -157,7 +166,10 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
             items,
         });
     } else {
-        layouter.layout_content(body);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::StyledBody,
+            body,
+        );
     }
     if let Some(state) = raw_indent_state {
         super::raw::end_block(layouter, block_font);
@@ -179,9 +191,21 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     layouter.paragraph_planning_suppressed = prev_planning;
     layouter.chain = prev_chain;
     layouter.style = prev_style;
+    layouter.superscript_source_break = previous_script_break;
     if let Some(scope) = tracking_scope {
         layouter.text_tracking_state.leave(scope);
     }
+}
+
+fn script_has_mandatory_break(body: &Content) -> bool {
+    let mut found = false;
+    body.visit_content_static(&mut |node| {
+        found |= matches!(node, Content::Linebreak(..))
+            || matches!(node, Content::Text(text) if text.contains(['\n','\r']));
+        matches!(node, Content::Sequence(..) | Content::Strong(..) | Content::Emph(..))
+            || matches!(node, Content::Styled(styled) if styled.styles.delta().superscript != Some(true))
+    });
+    found
 }
 
 pub(super) fn layout_strong<M: FontMetrics, S: ImageSizer>(
@@ -195,7 +219,10 @@ pub(super) fn layout_strong<M: FontMetrics, S: ImageSizer>(
     let prev_style = layouter.style.clone();
     layouter.chain = layouter.chain.push_styles(&Styles::from_iter([Style::strong()]));
     layouter.style = TextStyle::from(&layouter.chain);
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::StrongBody,
+        body,
+    );
     layouter.chain = prev_chain;
     layouter.style = prev_style;
     layouter.text_tracking_state.leave(tracking_scope);
@@ -212,7 +239,10 @@ pub(super) fn layout_emph<M: FontMetrics, S: ImageSizer>(
     let prev_style = layouter.style.clone();
     layouter.chain = layouter.chain.push_styles(&Styles::from_iter([Style::emph()]));
     layouter.style = TextStyle::from(&layouter.chain);
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::EmphBody,
+        body,
+    );
     layouter.chain = prev_chain;
     layouter.style = prev_style;
     layouter.text_tracking_state.leave(tracking_scope);
@@ -224,7 +254,10 @@ pub(super) fn layout_smallcaps<M: FontMetrics, S: ImageSizer>(
 ) {
     let prev = layouter.smallcaps;
     layouter.smallcaps = true;
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::SmallCapsBody,
+        body,
+    );
     layouter.smallcaps = prev;
 }
 

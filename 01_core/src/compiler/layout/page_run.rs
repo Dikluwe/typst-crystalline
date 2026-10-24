@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_run.md
-//! @prompt-hash 18760f51
+//! @prompt-hash 12838397
 //! @layer L1
 //! @updated 2026-08-24
 //!
@@ -27,12 +27,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // A fronteira inicial é weak: só fecha a página anterior quando ela já
     // contém material. Uma linha pendente também conta como conteúdo.
-    if !layouter.current_page_is_empty() {
+    if !super::pagebreak::page_is_empty(layouter) {
         layouter.flush_line();
         layouter.new_page();
     }
 
+    // An explicit run requires its page, including an explicitly empty body.
+    layouter.weak_page_successor = false;
     let previous = layouter.page_config.clone();
+    let previous_running = layouter
+        .page_running_pass
+        .as_ref()
+        .map(|pass| (pass.slots.clone(), pass.environment.clone(), pass.chain.clone()));
     let mut local = previous.clone();
     let dir = layouter
         .chain
@@ -85,15 +91,55 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         local.foreground = foreground.clone();
     }
 
+    use super::PageRunningSlot;
+    use crate::compiler::introspect::page_running::PlanEdge;
+    if let Some(value) = &e.header {
+        layouter.bind_running_slot(
+            PageRunningSlot::Header,
+            PlanEdge::PageRunHeader,
+            matches!(value, crate::entities::page_running::PageMarginal::Content(_)),
+        );
+    }
+    if let Some(value) = &e.footer {
+        layouter.bind_running_slot(
+            PageRunningSlot::Footer,
+            PlanEdge::PageRunFooter,
+            matches!(value, crate::entities::page_running::PageMarginal::Content(_)),
+        );
+    }
+    if let Some(value) = &e.background {
+        layouter.bind_running_slot(
+            PageRunningSlot::Background,
+            PlanEdge::PageRunBackground,
+            value.is_some(),
+        );
+    }
+    if let Some(value) = &e.foreground {
+        layouter.bind_running_slot(
+            PageRunningSlot::Foreground,
+            PlanEdge::PageRunForeground,
+            value.is_some(),
+        );
+    }
     layouter.install_page_config(local);
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(PlanEdge::PageRunBody, &e.body);
 
     if super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         layouter.flush_line();
     }
     // Boundary final: comita inclusive body vazio, mas a página vazia criada
     // para o irmão seguinte não deve ser materializada por `finish`.
-    layouter.new_page();
+    if !layouter.weak_page_successor || !super::pagebreak::page_is_empty(layouter) {
+        layouter.new_page();
+    }
+    layouter.weak_page_successor = false;
     layouter.page_run_boundary_empty = true;
+    if let (Some(pass), Some(previous_slots)) =
+        (&mut layouter.page_running_pass, previous_running)
+    {
+        pass.slots = previous_slots.0;
+        pass.environment = previous_slots.1;
+        pass.chain = previous_slots.2;
+    }
     layouter.install_page_config(previous);
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 62b6f040
+//! @prompt-hash 38806a90
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -485,9 +485,12 @@ mod stream_tests {
         };
         let stream = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
         // Flip correcto: pdf_y = 800 - 100 = 700. O bug emitia 100 (sem flip).
-        assert!(stream.contains("70.0 700.0 Td"), "filho de Link sem flip Y: {stream}");
         assert!(
-            !stream.contains("70.0 100.0 Td"),
+            stream.contains("70.00000 700.00000 Td"),
+            "filho de Link sem flip Y: {stream}"
+        );
+        assert!(
+            !stream.contains("70.00000 100.00000 Td"),
             "coordenada crua (bug) presente: {stream}"
         );
     }
@@ -710,7 +713,7 @@ mod stream_tests {
 
     #[test]
     fn p956_compact_preserva_formato_passo20() {
-        // O modo compact é o formato Passo 20, byte-inalterado (sem q/cm/cs/Tm/Tr).
+        // O modo compact conserva os operadores do Passo 20, com Td preciso.
         let ptr: HashMap<usize, usize> = HashMap::new();
         let imgs: Vec<ImageRef> = vec![];
         let pats: HashMap<DedupKey, usize> = HashMap::new();
@@ -724,8 +727,8 @@ mod stream_tests {
         )]);
         let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
         assert_eq!(
-            s, "BT\n/F1 11.0 Tf\n70.0 700.0 Td\n(Hello) Tj\nET\n",
-            "compact = formato Passo 20 byte-exact"
+            s, "BT\n/F1 11.0 Tf\n70.00000 700.00000 Td\n(Hello) Tj\nET\n",
+            "compact conserva o envelope e a precisão de Td"
         );
     }
 

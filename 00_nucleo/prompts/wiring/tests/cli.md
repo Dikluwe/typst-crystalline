@@ -1,5 +1,5 @@
 # L0 — wiring/tests/cli
-Hash do Código: c299a97e
+Hash do Código: dae0495e
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/cli.rs`
@@ -314,3 +314,18 @@ indexes, strict V1/V5/V15/V26/reverse lineage and diff --check. L0 first; reseal
 limited to authorized owners/code. Heavy jobs sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1; freeze sources/L0/configuration during commands.
 No import-syntax mirror tests, unmeasured RAM/AI-gain claims or release publication.
+
+
+## Checked init success notification — 2026-10-23
+
+### Measurement before decision
+
+`lab/results/init-output-2026-10-23/baseline.json` and its compressed source archive bind HEAD, uncommitted tree/diff stat, all source/L0/config inputs and binary hashes; they verify that batch A inputs remain unchanged. `before/receipt.json` records 28 actual local-template process probes with exact UTC/commands/environment/bytes/files and verified binaries. Tekt success with full or broken stdout exits101 after project publication; healthy success exits0 and uses stdout. Failed stderr on initialization errors already exits2. Pinned vanilla uses stderr for success and therefore exits0 with only stdout failed; it panics or receives SIGPIPE when its used stderr fails. This is a Tekt robustness defect, not a claim that vanilla checks stdout.
+
+Source `04_wiring/src/init.rs:18-19` uses unchecked println for the two success lines; `diagnostics.rs:111-116` shows checked write_all+flush; `main.rs:35-39` already maps private I/O errors to2. `03_infra/src/project_init.rs:86-94` publishes the project before returning its result. The measured channel/bytes/exit/artifact effects are observables; writer injection is a testing mechanism. An error during notification is not failure to create the project.
+
+### Exclusive correction and acceptance
+
+Own Linux real-process init-output regression tests using local-only package fixtures in fresh isolated destination/data/cache roots. Assert exact healthy success stdout bytes/order, empty healthy stderr and exit0, healthy initialization error stderr and exit1, failed used stdout or stderr as operational exit2 without panic, and preserved initialized file bytes after notification failure. Cover /dev/full stdout and both channels plus a deterministically closed output descriptor producing BrokenPipe. Success with only unused stderr failed remains0. Never mutate global process environment or use registry/network acquisition. Reuse the existing transactional-init fixture/helper and retain its prior validations. These tests observe the CARGO_BIN_EXE_typst process, not private implementation calls.
+
+This is an expressly requested internal robustness correction under continuous-flow ADR-0127. No public entity field, trait/signature, product mode/flag/default/channel, compatibility break or pipeline phase change. L0 precedes code and resealing; retain RED failures and all existing warnings/contracts. Complete required suites/builds/Clippy/rustdoc/fmt/path/forward/reverse/Nucleus validation.

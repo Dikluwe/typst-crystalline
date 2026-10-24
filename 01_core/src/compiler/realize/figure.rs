@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure.md
-//! @prompt-hash 081b1314
+//! @prompt-hash 43b35d3d
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -462,7 +462,7 @@ mod nested_supplement_tests {
     }
     fn evaluate(source: &str) -> SourceResult<Content> {
         let world = TestWorld {
-            source: Source::detached(source),
+            source: Source::detached(source).expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         };

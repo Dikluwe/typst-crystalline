@@ -1,9 +1,10 @@
 # L0 — introspect
-Hash do Código: 533b8a8c
+Hash do Código: 5d68aa52
 
 ```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 ```
 
 ## Ownership and evidence
@@ -294,3 +295,18 @@ L0 precedes functional RED and implementation. Require independent fixed expecta
 ### Static reference demand fixture boundary
 
 Source measurement before decision: the approved reference capture now converts a reached raw Ref into a contextual producer during realization (`compiler/realize/reference_supplements.rs`); the pure introspection unit has no L3 Session to execute that producer. The frozen reference-tests-2 core run therefore observed the captionless reference-demand unit returning no demanded history when its helper realized the complete Figure-plus-Ref sequence. Prepare the actual Figure first, then append the static Ref immediately before introspect_with_runtime in this focused collector test. Preserve its typed final history and label-scalar assertions. Real emitted reference producer execution remains covered by the separate actual Paged Session regressions; do not change productive admission, fake an execution or weaken the history expectations to repair this fixture.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Declare and expose only the approved public compiler::introspect::page_running module. Keep legacy entrypoints and facade signatures unchanged. Its child owns the complete typed source plan and bundle-slice physical schedule; this hub performs no payload or layout business logic.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.

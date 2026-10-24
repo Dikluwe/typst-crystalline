@@ -1,5 +1,6 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: 16f4e8e2
+Hash do Código: 73424ce0
+
 
 
 
@@ -7,12 +8,16 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:cd963a81970f86c33abcf36ffb19ec69acfd789ab528092c8abb7a95129ebd99
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:66cf98676c3f6ddd3641e4e67eaed2ed2b71a06d5fd9a0be93dbc3059e506074
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:2213a4793474159cfae64b699263b16621a492ad2056fbaf5d28ac7950593c6b
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+- 00_nucleo/prompts/_nuclei/layout/page-rule-container-boundary.toml sha256:54dec4a08272a6ddbb91b63d388af8c25aaaa8afc7864b72226e1d125026682e
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Ownership and extraction evidence
 
@@ -580,3 +585,180 @@ whose body root is Ref before ordinary Source flattening; expression_dispatch
 owns first lexical origin. Source remains transparent to language fields/identity,
 text and attachment, and contributes one occurrence. Do not retain every prose
 Source, guess origins from contents or change ordinary flattening/capture order.
+
+
+## Measured Repeat source origin through real markup — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-2/repeat-after/measurement.json.gz`
+(SHA-256 `de41b76497e3d426713e41bfd2510015bb368ce3850a1e89151833c97433a5f5`)
+retains UTC `2026-10-22T02:28:00.930042+00:00`–`2026-10-22T02:28:43.671375+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, complete dirty-file
+stat, exact source/font/command/build hashes, unchanged inputs and full stderr.
+Candidate binary SHA-256 is
+`acbfbc88c93c2f6ac91fe4b58962320df8a805f5cfc592afbba3e21e77b5cdd2`;
+oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+The immutable unbounded Repeat source SHA-256 is
+`6f04205ddbe16902b47bfdb929633bdc192d73e11a9ee026e9e94a6bbf7f4a88`.
+Both fail with `repeat with no size restrictions`; candidate has no source
+location, oracle has the actual line4/column1 and full call underline. The
+unchanged diagnostic policy keeps this RED; an invoke-only AST test passing
+is insufficient evidence for a full markup route.
+
+Actual `invoke.rs:199–205` now retains the true Repeat call.span before
+interception, but this consumer's `append_markup_sequence` at374–377 preserves
+Source only for a Ref root and strips every other Source in ordinary flow.
+Thus real markup destroys the already-proven Repeat origin before layout.
+Realize/recipes preserves Source and layout already uses its current span;
+there is no need to infer a location from an error string or alter columns.
+The pinned source-origin nucleus requires first origin, language transparency
+and a single occurrence; its current full hash and claims remain unchanged.
+
+### Exclusive bounded correction and acceptance
+
+After actual eval→layout RED, extend the existing Source-retention branch from
+the exact root Ref to the exact roots Ref|Repeat. Preserve first Source and
+alias construction origins. Do not retain every prose Source, change ordinary
+Source/Sequence flattening, add a source producer/location, replay callbacks,
+change interception/capture order or move work between eval and layout. This
+supersedes the earlier Ref-only retention clause only for Repeat. Public
+signatures/entities/defaults and formatter policy remain unchanged; ADR-0127
+continuous diagnostic parity flow applies with L0 first.
+
+Add a co-located actual document regression using the existing memory World
+and the real eval entry, followed by the real layout entry. Parse the actual
+full source AST, independently confirm the Repeat call byte range, and require
+the layout error to retain exactly that causal span and existing message.
+Include both direct markup and a stored alias retaining the original lexical
+constructor span, not its later insertion. Preserve Ref controls and the
+existing source-sequence flattening witness. Confirm genuine detached-span
+RED before the one-branch correction, then GREEN and actual pinned CLI stderr
+comparison at unchanged source-location/underline policy. No guessed offset,
+message lookup, test ignore or relaxed diagnostic comparison is authorized.
+
+## Length display and page-setting lexical origin
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/measurement-before-decision.json`
+pins the bilateral receipt SHA-256
+`96025a9ff9d2c5a6057e9873285e43e4e81501bb40b55fe43b1244743e8ed09c`,
+UTC `2026-10-22T11:53:10.657191+00:00`–`2026-10-22T11:53:35.064880+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, full changed-file
+stat, source archive, font/tool/fixture/build and binary pins. Every provenance
+check passed. Pinned oracle is commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Direct/em/mixed/alias/CodeBlock Length display differs in real glyph positions;
+show raw replacement is missing, and HTML lacks code/numeric morphology.
+Explicit Raw numeric geometry already agrees but effective glyph paint does not.
+Scalar controls pass. `foundations/value.rs:192–205` in that pinned tree maps
+Length to inline Raw typc; current `value_to_display_content` maps it to Text.
+HTML page warnings also lose their actual SetRule Source in ordinary flattening.
+
+### Exclusive correction and acceptance
+
+Move only Value::Length out of the named residual presentation debt into existing
+inline Raw(lang:typc,block:false), preserving repr text and the raw value. At its
+markup insertion boundary apply the existing Raw interception exactly once;
+CodeBlock-tail interception remains its owning unit's responsibility. Preserve
+other scalar and rich-content routes, lexical scope, constructor/callback counts,
+existing label association and Source/sequence insertion capture.
+
+Keep a Source whose effective body root is SetPage at ordinary flattening,
+alongside the already-authorized Ref/Repeat roots. The SetPage producer owns its
+actual SetRule span; do not recover it from text, line numbers or container guesses.
+This carrier preserves diagnostics and does not authorize evaluating operational
+page templates, adding identity, or changing pipeline phases. A detached synthetic
+SetPage remains detached; do not invent an origin.
+
+Require genuine RED tests for Length Raw text/lang/block morphology at the shared
+adapter and real markup/CodeBlock insertion, one Raw replacement, scalar controls
+and retained SetPage origin through ordinary flattening before implementation.
+Revalidate actual bilateral HTML/paged display, exact source diagnostics and prior
+parity controls. These are internal presentation/origin parity corrections under
+continuous ADR-0127 flow; no public field/signature, new product default or phase.
+The independently owned Raw/HTML renderers must be specified before their edits.
+
+## Statement-adjacent markup whitespace (2026-10-22)
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/baseline-nine/measurement.json.gz`
+retains UTC, HEAD, uncommitted diffstat, immutable program and binary/build/source
+bindings. `lexical-flow-tail-after-prefix` places A at18.447753906pt in Tekt
+and14.633300781pt in the pinned oracle: the excess is a DejaVu12pt space.
+`01_core/src/compiler/eval/markup_stream.rs:94` iterates every raw child while
+`01_core/src/entities/ast/markup.rs:51–64` and pinned upstream syntax ast.rs
+apply the already-defined statement-adjacent Space filter. This is observable
+markup whitespace, independent of fractional-allocation arithmetic.
+
+### Required evaluation and acceptance
+
+Apply the canonical Markup expression whitespace policy to the raw traversal:
+a Space immediately following a statement (LetBinding, SetRule, ShowRule,
+ModuleImport or ModuleInclude) is suppressed. Preserve raw nodes and spans,
+lexical style/show snapshots, ordinary literal spaces, explicit semicolon
+separation and paragraph breaks. Do not trim general text or remove a boundary
+from the content/allocation layer to compensate for an evaluator error.
+Test actual Set/Let/Show programs and unchanged literal/semicolon/paragraph
+controls; preserve canonical AST agreement for import/include statement kinds.
+No new public signature, mode or phase; internal parity continuous flow.
+
+## Measured refutation and final causal HTML boundary
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/empty-warning-before/receipt.json`
+SHA-256 `8bd8aac399399978418fd9a5c82cdbfa07bf93c6fe9779401901b55cc489a4d6` records UTC
+`2026-10-22T12:42:21.170883+00:00`–`2026-10-22T12:42:21.559949+00:00`, exact HEAD/dirty stat, sources, argv,
+stdout/stderr and the cached baseline's own verified source archive/build, oracle
+and font pins. The cached binary is not claimed as current uncommitted source.
+Empty page/empty nested page do not warn or error. Returned ContentBlock content
+and nested initial Bundle content warn rather than error; the construction-marker
+proposal is refuted and must not be materialized. Direct standalone Html ContentBlock
+insertion and semantic HtmlFrame/Block reject page configuration. Both Heading/Page
+warning orders are measured; missing standalone Heading warnings cannot justify
+late sorting. This supersedes only the refuted construction/Document-consumption
+clauses, preserved as diagnostic history in that task's LAB records.
+
+At actual direct ExprContentBlock insertion in an existing Html target, mark only a
+reached nonempty SetPage projection with private eval.page.container Styled data.
+Use static existing content traversal with SetPage templates pruned; do not enter
+Context/Dynamic producers. Construction and initial Bundle target do not mark.
+Preserve nearest Source for actual Heading roots alongside Ref/Repeat/SetPage,
+so the existing emitted HTML warning pass can retain the true call span.
+
+Meaningful before-code RED and final bilateral exact source/message/hint/order/body
+checks remain required. Internal ADR-0127 continuous flow; no new public contract,
+default or phase. Preserve full unsuppressed lint/test/path/hash/lineage gates.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

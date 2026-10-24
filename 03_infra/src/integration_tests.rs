@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash b47b21f7
+//! @prompt-hash 260569b0
 //! @layer L3
-//! @updated 2026-10-06
+//! @updated 2026-10-24
 
 /// Testes de integração: pipeline completo via SystemWorld real.
 ///
@@ -173,7 +173,7 @@ mod integration {
         // os bookmarks PDF (igual à pipeline de produção).
         doc.extracted_headings = intr.headings_for_bookmarks().to_vec();
 
-        export_pdf(&doc, StreamMode::Verbose)
+        export_pdf(&doc, StreamMode::Verbose).output
     }
 
     // ── Testes de integração ──────────────────────────────────────────────
@@ -1708,32 +1708,54 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let doc = layout(content);
-        let pdf = export_pdf(&doc, StreamMode::Verbose);
-
-        let pdf_str = extract_page_content_streams_text(&pdf);
-
-        assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
-        assert!(pdf_str.contains(" l\n"), "PDF deve conter operador l");
-
-        // Extrair Y do operador m (ponto inicial) e l (ponto final).
-        fn extrair_y_antes_op(s: &str, op: &str) -> f64 {
-            s.split(op)
-                .next()
-                .and_then(|antes| antes.split_whitespace().last())
-                .and_then(|tok| tok.parse::<f64>().ok())
-                .unwrap_or(0.0)
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let pdf = export_pdf(&doc, mode);
+            let stream = extract_page_content_streams_text(&pdf);
+            let mut matrix = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
+            let mut stack = Vec::new();
+            let mut args = Vec::<f64>::new();
+            let mut points = Vec::new();
+            let map = |m: [f64; 6], x: f64, y: f64| {
+                [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]
+            };
+            for token in stream.split_whitespace() {
+                if let Ok(number) = token.parse::<f64>() {
+                    args.push(number);
+                    continue;
+                }
+                match token {
+                    "q" => stack.push(matrix),
+                    "Q" => matrix = stack.pop().expect("balanced graphics state"),
+                    "cm" => {
+                        assert_eq!(args.len(), 6);
+                        let origin = map(matrix, args[4], args[5]);
+                        matrix = [
+                            matrix[0] * args[0] + matrix[2] * args[1],
+                            matrix[1] * args[0] + matrix[3] * args[1],
+                            matrix[0] * args[2] + matrix[2] * args[3],
+                            matrix[1] * args[2] + matrix[3] * args[3],
+                            origin[0],
+                            origin[1],
+                        ];
+                    }
+                    "m" | "l" => {
+                        assert_eq!(args.len(), 2);
+                        points.push(map(matrix, args[0], args[1]));
+                    }
+                    _ => {}
+                }
+                args.clear();
+            }
+            assert!(stack.is_empty());
+            assert_eq!(points.len(), 2);
+            let (start, end) = (points[0], points[1]);
+            assert!((end[0] - start[0] - 100.0).abs() < 1e-6);
+            assert!((end[1] - start[1] + 50.0).abs() < 1e-6);
+            assert!(
+                end[1] < start[1],
+                "positive layout dy must descend in physical PDF space: {points:?}"
+            );
         }
-
-        let m_y = extrair_y_antes_op(&pdf_str, " m\n");
-        let l_y = extrair_y_antes_op(&pdf_str, " l\n");
-
-        assert!(
-            l_y < m_y,
-            "Y do ponto final ({}) deve ser inferior ao Y do início ({}) — \
-             dy positivo desce no layout, subtrai no PDF",
-            l_y,
-            m_y
-        );
     }
 
     #[test]
@@ -3323,41 +3345,39 @@ mod integration {
 
     #[test]
     fn p941_emoji_repetido_dedup_um_xobject() {
-        // 🎉🚀🎉 — 2 glifos únicos, 🎉 repetido: deve haver exactamente 2
-        // XObjects de imagem e 3 referências `Do`.
+        // 🎉🚀🎉 has two unique raster payloads and three source occurrences.
+        // Page, font and CharProc dictionaries can share those same resources.
         let Some((world, _dir)) = p941_world("🎉🚀🎉\n") else {
             eprintln!("[skip] NotoColorEmoji ausente");
             return;
         };
         let pdf = p941_compile(&world);
         let blob = String::from_utf8_lossy(&pdf);
-        let n_images = blob.matches("/Subtype /Image").count();
-        // Contar referências `/ImN <id> 0 R` no dicionário /XObject: uma por
-        // glifo único (🎉 e 🚀 → 2), apesar de 🎉 aparecer 2 vezes no texto.
-        let xobj_dict_entries = {
-            let bytes = blob.as_bytes();
-            let mut count = 0usize;
-            let mut i = 0usize;
-            while let Some(pos) = blob[i..].find("/Im") {
-                let start = i + pos + 3;
-                let digits =
-                    bytes[start..].iter().take_while(|b| b.is_ascii_digit()).count();
-                if digits > 0 {
-                    count += 1;
-                }
-                i = start;
-            }
-            count
-        };
+        let image_objects = blob.matches("/Subtype /Image").count();
+        let references = Regex::new(r"/Im\d+\s+(\d+)\s+0\s+R").unwrap();
+        let unique_primary_images: std::collections::BTreeSet<_> = references
+            .captures_iter(&blob)
+            .map(|capture| capture[1].to_string())
+            .collect();
+        assert_eq!(unique_primary_images.len(),2,"two original glyphs must share exactly two primary raster objects across all resource dictionaries");
+        assert!((2..=4).contains(&image_objects),"two color images may each have one alpha mask, without duplicating payloads: {image_objects}");
+        use std::io::Write;
+        use std::process::{Command, Stdio};
+        let mut child = Command::new("pdftotext")
+            .args(["-", "-"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("PDF integration validation requires pdftotext");
+        child.stdin.take().unwrap().write_all(&pdf).unwrap();
+        let output = child.wait_with_output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        let text = String::from_utf8(output.stdout).unwrap();
         assert_eq!(
-            xobj_dict_entries, 2,
-            "P941: 2 glifos únicos (🎉🚀) → 2 entradas no dicionário /XObject; \
-             🎉 repetido partilha o mesmo XObject"
-        );
-        assert!(
-            n_images >= 2,
-            "P941: deve haver objectos de imagem para os glifos bitmap — {}",
-            n_images
+            text.split_whitespace().collect::<String>(),
+            "🎉🚀🎉",
+            "sharing raster objects must preserve all three original source occurrences"
         );
     }
 
@@ -4979,6 +4999,7 @@ mod integration {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

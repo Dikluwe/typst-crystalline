@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/control_flow.md
-//! @prompt-hash aac296b3
+//! @prompt-hash ab26b7d9
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -77,7 +77,7 @@ pub(super) fn eval_while(
                     }
                     Some(FlowEvent::Continue(_)) => ctx.flow = None,
                     Some(FlowEvent::Return(..)) => break,
-                    None => {}
+                    Option::None => {}
                 }
             }
             Value::Bool(false) => break,
@@ -175,7 +175,7 @@ fn run_for_loop(
             }
             Some(FlowEvent::Continue(_)) => ctx.flow = None,
             Some(FlowEvent::Return(..)) => break,
-            None => {}
+            Option::None => {}
         }
     }
     if flow.is_some() {

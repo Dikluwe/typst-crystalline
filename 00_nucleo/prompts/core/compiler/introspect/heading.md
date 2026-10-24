@@ -1,10 +1,11 @@
 # L0 — introspect/heading
-Hash do Código: 869f6371
+Hash do Código: 2fc48e32
 
 ```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 ```
 
 ## Ownership and evidence
@@ -277,3 +278,18 @@ This parity correction follows ADR-0127 continuous flow: no new Rust API, public
 field or transfer of existing logic between eval and layout. The existing
 post-walk Engine boundary applies callbacks. L0 first, RED and bilateral controls;
 no callbacks in encoders/walk/layout or claim of parity for every field.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Capture source operands and chain-dependent field snapshots before source context is lost. For a validated planned root, derive auto-label/TOC/bookmark/frozen-body projections incrementally against the candidate at the specified causal root/post-child boundaries, not a stale body-only counter snapshot. Sharing one Location among root and derived facts does not duplicate root action or parent membership. Keep the existing static helper ownership and legacy traversal behavior.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.

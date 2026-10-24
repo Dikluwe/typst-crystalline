@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/float.md
-//! @prompt-hash 9513f03a
+//! @prompt-hash f478ba15
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -496,7 +496,8 @@ mod tests_p1293_is_nan {
                 world.main(),
                 expression.into(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             let offset = expression.find(needle).unwrap();
             assert_eq!(
                 source.span_byte_range(errors[0].span),
@@ -514,7 +515,8 @@ mod tests_p1293_is_nan {
             world.main(),
             expression.to_string(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         source
             .span_byte_range(errors[0].span)
             .expect("o span deve resolver contra a expressão pública")

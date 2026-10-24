@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/info.md
-//! @prompt-hash e27528ff
+//! @prompt-hash 19f20036
 //! @layer L4
 //! @updated 2026-09-26
 
+use super::diagnostics::write_stderr;
 use std::io::Write;
 use std::process::ExitCode;
 use typst_shell::cli::{self, InfoFormat, InfoIntent};
 
-pub(super) fn run_info(intent: InfoIntent) -> ExitCode {
+pub(super) fn run_info(intent: InfoIntent) -> std::io::Result<ExitCode> {
     use std::collections::BTreeMap;
     use typst_core::entities::version::PARITY_VERSION;
     use typst_shell::info::{
@@ -52,16 +53,16 @@ pub(super) fn run_info(intent: InfoIntent) -> ExitCode {
             match typst_shell::info::format_json(&info, intent.pretty) {
                 Ok(output) => output,
                 Err(error) => {
-                    eprintln!("error: failed to serialize info: {error}");
-                    return ExitCode::from(2);
+                    write_stderr(&format!("error: failed to serialize info: {error}\n"))?;
+                    return Ok(ExitCode::from(2));
                 }
             }
         }
         None => typst_shell::info::format_human(&info),
     };
     if let Err(error) = std::io::stdout().lock().write_all(&output) {
-        eprintln!("error: failed to write info: {error}");
-        return ExitCode::from(2);
+        write_stderr(&format!("error: failed to write info: {error}\n"))?;
+        return Ok(ExitCode::from(2));
     }
-    ExitCode::SUCCESS
+    Ok(ExitCode::SUCCESS)
 }

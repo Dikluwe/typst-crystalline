@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md
-//! @prompt-hash 80f99f81
+//! @prompt-hash 9d035086
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -42,6 +42,21 @@ pub(super) fn prepared_default(
     snapshot(&c.resolved.as_ref()?.visual)
 }
 
+pub(super) struct CellBodyInput<'b> {
+    pub(super) measured_cells: &'b mut measurement_cache::MeasuredCells,
+    pub(super) placed: &'b PlacedCell,
+    pub(super) row_start_y: f64,
+    pub(super) local_start_y: f64,
+    pub(super) col_starts: &'b [f64],
+    pub(super) resolved_widths: &'b [f64],
+    pub(super) row_heights: &'b [f64],
+    pub(super) row_tracks: &'b [TrackSizing],
+    pub(super) inset: Sides<Length>,
+    pub(super) stroke: Option<&'b Stroke>,
+    pub(super) fill: Option<&'b Color>,
+    pub(super) cursor: Option<super::super::page_running_requests::Cursor>,
+}
+
 impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn emit_grid_cell_body(
@@ -58,6 +73,37 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         stroke: Option<&Stroke>,
         fill: Option<&Color>,
     ) {
+        self.emit_grid_cell_body_planned(CellBodyInput {
+            measured_cells,
+            placed,
+            row_start_y,
+            local_start_y,
+            col_starts,
+            resolved_widths,
+            row_heights,
+            row_tracks,
+            inset,
+            stroke,
+            fill,
+            cursor: None,
+        });
+    }
+
+    pub(super) fn emit_grid_cell_body_planned(&mut self, input: CellBodyInput<'_>) {
+        let CellBodyInput {
+            measured_cells,
+            placed,
+            row_start_y,
+            local_start_y,
+            col_starts,
+            resolved_widths,
+            row_heights,
+            row_tracks,
+            inset,
+            stroke,
+            fill,
+            cursor,
+        } = input;
         let cell = &placed.body;
 
         // P234 — bounds reais usando placed.col/colspan ×
@@ -123,6 +169,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -282,7 +329,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // como Layouter fields legacy.
         let saved_cell_ox = self.cell_origin_x;
         let saved_cell_oy = self.cell_origin_y;
-        let measured_product = measured_cells.take(self, placed, body_x, body_w);
+        let measured_product = if cursor.is_some() {
+            None
+        } else {
+            measured_cells.take(self, placed, body_x, body_w)
+        };
         let saved_cell_region = self
             .regions
             .enter_cell(crate::entities::region::Region::new(body_w, body_h));
@@ -323,6 +374,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             None => cell.clone(),
         };
 
+        let source_cursor = cursor.map(|cursor| {
+            if effective_align.is_some() {
+                cursor.through_generated(&[
+                    crate::compiler::introspect::page_running::PlanEdge::AlignBody,
+                ])
+            } else {
+                cursor
+            }
+        });
+
         // Use the measured product only under the cache owner's proof;
         // otherwise retain the existing cell-region layout.
         // P235 — layout em body_x/body_w reduzidos por inset.
@@ -332,7 +393,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         self.cell_bidi_allowed = col_starts.len() == 1 && body_w.is_finite();
         let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
             measured_product.unwrap_or_else(|| {
-                self.layout_sub_frame(
+                self.layout_sub_frame_planned(
                     &cell_to_layout,
                     super::super::sub_frame::SubLayoutRegion {
                         origin_x: body_x,
@@ -341,6 +402,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         align_rtl: true,
                         unconstrained_height: true,
                     },
+                    false,
+                    source_cursor,
                 )
             });
         self.cell_bidi_allowed = saved_cell_bidi_allowed;
@@ -356,6 +419,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     start_x: seg.start_x,
                     end_x: seg.end_x,
                     baseline_y: Pt(body_y + seg.baseline_y.val()),
+                    piece_line: seg.piece_line,
                 });
             }
         }

@@ -1,8 +1,9 @@
 # L0 — columns
-Hash do Código: cb820737
+Hash do Código: 7c33258b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
@@ -172,3 +173,58 @@ must be audited separately, as recorded in
 Tracking correction follows continuous-flow ADR-0127, with RED→GREEN, bilateral text/position/line controls and preserved uniform tracking; error-free build/lint and restricted resealing. All other open limits remain.
 
 This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Continuous planned flow uses the original ColumnsBody source child, while unplanned legacy callers retain their current constructed segment. Explicit colbreak segmentation records original child indices in the same construction pass that clones/pads/merges segments. Generated padding has no source packet. Preserve the original Source/at-most-one-Styled/Sequence spine and emit its source Root/PostChildren phases once around the sibling-region composition. Each actual segment child routes through its original source packet address, not through the index of a generated Sequence. Generated style wrappers keep existing geometry and do not duplicate source facts. The sequence owner supplies an optional exact per-part cursor route without changing grouping, fraction, direction, spacing or strategy.
+
+Retain parallel footnote cursor queues together with the existing body queues at sibling-region entry/exit. Existing packet geometry carriers carry deferred child events to their accepted physical page in the same final projection pass. Do not infer source identity from copies, values, hashes, pointers or Locations, reconstruct global semantics from paint, activate new callback phases or alter any existing column/footnote geometry policy.
+
+## Borrow the existing segmented-content slice directly
+
+Measurement before correction: `lab/results/set-page-report-blockers-2026-10-21/agents/domain/before.json.gz` retains the
+exact source/L0 bytes, UTC, HEAD and dirty-file inventory. The retained
+`columns.rs:196` already borrows `split.segments`; line 227 takes an additional
+reference at the `layout_segmented` call, and warnings-denied Clippy reports
+`needless_borrow`. This is reference coercion mechanics, not a language change.
+
+Pass the existing borrowed segments directly to their owner. Preserve segment
+order, original source routes, geometry, sibling-region state and note queues.
+No signature, allocation policy, public contract or phase changes. This internal
+ADR-0127 continuous-flow correction requires existing segmented columns and
+physical-page route tests plus warnings-denied Clippy.
+
+
+## R8 — measured column note geometry
+
+Evidence before decision: `lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24/before/receipt.json`
+measures Beta atx156 instead of155.2 and container notes immediately under the
+columns rather than in the page note area. Pinned library/layout/columns.rs:73
+uses4% of the available region; current columns.rs:170 applies4% to full page
+width. At300pt with20pt side margins the correct gutter is10.4pt, not12pt.
+These are physical language coordinates, not traversal mechanics. ADR-0127
+continuous parity correction applies, with unchanged public signatures and modes.
+Resolve the default gutter against usable_width, preserving explicit length
+resolution. Segmented explicit-container notes remain deferred to the containing
+page's bottom note area at full outer width; page-columns retain per-column notes.
+This supersedes the old below-container policy only for this measured behavior.
+
+Tests first: default and explicit gutter, container/page columns, note text/position and exterior queue preservation; bilateral0.001pt and full validation.
+
+
+## R9 — source page-column admission and drain
+
+Evidence before decision: candidate2 and candidate3 receipts under lab/results/construction/diagnostics/long-footnotes-r9-2026-10-24 preserve exact inputs, dirty stat, UTC and binaries. The first passes40/41; the wider68-case matrix refutes retaining context only at segmented exit: page-columns follows columns/flow.rs:119–126, which closes active columns before terminal draining. cols2-h80-n2 also measures Alpha atx20 versus155.2pt; cols2-h100-n3 unnecessarily defers a fitting whole-three entry. Pinned flow/compose.rs:650–777 measures admission at the source carrier and retains future column regions. These physical positions/pages are language, private state/dispatch is mechanics. This supersedes the refuted column follow-up saved in l0-column-followup.json, whose source changes were withdrawn without changing received code.
+
+Classification: private parity/correctness, ADR-0127 continuous flow; no public field/signature/default/phase/compatibility change.
+
+Exclusive owning obligation: Pass the existing source e.page_columns boolean to the private continuous layout_flow function. Preserve segmented dispatch, original source plan and container behavior.
+
+Require actual carrier-column RED→GREEN before implementation, the wider68-case PDF/SVG contract at unchanged0.001pt, original R8 and A–H/R1–R7 controls, unchanged effects, resources, full workspace validation, both lineage gates and preservation audits.

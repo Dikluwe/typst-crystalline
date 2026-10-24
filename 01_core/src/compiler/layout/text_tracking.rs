@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text_tracking.md
-//! @prompt-hash c5b0800b
+//! @prompt-hash a4120a66
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use crate::entities::layout_types::{Pt, TextStyle};
 
@@ -26,6 +26,34 @@ impl State {
     pub(super) fn interrupt(&mut self) {
         self.previous = Some(std::sync::Arc::new(()));
     }
+    pub(super) fn source_run_boundary(
+        &self,
+        items: &[crate::entities::layout_types::FrameItem],
+        style: &TextStyle,
+    ) -> Pt {
+        if !self
+            .previous
+            .as_ref()
+            .is_some_and(|previous| std::sync::Arc::ptr_eq(previous, &self.current))
+            || style.math
+        {
+            return Pt(0.0);
+        }
+        let old = items
+            .iter()
+            .rev()
+            .find(|item| !super::html_frame::is_context_marker(item))
+            .and_then(previous);
+        let Some(old) = old else { return Pt(0.0) };
+        if !old.superscript || old.math || old == style {
+            return Pt(0.0);
+        }
+        Pt(old
+            .tracking
+            .map(|length| length.resolve_pt(old.size.0))
+            .unwrap_or(0.0))
+    }
+
     pub(super) fn boundary(
         &self,
         items: &[crate::entities::layout_types::FrameItem],
@@ -42,33 +70,34 @@ impl State {
     }
 }
 
+fn previous(item: &crate::entities::layout_types::FrameItem) -> Option<&TextStyle> {
+    use crate::entities::layout_types::FrameItem;
+    match item {
+        FrameItem::Text { text, style, .. }
+        | FrameItem::TextShaped { text, style, .. }
+            if !text.is_empty() =>
+        {
+            Some(style)
+        }
+        FrameItem::TextSeparator { style, .. } => Some(style),
+        FrameItem::TextReplacement { items, .. } => items.last().and_then(previous),
+        FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::Glyph { .. }
+        | FrameItem::Image { .. }
+        | FrameItem::Shape { .. }
+        | FrameItem::Group { .. }
+        | FrameItem::Link { .. }
+        | FrameItem::Line { .. }
+        | FrameItem::Semantic { .. } => None,
+    }
+}
+
 /// Interval entering the next unit, owned by the previous uniform textual unit.
 pub(super) fn boundary(
     items: &[crate::entities::layout_types::FrameItem],
     style: &TextStyle,
 ) -> Pt {
-    use crate::entities::layout_types::FrameItem;
-    fn previous(item: &FrameItem) -> Option<&TextStyle> {
-        match item {
-            FrameItem::Text { text, style, .. }
-            | FrameItem::TextShaped { text, style, .. }
-                if !text.is_empty() =>
-            {
-                Some(style)
-            }
-            FrameItem::TextSeparator { style, .. } => Some(style),
-            FrameItem::TextReplacement { items, .. } => items.last().and_then(previous),
-            FrameItem::Text { .. }
-            | FrameItem::TextShaped { .. }
-            | FrameItem::Glyph { .. }
-            | FrameItem::Image { .. }
-            | FrameItem::Shape { .. }
-            | FrameItem::Group { .. }
-            | FrameItem::Link { .. }
-            | FrameItem::Line { .. }
-            | FrameItem::Semantic { .. } => None,
-        }
-    }
     if style.math {
         return Pt(0.0);
     }

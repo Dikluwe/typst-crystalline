@@ -1,16 +1,19 @@
 # L0 — measurement
-Hash do Código: 55e35b53
+Hash do Código: 7cd6aac8
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
-- 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
-- 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml sha256:ec315f38498aa37ead497fdcb72cdd7e401cd00752baf5a535c2b5fae69374ed
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/measurement.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
+- 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml sha256:ec315f38498aa37ead497fdcb72cdd7e401cd00752baf5a535c2b5fae69374ed
+
 
 ## Evidence before specification
 
@@ -171,3 +174,38 @@ Preserve existing measurement rollback/effect boundaries; prepared Figure never 
 ### Acceptance and limits
 
 L0 precedes functional RED and implementation. Require independent fixed expectations for complete demanded histories, captionless/hidden/None demand controls, manual actions before/after requested Locations, empty Set state, typed aliases/homonyms/custom names, actual Paged caption/reference text, both-target explicit reads, bundle metadata rejection before effects and candidate diagnostic retention. No callback count as parity oracle. Preserve the independent filtered-read/replay/Sink algorithms and HTML implicit-rendering debt. Require exhaustive real-enum extension probes at new owned decisions, all twelve established gates, full differential lint, canonical owner paths, V1/V5/V15/V26 and reverse lineage with scoped resealing. No lint suppression, contract weakening, new defaults, memoization or public changes beyond the reviewed approval. Record HEAD/dirty file list, UTC, argv and executable identity for measurements.
+
+## Explicit optional absence and closed-domain preservation — 2026-10-23
+
+### Evidence before decision
+
+The exact source and owner bytes, HEAD, dirty-tree stat and initial nine V16
+findings are preserved in
+`lab/results/v16-option-exhaustiveness-2026-10-23/before-state.json`,
+`before/` and `before-v16.sarif`. The parser source
+`tekt-linter/03_infra/rs_parser.rs:1605–1621` classifies every bare identifier
+pattern as a catch-all, including the Option unit variant `None`. The Rust
+compiler resolves that name to the unit variant; qualification makes that
+existing nominal meaning explicit to both tools. These are mechanical
+coverage observations, not a newly discovered runtime failure or new vanilla
+parity claim.
+
+### Exclusive correction and acceptance
+
+`measurement.rs:532–545` already enumerates Relative/Fractional BlockHeight and absence. Qualify its absence pattern as `Option::None`, preserving explicit/fractional resolution, body-plus-inset natural height, minima and measurement effects. Future BlockHeight variants must still require a decision.
+
+Use ADR-0127 continuous internal flow: no public contract, default, phase or
+compatibility changes. Add no lint exception, allow/expect attribute, severity
+change, suppression or match-to-if rewrite. Preserve all existing assertions
+and pending limitations. The initial V16 gate is structural RED; preservation
+tests may already pass before implementation and must not be misreported as
+behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
+rustdoc, formatting, canonical paths and both lineage directions.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

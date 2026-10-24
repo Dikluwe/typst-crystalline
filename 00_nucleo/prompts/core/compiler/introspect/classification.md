@@ -1,8 +1,11 @@
 # L0 — introspect/classification
-Hash do Código: fd5c8362
+Hash do Código: 2a7c0853
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Ownership and evidence
 
@@ -41,3 +44,11 @@ assigning Location. Preserve classification/preparation/serialization according
 to this unit's operation. Keep exclusive ownership and static dispatch; no I/O,
 new signature/trait/flag or eval↔layout phase change. C2/C/macro tests/collections,
 builds and lineage remain required before certification.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

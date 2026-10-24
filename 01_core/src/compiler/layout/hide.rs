@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/hide.md
-//! @prompt-hash 7569a0b2
+//! @prompt-hash 72348092
 //! @layer L1
 //! @updated 2026-09-29
 //!
@@ -19,7 +19,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     let saved_items = std::mem::take(&mut layouter.regions.current.current_items);
     let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::HideBody,
+        &e.body,
+    );
+    if !layouter.is_sub_frame && !layouter.current_page_is_empty() {
+        layouter.page_has_unpainted_material = true;
+    }
     layouter.regions.current.current_items = saved_items;
     layouter.regions.current.current_line = saved_line;
     layouter.text_tracking_state.interrupt();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/transform.md
-//! @prompt-hash 463420bf
+//! @prompt-hash 14634e06
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -45,8 +45,11 @@ fn layout_matrix<M: FontMetrics, S: ImageSizer>(
 
     // P832 — sub-layout real do body (save/restore completo do estado do
     // layouter; não afecta o cursor do frame pai).
+    let planned = layouter.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::TransformBody,
+    );
     let (body_h, mut sub_items, deco_segments, orphaned_align_x, orphaned_align_y) =
-        layouter.layout_sub_frame(
+        layouter.layout_sub_frame_planned(
             body,
             SubLayoutRegion {
                 origin_x: 0.0,
@@ -55,6 +58,8 @@ fn layout_matrix<M: FontMetrics, S: ImageSizer>(
                 align_rtl: true,
                 unconstrained_height: true,
             },
+            false,
+            planned,
         );
 
     // AABB do body: largura = limite direito real dos items; altura = altura
@@ -123,6 +128,7 @@ fn layout_matrix<M: FontMetrics, S: ImageSizer>(
                 start_x: seg.start_x + pos.x,
                 end_x: seg.end_x + pos.x,
                 baseline_y: seg.baseline_y + pos.y,
+                piece_line: seg.piece_line,
             });
         }
     }
@@ -461,7 +467,7 @@ fn layout_native<M: FontMetrics, S: ImageSizer>(
         ),
         TransformOperation::Scale { x, y, origin, reflow } => {
             let factor = |value: Option<TransformScale>, size| match value {
-                None => Some(1.0),
+                Option::None => Some(1.0),
                 Some(TransformScale::Auto) => None,
                 Some(TransformScale::Ratio(r)) => Some(r.0),
                 Some(TransformScale::Length(v)) => Some(v.resolve_pt(font) / size),
@@ -520,11 +526,15 @@ fn layout_native<M: FontMetrics, S: ImageSizer>(
     } else {
         None
     };
+    let planned = l.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::TransformBody,
+    );
     let body = compose_native_body(
         l,
         &e.body,
         measured.map_or(available_w, |size| size.0),
         measured.map(|size| size.1),
+        planned,
     );
     let (w, h) = measured.unwrap_or((body.width, body.height));
     let body_baseline = body.baseline;
@@ -603,6 +613,7 @@ fn layout_native<M: FontMetrics, S: ImageSizer>(
             start_x: seg.start_x + pos.x,
             end_x: seg.end_x + pos.x,
             baseline_y: seg.baseline_y + pos.y,
+            piece_line: seg.piece_line,
         }));
     }
     l.regions.current.current_items.push(FrameItem::Group {
@@ -645,8 +656,9 @@ fn compose_native_body<M: FontMetrics, S: ImageSizer>(
     content: &crate::entities::content::Content,
     width: f64,
     height: Option<f64>,
+    planned: Option<super::page_running_requests::Cursor>,
 ) -> NativeBody {
-    let (body_h, items, deco, align_x, align_y) = l.layout_sub_frame_at_geometric_origin(
+    let (body_h, items, deco, align_x, align_y) = l.layout_sub_frame_planned(
         content,
         SubLayoutRegion {
             origin_x: 0.0,
@@ -655,6 +667,8 @@ fn compose_native_body<M: FontMetrics, S: ImageSizer>(
             align_rtl: false,
             unconstrained_height: height.is_none(),
         },
+        true,
+        planned,
     );
     let width = l.last_sub_frame_flow_width.min(width);
     let height = body_h.max(l.last_sub_frame_bottom.unwrap_or(0.0));
@@ -682,7 +696,7 @@ fn measure_native_body<M: FontMetrics, S: ImageSizer>(
 ) -> Option<(f64, f64)> {
     let checkpoint = l.capture_flow_suffix_checkpoint();
     let errors_start = l.layout_errors.len();
-    let body = compose_native_body(l, content, width, height);
+    let body = compose_native_body(l, content, width, height, None);
     let errors = l.layout_errors[errors_start..].to_vec();
     l.restore_flow_suffix_checkpoint(checkpoint);
     if errors.is_empty() {
@@ -751,6 +765,7 @@ pub(super) fn terminal_native(content: &crate::entities::content::Content) -> bo
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

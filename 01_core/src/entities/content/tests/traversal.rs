@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/traversal.md
-//! @prompt-hash be4a6985
+//! @prompt-hash bba54cc5
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -115,6 +115,7 @@ fn map_content_bottom_up_pai_ve_filhos_transformados() {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

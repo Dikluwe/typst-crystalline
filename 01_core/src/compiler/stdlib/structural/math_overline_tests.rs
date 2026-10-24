@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math_overline_tests.md
-//! @prompt-hash 7696bb1b
+//! @prompt-hash 5a6ac162
 //! @layer L1
 #![cfg(test)]
 
@@ -138,7 +138,7 @@ fn p1441_carrier_walker_observation_e_classe() {
     let elem = MathOverlineElem { body: Content::MathIdent("x".into()) };
     assert_eq!(elem.plain_text(), "x");
     let mut rewrite = |content: &Content| -> SourceResult<Option<Content>> {
-        Ok(matches!(content, Content::MathIdent(_))
+        Ok(matches!(content, Content::Symbol(_) | Content::MathIdent(_))
             .then(|| Content::MathIdent("y".into())))
     };
     let Content::MathOverline(mapped) = elem.map_content(&mut rewrite).unwrap() else {

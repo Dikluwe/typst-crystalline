@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_placement.md
-//! @prompt-hash 33ebbc3e
+//! @prompt-hash ec7fa78b
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -67,11 +67,20 @@ enum PlacementPolicy {
     TableDocumentOrder,
 }
 
+#[cfg(test)]
 pub(crate) fn place_cells(
     cells: &[Content],
     num_cols: usize,
 ) -> SourceResult<Vec<PlacedCell>> {
-    place(cells, num_cols, 0, PlacementPolicy::GridExplicitFirst)
+    place_cells_indexed(cells, num_cols)
+        .map(|cells| cells.into_iter().map(|(_, cell)| cell).collect())
+}
+
+pub(super) fn place_cells_indexed(
+    cells: &[Content],
+    num_cols: usize,
+) -> SourceResult<Vec<(Option<usize>, PlacedCell)>> {
+    place_indexed(cells, num_cols, 0, PlacementPolicy::GridExplicitFirst)
 }
 
 pub(crate) fn place_table_cells(
@@ -88,6 +97,16 @@ fn place(
     minimum_rows: usize,
     policy: PlacementPolicy,
 ) -> SourceResult<Vec<PlacedCell>> {
+    place_indexed(cells, num_cols, minimum_rows, policy)
+        .map(|cells| cells.into_iter().map(|(_, cell)| cell).collect())
+}
+
+fn place_indexed(
+    cells: &[Content],
+    num_cols: usize,
+    minimum_rows: usize,
+    policy: PlacementPolicy,
+) -> SourceResult<Vec<(Option<usize>, PlacedCell)>> {
     if num_cols == 0 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -134,6 +153,7 @@ fn place(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -230,9 +250,9 @@ fn place(
         | Content::ContextBlock(..)
         | Content::Dynamic(..) => (None, None, None, None, Span::detached()),
     };
-    let mut ordered = cells.iter().collect::<Vec<_>>();
+    let mut ordered = cells.iter().enumerate().collect::<Vec<_>>();
     if !table {
-        ordered.sort_by_key(|c| {
+        ordered.sort_by_key(|(_, c)| {
             let (x, y, _, _, _) = fields(c);
             x.is_none() && y.is_none()
         });
@@ -240,7 +260,7 @@ fn place(
     let mut occupied: Vec<Vec<bool>> = Vec::new();
     let mut placed = Vec::new();
     let mut cursor = 0usize;
-    for cell in ordered {
+    for (source_index, cell) in ordered {
         let (x, y, cs, rs, span) = fields(cell);
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
@@ -361,7 +381,10 @@ fn place(
         for slots in &mut occupied[row..end] {
             slots[col..col + colspan].fill(true);
         }
-        placed.push(PlacedCell { body: cell.clone(), row, col, colspan, rowspan });
+        placed.push((
+            Some(source_index),
+            PlacedCell { body: cell.clone(), row, col, colspan, rowspan },
+        ));
         if x.is_none() && y.is_none() {
             cursor = row
                 .checked_mul(num_cols)
@@ -385,17 +408,20 @@ fn place(
         for (row, line) in occupied.iter().enumerate() {
             for (col, &used) in line.iter().enumerate() {
                 if !used {
-                    placed.push(PlacedCell {
-                        body: Content::Empty,
-                        row,
-                        col,
-                        colspan: 1,
-                        rowspan: 1,
-                    });
+                    placed.push((
+                        None,
+                        PlacedCell {
+                            body: Content::Empty,
+                            row,
+                            col,
+                            colspan: 1,
+                            rowspan: 1,
+                        },
+                    ));
                 }
             }
         }
-        placed.sort_by_key(|c| (c.row, c.col));
+        placed.sort_by_key(|(_, c)| (c.row, c.col));
     }
     Ok(placed)
 }
@@ -862,5 +888,70 @@ mod v16_d_boundaries {
             place_table_cells(&[Content::TableCell(Arc::new(cell))], 1, 0).unwrap_err();
         assert_eq!(errors[0].span, span);
         assert_eq!(errors[0].message.as_str(), "cell position too large");
+    }
+}
+
+#[cfg(test)]
+mod physical_page_placement_routes {
+    use super::*;
+    use crate::entities::elements::grid_cell::GridCellElem;
+    use std::sync::Arc;
+
+    #[test]
+    fn physical_page_grid_placement_routes_follow_explicit_first_source_indices() {
+        let explicit = Content::GridCell(Arc::new(GridCellElem {
+            body: Content::text("explicit"),
+            x: Some(0),
+            y: Some(0),
+            colspan: None,
+            rowspan: None,
+            stroke: None,
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
+        }));
+        let cells =
+            [Content::text("first source"), explicit, Content::text("last source")];
+        let placed = place_cells_indexed(&cells, 2).unwrap();
+        assert_eq!(
+            placed.iter().map(|(index, _)| *index).collect::<Vec<_>>(),
+            vec![Some(1), Some(0), Some(2)]
+        );
+        assert_eq!(
+            placed
+                .iter()
+                .map(|(_, cell)| (cell.row, cell.col))
+                .collect::<Vec<_>>(),
+            vec![(0, 0), (0, 1), (1, 0)]
+        );
+        assert_eq!(
+            placed
+                .iter()
+                .map(|(_, cell)| cell.body.plain_text())
+                .collect::<Vec<_>>(),
+            vec!["explicit", "first source", "last source"]
+        );
+    }
+
+    #[test]
+    fn physical_page_table_holes_have_no_source_route_after_coordinate_sort() {
+        let cells =
+            [Content::table_cell(Content::text("source"), Some(1), Some(1), None, None)];
+        let placed =
+            place_indexed(&cells, 2, 2, PlacementPolicy::TableDocumentOrder).unwrap();
+        assert_eq!(placed.len(), 4);
+        assert_eq!(
+            placed.iter().map(|(index, _)| *index).collect::<Vec<_>>(),
+            vec![None, None, None, Some(0)]
+        );
+        assert_eq!(placed[3].1.body.plain_text(), "source");
+        assert_eq!(
+            placed
+                .iter()
+                .map(|(_, cell)| (cell.row, cell.col))
+                .collect::<Vec<_>>(),
+            vec![(0, 0), (0, 1), (1, 0), (1, 1)]
+        );
     }
 }

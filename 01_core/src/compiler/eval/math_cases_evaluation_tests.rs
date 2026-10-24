@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math_cases_evaluation_tests.md
-//! @prompt-hash fe6bd1e2
+//! @prompt-hash ea3d37e0
 //! @layer L1
 #![cfg(test)]
 
@@ -24,7 +24,7 @@ impl TestWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id(), text.into()),
+            source: Source::new(id(), text.into()).expect("valid Source test fixture"),
         }
     }
 }
@@ -93,6 +93,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -259,7 +260,7 @@ fn p1430_bare_converge_e_preserva_alignpoint_no_carrier() {
     let bare = evaluated_cases("$cases(a & b, c)$");
     assert_eq!(
         repr::repr_content(&bare),
-        "cases(children: (a & b, c))",
+        "cases(children: ([a] & [b], [c]))",
         "align point was pre-resolved before the layout consumer"
     );
     let qualified = direct_math_content(vec![math_body("$a & b$"), math_body("$c$")]);
@@ -319,7 +320,7 @@ fn p1430_cascata_nao_muta_carrier_e_explicito_prevalece() {
         "#set math.cases(delim: \"[\", reverse: true, gap: 1em); $cases(x, y)$",
     );
     assert_eq!(omitted, cascaded);
-    assert_eq!(repr::repr_content(&cascaded), "cases(children: (x, y))");
+    assert_eq!(repr::repr_content(&cascaded), "cases(children: ([x], [y]))");
 
     let with_set = evaluated_cases(
         "#set math.cases(delim: \"[\", reverse: true, gap: 1em); \
@@ -330,7 +331,7 @@ fn p1430_cascata_nao_muta_carrier_e_explicito_prevalece() {
     assert_eq!(with_set, without_set);
     assert_eq!(
         repr::repr_content(&with_set),
-        "cases(delim: (none, none), reverse: false, gap: 150% + 0pt, children: (x, y))"
+        "cases(delim: (none, none), reverse: false, gap: 150% + 0pt, children: ([x], [y]))"
     );
 }
 

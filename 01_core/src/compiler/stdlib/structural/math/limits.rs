@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/limits.md
-//! @prompt-hash ced2aa78
+//! @prompt-hash a752e4b5
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -30,16 +30,12 @@ pub(in crate::compiler) fn native_math_scripts(
     }
 
     match args.items.as_slice() {
-        [Value::Content(body)] => Ok(Value::Content(Content::math_limits_override(
-            body.clone(),
+        [body] => Ok(Value::Content(Content::math_limits_override(
+            super::casts::math_lr_content_value(body, args.span)?,
             false,
             true,
             false,
         ))),
-        [other] => Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("expected content, found {}", vanilla_type_name_class(other)),
-        )]),
         [] => Err(vec![SourceDiagnostic::error(
             args.span,
             "missing argument: body".to_string(),
@@ -87,13 +83,7 @@ pub(in crate::compiler) fn native_math_limits(
     }
 
     let body = match args.items.as_slice() {
-        [Value::Content(body)] => body.clone(),
-        [other] => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("expected content, found {}", vanilla_type_name_class(other)),
-            )])
-        }
+        [body] => super::casts::math_lr_content_value(body, args.span)?,
         [] => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 1c752f53
+//! @prompt-hash dcbfbc2c
 //! @layer L3
 //! @updated 2026-09-29
 //!
@@ -23,6 +23,7 @@ use super::scan_all_images;
 use super::srgb_icc_profile_for_version;
 use super::xobject_resources_for_page;
 use super::PageContext;
+use super::PdfExport;
 use super::PdfSerializationMode;
 use super::StreamMode;
 use ttf_parser::Face;
@@ -30,6 +31,8 @@ use typst_core::entities::document_format_options::PageRanges;
 use typst_core::entities::document_format_options::PdfAccessibility;
 use typst_core::entities::document_format_options::PdfStandards;
 use typst_core::entities::layout_types::PagedDocument;
+use typst_core::entities::source_result::SourceDiagnostic;
+use typst_core::entities::span::Span;
 
 /// PDF canvas minimum used by the pinned vanilla writer for empty/tiny pages.
 const MIN_PDF_CANVAS_PT: f64 = 3.0;
@@ -62,6 +65,7 @@ fn format_dim(val: f64) -> String {
 
 pub(super) struct PdfBuilder {
     objects: Vec<(usize, Vec<u8>)>,
+    warnings: Vec<SourceDiagnostic>,
     /// P518 — tempo acumulado em `subset_font_with_mapping` (ms).
     subset_ms: f64,
     /// **P536** — object ID do dicionário `/Info`, ou `None` se não houver
@@ -110,6 +114,7 @@ impl PdfBuilder {
     pub(super) fn new() -> Self {
         Self {
             objects: Vec::new(),
+            warnings: Vec::new(),
             subset_ms: 0.0,
             info_id: None,
             xmp_id: None,
@@ -170,11 +175,16 @@ impl PdfBuilder {
         self
     }
 
+    pub(super) fn warn(&mut self, message: impl Into<String>) {
+        self.warnings
+            .push(SourceDiagnostic::warning(Span::detached(), message));
+    }
+
     pub(super) fn build(
         self,
         doc: &PagedDocument,
         font_data: Option<&[u8]>,
-    ) -> (Vec<u8>, f64) {
+    ) -> PdfExport<(Vec<u8>, f64)> {
         // **P811** — documento sem páginas (conteúdo vazio: ficheiro vazio,
         // `$ $`, ` `): o vanilla emite **1 página em branco** A4 (medido).
         // Sem isto, os caminhos de build declaravam `/Kids [3 0 R] /Count 1`
@@ -241,7 +251,7 @@ impl PdfBuilder {
 
     // ── Caminho Helvetica (fallback, Type1 sem embedding) ─────────────────
 
-    fn build_helvetica(mut self, doc: &PagedDocument) -> (Vec<u8>, f64) {
+    fn build_helvetica(mut self, doc: &PagedDocument) -> PdfExport<(Vec<u8>, f64)> {
         // **P1468** — `n`/`/Count` refletem só as páginas incluídas pela
         // seleção (`self.pages`); sem seleção, `pic` é a identidade e `n`
         // permanece `doc.pages.len()` (byte-idêntico ao caminho anterior).
@@ -269,7 +279,7 @@ impl PdfBuilder {
         let first_img_id = font_f3 + 1 + if needs_icc { 1 } else { 0 };
 
         let (img_refs, ptr_to_idx, img_xobjects) =
-            scan_all_images(doc, first_img_id, icc_profile_id);
+            scan_all_images(doc, first_img_id, icc_profile_id, &mut self.warnings);
 
         // P263 — Allocar IDs após imagens. Reserva n_gradients*3 + N
         // sub-functions (estimativa pessimista: N stops 16 → 15 subs por gradient).
@@ -409,6 +419,7 @@ impl PdfBuilder {
         self.emit_pdfua_viewer_preferences();
         self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
-        (self.serialize(), subset_ms)
+        let warnings = std::mem::take(&mut self.warnings);
+        PdfExport { output: (self.serialize(), subset_ms), warnings }
     }
 }

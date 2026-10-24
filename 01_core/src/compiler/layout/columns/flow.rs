@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/flow.md
-//! @prompt-hash 5b1ea663
+//! @prompt-hash 2d175c9f
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-24
 
 use super::*;
 
@@ -88,7 +88,10 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
     column_x_offsets: &[f64],
     column_region_width: f64,
     margin: f64,
+    page_column_notes: bool,
 ) {
+    let saved_note_scope = layouter.page_column_notes;
+    layouter.page_column_notes = page_column_notes;
     let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
     let saved_page_number_style = layouter.page_par_line_pattern_style.take();
     let saved_page_column_start = layouter.page_par_line_pattern_column_start;
@@ -116,11 +119,34 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.line_start_x = Pt(margin);
 
     // Renderizar o body contínuo.
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::ColumnsBody,
+        body,
+    );
+    let had_carrier = super::super::html_frame::items_have_causal_line(
+        &layouter.regions.current.current_line,
+    ) || layouter.terminal_paragraph_line;
     layouter.flush_line();
+    if page_column_notes
+        && layouter
+            .pending_footnote_frames
+            .first()
+            .and_then(Option::as_ref)
+            .is_some_and(|frame| frame.source_lines)
+    {
+        if had_carrier {
+            layouter.regions.current.cursor_y = Pt(layouter.prev_line_baseline);
+            if layouter.last_block_descent_y.is_none() {
+                layouter.last_block_descent_y = Some(layouter.prev_line_baseline);
+            }
+        }
+        layouter.flush_pending_footnote_bodies(None);
+        layouter.drain_pending_footnotes(None, true);
+    }
 
     // Fechar colunas, fundir items e restaurar estado de página normal.
     layouter.finish_columns();
+    layouter.page_column_notes = saved_note_scope;
     layouter.defer_segmented_par_line_patterns = saved_defer_par_line_patterns;
     layouter.page_par_line_pattern_style = saved_page_number_style;
     layouter.page_par_line_pattern_column_start = saved_page_column_start;

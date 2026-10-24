@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/gradient.md
-//! @prompt-hash 592997a0
+//! @prompt-hash 674d2e03
 //! @layer L1
-//! @updated 2026-05-15
+//! @updated 2026-10-21
 //!
 //! **P262 (M9d / M7+5; ADR-0087 PROPOSTO Gradient Linear-only;
 //! cumpre ADR-0086 §"Critério revisão" Paint::Gradient variant
@@ -1064,14 +1064,31 @@ mod tests {
 
     #[test]
     fn p270_linear_sample_cmyk_endpoints() {
+        use crate::entities::color::ColorComponent;
+
         let l = make_linear_with_space(ColorSpace::Cmyk);
-        let c0 = l.sample(0.0);
-        let c1 = l.sample(1.0);
-        let (r0, _, _, _) = c0.to_rgba_f32();
-        let (_, _, b1, _) = c1.to_rgba_f32();
-        // CMYK red ≈ (0,1,1,0) → rgb≈(1,0,0); CMYK blue ≈ (1,1,0,0) → rgb≈(0,0,1).
-        assert!(r0 > 0.7);
-        assert!(b1 > 0.7);
+        // Ratified oracle: gradients first project their stops to CMYK;
+        // the fixed profile does not map them back to ideal RGB primaries.
+        for (t, raw, rgb, hex) in [
+            (0.0, [0.0, 1.0, 1.0, 0.0], [237u8, 29, 36], "#ed1d24"),
+            (1.0, [1.0, 1.0, 0.0, 0.0], [46u8, 48, 146], "#2e3092"),
+        ] {
+            let color = l.sample(t);
+            assert_eq!(color.space(), ColorSpace::Cmyk);
+            let expected_components = raw.map(ColorComponent::Ratio).to_vec();
+            assert_eq!(color.clone().components(false), expected_components);
+            assert_eq!(color.clone().components(true), expected_components);
+            assert_eq!(
+                color.to_rgba_f32(),
+                (
+                    f32::from(rgb[0]) / 255.0,
+                    f32::from(rgb[1]) / 255.0,
+                    f32::from(rgb[2]) / 255.0,
+                    1.0,
+                )
+            );
+            assert_eq!(color.to_hex(), hex);
+        }
     }
 
     // Radial

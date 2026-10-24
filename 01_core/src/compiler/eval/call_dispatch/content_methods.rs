@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md
-//! @prompt-hash 16dad56c
+//! @prompt-hash a6ea2180
 //! @layer L1
 //! @updated 2026-10-16
 
@@ -204,6 +204,7 @@ fn outline_entry_receiver(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -380,7 +381,8 @@ mod v16_c_structural_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }
@@ -457,7 +459,8 @@ mod v16_c_structural_tests {
             TestWorld::new("").main(),
             "receiver.body(panic(\"argument executed\"))".into(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let call = source
             .root()
             .children()

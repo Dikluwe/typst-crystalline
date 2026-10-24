@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/word_layout.md
-//! @prompt-hash 53046196
+//! @prompt-hash 0a5b8f65
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-24
 
 #![allow(deprecated)] // Preserve the existing Text fallback emission.
 use super::{
@@ -115,7 +115,8 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
         };
         layouter.regions.current.current_line.push(FrameItem::Shape {
             pos: Point {
-                x: Pt(layouter.regions.current.cursor_x.0 - extent_pt),
+                x: Pt(layouter.regions.current.cursor_x.0 - extent_pt)
+                    + layouter.text_horizontal_offset,
                 y: layouter.baseline_y() - ascender,
             },
             kind: shape_kind,
@@ -129,7 +130,7 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
     }
     let visual = FrameItem::Text {
         pos: Point {
-            x: layouter.regions.current.cursor_x,
+            x: layouter.regions.current.cursor_x + layouter.text_horizontal_offset,
             y: layouter.baseline_y(),
         },
         text,

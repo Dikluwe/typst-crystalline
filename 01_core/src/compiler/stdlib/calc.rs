@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc.md
-//! @prompt-hash 29d7aa0a
+//! @prompt-hash 6de126f1
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -259,7 +259,7 @@ mod p1328_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -352,7 +352,8 @@ mod p1328_tests {
     }
     #[test]
     fn p1328_native_content_both_representations_value_span_only() {
-        let source = Source::detached("aggregated occurrence value other");
+        let source = Source::detached("aggregated occurrence value other")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..32);
         let occurrence = Span::from_range(source.id(), 11..21);
         let origin = Span::from_range(source.id(), 22..27);
@@ -378,7 +379,8 @@ mod p1328_tests {
     }
     #[test]
     fn p1328_native_missing_or_detached_origin_is_not_fabricated() {
-        let source = Source::detached("aggregate occurrence");
+        let source =
+            Source::detached("aggregate occurrence").expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..20);
         let occurrence = Span::from_range(source.id(), 10..20);
         for features in profiles() {
@@ -562,7 +564,8 @@ mod p1328_tests {
                 world.main(),
                 expr.into(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             assert_eq!(source.span_byte_range(d.span), Some(9..expr.len() - 1));
             for (expr, message, name) in [
                 (
@@ -594,7 +597,7 @@ mod p1328_tests {
                     world.main(),
                     expr.into(),
                     crate::compiler::parse::parse_code,
-                );
+                ).expect("valid Source test fixture");
                 if name == "abs" {
                     assert_eq!(source.span_byte_range(d.span), Some(9..expr.len() - 1));
                     assert!(d.trace.is_empty(), "{expr}: {d:?}");
@@ -645,7 +648,7 @@ mod p1329_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -843,7 +846,8 @@ mod p1329_tests {
     }
     #[test]
     fn p1329_native_mixed_all_signs_value_origin_and_synthetic_traps() {
-        let source = Source::detached("aggregate occurrence value other");
+        let source = Source::detached("aggregate occurrence value other")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..32);
         let occurrence = Span::from_range(source.id(), 10..20);
         let origin = Span::from_range(source.id(), 21..26);
@@ -1109,7 +1113,7 @@ mod p1330_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -1285,7 +1289,8 @@ mod p1330_tests {
 
     #[test]
     fn p1330_native_overflow_origin_first_positional_and_no_fabrication() {
-        let source = Source::detached("aggregate occurrence origin decoy");
+        let source = Source::detached("aggregate occurrence origin decoy")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..33);
         let occurrence = Span::from_range(source.id(), 10..20);
         let origin = Span::from_range(source.id(), 21..27);
@@ -1496,7 +1501,7 @@ mod p1331_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -1685,7 +1690,8 @@ mod p1331_tests {
 
     #[test]
     fn p1331_native_every_rejected_family_complete_diagnostic_and_origins() {
-        let source = Source::detached("aggregate occurrence origin decoy");
+        let source = Source::detached("aggregate occurrence origin decoy")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..33);
         let occurrence = Span::from_range(source.id(), 10..20);
         let origin = Span::from_range(source.id(), 21..27);
@@ -1984,7 +1990,7 @@ mod p1332_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -2289,7 +2295,7 @@ mod p1333_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -2511,7 +2517,8 @@ mod p1333_tests {
 
     #[test]
     fn p1333_native_first_failure_wins_all_families_and_origins() {
-        let source = Source::detached("aggregate occurrence origin decoy");
+        let source = Source::detached("aggregate occurrence origin decoy")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..33);
         let occurrence = Span::from_range(source.id(), 10..20);
         let origin = Span::from_range(source.id(), 21..27);
@@ -2581,7 +2588,8 @@ mod p1333_tests {
     #[test]
     fn p1333_native_valid_first_never_substitutes_a_later_failure() {
         use crate::entities::layout_types::{Angle, Ratio};
-        let source = Source::detached("aggregate origin");
+        let source =
+            Source::detached("aggregate origin").expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..16);
         for features in profiles() {
             for first in [
@@ -2751,7 +2759,7 @@ mod p1334_tests {
     impl TestWorld {
         fn new(text: &str) -> Self {
             Self {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             }
@@ -2875,7 +2883,8 @@ mod p1334_tests {
     }
     #[test]
     fn p1334_missing_uses_received_aggregate_even_with_unrelated_named() {
-        let source = Source::detached("aggregate named value");
+        let source =
+            Source::detached("aggregate named value").expect("valid Source test fixture");
         for aggregate in [Span::from_range(source.id(), 0..20), Span::detached()] {
             for args in [
                 Args::from_occurrences(aggregate, vec![]),
@@ -2939,7 +2948,8 @@ mod p1334_tests {
     }
     #[test]
     fn p1334_surplus_joint_order_full_span_and_value_name_has_no_hint() {
-        let source = Source::detached("aggregate first extra named");
+        let source = Source::detached("aggregate first extra named")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..27);
         let first = occurrence(
             None,
@@ -2997,7 +3007,8 @@ mod p1334_tests {
     fn p1334_coherent_first_invalid_remains_so_before_any_surplus() {
         use crate::entities::content::Content;
         use crate::entities::layout_types::Abs;
-        let source = Source::detached("aggregate first extra named");
+        let source = Source::detached("aggregate first extra named")
+            .expect("valid Source test fixture");
         let aggregate = Span::from_range(source.id(), 0..27);
         for (value,message) in [
             (Value::Bool(false),"expected integer, float, length, angle, ratio, fraction, or decimal, found boolean"),
@@ -3018,7 +3029,8 @@ mod p1334_tests {
     #[test]
     fn p1334_all_valid_species_report_the_surplus_without_converting_it() {
         use crate::entities::layout_types::{Abs, Angle, Ratio};
-        let source = Source::detached("first surplus");
+        let source =
+            Source::detached("first surplus").expect("valid Source test fixture");
         let extra = Span::from_range(source.id(), 6..13);
         for first in [
             Value::Int(-19),

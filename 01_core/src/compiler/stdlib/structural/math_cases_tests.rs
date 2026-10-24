@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md
-//! @prompt-hash c5da0ed2
+//! @prompt-hash f5c08fe3
 //! @layer L1
 #![cfg(test)]
 //!
@@ -85,7 +85,7 @@ fn cv(text: &str) -> Value {
 }
 
 fn mv(text: &str) -> Value {
-    Value::Content(Content::MathText(text.into()))
+    Value::Content(Content::Symbol(text.into()))
 }
 
 fn named(mut args: Args, name: &str, value: Value) -> Args {
@@ -281,7 +281,8 @@ impl EvalWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(file_id(), text.into()),
+            source: Source::new(file_id(), text.into())
+                .expect("valid Source test fixture"),
         }
     }
 }
@@ -344,6 +345,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
         | Content::ListItem(..)
         | Content::EnumItem(..)
         | Content::Link(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -455,7 +457,7 @@ fn p1430_rotas_bare_e_qualificada_convergem() {
     let direct = content(Args::positional(vec![mv("x"), mv("y")]));
     let bare = eval_cases("$cases(x, y)$");
     assert_eq!(bare, direct);
-    assert_eq!(repr_content(&bare), "cases(children: (x, y))");
+    assert_eq!(repr_content(&bare), "cases(children: ([x], [y]))");
 
     let qualified =
         eval_cases("#math.cases([x], [y], delim: \"[\", reverse: true, gap: 1em)");
@@ -471,7 +473,7 @@ fn p1430_cascata_nao_fabrica_explicitude_e_explicit_override() {
     let cascaded = eval_cases(
         "#set math.cases(delim: \"[\", reverse: true, gap: 1em); $cases(x, y)$",
     );
-    assert_eq!(repr_content(&cascaded), "cases(children: (x, y))");
+    assert_eq!(repr_content(&cascaded), "cases(children: ([x], [y]))");
     assert_eq!(
         defaults, cascaded,
         "cascade fabricated values or explicit bits in the public carrier"
@@ -486,7 +488,7 @@ fn p1430_cascata_nao_fabrica_explicitude_e_explicit_override() {
     assert_eq!(override_cascaded, override_direct);
     assert_eq!(
         repr_content(&override_cascaded),
-        "cases(delim: (none, none), reverse: false, gap: 150% + 0pt, children: (x, y))"
+        "cases(delim: (none, none), reverse: false, gap: 150% + 0pt, children: ([x], [y]))"
     );
 
     for (source, fragment) in [

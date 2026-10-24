@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 1746e775
+//! @prompt-hash 77e1f81d
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -76,7 +76,7 @@ impl World for MockWorld {
 
 fn mock_world(src: &str) -> MockWorld {
     let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
-    let source = Source::new(id, src.to_string());
+    let source = Source::new(id, src.to_string()).expect("valid Source test fixture");
     MockWorld {
         library: Library::new(),
         book: FontBook::new(),
@@ -190,7 +190,9 @@ fn p1462_external_svg_observes_document_and_caller_precedence() {
 
 #[test]
 fn p1339_filtered_context_waits_for_later_contextual_update() {
-    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context assert.eq(c.final(), (3,))\n#context c.update(3)");
+    let world = mock_world(
+        "#let c = counter(heading.where(level: 1))\n#context assert.eq(c.final(), (3,))\n#context c.update(3)",
+    );
     let mut timings = Timings::default();
     let (result, _) =
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
@@ -199,7 +201,9 @@ fn p1339_filtered_context_waits_for_later_contextual_update() {
 
 #[test]
 fn p1339_filtered_context_does_not_discard_independent_error() {
-    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context panic(\"independent\")\n#context c.final()");
+    let world = mock_world(
+        "#let c = counter(heading.where(level: 1))\n#context panic(\"independent\")\n#context c.final()",
+    );
     let mut timings = Timings::default();
     let (result, _) =
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
@@ -211,7 +215,9 @@ fn p1339_filtered_context_does_not_discard_independent_error() {
 
 #[test]
 fn single_evaluation_recipe_context_ids_do_not_collide_with_captured_content() {
-    let world = mock_world("#let cached = [#context [Captured]]\n#show heading: it => [#cached #context [Generated]]\n= Original");
+    let world = mock_world(
+        "#let cached = [#context [Captured]]\n#show heading: it => [#cached #context [Generated]]\n= Original",
+    );
     let mut timings = Timings::default();
     let (result, _) =
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
@@ -223,7 +229,9 @@ fn single_evaluation_recipe_context_ids_do_not_collide_with_captured_content() {
 
 #[test]
 fn single_evaluation_context_query_sees_original_and_generated() {
-    let world = mock_world("#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= Original\n#context query(heading).map(it => it.body).join([ | ])");
+    let world = mock_world(
+        "#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= Original\n#context query(heading).map(it => it.body).join([ | ])",
+    );
     let mut timings = Timings::default();
     let (result, _) =
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
@@ -447,25 +455,15 @@ fn p1407_repeat_degenerado_e_extremo_permanecem_limitados() {
 }
 
 fn p1407_dot_positions(items: &[FrameItem], positions: &mut Vec<f64>) {
-    for item in items {
-        match item {
-            FrameItem::Text { pos, text, .. }
-            | FrameItem::TextShaped { pos, text, .. } => {
-                if text.as_str() == "." {
-                    positions.push(pos.x.0);
-                }
+    fractional_text_world_positions(
+        items,
+        typst_core::entities::layout_types::TransformMatrix::identity(),
+        &mut |text, x, _y| {
+            if text == "." {
+                positions.push(x);
             }
-            FrameItem::Group { items, .. }
-            | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. }
-            | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
-            FrameItem::TextSeparator { .. }
-            | FrameItem::Line { .. }
-            | FrameItem::Glyph { .. }
-            | FrameItem::Image { .. }
-            | FrameItem::Shape { .. } => {}
-        }
-    }
+        },
+    );
 }
 
 #[test]
@@ -598,40 +596,76 @@ fn p1502_box_aninhada_preserva_repeat_e_prefixos() {
 }
 
 #[allow(deprecated)]
-fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
+fn fractional_text_world_positions(
+    items: &[FrameItem],
+    matrix: typst_core::entities::layout_types::TransformMatrix,
+    visit: &mut impl FnMut(&str, f64, f64),
+) {
+    use typst_core::entities::layout_types::TransformMatrix;
     for item in items {
         match item {
-            FrameItem::Text { pos, text, .. } if text.as_str().contains(needle) => {
-                return Some(pos.x.0);
+            FrameItem::Text { pos, text, .. }
+            | FrameItem::TextShaped { pos, text, .. } => {
+                let (x, y) = matrix.apply(pos.x.0, pos.y.0);
+                visit(text.as_str(), x, y);
             }
-            FrameItem::TextShaped { pos, text, .. } if text.as_str().contains(needle) => {
-                return Some(pos.x.0);
+            FrameItem::Group { pos, matrix: local, items, .. } => {
+                let next = matrix
+                    .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                    .concat(local);
+                fractional_text_world_positions(items, next, visit);
             }
-            FrameItem::Group { items, .. } => {
-                if let Some(x) = p1408_text_x(items, needle) {
-                    return Some(x);
-                }
-            }
-            FrameItem::Link { items, .. } => {
-                if let Some(x) = p1408_text_x(items, needle) {
-                    return Some(x);
-                }
-            }
-            FrameItem::TextReplacement { items, .. }
+            FrameItem::Link { items, .. }
+            | FrameItem::TextReplacement { items, .. }
             | FrameItem::Semantic { items, .. } => {
-                if let Some(x) = p1408_text_x(items, needle) {
-                    return Some(x);
-                }
+                fractional_text_world_positions(items, matrix, visit);
             }
-            FrameItem::TextSeparator { .. } | FrameItem::Text { .. } => {}
-            FrameItem::TextShaped { .. } => {}
-            FrameItem::Line { .. } => {}
-            FrameItem::Glyph { .. } => {}
-            FrameItem::Image { .. } => {}
-            FrameItem::Shape { .. } => {}
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
-    None
+}
+
+fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
+    let mut found = None;
+    fractional_text_world_positions(
+        items,
+        typst_core::entities::layout_types::TransformMatrix::identity(),
+        &mut |text, x, _y| {
+            if found.is_none() && text.contains(needle) {
+                found = Some(x);
+            }
+        },
+    );
+    found
+}
+
+#[test]
+fn fractional_position_observers_compose_group_translation_and_matrix() {
+    use typst_core::entities::layout_types::{Point, Pt, TransformMatrix};
+    let doc =
+        p1502_compile_paged("#set page(width: 180pt, height: auto, margin: 10pt)\n.\n");
+    let original =
+        p1408_text_x(&doc.pages[0].items, ".").expect("original source dot must exist");
+    let wrapped = vec![FrameItem::Group {
+        paint_root: false,
+        pos: Point { x: Pt(10.0), y: Pt(20.0) },
+        matrix: TransformMatrix::scale(2.0, 3.0),
+        clip_mask: None,
+        inner_width: 160.0,
+        inner_height: 40.0,
+        items: doc.pages[0].items.clone(),
+    }];
+    let expected = 10.0 + 2.0 * original;
+    let actual = p1408_text_x(&wrapped, ".").expect("nested source dot must survive");
+    assert!((actual - expected).abs() < 1e-8, "actual={actual}, expected={expected}");
+    let mut dots = Vec::new();
+    p1407_dot_positions(&wrapped, &mut dots);
+    assert_eq!(dots.len(), 1);
+    assert!((dots[0] - expected).abs() < 1e-8);
 }
 
 fn p1408_compile_positions(source: &str) -> (f64, Option<f64>) {
@@ -700,7 +734,9 @@ fn p1408_height_fracionaria_permanece_rejeitada() {
 
 #[test]
 fn p1340_selected_context_preserves_page_numbering_relayout() {
-    let world = mock_world("#set page(numbering: (current, total) => [V#current/#total])\n#let c = counter(heading.where())\n#context c.final()\nTexto");
+    let world = mock_world(
+        "#set page(numbering: (current, total) => [V#current/#total])\n#let c = counter(heading.where())\n#context c.final()\nTexto",
+    );
     let (result, _) = compile_to_paged_document_full_error(
         &world,
         &world.source,
@@ -2731,7 +2767,9 @@ fn font_lifecycle_shape_resources_do_not_request_fonts() {
             None
         }
     }
-    let world = NoFontWorld(mock_world("#set page(width: 64pt, height: 64pt)\n#rect(width: 10pt, height: 10pt, fill: blue)"));
+    let world = NoFontWorld(mock_world(
+        "#set page(width: 64pt, height: 64pt)\n#rect(width: 10pt, height: 10pt, fill: blue)",
+    ));
     let source = world.source(world.main()).unwrap();
     // Layout owns baseline metrics; this test isolates export resource demand.
     let mut timings = Timings::default();
@@ -2860,7 +2898,9 @@ pub(super) fn record_initial_layout_call() {
 
 #[test]
 fn independent_table_reuses_first_layout_and_binds_all_pages() {
-    let world = mock_world("#set page(width: 200pt, height: 120pt, margin: 10pt)\n#set text(font: \"Libertinus Serif\", size: 10pt)\n#table(columns: 2, ..range(40).map(i => [Cell #i]))");
+    let world = mock_world(
+        "#set page(width: 200pt, height: 120pt, margin: 10pt)\n#set text(font: \"Libertinus Serif\", size: 10pt)\n#table(columns: 2, ..range(40).map(i => [Cell #i]))",
+    );
     INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
     let mut timings = Timings::default();
     let (result, _) =
@@ -3010,19 +3050,57 @@ fn page_display_does_not_replace_nonpage_counter_state() {
 #[test]
 fn page_snapshot_current_and_final_follow_physical_pages_and_causal_updates() {
     for (program, expected) in [
-        ("#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]", vec!["B1/1F1"]),
-        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()", vec!["1/2", "2"]),
-        ("#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()", vec!["7/8", "8"]),
-        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)", vec!["1/7", "7/7"]),
-        ("#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]\n#counter(page).step()", vec!["B1/2F2"]),
-        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(n => n + 5)\n#context counter(page).get().first()", vec!["1/7", "7"]),
+        (
+            "#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]",
+            vec!["B1/1F1"],
+        ),
+        (
+            "#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()",
+            vec!["1/2", "2"],
+        ),
+        (
+            "#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()",
+            vec!["7/8", "8"],
+        ),
+        (
+            "#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)",
+            vec!["1/7", "7/7"],
+        ),
+        (
+            "#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]\n#counter(page).step()",
+            vec!["B1/2F2"],
+        ),
+        (
+            "#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(n => n + 5)\n#context counter(page).get().first()",
+            vec!["1/7", "7"],
+        ),
         ("#context counter(page).final().first()\n#pagebreak()\nLast", vec!["2", "Last"]),
-        ("#counter(page).update(())\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]", vec!["G(0,)F(1,)", "G(1,)F(1,)"]),
-        ("#counter(page).update((7, 2))\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]", vec!["G(7,)F(8,)", "G(8,)F(8,)"]),
+        (
+            "#counter(page).update(())\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]",
+            vec!["G(0,)F(1,)", "G(1,)F(1,)"],
+        ),
+        (
+            "#counter(page).update((7, 2))\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]",
+            vec!["G(7,)F(8,)", "G(8,)F(8,)"],
+        ),
     ] {
-        let world=mock_world(program);
-        let doc=compile_to_paged_document_full_error(&world,&world.source,false,&mut Timings::default()).0.expect(program);
-        assert_eq!(doc.pages.iter().map(|p|frame_items_text(&p.items)).collect::<Vec<_>>(),expected,"{program}");
+        let world = mock_world(program);
+        let doc = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        )
+        .0
+        .expect(program);
+        assert_eq!(
+            doc.pages
+                .iter()
+                .map(|p| frame_items_text(&p.items))
+                .collect::<Vec<_>>(),
+            expected,
+            "{program}"
+        );
     }
 }
 
@@ -3044,7 +3122,9 @@ fn page_snapshot_html_final_preserves_manual_updates() {
 fn page_snapshot_retention_keeps_one_complete_generation() {
     use typst_core::entities::location::Location;
     for cells in [4, 320] {
-        let program = format!("#context counter(page).final().first()\n#table(columns: 4, ..range({cells}).map(i => [Cell #i]))\n#pagebreak()\nLast");
+        let program = format!(
+            "#context counter(page).final().first()\n#table(columns: 4, ..range({cells}).map(i => [Cell #i]))\n#pagebreak()\nLast"
+        );
         let world = mock_world(&program);
         let paged::PagedCompilation { document: doc, introspector: intr } =
             compile_to_paged_document_full_error_and_features_with_introspector(
@@ -3079,7 +3159,10 @@ fn page_snapshot_retention_keeps_one_complete_generation() {
             + std::mem::size_of_val(&intr.page_counter_final_values)
             + slots * std::mem::size_of::<(Location, Vec<usize>)>()
             + payload;
-        eprintln!("PAGE_RETENTION cells={cells} pages={} entries={entries} slots={slots} vector_bytes={payload} known_reserved_bytes={lower_bound}", doc.pages.len());
+        eprintln!(
+            "PAGE_RETENTION cells={cells} pages={} entries={entries} slots={slots} vector_bytes={payload} known_reserved_bytes={lower_bound}",
+            doc.pages.len()
+        );
     }
 }
 
@@ -3100,7 +3183,8 @@ fn page_snapshot_failed_callback_does_not_poison_later_compilation() {
         world.source.id(),
         "#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\nLast"
             .into(),
-    );
+    )
+    .expect("valid Source test fixture");
     let doc = compile_to_paged_document_full_error(
         &world,
         &world.source,
@@ -3123,7 +3207,9 @@ pub(super) fn record_uncached_layout_metrics() {
 
 #[test]
 fn selected_context_shares_metric_cache_across_layout_attempts() {
-    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]");
+    let world = mock_world(
+        "#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]",
+    );
     UNCACHED_LAYOUT_METRICS.with(|count| count.set(0));
     INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
     let doc = compile_to_paged_document_full_error(
@@ -3157,7 +3243,9 @@ pub(super) fn record_uncached_reconciliation_metrics() {
 
 #[test]
 fn selected_context_retains_metrics_until_final_reconciliation() {
-    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]");
+    let world = mock_world(
+        "#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]",
+    );
     UNCACHED_RECONCILIATION_METRICS.with(|count| count.set(0));
     let doc = compile_to_paged_document_full_error(
         &world,
@@ -3186,7 +3274,9 @@ pub(super) fn record_uncached_bidi_metrics() {
 
 #[test]
 fn selected_context_retains_metrics_until_bidi() {
-    let world = mock_world("#set text(dir: rtl, lang: \"ar\")\n#let c = counter(heading.where(level: 1))\n#context { let _ = c.final(); [مرحبا بالعالم ABC 123] }");
+    let world = mock_world(
+        "#set text(dir: rtl, lang: \"ar\")\n#let c = counter(heading.where(level: 1))\n#context { let _ = c.final(); [مرحبا بالعالم ABC 123] }",
+    );
     UNCACHED_BIDI_METRICS.with(|count| count.set(0));
     INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
     let doc = compile_to_paged_document_full_error(
@@ -3209,7 +3299,7 @@ fn selected_context_retains_metrics_until_bidi() {
 
 #[test]
 fn bidi_complete_context_reaches_pipeline_for_mixed_source() {
-    let src="#set page(width: 220pt, height: 600pt, margin: 20pt)\n#set text(dir: rtl)\nABC 123 مرحبا";
+    let src = "#set page(width: 220pt, height: 600pt, margin: 20pt)\n#set text(dir: rtl)\nABC 123 مرحبا";
     let doc = p1502_compile_paged(src);
 
     assert!(
@@ -3233,7 +3323,8 @@ fn expression_source_identity_context_errors_and_warnings_keep_their_sources() {
         FileId::from_raw(NonZeroU16::new(2).unwrap()),
         "missing".into(),
         typst_core::compiler::parse::parse_code,
-    );
+    )
+    .expect("valid Source test fixture");
     let features = typst_core::entities::compiler_features::Features::empty();
     let world = mock_world("#document_missing");
     let (result, _) =
@@ -3310,7 +3401,8 @@ fn expression_source_identity_document_program_runs_once() {
         FileId::from_raw(NonZeroU16::new(2).unwrap()),
         "query(heading).len()".into(),
         typst_core::compiler::parse::parse_code,
-    );
+    )
+    .expect("valid Source test fixture");
     let (result, _) = eval_source_with_document_features(
         &world,
         &world.inner.source,
@@ -3323,7 +3415,8 @@ fn expression_source_identity_document_program_runs_once() {
         expression.id(),
         "read(\"marker.txt\")".into(),
         typst_core::compiler::parse::parse_code,
-    );
+    )
+    .expect("valid Source test fixture");
     let (result, _) = eval_source_with_sink_features(
         &world,
         &reading,
@@ -3783,4 +3876,998 @@ fn context_occurrence_equation_shrink_selected_query() {
     );
     let doc = result.expect("distinct contextual occurrences and aliases must compile");
     assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "1.HEQQ1");
+}
+
+fn physical_page_assertions_compile(program: &str) {
+    let world = mock_world(program);
+    let (result, warnings) = compile_query_context(&world, &world.source);
+    assert!(warnings.is_empty(), "{warnings:?}");
+    assert!(result.is_ok(), "{program}\n{result:?}");
+}
+
+#[test]
+fn physical_page_header_one_page_counter_membership() {
+    physical_page_assertions_compile(
+        r#"#set page(width:200pt,height:200pt,margin:30pt,header:figure([H],caption:[HC]))
+#figure([B],caption:[BC])
+#context {
+  assert.eq(query(figure).len(), 2)
+  assert.eq(counter(figure).final(), (2,))
+  assert.eq(query(figure).map(it => counter(figure).at(it.location())), ((1,), (2,)))
+}"#,
+    );
+}
+
+#[test]
+fn physical_page_header_repeats_as_distinct_occurrences() {
+    physical_page_assertions_compile(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([BODYONE],caption:[B1])
+#pagebreak()
+#figure([BODYTWO],caption:[B2])
+#context {
+  assert.eq(query(figure).len(), 4)
+  assert.eq(query(figure).map(it => it.location()).dedup().len(), 4)
+  assert.eq(query(figure).map(it => it.location().page()), (1, 1, 2, 2))
+  assert.eq(query(<header>).map(it => counter(figure).at(it.location())), ((1,), (3,)))
+  assert.eq(counter(figure).final(), (4,))
+}"#,
+    );
+}
+
+#[test]
+fn physical_page_footer_actions_follow_body() {
+    physical_page_assertions_compile(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,footer:[#figure([FOOTER],caption:[FC]) <footer>])
+#figure([BODYONE],caption:[B1])
+#pagebreak()
+#figure([BODYTWO],caption:[B2])
+#context {
+  assert.eq(query(figure).len(), 4)
+  assert.eq(query(<footer>).map(it => counter(figure).at(it.location())), ((2,), (4,)))
+  assert.eq(query(<footer>).map(it => it.location().page()), (1, 2))
+  assert.eq(counter(figure).final(), (4,))
+}"#,
+    );
+}
+
+#[test]
+fn physical_page_context_header_uses_real_pages_and_effective_styles() {
+    let world = mock_world(
+        r#"#set text(10pt)
+#set page(width:220pt,height:240pt,margin:60pt,header:context metadata((here().page(), repr(text.size))))
+#set text(20pt)
+BODYONE
+#pagebreak()
+#set text(30pt)
+BODYTWO"#,
+    );
+    let intr = compile_query_context(&world, &world.source)
+        .0
+        .expect("contextual header");
+    let values = intr.query_metadata();
+    assert_eq!(values.len(), 2, "{values:?}");
+    for (value, page, size) in [(&values[0], 1, "20pt"), (&values[1], 2, "30pt")] {
+        let Value::Array(fields) = value else { panic!("{value:?}") };
+        assert_eq!(fields.len(), 2);
+        assert!(matches!(&fields[0], Value::Int(number) if *number == page));
+        assert!(matches!(&fields[1], Value::Str(actual) if actual == size));
+    }
+}
+
+#[test]
+fn physical_page_inner_styles_override_page_environment() {
+    let world = mock_world(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,header:[#set text(18pt)
+#context metadata("H" + repr(text.size))],footer:[#set text(12pt)
+#context metadata("F" + repr(text.size))])
+#set text(20pt)
+BODY"#,
+    );
+    let intr = compile_query_context(&world, &world.source).0.expect("inner styles");
+    let values = intr.query_metadata();
+    assert_eq!(values.len(), 2, "{values:?}");
+    assert!(matches!(&values[0], Value::Str(value) if value == "H18pt"));
+    assert!(matches!(&values[1], Value::Str(value) if value == "F12pt"));
+}
+
+#[test]
+fn physical_page_overridden_dormant_template_is_inert() {
+    physical_page_assertions_compile(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([UNUSED],caption:[UNUSED],supplement:it=>panic("UNEMITTED_HEADER"))])
+#set page(header:none)
+#figure([BODY],caption:[BC])
+#context {
+  assert.eq(query(figure).len(), 1)
+  assert.eq(counter(figure).final(), (1,))
+}"#,
+    );
+}
+
+#[test]
+fn physical_page_repeated_header_reference_reports_ambiguity() {
+    let world = mock_world(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([BODYONE],caption:[B1])
+See @header.
+#pagebreak()
+#figure([BODYTWO],caption:[B2])
+See @header."#,
+    );
+    let errors = compile_query_context(&world, &world.source).0.unwrap_err();
+    assert_eq!(errors.len(), 2, "{errors:?}");
+    for error in errors {
+        assert_eq!(
+            error.message,
+            "label `<header>` occurs multiple times in the document"
+        );
+        assert_eq!(error.span.id(), Some(world.source.id()));
+    }
+}
+
+#[test]
+fn physical_page_all_four_slots_share_one_causal_order() {
+    physical_page_assertions_compile(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,background:[#figure([BACKGROUND],caption:[BGC])],header:[#figure([HEADER],caption:[HC])],footer:[#figure([FOOTER],caption:[FC])],foreground:[#figure([FOREGROUND],caption:[FGC])])
+#figure([BODY],caption:[BC])
+#context {
+  assert.eq(query(figure).len(), 5)
+  assert.eq(query(figure).map(it => counter(figure).at(it.location())), ((1,), (2,), (3,), (4,), (5,)))
+  assert.eq(counter(figure).final(), (5,))
+}"#,
+    );
+}
+
+#[test]
+fn physical_page_reused_noncontext_header_retains_realization_warning() {
+    let world = mock_world(
+        r#"#show "H": it => {
+  let _ = numbering("א", 0)
+  [HEADER]
+}
+#set page(width:220pt,height:240pt,margin:60pt,header:[H])
+BODYONE
+#pagebreak()
+BODYTWO"#,
+    );
+    let (result, warnings) = compile_query_context(&world, &world.source);
+    result.expect("repeated show header must compile");
+    assert_eq!(warnings.len(), 1, "{warnings:?}");
+    assert_eq!(warnings[0].message, "the numeral system `hebrew` cannot represent zero");
+    assert_eq!(warnings[0].span.id(), Some(world.source.id()));
+}
+
+#[test]
+fn physical_page_header_warning_survives_realization_error() {
+    let world = mock_world(
+        r#"#show "H": it => {
+  let _ = numbering("א", 0)
+  panic("RUNNING_FAILURE")
+}
+#set page(width:220pt,height:240pt,margin:60pt,header:[H])
+BODY"#,
+    );
+    let (result, warnings) = compile_query_context(&world, &world.source);
+    let errors = result.expect_err("actual requested header must preserve its panic");
+    assert!(
+        errors.iter().any(|error| error.message.contains("RUNNING_FAILURE")),
+        "{errors:?}"
+    );
+    assert_eq!(warnings.len(), 1, "{warnings:?}");
+    assert_eq!(warnings[0].message, "the numeral system `hebrew` cannot represent zero");
+    assert_eq!(warnings[0].span.id(), Some(world.source.id()));
+}
+
+fn physical_page_assert_deferred_route(insertion: &str) {
+    physical_page_assertions_compile(&format!(
+        r#"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([FIRST],caption:[C1]) <first>
+{insertion}
+#figure([SECOND],caption:[C2]) <second>
+#context {{
+  assert.eq(query(figure).len(), 4)
+  assert.eq(query(figure).map(it=>it.location()).dedup().len(), 4)
+  assert.eq(query(<header>).map(it=>counter(figure).at(it.location())), ((1,),))
+  assert.eq(query(<first>).map(it=>counter(figure).at(it.location())), ((2,),))
+  assert.eq(query(<deferred>).map(it=>counter(figure).at(it.location())), ((3,),))
+  assert.eq(query(<second>).map(it=>counter(figure).at(it.location())), ((4,),))
+  assert.eq(counter(figure).final(), (4,))
+}}"#
+    ));
+}
+
+#[test]
+fn physical_page_footnote_facts_follow_source_causal_order() {
+    physical_page_assert_deferred_route(
+        "ANCHOR#footnote[#figure([NOTE],caption:[NC]) <deferred>]",
+    );
+}
+
+#[test]
+fn physical_page_top_float_facts_follow_source_causal_order() {
+    physical_page_assert_deferred_route(
+        "#place(top,float:true)[#figure([FLOAT],caption:[FC]) <deferred>]",
+    );
+}
+
+#[test]
+fn physical_page_bottom_float_facts_follow_source_causal_order() {
+    physical_page_assert_deferred_route(
+        "#place(bottom,float:true)[#figure([FLOAT],caption:[FC]) <deferred>]",
+    );
+}
+
+#[test]
+fn physical_page_hidden_facts_preserve_membership() {
+    physical_page_assert_deferred_route(
+        "#hide[#figure([HIDDEN],caption:[DC]) <deferred>]",
+    );
+}
+
+#[test]
+fn physical_page_cells_and_columns_preserve_source_routes() {
+    for body in [
+        "#grid(columns:1,[#figure([FIRST],caption:[C1]) <first>],[#figure([SECOND],caption:[C2]) <second>])",
+        "#table(columns:1,[#figure([FIRST],caption:[C1]) <first>],[#figure([SECOND],caption:[C2]) <second>])",
+        "#set page(columns:2)\n#figure([FIRST],caption:[C1]) <first>\n#colbreak()\n#figure([SECOND],caption:[C2]) <second>",
+    ] {
+        physical_page_assertions_compile(&format!(
+            r#"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+{body}
+#context {{
+  assert.eq(query(figure).len(), 3)
+  assert.eq(query(figure).map(it=>it.location()).dedup().len(), 3)
+  assert.eq(query(<header>).map(it=>counter(figure).at(it.location())), ((1,),))
+  assert.eq(query(<first>).map(it=>counter(figure).at(it.location())), ((2,),))
+  assert.eq(query(<second>).map(it=>counter(figure).at(it.location())), ((3,),))
+  assert.eq(counter(figure).final(), (3,))
+}}"#
+        ));
+    }
+}
+
+#[test]
+fn physical_page_prepared_header_show_alias_keeps_one_member_per_insertion() {
+    physical_page_assertions_compile(
+        r#"#show figure.where():it=>[#it#it]
+#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([FIRST],caption:[C1]) <first>
+#pagebreak()
+#figure([SECOND],caption:[C2]) <second>
+#context {
+  assert.eq(query(figure).len(), 4)
+  assert.eq(query(figure).map(it=>it.location()).dedup().len(), 4)
+  assert.eq(query(<header>).map(it=>counter(figure).at(it.location())), ((1,), (3,)))
+  assert.eq(query(<first>).map(it=>counter(figure).at(it.location())), ((2,),))
+  assert.eq(query(<second>).map(it=>counter(figure).at(it.location())), ((4,),))
+  assert.eq(counter(figure).final(), (4,))
+}"#,
+    );
+}
+
+fn physical_page_compile_bundle(source: &str) -> Vec<BundleFile> {
+    use typst_core::entities::compiler_features::{Feature, Features};
+    let world = mock_world(source);
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    features.enable(Feature::Html);
+    compile_to_bundle_files(
+        &world,
+        &world.source,
+        BundleCompileOptions {
+            full_error: false,
+            features,
+            document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None,
+            pdf_pages_override: None,
+            pdf_standard_override: None,
+            png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        },
+    )
+    .0
+    .expect("complete global physical Bundle generation")
+}
+
+#[test]
+fn physical_page_bundle_uses_global_index_and_skips_html_template() {
+    let files = physical_page_compile_bundle(
+        r#"#document("first.pdf")[
+#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([H1],caption:[HC1]) <header>])
+#figure([B1],caption:[BC1])
+#context {
+  assert.eq(query(figure).len(), 4)
+  assert.eq(query(<header>).map(it=>counter(figure).at(it.location())), ((1,), (3,)))
+  assert.eq(counter(figure).final(), (4,))
+}]
+#document("ignored.html")[
+#set page(header:context panic("HTML_HEADER_MUST_STAY_DORMANT"))
+HTML]
+#document("last.pdf")[
+#set page(width:220pt,height:240pt,margin:60pt,header:[#figure([H2],caption:[HC2]) <header>])
+#figure([B2],caption:[BC2])
+#context {
+  assert.eq(query(figure).len(), 4)
+  assert.eq(counter(figure).final(), (4,))
+}]"#,
+    );
+    assert_eq!(
+        files.iter().map(|file| file.path.as_str()).collect::<Vec<_>>(),
+        ["first.pdf", "ignored.html", "last.pdf"]
+    );
+    assert!(!files[0].is_html_document);
+    assert!(files[1].is_html_document);
+    assert!(!files[2].is_html_document);
+}
+
+#[test]
+fn physical_page_bundle_context_keeps_effective_style_and_page_scope() {
+    let files = physical_page_compile_bundle(
+        r#"#document("first.pdf")[
+#set page(width:220pt,height:240pt,margin:60pt,header:context metadata((target(),repr(text.size),counter(page).get())))
+#set text(20pt)
+FIRST]
+#document("bridge.html")[BRIDGE]
+#document("last.pdf")[
+#set page(width:220pt,height:240pt,margin:60pt,header:context metadata((target(),repr(text.size),counter(page).get())))
+#set text(30pt)
+LAST
+#context assert.eq(query(metadata).map(it=>it.value), (("paged","20pt",(1,)), ("paged","30pt",(1,))))]"#,
+    );
+    assert_eq!(files.len(), 3);
+    assert!(files[1].is_html_document);
+}
+
+#[test]
+fn physical_page_partial_body_styles_do_not_replace_page_environment() {
+    for (body, expected) in [
+        ("BODY #text(size:10pt)[LOCAL]\n", "20pt"),
+        ("#block[#set text(10pt)\nLOCAL]\n", "20pt"),
+        ("BEFORE #text(size:10pt)[LOCAL] AFTER\n", "20pt"),
+        ("#set text(30pt)\nBODY\n", "30pt"),
+    ] {
+        let world = mock_world(&format!(
+            "#set text(20pt)\n#set page(width:280pt,height:320pt,margin:60pt,header:context metadata(repr(text.size)))\n{body}"
+        ));
+        let (result, warnings) = compile_query_context(&world, &world.source);
+        assert!(warnings.is_empty(), "{body}: {warnings:?}");
+        let intr = result.expect("page style probe must compile");
+        let values = intr.query_metadata();
+        assert_eq!(values.len(), 1, "{body}: {values:?}");
+        assert!(
+            matches!(&values[0], Value::Str(value) if value == expected),
+            "{body}: {values:?}"
+        );
+    }
+}
+
+#[test]
+fn physical_page_body_query_with_contextual_header_retains_descendants() {
+    physical_page_assertions_compile(
+        r#"#set page(width:220pt,height:240pt,margin:60pt,header:context [#figure([HEADER],caption:[HC]) <header>])
+#figure([BODY],caption:[BC])
+#context {
+  assert.eq(query(figure).len(), 2)
+  assert.eq(query(figure).map(it=>it.location()).dedup().len(), 2)
+  assert.eq(query(figure).map(it=>counter(figure).at(it.location())), ((1,), (2,)))
+  assert.eq(counter(figure).final(), (2,))
+  metadata((query(figure).len(),counter(figure).final()))
+}
+"#,
+    );
+}
+
+#[test]
+fn physical_page_changed_running_membership_updates_final_paint() {
+    let world = mock_world(
+        r#"#set page(width:280pt,height:320pt,margin:60pt,header:context {
+  if counter(heading).final().first() > 0 {
+    figure([HEADER],caption:[HC])
+  }
+})
+#set heading(numbering:"1.")
+= ROOT
+#figure([BODY],caption:[BC])
+"#,
+    );
+    let (result, warnings) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    assert!(warnings.is_empty(), "{warnings:?}");
+    let document = result.expect("changed running contribution must compile");
+    let text: String = document
+        .pages
+        .iter()
+        .flat_map(|page| {
+            [
+                frame_items_text(&page.background),
+                frame_items_text(&page.items),
+                frame_items_text(&page.foreground),
+            ]
+        })
+        .collect();
+    let compact: String = text.split_whitespace().collect();
+    assert!(compact.contains("Figure1:HC"), "{text}");
+    assert!(compact.contains("Figure2:BC"), "{text}");
+}
+
+#[test]
+fn physical_page_existing_outline_phase_preserves_body_facts() {
+    for child in [
+        r#"#metadata("borrowed") <borrowed>"#,
+        r#"#figure([INNER],caption:none) <borrowed>"#,
+    ] {
+        for prepared_entry in [false, true] {
+            let setup = if prepared_entry {
+                "#show outline.entry: it=>it.body()\n"
+            } else {
+                "#outline()\n"
+            };
+            let entry = if prepared_entry {
+                "#context outline.entry(1,query(heading).first())\n"
+            } else {
+                ""
+            };
+            let program = format!(
+                "#set page(width:320pt,height:420pt,margin:50pt,header:[RUNNING])\n{setup}#heading([HEADING {child}])\n{entry}#context {{\n assert.eq(query(heading).filter(it=>it.outlined).len(),1)\n assert(query(<borrowed>).len()>0)\n}}\n"
+            );
+            physical_page_assertions_compile(&program);
+        }
+    }
+}
+
+#[test]
+fn physical_page_outline_generated_context_retains_actual_environment() {
+    physical_page_assertions_compile(
+        r#"#set text(size:20pt)
+#let deferred = context { metadata(text.size) }
+#show outline.entry: it=>[#deferred #it.body()]
+#set page(width:320pt,height:420pt,margin:50pt,header:[RUNNING])
+#outline(title:none)
+= HEADING
+#context { assert.eq(query(metadata).map(it=>it.value), (20pt,)) }
+"#,
+    );
+}
+
+fn physical_page_assert_deferred_crosspage(
+    program: &str,
+    expected_pages: [i64; 5],
+    second_header_state: i64,
+    second_page: i64,
+    second_state: i64,
+    expected_first_note_text: Option<&str>,
+) {
+    let world = mock_world(program);
+    let (result, warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            &world,
+            &world.source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            &mut Timings::default(),
+        );
+    assert!(warnings.is_empty(), "{warnings:?}");
+    let compiled = result.unwrap_or_else(|errors| {
+        panic!("deferred cross-page observations must compile: {program}\n{errors:?}")
+    });
+    assert_eq!(compiled.document.pages.len(), 2);
+    let values = compiled.introspector.query_metadata();
+    assert_eq!(values.len(), 1, "{values:?}");
+    let Value::Dict(fields) = &values[0] else { panic!("{:?}", values[0]) };
+    let integers =
+        |values: &[i64]| Value::Array(values.iter().copied().map(Value::Int).collect());
+    let snapshot = |page, state| Value::Array(vec![Value::Int(page), integers(&[state])]);
+    let expected = [
+        ("count", Value::Int(5)),
+        ("unique", Value::Int(5)),
+        ("pages", integers(&expected_pages)),
+        ("states", Value::Array((1..=5).map(|state| integers(&[state])).collect())),
+        ("final", integers(&[5])),
+        ("header", Value::Array(vec![snapshot(1, 1), snapshot(2, second_header_state)])),
+        ("first", Value::Array(vec![snapshot(1, 2)])),
+        ("second", Value::Array(vec![snapshot(second_page, second_state)])),
+        ("deferred", Value::Array(vec![snapshot(2, 3)])),
+    ];
+    assert_eq!(fields.len(), expected.len(), "{fields:?}");
+    for (key, value) in expected {
+        assert_eq!(fields.get(key), Some(&value), "{key}: {fields:?}");
+    }
+    if let Some(expected_note_text) = expected_first_note_text {
+        let page_text = |index: usize| {
+            let page = &compiled.document.pages[index];
+            [
+                frame_items_text(&page.background),
+                frame_items_text(&page.items),
+                frame_items_text(&page.foreground),
+            ]
+            .concat()
+            .split_whitespace()
+            .collect::<String>()
+        };
+        let first_page = page_text(0);
+        let second_page = page_text(1);
+        assert!(first_page.contains("FIRST"), "{first_page}");
+        assert!(first_page.contains(expected_note_text), "{first_page}");
+        assert!(!first_page.contains("SECOND"), "{first_page}");
+        assert!(!first_page.contains("Figure3:NC"), "{first_page}");
+        assert!(second_page.contains("SECOND"), "{second_page}");
+        assert!(second_page.contains("Figure5:C2"), "{second_page}");
+        assert!(second_page.contains("Figure3:NC"), "{second_page}");
+    }
+}
+
+#[test]
+fn physical_page_deferred_note_causes_next_body_page() {
+    physical_page_assert_deferred_crosspage(
+        r###"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([FIRST],caption:[C1]) <first>
+ANCHOR#footnote[#block(height:110pt)[NOTE TEXT] #figure([NOTE],caption:[NC]) <deferred>]
+#figure([SECOND],caption:[C2]) <second>
+
+#context [#metadata((
+ count: query(figure).len(),
+ unique: query(figure).map(it=>it.location()).dedup().len(),
+ pages: query(figure).map(it=>it.location().page()),
+ states: query(figure).map(it=>counter(figure).at(it.location())),
+ final: counter(figure).final(),
+ header: query(<header>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ first: query(<first>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ second: query(<second>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ deferred: query(<deferred>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+)) <probe>]
+"###,
+        [1, 1, 2, 2, 2],
+        4,
+        2,
+        5,
+        Some("NOTETEXT"),
+    );
+}
+
+#[test]
+fn physical_page_deferred_note_child_on_later_page() {
+    physical_page_assert_deferred_crosspage(
+        r###"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure([FIRST],caption:[C1]) <first>
+ANCHOR#footnote[START #v(180pt) #figure([NOTE],caption:[NC]) <deferred>]
+#figure([SECOND],caption:[C2]) <second>
+
+#context [#metadata((
+ count: query(figure).len(),
+ unique: query(figure).map(it=>it.location()).dedup().len(),
+ pages: query(figure).map(it=>it.location().page()),
+ states: query(figure).map(it=>counter(figure).at(it.location())),
+ final: counter(figure).final(),
+ header: query(<header>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ first: query(<first>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ second: query(<second>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ deferred: query(<deferred>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+)) <probe>]
+"###,
+        [1, 1, 2, 2, 2],
+        4,
+        2,
+        5,
+        Some("START"),
+    );
+}
+
+#[test]
+fn physical_page_deferred_top_place_float_next_page() {
+    physical_page_assert_deferred_crosspage(
+        r###"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure(block(height:120pt)[FIRST],caption:[C1]) <first>
+#place(top,float:true)[#figure(block(height:100pt)[FLOAT],caption:[FC]) <deferred>]
+#figure([SECOND],caption:[C2]) <second>
+
+#context [#metadata((
+ count: query(figure).len(),
+ unique: query(figure).map(it=>it.location()).dedup().len(),
+ pages: query(figure).map(it=>it.location().page()),
+ states: query(figure).map(it=>counter(figure).at(it.location())),
+ final: counter(figure).final(),
+ header: query(<header>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ first: query(<first>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ second: query(<second>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ deferred: query(<deferred>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+)) <probe>]
+"###,
+        [1, 1, 2, 1, 2],
+        5,
+        1,
+        4,
+        None,
+    );
+}
+
+#[test]
+fn physical_page_deferred_bottom_place_float_next_page() {
+    physical_page_assert_deferred_crosspage(
+        r###"#set page(width:280pt,height:320pt,margin:60pt,header:[#figure([HEADER],caption:[HC]) <header>])
+#figure(block(height:120pt)[FIRST],caption:[C1]) <first>
+#place(bottom,float:true)[#figure(block(height:100pt)[FLOAT],caption:[FC]) <deferred>]
+#figure([SECOND],caption:[C2]) <second>
+
+#context [#metadata((
+ count: query(figure).len(),
+ unique: query(figure).map(it=>it.location()).dedup().len(),
+ pages: query(figure).map(it=>it.location().page()),
+ states: query(figure).map(it=>counter(figure).at(it.location())),
+ final: counter(figure).final(),
+ header: query(<header>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ first: query(<first>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ second: query(<second>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+ deferred: query(<deferred>).map(it=>(it.location().page(),counter(figure).at(it.location()))),
+)) <probe>]
+"###,
+        [1, 1, 2, 1, 2],
+        5,
+        1,
+        4,
+        None,
+    );
+}
+
+// Source-qualified integrated acceptance for the approved Repeat physical channel.
+fn ordinary_repeat_zero_copy_pipeline_source(header: bool, position: bool) {
+    let original = r###"#set page(width:240pt,height:auto,margin:8pt)
+#set text(font:"DejaVu Sans",size:11pt)
+#let s=state("acceptance-repeat-source",0)
+#let c=counter("acceptance-repeat-source")
+BEFORE#box(width:80pt,height:16pt)[#repeat([#s.update(n=>n+1)#c.step()X#metadata("source") <acceptance-repeat-source>],gap:-100pt,justify:false)]TAIL
+#context [STATE#s.final() COUNTER#c.final().first() LABELS#query(<acceptance-repeat-source>).len()]
+"###;
+    let original = if position {
+        original.replace(
+            "#context [STATE#s.final() COUNTER#c.final().first() LABELS#query(<acceptance-repeat-source>).len()]",
+            "#context { let p=here().position(); [STATE#s.final() COUNTER#c.final().first() LABELS#query(<acceptance-repeat-source>).len() PAGE#here().page() POSPAGE#p.page POSX#p.x POSY#p.y] }",
+        )
+    } else {
+        original.to_owned()
+    };
+    let program = if header {
+        original.replacen(
+            "height:auto,margin:8pt)",
+            "height:auto,margin:8pt,header:[])",
+            1,
+        )
+    } else {
+        original.to_owned()
+    };
+    let bytes = include_bytes!("../../fixtures/fonts/DejaVuSans.ttf");
+    let world =
+        crate::world::SystemWorld::for_stdin(std::env::temp_dir(), program.clone())
+            .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+                "<DejaVu Sans source-qualified fixture>".into(),
+                bytes.to_vec(),
+            )]);
+    let source = world.source(world.main()).expect("actual stdin source");
+    let (result, warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            &world,
+            &source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            &mut Timings::default(),
+        );
+    assert!(warnings.is_empty(), "unexpected warnings, header={header}: {warnings:?}");
+    let compiled = result.unwrap_or_else(|errors| {
+        panic!("actual source must compile, header={header}: {errors:?}")
+    });
+    assert_eq!(compiled.document.pages.len(), 1);
+    let text: String = compiled
+        .document
+        .pages
+        .iter()
+        .map(|page| frame_items_text(&page.items))
+        .collect::<String>()
+        .chars()
+        .filter(|ch| !ch.is_whitespace())
+        .collect();
+    for expected in ["STATE0", "COUNTER0", "LABELS0"] {
+        assert!(text.contains(expected), "header={header}, missing {expected}: {text}");
+    }
+    if position {
+        for expected in ["PAGE1", "POSPAGE1", "POSX158.33pt", "POSY16.36pt"] {
+            assert!(
+                text.contains(expected),
+                "header={header}, missing {expected}: {text}"
+            );
+        }
+    }
+    assert_eq!(text.matches("BEFORE").count(), 1);
+    assert_eq!(text.matches("TAIL").count(), 1);
+    let piece_observation = if position {
+        assert_eq!(text.matches("POSX").count(), 1);
+        text.replace("POSX", "")
+    } else {
+        text.clone()
+    };
+    assert!(!piece_observation.contains('X'), "no actual Repeat copy exists: {text}");
+    assert!(compiled.introspector.query_metadata().is_empty());
+    assert_eq!(
+        compiled.introspector.label_count(&typst_core::entities::label::Label(
+            "acceptance-repeat-source".into()
+        )),
+        0
+    );
+}
+
+#[test]
+fn ordinary_repeat_zero_copy_pipeline_without_running_marginal() {
+    ordinary_repeat_zero_copy_pipeline_source(false, false);
+}
+
+#[test]
+fn ordinary_repeat_zero_copy_pipeline_with_empty_header() {
+    ordinary_repeat_zero_copy_pipeline_source(true, false);
+}
+
+#[test]
+fn ordinary_repeat_zero_copy_pipeline_position_without_running_marginal() {
+    ordinary_repeat_zero_copy_pipeline_source(false, true);
+}
+
+#[test]
+fn ordinary_repeat_zero_copy_pipeline_position_with_empty_header() {
+    ordinary_repeat_zero_copy_pipeline_source(true, true);
+}
+
+#[test]
+fn finite_rollback_observes_complete_settled_pages() {
+    let program = r###"#set page(width:180pt,height:72pt,margin:8pt)
+#set text(font:"DejaVu Sans",size:11pt)
+BEFORE
+
+#box(width:1fr,height:40pt)[LEFT#h(1fr)RIGHT]TAIL
+"###;
+    let world =
+        crate::world::SystemWorld::for_stdin(std::env::temp_dir(), program.to_owned())
+            .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+                "<DejaVu Sans complete-page parity fixture>".into(),
+                include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").to_vec(),
+            )]);
+    let source = world.source(world.main()).expect("actual stdin source");
+    let (result, warnings) = compile_to_paged_document_full_error(
+        &world,
+        &source,
+        false,
+        &mut Timings::default(),
+    );
+    assert!(warnings.is_empty(), "unexpected warnings: {warnings:?}");
+    let document = result.expect("the immutable finite-page source must compile");
+    assert_eq!(document.pages.len(), 2);
+    let text: Vec<String> = document
+        .pages
+        .iter()
+        .map(|page| frame_items_text(&page.items).split_whitespace().collect())
+        .collect();
+    assert_eq!(text, ["BEFORE", "LEFTRIGHTTAIL"]);
+    let fonts = resolve_export_fonts(&document, &world).expect("actual bound fonts");
+    assert!(!fonts.is_empty(), "the declared DejaVu font must be bound");
+    for (index, page) in document.pages.iter().enumerate() {
+        let destinations = svg_destination_context_for_page(&document, index + 1);
+        let glyph_fonts = svg_glyph_font_context_for_page(page, &world);
+        let svg = export_svg_with_fonts_and_contexts(
+            page,
+            &crate::export::SvgOptions::default(),
+            &fonts,
+            &destinations,
+            &glyph_fonts,
+        );
+        assert!(svg.starts_with("<svg"), "all pages must have actual SVG output");
+        println!("TEKT_FINITE_SVG_PAGE\t{}\t{}", index + 1, svg);
+    }
+}
+
+fn remaining_html_compile(
+    source: &str,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Source) {
+    use typst_core::entities::compiler_features::{Feature, Features};
+    let world = crate::world::SystemWorld::for_stdin(std::env::temp_dir(), source.into())
+        .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+            "<HTML page-rule regression DejaVu>".into(),
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").to_vec(),
+        )]);
+    let source = world.source(world.main()).unwrap();
+    let mut features = Features::empty();
+    features.enable(Feature::Html);
+    let (result, warnings) =
+        compile_to_html_string_with_features(&world, &source, features);
+    (result, warnings, source)
+}
+
+#[test]
+fn remaining_html_figure_show_products_preserve_block_morphology() {
+    let text = "#set figure(kind:raw)\n#show figure:it=>repr(it.kind)\n#figure(table([A]))\n#figure(table([A]),kind:auto)\n";
+    let (result, warnings, _) = remaining_html_compile(text);
+    let html = result.expect("both measured Figure kind replacements compile");
+    assert!(html.ends_with("<body><p>raw</p><p>table</p></body></html>"), "{html}");
+    assert!(warnings.is_empty(), "unexpected pipeline diagnostic: {warnings:?}");
+}
+
+#[test]
+fn remaining_html_suppressed_nonfigure_products_keep_empty_body() {
+    let (result, warnings, _) =
+        remaining_html_compile("#show heading: none\n#heading[A]#heading[B]");
+    let html = result.expect("suppressed Heading products compile");
+    assert!(html.ends_with("<body></body></html>"), "{html}");
+    assert!(warnings.is_empty(), "unexpected pipeline diagnostic: {warnings:?}");
+}
+
+#[test]
+fn remaining_html_suppressed_figure_product_keeps_surrounding_paragraphs() {
+    let (result, warnings, _) =
+        remaining_html_compile("#show figure: none\nA#figure[X]B");
+    let html = result.expect("suppressed Figure product compiles");
+    assert!(html.ends_with("<body><p>A</p><p>B</p></body></html>"), "{html}");
+    assert!(warnings.is_empty(), "unexpected pipeline diagnostic: {warnings:?}");
+}
+
+#[test]
+fn remaining_html_page_warning_keeps_true_source_and_dormant_template() {
+    for text in [
+        "#set page(width:240pt,header:context panic(\"DORMANT\"))\nHTML\n",
+        "#let p=page\n#set p(width:240pt,header:context panic(\"DORMANT\"))\nHTML\n",
+        "#set page(width:240pt)\n",
+    ] {
+        let (result, warnings, source) = remaining_html_compile(text);
+        let html = result.unwrap_or_else(|e| panic!("{text}: {e:?}"));
+        if text.contains("HTML") {
+            assert!(html.contains("<p>HTML</p>"), "{html}");
+        }
+        let page: Vec<_> = warnings
+            .iter()
+            .filter(|w| w.message == "page set rule was ignored during HTML export")
+            .collect();
+        assert_eq!(page.len(), 1, "{text}: {warnings:?}");
+        let start = text.find("set ").unwrap();
+        let end = text[start..].find('\n').map(|n| start + n).unwrap_or(text.len());
+        assert_eq!(source.span_byte_range(page[0].span), Some(start..end));
+        assert!(page[0].hints.is_empty());
+        assert!(
+            !warnings.iter().any(|w| w.message.contains("ainda não suportado")),
+            "{warnings:?}"
+        );
+    }
+}
+
+#[test]
+fn remaining_html_page_false_and_uninserted_remain_inert() {
+    for text in [
+        "#set page(width:240pt) if false\nHTML\n",
+        "#let c=[#set page(width:240pt)\nDORMANT]\nHTML\n",
+    ] {
+        let (result, warnings, _) = remaining_html_compile(text);
+        assert!(result.unwrap().contains("<p>HTML</p>"));
+        assert!(
+            !warnings.iter().any(|w| w.message.contains("page set rule")),
+            "{warnings:?}"
+        );
+    }
+}
+
+fn remaining_html_page_container_error(text: &str) {
+    let (result, warnings, source) = remaining_html_compile(text);
+    let errors =
+        result.expect_err("a reached page setting inside a container must be refused");
+    assert_eq!(errors.len(), 1, "{errors:?}");
+    assert_eq!(
+        errors[0].message,
+        "page configuration is not allowed inside of containers"
+    );
+    let start = text.find("set page(").unwrap();
+    let end = text[start..].find('\n').map(|n| start + n).unwrap();
+    assert_eq!(source.span_byte_range(errors[0].span), Some(start..end));
+    assert!(
+        !warnings.iter().any(|w| w.message.contains("page set rule")),
+        "{warnings:?}"
+    );
+}
+
+#[test]
+fn remaining_html_page_nested_content_is_refused() {
+    remaining_html_page_container_error("#[#set page(width:240pt)\nINNER]OUTER\n");
+}
+
+#[test]
+fn remaining_html_page_frame_content_is_refused() {
+    remaining_html_page_container_error(
+        "#html.frame[#set page(width:80pt,height:auto,margin:0pt)\nFRAME]\nHTML\n",
+    );
+}
+
+#[test]
+fn remaining_html_reused_heading_warning_keeps_first_source_once() {
+    let text = "#let deep=heading(level:6)[DEEP]\n#deep\n#deep\n";
+    let (result, warnings, source) = remaining_html_compile(text);
+    let html = result.expect("reusing a heading remains valid HTML");
+    assert_eq!(
+        html.matches("<div role=\"heading\" aria-level=\"7\">DEEP</div>")
+            .count(),
+        2
+    );
+    let headings: Vec<_> = warnings
+        .iter()
+        .filter(|w| w.message.starts_with("heading of level 6 was transformed"))
+        .collect();
+    assert_eq!(headings.len(), 1, "same source occurrence warns once: {warnings:?}");
+    let start = text.find("heading(").unwrap();
+    assert_eq!(
+        source.span_byte_range(headings[0].span),
+        Some(start..start + "heading(level:6)[DEEP]".len())
+    );
+    assert_eq!(
+        headings[0].message,
+        "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology"
+    );
+    assert_eq!(headings[0].hints.len(), 2);
+    assert_eq!(headings[0].hints[0], "HTML only supports <h1> to <h6>, not <h7>");
+    assert_eq!(
+        headings[0].hints[1],
+        "you may want to restructure your document so that it doesn't contain deep headings"
+    );
+}
+
+#[test]
+fn remaining_html_distinct_heading_warnings_preserve_causal_page_order() {
+    let text =
+        "#heading(level:6)[FIRST]\n#set page(width:240pt)\n#heading(level:6)[SECOND]\n";
+    let (result, warnings, source) = remaining_html_compile(text);
+    let html = result.expect("independent headings remain valid HTML");
+    assert!(html.contains("<div role=\"heading\" aria-level=\"7\">FIRST</div><div role=\"heading\" aria-level=\"7\">SECOND</div>"), "{html}");
+    let relevant: Vec<_> = warnings
+        .iter()
+        .filter(|w| {
+            w.message.starts_with("heading of level 6 was transformed")
+                || w.message == "page set rule was ignored during HTML export"
+        })
+        .collect();
+    assert_eq!(
+        relevant.len(),
+        3,
+        "independent source occurrences both warn: {warnings:?}"
+    );
+    for (warning, spelling) in relevant.iter().zip([
+        "heading(level:6)[FIRST]",
+        "set page(width:240pt)",
+        "heading(level:6)[SECOND]",
+    ]) {
+        let start = text.find(spelling).unwrap();
+        assert_eq!(
+            source.span_byte_range(warning.span),
+            Some(start..start + spelling.len())
+        );
+    }
+    assert!(relevant[0].message.starts_with("heading of level 6 was transformed"));
+    assert_eq!(relevant[1].message, "page set rule was ignored during HTML export");
+    assert!(relevant[2].message.starts_with("heading of level 6 was transformed"));
+    assert_ne!(relevant[0].span, relevant[2].span);
+    assert_eq!(relevant[0].hints, relevant[2].hints);
+}
+
+#[test]
+fn remaining_html_page_only_body_is_empty_with_original_warning() {
+    for (text, count) in [("#set page(width:240pt)\n", 1), ("#set page()\n", 0)] {
+        let (result, warnings, _) = remaining_html_compile(text);
+        let html = result.expect("page-only source is valid semantic HTML");
+        assert!(
+            html.ends_with("<body></body></html>"),
+            "page setting has no visual paragraph: {html}"
+        );
+        assert_eq!(
+            warnings
+                .iter()
+                .filter(|w| w.message == "page set rule was ignored during HTML export")
+                .count(),
+            count
+        );
+    }
 }

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/borders.md
-//! @prompt-hash b1a481d1
+//! @prompt-hash cec7c5d3
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 
 use super::*;
 
@@ -69,6 +69,7 @@ pub(super) fn cell_effective_stroke(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -254,14 +255,58 @@ pub(super) fn flush_all_vsegments<M: FontMetrics, S: ImageSizer>(
     }
 }
 
+/// Resolve only actual next-row starts, before preparing any paint.
+fn next_top_runs(
+    row: usize,
+    owners: &[Option<usize>],
+    cells: &[PlacedCell],
+    starts: &[f64],
+    widths: &[f64],
+    stroke: Option<&Stroke>,
+) -> Vec<(f64, f64, Stroke)> {
+    let mut runs: Vec<(f64, f64, Stroke)> = Vec::new();
+    let mut previous_owner = None;
+    let mut can_join = false;
+    for &owner in owners {
+        if owner == previous_owner {
+            continue;
+        }
+        previous_owner = owner;
+        let Some(cell) = owner.and_then(|idx| cells.get(idx)).filter(|c| c.row == row)
+        else {
+            can_join = false;
+            continue;
+        };
+        let Some(stroke) = cell_effective_stroke(&cell.body, stroke) else {
+            can_join = false;
+            continue;
+        };
+        let x0 = starts.get(cell.col).copied().unwrap_or(0.0);
+        let width: f64 = (cell.col..cell.col + cell.colspan)
+            .map(|i| widths.get(i).copied().unwrap_or(0.0))
+            .sum();
+        if can_join {
+            if let Some((_, end, old)) = runs.last_mut() {
+                if *old == stroke && (*end - x0).abs() < 1e-6 {
+                    *end = x0 + width;
+                    continue;
+                }
+            }
+        }
+        can_join = true;
+        runs.push((x0, x0 + width, stroke));
+    }
+    runs
+}
+
 /// P888 — para a linha `row_idx`, emite as bordas de topo/fundo fundidas
 /// (runs contíguos de células com o mesmo `effective_stroke`) e actualiza
 /// `open_vsegments` com a continuação/quebra dos segmentos verticais.
 ///
 /// Substitui a antiga "Opção β simplificada" (4 `FrameItem::Shape::Line`
 /// por célula, sempre) por fusão: bordas horizontais fundem dentro da
-/// própria linha (sem estado entre linhas — cada linha é uma unidade
-/// fechada); bordas verticais fundem entre linhas via `open_vsegments`,
+/// própria linha; runs idênticos compartilhados com a próxima linha
+/// na mesma página conservam só o topo posterior; bordas verticais fundem entre linhas via `open_vsegments`,
 /// que persiste ao longo da chamada a `layout_grid` e é descarregado em
 /// quebras de stroke, quebras de página, ou no fim da função.
 ///
@@ -287,7 +332,30 @@ pub(super) fn emit_row_borders<M: FontMetrics, S: ImageSizer>(
     resolved_widths: &[f64],
     num_cols: usize,
     grid_stroke: Option<&Stroke>,
+    next_on_same_page: bool,
 ) {
+    let next_runs = if next_on_same_page {
+        grid_owner
+            .get(row_idx + 1)
+            .map(|owners| {
+                next_top_runs(
+                    row_idx + 1,
+                    owners,
+                    placed_cells,
+                    col_starts,
+                    resolved_widths,
+                    grid_stroke,
+                )
+            })
+            .unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    let shared = |x0: f64, x1: f64, stroke: &Stroke| {
+        next_runs.iter().any(|(a, b, s)| {
+            (x0 - a).abs() < 1e-6 && (x1 - b).abs() < 1e-6 && stroke == s
+        })
+    };
     // ── Bordas horizontais (topo + fundo), fundidas dentro da linha ──
     let mut top_run: Option<(f64, f64, Stroke)> = None; // (x0, x1, stroke)
     let mut bottom_run: Option<(f64, f64, Stroke)> = None;
@@ -324,7 +392,9 @@ pub(super) fn emit_row_borders<M: FontMetrics, S: ImageSizer>(
             }
             _ => {
                 if let Some((rx0, rx1, rs)) = bottom_run.take() {
-                    emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
+                    if !shared(rx0, rx1, &rs) {
+                        emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
+                    }
                 }
                 bottom_run = stroke.map(|s| (cx, cx + cw, s));
             }
@@ -334,7 +404,9 @@ pub(super) fn emit_row_borders<M: FontMetrics, S: ImageSizer>(
         emit_hsegment(layouter, rx0, rx1, row_start_y, rs);
     }
     if let Some((rx0, rx1, rs)) = bottom_run {
-        emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
+        if !shared(rx0, rx1, &rs) {
+            emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
+        }
     }
 
     // ── Bordas verticais, fundidas entre linhas via `open_vsegments` ──
@@ -406,6 +478,7 @@ pub(super) fn emit_placed_row_borders<M: FontMetrics, S: ImageSizer>(
     resolved_widths: &[f64],
     num_cols: usize,
     stroke: Option<&Stroke>,
+    next_on_same_page: bool,
 ) {
     let mut sorted = row_cells.to_vec();
     sorted.sort_by_key(|&idx| placed_cells[idx].col);
@@ -422,6 +495,7 @@ pub(super) fn emit_placed_row_borders<M: FontMetrics, S: ImageSizer>(
         resolved_widths,
         num_cols,
         stroke,
+        next_on_same_page,
     );
 }
 
@@ -594,6 +668,80 @@ mod v16_d_boundaries {
         ] {
             assert_eq!(cell_effective_stroke(&body, Some(&grid)).unwrap().thickness, 7.0);
             assert!(cell_effective_stroke(&body, None).is_none());
+        }
+    }
+}
+
+#[cfg(test)]
+mod r5_paint_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
+
+    #[test]
+    fn r5_shared_border_has_one_alpha_contribution_and_outer_edges_survive() {
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
+        let cells: Vec<_> = (0..2)
+            .map(|row| PlacedCell {
+                body: Content::Empty,
+                row,
+                col: 0,
+                colspan: 1,
+                rowspan: 1,
+            })
+            .collect();
+        let owners = vec![vec![Some(0)], vec![Some(1)]];
+        let stroke = Stroke {
+            paint: Color::rgba(0, 0, 0, 128).into(),
+            ..Stroke::default()
+        };
+        let mut open = vec![None; 2];
+        for row in 0..2 {
+            emit_row_borders(
+                &mut layouter,
+                row,
+                20.0 + row as f64 * 20.0,
+                20.0,
+                &[row],
+                &cells,
+                &owners,
+                &mut open,
+                &[10.0],
+                &[50.0],
+                1,
+                Some(&stroke),
+                row == 0,
+            );
+        }
+        for y in [20.0, 40.0, 60.0] {
+            let mut white = 1.0f32;
+            for item in &layouter.regions.current.current_items {
+                if let FrameItem::Shape {
+                    pos,
+                    kind: ShapeKind::Line { dx, dy },
+                    stroke: Some(s),
+                    ..
+                } = item
+                {
+                    if *dy == 0.0 && pos.y.0 == y && pos.x.0 < 30.0 && pos.x.0 + dx > 30.0
+                    {
+                        let crate::entities::frame_paint::FramePaint::Solid(c) = &s.paint
+                        else {
+                            panic!("solid border")
+                        };
+                        white *= 1.0 - c.to_rgba_f32().3;
+                    }
+                }
+            }
+            assert!(
+                (white - 127.0 / 255.0).abs() < 1e-6,
+                "wrong alpha coverage at y={y}: {white}"
+            );
         }
     }
 }

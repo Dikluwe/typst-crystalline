@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/math_root.md
-//! @prompt-hash 760f923b
+//! @prompt-hash e2e9317f
 //! @layer L3
 //!
 //! Testes independentes da superfície pública bilateral `math.root` P1426.
@@ -97,7 +97,7 @@ fn p1426_assinatura_publica_preserva_diagnosticos() {
 fn p1426_sqrt_permanece_controle_bilateral() {
     let bare = html("#repr($sqrt(x)$.body)");
     let qualified = html("#repr(math.sqrt([x]))");
-    assert!(bare.contains("root(radicand: x)"), "bare sqrt morphology changed: {bare}");
+    assert!(bare.contains("root(radicand: [x])"), "bare sqrt morphology changed: {bare}");
     assert!(
         qualified.contains("root(radicand: [x])"),
         "qualified sqrt morphology changed: {qualified}"

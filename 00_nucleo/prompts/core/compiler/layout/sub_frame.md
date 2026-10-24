@@ -1,5 +1,5 @@
 # L0 — sub frame
-Hash do Código: 4a2f1a76
+Hash do Código: ff55532a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -12,6 +12,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
 - 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml sha256:ec315f38498aa37ead497fdcb72cdd7e401cd00752baf5a535c2b5fae69374ed
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
@@ -125,3 +126,236 @@ argument, algorithm and output. Equal axes or Ellipse kind do not infer Circle.
 This is only the required migration for the approved field, not a new geometry
 behavior or permission to materialize any unrelated pending proposal. Full-target
 compilation and existing tests must retain all current observations/tolerances.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Provide private planned-child entrypoints while retaining every legacy public signature and existing geometric/inline isolation behavior. Source-bearing children and generated wrappers route explicit typed source edges; isolated measurement and genuinely generated-only sublayout carry explicit None. Save/restore caller plan cursor/environment/slot state in LIFO order without sharing operational Location identity. Actual emitted child packets remain attached to returned/deferred contributions until their final destination is accepted; measurement cannot append events or consume resolutions. No technical Content wrapper or fake Location is inserted.
+
+### Acceptance and preserved boundaries
+
+Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+A generated prefix-plus-source-body subframe keeps the original combined Content for its existing measurement/classification formulas, but dispatches the prefix explicitly unplanned and the exact retained source-node body under its cursor. It never assigns the generated Sequence a source identity. Deferred footnote bodies carry parallel queue cursors, preserving legacy tuple fixtures and original producer objects.
+
+An explicitly unplanned subframe temporarily suspends the complete running pass, not only its current cursor. Generated/measurement traversal cannot alter source slot bindings, page environments, requests, admissions or consumption. Restore the exact outer pass afterwards; planned source subframes retain accepted contributions.
+
+
+All productive inline callers now supply explicit source planning through layout_sub_frame_inline_planned, including None for an isolated unplanned body. Remove only the unused private forwarding layout_sub_frame_inline shim, retaining the complete inline implementation, None behavior, geometry and restoration. No legacy public signature is changed and no lint suppression is introduced.
+
+
+## Private deferred Note frame transport
+
+### Measurement before correction
+
+`lab/results/set-page-deferred-corrections-2026-10-21/red-2/tests.log` records
+the actual missing Note-subtree admissions. The later root-controlled fitting
+measurement and pinned oracle page-text evidence distinguish a complete Note frame
+from its accepted prefix and continuing suffix. The oracle keeps NOTE TEXT/START
+in the first page and emits the later Figure in the second; whole-body deferral
+or moving the complete call does not establish that language behavior. Exact
+before bytes/hashes/HEAD/dirty state for this owner are archived in
+`lab/results/set-page-deferred-corrections-2026-10-21/agents/index/note-transport-before.json.gz`.
+The root authorizes an internal layout parity correction, with no eval/layout
+phase change, public contract, new identity source or attempt budget.
+
+### Exclusive transport obligation
+
+Save/install zero/restore footnote_reserved_height around both isolated and
+inline subframes. A local body never inherits the exterior page's reserved note
+space. Every ordinary isolated/inline subframe takes and later restores the outer
+optional FootnoteCapture in LIFO order, so nested generated subframes cannot
+certify cuts in their parent's item array. A private layout_sub_frame_footnote
+entrypoint alone preserves the feature-installed capture through its actual
+Note subframe, including when the Note itself is inside a parent subframe. The
+private isolated helper receives this explicit capability; all existing public
+entrypoints/signatures remain unchanged. Ordinary source admission and actual
+markers are unchanged. Preserve existing note queues and source cursor isolation; do not
+rerender a captured Note or change any public return/signature.
+
+Validate actual split Note text/page/counter/query/identity and no-fit progress,
+plus existing no-break notes, columns, subframes, rollback, floats and running
+content controls. Preserve strict trace coverage/foreign authority, warnings,
+canonical owner paths and forward/reverse lineage; no suppression or fixture
+weakening. These transport declarations alone do not certify general pagination.
+
+
+## Private assigned-width transport (2026-10-21)
+
+### Measurement before specification
+
+`lab/results/nested-fractions-repeat-2026-10-21/measurement-before-decision.json`
+pins four fresh bilateral receipts and their UTC intervals, HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, exact uncommitted source inputs and
+`git diff HEAD --stat`. Product SHA-256 `94208ba4526d7bda97d4519aa8eb12212bd13dc1f8932552f235940e73238485`
+is compared with pinned vanilla `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+binary SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+`boxed.rs:196–305` mixes child fraction boundaries into the exterior denominator.
+Pinned `typst-layout/src/inline/line.rs:577–591` allocates the final Box width
+before its actual body. `word_layout.rs:31–44` shows why translation of paint
+prepared at a provisional width cannot repair general body wrapping.
+These are observable language geometry/effect requirements; tree representation
+is private mechanics, and source inspection alone does not certify parity.
+
+### Exclusive transport contract
+
+On independent subframe entry take the exterior immutable inline allocation
+Option, starting the local actual body with None. Restore the exact exterior
+Option in LIFO order after local composition. This is geometry scope isolation,
+not a source-plan or admission replacement. Preserve all return values, baseline,
+font, flow, decoration, pending-buffer and source isolation contracts.
+
+This is an internal layout parity correction under ADR-0127 continuous flow:
+no public entity field, trait method, signature, flag/default, compatibility or
+eval/realize/layout phase change. L0 precedes meaningful RED→GREEN and scoped
+resealing. Require actual nested/weighted/zero-width/source-once/decoration,
+subframe-restoration and rejected-suffix tests, all prior geometry controls,
+bilateral parity, full workspace tests, Clippy/rustdoc/fmt, hashes and canonical
+forward/reverse lineage, with every warning retained.
+
+
+## Affine observation of isolated Repeat frames
+
+`lab/results/nested-fractions-repeat-2026-10-21/core-interim-red/receipt.json.gz`
+and `test.log` preserve the exact current source inputs, HEAD/uncommitted stat
+and UTC of the real `child_repeat_tail_is_expanded_before_return` failure.
+`text_positions` observes only flat Text and consequently reports no copies
+inside the correctly composed prepared Groups. The actual new Repeat tests
+pass for complete copies; the fixed-width bilateral corpus retains independent
+coordinates and source bytes. This refutes the flat observer, not the existing
+eight-copy or 1e-9 geometry expectation.
+
+The test-only position visitor must recurse through neutral Group, Link,
+Semantic and TextReplacement wrappers, composing Group translation and matrix
+from root to leaf. Observe Text and TextShaped in world coordinates, preserving
+every prior text/count/coordinate expectation, assertion, input and bound. No
+productive geometry, diagnostic, source admission or fallback changes follow
+from this observation repair. Preserve all previous isolation and root controls.
+
+
+The second actual full-core receipt
+`lab/results/nested-fractions-repeat-2026-10-21/refinement-semantic-red/receipt.json.gz`
+refutes including an empty logical Text leaf newly reached inside a technical
+carrier in the content-position observer: A/Linebreak/B produces A, empty string,
+B while the unchanged expected logical text remains A/B. The test-only visitor
+records nonempty Text/TextShaped leaves; this does not change productive frames,
+line-height observations, input, expected A/B positions, isolation assertions or
+their 1e-9 bound. An empty string is no text token, not a lost visible marker.
+
+
+## Private first-flow baseline witness
+
+### Measurement before correction
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/zero-source-after/measurement.json.gz`
+binds actual source, candidate/oracle SHA-256, fonts, HEAD, uncommitted diffstat
+and UTC. Zero-copy Repeat loses its prepared baseline, moving adjacent BEFORE/TAIL
+while its body height remains real. Source inspection at pinned
+`lab/typst-original/crates/typst-layout/src/repeat.rs:19–29`,
+`inline/box.rs:32–47,79–89`, and `flow/distribute.rs:689–699` shows that
+a prepared frame retains baseline even without copies, and the FIRST actual
+in-flow frame decides baseline presence. The local Box paint scan cannot see it.
+Exact preamendment owners/sources and state are archived in
+`lab/results/nested-fractions-repeat-2026-10-21/baseline-witness-before.json`.
+These are language geometry obligations; private carrier representation is mechanics.
+
+### Exclusive private obligation
+
+Save/reset the active first-flow witness on entry. Register the settled actual pending paragraph baseline only after final inline ascent adjustment. Publish the completed tri-state result in local coordinates, then restore the parent witness; nested last results never become active parent decisions. Preserve all geometry, height, pending-line and assignment isolation.
+
+Require genuine RED→GREEN for empty Repeat baseline, positive copies, earlier Text,
+earlier empty frame, nested insets/shift, Shape/empty controls, LIFO and checkpoint
+restoration, then the same pinned bilateral SVG/PDF observations without relaxing
+1e-8 geometry or semantic membership. Unknown legacy producers retain their
+previous fallback unless a measured owning frame explicitly supplies a decision.
+This is an ADR-0127 continuous private layout correction, with no public contract,
+new product mode/default, compatibility break or eval/layout phase change.
+L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
+zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+The private nonexpanding-piece adapter starts a fresh alignment scope after saving the exterior scope; ordinary independent subframes suspend it and restore LIFO while preserving lexical alignment. Publish the completed logical width, settle only that scope, clear outgoing resolved decoration tokens, and restore every parent field. Public SubLayoutRegion and public APIs stay unchanged.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+
+## R8 unified note capture adapter
+
+Evidence: footnote_flush's obsolete unnormalized legacy adapter was its only
+caller of layout_sub_frame_generated_prefix (rg after R8 capture materialization).
+All note callers now use the existing layout_sub_frame_footnote adapter, preserving
+its generated-prefix/original-body route and Footnote capture purpose. Remove the
+unused descendant-only generated-prefix Ordinary wrapper; retain shared internal
+routing, ordinary/planned/repeat adapters, signatures and all source/geometry
+protocols. No public contract or phase change. Full tests/Clippy/lineage required.
+
+
+## R8 horizontal superscript compensation is paint-only
+
+Source evidence precedes this correction: pinned inline/line.rs:458–484 applies
+script compensation by Frame::translate without changing advance. The approved
+metrics tuple supplies this offset; current text.rs adds it to cursor_x, which
+also shifts following text. The existing real font fixtures have zero X offset,
+so injected nonzero provider controls are necessary refuters, not font-name cases.
+Keep logical advance, wrapping, justification and source identity unchanged;
+translate only the text/highlight paint of the actual script run. This is private
+formula/state correction, no new public field/API/phase (ADR-0127 continuous).
+Save and clear private text_horizontal_offset at independent subframe entry, then restore on exit, alongside the existing style scope.
+Require nonzero injected offset and following-text/rollback/subframe RED→GREEN, actual-font controls and complete validation.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+Save/clear/restore the private literal_script_break_pending cause at both existing independent and inline subframe entries alongside the paint offset; an isolated region must not consume or create its caller's pending separator cause. No other style/source/metric contract changes.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

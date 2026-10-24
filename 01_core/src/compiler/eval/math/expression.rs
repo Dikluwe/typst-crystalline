@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math/expression.md
-//! @prompt-hash cda4d753
+//! @prompt-hash 8d3f62bf
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -31,7 +31,7 @@ pub(super) fn eval_math_expr(
             }
             // 1. Símbolo grego ou operador Unicode (alpha → α etc.)
             if let Some(sym) = crate::compiler::math::symbols::ident_to_unicode(name) {
-                return Ok(Content::MathText(sym.into()));
+                return Ok(Content::Symbol(sym.into()));
             }
             // 2. P301 — auto-lookup scope `math` (42 operadores P299 via SSoT MathOp).
             if let Some(op) = lookup_math_op(scopes, name) {
@@ -44,7 +44,7 @@ pub(super) fn eval_math_expr(
                 if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(name) {
                     engine.sink.warn_note(ident.span(), msg, "");
                 }
-                return Ok(Content::MathText(sym.value.to_string().into()));
+                return Ok(Content::Symbol(sym.value));
             }
             // 3. **P780** — identificador realmente desconhecido: erro com
             // hints (paridade `unknown_variable_math`, vanilla). Substitui
@@ -53,11 +53,11 @@ pub(super) fn eval_math_expr(
             Err(vec![unknown_variable_math(ident.span(), name, scopes.has_global(name))])
         }
         Expr::MathText(text) => match text.get() {
-            MathTextKind::Grapheme(s) => Ok(Content::MathIdent(s.into())),
+            MathTextKind::Grapheme(s) => Ok(Content::Symbol(s.into())),
             MathTextKind::Number(s) => Ok(Content::MathText(s.into())),
         },
         Expr::MathPrimes(primes) => Ok(Content::math_primes(primes.count())),
-        Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
+        Expr::MathShorthand(sh) => Ok(Content::Symbol(sh.get().to_string().into())),
         Expr::MathFrac(frac) => {
             let num_deparenthesized =
                 matches!(frac.num(), Expr::Math(math) if math.was_deparenthesized());
@@ -176,7 +176,7 @@ pub(super) fn eval_math_expr(
         other @ Expr::FieldAccess(_) => {
             let value = eval_math_callee(scopes, ctx, engine, other)?;
             match value {
-                Value::Symbol(s) => Ok(Content::MathText(s.value.to_string().into())),
+                Value::Symbol(s) => Ok(Content::Symbol(s.value)),
                 other_val => {
                     Ok(super::value_to_display_content(other_val)
                         .unwrap_or(Content::Empty))

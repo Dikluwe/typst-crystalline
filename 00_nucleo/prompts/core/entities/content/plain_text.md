@@ -1,12 +1,15 @@
 # L0 — core/entities/content/plain_text
-Hash do Código: 107a03aa
+Hash do Código: b7b3004a
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/plain_text.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Contract
 
@@ -45,3 +48,11 @@ origin per segment where applicable. Keep exclusive ownership and static
 dispatch, with no I/O, new signature/trait/flag, or eval/layout phase change.
 The C2/C/macro tests and measurements, builds, and lineage are required before
 certification. The historical pin does not certify the current upstream pin.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

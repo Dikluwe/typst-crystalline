@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/paths.md
-//! @prompt-hash f909ab38
+//! @prompt-hash a3abe059
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -12,7 +12,7 @@ use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
 use typst_core::entities::path::{PathError, RootedPath, VirtualPath, VirtualRoot};
 use typst_core::entities::source::Source;
-use typst_core::entities::world_types::FileError;
+use typst_core::entities::world_types::{FileError, FileResult};
 
 impl SystemWorld {
     /// Directório raiz do projecto.
@@ -22,20 +22,26 @@ impl SystemWorld {
 
     /// Directório do ficheiro identificado por `id`.
     /// Retorna a raiz se o FileId não estiver registado.
-    pub(super) fn directory_of(&self, id: FileId) -> PathBuf {
-        self.slots
+    pub(super) fn directory_of(&self, id: FileId) -> FileResult<PathBuf> {
+        Ok(self
+            .slots
             .lock()
-            .unwrap()
+            .map_err(|_| FileError::Other("source slots lock is poisoned".into()))?
             .get(&id)
             .and_then(|s| s.path.parent().map(|p| p.to_path_buf()))
-            .unwrap_or_else(|| self.root.clone())
+            .unwrap_or_else(|| self.root.clone()))
     }
 
     /// **P686/P772b** — Path registado para `id`, se existir.
     /// Público para permitir ao formatter de diagnósticos (L4) mostrar o
     /// path correcto em spans cross-file.
-    pub fn path_of(&self, id: FileId) -> Option<PathBuf> {
-        self.slots.lock().unwrap().get(&id).map(|s| s.path.clone())
+    pub fn path_of(&self, id: FileId) -> FileResult<Option<PathBuf>> {
+        Ok(self
+            .slots
+            .lock()
+            .map_err(|_| FileError::Other("source slots lock is poisoned".into()))?
+            .get(&id)
+            .map(|s| s.path.clone()))
     }
 
     fn realize_rooted(&self, path: &RootedPath) -> Result<PathBuf, String> {
@@ -53,15 +59,23 @@ impl SystemWorld {
     /// - Absoluto (`/...`): base = raiz do pacote de `current_file` se existir,
     ///   senão `self.root` (raiz do projecto); junta `path` sem a barra inicial.
     /// - Relativo: `directory_of(current_file).join(path)` (sem regressão).
-    fn resolve_physical_path(&self, current_file: FileId, path: &str) -> PathBuf {
+    fn resolve_physical_path(
+        &self,
+        current_file: FileId,
+        path: &str,
+    ) -> Result<PathBuf, String> {
         if let Some(rest) = path.strip_prefix('/') {
             let base = self
                 .path_of(current_file)
+                .map_err(|error| error.to_string())?
                 .and_then(|p| self.package_root_of(&p))
                 .unwrap_or_else(|| self.root.clone());
-            base.join(rest)
+            Ok(base.join(rest))
         } else {
-            self.directory_of(current_file).join(path)
+            Ok(self
+                .directory_of(current_file)
+                .map_err(|error| error.to_string())?
+                .join(path))
         }
     }
 
@@ -87,6 +101,7 @@ impl SystemWorld {
     ) -> Result<RootedPath, String> {
         let current = self
             .path_of(current_file)
+            .map_err(|error| error.to_string())?
             .ok_or_else(|| "cannot access file system from here".to_string())?;
         let (root, physical_root) = match self.package_identity_of(&current) {
             Some((spec, root)) => (VirtualRoot::Package(spec), root),
@@ -98,9 +113,11 @@ impl SystemWorld {
         let current_virtual =
             VirtualPath::new(&format!("/{}", relative.to_string_lossy()))
                 .map_err(|_| "current file has an invalid virtual path".to_string())?;
-        let base = current_virtual
-            .parent()
-            .unwrap_or_else(|| VirtualPath::new("/").unwrap());
+        let base = match current_virtual.parent() {
+            Some(base) => base,
+            None => VirtualPath::new("/")
+                .map_err(|_| "invalid root virtual path".to_string())?,
+        };
         let vpath = base.join(path).map_err(|error| match error {
             PathError::Escapes => format!(
                 "path `\"{path}\"` would escape the {} root",
@@ -120,7 +137,9 @@ impl SystemWorld {
         path: &RootedPath,
     ) -> Result<Arc<Vec<u8>>, String> {
         let full_path = self.realize_rooted(path)?;
-        let id = self.register_file(full_path.clone());
+        let id = self
+            .register_file(full_path.clone())
+            .map_err(|error| error.to_string())?;
         self.read_bytes_cached(id).map_err(|e| match e {
             FileError::NotFound => {
                 format!("file not found (searched at {})", full_path.display())
@@ -135,9 +154,14 @@ impl SystemWorld {
 
     pub(super) fn world_include_path(&self, path: &RootedPath) -> Result<Source, String> {
         let full_path = self.realize_rooted(path)?;
-        let id = self.register_file(full_path.clone());
-        self.source(id).map_err(|_| {
-            format!("include: ficheiro não encontrado: {}", full_path.display())
+        let id = self
+            .register_file(full_path.clone())
+            .map_err(|error| error.to_string())?;
+        self.source(id).map_err(|error| match error {
+            FileError::NotFound => {
+                format!("include: ficheiro não encontrado: {}", full_path.display())
+            }
+            other => other.to_string(),
         })
     }
 
@@ -146,12 +170,14 @@ impl SystemWorld {
         current_file: FileId,
         path: &str,
     ) -> Result<std::sync::Arc<Vec<u8>>, String> {
-        let full_path = self.resolve_physical_path(current_file, path);
+        let full_path = self.resolve_physical_path(current_file, path)?;
         // P876 — regista o ficheiro para obter um FileId canónico e partilhar
         // o mesmo `Arc<Vec<u8>>` entre chamadas repetidas ao mesmo ficheiro.
         // Isso permite que a deduplicação por `Arc::as_ptr` no exportador PDF
         // funcione para múltiplos `#image("...")` do mesmo ficheiro.
-        let id = self.register_file(full_path.clone());
+        let id = self
+            .register_file(full_path.clone())
+            .map_err(|error| error.to_string())?;
         self.read_bytes_cached(id).map_err(|e| {
             // P819 — formato do `Display` de `FileError` do vanilla
             // (`typst-library/src/diag.rs:647-660`): a mensagem é o observável
@@ -174,10 +200,15 @@ impl SystemWorld {
         current_file: FileId,
         path: &str,
     ) -> Result<typst_core::entities::source::Source, String> {
-        let abs_path = self.resolve_physical_path(current_file, path);
-        let id = self.register_file(abs_path.clone());
-        self.source(id).map_err(|_| {
-            format!("include: ficheiro não encontrado: {}", abs_path.display())
+        let abs_path = self.resolve_physical_path(current_file, path)?;
+        let id = self
+            .register_file(abs_path.clone())
+            .map_err(|error| error.to_string())?;
+        self.source(id).map_err(|error| match error {
+            FileError::NotFound => {
+                format!("include: ficheiro não encontrado: {}", abs_path.display())
+            }
+            other => other.to_string(),
         })
     }
 }

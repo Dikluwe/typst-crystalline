@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/ast/expr.md
-//! @prompt-hash 8c64c623
+//! @prompt-hash 4e528571
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1274,7 +1274,7 @@ mod tests {
 
     #[test]
     fn expr_from_text_node() {
-        let src = Source::detached("hello");
+        let src = Source::detached("hello").expect("valid Source test fixture");
         let expr = src.root().children().find_map(Expr::from_untyped);
         assert!(matches!(expr, Some(Expr::Text(_))));
     }
@@ -1294,14 +1294,15 @@ mod tests {
     fn str_get_simple_no_escapes() {
         // Contrato correcto — `"hello"` without escapes returns `hello`
         // Requires parse() to emit Str nodes — validate via parsing source
-        let _src = Source::detached(r#"#let x = "hello""#);
+        let _src =
+            Source::detached(r#"#let x = "hello""#).expect("valid Source test fixture");
         // Just verify that Str type exists and compiles
         let _ = Str::from_untyped;
     }
 
     #[test]
     fn int_get_decimal() {
-        let src = Source::detached("#42");
+        let src = Source::detached("#42").expect("valid Source test fixture");
         let int_node: Option<&crate::entities::syntax_node::SyntaxNode> = src
             .root()
             .children()

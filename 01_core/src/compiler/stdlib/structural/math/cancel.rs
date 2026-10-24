@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/cancel.md
-//! @prompt-hash 0f62c037
+//! @prompt-hash 8a078320
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -27,14 +27,7 @@ pub fn native_cancel(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     let body = match args.items.as_slice() {
-        [Value::Content(c)] => c.clone(),
-        [Value::Str(s)] => Content::text(s.as_str()),
-        [other] => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("expected content, found {}", vanilla_type_name_class(other)),
-            )])
-        }
+        [body] => super::casts::math_lr_content_value(body, args.span)?,
         [] => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

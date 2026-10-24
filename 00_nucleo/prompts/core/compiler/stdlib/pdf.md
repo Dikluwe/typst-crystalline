@@ -1,5 +1,5 @@
 # L0 — stdlib/pdf — PDF-specific functions
-Hash do Código: 8399e8c2
+Hash do Código: 63dad5f1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -33,3 +33,23 @@ Exact trio errors: table missing `missing argument: table`, non-table/positional
 Preserve global-function type/repr/manual-error/profile tests, stable namespace/members/format alias equality and feature matrix. Attach path/explicit Bytes/metadata/type-MIME-duplicate errors and invisibility/EmbeddedFile; Artifact visual text/stream marker/no tags-node and actual Unknown; a11y omission-vs-none/semantic-only replacement/default/cell geometry/error spans. No test success substitutes explicit missing original public-carrier receipt. Future semantic carrier consumers need their own 1:1 L0 and required confirmation, no nucleus invented here.
 
 V17 maintenance uses existing functional controls before/after, structural 28warning RED→zeroV17, preserves branches/short-circuit/effects without helper-conjunction hiding/suppression/config change. L0/restricted reseal/build/full workspace/all-target strict Clippy including unfulfilled/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/SARIF no new warnings under 12GiB/swap0/jobs1. No AI/runtime/memory gain inferred. Apply pinned format-native-identity nucleus. Native/Format grouping is justified by same payload/ABI for projection/execution, but test every alternative for name/namespace/pointer/Eq/Hash/clone/With/dispatch; inventory/link V19 to tests without suppression, explicitly name new variant in exhaustive matches. No external definition/signature/field/trait/compatibility/default/phase changes, ADR-0127 continuous flow. Before code functional RED via current factories for fifteen cases and real observation against unmarked Native; GREEN full corpus/144 field-call/456 compatibility outside where/kind, public-contract and sizeof before/after. L0/ownership/V26 before restricted eleven-pair reseal; build/workspace/strict Clippy/Rustdoc/fmt/strict-reverse lineage/global no new errors/warnings. Sequential 12GiB/High10GiB/swap0/jobs1. Only where/kind admission closes; full selection/show/query/synthesis/carrier morphology/counter, FG1/RM1/SY1/RG1/V16 retain separate scopes/gates. No old-candidate copying or publication.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

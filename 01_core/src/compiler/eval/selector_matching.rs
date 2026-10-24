@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash 5a2116d3
+//! @prompt-hash 26cf1d16
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -360,6 +360,13 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         }
         Content::Empty | Content::Sequence(_) => native!(native_sequence),
         Content::Equation(_) => native!(native_math_equation),
+        Content::Symbol(_) => addr.is_some_and(|addr| {
+            std::ptr::fn_addr_eq(
+                addr,
+                crate::compiler::eval::bindings::native_symbol_element
+                    as fn(_, _, _, _) -> _,
+            )
+        }),
         Content::Text(_) => native!(native_text),
         Content::Title(_) => native!(native_title),
         Content::FigureCaption(_) => native!(native_figure_caption),
@@ -593,6 +600,7 @@ fn native_element_field(content: &Content, field: &str) -> Option<Value> {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -1025,7 +1033,7 @@ mod tests {
         let source = Source::new(
             FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
             "#let a = strong.where()\n#let printed = repr(a)\n#let same = heading.where(level: 1) == heading.where(level: 1.0)".into(),
-        );
+        ).expect("valid Source test fixture");
         let world = TestWorld {
             library: Library::new(),
             book: FontBook::new(),

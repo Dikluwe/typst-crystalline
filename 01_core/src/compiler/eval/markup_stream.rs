@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup_stream.md
-//! @prompt-hash 32fd9b29
+//! @prompt-hash 95b69efd
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -82,7 +82,12 @@ fn eval_markup_in_scope(
         });
     let capture_origin = content_block_origin.is_some();
     let sequence_origin = content_block_origin.unwrap_or(node.span());
-    for child in node.children() {
+    let mut was_statement = false;
+    for child in node.children().filter(move |child| {
+        let keep = !was_statement || child.kind() != SyntaxKind::Space;
+        was_statement = child.kind().is_stmt();
+        keep
+    }) {
         let snapshot = rules::textual::TextualSnapshot::capture(engine, ctx);
         match child.kind() {
             SyntaxKind::Text => {
@@ -143,7 +148,8 @@ fn eval_markup_in_scope(
                             engine,
                         )?;
                     } else {
-                        let boolean_display = matches!(value, Value::Bool(_));
+                        let raw_display =
+                            matches!(value, Value::Bool(_) | Value::Length(_));
                         let display = match value {
                             Value::None => (!matches!(
                                 child.kind(),
@@ -190,7 +196,21 @@ fn eval_markup_in_scope(
                             | Value::SpotColorant(..) => value_to_display_content(value),
                         };
                         if let Some(content) = display {
-                            let content = if boolean_display {
+                            let content = if ctx.target == EvalTarget::Html
+                                && child.kind() == SyntaxKind::ContentBlock
+                                && has_effective_page_rule(&content)
+                            {
+                                Content::styled(
+                                    content,
+                                    crate::entities::style::Styles::new().push_custom(
+                                        "eval.page.container",
+                                        Value::Bool(true),
+                                    ),
+                                )
+                            } else {
+                                content
+                            };
+                            let content = if raw_display {
                                 rules::intercept_content(content, ctx, engine)?
                             } else {
                                 content
@@ -361,6 +381,22 @@ fn attach_label(
 
 /// A value keeps its immediate interpolated children; the realized flow
 /// expands sequences only after its causal capture has had access to them.
+fn has_effective_page_rule(content: &Content) -> bool {
+    let mut found = false;
+    content.visit_content_static(&mut |node| {
+        if let Content::SetPage(page) = node {
+            found |= page.as_ref() != &crate::entities::content::SetPageDelta::default();
+            return false;
+        }
+        if let Content::PageRun(page) = node {
+            found |= has_effective_page_rule(&page.body);
+            return false;
+        }
+        true
+    });
+    found
+}
+
 fn append_markup_sequence(
     parts: &mut Vec<Content>,
     content: Content,
@@ -371,7 +407,15 @@ fn append_markup_sequence(
         return;
     }
     match content {
-        Content::Source(e) if matches!(e.body.source_body(), Content::Ref(_)) => {
+        Content::Source(e)
+            if matches!(
+                e.body.source_body(),
+                Content::Ref(_)
+                    | Content::Repeat(_)
+                    | Content::SetPage(_)
+                    | Content::Heading(_)
+            ) =>
+        {
             parts.push(Content::Source(e));
         }
         Content::Source(e) => append_markup_sequence(parts, e.body.clone(), false),
@@ -401,6 +445,7 @@ fn append_markup_sequence(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -515,7 +560,12 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
             Some("typc".into()),
             false,
         )),
-        Value::Symbol(symbol) => Some(Content::Text(symbol.value)),
+        length @ Value::Length(_) => Some(Content::raw(
+            crate::compiler::eval::repr::repr_value(&length),
+            Some("typc".into()),
+            false,
+        )),
+        Value::Symbol(symbol) => Some(Content::Symbol(symbol.value)),
         Value::State(state) => {
             Some(Content::state(state.key.to_string(), state.init.as_ref().clone()))
         }
@@ -538,7 +588,6 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
         | Value::Module(..)
         | Value::Datetime(..)
         | Value::Func(..)
-        | Value::Length(..)
         | Value::Relative(..)
         | Value::Ratio(..)
         | Value::Angle(..)
@@ -659,7 +708,7 @@ mod v16_c_display_tests {
         MemoryWorld {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id, text.into()),
+            source: Source::new(id, text.into()).expect("valid Source test fixture"),
         }
     }
 
@@ -730,6 +779,43 @@ mod v16_c_display_tests {
         content.clone()
     }
     #[test]
+    fn repeat_markup_preserves_actual_eval_to_layout_diagnostic_origin() {
+        use crate::entities::{
+            ast::{
+                expr::{Expr, FuncCall},
+                AstNode,
+            },
+            syntax_node::SyntaxNode,
+        };
+        fn repeat_call(node: &SyntaxNode) -> Option<FuncCall<'_>> {
+            if let Some(Expr::FuncCall(call)) = Expr::from_untyped(node) {
+                if matches!(call.callee(), Expr::Ident(name) if name.as_str() == "repeat")
+                {
+                    return Some(call);
+                }
+            }
+            node.children().find_map(repeat_call)
+        }
+        let prefix = "#set page(width: 220pt, height: auto, margin: 10pt)\n#set text(font: \"DejaVu Sans\", size: 11pt)\n#set page(width: auto, height: auto, margin: 10pt)\n";
+        for tail in ["#repeat([X])\n", "#let repeated = repeat([X])\n#repeated\n"] {
+            let text = format!("{prefix}{tail}");
+            let world = world(&text);
+            let call = repeat_call(world.source.root()).expect("real Repeat call AST");
+            let start = text.find("repeat(").unwrap();
+            let end = start + "repeat([X])".len();
+            assert_eq!(world.source.span_byte_range(call.span()), Some(start..end));
+            let module = crate::compiler::eval::eval_for_test(&world, &world.source)
+                .expect("actual document evaluation succeeds before layout");
+            let document = crate::compiler::layout::layout(module.content().unwrap());
+            assert_eq!(document.layout_errors.len(), 1);
+            let error = &document.layout_errors[0];
+            assert_eq!(error.message, "repeat with no size restrictions");
+            assert_eq!(error.span, call.span(), "{tail}");
+            assert_eq!(world.source.span_byte_range(error.span), Some(start..end));
+        }
+    }
+
+    #[test]
     fn v16_c_located_display_preserves_rich_body() {
         assert_rich(
             &value_to_display_content(located()).expect("content is displayable"),
@@ -764,5 +850,102 @@ mod v16_c_display_tests {
             Some(Content::Empty)
         ));
         assert_rich(&value_to_display_content(Value::Content(rich())).unwrap());
+    }
+
+    #[test]
+    fn remaining_length_display_is_inline_typc_raw() {
+        use crate::entities::layout_types::Length;
+        for (length, expected) in [
+            (Length::pt(158.33), "158.33pt"),
+            (Length::em(1.5), "1.5em"),
+            (Length::pt(12.0) + Length::em(0.5), "12pt + 0.5em"),
+        ] {
+            let displayed = value_to_display_content(Value::Length(length)).unwrap();
+            let Content::Raw(raw) = displayed else {
+                panic!("Length display must retain Raw morphology: {displayed:?}")
+            };
+            assert_eq!(raw.text, expected);
+            assert_eq!(raw.lang.as_deref(), Some("typc"));
+            assert!(!raw.block);
+        }
+    }
+
+    #[test]
+    fn remaining_length_display_markup_and_code_tail_keep_raw() {
+        for source in [
+            "#let result = [#(158.33pt)]",
+            "#let value = 158.33pt\n#let result = [#value]",
+            "#let result = {set text(size:12pt); 158.33pt}",
+        ] {
+            let content = inserted(source);
+            let mut raws = Vec::new();
+            content.visit_content_static(&mut |node| {
+                if let Content::Raw(raw) = node {
+                    raws.push((raw.text.to_string(), raw.lang.clone(), raw.block));
+                }
+                true
+            });
+            assert_eq!(raws.len(), 1, "{source}: {content:?}");
+            assert_eq!(raws[0].0, "158.33pt");
+            assert_eq!(raws[0].1.as_deref(), Some("typc"));
+            assert!(!raws[0].2);
+        }
+    }
+
+    #[test]
+    fn remaining_length_display_runs_raw_replacement_once() {
+        for source in [
+            "#let result = [#show raw: it => [RAW#it.text]\n#(158.33pt)]",
+            "#let result = {show raw: it => [RAW#it.text]; set text(size:12pt); 158.33pt}",
+        ] {
+            let content = inserted(source);
+            assert_eq!(content.plain_text().trim(), "RAW158.33pt", "{source}");
+        }
+    }
+
+    #[test]
+    fn remaining_html_page_origin_survives_markup_flattening() {
+        use crate::entities::content::SetPageDelta;
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            5..25,
+        );
+        let page = Content::SetPage(Arc::new(SetPageDelta::default()));
+        let mut parts = Vec::new();
+        append_markup_sequence(&mut parts, page.with_source_span(span), false);
+        assert_eq!(parts.len(), 1);
+        assert_eq!(parts[0].source_span(), span);
+        assert!(matches!(parts[0].source_body(), Content::SetPage(_)));
+    }
+    #[test]
+    fn remaining_markup_statement_space_matches_canonical_ast() {
+        for source in
+            ["P#set text(size:12pt)\nQ", "P#let n = 1\nQ", "P#show text: it => it\nQ"]
+        {
+            let world = world(source);
+            let module = crate::compiler::eval::eval_for_test(&world, &world.source)
+                .expect("valid source-level statement");
+            let content = module.content().expect("evaluated markup");
+            assert_eq!(content.plain_text(), "PQ", "{source}: {content:?}");
+        }
+    }
+
+    #[test]
+    fn remaining_markup_keeps_literal_semicolon_and_paragraph_boundaries() {
+        for source in ["P Q", "P#let n = 1; Q"] {
+            let world = world(source);
+            let module = crate::compiler::eval::eval_for_test(&world, &world.source)
+                .expect("valid whitespace control");
+            assert_eq!(module.content().unwrap().plain_text(), "P Q", "{source}");
+        }
+        let world = world("P#set text(size:12pt)\n\nQ");
+        let module = crate::compiler::eval::eval_for_test(&world, &world.source)
+            .expect("valid paragraph control");
+        let mut breaks = 0;
+        module.content().unwrap().visit_content_static(&mut |node| {
+            breaks += usize::from(matches!(node, Content::Parbreak));
+            true
+        });
+        assert_eq!(breaks, 1, "blank line must retain the paragraph boundary");
     }
 }

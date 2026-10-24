@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/set_page.md
-//! @prompt-hash 3a5bc7af
+//! @prompt-hash 8b7a4115
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -114,6 +114,36 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if !layouter.current_page_is_empty() {
             layouter.flush_line();
             layouter.new_page();
+        }
+        use super::PageRunningSlot;
+        use crate::compiler::introspect::page_running::PlanEdge;
+        if let Some(value) = &delta.header {
+            layouter.bind_running_slot(
+                PageRunningSlot::Header,
+                PlanEdge::SetPageHeader,
+                matches!(value, crate::entities::page_running::PageMarginal::Content(_)),
+            );
+        }
+        if let Some(value) = &delta.footer {
+            layouter.bind_running_slot(
+                PageRunningSlot::Footer,
+                PlanEdge::SetPageFooter,
+                matches!(value, crate::entities::page_running::PageMarginal::Content(_)),
+            );
+        }
+        if let Some(value) = &delta.background {
+            layouter.bind_running_slot(
+                PageRunningSlot::Background,
+                PlanEdge::SetPageBackground,
+                value.is_some(),
+            );
+        }
+        if let Some(value) = &delta.foreground {
+            layouter.bind_running_slot(
+                PageRunningSlot::Foreground,
+                PlanEdge::SetPageForeground,
+                value.is_some(),
+            );
         }
         layouter.page_config = new_config;
         // P216A: sincronizar region.width/height com PageConfig

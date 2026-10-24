@@ -1,9 +1,9 @@
 # L0 — stream/text
-Hash do Código: 244705cd
+Hash do Código: 3c6d349b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
-- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:decdb0b923135236d590767fe6075281006841b5da32f79aad375ebb58f84fe0
+- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d286c7b15a39f05d3792706ade43933abbab24ec298e92998fe3151f41c7c340
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -156,3 +156,105 @@ needs another ADR-0127 gate. Validate build/fmt/strict/reverse lineage/Tekt no n
 errors/warnings, existing Counter/coverage tests under 12 GiB, zero swap, one job.
 Prior full suite is evidence for identical executable code, not a fresh run;
 no lint-attribute mirror tests or new performance comparison for metadata.
+
+## Fractional PDF font-space precision (batch F)
+
+### Measurement before classification
+
+`lab/results/pdf-bbox-precision-2026-10-23/baseline.json` freezes the unchanged
+validated E working tree, source hashes, HEAD, diffstat, UTC and binary identities.
+`before.json` reproduces Hello maximum xMax error0.003652pt and Table maximum
+xMax error0.007417pt at the ratified bd5ebec2 oracle; `causal-width-only.json`
+keeps the failed width-only PDF mutation. This is diagnostic output, not an
+accepted binary. Source fonts.rs:223 quantizes /W; text.rs:223–245 quantizes
+nominal-minus-shaped advance; runs.rs:207–248 quantizes boundary and glyph cursor.
+The retained oracle Hello content stream has fractional TJ58.59375 versus local59,
+and fractional /W751.9531 versus local752. These are measured serialization
+losses; neither byte identity nor a guessed upstream intention is acceptance.
+
+### Correction and acceptance
+
+For this owner's existing PDF responsibility, supersede earlier preservation of
+integer text-unit rounding. Preserve effective face fractional widths, shaped
+advance differences, x offsets, tracking residue and absolute run boundaries;
+use the actually serialized fractional advance for the coalesced cursor. Retain
+existing units, missing metrics fallbacks, GID remapping, subset/face identity,
+operators, Tc=0, graphic scopes, bitmap and Type1 policies. No layout adjustment,
+new public contract, default, phase, flag or font exception. Existing rounded
+models are historical evidence, not current requirements.
+
+Inference: combined width/TJ precision explains the strict box failures; residual
+PDF box or independent painted-origin errors would refute completeness. Require
+real module RED→GREEN with non1000 UPEM, remapping, offsets, fractional boundary
+and tracking controls, then unchanged0.001pt word/page boxes on Hello/Table,
+prose/math preservation, independent PDF/SVG placements and higher-resolution
+painting. Keep original failed receipts. Do not round measured coordinates,
+widen tolerance or substitute raster agreement for text-selection acceptance.
+Reseal lineage and pass all workspace validation plus full crystalline lint.
+
+## Compact absolute coordinate precision
+
+### Additional measurement before correction
+
+`lab/results/pdf-bbox-precision-2026-10-23/compact-candidate1.json` keeps
+four compact-vs-verbose controls from the frozen first candidate. Hello/Table/
+prose pass0.001pt, but math has xMin0.0076pt and yMin0.0346pt differences.
+text.rs:573,604 emits direct glyph Td with one decimal, unlike verbose cm's
+five decimals; compact shaped Td uses three and plain Text one. These are
+serialization losses on supplied absolute coordinates. This is a parity
+correction under ADR-0127, no public/default/phase/compatibility change.
+
+### Current obligation
+
+Emit all compact text/shaped/direct-glyph Td origins with five decimals,
+matching the default verbose positional precision; preserve operator choice,
+font size policy, Type1/bitmap policy, graphics and ActualText scopes. The
+prior paragraph's Type1 policy exclusion does not retain its one-decimal Td
+loss. Require causal compact absolute-origin RED→GREEN for all text carriers,
+then strict compact-vs-verbose0.001pt text/page/box controls on Hello/Table/
+prose/math, plus complete final-state gates. Retain the candidate1 failed
+compact measurement and interrupted validation; neither certifies final scope.
+
+
+## R8 fractional font-size precision
+
+Evidence before decision: source-bound candidate2/receipt.json under
+lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24 records
+7.7pt painted versus resolved7.69677734375pt and9.3pt versus9.35pt. The existing
+Tf format at text.rs:113,430,674,825 and child runs.rs:124 rounds to one decimal,
+while layout/shaping retain full size. Geometry is observable; decimal spelling
+is mechanics. Preserve the resolved size to five decimals in every compact/verbose
+Text/TextShaped/Glyph and coalesced-run Tf operator. Keep exact one-decimal values
+in their existing spelling, delegating the common pure formatter to the text
+owner (runs owns its delegation). No byte identity, new public contract, product
+mode or source/shaping phase change. ADR-0127 continuous flow. Tests must show
+actual emitted fractional font-size RED→GREEN, preserve ordinary integral output,
+verify measured/painted glyph geometry and all prior PDF/SVG controls, and pass
+full workspace and lineage gates without relaxing0.001pt.
+
+
+## R10 — source-preserving raster glyph fallback
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,bitmap-evidence.json,font-tables.json}` binds received R9 code/dirty stat/UTC and fixed bd5ebec2 binaries. Nimbus/Liberation mixed123☃ selects Noto Color Emoji. The received PDF raster route emits only image Do, losing the source character in extraction; SVG glyphs.rs:100-105 requires an outline and emits no raster. Pinned paired PDFs/SVGs preserve source text and the PNG. Font-family names are evidence, never runtime branches; supported actual raster data authenticates the correction. Source character, physical position/advance, PNG pixels and geometry are language observations. Object numbering, Type3 versus CID structures and byte encoding are mechanics.
+
+Classification: private font/export parity correction under ADR-0127 continuous flow, with no new public method/entity/phase/mode/dependency. The previously approved FontMetrics method remains separately bounded. No invisible duplicate source text, fake outline, font-name coefficient, or oracle-byte copying. Build a1016-byte self-authored portable bitmap font fixture from the preserved fontTools generator; it is test data, not a font copied from the oracle or a productive dependency. Authenticate its bytes explicitly in the receipt.
+
+### Exclusive owning obligation
+
+When supplied bitmap references carry complete Type3 codes, emit source glyph text with the existing actual font resource and the builder's single-byte encoding, using original advances/offsets/tracking. Its CharProcs draw the prepared image; do not paint it twice or emit invisible synthetic text. Both Compact/Verbose, single/multifont and local coordinates preserve graphic state and accessibility/ActualText closure. Uncertified bitmap references retain original Do emission. No independent resource allocation or font selection here.
+Require module RED→GREEN before implementation, fixed-pin actual fallback PDF/SVG paint/text/geometry controls, previous A–H/R1–R9, full workspace/lineage/resource gates and byte preservation of received unrelated inputs.
+
+
+R10 closure decision after actual RED: red-svg-residual.json/log/source archive
+in the R10 evidence root confirms the hypothesis for the portable bitmap.
+Plain source bbox is(10,13.25,19,22.25); source-identical TextReplacement becomes
+(10,20,11,20). The old helper closes Q before the existing ActualText protocol
+can close its marked content. For the certified Type3 path, preserve the existing
+restore/deferred-tail convention: open the helper q once, emit the actual text,
+and let the caller close Q when restore=true or return a pending tail when
+restore=false. The existing draw/replacement owner then closes its original
+marks/ActualText before Q. Preserve normal/legacy image paths and all source
+text, glyph positions, bytes of prepared PNGs, advances, offsets and bitmap
+font selection. No new signature, mode, phase or invisible text. The expanded
+plain/replacement test must pass in both modes and single/multifont, together
+with SVG fractional tracking and all previous gates.

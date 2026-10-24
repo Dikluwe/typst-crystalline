@@ -1,5 +1,5 @@
 # L0 — line commit
-Hash do Código: f9eb931e
+Hash do Código: 5b970137
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -103,3 +103,84 @@ This is observed local source behavior, not a new bilateral result or inferred u
 Keep the admitted numbering domain closed at the existing realization match: Str formats, Func records/resolves the request, outer None means overlay suppression. Name each present non-Str/non-Func Value payload as excluded with the existing no-number result; these payloads cannot reach this match through the current admission, so do not broaden counting. Deferred patterns bypass admission and remain coordinator-owned. Preserve page/document scope, physical baseline, callback request count, unresolved Pending behavior, and counter advancement under overlay suppression. A newly added Value must require review at this exact decision, even though admission is currently narrow.
 
 ADR-0127 classification: continuous-flow internal nominal coverage with no public signature, default, phase or compatibility change. Add behavior-preservation controls before implementation and require baseline/final controls plus disposable future-variant compile-negative evidence at the exact selected decision. Current runtime controls may already pass; the structural RED is failure to reject a future variant at that decision. No new suppression or open catchall is authorized.
+
+
+## Source-owned note continuation correction
+
+Measurement: `lab/results/set-page-deferred-corrections-2026-10-21/fit-3/receipt.json`, `fit-3/tests.log`, and unchanged pinned-oracle page text under `lab/results/set-page-header-implementation-2026-10-21/oracle-crosspage/` precede this amendment. Exact ownership and source-only records are in `agents/layout/` under the correction root.
+
+After an actual note-capture text line has been completely admitted, aligned and drained, report its item-index/physical-end boundary to footnote_fragments. Report no synthetic boundary for an empty flush. Atomic source scopes and nested subframes suppress internal cuts. Existing line geometry, main-flow admission, numbering and diagnostics stay unchanged; this is a private geometry witness, not a source event or a new pipeline phase.
+
+
+## Private first-flow baseline witness
+
+### Measurement before correction
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/zero-source-after/measurement.json.gz`
+binds actual source, candidate/oracle SHA-256, fonts, HEAD, uncommitted diffstat
+and UTC. Zero-copy Repeat loses its prepared baseline, moving adjacent BEFORE/TAIL
+while its body height remains real. Source inspection at pinned
+`lab/typst-original/crates/typst-layout/src/repeat.rs:19–29`,
+`inline/box.rs:32–47,79–89`, and `flow/distribute.rs:689–699` shows that
+a prepared frame retains baseline even without copies, and the FIRST actual
+in-flow frame decides baseline presence. The local Box paint scan cannot see it.
+Exact preamendment owners/sources and state are archived in
+`lab/results/nested-fractions-repeat-2026-10-21/baseline-witness-before.json`.
+These are language geometry obligations; private carrier representation is mechanics.
+
+### Exclusive private obligation
+
+At a nonempty actual line commit, after final ascent/admission/geometry has settled, publish its true baseline before its physical flow end. Empty flush publishes no baseline; no font-dependent synthetic strut or early unadjusted glyph baseline. Keep all current line formulas, numbering and source coverage.
+
+Require genuine RED→GREEN for empty Repeat baseline, positive copies, earlier Text,
+earlier empty frame, nested insets/shift, Shape/empty controls, LIFO and checkpoint
+restoration, then the same pinned bilateral SVG/PDF observations without relaxing
+1e-8 geometry or semantic membership. Unknown legacy producers retain their
+previous fallback unless a measured owning frame explicitly supplies a decision.
+This is an ADR-0127 continuous private layout correction, with no public contract,
+new product mode/default, compatibility break or eval/layout phase change.
+L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
+zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+Commit the actual deferred line association only after causal fitting, baseline and link-boundary changes have settled, immediately before draining the real local line. Bind collected decoration segments to that line. Past-line decoration paint in a later tail retains its own association; it cannot substitute the later text-line width. Preserve source markers and item order.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+## R3 math-line text demands
+
+### Evidence before decision
+
+`lab/results/math-geometry-r3-2026-10-23/{candidate-debug/receipt.json,space-reductions/receipt.json}` bind the candidate source, binary, UTC, dirty stat and original/source fixtures. Admitting only the normalized math top corrects isolated alpha, but refutes identity-symbols (0.9211875 pt per paragraph) and selected-multichar (same initial offset). Actual middle Markup/Newline spaces and an explicit linebreak, even without a preceding space, require the outer text strut in pinned vanilla. Trailing weak whitespace at EOF does not; Literal does already. `line_commit.rs:105–129` excludes weak separators and ExplicitLinebreakBoundary, while `linebreak.rs:48–57` already carries the actual break's text style. No new glyph measurement is needed.
+
+### Exclusive obligation
+
+For a pending line containing an actual inline Formula, include the retained interior weak-space text style and the actual ExplicitLinebreakBoundary text style in the existing text-style maximum. Only interior weak spaces with later material qualify; trailing/suppressed weak separators and Parbreak scaffolding do not. Preserve the existing behavior on lines without Formula. TextSeparator remains neutral ink/transport: this is paragraph text-strut resolution from actual authored retained text occurrences, not an invented glyph, export change, new line, new state or independent placement algorithm. Keep all typed edges/leading, region admission and rollback under existing owners. Actual RED→GREEN must require isolated math=math top, interior space and explicit break=outer maximum, terminal weak=math top, mixed text=maximum. Revalidate original R3, all prior line/continuation controls and full gates under continuous ADR-0127.
+
+The final-candidate preflight in `lab/results/math-geometry-r3-2026-10-23/preflight-attempt1/preflight-lint-complete.log:1–8` rejects the compound weak-separator guard at line 143 with V17, after the six focused geometry tests pass. Split only that Boolean conjunction into the existing math-text guard and a nested later-material check. Preserve the false/terminal no-op, style observation and every semantic branch. This is private Rust decision form, not a new geometry rule. Do not suppress V17 or change tests; final full source-frozen suite must reconfirm all six named R3 tests and full lint zero.

@@ -1,8 +1,11 @@
 # L0 — compiler/math/layout/style_transform
-Hash do Código: 5922a485
+Hash do Código: b0de8831
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Ownership and evidence
 
@@ -34,3 +37,13 @@ axes/sizes/slots and MathStyled precedence. Do not flatten containers to text or
 change phase/layout. Preserve exclusive ownership/static dispatch; no I/O,
 new signature/trait/flag or eval↔layout phase change. C2/C/macro tests/collections,
 builds and lineage remain required before certification.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Preserve native Symbol through default and explicit math glyph mapping, retaining all characters; share existing glyph-style algorithms and avoid changing math geometry.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+Measured selected-string-class/receipt.json shows native Symbol multi-character arrow and sum remain upright locally but math-italic per scalar upstream. Apply default and explicit glyph styling per scalar of a Symbol string (including preservation of variation selectors) without changing the native variant or legacy MathIdent/MathText behavior. No symbol-name lookup is authorized by a selected text string.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md
-//! @prompt-hash a3ebdc6f
+//! @prompt-hash 60466c91
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -65,6 +65,14 @@ pub(crate) fn native_element_fields(
     function: &crate::entities::func::Func,
 ) -> Option<(&'static str, &'static [&'static str], bool)> {
     use crate::compiler::stdlib::*;
+    if let crate::entities::func::FuncRepr::Native(native) = function.repr() {
+        if std::ptr::fn_addr_eq(
+            native.call,
+            crate::compiler::eval::bindings::native_symbol_element as fn(_, _, _, _) -> _,
+        ) {
+            return Some(("symbol", &["text"], false));
+        }
+    }
     use crate::entities::func::FormatElementKind;
     if let crate::entities::func::FuncRepr::Format(kind, _) = function.repr() {
         return match kind {

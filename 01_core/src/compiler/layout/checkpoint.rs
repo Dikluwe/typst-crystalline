@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash 9736871c
+//! @prompt-hash c781a65c
 //! @layer L1
-//! @updated 2026-10-06
+//! @updated 2026-10-24
 
 use super::*;
 
@@ -11,7 +11,11 @@ use super::*;
 /// prefixo confirmado são representados somente pelos seus comprimentos; a
 /// restauração trunca a cauda e nunca copia ou recompõe o prefixo.
 pub(in crate::compiler) struct FlowSuffixCheckpoint {
+    page_running_pass: Option<page_running_requests::PlannedPass>,
     style: TextStyle,
+    text_horizontal_offset: Pt,
+    superscript_source_break: bool,
+    literal_script_break_pending: bool,
     chain: StyleChain,
     text_tracking_state: text_tracking::State,
     page_config: PageConfig,
@@ -28,6 +32,8 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     flow_placement_end: Option<(f64, f64)>,
     flow_frame_extent: (f64, f64),
     last_sub_frame_flow_width: f64,
+    flow_baseline: Option<Option<f64>>,
+    last_sub_frame_baseline: Option<Option<f64>>,
     block_place_region: Option<crate::entities::layout_types::Rect>,
     block_auto_width: bool,
     block_place_decorations: Vec<(usize, usize, usize)>,
@@ -70,6 +76,11 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     last_sub_frame_inline_extents: (f64, f64),
     pending_cell_tails_len: usize,
     pending_footnote_bodies_len: usize,
+    pending_footnote_bodies_snapshot: Option<Vec<(u32, Box<Content>, Content)>>,
+    pending_footnote_plans: Vec<Option<page_running_requests::Cursor>>,
+    pending_footnote_frames: Vec<Option<super::DeferredFootnoteFrame>>,
+    footnote_reserved_height: f64,
+    footnote_capture: Option<super::FootnoteCapture>,
     decoration_lines_len: Option<usize>,
     smartquote_context: crate::compiler::lang::quotes::SmartQuoteContext,
     attachments_len: usize,
@@ -90,6 +101,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     active_paragraph_dir: Option<crate::entities::dir::Dir>,
     pending_line_dir: Option<crate::entities::dir::Dir>,
     explicit_line_alignment: Option<crate::entities::layout_types::HAlign>,
+    piece_alignment: Option<super::repeat::PieceAlignment>,
     last_cited_key: Option<String>,
     previously_cited_keys: std::collections::HashSet<String>,
     last_was_loose_item: bool,
@@ -98,6 +110,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     column_mode: bool,
     column_origin_x: f64,
     column_width: f64,
+    page_column_notes: bool,
     page_columns: Option<usize>,
     current_column: usize,
     segmented_par_line_column: Option<(usize, usize)>,
@@ -115,11 +128,14 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     pending_equation_numbering_len: usize,
     pending_align_centering_len: usize,
     pending_align_v_centering_len: usize,
+    inline_allocation: Option<std::sync::Arc<super::sequence::inline_allocation::Node>>,
     pending_repeats_len: usize,
     pending_fr_natural_widths_len: usize,
     layout_warnings_len: usize,
     layout_errors_len: usize,
     page_run_boundary_empty: bool,
+    weak_page_successor: bool,
+    page_has_unpainted_material: bool,
 }
 
 /// Geometria e fronteiras de cauda de uma região já existente. Os `FrameItem`
@@ -175,7 +191,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         &self,
     ) -> FlowSuffixCheckpoint {
         FlowSuffixCheckpoint {
+            page_running_pass: self.page_running_pass.clone(),
             style: self.style.clone(),
+            text_horizontal_offset: self.text_horizontal_offset,
+            superscript_source_break: self.superscript_source_break,
+            literal_script_break_pending: self.literal_script_break_pending,
             chain: self.chain.clone(),
             text_tracking_state: self.text_tracking_state.clone(),
             page_config: self.page_config.clone(),
@@ -192,6 +212,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             flow_placement_end: self.flow_placement_end,
             flow_frame_extent: self.flow_frame_extent,
             last_sub_frame_flow_width: self.last_sub_frame_flow_width,
+            flow_baseline: self.flow_baseline,
+            last_sub_frame_baseline: self.last_sub_frame_baseline,
             block_place_region: self.block_place_region,
             block_auto_width: self.block_auto_width,
             block_place_decorations: self.block_place_decorations.clone(),
@@ -234,6 +256,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             last_sub_frame_inline_extents: self.last_sub_frame_inline_extents,
             pending_cell_tails_len: self.pending_cell_tails.len(),
             pending_footnote_bodies_len: self.pending_footnote_bodies.len(),
+            pending_footnote_bodies_snapshot: Some(self.pending_footnote_bodies.clone()),
+            pending_footnote_plans: self.pending_footnote_plans.clone(),
+            pending_footnote_frames: self.pending_footnote_frames.clone(),
+            footnote_reserved_height: self.footnote_reserved_height,
+            footnote_capture: self.footnote_capture.clone(),
             decoration_lines_len: self.decoration_lines_collector.as_ref().map(Vec::len),
             smartquote_context: self.smartquote_context.clone(),
             attachments_len: self.attachments.len(),
@@ -254,6 +281,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             active_paragraph_dir: self.active_paragraph_dir,
             pending_line_dir: self.pending_line_dir,
             explicit_line_alignment: self.explicit_line_alignment,
+            piece_alignment: self.piece_alignment.clone(),
             last_cited_key: self.last_cited_key.clone(),
             previously_cited_keys: self.previously_cited_keys.clone(),
             last_was_loose_item: self.last_was_loose_item,
@@ -262,6 +290,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_mode: self.column_mode,
             column_origin_x: self.column_origin_x,
             column_width: self.column_width,
+            page_column_notes: self.page_column_notes,
             page_columns: self.page_columns,
             current_column: self.current_column,
             segmented_par_line_column: self.segmented_par_line_column,
@@ -281,11 +310,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_equation_numbering_len: self.pending_equation_numbering.len(),
             pending_align_centering_len: self.pending_align_centering.len(),
             pending_align_v_centering_len: self.pending_align_v_centering.len(),
+            inline_allocation: self.inline_allocation.clone(),
             pending_repeats_len: self.pending_repeats.len(),
             pending_fr_natural_widths_len: self.pending_fr_natural_widths.len(),
             layout_warnings_len: self.layout_warnings.len(),
             layout_errors_len: self.layout_errors.len(),
             page_run_boundary_empty: self.page_run_boundary_empty,
+            weak_page_successor: self.weak_page_successor,
+            page_has_unpainted_material: self.page_has_unpainted_material,
         }
     }
 
@@ -296,7 +328,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         &mut self,
         checkpoint: FlowSuffixCheckpoint,
     ) {
+        self.page_running_generation = self
+            .page_running_generation
+            .checked_add(1)
+            .expect("page running rollback generation overflow");
+        self.page_running_pass = checkpoint.page_running_pass;
         self.style = checkpoint.style;
+        self.text_horizontal_offset = checkpoint.text_horizontal_offset;
+        self.superscript_source_break = checkpoint.superscript_source_break;
+        self.literal_script_break_pending = checkpoint.literal_script_break_pending;
         self.chain = checkpoint.chain;
         self.text_tracking_state = checkpoint.text_tracking_state;
         self.page_config = checkpoint.page_config;
@@ -320,6 +360,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.flow_placement_end = checkpoint.flow_placement_end;
         self.flow_frame_extent = checkpoint.flow_frame_extent;
         self.last_sub_frame_flow_width = checkpoint.last_sub_frame_flow_width;
+        self.flow_baseline = checkpoint.flow_baseline;
+        self.last_sub_frame_baseline = checkpoint.last_sub_frame_baseline;
         self.block_place_region = checkpoint.block_place_region;
         self.block_auto_width = checkpoint.block_auto_width;
         self.block_place_decorations = checkpoint.block_place_decorations;
@@ -362,8 +404,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.last_sub_frame_width = checkpoint.last_sub_frame_width;
         self.last_sub_frame_inline_extents = checkpoint.last_sub_frame_inline_extents;
         self.pending_cell_tails.truncate(checkpoint.pending_cell_tails_len);
-        self.pending_footnote_bodies
-            .truncate(checkpoint.pending_footnote_bodies_len);
+        if let Some(bodies) = checkpoint.pending_footnote_bodies_snapshot {
+            self.pending_footnote_bodies = bodies;
+        } else {
+            self.pending_footnote_bodies
+                .truncate(checkpoint.pending_footnote_bodies_len);
+        }
+        self.pending_footnote_plans = checkpoint.pending_footnote_plans;
+        self.pending_footnote_frames = checkpoint.pending_footnote_frames;
+        self.footnote_reserved_height = checkpoint.footnote_reserved_height;
+        self.footnote_capture = checkpoint.footnote_capture;
         match (checkpoint.decoration_lines_len, self.decoration_lines_collector.as_mut())
         {
             (Some(len), Some(lines)) => lines.truncate(len),
@@ -391,6 +441,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.active_paragraph_dir = checkpoint.active_paragraph_dir;
         self.pending_line_dir = checkpoint.pending_line_dir;
         self.explicit_line_alignment = checkpoint.explicit_line_alignment;
+        self.piece_alignment = checkpoint.piece_alignment;
         self.last_cited_key = checkpoint.last_cited_key;
         self.previously_cited_keys = checkpoint.previously_cited_keys;
         self.last_was_loose_item = checkpoint.last_was_loose_item;
@@ -399,6 +450,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.column_mode = checkpoint.column_mode;
         self.column_origin_x = checkpoint.column_origin_x;
         self.column_width = checkpoint.column_width;
+        self.page_column_notes = checkpoint.page_column_notes;
         self.page_columns = checkpoint.page_columns;
         self.current_column = checkpoint.current_column;
         self.segmented_par_line_column = checkpoint.segmented_par_line_column;
@@ -431,12 +483,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             .truncate(checkpoint.pending_align_centering_len);
         self.pending_align_v_centering
             .truncate(checkpoint.pending_align_v_centering_len);
+        self.inline_allocation = checkpoint.inline_allocation;
         self.pending_repeats.truncate(checkpoint.pending_repeats_len);
         self.pending_fr_natural_widths
             .truncate(checkpoint.pending_fr_natural_widths_len);
         self.layout_warnings.truncate(checkpoint.layout_warnings_len);
         self.layout_errors.truncate(checkpoint.layout_errors_len);
         self.page_run_boundary_empty = checkpoint.page_run_boundary_empty;
+        self.weak_page_successor = checkpoint.weak_page_successor;
+        self.page_has_unpainted_material = checkpoint.page_has_unpainted_material;
         self.flow_suffix_checkpoint_pending = false;
         self.flow_suffix_transaction_active = false;
         self.flow_suffix_transaction_rejected = false;
@@ -450,4 +505,104 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+
+    #[test]
+    fn footnote_unplanned_rejected_flush_restores_visible_note_once() {
+        use super::super::{FixedMetrics, Layouter};
+        use crate::entities::{
+            content::Content,
+            elements::footnote::FootnoteElem,
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+        };
+        use comemo::Track;
+        use std::sync::Arc;
+
+        let render = |rejected_flush| {
+            let intr = TagIntrospector::empty();
+            let mut layouter = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            layouter.layout_content(&Content::text("ANCHOR"));
+            layouter.layout_content(&Content::Footnote(Arc::new(FootnoteElem {
+                body: Content::text("ROLLBACK_NOTE"),
+                numbering: None,
+            })));
+            if rejected_flush {
+                let checkpoint = layouter.capture_flow_suffix_checkpoint();
+                layouter.flush_pending_footnote_bodies(None);
+                layouter.restore_flow_suffix_checkpoint(checkpoint);
+            }
+            layouter
+                .finish()
+                .pages
+                .iter()
+                .map(|page| page.plain_text())
+                .collect::<Vec<_>>()
+        };
+        let control = render(false);
+        assert_eq!(control.join(" ").matches("ROLLBACK_NOTE").count(), 1);
+        assert_eq!(render(true), control, "a rejected flush must not lose the Note");
+    }
+}
+
+#[cfg(test)]
+mod inline_allocation_rollback_tests {
+    use super::super::{FixedMetrics, Layouter};
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    #[test]
+    fn rejected_suffix_restores_first_frame_baseline_presence_and_zero() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        for active in [None, Some(None), Some(Some(0.0)), Some(Some(17.0))] {
+            for completed in [None, Some(None), Some(Some(0.0)), Some(Some(23.0))] {
+                l.flow_baseline = active;
+                l.last_sub_frame_baseline = completed;
+                let checkpoint = l.capture_flow_suffix_checkpoint();
+                l.flow_baseline = Some(Some(-9.0));
+                l.last_sub_frame_baseline = Some(Some(-11.0));
+                l.restore_flow_suffix_checkpoint(checkpoint);
+                assert_eq!(l.flow_baseline, active);
+                assert_eq!(l.last_sub_frame_baseline, completed);
+            }
+        }
+    }
+
+    #[test]
+    fn rejected_suffix_restores_consumed_inline_width_assignment() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let node = Arc::new(super::super::sequence::inline_allocation::Node::Fraction {
+            width: 0.0,
+        });
+        l.inline_allocation = Some(node.clone());
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        l.inline_allocation = None;
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        assert!(
+            l.inline_allocation
+                .as_ref()
+                .is_some_and(|saved| Arc::ptr_eq(saved, &node)),
+            "rollback must preserve actual immutable assignment, including zero"
+        );
+    }
 }

@@ -1,9 +1,9 @@
 # L0 — stream/text/runs
-Hash do Código: bc9faca5
+Hash do Código: d376d81e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
-- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:decdb0b923135236d590767fe6075281006841b5da32f79aad375ebb58f84fe0
+- 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d286c7b15a39f05d3792706ade43933abbab24ec298e92998fe3151f41c7c340
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 
 **Layer:** L3
@@ -104,3 +104,55 @@ Only TextShaped with certified Some Font whose fvar declares real wght uses fill
 ## Unused local binding
 
 runs.rs:72 and `lab/results/construction/diagnostics/ci-helpers-testes-2026-10-14/{before.json.gz,references-before.json.gz}` preserve owner/source/HEAD/tree/UTC/diffstat/calls/imports/modules and verified old inventory/suite hashes/pre-edit test list. Private calls/compilation were audited; dead_code alone is insufficient. Remove only the unused font binding in verbose_run_end's initial style.math test; preserve face lookup/bindings in multifont/other actual font-selection/comparison branches. Run bounds/bitmap/math/baseline/effective identity remain unchanged. Continuous flow adds no public field/API/default/phase/dependency/suppression. Selected diagnostics RED→GREEN are not parity proof. Preserve test list/expectations, run full suite/lib/all-target build/Rustdoc/fmt/lineage/total inventory, scoped resealing; no cfg/binding-mirror tests.
+
+## Fractional PDF font-space precision (batch F)
+
+### Measurement before classification
+
+`lab/results/pdf-bbox-precision-2026-10-23/baseline.json` freezes the unchanged
+validated E working tree, source hashes, HEAD, diffstat, UTC and binary identities.
+`before.json` reproduces Hello maximum xMax error0.003652pt and Table maximum
+xMax error0.007417pt at the ratified bd5ebec2 oracle; `causal-width-only.json`
+keeps the failed width-only PDF mutation. This is diagnostic output, not an
+accepted binary. Source fonts.rs:223 quantizes /W; text.rs:223–245 quantizes
+nominal-minus-shaped advance; runs.rs:207–248 quantizes boundary and glyph cursor.
+The retained oracle Hello content stream has fractional TJ58.59375 versus local59,
+and fractional /W751.9531 versus local752. These are measured serialization
+losses; neither byte identity nor a guessed upstream intention is acceptance.
+
+### Correction and acceptance
+
+For this owner's existing PDF responsibility, supersede earlier preservation of
+integer text-unit rounding. Preserve effective face fractional widths, shaped
+advance differences, x offsets, tracking residue and absolute run boundaries;
+use the actually serialized fractional advance for the coalesced cursor. Retain
+existing units, missing metrics fallbacks, GID remapping, subset/face identity,
+operators, Tc=0, graphic scopes, bitmap and Type1 policies. No layout adjustment,
+new public contract, default, phase, flag or font exception. Existing rounded
+models are historical evidence, not current requirements.
+
+Inference: combined width/TJ precision explains the strict box failures; residual
+PDF box or independent painted-origin errors would refute completeness. Require
+real module RED→GREEN with non1000 UPEM, remapping, offsets, fractional boundary
+and tracking controls, then unchanged0.001pt word/page boxes on Hello/Table,
+prose/math preservation, independent PDF/SVG placements and higher-resolution
+painting. Keep original failed receipts. Do not round measured coordinates,
+widen tolerance or substitute raster agreement for text-selection acceptance.
+Reseal lineage and pass all workspace validation plus full crystalline lint.
+
+
+## R8 fractional font-size precision
+
+Evidence before decision: source-bound candidate2/receipt.json under
+lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24 records
+7.7pt painted versus resolved7.69677734375pt and9.3pt versus9.35pt. The existing
+Tf format at text.rs:113,430,674,825 and child runs.rs:124 rounds to one decimal,
+while layout/shaping retain full size. Geometry is observable; decimal spelling
+is mechanics. Preserve the resolved size to five decimals in every compact/verbose
+Text/TextShaped/Glyph and coalesced-run Tf operator. Keep exact one-decimal values
+in their existing spelling, delegating the common pure formatter to the text
+owner (runs owns its delegation). No byte identity, new public contract, product
+mode or source/shaping phase change. ADR-0127 continuous flow. Tests must show
+actual emitted fractional font-size RED→GREEN, preserve ordinary integral output,
+verify measured/painted glyph geometry and all prior PDF/SVG controls, and pass
+full workspace and lineage gates without relaxing0.001pt.

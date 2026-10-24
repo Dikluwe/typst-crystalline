@@ -1,11 +1,15 @@
 # L0 — introspect/labelled
-Hash do Código: ff62dce8
+Hash do Código: 589abe78
 
 ```text
+```
+
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
-```
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
 
 ## Ownership and evidence
 
@@ -242,3 +246,26 @@ L0 precedes functional RED and implementation. Require independent fixed expecta
 Measured source before decision: `01_core/src/compiler/introspect/labelled.rs:228` selects the first descendant Tag for an automatic label; a nonlocatable Ref otherwise publishes no queried source object. The pinned oracle `agents/entities/reference-acceptance/oracle/receipt.json` under current Figure implementation evidence records label-on-reference with query(<reference-label>).len1 and queried .func()==ref. The approved Ref proposal explicitly requires that morphology and prohibits retargeting a label to internal Context transport or inserted Figure.
 
 For a Ref original with a real Located execution identity retained through the approved Realized transport, register that labeled raw Ref snapshot and Label at that same actual Location, then walk its actual contribution without propagating the language label to inserted descendants. Do not make unlabelled Ref or generated Context semantically locatable, fabricate ElementPayload/automatic actions, derive Location from hash, or allocate an unstable second label identity. Preserve ordinary label/duplicate-first semantics outside this exact source Ref case. The walker must still register internal execution transport even if a labeled Ref semantic entry already occupies its Location. Keep original Ref fields and label morphology, Source provenance and generic terminal Ref maps.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Plan the exact source target and independent source relation for labelled content, including already Located raw Ref and nonlocatable-target classification. Replay label facts and derived compatibility projections at their validated causal positions without searching adjacent flattened physical tags or inventing a Location for text. Preserve first-observation aliases, exact source origin, membership and the approved duplicate-reference refusal boundary owned by Ref; LabelRegistry public lookup compatibility is unchanged.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,13 +1,19 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/finish.md
-//! @prompt-hash 3ac544fe
+//! @prompt-hash b3ff989b
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-24
 
 use super::*;
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
-    pub fn finish(mut self) -> PagedDocument {
+    pub fn finish(self) -> PagedDocument {
+        self.finish_with_running().0
+    }
+
+    pub(super) fn finish_with_running(
+        mut self,
+    ) -> (PagedDocument, Option<page_running_requests::PlannedPass>) {
         // P842 (#38) — a última linha também expande h(Nfr) pendentes
         // (paridade vanilla: fr consome o espaço restante mesmo na linha
         // final do documento — medido em `temp/p842/l7_h_1fr.typ`).
@@ -18,12 +24,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let had_terminal_paragraph = self.terminal_paragraph_line;
         self.flush_line();
         let had_causal_last_line = had_last_line || had_terminal_paragraph;
-        // Terminal geometry uses the last causal baseline; note fitting keeps
-        // the conservative clearance that the following baseline represented.
-        let terminal_note_clearance = had_causal_last_line.then_some((
-            (self.pages.len(), self.current_column),
-            self.regions.current.cursor_y,
-        ));
         if had_causal_last_line {
             self.regions.current.cursor_y = Pt(self.prev_line_baseline);
             if self.last_block_descent_y.is_none() {
@@ -62,36 +62,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.flush_pending_floats();
         let note_region = (self.pages.len(), self.current_column);
         let note_causal_cursor = self.regions.current.cursor_y;
-        if !self.pending_footnote_bodies.is_empty() {
-            if let Some((region, clearance)) = terminal_note_clearance {
-                if region == note_region {
-                    self.regions.current.cursor_y =
-                        Pt(self.regions.current.cursor_y.0.max(clearance.0));
-                }
-            }
-        }
         // P304 (P295.1) — flush footnote bodies pendentes da última
         // página antes de comitar a Page final. Subpadrão DeferredX
         // N=3 paralelo a P245/P251.
         self.flush_pending_footnote_bodies(footnote_bottom_y);
         // P305 (P295.2) — overflow: se bodies sobraram no buffer,
         // criar páginas adicionais (`new_page()`) até buffer vazio.
-        // Cada iteração: new_page() saves current page + flush
-        // next batch. Iter limit defensivo (paralelo P251
-        // forwarded_count limit) — assume cada iteração emite ≥1
-        // body via defensive first-body fallback.
-        let mut iter_limit = self.pending_footnote_bodies.len() + 1;
-        while !self.pending_footnote_bodies.is_empty() && iter_limit > 0 {
-            self.new_page();
-            self.flush_pending_footnote_bodies(footnote_bottom_y);
-            iter_limit -= 1;
-        }
+        // A body may leave arbitrarily many certified tails. Progress belongs
+        // to the retained payload, not the number of source footnotes.
+        self.drain_pending_footnotes(footnote_bottom_y, false);
         if (self.pages.len(), self.current_column) == note_region {
             self.regions.current.cursor_y = note_causal_cursor;
         }
         if self.pages.is_empty()
+            || self.page_has_unpainted_material
             || html_frame::items_have_material(&self.regions.current.current_items)
-            || !self.page_run_boundary_empty
+            || (!self.page_run_boundary_empty && !self.weak_page_successor)
         {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
@@ -224,6 +210,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 bleed,
                 page_width,
                 page_height,
+                super::PageRunningSlot::Background,
             );
             let mut foreground = page_canvas::layout_layer(
                 &mut self,
@@ -231,6 +218,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 bleed,
                 page_width,
                 page_height,
+                super::PageRunningSlot::Foreground,
             );
             foreground.extend(marginal_items);
             let page = Page {
@@ -307,7 +295,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // **P595** — exportar avisos de layout acumulados no Layouter.
         doc.layout_warnings = self.layout_warnings;
         doc.layout_errors = self.layout_errors;
-        doc
+        let mut running = self.page_running_pass.take();
+        if let Some(pass) = &mut running {
+            pass.trace.data.positions = doc.extracted_positions.clone();
+            if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
+                pass.trace.data.pages =
+                    crate::entities::page_store::PageStore::from_runtime(
+                        total,
+                        doc.pages.iter().map(|page| page.numbering.clone()).collect(),
+                        doc.pages.iter().map(|page| page.supplement.clone()).collect(),
+                    );
+            }
+        }
+        (doc, running)
     }
 }
 
@@ -315,4 +315,76 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod r8_terminal_clearance_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        elements::{footnote::FootnoteElem, v_space::VSpaceElem},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageMarginSpec, PageMargins},
+    };
+    use comemo::Track;
+    #[test]
+    fn r8_terminal_split_uses_causal_carrier_not_following_baseline() {
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.regions.current.width = 300.0;
+        l.page_config.height = 100.0;
+        l.regions.current.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.regions.current.line_start_x = Pt(20.0);
+        l.regions.current.cursor_y = Pt(20.0);
+        l.initial_baseline_pending = true;
+        l.line_assumed_ascent = None;
+        l.layout_content(&Content::text("ALPHA"));
+        let body = Content::sequence(vec![
+            Content::text("START"),
+            Content::VSpace(std::sync::Arc::new(VSpaceElem {
+                amount: Length::pt(120.0),
+                weak: false,
+                weak_explicit: false,
+            })),
+            Content::text("END"),
+        ]);
+        super::super::footnote::layout(&mut l, &FootnoteElem { body, numbering: None });
+        let carrier = l.regions.current.cursor_y.0;
+        let local = l.pending_footnote_frames[0]
+            .as_ref()
+            .unwrap()
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "START" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        let doc = l.finish();
+        let actual = super::super::tests::frame_items_recursive(&doc.pages[0].items)
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "START" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert!(
+            (actual - (carrier + 16.5 + local)).abs() < 1e-8,
+            "actual={actual}, carrier={carrier}, local={local}"
+        );
+    }
 }

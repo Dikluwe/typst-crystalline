@@ -1,10 +1,13 @@
 # L0 — compiler/layout/sequence/inline_prefix
-Hash do Código: 80389f2d
+Hash do Código: c69cadd1
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:447289c8c45df27081c71b98e7aa32b1fbaab3883018f585540285e658122090
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
+
 
 ## Evidence before specification
 
@@ -47,3 +50,11 @@ Prepared-carrier RED covers Strong/Emph/Styled with Source/Located/Realized, vis
 Singleton Sequence RED covers Strong/Emph/Styled with Empty/nested Empty/prepared carriers and Strong body None. Refuse two Texts, real empty Text+Strong, Space+Strong and Link. Repeat 18 PDFs/12 geometric comparisons within each compiler with exact pages/words/tolerance 1e-6pt; this is not cross-compiler geometric equality proof. Require strict Clippy/Rustdoc/lineage/differential/full gates under 12GiB/High8GiB/swap0/jobs1.
 
 Record nominal pattern/complement replay/prior source and preserve failed validation attempt. Remove only introduced V16 (106→107→106), with no new error/warning; already-exhaustive append forwarding emitted none before and earns no 106→105 debt-removal credit. V19 stays informative, V20 grows no hidden projection depth. Reseal only after valid ownership/nuclei and rerun complete gates in same final freeze.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

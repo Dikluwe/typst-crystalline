@@ -1,6 +1,7 @@
 # L0 — stdlib/structural/document
 Hash do Código: bb17eb4a
 
+
 **Historical ratified vanilla:** `586e1bd43`, not the current parity target. document is independent; asset belongs to typst-bundle/src/format.rs.
 
 Layer: L1

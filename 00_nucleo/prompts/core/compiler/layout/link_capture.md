@@ -1,8 +1,9 @@
 # L0 — Private link capture scopes
-Hash do Código: 6cf52551
+Hash do Código: 20a6ce30
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/link_capture.rs`
@@ -24,3 +25,10 @@ Continue capture across line/page/column changes, preserve membership in deferre
 ## Acceptance and limits
 
 Locally test preservation of unlinked neighbors, fragment bounds, no area for an empty scope and preservation of a visible artifact whose alt resembles the private marker. These controls do not replace full-flow pagination, subframe and rollback tests.
+
+
+## Planned source body and mixed siblings
+
+Current link_capture.rs dispatches a source-owned Styled outline destination or a prepared Ref supplement through layout_content, which deliberately clears source cursors. The approved protocol and actual semantic failures are retained in `lab/results/set-page-header-implementation-2026-10-21/`; source fields and typed edges belong to the respective feature owners.
+
+Retain the existing begin/body/fraction-expansion/end link scope and legacy helper signature. Private planned helpers may dispatch either one explicitly supplied actual body cursor or the unchanged part slice with an exact parallel mixed generated/source route. No caller may infer a source route from target text, Content equality or links. Mixed parts use the Sequence owner's normal-flow helper: generated numbering and separators remain unplanned, selected actual supplement retains PreparedReferenceSupplement. Preserve all link fragments, counters, source anchors, geometry, destination, empty scopes, rollback and unplanned behavior. This adds no public API/default or phase.

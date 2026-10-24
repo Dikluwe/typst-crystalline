@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdf_page_labels_tests.md
-//! @prompt-hash 08e3fa13
+//! @prompt-hash 73fb9bf5
 //! @layer L3
 //! @updated 2026-09-24
 
@@ -62,6 +62,7 @@ fn selected_with_options(
         ranges,
         standards,
     )
+    .output
 }
 
 fn dict(pdf: &[u8], id: usize) -> String {

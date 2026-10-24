@@ -29,3 +29,68 @@ lay out, add I/O/global caches or choose a mode. Lifetime is per operation;
 Engine/World remain outside pure L1. Module signatures are pipeline/descendant-only.
 Require the archived H1–H8 controls, bilateral PDF/HTML proof and full gates under
 MemoryMax 12 GiB, MemoryHigh 8 GiB, zero swap, one job.
+
+
+## Approved physical running-content candidate integration
+
+Evidence before this decision is the immutable source-qualified current-pin
+SetPage baseline and ambient20/30 measurements under
+lab/results/set-page-header-2026-10-21. Header-only/repeated/footer/context/style
+and duplicate-label failures are language observations; the twelve existing gates
+passing is structural preservation only. Actual seven semantic REDs and one inert
+template control are recorded in
+lab/results/set-page-header-implementation-2026-10-21/initial-red/receipt.json.
+Human approval of review SHA256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+is recorded in that implementation directory's approval.json. ADR-0127 items1/3
+are satisfied for exactly the frozen five L1 facades/types and their phase/order.
+This section supersedes earlier preserve-phase/default boilerplate only for the
+approved physical channel. It adds no public L3 API, source reevaluation, new
+solver/budget, generic observation/equality rule, or unrelated behavior change.
+
+Use the approved owned Content/source plan and immutable request/resolution/trace
+facades as opaque L1 transports. L3 coordinates the actual World, Engine, retained
+arena frames, existing Context Session and candidate diagnostic sinks; no selector,
+Figure-kind, semantic child-edge, temporal action, style-rebase or render business
+logic moves to L3. The pure layout renderer executes no language closures. The
+initial canonical body identity comes from the existing reached realization and
+its protected operational templates; preparation publishes no invented body index
+or PageStore. Only a matching actual trace/store pair builds the complete Paged
+source-derived index. Global Bundle input uses actual ordered target metadata,
+features and document seeds; HTML has no physical requests.
+
+Keep the Session alive through physical discovery, including initially unselected
+body producers. Actual Pending requests select the approved physical contribution
+channel, without fabricating filtered/position reads or running unselected source
+producers a second time. Raw operational SetPage/PageRun templates are excluded
+from body discovery/substitution; realize only requested actual insertions in one
+retained frame per actual request lineage/key. Inspecting a dormant template for
+allocator reservation is not execution, query/counter admission or a new producer.
+Register actual generated Context descendants in the same Session, preserve their
+source/style/target/features, and rebind expanded Content through the approved L1
+function under the shared frame. No synthetic operational Located wrapper/Context
+query element or page-derived numeric Location is allowed.
+
+Reuse a body plan only with unchanged actual retained contribution versions and
+immutable source provenance. Content Eq/hash/Debug, equal counters/page counts or
+freshly reconstructed closure equality are not evidence. New source generations
+invalidate prior plan/request authority; pure layout reflow of the same retained
+plan keeps its authority. Candidate-local stores/transcripts must be complete and
+agree with current geometry/effective page environment; no partial candidate may
+reach shaping/export. Maintain the existing five contextual/page attempts and
+separate eight math/par.line request attempts, no hidden sixth execution or second
+context solver. Discovery/replay/replaced sinks remain discarded; publish only the
+retained final transactions through existing Sink policy, preserving source error
+precedence and independently sourced identical warnings.
+
+Own only this consumer's integration. Its existing private helpers and a private
+descendant page_running module may coordinate the protocol; each new productive
+file has its own canonical owner. Other owner's clauses do not authorize bodies
+here. Preserve legacy facade contracts, non-running paths, PageRun lexical restore,
+page snapshots and numbering, source parents/original morphology, HTML semantics,
+Bundle validation/resource/write policy and all unrelated F/G debts. Require actual
+focused GREEN and frozen CLI/counter/query/style/error/alias/dormant/template and
+rollback controls, followed by full twelve-gate validation, canonical paths,
+strict forward/reverse lineage, ownership/Nucleus pins/DAG and complete diagnostic
+comparison. No suppression, test relaxation, opaque catchall or convenience global
+hash reseal is authorized.

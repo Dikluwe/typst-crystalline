@@ -1,5 +1,5 @@
 # L0 — text_baseline
-Hash do Código: 1992d265
+Hash do Código: 6de0c270
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -45,3 +45,15 @@ This internal parity correction follows ADR-0127 continuous flow: no new public 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
 Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change. Preserve prior refused/scalar paths. Regional certificate expands prepared text only at same size/leading, zero baseline_offset, finite nonnegative edges and faces with different tops/descents; variable sizes/leading remain outside certificate, without complete-parity claim. Require RED→GREEN for four added regressions/prior controls,30+20 regional PDF matrix,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1. Record failed attempts rather than hiding them.
+
+
+## R8 continuation line-top notification
+
+Evidence: R8 svg-candidate3/receipt.json and split_frame's source-gap rebase
+retain4.675pt interline leading at the continued note's first ordinary line.
+After actual baseline/paragraph-indent admission, notify the existing private
+footnote feature so it may certify the next ordinary line's physical top. The
+feature owns eligibility and formula; this module owns only this post-admission
+notification. No public interface, font selection, source replay or phase change.
+Require continuation separator/glyph geometry RED→GREEN and complete tests and
+lineage, preserving separators and all unrelated baseline decisions.

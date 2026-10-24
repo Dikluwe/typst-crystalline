@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/math.md
-//! @prompt-hash 18142cbd
+//! @prompt-hash 9b902b85
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -34,7 +34,7 @@ pub(super) fn repr_math_attach(
 /// apenas a representação pública usa a forma de conteúdo `[texto]`.
 pub(super) fn repr_p1293_math_field(content: &Content) -> String {
     match content {
-        Content::MathIdent(text) | Content::MathText(text) => {
+        Content::Symbol(text) | Content::MathIdent(text) | Content::MathText(text) => {
             repr_content(&Content::Text(text.clone()))
         }
         other => repr_content(other),
@@ -52,7 +52,10 @@ pub(super) fn repr_math_limits_body(content: &Content) -> String {
     match content {
         Content::MathSequence(nodes)
             if nodes.iter().all(|node| {
-                matches!(node, Content::MathIdent(_) | Content::MathText(_))
+                matches!(
+                    node,
+                    Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_)
+                )
             }) =>
         {
             repr_content(&Content::text(content.plain_text()))
@@ -127,9 +130,10 @@ pub(super) fn repr_math_matrix(
     }
     fn sequence_cell(content: &Content) -> String {
         match content {
-            Content::MathIdent(text) | Content::MathText(text) | Content::Text(text) => {
-                text.to_string()
-            }
+            Content::Symbol(text)
+            | Content::MathIdent(text)
+            | Content::MathText(text)
+            | Content::Text(text) => text.to_string(),
             Content::MathAlignPoint(_) => " & ".to_string(),
             Content::MathSequence(nodes) => nodes.iter().map(sequence_cell).collect(),
             other => repr_content(other),
@@ -138,7 +142,9 @@ pub(super) fn repr_math_matrix(
     fn cell(content: &Content) -> String {
         match content {
             Content::MathSequence(nodes) => nodes.iter().map(sequence_cell).collect(),
-            Content::MathIdent(text) | Content::MathText(text) => text.to_string(),
+            Content::Symbol(text)
+            | Content::MathIdent(text)
+            | Content::MathText(text) => text.to_string(),
             other => repr_content(other),
         }
     }

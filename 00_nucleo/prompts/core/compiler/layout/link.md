@@ -1,5 +1,5 @@
 # L0 — link
-Hash do Código: dae3001e
+Hash do Código: e3c9b0e8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -51,3 +51,9 @@ Preserve the unit's current rendered content, morphology, causal positions/pages
 Preserve observable text/geometry, adjacency controls and pinned invariants. TextReplacement acceptance covers text/boxes, causal tests, recursive transport and literal-hyphen controls, never PDF bytes or new selection.
 
 Require RED→GREEN for breaks before/within body; preserve prefix/suffix, regions, destinations/bounds, rich body/nesting/columns, deferred content and context/rollback, with no private boundaries in output. Revalidate no-break controls, suite, build and lineage. Test both text variants with deterministic metrics and inspect PDF to ensure first-fragment rectangle excludes SUFFIX. Require neither byte equality nor exact vanilla height.
+
+## Nominal inline frame link control (2026-10-22)
+
+Before this control, `lab/results/remaining-parity-2026-10-22/agents/repeat/link-frame-before.json` preserves source/L0 hashes, exact dirty tree and UTC. The separate read-only `agents/repeat/link-observer-before/observation.json` under that result root observes the immutable decorated-link-nested baseline and pinned oracle: one identical URI each, but the baseline linked rectangle begins at the glyph baseline rather than the Box top and has the wrong nominal width. This is actual hit-area geometry, independent of paint comparison; the PDF serialized rectangles are supporting evidence without a new tolerance. Current `link.rs` measures Group nominal dimensions, whereas the current fixed-width Box composes a Group at its actual geometric top; the baseline therefore does not prove this current control must fail or establish a new Link-specific cause.
+
+Require a full Content::Link containing one fixed-width 60pt, fixed-height 16pt Box with real text, zero inset and zero baseline shift. With an otherwise empty first line at geometric origin (10pt,10pt), preserve the nominal Box frame hit area (10pt,10pt,60pt,16pt), its exact target, body and text geometry. The clickable area follows the actual frame, rather than the first glyph ink or glyph baseline. This control does not authorize changing Box placement, rerouting source evaluation, adding public geometry or changing capture phases. Diagnose an existing GREEN control honestly; only a demonstrated current RED authorizes a further correction. Preserve the existing text-only bounds and nested destination/page/rollback contracts.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/region_progress.md
-//! @prompt-hash ce9393cc
+//! @prompt-hash 5e36ed2a
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -15,6 +15,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     // page-run marca explicitamente sua página pós-boundary depois desta
     // chamada, distinguindo-a de `pagebreak()` público.
     layouter.page_run_boundary_empty = false;
+    layouter.weak_page_successor = false;
     // **P538c** — se estiver em fluxo contínuo de colunas, fechar a
     // coluna actual e avançar para a seguinte da mesma página, se
     // possível. Só cria página física quando todas as colunas da
@@ -24,11 +25,13 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
         let count = layouter.page_columns.unwrap_or(1);
         if layouter.current_column + 1 < count {
             layouter.start_next_column();
+            layouter.footnote_reserved_height = 0.0;
             if layouter.block_inline_region.is_some() {
                 super::block::install_inline_region(layouter);
             }
             reset_closed_region_flow(layouter);
             super::paragraph_indent::reopen(layouter);
+            layouter.refresh_footnote_reservation();
             return;
         }
         // Última coluna da página: juntar items de todas as colunas
@@ -68,6 +71,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     layouter.flush_pending_footnote_bodies(footnote_bottom_y);
 
     layouter.commit_page(page_width, page_height);
+    layouter.page_has_unpainted_material = false;
     let next_page = std::num::NonZeroUsize::new(layouter.pages.len() + 1).unwrap();
     layouter.page_config.margin =
         crate::entities::layout_types::PageMargins::resolve_for_page(
@@ -94,6 +98,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     // o owner Place reconstruirá as reservas ao admitir a fila.
     layouter.cursor_y_top_reserve = 0.0;
     layouter.cursor_y_bottom_reserve = 0.0;
+    layouter.footnote_reserved_height = 0.0;
     // P813 — o avanço do último flush pertence à página fechada.
     reset_closed_region_flow(layouter);
 
@@ -116,6 +121,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
         super::block::install_inline_region(layouter);
     }
     super::paragraph_indent::reopen(layouter);
+    layouter.refresh_footnote_reservation();
 }
 
 pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(

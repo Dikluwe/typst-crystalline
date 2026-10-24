@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images/scan.md
-//! @prompt-hash dca19c4d
+//! @prompt-hash 972d8a89
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -13,6 +13,8 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 use typst_core::entities::frame_visitor::FrameVisitor;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
+use typst_core::entities::source_result::SourceDiagnostic;
+use typst_core::entities::span::Span;
 
 // P876 — cache thread-local de `PdfImagePayload` processados, indexado pelo
 // ponteiro do `Arc<Vec<u8>>` original. Como `PagedDocument` mantém os Arcs
@@ -22,13 +24,18 @@ thread_local! {
         RefCell::new(HashMap::new());
 }
 
+struct ImageScanCursor {
+    next_id: usize,
+    counter: usize,
+}
+
 /// **P833 (#18, GRAVE)** — valida TODAS as imagens do documento antes do
 /// export, falhando a compilação com a mensagem do vanilla
 /// (`failed to decode image ({detalhe})`) quando alguma não descodifica.
 ///
 /// Antes desta função, uma imagem com assinatura válida mas corrompida era
-/// omitida silenciosamente no export (`eprintln!` interno, exit 0 e PDF sem
-/// a imagem). O vanilla descodifica toda a imagem raster em avaliação
+/// omitida no export com um aviso retornado ao caller e PDF sem a imagem.
+/// O vanilla descodifica toda a imagem raster em avaliação
 /// (`RasterImage::new` → `format_image_error`, `visualize/image/raster.rs:448`)
 /// e rejeita o documento. O cristalino não descodifica em L1 (whitelist de
 /// deps); a validação acontece aqui, em L3, no pipeline antes do export —
@@ -97,6 +104,7 @@ pub(in crate::export) fn scan_all_images(
     doc: &PagedDocument,
     first_id: usize,
     icc_profile_id: Option<usize>,
+    warnings: &mut Vec<SourceDiagnostic>,
 ) -> (Vec<ImageRef>, HashMap<usize, usize>, Vec<ImageXObject>) {
     // P279 — helper recursivo (scope creep análogo P273.10 §A.7 para scan_all_gradients).
     // Bug latent pré-existente: scan_all_images iterava apenas page.items top-level;
@@ -106,8 +114,8 @@ pub(in crate::export) fn scan_all_images(
         ptr_to_idx: &'a mut HashMap<usize, usize>,
         refs: &'a mut Vec<ImageRef>,
         xobjects: &'a mut Vec<ImageXObject>,
-        next_id: &'a mut usize,
-        counter: &'a mut usize,
+        cursor: &'a mut ImageScanCursor,
+        warnings: &'a mut Vec<SourceDiagnostic>,
         icc_profile_id: Option<usize>,
     }
     impl<'a> FrameVisitor for ImageScanner<'a> {
@@ -117,8 +125,8 @@ pub(in crate::export) fn scan_all_images(
                 self.ptr_to_idx,
                 self.refs,
                 self.xobjects,
-                self.next_id,
-                self.counter,
+                self.cursor,
+                self.warnings,
                 self.icc_profile_id,
             );
         }
@@ -127,14 +135,13 @@ pub(in crate::export) fn scan_all_images(
     let mut ptr_to_idx: HashMap<usize, usize> = HashMap::new();
     let mut refs: Vec<ImageRef> = Vec::new();
     let mut xobjects: Vec<ImageXObject> = Vec::new();
-    let mut next_id = first_id;
-    let mut counter = 1usize;
+    let mut cursor = ImageScanCursor { next_id: first_id, counter: 1 };
     let mut scanner = ImageScanner {
         ptr_to_idx: &mut ptr_to_idx,
         refs: &mut refs,
         xobjects: &mut xobjects,
-        next_id: &mut next_id,
-        counter: &mut counter,
+        cursor: &mut cursor,
+        warnings,
         icc_profile_id,
     };
 
@@ -155,8 +162,8 @@ fn process_image_item(
     ptr_to_idx: &mut HashMap<usize, usize>,
     refs: &mut Vec<ImageRef>,
     xobjects: &mut Vec<ImageXObject>,
-    next_id: &mut usize,
-    counter: &mut usize,
+    cursor: &mut ImageScanCursor,
+    warnings: &mut Vec<SourceDiagnostic>,
     icc_profile_id: Option<usize>,
 ) {
     let FrameItem::Image { data, intrinsic_width, intrinsic_height, .. } = item else {
@@ -167,13 +174,13 @@ fn process_image_item(
         return;
     }
     let idx = refs.len();
-    let name = format!("Im{}", *counter);
-    *counter += 1;
+    let name = format!("Im{}", cursor.counter);
+    cursor.counter += 1;
 
     match detect_image_format(data) {
         ImageFormat::Jpeg => {
-            let main_id = *next_id;
-            *next_id += 1;
+            let main_id = cursor.next_id;
+            cursor.next_id += 1;
             let image_icc = if jpeg_is_rgb(data) { icc_profile_id } else { None };
             refs.push(ImageRef { main_obj_id: main_id, name });
             xobjects.push(ImageXObject::Jpeg {
@@ -202,14 +209,14 @@ fn process_image_item(
                     // Alocar ID do /SMask antes do ID principal para que smask
                     // apareça primeiro no ficheiro PDF (xref em ordem crescente).
                     let smask_id = if payload.alpha_data_compressed.is_some() {
-                        let id = *next_id;
-                        *next_id += 1;
+                        let id = cursor.next_id;
+                        cursor.next_id += 1;
                         Some(id)
                     } else {
                         None
                     };
-                    let main_id = *next_id;
-                    *next_id += 1;
+                    let main_id = cursor.next_id;
+                    cursor.next_id += 1;
                     refs.push(ImageRef { main_obj_id: main_id, name });
                     xobjects.push(ImageXObject::Png {
                         payload,
@@ -223,14 +230,20 @@ fn process_image_item(
                     // inalcançável porque `validate_document_images` (pipeline)
                     // falha a compilação ANTES do export. Se algum caller da
                     // API pública de export saltar a validação, a imagem é
-                    // omitida com aviso em stderr (comportamento legado).
-                    eprintln!("failed to decode image ({}) — imagem omitida", e);
+                    // omitida com aviso estruturado para o caller.
+                    warnings.push(SourceDiagnostic::warning(
+                        Span::detached(),
+                        format!("failed to decode image ({e}) — imagem omitida"),
+                    ));
                     // Não inserir em ptr_to_idx — imagem ignorada nas páginas.
                 }
             }
         }
         ImageFormat::Unknown => {
-            eprintln!("Formato de imagem desconhecido — imagem omitida");
+            warnings.push(SourceDiagnostic::warning(
+                Span::detached(),
+                "Formato de imagem desconhecido — imagem omitida",
+            ));
         }
     }
 }
@@ -337,7 +350,9 @@ mod tests {
             image_item(shared.clone()),
             group(vec![group(vec![image_item(shared.clone())]), image_item(distinct)]),
         ]);
-        let (refs, pointers, objects) = scan_all_images(&doc, 40, Some(9));
+        let mut warnings = Vec::new();
+        let (refs, pointers, objects) = scan_all_images(&doc, 40, Some(9), &mut warnings);
+        assert!(warnings.is_empty());
         assert_eq!((refs.len(), pointers.len(), objects.len()), (2, 2, 2));
         assert_eq!((refs[0].main_obj_id, refs[1].main_obj_id), (40, 41));
         assert!(matches!(objects[0], ImageXObject::Jpeg { icc_profile_id: Some(9), .. }));
@@ -357,7 +372,9 @@ mod tests {
         let data = Arc::new(encoded.into_inner());
         let doc = document(vec![group(vec![image_item(data.clone()), image_item(data)])]);
         validate_document_images(&doc).unwrap();
-        let (refs, pointers, objects) = scan_all_images(&doc, 10, None);
+        let mut warnings = Vec::new();
+        let (refs, pointers, objects) = scan_all_images(&doc, 10, None, &mut warnings);
+        assert!(warnings.is_empty());
         assert_eq!((refs.len(), pointers.len(), objects.len()), (1, 1, 1));
         assert!(matches!(
             objects[0],
@@ -369,6 +386,34 @@ mod tests {
         assert!(validate_document_images(&broken)
             .unwrap_err()
             .starts_with("failed to decode image ("));
+        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
+    }
+
+    #[test]
+    fn public_pdf_export_returns_image_omission_warnings() {
+        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
+
+        let unknown = document(vec![image_item(Arc::new(b"not an image".to_vec()))]);
+        let unknown_export =
+            crate::export::export_pdf(&unknown, crate::export::StreamMode::Verbose);
+        assert!(unknown_export.output.starts_with(b"%PDF-1.7"));
+        assert_eq!(unknown_export.warnings.len(), 1);
+        assert_eq!(
+            unknown_export.warnings[0].message,
+            "Formato de imagem desconhecido — imagem omitida",
+        );
+
+        let malformed =
+            document(vec![image_item(Arc::new(b"\x89PNG\r\n\x1a\ninvalid".to_vec()))]);
+        let malformed_export =
+            crate::export::export_pdf(&malformed, crate::export::StreamMode::Verbose);
+        assert!(malformed_export.output.starts_with(b"%PDF-1.7"));
+        assert_eq!(malformed_export.warnings.len(), 1);
+        assert!(malformed_export.warnings[0]
+            .message
+            .starts_with("failed to decode image ("));
+        assert!(malformed_export.warnings[0].message.ends_with("— imagem omitida"));
+
         PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
     }
 }

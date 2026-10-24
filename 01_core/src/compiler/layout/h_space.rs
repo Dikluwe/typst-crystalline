@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/h_space.md
-//! @prompt-hash 40c411b0
+//! @prompt-hash d1a3ce3e
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -23,6 +23,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &HSpaceElem,
 ) {
+    // Explicit spacing is language content even when its extent is zero.
+    if !layouter.is_sub_frame {
+        layouter.page_has_unpainted_material = true;
+    }
     match e.amount {
         crate::entities::elements::h_space::Spacing::Absolute(l) => {
             let pt = l.resolve_pt(layouter.style.size.val());
@@ -30,9 +34,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.record_flow_width_at(layouter.regions.current.cursor_x.0, 0.0);
         }
         crate::entities::elements::h_space::Spacing::Fractional(fr) => {
-            let insert_at = layouter.regions.current.current_line.len();
-            layouter.regions.current.pending_fr.push((insert_at, fr));
-            layouter.pending_fr_natural_widths.push(0.0);
+            if let Some(width) = super::sequence::inline_allocation::assigned(
+                layouter.inline_allocation.take(),
+            ) {
+                layouter.regions.current.cursor_x += Pt(width);
+                layouter.record_flow_width_at(layouter.regions.current.cursor_x.0, 0.0);
+            } else {
+                let insert_at = layouter.regions.current.current_line.len();
+                layouter.regions.current.pending_fr.push((insert_at, fr));
+                layouter.pending_fr_natural_widths.push(0.0);
+            }
         }
     }
 }

@@ -1,12 +1,28 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md
-//! @prompt-hash 96b6703e
+//! @prompt-hash f81108d0
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 //!
 //! Emissão de células de grid, paginação e segmentos de borda por linha.
 
 use super::*;
+
+pub(super) struct GridEmissionInput<'b> {
+    pub(super) measured_cells: &'b mut measurement_cache::MeasuredCells,
+    pub(super) placed_cells: &'b [PlacedCell],
+    pub(super) cells_per_row: &'b [Vec<usize>],
+    pub(super) num_rows_produced_final: usize,
+    pub(super) num_cols: usize,
+    pub(super) row_heights: &'b [f64],
+    pub(super) col_starts: &'b [f64],
+    pub(super) resolved_widths: &'b [f64],
+    pub(super) row_tracks: &'b [TrackSizing],
+    pub(super) inset: Sides<Length>,
+    pub(super) stroke: Option<&'b Stroke>,
+    pub(super) fill: Option<&'b Color>,
+    pub(super) routes: Option<&'b [Option<super::super::page_running_requests::Cursor>]>,
+}
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
     #[allow(clippy::too_many_arguments)]
@@ -25,6 +41,42 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         stroke: Option<&Stroke>,
         fill: Option<&Color>,
     ) -> Vec<f64> {
+        self.emit_grid_cells_planned(GridEmissionInput {
+            measured_cells,
+            placed_cells,
+            cells_per_row,
+            num_rows_produced_final,
+            num_cols,
+            row_heights,
+            col_starts,
+            resolved_widths,
+            row_tracks,
+            inset,
+            stroke,
+            fill,
+            routes: None,
+        })
+    }
+
+    pub(super) fn emit_grid_cells_planned(
+        &mut self,
+        input: GridEmissionInput<'_>,
+    ) -> Vec<f64> {
+        let GridEmissionInput {
+            measured_cells,
+            placed_cells,
+            cells_per_row,
+            num_rows_produced_final,
+            num_cols,
+            row_heights,
+            col_starts,
+            resolved_widths,
+            row_tracks,
+            inset,
+            stroke,
+            fill,
+            routes,
+        } = input;
         // ── Emissão linha a linha (P234 — placed cells iteration) ──
         let local_start_y = {
             let (ascender, _) =
@@ -84,21 +136,44 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
 
             for &placed_idx in &cells_per_row[row_idx] {
                 let placed = &placed_cells[placed_idx];
-                self.emit_grid_cell_body(
-                    measured_cells,
-                    placed,
-                    row_start_y,
-                    local_start_y,
-                    col_starts,
-                    resolved_widths,
-                    row_heights,
-                    row_tracks,
-                    inset,
-                    stroke,
-                    fill,
-                );
+                if let Some(cursor) = routes
+                    .and_then(|routes| routes.get(placed_idx))
+                    .and_then(Option::as_ref)
+                {
+                    self.emit_grid_cell_body_planned(cell_body::CellBodyInput {
+                        measured_cells: &mut *measured_cells,
+                        placed,
+                        row_start_y,
+                        local_start_y,
+                        col_starts,
+                        resolved_widths,
+                        row_heights,
+                        row_tracks,
+                        inset,
+                        stroke,
+                        fill,
+                        cursor: Some(cursor.clone()),
+                    });
+                } else {
+                    self.emit_grid_cell_body(
+                        measured_cells,
+                        placed,
+                        row_start_y,
+                        local_start_y,
+                        col_starts,
+                        resolved_widths,
+                        row_heights,
+                        row_tracks,
+                        inset,
+                        stroke,
+                        fill,
+                    );
+                }
             }
 
+            let next_on_same_page = row_heights.get(row_idx + 1).is_some_and(|height| {
+                !self.grid_row_breaks(row_start_y + row_h, *height)
+            });
             emit_placed_row_borders(
                 self,
                 row_idx,
@@ -112,6 +187,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 resolved_widths,
                 num_cols,
                 stroke,
+                next_on_same_page,
             );
 
             // Avançar cursor para o fim da linha (altura conhecida).

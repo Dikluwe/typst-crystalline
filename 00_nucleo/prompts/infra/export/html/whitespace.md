@@ -1,13 +1,16 @@
 # L0 — html/whitespace
-Hash do Código: c3d7a33d
+Hash do Código: 2feac0bd
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/whitespace.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
 
+
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+
 
 ## Consumer evidence
 
@@ -151,3 +154,11 @@ Rustdoc -D warnings/four indexes/strict V1/V5/V15/V26/reverse/replay/full differ
 SARIF. Historical expected V16 152→141, only prescribed V19 and no V20 growth;
 12 GiB/zero swap/one Cargo job/sequential heavy commands. No commit/push/merge/
 release/CI-pin change. General objective/math-stretch-composite remain open.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

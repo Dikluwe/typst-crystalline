@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash fcb9dbf9
+//! @prompt-hash be608ee7
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -20,6 +20,13 @@ use crate::entities::value::Value;
 /// Closed certificate for textual line alignment; geometric consumers keep
 /// the established envelope path and its deferred coordinate protocol.
 pub(super) fn text_alignment_body(content: &Content) -> bool {
+    text_alignment_body_in(content, false)
+}
+
+fn text_alignment_body_in(content: &Content, source_transparent: bool) -> bool {
+    if let Content::Source(source) = content {
+        return source_transparent && text_alignment_body_in(&source.body, true);
+    }
     if matches!(content, Content::Empty) {
         return true;
     }
@@ -36,22 +43,24 @@ pub(super) fn text_alignment_body(content: &Content) -> bool {
         return true;
     }
     if let Content::Sequence(parts) = content {
-        return parts.iter().all(text_alignment_body);
+        return parts
+            .iter()
+            .all(|part| text_alignment_body_in(part, source_transparent));
     }
     if let Content::Styled(e) = content {
-        return text_alignment_body(&e.body);
+        return text_alignment_body_in(&e.body, source_transparent);
     }
     if let Content::Strong(e) = content {
-        return text_alignment_body(&e.body);
+        return text_alignment_body_in(&e.body, source_transparent);
     }
     if let Content::Emph(e) = content {
-        return text_alignment_body(&e.body);
+        return text_alignment_body_in(&e.body, source_transparent);
     }
     if let Content::Par { body } = content {
-        return text_alignment_body(body);
+        return text_alignment_body_in(body, source_transparent);
     }
     if let Content::Align(e) = content {
-        return text_alignment_body(&e.body);
+        return text_alignment_body_in(&e.body, source_transparent);
     }
     if let Content::Block(e) = content {
         return !e.clip
@@ -65,28 +74,31 @@ pub(super) fn text_alignment_body(content: &Content) -> bool {
                 == crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::ZERO,
                 )
-            && text_alignment_body(&e.body);
+            && text_alignment_body_in(&e.body, source_transparent);
     }
     // Absence of positive proof keeps this carrier on its existing layout path.
     false
 }
 
-/// A complete grid frame owns its horizontal placement inside the flow region.
-fn grid_alignment_body(content: &Content) -> bool {
-    if matches!(content, Content::Grid(_) | Content::Table(_)) {
+/// A complete flow frame owns its horizontal placement inside the region.
+fn flow_frame_alignment_body(content: &Content) -> bool {
+    if let Content::Source(source) = content {
+        return flow_frame_alignment_body(&source.body);
+    }
+    if matches!(content, Content::Grid(_) | Content::Table(_) | Content::Repeat(_)) {
         return true;
     }
     if let Content::Sequence(parts) = content {
-        return parts.len() == 1 && grid_alignment_body(&parts[0]);
+        return parts.len() == 1 && flow_frame_alignment_body(&parts[0]);
     }
     if let Content::Styled(e) = content {
-        return grid_alignment_body(&e.body);
+        return flow_frame_alignment_body(&e.body);
     }
     if let Content::Located(e) = content {
-        return grid_alignment_body(&e.body);
+        return flow_frame_alignment_body(&e.body);
     }
     if let Content::Realized(e) = content {
-        return grid_alignment_body(&e.visual);
+        return flow_frame_alignment_body(&e.visual);
     }
     false
 }
@@ -117,11 +129,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let origin_x_abs = self.regions.current.line_start_x.0;
         let textual = avail_w.is_finite()
             && matches!(alignment.v, None | Some(VAlign::Top))
-            && text_alignment_body(body);
-        let grid_aligned = avail_w.is_finite()
+            && text_alignment_body_in(body, true);
+        let frame_aligned = avail_w.is_finite()
             && matches!(alignment.v, None | Some(VAlign::Top))
-            && grid_alignment_body(body);
-        let flow_aligned = textual || grid_aligned;
+            && flow_frame_alignment_body(body);
+        let flow_aligned = textual || frame_aligned;
         let saved_alignment = self.explicit_line_alignment;
         if flow_aligned {
             let rtl = self.chain.custom("text.dir")
@@ -156,8 +168,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             align_rtl: false,
             unconstrained_height: true,
         };
+        let planned = self.planned_child_cursor(
+            crate::compiler::introspect::page_running::PlanEdge::AlignBody,
+        );
         let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
-            self.layout_sub_frame_at_geometric_origin(body, region);
+            self.layout_sub_frame_planned(body, region, true, planned);
         let flow_width = self.last_sub_frame_flow_width;
         self.explicit_line_alignment = saved_alignment;
         let sub_origin_y = 0.0;
@@ -371,6 +386,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     start_x: Pt(seg.start_x.val() + delta_x),
                     end_x: Pt(seg.end_x.val() + delta_x),
                     baseline_y: Pt(target_y + seg.baseline_y.val() - sub_origin_y),
+                    piece_line: seg.piece_line,
                 });
             }
         }
@@ -472,8 +488,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             align_rtl: false,
             unconstrained_height: true,
         };
+        let planned = self.planned_child_cursor(
+            crate::compiler::introspect::page_running::PlanEdge::PlaceBody,
+        );
         let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
-            self.layout_sub_frame_at_geometric_origin(body, region);
+            self.layout_sub_frame_planned(body, region, true, planned);
 
         // **P904 (Item 3)** — `measure_content` (`helpers.rs`) só tem
         // braços para `Content::Shape`/`Content::Sequence`; para
@@ -678,6 +697,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     start_x: Pt(target_x + seg.start_x.val()),
                     end_x: Pt(target_x + seg.end_x.val()),
                     baseline_y: Pt(target_y + seg.baseline_y.val()),
+                    piece_line: seg.piece_line,
                 });
             }
             if block_region.is_some() && !avail_h_is_finite && start < coll.len() {
@@ -1243,6 +1263,79 @@ mod grid_align_regressions {
                     assert!((right - left - cols as f64 * 50.0).abs() < 1e-6);
                 }
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod repeat_alignment_regressions {
+    use super::super::{FixedMetrics, Layouter};
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Length, TransformMatrix},
+    };
+    use comemo::Track;
+
+    #[test]
+    fn nested_inline_repeat_external_right_alignment_positions_its_remainder() {
+        fn collect(items: &[FrameItem], m: TransformMatrix, xs: &mut Vec<f64>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, pos, .. }
+                    | FrameItem::TextShaped { text, pos, .. }
+                        if text.as_str() == "X" =>
+                    {
+                        xs.push(m.apply(pos.x.0, pos.y.0).0)
+                    }
+                    FrameItem::Group { pos, matrix, items, .. } => collect(
+                        items,
+                        m.concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                            .concat(matrix),
+                        xs,
+                    ),
+                    FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => collect(items, m, xs),
+                    FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let width = l.available_width();
+        let left = l.regions.current.line_start_x.0;
+        let piece = l.metrics.text_width("X", l.style.size, &l.style).0;
+        let gap = 3.0;
+        let count = ((width + gap) / (piece + gap)).floor() as usize;
+        let residual = (width + gap) % (piece + gap);
+        l.layout_align(
+            Align2D { h: Some(HAlign::Right), v: None },
+            &Content::repeat(Content::text("X"), Some(Length::pt(gap)), false),
+        );
+        let doc = l.finish();
+        let mut xs = Vec::new();
+        for page in &doc.pages {
+            collect(&page.items, TransformMatrix::identity(), &mut xs);
+        }
+        assert_eq!(xs.len(), count);
+        for (index, x) in xs.iter().enumerate() {
+            assert!(
+                (*x - (left + residual + index as f64 * (piece + gap))).abs() < 1e-9,
+                "actual={x} index={index}"
+            );
         }
     }
 }

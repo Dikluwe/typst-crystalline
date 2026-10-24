@@ -1,9 +1,10 @@
 # L0 — wiring/compile
-Hash do Código: 561e2ab5
+Hash do Código: 0e1f376c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
 - 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
@@ -132,7 +133,7 @@ root/<stdin>, not an overriding primary: cwd-root displays `<stdin>`, a child ro
 displays `project/<stdin>`. Preserve both bilateral controls and explicit-root
 traces; correct expectations from the recorded upstream refutation.
 
-Publish output exactly `-` through stdout.lock().write_all at the existing
+Publish output exactly `-` through checked write_all and flush on the same stdout lock at the existing
 non-bundle publication point using identical exported bytes/error handling.
 This also applies to physical input. Bundle refuses stdout before World;
 watch also refuses stdout. The physical file `-` must not be overwritten.
@@ -245,3 +246,140 @@ Validate build, strict workspace/all-target Clippy (-D warnings and
 -D unfulfilled_lint_expectations), workspace suite/fmt, Rustdoc -D warnings/four
 indexes, V1/V5/V15/V26/reverse lineage, SARIF and diff --check. Heavy runs are
 sequential under MemoryMax=12 GiB, MemorySwapMax=0, CARGO_BUILD_JOBS=1; no release.
+
+## Ratified complete direct SVG publication (2026-10-22)
+
+### Evidence and ratification
+
+`lab/results/remaining-parity-2026-10-22/svg-outputs-before/receipt.json.gz`
+records exact UTC, HEAD/uncommitted diffstat, fixed executable/build/source archive,
+font bytes and actual CLI results for the unchanged two-page finite source and
+a separately pinned12-page source. `qualification.json` preserves strict1e-8 SVG
+geometry, glyph/paint and complete destination-name comparisons: all10cases RED,
+including selected page2 whose filename alone had concealed first-page content.
+The human approved the exact additive proposal SHA-256
+`d2a1ddfd71d9f741253b00b20c23084aae474e4c9cb979d70f3daa37b40d943d`;
+`lab/results/remaining-parity-2026-10-22/svg-pages-approval.json` records the gate.
+This is the existing paged compile/export phase, without source reconstruction,
+new flag, second evaluation or PNG/bundle behavior change.
+
+Replace direct SVG's legacy-first-page composition call with approved L3
+`compile_to_svg_output_files`, forwarding the same World/Source/features/full-error,
+optional pretty, typed pages override and original output path. Store the returned
+ordered path/byte collection and publish each entry through existing filesystem
+or stdout writes; no template arithmetic, layout, export, path invention or
+second compilation in L4. Preserve timings opt-in behavior, diagnostics order,
+compile-error exit1/write-error exit2, dependencies and Published behavior.
+Zero selected pages publishes nothing successfully. Existing PDF/PNG/HTML/Bundle
+paths and bundle-only publication validation remain unchanged.
+
+
+## Approved resource failure composition — approved 2026-10-22
+
+Consume fallible dependencies before any output write. Preserve ordinary
+success/semantic-error dependencies and pre-World validation behavior. Private
+observed compile helpers may carry FileResult<Vec<PathBuf>> as the existing
+dependency tuple component so a failed graph stays distinct from a legitimate
+empty graph; include this compatibility correction in the approval. Ordinary
+run_compile keeps ExitCode. Failed dependency or diagnostic-path acquisition is
+operational exit 2 and produces no successful Published/output write. Retain
+all original domain errors and warnings and append the explicit operational
+error, with status callback once before diagnostics. Do not replace a failed
+graph with [input], Vec::new or a previous graph. Existing known pre-World
+validation paths may keep their previously specified dependency values as Ok.
+Preflight diagnostic resources after compilation at the existing wiring error
+boundary and before publication, without emitting/reordering diagnostics or
+performing another eval/layout/export. Existing formatting is emitted at its
+original status/diagnostic point. Healthy observable behavior stays unchanged.
+
+
+Approval of this exact metadata correction is retained in `lab/results/world-metadata-errors-2026-10-22/approval.json`, review SHA-256 `31d632a54d40ca7df4139081c5297af774970a93b08cd605986b53e75e0ccc62`. The approved clauses supersede prior infallible signature/return preservation only for the two public APIs and the described private composition interfaces.
+
+Private metadata gating may borrow FileResult dependencies and diagnostic acquisition errors and invoke the existing publication action only when both are healthy. Exercise actual destination writes on failure and success and status-before-diagnostic order. Use existing FileError values; no new productive L4 carrier type.
+
+
+## Checked stderr composition — authorized 2026-10-22
+
+### Measurement before classification
+
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/baseline.json`
+binds the unchanged candidate-4 source archive, HEAD/uncommitted state and UTC.
+`agents/measurement/before/receipt.json` under that result root (SHA-256
+`e49aa4458f4cb413995af35f8297ecf4fcafd20141cbdab41067fc7ed5b3895c`) reproduces ordinary errors/warnings and watch
+status panics with a failing stderr. `late-before/receipt.json` (SHA-256
+`07ddcb85110604877f56d369dec0d2ac3c7d96ba9ac95f27d9e4e49469f3435c`) retains the closed-pipe later-cycle control.
+Actual stderr failure and exception termination are observed process behavior;
+healthy diagnostic text/order and document language behavior remain acceptance.
+This does not infer upstream intent from a reproduced oracle panic.
+
+### Owner contract and acceptance
+
+Only private compilation composition becomes fallible: run_compile -> io::Result<ExitCode>; observed helpers return io::Result<(ExitCode, FileResult<Vec<PathBuf>>, Option<Published>)>; status callback returns io::Result<()>. The no-op observer returns Ok(()). report_in_order runs status once before diagnostics and propagates either actual error immediately; no later diagnostic or observer retry on failed status. Replace every productive stderr macro, including opt-in measurements, with the diagnostics owner's checked emitter and propagate its error. Preserve all existing healthy text, newline/color/hint/warning/status ordering, target dispatch, Source/World metadata failures and early exit codes. Output/staging writes still precede the terminal status/diagnostic block as before; normal compile gains no transaction/rollback policy. Outer Err cannot carry a successful Published result. Watch discards a staged result on this Err before arming or final disk/HTTP publication; that owner governs cleanup. Preserve existing report-order assertions, adapting fixtures only to require healthy Result, and add failure controls proving diagnostics cannot run after a failed status. No public trait/entity/function or evaluation/layout phase changes.
+
+The explicit user instruction and ADR-0127 classification are retained in
+`lab/results/stderr-watch-errors-2026-10-22/authorization-and-classification.json`.
+Only the described private exceptional-I/O assumptions are superseded.
+
+
+### Exact watch staging manifest
+
+Measured `lab/results/stderr-watch-errors-2026-10-22/agents/measurement/templates-before/receipt.json`
+(SHA-256 `76364c29509b7269c8d54451472ee25e04a7c57e3e80d1e42bc4af66e2aa6072`) proves one/two-page SVG templates produce expanded staging
+siblings even though the old watcher removes only the literal template. Failed
+terminal status can therefore leak them. The existing healthy template publication
+failure is a separate open debt; do not silently claim it fixed or discard pages.
+
+The private session helper accepts a caller-owned `&mut Vec<PathBuf>` of attempted
+output paths. Immediately before a file/SVG write or bundle-root write, append the
+actual path already supplied by the existing target transport. Record partial
+write attempts as well; stdout is never a cleanup path. Do not parse/re-expand
+page templates, glob directory entries, invent names or record unrelated timing
+files. Watch owns disposal of this exact manifest after a failed emitter; normal
+compile keeps its existing write/publication behavior. No public carrier/field or
+L3/L2 contract changes. Remove only the unused duplicate returned warnings boolean;
+the status callback continues receiving exactly the original has_warnings value.
+
+
+## Checked document stdout completion — batch H, 2026-10-23
+
+### Measurement before classification
+
+`lab/results/html-stdout-2026-10-23/baseline.json` and the full source archive
+bind HEAD, uncommitted changed-file list, hashes and UTC. `measured-probe.json`
+qualifies healthy short/long HTML stdout and file output against the pinned
+bd5ebec285505889e8ff1d4f68804ab147a699f3 oracle. The syscall traces show a
+174-byte HTML document reaching write(1) only after stderr warnings; ENOSPC
+then accompanies exit 0 in both binaries. The 28160-byte control reaches
+write(1) before diagnostics and fails with existing operational failure.
+`compile.rs:585,592` calls write_all without flush; upstream
+`crates/typst-cli/src/args.rs:612–616` does likewise. These are measured
+buffer-completion mechanics and observable errors, not evidence of upstream
+intent or a language defect unique to Crystalline. The causal inference would
+be refuted if an explicit checked flush still allowed successful publication
+when the buffered bytes cannot be delivered.
+
+### Contract and acceptance
+
+At both existing non-bundle stdout write sites, use one private writer helper
+that calls write_all then flush on the same borrowed writer/lock. Propagate the
+original write or flush error immediately; do not flush after failed write,
+retry a failed operation, swallow BrokenPipe, or add a second publication.
+Only successful completion may proceed to timings and Published. Existing
+write failure handling supplies exit 2 and operational diagnostics after the
+original experimental/domain warnings; status is still reported once before
+those diagnostics. Keep file, bundle, staging and watch policies unchanged.
+Because PDF/PNG and SVG share these stdout sites, check completion there too;
+no new public contract, flag/default or pipeline phase is introduced. This
+repairs the existing owned write-failure contract under ADR-0127 continuous
+flow, and intentionally does not copy the oracle's unchecked late failure.
+
+Add in-module runtime RED→GREEN tests using a behavior-preserving unflushed
+private seam first: short writes and healthy byte completion, direct write
+failure, flush-only failure, and a real buffered /dev/full writer on Linux.
+Qualify CLI short/long HTML, healthy stdout/file equality as a channel check,
+closed pipe, warnings/order, timing/publication failure boundaries and shared
+PDF/PNG/SVG controls. Bytes are a transport-preservation check, not general
+language-parity acceptance. Preserve compilation errors and feature gates.
+Reseal this exclusive owner and consumer, run complete workspace validation
+and full crystalline lint with zero violations; retain exact source states,
+commands, environment, traces and timestamps for each RED/GREEN measurement.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_cell.md
-//! @prompt-hash 063133bd
+//! @prompt-hash 7d622b7d
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -16,5 +16,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &GridCellElem,
 ) {
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::GridCellBody,
+        &e.body,
+    );
 }

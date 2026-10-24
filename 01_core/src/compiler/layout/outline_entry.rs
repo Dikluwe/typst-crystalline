@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/outline_entry.md
-//! @prompt-hash 202bff02
+//! @prompt-hash 0d2e406b
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -12,7 +12,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     e: &OutlineEntryElem,
 ) {
     if let Ok(body) = e.body() {
-        layouter.layout_content(&body);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::OutlineEntryBody,
+            &body,
+        );
     }
 }
 

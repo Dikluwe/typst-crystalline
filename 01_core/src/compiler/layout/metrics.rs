@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/metrics.md
-//! @prompt-hash 7de1c30e
+//! @prompt-hash 933bdf9f
 //! @layer L1
-//! @updated 2026-07-14
+//! @updated 2026-10-24
 //!
 //! Interface `FontMetrics` e implementação `FixedMetrics` para layout.
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
@@ -55,6 +55,65 @@ pub trait FontMetrics: Send + Sync {
     /// baseline. Implementações devem suportar pelo menos `"baseline"`,
     /// `"cap-height"`, `"ascender"` e `"descender"`.
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
+
+    /// Text superscript geometry: size, horizontal offset, downward baseline offset,
+    /// and whether the complete run supports native OpenType `sups`.
+    fn text_superscript_metrics(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt, Pt, bool) {
+        let _ = (text, style);
+        (size * 0.6, Pt(0.0), size * -0.5, false)
+    }
+
+    /// Resolve original UTF-8 script ranges with actual paint styles and X offsets.
+    fn text_superscript_runs(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+        let (mut paint_size, mut x, mut y, mut native) =
+            self.text_superscript_metrics(text, size, style);
+        if style.superscript_native == Some(false) && native {
+            (paint_size, x, y, native) = (size * 0.6, Pt(0.0), size * -0.5, false);
+        }
+        let mut actual = style.clone();
+        actual.size = if native {
+            paint_size
+        } else {
+            style
+                .superscript_size
+                .map(|l| Pt(l.resolve_pt(size.0)))
+                .unwrap_or(paint_size)
+        };
+        if size.0.is_finite() && size.0 != 0.0 {
+            actual.tracking = style.tracking.map(|length| {
+                crate::entities::layout_types::Length::pt(
+                    length.resolve_pt(size.0) * actual.size.0 / size.0,
+                )
+            });
+        }
+        actual.baseline_offset = crate::entities::layout_types::Length::pt(y.0);
+        actual.superscript_native = Some(native);
+        let (top, bottom) = self.text_edges(size, style);
+        actual.top_edge = Some(crate::entities::layout_types::TextEdge::Length(
+            crate::entities::layout_types::Length::pt(top.0),
+        ));
+        actual.bottom_edge = Some(crate::entities::layout_types::TextEdge::Length(
+            crate::entities::layout_types::Length::pt(bottom.0),
+        ));
+        vec![(0..text.len(), actual, x)]
+    }
+
+    /// Return the downward baseline offset and stroke thickness of an underline.
+    /// Providers with font access resolve the supplied text run's actual face.
+    fn underline_metrics(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let _ = (text, style);
+        (size * 0.2, size * 0.06)
+    }
 
     /// **P813** — limites de tinta ("ink") do texto: `(ascent, descent)`
     /// em pontos, ambos >= 0, medidos da união das bounding boxes reais
@@ -389,6 +448,30 @@ impl FontMetrics for FixedMetrics {
 /// um tipo genérico `M: FontMetrics`. Delega cada método obrigatório para o
 /// trait object subjacente; os métodos com default usam esses quatro.
 impl FontMetrics for &dyn FontMetrics {
+    fn advance_shaped(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
+        (*self).advance_shaped(text, size, style)
+    }
+    fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        (*self).text_width(text, size, style)
+    }
+
+    fn text_superscript_runs(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+        (*self).text_superscript_runs(text, size, style)
+    }
+    fn text_superscript_metrics(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt, Pt, bool) {
+        (*self).text_superscript_metrics(text, size, style)
+    }
+
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
         (*self).advance(text, size, style)
     }
@@ -403,6 +486,10 @@ impl FontMetrics for &dyn FontMetrics {
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         (*self).text_edges(size, style)
+    }
+
+    fn underline_metrics(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        (*self).underline_metrics(text, size, style)
     }
 
     // **P906** — `vertical_glyph_variants`/`vertical_glyph_assembly` nunca
@@ -464,5 +551,165 @@ mod smoke {
     #[test]
     fn arabic_precisa_shaped_width() {
         assert!(needs_shaped_width("الكتاب"));
+    }
+}
+
+#[cfg(test)]
+mod remaining_underline_contract_tests {
+    use super::*;
+    struct Override;
+    impl FontMetrics for Override {
+        fn advance(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(0.0)
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(0.0), Pt(0.0))
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            Pt(0.0)
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(0.0), Pt(0.0))
+        }
+        fn underline_metrics(&self, text: &str, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(text.len() as f64), size * 0.03125)
+        }
+    }
+    #[test]
+    fn remaining_underline_borrowed_dynamic_provider_preserves_override_and_default_is_tableless(
+    ) {
+        let style = TextStyle::default();
+        let provider: &dyn FontMetrics = &Override;
+        assert_eq!(
+            provider.underline_metrics("actual", Pt(16.0), &style),
+            (Pt(6.0), Pt(0.5))
+        );
+        assert_eq!(
+            (&provider).underline_metrics("actual", Pt(16.0), &style),
+            (Pt(6.0), Pt(0.5))
+        );
+        assert_eq!(
+            FixedMetrics.underline_metrics("actual", Pt(10.0), &style),
+            (Pt(2.0), Pt(0.6))
+        );
+    }
+}
+
+#[cfg(test)]
+mod r8_superscript_contract_tests {
+    use super::*;
+    #[test]
+    fn r8_tableless_superscript_metrics_scale_with_requested_size() {
+        for size in [11.0, 17.0] {
+            assert_eq!(
+                FixedMetrics.text_superscript_metrics(
+                    "12",
+                    Pt(size),
+                    &TextStyle::default()
+                ),
+                (Pt(size * 0.6), Pt(0.0), Pt(size * -0.5), false)
+            );
+        }
+    }
+    struct Provider;
+    impl FontMetrics for Provider {
+        fn advance(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(0.0)
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(0.0), Pt(0.0))
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            Pt(0.0)
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(0.0), Pt(0.0))
+        }
+        fn advance_shaped(&self, _: &str, _: Pt, _: &TextStyle) -> Option<Pt> {
+            Some(Pt(42.0))
+        }
+        fn text_width(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(314.0)
+        }
+        fn text_superscript_metrics(
+            &self,
+            text: &str,
+            size: Pt,
+            _: &TextStyle,
+        ) -> (Pt, Pt, Pt, bool) {
+            (size, Pt(text.len() as f64), Pt(-3.0), true)
+        }
+    }
+    #[test]
+    fn r8_borrowed_text_measurement_preserves_explicit_provider_overrides() {
+        fn measure<T: FontMetrics>(provider: T) -> (Pt, Option<Pt>) {
+            (
+                provider.text_width("note", Pt(11.0), &TextStyle::default()),
+                provider.advance_shaped("note", Pt(11.0), &TextStyle::default()),
+            )
+        }
+        let provider: &dyn FontMetrics = &Provider;
+        assert_eq!(measure(provider), (Pt(314.0), Some(Pt(42.0))));
+    }
+    #[test]
+    fn r8_borrowed_dynamic_superscript_provider_preserves_override() {
+        fn through_generic<T: FontMetrics>(provider: T) -> (Pt, Pt, Pt, bool) {
+            provider.text_superscript_metrics("12", Pt(17.0), &TextStyle::default())
+        }
+        let provider: &dyn FontMetrics = &Provider;
+        assert_eq!(through_generic(provider), (Pt(17.0), Pt(2.0), Pt(-3.0), true));
+    }
+}
+
+#[cfg(test)]
+mod r10_contract_tests {
+    use super::*;
+    #[test]
+    fn r10_default_resolved_script_run_is_a_complete_source_partition() {
+        let style = TextStyle { superscript: true, ..TextStyle::default() };
+        let runs = FixedMetrics.text_superscript_runs("12☃", Pt(11.0), &style);
+        assert_eq!(runs.len(), 1);
+        assert_eq!(runs[0].0, 0.."12☃".len());
+        assert_eq!(runs[0].1.size, Pt(6.6));
+        assert_eq!(runs[0].1.superscript_native, Some(false));
+        assert_eq!(runs[0].1.baseline_offset.resolve_pt(6.6), -5.5);
+        assert_eq!(runs[0].2, Pt(0.0));
+        assert_eq!(FixedMetrics.text_superscript_runs("", Pt(11.0), &style)[0].0, 0..0);
+    }
+    struct Supplied;
+    impl FontMetrics for Supplied {
+        fn advance(&self, t: &str, s: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(t, s, style)
+        }
+        fn vertical_metrics(&self, s: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(s, style)
+        }
+        fn cap_height(&self, s: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(s, style)
+        }
+        fn text_edges(&self, s: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(s, style)
+        }
+        fn text_superscript_runs(
+            &self,
+            t: &str,
+            _: Pt,
+            style: &TextStyle,
+        ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+            vec![(0..t.len(), TextStyle { size: Pt(4.25), ..style.clone() }, Pt(2.75))]
+        }
+    }
+    #[test]
+    fn r10_borrowed_dynamic_provider_preserves_resolved_run_override() {
+        let provider: &dyn FontMetrics = &Supplied;
+        fn borrowed<M: FontMetrics>(
+            m: M,
+        ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+            m.text_superscript_runs("é", Pt(17.0), &TextStyle::default())
+        }
+        let runs = borrowed(provider);
+        assert_eq!(runs[0].0, 0..2);
+        assert_eq!(runs[0].1.size, Pt(4.25));
+        assert_eq!(runs[0].2, Pt(2.75));
     }
 }

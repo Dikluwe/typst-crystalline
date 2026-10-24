@@ -1,5 +1,5 @@
 # L0 — paragraph_prepare
-Hash do Código: aba26b50
+Hash do Código: e7be8dca
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -84,3 +84,42 @@ Contiguous numeric fixtures keep exact text and one overlong line like vanilla; 
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## Prose continuation with colon — 2026-10-23
+
+### Measurement before classification
+
+`lab/results/prose-continuation-2026-10-23/before/receipt.json` and
+`baseline-source.json.gz` retain UTC, uncommitted HEAD, exact dirty stat, all
+source hashes, input/binary/observer identities and bilateral commands. Oracle
+is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+The unchanged 20-paragraph prose first differs at the fourth page's final line;
+the first seven paragraphs preserve that transition. Four long words with a
+colon yield 3+1 lines versus vanilla 2+2, while replacing only the textual colon
+with a period gives 2+2 in both and corrects the full prose continuation.
+`paragraph_prepare.rs:145–150` excludes colon; failure bypasses the existing
+prepared-line widow admission (`paragraph_plan.rs:90–127`,
+`paragraph_pagination.rs:158–208`). Pinned `flow/collect.rs:196–229` groups the
+last two lines with positive widow cost. These are language text/line/page
+observations, not a requirement to copy upstream machinery. The hypothesis is
+refuted by altered word breaks, loss of punctuation, or changed zero-cost,
+spacing, leading, lexical or overflow controls after admitting colon.
+
+### Bounded internal correction
+
+Certify ASCII colon in the existing Latin, space-delimited preparation subset,
+including attached, internal and adjacent-fragment colons. Preserve it as part
+of its word, with measured width, exact text and separators; introduce no break
+at colon and no fixture-specific pagination logic. All prior style, script,
+object, offset, region and tracking/hyphenation exclusions remain. Delegate
+selection, cost resolution and regional protection to their existing owners.
+This is an internal vanilla-parity correction under ADR-0127 continuous flow,
+with no public API, default policy, phase or compatibility change.
+
+Require actual RED→GREEN for colon preparation and four-line continuation,
+positive/zero widow controls, exact punctuation/adjacency and rejection controls;
+bilateral full-prose and reduced-case line/page membership, spacing/leading,
+paragraph/overflow geometry at the original tolerance, plus complete gates.
+This does not certify arbitrary punctuation or all incremental paragraphs.

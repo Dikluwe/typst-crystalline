@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md
-//! @prompt-hash 0b22e30c
+//! @prompt-hash 47b8ecd5
 //! @layer L1
 //! @updated 2026-10-01
 
@@ -331,7 +331,8 @@ mod v16_c_structural_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }
@@ -408,7 +409,8 @@ mod v16_c_structural_tests {
             TestWorld::new("").main(),
             "receiver.__missing(panic(\"argument executed\"))".into(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let call = source
             .root()
             .children()

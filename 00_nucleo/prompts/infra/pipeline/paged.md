@@ -1,14 +1,6 @@
 # L0 — infra/pipeline/paged
-Hash do Código: 9b02b5e2
+Hash do Código: 61b6bee5
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
 
@@ -20,6 +12,17 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 ```
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Current evidence
 
@@ -225,3 +228,80 @@ The font predicate explicitly rejects the other37 Value alternatives. Preserve e
 The immutable-outline continuity proof keeps exactly four same-kind Arc::ptr_eq arms first. Its finite negative complement explicitly lists all120 current Content alternatives independently on both tuple axes, returning false after those four accepted pairs. No enum wildcard, structural/hash equality or extra qualified carrier is allowed. New-left/old-right, old-left/new-right and new/new inputs each require an attributable missing-decision witness. Rebuilt equal roots do not qualify through pointer identity. Preserve general prefix observation, optional second run, errors and causal warning order. This proof is a private immutable-carrier optimization, not language identity.
 
 Acceptance preserves Str/empty/all-Str/mixed/nonfamily font inputs with inert Func/Content decoys; Source, both Realized branches, Table/Grid/SetPage restrictions; ordinary full-cycle output for valid unproved content; and the four shared outline carriers plus unqualified general-prefix handling. Existing rebuilt/prefix-change/error/warning controls remain binding. Independent enum-domain and tuple-axis compiler witnesses supplement runtime controls; grouped-arm execution cannot certify every nominal alternative. Keep PageStore, metrics lifetime, Source origins, known-style/no-Location math callbacks and modern counter.final guards unchanged. This scope is continuous internal exhaustiveness under ADR-0127 with no API, default, phase, compatibility, proof-whitelist or Nucleus expansion.
+
+
+## Approved physical running-content candidate integration
+
+Evidence before this decision is the immutable source-qualified current-pin
+SetPage baseline and ambient20/30 measurements under
+lab/results/set-page-header-2026-10-21. Header-only/repeated/footer/context/style
+and duplicate-label failures are language observations; the twelve existing gates
+passing is structural preservation only. Actual seven semantic REDs and one inert
+template control are recorded in
+lab/results/set-page-header-implementation-2026-10-21/initial-red/receipt.json.
+Human approval of review SHA256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+is recorded in that implementation directory's approval.json. ADR-0127 items1/3
+are satisfied for exactly the frozen five L1 facades/types and their phase/order.
+This section supersedes earlier preserve-phase/default boilerplate only for the
+approved physical channel. It adds no public L3 API, source reevaluation, new
+solver/budget, generic observation/equality rule, or unrelated behavior change.
+
+Use the approved owned Content/source plan and immutable request/resolution/trace
+facades as opaque L1 transports. L3 coordinates the actual World, Engine, retained
+arena frames, existing Context Session and candidate diagnostic sinks; no selector,
+Figure-kind, semantic child-edge, temporal action, style-rebase or render business
+logic moves to L3. The pure layout renderer executes no language closures. The
+initial canonical body identity comes from the existing reached realization and
+its protected operational templates; preparation publishes no invented body index
+or PageStore. Only a matching actual trace/store pair builds the complete Paged
+source-derived index. Global Bundle input uses actual ordered target metadata,
+features and document seeds; HTML has no physical requests.
+
+Keep the Session alive through physical discovery, including initially unselected
+body producers. Actual Pending requests select the approved physical contribution
+channel, without fabricating filtered/position reads or running unselected source
+producers a second time. Raw operational SetPage/PageRun templates are excluded
+from body discovery/substitution; realize only requested actual insertions in one
+retained frame per actual request lineage/key. Inspecting a dormant template for
+allocator reservation is not execution, query/counter admission or a new producer.
+Register actual generated Context descendants in the same Session, preserve their
+source/style/target/features, and rebind expanded Content through the approved L1
+function under the shared frame. No synthetic operational Located wrapper/Context
+query element or page-derived numeric Location is allowed.
+
+Reuse a body plan only with unchanged actual retained contribution versions and
+immutable source provenance. Content Eq/hash/Debug, equal counters/page counts or
+freshly reconstructed closure equality are not evidence. New source generations
+invalidate prior plan/request authority; pure layout reflow of the same retained
+plan keeps its authority. Candidate-local stores/transcripts must be complete and
+agree with current geometry/effective page environment; no partial candidate may
+reach shaping/export. Maintain the existing five contextual/page attempts and
+separate eight math/par.line request attempts, no hidden sixth execution or second
+context solver. Discovery/replay/replaced sinks remain discarded; publish only the
+retained final transactions through existing Sink policy, preserving source error
+precedence and independently sourced identical warnings.
+
+Own only this consumer's integration. Its existing private helpers and a private
+descendant page_running module may coordinate the protocol; each new productive
+file has its own canonical owner. Other owner's clauses do not authorize bodies
+here. Preserve legacy facade contracts, non-running paths, PageRun lexical restore,
+page snapshots and numbering, source parents/original morphology, HTML semantics,
+Bundle validation/resource/write policy and all unrelated F/G debts. Require actual
+focused GREEN and frozen CLI/counter/query/style/error/alias/dormant/template and
+rollback controls, followed by full twelve-gate validation, canonical paths,
+strict forward/reverse lineage, ownership/Nucleus pins/DAG and complete diagnostic
+comparison. No suppression, test relaxation, opaque catchall or convenience global
+hash reseal is authorized.
+
+## Approved ordinary Repeat physical membership integration
+
+The source-qualified paired measurement and exact human-approved review SHA-256 `2609d1a9231b1b8a665f2d8284b7343366a1bc44b0471fdd6008b0f180a52bb2` (`lab/results/nested-fractions-repeat-2026-10-21/phase-approval.json`) extend the existing physical running-content integration only to actual paginated Repeat contributions lacking marginals. Reuse the retained Session and existing source-plan/trace/store facades; semantic membership for these contributions follows actual accepted layout before stable export. Keep prior unselected/non-Repeat behavior, HTML semantics, mixed Bundle target metadata, source once, contexts, counters, labels, callbacks, numbering, sinks and attempts. A completed body with no marginal requests still needs its matching trace-derived source index. No public interface, generic equality, inactive-paint heuristic or source reevaluation is added. Require integrated real-source RED→GREEN and all prior phase/resource/diagnostic/lineage gates.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash cf0778db
+//! @prompt-hash 4b085b25
 //! @layer L3
 //! @updated 2026-09-21
 
@@ -18,6 +18,7 @@ pub use typst_core::entities::document_format_options::PdfStandards;
 #[cfg(test)]
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{Page, PagedDocument};
+use typst_core::entities::source_result::SourceDiagnostic;
 
 // Imports usados por `tests.rs` via `use super::*`.
 #[cfg(test)]
@@ -217,11 +218,35 @@ pub enum PdfTags {
     Disabled,
 }
 
+/// Successful PDF output together with every warning produced while exporting it.
+#[must_use = "PDF export warnings must be inspected and forwarded"]
+#[derive(Debug, Clone)]
+#[cfg_attr(test, derive(PartialEq, Eq))]
+pub struct PdfExport<T> {
+    pub output: T,
+    pub warnings: Vec<SourceDiagnostic>,
+}
+
+impl<T> PdfExport<T> {
+    fn map_output<U>(self, map: impl FnOnce(T) -> U) -> PdfExport<U> {
+        PdfExport { output: map(self.output), warnings: self.warnings }
+    }
+}
+
+#[cfg(test)]
+impl<T> std::ops::Deref for PdfExport<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.output
+    }
+}
+
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).
 /// Para suporte Unicode completo, usar `export_pdf_with_font` (ADR-0027).
-pub fn export_pdf(doc: &PagedDocument, stream_mode: StreamMode) -> Vec<u8> {
+pub fn export_pdf(doc: &PagedDocument, stream_mode: StreamMode) -> PdfExport<Vec<u8>> {
     export_pdf_with_tags(doc, stream_mode, PdfTags::Enabled)
 }
 
@@ -229,7 +254,7 @@ pub fn export_pdf_with_tags(
     doc: &PagedDocument,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_tags_and_serialization(
         doc,
         stream_mode,
@@ -243,7 +268,7 @@ pub fn export_pdf_with_tags_and_serialization(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_document_id_and_tags_and_serialization(
         doc,
         None,
@@ -259,7 +284,7 @@ pub fn export_pdf_with_document_id(
     doc: &PagedDocument,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_document_id_and_tags(doc, document_id, stream_mode, PdfTags::Enabled)
 }
 
@@ -268,7 +293,7 @@ pub fn export_pdf_with_document_id_and_tags(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_document_id_and_tags_and_serialization(
         doc,
         document_id,
@@ -284,7 +309,7 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_document_id_and_tags_and_serialization_and_pages(
         doc,
         document_id,
@@ -308,7 +333,7 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages(
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
         doc,
         document_id,
@@ -332,7 +357,7 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_stan
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
     standard: PdfStandards,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
@@ -341,7 +366,7 @@ pub fn export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_stan
         .with_pages(pages)
         .with_standard(standard)
         .build(doc, None)
-        .0
+        .map_output(|(pdf, _)| pdf)
 }
 
 /// Serializa com fonte TrueType embebida — CIDFont + Identity-H (ADR-0027).
@@ -351,7 +376,7 @@ pub fn export_pdf_with_font(
     doc: &PagedDocument,
     font_data: &[u8],
     stream_mode: StreamMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_font_and_document_id(doc, font_data, None, stream_mode)
 }
 
@@ -361,7 +386,7 @@ pub fn export_pdf_with_font_and_document_id(
     font_data: &[u8],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_font_and_document_id_and_tags(
         doc,
         font_data,
@@ -377,7 +402,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_font_and_document_id_and_tags_and_serialization(
         doc,
         font_data,
@@ -395,7 +420,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages(
         doc,
         font_data,
@@ -417,7 +442,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages_and_standard(
         doc,
         font_data,
@@ -445,7 +470,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
     standard: PdfStandards,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
@@ -454,7 +479,7 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages
         .with_pages(pages)
         .with_standard(standard)
         .build(doc, Some(font_data))
-        .0
+        .map_output(|(pdf, _)| pdf)
 }
 
 /// Variante instrumentada de `export_pdf_with_font` (P518).
@@ -464,7 +489,7 @@ pub fn export_pdf_with_font_and_timings(
     doc: &PagedDocument,
     font_data: &[u8],
     stream_mode: StreamMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_with_font_and_timings_and_document_id(doc, font_data, None, stream_mode)
 }
 
@@ -474,7 +499,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
     font_data: &[u8],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_with_font_and_timings_and_document_id_and_tags(
         doc,
         font_data,
@@ -490,7 +515,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization(
         doc,
         font_data,
@@ -508,7 +533,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages(
         doc,
         font_data,
@@ -530,7 +555,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
         doc,
         font_data,
@@ -558,7 +583,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
     standard: PdfStandards,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
@@ -566,8 +591,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
         .with_serialization(serialization)
         .with_pages(pages)
         .with_standard(standard);
-    let (pdf, subset_ms) = builder.build(doc, Some(font_data));
-    (pdf, subset_ms)
+    builder.build(doc, Some(font_data))
 }
 
 /// Serializa com **N** fontes TrueType embebidas — multi-font per
@@ -585,7 +609,7 @@ pub fn export_pdf_multifont(
     doc: &PagedDocument,
     fonts: &[FontKey],
     stream_mode: StreamMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_multifont_with_document_id(doc, fonts, None, stream_mode)
 }
 
@@ -595,7 +619,7 @@ pub fn export_pdf_multifont_with_document_id(
     fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_multifont_with_document_id_and_tags(
         doc,
         fonts,
@@ -611,7 +635,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_multifont_with_document_id_and_tags_and_serialization(
         doc,
         fonts,
@@ -629,7 +653,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages(
         doc,
         fonts,
@@ -651,7 +675,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages_and_standard(
         doc,
         fonts,
@@ -679,7 +703,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
     standard: PdfStandards,
-) -> Vec<u8> {
+) -> PdfExport<Vec<u8>> {
     let bound_fonts = font_binding::bind_document(doc, fonts);
     let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
@@ -691,7 +715,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
             .with_pages(pages)
             .with_standard(standard)
             .build(doc, None)
-            .0;
+            .map_output(|(pdf, _)| pdf);
     }
     let faces: Vec<Face<'_>> = fonts
         .iter()
@@ -707,7 +731,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
             .with_pages(pages)
             .with_standard(standard)
             .build(doc, None)
-            .0;
+            .map_output(|(pdf, _)| pdf);
     }
     PdfBuilder::new()
         .with_document_id(document_id)
@@ -717,7 +741,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
         .with_pages(pages)
         .with_standard(standard)
         .build_multifont(doc, fonts, &faces)
-        .0
+        .map_output(|(pdf, _)| pdf)
 }
 
 /// Variante instrumentada de `export_pdf_multifont` (P518).
@@ -727,7 +751,7 @@ pub fn export_pdf_multifont_and_timings(
     doc: &PagedDocument,
     fonts: &[FontKey],
     stream_mode: StreamMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_multifont_and_timings_and_document_id(doc, fonts, None, stream_mode)
 }
 
@@ -737,7 +761,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
     fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_multifont_and_timings_and_document_id_and_tags(
         doc,
         fonts,
@@ -753,7 +777,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
         doc,
         fonts,
@@ -771,7 +795,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
         doc,
         fonts,
@@ -793,7 +817,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
         doc,
         fonts,
@@ -821,19 +845,19 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     serialization: PdfSerializationMode,
     pages: Option<PageRanges>,
     standard: PdfStandards,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     let bound_fonts = font_binding::bind_document(doc, fonts);
     let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
-        let (pdf, _) = PdfBuilder::new()
+        return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
             .with_standard(standard)
-            .build(doc, None);
-        return (pdf, 0.0);
+            .build(doc, None)
+            .map_output(|(pdf, _)| (pdf, 0.0));
     }
     let faces: Vec<Face<'_>> = fonts
         .iter()
@@ -841,15 +865,15 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
         .collect();
     if faces.len() != fonts.len() {
         // Algum bytes não parseou — fallback Helvetica.
-        let (pdf, _) = PdfBuilder::new()
+        return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
             .with_pdf_tags(pdf_tags)
             .with_serialization(serialization)
             .with_pages(pages)
             .with_standard(standard)
-            .build(doc, None);
-        return (pdf, 0.0);
+            .build(doc, None)
+            .map_output(|(pdf, _)| (pdf, 0.0));
     }
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
@@ -858,8 +882,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
         .with_pages(pages)
         .with_standard(standard);
     let builder = builder.with_pdf_tags(pdf_tags);
-    let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
-    (pdf, subset_ms)
+    builder.build_multifont(doc, fonts, &faces)
 }
 
 /// **P980** — entrada do oráculo de paridade de operador (ferramenta de
@@ -874,7 +897,7 @@ pub fn export_pdf_oracle(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     export_pdf_oracle_and_serialization(
         doc,
         fonts,
@@ -892,38 +915,32 @@ pub fn export_pdf_oracle_and_serialization(
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
-) -> (Vec<u8>, f64) {
+) -> PdfExport<(Vec<u8>, f64)> {
     let bound_fonts = font_binding::bind_document(doc, fonts);
     let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
-        return (
-            PdfBuilder::new()
-                .with_document_id(document_id)
-                .with_stream_mode(stream_mode)
-                .with_pdf_tags(pdf_tags)
-                .with_serialization(serialization)
-                .with_oracle(true)
-                .build(doc, None)
-                .0,
-            0.0,
-        );
+        return PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
+            .with_oracle(true)
+            .build(doc, None)
+            .map_output(|(pdf, _)| (pdf, 0.0));
     }
     let faces: Vec<Face<'_>> = fonts
         .iter()
         .filter_map(|(_, data)| Face::parse(data, 0).ok())
         .collect();
     if faces.len() != fonts.len() {
-        return (
-            PdfBuilder::new()
-                .with_document_id(document_id)
-                .with_stream_mode(stream_mode)
-                .with_pdf_tags(pdf_tags)
-                .with_serialization(serialization)
-                .with_oracle(true)
-                .build(doc, None)
-                .0,
-            0.0,
-        );
+        return PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
+            .with_serialization(serialization)
+            .with_oracle(true)
+            .build(doc, None)
+            .map_output(|(pdf, _)| (pdf, 0.0));
     }
     // Mesma regra do dispatch normal (pipeline.rs): uma fonte não-VF vai
     // pelo caminho single-font; VF com eixos ou 2+ fontes vão a multifont.

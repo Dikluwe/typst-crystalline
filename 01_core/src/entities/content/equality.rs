@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/equality.md
-//! @prompt-hash 8d671d62
+//! @prompt-hash 2b27a2b7
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -56,6 +56,7 @@ impl PartialEq for Content {
             // Modelo D (Lote 10 P325): Equation delega ao `Arc<…Elem>`.
             (Self::Equation(a), Self::Equation(b)) => a == b,
             (Self::MathSequence(a), Self::MathSequence(b)) => a.as_ref() == b.as_ref(),
+            (Self::Symbol(a), Self::Symbol(b)) => a == b,
             (Self::MathIdent(a), Self::MathIdent(b)) => a == b,
             (Self::MathText(a), Self::MathText(b)) => a == b,
             // Modelo D (Lote 2 P317): família math delega ao `Arc<…Elem>`
@@ -247,6 +248,7 @@ impl PartialEq for Content {
                 | Self::Link(_)
                 | Self::Equation(_)
                 | Self::MathSequence(_)
+                | Self::Symbol(_)
                 | Self::MathIdent(_)
                 | Self::MathText(_)
                 | Self::MathFrac(_)
@@ -363,6 +365,7 @@ impl PartialEq for Content {
                 | Self::Link(_)
                 | Self::Equation(_)
                 | Self::MathSequence(_)
+                | Self::Symbol(_)
                 | Self::MathIdent(_)
                 | Self::MathText(_)
                 | Self::MathFrac(_)

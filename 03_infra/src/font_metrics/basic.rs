@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/basic.md
-//! @prompt-hash fac0d45c
+//! @prompt-hash 96dfdeb0
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-24
 
 use super::math::{
     extract_assembly, extract_assembly_horizontal, extract_variants,
@@ -62,7 +62,7 @@ pub(crate) fn edge_offset_pt(
         // P837 — Length explícito: resolve no font-size; não depende da face.
         Some(TextEdge::Length(l)) => return Pt(l.resolve_pt(size.val())),
         Some(TextEdge::Metric(m)) => m.as_str(),
-        None => default, // neutro: N16[γ] — TextEdge None resolve para default cap-height/baseline (fallback de métrica)
+        Option::None => default,
     };
 
     let units = match edge {
@@ -106,8 +106,174 @@ pub(crate) fn edge_offset_pt(
     }
 }
 
+/// Shared face/table conversion; no font selection or cached-face mutation.
+pub(super) fn underline_in_face(face: &Face<'_>, size: Pt) -> (Pt, Pt) {
+    underline_in_tables(
+        face.underline_metrics(),
+        face.strikeout_metrics(),
+        f64::from(face.units_per_em().max(1)),
+        size,
+    )
+}
+
+fn underline_in_tables(
+    underline: Option<ttf_parser::LineMetrics>,
+    strikeout: Option<ttf_parser::LineMetrics>,
+    upem: f64,
+    size: Pt,
+) -> (Pt, Pt) {
+    let offset =
+        underline.map_or(size * 0.2, |line| size * (-f64::from(line.position) / upem));
+    let thickness = underline
+        .or(strikeout)
+        .map_or(size * 0.06, |line| size * (f64::from(line.thickness).max(0.0) / upem));
+    (offset, thickness)
+}
+
+/// Resolve text script geometry from the selected, already varied face.
+pub(crate) fn superscript_in_face(
+    face: &Face<'_>,
+    text: &str,
+    size: Pt,
+) -> (Pt, Pt, Pt, bool) {
+    let native = !text.is_empty()
+        && face.tables().gsub.is_some_and(|gsub| {
+            gsub.features.find(ttf_parser::Tag::from_bytes(b"sups")).is_some_and(
+                |feature| {
+                    text.chars().all(|c| {
+                        face.glyph_index(c).is_some_and(|gid| {
+                            feature
+                                .lookup_indices
+                                .into_iter()
+                                .filter_map(|i| gsub.lookups.get(i))
+                                .flat_map(|lookup| {
+                                    lookup
+                                    .subtables
+                                    .into_iter::<ttf_parser::gsub::SubstitutionSubtable>()
+                                })
+                                .any(|subtable| subtable.coverage().contains(gid))
+                        })
+                    })
+                },
+            )
+        });
+    if native {
+        return (size, Pt(0.0), Pt(0.0), true);
+    }
+    synthetic_superscript_in_face(face, size)
+}
+
+fn synthetic_superscript_in_face(face: &Face<'_>, size: Pt) -> (Pt, Pt, Pt, bool) {
+    let Some(metrics) = face.superscript_metrics() else {
+        return (size * 0.6, Pt(0.0), size * -0.5, false);
+    };
+    let scale = size.0 / f64::from(face.units_per_em().max(1));
+    (
+        Pt(f64::from(metrics.y_size) * scale),
+        Pt(f64::from(metrics.x_offset) * scale),
+        Pt(-f64::from(metrics.y_offset) * scale),
+        false,
+    )
+}
+
+pub(super) fn resolved_superscript_style(
+    face: &Face<'_>,
+    text: &str,
+    size: Pt,
+    style: &TextStyle,
+) -> (TextStyle, Pt) {
+    let metrics = if style.superscript_native == Some(false) {
+        synthetic_superscript_in_face(face, size)
+    } else {
+        superscript_in_face(face, text, size)
+    };
+    let (paint_size, x, y, native) = metrics;
+    let mut actual = style.clone();
+    actual.size = if native {
+        paint_size
+    } else {
+        style
+            .superscript_size
+            .map(|l| Pt(l.resolve_pt(size.0)))
+            .unwrap_or(paint_size)
+    };
+    if size.0.is_finite() && size.0 != 0.0 {
+        actual.tracking = style.tracking.map(|length| {
+            typst_core::entities::layout_types::Length::pt(
+                length.resolve_pt(size.0) * actual.size.0 / size.0,
+            )
+        });
+    }
+    actual.baseline_offset = typst_core::entities::layout_types::Length::pt(y.0);
+    actual.superscript_native = Some(native);
+    let upem = f64::from(face.units_per_em().max(1));
+    let top = edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
+    let bottom = edge_offset_pt(face, upem, size, style.bottom_edge.as_ref(), false);
+    actual.top_edge =
+        Some(TextEdge::Length(typst_core::entities::layout_types::Length::pt(top.0)));
+    actual.bottom_edge =
+        Some(TextEdge::Length(typst_core::entities::layout_types::Length::pt(bottom.0)));
+    (actual, x)
+}
+
 impl FontMetrics for FontBookMetrics<'_> {
+    fn text_superscript_runs(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+        let mut face = self.face.clone();
+        for variation in crate::font_variant::axis_variations_for_text_style(style) {
+            face.set_variation(variation.tag, variation.value);
+        }
+        let (actual, x) = resolved_superscript_style(&face, text, size, style);
+        vec![(0..text.len(), actual, x)]
+    }
+
+    fn text_superscript_metrics(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt, Pt, bool) {
+        let mut face = self.face.clone();
+        for variation in crate::font_variant::axis_variations_for_text_style(style) {
+            face.set_variation(variation.tag, variation.value);
+        }
+        superscript_in_face(&face, text, size)
+    }
+
+    fn underline_metrics(&self, _: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let mut face = self.face.clone();
+        for variation in crate::font_variant::axis_variations_for_text_style(style) {
+            face.set_variation(variation.tag, variation.value);
+        }
+        underline_in_face(&face, size)
+    }
+
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        if style.superscript
+            && !style.subscript
+            && style.superscript_native != Some(false)
+        {
+            let mut face = self.face.clone();
+            for variation in crate::font_variant::axis_variations_for_text_style(style) {
+                face.set_variation(variation.tag, variation.value);
+            }
+            if superscript_in_face(&face, text, size).3 {
+                let face = rustybuzz::Face::from_face(face);
+                let mut buffer = rustybuzz::UnicodeBuffer::new();
+                buffer.push_str(text);
+                let feature =
+                    rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"sups"), 1, ..);
+                let shaped = rustybuzz::shape(&face, &[feature], buffer);
+                let units: i32 =
+                    shaped.glyph_positions().iter().map(|p| p.x_advance).sum();
+                return size * (f64::from(units) / self.upem);
+            }
+        }
+
         // Fórmula: advance_pt = font_size * (Σ glyph_units / upem)
         // **P977** — variante ssty por carácter (mesma regra de
         // `FallbackFontMetrics::advance`). **P1129** — só para texto
@@ -118,6 +284,7 @@ impl FontMetrics for FontBookMetrics<'_> {
         let ssty_level = ssty_level_of(style, ssty_eligible_text(text));
         let mut units: f64 = text
             .chars()
+            .filter(|c| !is_variation_selector(*c))
             .map(|c| {
                 self.face
                     .glyph_index(c)
@@ -583,6 +750,21 @@ mod tests {
     }
 
     #[test]
+    fn r3_geometry_variation_selectors_have_no_scalar_advance() {
+        let data = include_bytes!("../../fixtures/fonts/NewCMMath-Book.otf");
+        let metrics = FontBookMetrics::from_bytes(data).unwrap();
+        let size = Pt(12.0);
+        for math in [false, true] {
+            let style = TextStyle { math, ..TextStyle::regular(size) };
+            let base = metrics.advance("𝑥", size, &style);
+            for selector in ['\u{fe00}', '\u{fe0f}', '\u{e0100}', '\u{e01ef}'] {
+                assert_eq!(metrics.advance(&format!("𝑥{selector}"), size, &style), base);
+                assert_eq!(metrics.advance(&selector.to_string(), size, &style), Pt(0.0));
+            }
+        }
+    }
+
+    #[test]
     fn p1293_fontbook_textitem_math_suprime_somente_ic() {
         use typst_core::compiler::layout::FontMetrics;
 
@@ -615,5 +797,212 @@ mod tests {
         assert!(ic.val() > 0.0, "fixture precisa de IC discriminatória");
         assert!((glyph.val() - textitem.val() - ic.val()).abs() < 1e-9);
         assert!(glyph > textitem);
+    }
+}
+
+#[cfg(test)]
+mod remaining_underline_tests {
+    use super::*;
+    #[test]
+    fn remaining_underline_missing_tables_preserve_signed_positions_and_fallback_priority(
+    ) {
+        assert_eq!(underline_in_tables(None, None, 1000.0, Pt(10.0)), (Pt(2.0), Pt(0.6)));
+        let strike = ttf_parser::LineMetrics { position: 400, thickness: 30 };
+        assert_eq!(
+            underline_in_tables(None, Some(strike), 1000.0, Pt(10.0)),
+            (Pt(2.0), Pt(0.3))
+        );
+        let underline = ttf_parser::LineMetrics { position: 50, thickness: 20 };
+        assert_eq!(
+            underline_in_tables(Some(underline), Some(strike), 1000.0, Pt(10.0)),
+            (Pt(-0.5), Pt(0.2))
+        );
+        let zero = ttf_parser::LineMetrics { position: 0, thickness: -10 };
+        assert_eq!(
+            underline_in_tables(Some(zero), Some(strike), 1000.0, Pt(10.0)),
+            (Pt(0.0), Pt(0.0))
+        );
+    }
+    #[test]
+    fn remaining_underline_real_faces_use_tables_and_the_explicit_requested_size() {
+        for data in [
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+        ] {
+            let face = Face::parse(data, 0).expect("declared portable font");
+            let table = face.underline_metrics().expect("actual underline table");
+            let upem = face.units_per_em() as f64;
+            let provider = FontBookMetrics::from_bytes(data).expect("valid provider");
+            let style = TextStyle { size: Pt(99.0), ..TextStyle::default() };
+            for size in [11.0, 17.0] {
+                let (offset, thickness) =
+                    provider.underline_metrics("LEFT RIGHT", Pt(size), &style);
+                assert!(
+                    (offset.0 - (-f64::from(table.position) * size / upem)).abs() < 1e-8
+                );
+                assert!(
+                    (thickness.0 - (f64::from(table.thickness) * size / upem)).abs()
+                        < 1e-8
+                );
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod r8_superscript_tests {
+    use super::*;
+    #[test]
+    fn r8_real_face_superscript_uses_os2_and_explicit_size() {
+        let bytes = include_bytes!("../../fixtures/fonts/DejaVuSans.ttf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let table = face.superscript_metrics().unwrap();
+        let provider = FontBookMetrics::from_bytes(bytes).unwrap();
+        let style = TextStyle { size: Pt(99.0), ..TextStyle::default() };
+        for size in [11.0, 17.0] {
+            let result = provider.text_superscript_metrics("12", Pt(size), &style);
+            let scale = size / f64::from(face.units_per_em());
+            assert_eq!(
+                result,
+                (
+                    Pt(f64::from(table.y_size) * scale),
+                    Pt(f64::from(table.x_offset) * scale),
+                    Pt(-f64::from(table.y_offset) * scale),
+                    false
+                )
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod r8_native_superscript_tests {
+    use super::*;
+    #[test]
+    fn r8_native_superscript_requires_complete_glyph_coverage() {
+        let bytes = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let gsub = face.tables().gsub.unwrap();
+        let feature = gsub.features.find(ttf_parser::Tag::from_bytes(b"sups")).unwrap();
+        let covered = |c| {
+            face.glyph_index(c).is_some_and(|gid| {
+                feature
+                    .lookup_indices
+                    .into_iter()
+                    .filter_map(|i| gsub.lookups.get(i))
+                    .flat_map(|l| {
+                        l.subtables.into_iter::<ttf_parser::gsub::SubstitutionSubtable>()
+                    })
+                    .any(|s| s.coverage().contains(gid))
+            })
+        };
+        let native = ('0'..='9').find(|&c| covered(c)).expect("actual covered digit");
+        let refused =
+            ('A'..='Z').find(|&c| !covered(c)).expect("actual uncovered letter");
+        let provider = FontBookMetrics::from_bytes(bytes).unwrap();
+        let style = TextStyle::default();
+        for size in [11.0, 17.0] {
+            assert_eq!(
+                provider.text_superscript_metrics(&native.to_string(), Pt(size), &style),
+                (Pt(size), Pt(0.0), Pt(0.0), true)
+            );
+            for text in [format!("{native}{refused}"), format!("{native}\u{10ffff}")] {
+                assert!(!provider.text_superscript_metrics(&text, Pt(size), &style).3);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod r8_native_advance_tests {
+    use super::*;
+    #[test]
+    fn r8_native_superscript_advance_matches_shaped_glyphs() {
+        let bytes = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
+        let face = rustybuzz::Face::from_slice(bytes, 0).unwrap();
+        let provider = FontBookMetrics::from_bytes(bytes).unwrap();
+        let style = TextStyle {
+            superscript: true,
+            size: Pt(11.0),
+            ..TextStyle::default()
+        };
+        let mut buf = rustybuzz::UnicodeBuffer::new();
+        buf.push_str("123");
+        let feature =
+            rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"sups"), 1, ..);
+        let output = rustybuzz::shape(&face, &[feature], buf);
+        let units: i32 = output.glyph_positions().iter().map(|p| p.x_advance).sum();
+        let expected = units as f64 * 11.0 / f64::from(face.units_per_em());
+        assert!((provider.advance("123", Pt(11.0), &style).0 - expected).abs() < 1e-8);
+    }
+}
+
+#[cfg(test)]
+mod r8_native_carrier_tests {
+    use super::*;
+    #[test]
+    fn r8_forced_synthetic_fragment_keeps_normal_advance() {
+        let bytes = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
+        let provider = FontBookMetrics::from_bytes(bytes).unwrap();
+        let normal = TextStyle::default();
+        let synthetic = TextStyle {
+            superscript: true,
+            superscript_native: Some(false),
+            ..normal.clone()
+        };
+        assert_eq!(
+            provider.advance("123", Pt(11.0), &synthetic),
+            provider.advance("123", Pt(11.0), &normal)
+        );
+        assert_eq!(normal.superscript_native, None);
+    }
+}
+
+#[cfg(test)]
+mod r10_resolved_tracking_tests {
+    use super::*;
+    use typst_core::entities::layout_types::Length;
+    #[test]
+    fn r10_real_face_runs_scale_tracking_with_actual_script_paint_size() {
+        let bytes = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let table = face.superscript_metrics().unwrap();
+        let provider = FontBookMetrics::from_bytes(bytes).unwrap();
+        for size in [11.0, 17.0] {
+            let native = TextStyle { superscript: true, ..TextStyle::default() };
+            assert_eq!(
+                provider.text_superscript_runs("12", Pt(size), &native)[0]
+                    .1
+                    .superscript_native,
+                Some(true)
+            );
+            for explicit in [None, Some(Length::pt(5.0))] {
+                let style = TextStyle {
+                    superscript_native: Some(false),
+                    superscript_size: explicit,
+                    tracking: Some(Length::pt(0.2)),
+                    ..native.clone()
+                };
+                let result = provider.text_superscript_runs("12", Pt(size), &style);
+                let actual = &result[0].1;
+                let paint = explicit.map(|l| l.resolve_pt(size)).unwrap_or(
+                    f64::from(table.y_size) / f64::from(face.units_per_em()) * size,
+                );
+                assert!((actual.size.0 - paint).abs() < 1e-10);
+                assert!(
+                    (actual.baseline_offset.resolve_pt(paint)
+                        + f64::from(table.y_offset) / f64::from(face.units_per_em())
+                            * size)
+                        .abs()
+                        < 1e-10
+                );
+                assert_eq!(actual.superscript_native, Some(false));
+                assert!(
+                    (actual.tracking.unwrap().resolve_pt(paint) - 0.2 * paint / size)
+                        .abs()
+                        < 1e-10
+                );
+            }
+        }
     }
 }

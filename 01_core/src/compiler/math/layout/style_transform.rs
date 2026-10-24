@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/style_transform.md
-//! @prompt-hash 1c53baa6
+//! @prompt-hash fd16b8c1
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -38,6 +38,17 @@ pub(super) fn apply_math_default(body: &Content) -> Content {
         // Wrapper explícito: não tocar — o handler dedicado trata-o.
         Content::MathStyled(_) => body.clone(),
         // Folhas: default de itálico por codepoint (P809).
+        Content::Symbol(text) => Content::Symbol(
+            text.chars()
+                .map(|c| {
+                    if is_math_italic_default(c) {
+                        map_glyph(c, MathStyleKind::Plain, false, true)
+                    } else {
+                        c
+                    }
+                })
+                .collect(),
+        ),
         Content::MathIdent(name) => {
             let mut chars = name.chars();
             if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c))
@@ -291,6 +302,23 @@ pub(super) fn apply_math_style(
             }
         }
         // Folha textual: aplica map_glyph char-by-char.
+        Content::Symbol(text) => {
+            let k = kind.unwrap_or(MathStyleKind::Plain);
+            let glyph_kind = if k.is_size_variant() { MathStyleKind::Plain } else { k };
+            let mapped = text
+                .chars()
+                .flat_map(|c| {
+                    let glyph = map_glyph(
+                        c,
+                        glyph_kind,
+                        bold.unwrap_or(false),
+                        italic.unwrap_or_else(|| is_math_italic_default(c)),
+                    );
+                    std::iter::once(glyph).chain(map_glyph_vs(c, glyph_kind))
+                })
+                .collect();
+            Content::Symbol(mapped)
+        }
         Content::MathIdent(name) => {
             // **P812** — variants de tamanho (Display/Inline/Script/SScript)
             // não têm mapping de glifo próprio: tratam-se como Plain no eixo
@@ -493,5 +521,39 @@ pub(super) fn apply_math_style(
         Content::MathOp(_) => body.clone(),
         // Outros chars / variants não-math: clone literal.
         other => other.clone(),
+    }
+}
+
+#[cfg(test)]
+mod symbol_identity_tests {
+    use super::*;
+
+    #[test]
+    fn symbol_identity_multichar_default_glyphs() {
+        let body = Content::Symbol("sum".into());
+        let Content::Symbol(text) = apply_math_default(&body) else {
+            panic!("native variant lost")
+        };
+        assert_eq!(text.as_str(), "𝑠𝑢𝑚");
+        let Content::Symbol(text) = apply_math_default(&Content::Symbol("x︀".into()))
+        else {
+            panic!("native variant lost")
+        };
+        assert_eq!(text.as_str(), "𝑥︀");
+    }
+
+    #[test]
+    fn symbol_identity_multichar_explicit_glyphs() {
+        let body = Content::Symbol("xy".into());
+        let Content::Symbol(text) = apply_math_style(&body, None, Some(true), None)
+        else {
+            panic!("native variant lost")
+        };
+        assert_eq!(text.as_str(), "𝒙𝒚");
+        let Content::Symbol(text) = apply_math_style(&body, None, None, Some(false))
+        else {
+            panic!("native variant lost")
+        };
+        assert_eq!(text.as_str(), "xy");
     }
 }

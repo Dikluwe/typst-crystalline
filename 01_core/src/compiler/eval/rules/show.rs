@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/show.md
-//! @prompt-hash 765033f3
+//! @prompt-hash 1e62a941
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -485,7 +485,8 @@ mod v16_table_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

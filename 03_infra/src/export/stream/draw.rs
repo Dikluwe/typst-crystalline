@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/draw.md
-//! @prompt-hash 8bd8c9e4
+//! @prompt-hash ce4c7cac
 //! @layer L3
-//! @updated 2026-10-08
+//! @updated 2026-10-24
 
 use super::{
     emit_fill_paint, emit_glyph_pdf, emit_glyph_pdf_marked, emit_glyph_pdf_verbose,
@@ -15,6 +15,8 @@ use super::{
 };
 use std::sync::Arc;
 use typst_core::entities::elements::pdf_artifact::ArtifactKind;
+use typst_core::entities::frame_paint::{FramePaint, FrameStroke};
+use typst_core::entities::geometry::PathItem;
 use typst_core::entities::layout_types::{FrameItem, Point, Pt, Rect, TransformMatrix};
 
 fn image_clip_needed(clip: &Rect, pos: &Point, width: Pt, height: Pt) -> bool {
@@ -481,41 +483,47 @@ fn draw_item_top_inner(
                     ));
                 }
                 ShapeKind::Line { dx, dy } => {
-                    let start_offset_x = if *dx < 0.0 { *width } else { 0.0 };
-                    let end_offset_x = if *dx < 0.0 { 0.0 } else { *width };
-                    let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
-                    let end_offset_y = if *dy > 0.0 { 0.0 } else { *height };
-                    let start_x = pos.x.val() + start_offset_x;
-                    let start_y = pdf_y + start_offset_y;
-                    let end_x = pos.x.val() + end_offset_x;
-                    let end_y = pdf_y + end_offset_y;
-                    ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
-                    ops.push_str(&format!("{:.3} {:.3} l\n", end_x, end_y));
+                    emit_shape_line(
+                        &mut ops,
+                        *pos,
+                        *width,
+                        *height,
+                        (*dx, *dy),
+                        Some(page_height),
+                    );
                 }
                 ShapeKind::Path(items) => {
-                    use typst_core::entities::geometry::PathItem;
-                    for item in items {
-                        match item {
-                            PathItem::MoveTo(p) => ops.push_str(&format!(
-                                "{:.2} {:.2} m\n",
-                                pos.x.val() + p.x.0,
-                                page_height - (pos.y.val() + p.y.0),
-                            )),
-                            PathItem::LineTo(p) => ops.push_str(&format!(
-                                "{:.2} {:.2} l\n",
-                                pos.x.val() + p.x.0,
-                                page_height - (pos.y.val() + p.y.0),
-                            )),
-                            PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
-                                "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
-                                pos.x.val() + p1.x.0,
-                                page_height - (pos.y.val() + p1.y.0),
-                                pos.x.val() + p2.x.0,
-                                page_height - (pos.y.val() + p2.y.0),
-                                pos.x.val() + p3.x.0,
-                                page_height - (pos.y.val() + p3.y.0),
-                            )),
-                            PathItem::ClosePath => ops.push_str("h\n"),
+                    if !emit_straight_path(
+                        &mut ops,
+                        *pos,
+                        items,
+                        fill.as_ref(),
+                        stroke.as_ref(),
+                        Some(page_height),
+                    ) {
+                        for item in items {
+                            match item {
+                                PathItem::MoveTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} m\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::LineTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} l\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                    "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                    pos.x.val() + p1.x.0,
+                                    page_height - (pos.y.val() + p1.y.0),
+                                    pos.x.val() + p2.x.0,
+                                    page_height - (pos.y.val() + p2.y.0),
+                                    pos.x.val() + p3.x.0,
+                                    page_height - (pos.y.val() + p3.y.0),
+                                )),
+                                PathItem::ClosePath => ops.push_str("h\n"),
+                            }
                         }
                     }
                 }
@@ -912,45 +920,40 @@ fn draw_item_local_inner(
                     ));
                 }
                 ShapeKind::Line { dx, dy } => {
-                    let start_offset_x = if *dx < 0.0 { *width } else { 0.0 };
-                    let end_offset_x = if *dx < 0.0 { 0.0 } else { *width };
-                    let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
-                    let end_offset_y = if *dy > 0.0 { 0.0 } else { *height };
-                    ops.push_str(&format!(
-                        "{:.3} {:.3} m\n",
-                        pos.x.0 + start_offset_x,
-                        local_y + start_offset_y
-                    ));
-                    ops.push_str(&format!(
-                        "{:.3} {:.3} l\n",
-                        pos.x.0 + end_offset_x,
-                        local_y + end_offset_y
-                    ));
+                    emit_shape_line(ops, *pos, *width, *height, (*dx, *dy), None);
                 }
                 ShapeKind::Path(items) => {
-                    use typst_core::entities::geometry::PathItem;
-                    for item in items {
-                        match item {
-                            PathItem::MoveTo(p) => ops.push_str(&format!(
-                                "{:.2} {:.2} m\n",
-                                pos.x.0 + p.x.0,
-                                -(local_y + p.y.0),
-                            )),
-                            PathItem::LineTo(p) => ops.push_str(&format!(
-                                "{:.2} {:.2} l\n",
-                                pos.x.0 + p.x.0,
-                                -(local_y + p.y.0),
-                            )),
-                            PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
-                                "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
-                                pos.x.0 + p1.x.0,
-                                -(local_y + p1.y.0),
-                                pos.x.0 + p2.x.0,
-                                -(local_y + p2.y.0),
-                                pos.x.0 + p3.x.0,
-                                -(local_y + p3.y.0),
-                            )),
-                            PathItem::ClosePath => ops.push_str("h\n"),
+                    if !emit_straight_path(
+                        ops,
+                        *pos,
+                        items,
+                        fill.as_ref(),
+                        stroke.as_ref(),
+                        None,
+                    ) {
+                        for item in items {
+                            match item {
+                                PathItem::MoveTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} m\n",
+                                    pos.x.0 + p.x.0,
+                                    local_y + p.y.0,
+                                )),
+                                PathItem::LineTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} l\n",
+                                    pos.x.0 + p.x.0,
+                                    local_y + p.y.0,
+                                )),
+                                PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                    "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                    pos.x.0 + p1.x.0,
+                                    local_y + p1.y.0,
+                                    pos.x.0 + p2.x.0,
+                                    local_y + p2.y.0,
+                                    pos.x.0 + p3.x.0,
+                                    local_y + p3.y.0,
+                                )),
+                                PathItem::ClosePath => ops.push_str("h\n"),
+                            }
                         }
                     }
                 }
@@ -1230,9 +1233,216 @@ fn draw_item_local_inner(
     restores
 }
 
+/// Establish the line's own Y-down space inside its existing graphics scope.
+fn emit_shape_line(
+    ops: &mut String,
+    pos: Point,
+    width: f64,
+    height: f64,
+    direction: (f64, f64),
+    page_height: Option<f64>,
+) {
+    let sx = pos.x.0 + if direction.0 < 0.0 { width } else { 0.0 };
+    let sy = pos.y.0 + if direction.1 < 0.0 { height } else { 0.0 };
+    let dx = if direction.0 < 0.0 { -width } else { width };
+    let dy = if direction.1 < 0.0 { -height } else { height };
+    emit_positioned_line(ops, Point { x: Pt(sx), y: Pt(sy) }, (dx, dy), page_height);
+}
+
+fn emit_positioned_line(
+    ops: &mut String,
+    start: Point,
+    delta: (f64, f64),
+    page_height: Option<f64>,
+) {
+    let (flip, y) = match page_height {
+        Some(height) => (-1, height - start.y.0),
+        None => (1, start.y.0),
+    };
+    let (x, dx, dy) = (start.x.0, delta.0, delta.1);
+    ops.push_str(&format!("1 0 0 {flip} {x:.5} {y:.5} cm\n0 0 m\n{dx:.5} {dy:.5} l\n"));
+}
+
+fn emit_straight_path(
+    ops: &mut String,
+    pos: Point,
+    items: &[PathItem],
+    fill: Option<&FramePaint>,
+    stroke: Option<&FrameStroke>,
+    page_height: Option<f64>,
+) -> bool {
+    if fill
+        .into_iter()
+        .chain(stroke.map(|s| &s.paint))
+        .any(|p| matches!(p, FramePaint::Tiling(_)))
+    {
+        return false;
+    }
+    let [PathItem::MoveTo(start), PathItem::LineTo(end)] = items else {
+        return false;
+    };
+    emit_positioned_line(
+        ops,
+        Point {
+            x: Pt(pos.x.0 + start.x.0),
+            y: Pt(pos.y.0 + start.y.0),
+        },
+        (end.x.0 - start.x.0, end.y.0 - start.y.0),
+        page_height,
+    );
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn r5_shape_line_endpoints_keep_fractional_geometry_and_local_direction() {
+        use typst_core::entities::geometry::ShapeKind;
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let images = std::collections::HashMap::new();
+            let patterns = std::collections::HashMap::new();
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            for dx in [-13.12345f64, 13.12345] {
+                for dy in [-7.67891f64, 7.67891] {
+                    let item = FrameItem::Shape {
+                        pos: Point { x: Pt(19.12345), y: Pt(23.54321) },
+                        kind: ShapeKind::Line { dx, dy },
+                        width: dx.abs(),
+                        height: dy.abs(),
+                        fill: None,
+                        stroke: None,
+                        fill_rule: Default::default(),
+                        parent_bbox_at_emit: None,
+                    };
+                    let sx = 19.12345 + if dx < 0.0 { dx.abs() } else { 0.0 };
+                    let sy = 23.54321 + if dy < 0.0 { dy.abs() } else { 0.0 };
+                    for local in [false, true] {
+                        let stream = if local {
+                            let mut ops = String::new();
+                            draw_item_local(&mut ops, &item, None, &ctx);
+                            ops
+                        } else {
+                            draw_item_top(String::new(), &item, 200.0, &ctx)
+                        };
+                        let expected = if local {
+                            [[sx, sy], [sx + dx, sy + dy]]
+                        } else {
+                            [[sx, 200.0 - sy], [sx + dx, 200.0 - sy - dy]]
+                        };
+                        let observed = observed_geometry(&stream);
+                        assert_eq!(observed.points.len(), 2);
+                        for ((point, _), expected) in observed.points.iter().zip(expected)
+                        {
+                            for axis in 0..2 {
+                                assert!((point[axis] - expected[axis]).abs() < 0.000011,
+                                    "endpoint moved: {point:?} versus {expected:?}; local={local}: {stream}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn r5_local_path_remains_inside_its_transformed_clip() {
+        use typst_core::entities::geometry::{PathItem, ShapeKind};
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let images = std::collections::HashMap::new();
+            let patterns = std::collections::HashMap::new();
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            let line = FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(10.0) },
+                kind: ShapeKind::Path(vec![
+                    PathItem::MoveTo(Point { x: Pt(0.0), y: Pt(0.0) }),
+                    PathItem::LineTo(Point { x: Pt(60.0), y: Pt(30.0) }),
+                ]),
+                width: 60.0,
+                height: 30.0,
+                fill: None,
+                stroke: None,
+                fill_rule: Default::default(),
+                parent_bbox_at_emit: None,
+            };
+            let group = FrameItem::Group {
+                paint_root: false,
+                pos: Point { x: Pt(20.0), y: Pt(20.0) },
+                matrix: TransformMatrix::identity(),
+                clip_mask: Some(ShapeKind::Rect),
+                inner_width: 100.0,
+                inner_height: 100.0,
+                items: vec![line],
+            };
+            let stream = draw_item_top(String::new(), &group, 160.0, &ctx);
+            let observed = observed_geometry(&stream);
+            assert_eq!(
+                observed.points,
+                vec![([30.0, 130.0], true), ([90.0, 100.0], true)],
+                "{stream}"
+            );
+            assert_eq!(
+                observed.rectangles,
+                vec![[[20.0, 140.0], [120.0, 140.0], [120.0, 40.0], [20.0, 40.0]]]
+            );
+        }
+    }
+
+    #[test]
+    fn r5_straight_path_keeps_its_start_and_fractional_signed_endpoint() {
+        use typst_core::entities::geometry::{PathItem, ShapeKind};
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let images = std::collections::HashMap::new();
+            let patterns = std::collections::HashMap::new();
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            for sign in [-1.0, 1.0] {
+                let item = FrameItem::Shape {
+                    pos: Point { x: Pt(19.12345), y: Pt(23.54321) },
+                    kind: ShapeKind::Path(vec![
+                        PathItem::MoveTo(Point { x: Pt(2.34567), y: Pt(3.45678) }),
+                        PathItem::LineTo(Point {
+                            x: Pt(13.12345 * sign),
+                            y: Pt(7.67891 * sign),
+                        }),
+                    ]),
+                    width: 40.0,
+                    height: 40.0,
+                    fill: None,
+                    stroke: None,
+                    fill_rule: Default::default(),
+                    parent_bbox_at_emit: None,
+                };
+                for local in [false, true] {
+                    let stream = if local {
+                        let mut s = String::new();
+                        draw_item_local(&mut s, &item, None, &ctx);
+                        s
+                    } else {
+                        draw_item_top(String::new(), &item, 200.0, &ctx)
+                    };
+                    let expected = [
+                        [21.46912, 26.99999],
+                        [19.12345 + 13.12345 * sign, 23.54321 + 7.67891 * sign],
+                    ];
+                    let observed = observed_geometry(&stream);
+                    assert_eq!(observed.points.len(), 2);
+                    for ((point, _), mut expected) in observed.points.iter().zip(expected)
+                    {
+                        if !local {
+                            expected[1] = 200.0 - expected[1];
+                        }
+                        for axis in 0..2 {
+                            assert!(
+                                (point[axis] - expected[axis]).abs() < 0.000011,
+                                "path endpoint {point:?} versus {expected:?}: {stream}"
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     #[test]
     fn image_clip_is_emitted_only_for_real_crop_in_top_and_local_streams() {

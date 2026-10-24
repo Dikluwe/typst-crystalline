@@ -13,7 +13,7 @@ statement = "Measurement and shaping consult the same chains so measured and dra
 [[claims]]
 id = "semantic-math-trigger"
 level = "must"
-statement = "Activate the mathematical chain through explicit math mode or a primary face with MATH table, never textual occurrence of math in the family name."
+statement = "Activate the additional mathematical chain through explicit math mode. A primary MATH table is a font capability, not a language-mode signal; explicitly declared families retain their normal declared priority. Never infer math mode from family spelling."
 [[claims]]
 id = "no-catalog-global-scan"
 level = "must-not"

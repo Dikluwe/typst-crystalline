@@ -1,5 +1,5 @@
 # L0 — public format root
-Hash do Código: 440fa223
+Hash do Código: 77ffe516
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -40,3 +40,23 @@ Four original profiles default/A11y/Html/Html+A11y plus complete eight-feature p
 Meaningful functional RED→GREEN before code for gates and argument/set effects, false condition short circuit, missing-variable/field errors/active alias evaluation, original 114 HTML pairs/required PDF clones/actual Bundle asset target. No extra factory render/conformity credit. Compare public declarations/signatures/sizeof/inventories where prescribed, exact protected baseline hashes, valid ownership/nuclei before restricted eleven/six-owner manifests as applicable, full workspace/build/strict all-targetClippy+unfulfilled/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/global differential no new error/warning, sequential 12GiB/High10GiB/swap0/jobs1. No publish/commit/release and no copying old candidates to bypass separate FG1/RM1/SY1/RG1/V16 scopes.
 
 Apply pinned format-native-identity nucleus. Native/Format grouping is justified by same payload/ABI for projection/execution, but test every alternative for name/namespace/pointer/Eq/Hash/clone/With/dispatch; inventory/link V19 to tests without suppression, explicitly name new variant in exhaustive matches. No external definition/signature/field/trait/compatibility/default/phase changes, ADR-0127 continuous flow. Before code functional RED via current factories for fifteen cases and real observation against unmarked Native; GREEN full corpus/144 field-call/456 compatibility outside where/kind, public-contract and sizeof before/after. L0/ownership/V26 before restricted eleven-pair reseal; build/workspace/strict Clippy/Rustdoc/fmt/strict-reverse lineage/global no new errors/warnings. Sequential 12GiB/High10GiB/swap0/jobs1. Only where/kind admission closes; full selection/show/query/synthesis/carrier morphology/counter, FG1/RM1/SY1/RG1/V16 retain separate scopes/gates. No old-candidate copying or publication.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

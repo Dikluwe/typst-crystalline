@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query_helpers.md
-//! @prompt-hash 4e60a29a
+//! @prompt-hash 7e4113df
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -277,6 +277,7 @@ fn count_list_groups(content: &Content) -> usize {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -408,6 +409,7 @@ fn count_enum_groups(content: &Content) -> usize {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -576,7 +578,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::Divider(_)
         | Content::Linebreak(_) | Content::HSpace(_) | Content::VSpace(_)
         | Content::Pagebreak(_) | Content::Colbreak(_)
-        | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
+        | Content::MathSequence(_) | Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_)
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_)
         | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathUnderbrace(_) | Content::MathUnderbracket(_) | Content::MathUnderparen(_) | Content::MathUndershell(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
@@ -672,7 +674,7 @@ where
         | Content::Ref(_) | Content::Image(_) | Content::Shape { .. } | Content::Curve(_)
         | Content::Divider(_) | Content::Linebreak(_) | Content::HSpace(_)
         | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_)
-        | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_)
+        | Content::MathSequence(_) | Content::Symbol(_) | Content::MathIdent(_) | Content::MathText(_)
         | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_)
         | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathUnderbrace(_) | Content::MathUnderbracket(_) | Content::MathUnderparen(_) | Content::MathUndershell(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
@@ -741,11 +743,26 @@ pub fn query_compiled_elements(
         Ok(introspector) => introspector,
         Err(errors) => return (Err(CompiledQueryError::Compilation(errors)), warnings),
     };
-    let expression = Source::new_with_parser(
+    let expression = match Source::new_with_parser(
         source.id(),
         selector.to_string(),
         typst_core::compiler::parse::parse_code,
-    );
+    ) {
+        Ok(expression) => expression,
+        Err(errors) => {
+            return (
+                Err(CompiledQueryError::Retrieval(format!(
+                    "failed to evaluate selector: {}",
+                    errors
+                        .into_iter()
+                        .map(|error| error.message)
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                ))),
+                warnings,
+            )
+        }
+    };
     let (evaluated, _) =
         typst_core::compiler::eval::eval_source_with_features_and_introspector(
             world,

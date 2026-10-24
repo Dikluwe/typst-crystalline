@@ -1,5 +1,5 @@
 # L0 — cursor
-Hash do Código: 13a150b8
+Hash do Código: 94be1d82
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -122,3 +122,54 @@ This internal parity correction follows ADR-0127 continuous flow: no new public 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
 Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change, preserving earlier refused/scalar paths. Regional certification expands only same-size/leading prepared text, zero baseline_offset, finite nonnegative edges, faces with different tops/descents; variable sizes/leading remain outside it. Require RED→GREEN four added regressions/prior controls,30+20 regional PDFs,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1, recording failed attempts. No full variable-metrics parity claim.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+When an actual Repeat outer-piece scope is active, record current-line alignment using the same resolved direction, origin and continuation reservation as the existing alignment path, and defer its translation until that piece width is known. Exclude only causally associated decoration paint from logical text-line width. Inner independent frames keep their ordinary alignment. All other alignment/direction paths remain unchanged.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+
+### Direct-flow source carrier regression control
+
+Read-only review after the five directed alignment tests passed is recorded in
+`lab/results/remaining-parity-2026-10-22/agents/repeat/marker-control-before.json`
+with exact UTC, HEAD, dirty stat and source/L0 hashes. `shape.rs:195–201` flushes
+its preceding marker-only line; `line_commit.rs:369–370,655` distinguishes no
+causal line from actual line fitting but still invokes Cursor.
+`html_frame.rs:83` already defines source/context markers as causally neutral.
+The new piece scope must record only an actual causal line after excluding its
+causally associated decoration paint; a source marker alone cannot acquire an
+independent text-line alignment. A genuine Locator-generated Located Shape
+control must preserve its actual source anchor at the same Repeat residual
+origin as the shape, without a hidden half-frame displacement. This is a
+regression hypothesis until its new test runs before the guard, not a measured
+closure claim. Preserve the five earlier alignment tests and all source/physical
+coverage checks. The private visibility warning is repaired by keeping the
+new hub state private to its actual layout descendants, never widening it or
+adding a lint suppression.

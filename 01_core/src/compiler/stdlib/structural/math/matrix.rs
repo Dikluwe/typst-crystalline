@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/matrix.md
-//! @prompt-hash 6da60d9b
+//! @prompt-hash fc3e066a
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -229,7 +229,7 @@ fn math_matrix_cell(value: &Value) -> Content {
         Value::Content(content) => content.clone(),
         Value::LocatedContent(content, _) => content.content().clone(),
         Value::None => Content::Empty,
-        Value::Symbol(symbol) => Content::MathText(symbol.value.clone()),
+        Value::Symbol(symbol) => Content::Symbol(symbol.value.clone()),
         other => crate::compiler::stdlib::state::value_to_content(other),
     }
 }
@@ -251,7 +251,7 @@ fn math_matrix_delimited_row(value: &Value) -> Option<Vec<Content>> {
     for node in nodes {
         let comma = matches!(
             &node,
-            Content::MathIdent(text) | Content::MathText(text) if text.as_str() == ","
+            Content::Symbol(text) | Content::MathIdent(text) | Content::MathText(text) if text.as_str() == ","
         );
         if comma {
             cells.push(math_matrix_row_cell(std::mem::take(&mut current)));

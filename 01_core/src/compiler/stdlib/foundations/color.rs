@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/color.md
-//! @prompt-hash 4b6385da
+//! @prompt-hash efc5f62f
 //! @layer L1
 //! @updated 2026-09-12
 //!
@@ -35,10 +35,6 @@ pub fn native_rgb(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
-        [Value::Color(color @ Color::Cmyk { .. })] => {
-            let (r, g, b, a) = rgb_constructor_bytes(color.clone());
-            Ok(Value::Color(Color::rgba(r, g, b, a)))
-        }
         [Value::Color(color)] => {
             Ok(Value::Color(color.clone().to_space(ColorSpace::Srgb).map_err(|_| {
                 vec![SourceDiagnostic::error(args.span, "cannot convert color to rgb")]
@@ -61,25 +57,6 @@ pub fn native_rgb(
             args.items.len()
         )),
     }
-}
-
-/// Bridge do construtor `rgb(color)`. O perfil ICC CMYK completo permanece
-/// fora de L1; os termos cruzados selam o vetor observado em P1286 sem mudar
-/// a conversão canônica usada pelos demais consumers de `Color`.
-fn rgb_constructor_bytes(color: Color) -> (u8, u8, u8, u8) {
-    let Color::Cmyk { c, m, y, k } = color else {
-        return color.to_srgb();
-    };
-    let remaining = 1.0 - k;
-    let r = (1.0 - c) * remaining + 0.3344623 * m * y * remaining;
-    let g = (1.0 - m) * remaining - 0.15901421 * c * y * remaining;
-    let b = (1.0 - y) * remaining + 0.063455805 * c * m * remaining;
-    (
-        Color::f32_to_u8_ties_even(r),
-        Color::f32_to_u8_ties_even(g),
-        Color::f32_to_u8_ties_even(b),
-        255,
-    )
 }
 
 /// **P703** — `rgb(hex)`: cor a partir de notação hexadecimal (3/4/6/8
@@ -709,6 +686,53 @@ mod tests_p703_rgb_hex {
     }
 
     #[test]
+    fn cmyk_icc_native_rgb_uses_exact_canonical_profile_values() {
+        // Pinned oracle cmyk-before-v2/primary.typ.oracle.json and
+        // rounding-before/receipt.json. No native constructor calibration.
+        for (percent, bytes) in [
+            ([0.0_f64, 0.0, 0.0, 100.0], [35_u8, 31, 32]),
+            ([100.0, 0.0, 0.0, 0.0], [0, 174, 239]),
+            ([0.0, 100.0, 0.0, 0.0], [236, 0, 140]),
+            ([0.0, 100.0, 100.0, 0.0], [237, 29, 36]),
+            ([13.0, 27.0, 61.0, 9.0], [203, 169, 109]),
+            ([59.15, 40.35, 49.15, 11.63], [107, 124, 118]),
+            ([49.999, 0.0, 0.0, 0.0], [110, 207, 246]),
+            ([50.0, 0.0, 0.0, 0.0], [109, 206, 246]),
+            ([50.001, 0.0, 0.0, 0.0], [109, 206, 246]),
+        ] {
+            let values = percent
+                .into_iter()
+                .map(|value| {
+                    Value::Ratio(crate::entities::layout_types::Ratio(value / 100.0))
+                })
+                .collect();
+            let process = colors_ci_call(native_cmyk, values).unwrap();
+            let converted = colors_ci_call(native_rgb, vec![process]).unwrap();
+            let [r, g, b] = bytes.map(|value| f32::from(value) / 255.0);
+            assert_eq!(
+                converted,
+                Value::Color(Color::srgb_f32(r, g, b, 1.0)),
+                "{percent:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn cmyk_icc_native_conversion_keeps_numeric_precision_and_identity() {
+        let values = [0.1, 0.2, 0.3, 0.4];
+        let arguments = values
+            .map(|value| Value::Ratio(crate::entities::layout_types::Ratio(value)))
+            .to_vec();
+        let numeric = colors_ci_call(native_rgb, arguments.clone()).unwrap();
+        let expected_rgb = Value::Color(Color::srgb_f32(0.1, 0.2, 0.3, 0.4));
+        assert_eq!(numeric, expected_rgb);
+        assert_eq!(colors_ci_call(native_rgb, vec![numeric]).unwrap(), expected_rgb);
+        let process = colors_ci_call(native_cmyk, arguments).unwrap();
+        assert_eq!(process, Value::Color(Color::cmyk(0.1, 0.2, 0.3, 0.4)));
+        assert_eq!(colors_ci_call(native_cmyk, vec![process.clone()]).unwrap(), process);
+    }
+
+    #[test]
     fn v17_relative_ratio_boundaries_preserve_values_and_diagnostics() {
         use crate::entities::layout_types::{Length, Ratio};
         use crate::entities::rel::Rel;
@@ -766,7 +790,17 @@ mod tests_p703_rgb_hex {
                 Ok(Value::Color(color)) => {
                     assert_eq!(color.space(), target);
                     let (r, g, b, alpha) = color.to_rgba_f32();
-                    assert!(r.abs() < 1e-6 && g.abs() < 1e-6 && b.abs() < 1e-6);
+                    if target == ColorSpace::Cmyk {
+                        // Pinned oracle cmyk-before-v2/controls.typ.oracle.json:
+                        // the unchanged K-only value projects through the profile.
+                        assert_eq!(color, Color::cmyk(0.0, 0.0, 0.0, 1.0));
+                        assert_eq!(
+                            (r, g, b),
+                            (35.0_f32 / 255.0, 31.0_f32 / 255.0, 32.0_f32 / 255.0)
+                        );
+                    } else {
+                        assert!(r.abs() < 1e-6 && g.abs() < 1e-6 && b.abs() < 1e-6);
+                    }
                     let expected_alpha =
                         if target == ColorSpace::Cmyk { 1.0 } else { 0.4 };
                     assert!((alpha - expected_alpha).abs() < 1e-6);

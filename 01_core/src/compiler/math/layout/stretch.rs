@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/stretch.md
-//! @prompt-hash a2aa2f2a
+//! @prompt-hash 88b5bb67
 //! @layer L1
 
 use crate::compiler::layout::FontMetrics;
@@ -14,7 +14,10 @@ use super::{MathBox, MathLayouter};
 
 fn leaf_char(content: &Content) -> Option<char> {
     let text = match content.source_body() {
-        Content::Text(text) | Content::MathText(text) | Content::MathIdent(text) => text,
+        Content::Text(text)
+        | Content::MathText(text)
+        | Content::Symbol(text)
+        | Content::MathIdent(text) => text,
         Content::MathClassOverride(elem) => return leaf_char(&elem.body),
         Content::MathLimitsOverride(elem) => return leaf_char(&elem.body),
         Content::Source(_)

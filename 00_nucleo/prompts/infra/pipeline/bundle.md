@@ -1,13 +1,6 @@
 # L0 — infra/pipeline/bundle
-Hash do Código: 6f2aa8da
+Hash do Código: 22e1d3ab
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
-- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
-- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/bundle.rs`
@@ -16,6 +9,17 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 ```
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
+- 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/page-rule-container-boundary.toml sha256:54dec4a08272a6ddbb91b63d388af8c25aaaa8afc7864b72226e1d125026682e
+
 
 ## Current evidence
 
@@ -257,3 +261,285 @@ slots, then resume ordinary selection inside the chosen Cell visual. Do not
 invent Source flattening, change the generic walker, widen unsupported content,
 replace the renderer, or discard raw/resolved/standalone snapshots. The existing
 four unchanged public-preparation source assertions remain required acceptance.
+
+
+## Approved physical running-content candidate integration
+
+Evidence before this decision is the immutable source-qualified current-pin
+SetPage baseline and ambient20/30 measurements under
+lab/results/set-page-header-2026-10-21. Header-only/repeated/footer/context/style
+and duplicate-label failures are language observations; the twelve existing gates
+passing is structural preservation only. Actual seven semantic REDs and one inert
+template control are recorded in
+lab/results/set-page-header-implementation-2026-10-21/initial-red/receipt.json.
+Human approval of review SHA256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+is recorded in that implementation directory's approval.json. ADR-0127 items1/3
+are satisfied for exactly the frozen five L1 facades/types and their phase/order.
+This section supersedes earlier preserve-phase/default boilerplate only for the
+approved physical channel. It adds no public L3 API, source reevaluation, new
+solver/budget, generic observation/equality rule, or unrelated behavior change.
+
+Use the approved owned Content/source plan and immutable request/resolution/trace
+facades as opaque L1 transports. L3 coordinates the actual World, Engine, retained
+arena frames, existing Context Session and candidate diagnostic sinks; no selector,
+Figure-kind, semantic child-edge, temporal action, style-rebase or render business
+logic moves to L3. The pure layout renderer executes no language closures. The
+initial canonical body identity comes from the existing reached realization and
+its protected operational templates; preparation publishes no invented body index
+or PageStore. Only a matching actual trace/store pair builds the complete Paged
+source-derived index. Global Bundle input uses actual ordered target metadata,
+features and document seeds; HTML has no physical requests.
+
+Keep the Session alive through physical discovery, including initially unselected
+body producers. Actual Pending requests select the approved physical contribution
+channel, without fabricating filtered/position reads or running unselected source
+producers a second time. Raw operational SetPage/PageRun templates are excluded
+from body discovery/substitution; realize only requested actual insertions in one
+retained frame per actual request lineage/key. Inspecting a dormant template for
+allocator reservation is not execution, query/counter admission or a new producer.
+Register actual generated Context descendants in the same Session, preserve their
+source/style/target/features, and rebind expanded Content through the approved L1
+function under the shared frame. No synthetic operational Located wrapper/Context
+query element or page-derived numeric Location is allowed.
+
+Reuse a body plan only with unchanged actual retained contribution versions and
+immutable source provenance. Content Eq/hash/Debug, equal counters/page counts or
+freshly reconstructed closure equality are not evidence. New source generations
+invalidate prior plan/request authority; pure layout reflow of the same retained
+plan keeps its authority. Candidate-local stores/transcripts must be complete and
+agree with current geometry/effective page environment; no partial candidate may
+reach shaping/export. Maintain the existing five contextual/page attempts and
+separate eight math/par.line request attempts, no hidden sixth execution or second
+context solver. Discovery/replay/replaced sinks remain discarded; publish only the
+retained final transactions through existing Sink policy, preserving source error
+precedence and independently sourced identical warnings.
+
+Own only this consumer's integration. Its existing private helpers and a private
+descendant page_running module may coordinate the protocol; each new productive
+file has its own canonical owner. Other owner's clauses do not authorize bodies
+here. Preserve legacy facade contracts, non-running paths, PageRun lexical restore,
+page snapshots and numbering, source parents/original morphology, HTML semantics,
+Bundle validation/resource/write policy and all unrelated F/G debts. Require actual
+focused GREEN and frozen CLI/counter/query/style/error/alias/dormant/template and
+rollback controls, followed by full twelve-gate validation, canonical paths,
+strict forward/reverse lineage, ownership/Nucleus pins/DAG and complete diagnostic
+comparison. No suppression, test relaxation, opaque catchall or convenience global
+hash reseal is authorized.
+
+## Measured remaining HTML and Length parity correction
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/measurement-before-decision.json`
+pins receipt SHA-256 `96025a9ff9d2c5a6057e9873285e43e4e81501bb40b55fe43b1244743e8ed09c`,
+UTC `2026-10-22T11:53:10.657191+00:00`–`2026-10-22T11:53:35.064880+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, complete dirty stat,
+source archive, commands/fonts/fixtures/build/tool and verified oracle pins.
+All provenance checks pass. Oracle commit is `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Length rendering, numeric Raw paint, page warnings, native page aliases and two
+container refusals differ. False-condition/uninserted/scalar controls pass. The
+coordinator froze exact source rejection in `lab/results/remaining-parity-2026-10-22/html-negative-policy.json`
+before implementation; no failed render is waived. Pinned `foundations/value.rs:192–205`,
+`text/raw.rs:563–606` and `typst-realize/src/lib.rs:635–655` distinguish actual
+content morphology, token styles, target-specific warnings and container errors.
+
+### Exclusive correction and acceptance
+
+The final correction is specified in the measured-refutation clause below.
+
+Internal continuous ADR-0127 parity correction: no public field/trait/signature,
+new mode/default, phase or compatibility break. L0 precedes code and meaningful
+RED→GREEN; validate paths, valid owner/Nucleus graph, restricted hashes, tests,
+build, strict Clippy/rustdoc, reverse lineage and complete unsuppressed Tekt.
+
+## Measured refutation and final causal HTML boundary
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/empty-warning-before/receipt.json`
+SHA-256 `8bd8aac399399978418fd9a5c82cdbfa07bf93c6fe9779401901b55cc489a4d6` records UTC
+`2026-10-22T12:42:21.170883+00:00`–`2026-10-22T12:42:21.559949+00:00`, exact HEAD/dirty stat, sources, argv,
+stdout/stderr and the cached baseline's own verified source archive/build, oracle
+and font pins. The cached binary is not claimed as current uncommitted source.
+Empty page/empty nested page do not warn or error. Returned ContentBlock content
+and nested initial Bundle content warn rather than error; the construction-marker
+proposal is refuted and must not be materialized. Direct standalone Html ContentBlock
+insertion and semantic HtmlFrame/Block reject page configuration. Both Heading/Page
+warning orders are measured; missing standalone Heading warnings cannot justify
+late sorting. This supersedes only the refuted construction/Document-consumption
+clauses, preserved as diagnostic history in that task's LAB records.
+
+Make the existing internal HTML projection fallible and reusable by standalone
+HTML. Carry nearest Source origin and private container state through its existing
+emitted visual walk. Nonempty SetPage warns outside containers and errors inside
+marked or semantic HtmlFrame/Block containers; an empty delta stays inert. Preserve
+heading warning hints, set their actual Source spans, and produce both warning
+families in one traversal order, never a later location sort. Initial Bundle target
+creates no direct-Html insertion marker, so returned/nested document fragments
+retain the measured warning behavior. Paged siblings and dormant table/footer/page
+templates remain inert. Frame validation may inspect its actual static body without
+mutating or HTML-converting the body delivered to the existing paged resolver.
+
+Meaningful before-code RED and final bilateral exact source/message/hint/order/body
+checks remain required. Internal ADR-0127 continuous flow; no new public contract,
+default or phase. Preserve full unsuppressed lint/test/path/hash/lineage gates.
+
+## Measured HTML diagnostic occurrence deduplication
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/heading-review-before/receipt.json`
+SHA-256 `d30007c52b81b2d8a0b55c3c3715333619f1e17191a0b3f28f88a40b559c42ac`
+records UTC `2026-10-22T13:26:12.931919+00:00`–`2026-10-22T13:26:13.108127+00:00`,
+exact coordination HEAD/dirty stat, source, commands, cached product's separate
+verified archived build and ratified oracle pins. Reusing one actual Heading
+constructor twice emits two visual nodes and exactly one oracle warning at that
+constructor span. The contrast receipt `agents/html-length/heading-distinct-before/receipt.json`
+under the same result root, SHA-256 `bccdd179d7e4ff7f03aaa550b0e38c8175e6c13fa9ce89120254cc5af1722046`,
+UTC `2026-10-22T13:27:25.099502+00:00`–`2026-10-22T13:27:25.429862+00:00`,
+retains two distinct constructors with an intervening Page rule. Both Heading
+warnings remain, ordered Heading/Page/Heading, with true individual AST spans
+and unchanged two-node visual body. All provenance guards pass. Pinned
+`lab/typst-original/crates/typst-library/src/engine.rs:224–233` deduplicates
+warnings by actual `(span,message)` while retaining first occurrence order.
+These are observable diagnostic semantics, not an alert waiver.
+
+### Exclusive obligation
+
+In the existing causal HTML projection, retain only the first Heading warning
+for the same actual source span and message, matching existing Sink semantics
+and the Page-warning policy. Preserve both visual nodes, all hints, independent
+constructor warnings and their original traversal order. Do not sort the sink,
+deduplicate by message alone, suppress warnings or change public API/phase.
+Require the new real-source reused-constructor regression RED before changing
+the body; independently sourced contrast warnings must remain GREEN.
+
+## Candidate HTML and Raw replacement refuters
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/candidate-2/qualification/html-length-18/receipt.json.gz`
+SHA-256 `8c7f679fd7633958fa7402be97c67b3f7b0c2ef846357b023076309601175c05`
+retains UTC `2026-10-22T13:43:20.929159+00:00`–`2026-10-22T13:43:43.693372+00:00`,
+exact uncommitted HEAD/dirty stat, full source archive, fonts, argv/artifacts,
+and source-bound candidate SHA-256
+`feb025296531c92350e29bff032f655cc2fa47542cf8ab4aca0e239108bc4e8f`.
+The build receipt is `candidate-2/candidate-build/receipt.json` in that result root,
+SHA-256 `df1ee28f39d889a05e9aba69b306736c7a500abfc8264781d8f2a9e7853ff5b2`.
+Oracle remains commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+All provenance guards pass. The ignored Page-only source has correct exact
+warning/source but produces `<body><p></p></body>` instead of empty `<body>`.
+Raw show replacement preserves actual text/paint/root extents, but glyph origins
+differ by up to `5.005859375pt`: replacement glyph advances use exterior Sans
+rather than the scoped Mono font; direct Raw passes. These are separate real
+language failures, not a reason to relax diagnostics or geometry criteria.
+
+### Exclusive correction
+
+After validating and emitting the existing ignored-page diagnostic, project
+an emitted SetPage to Content::Empty because that page rule has no semantic HTML
+visual. This includes inert empty deltas without inventing a warning. Preserve
+container refusal, dormant data, exact source/message/hints and target separation.
+Do not hide arbitrary empty paragraphs or suppress any warning in the exporter.
+Require an actual page-only empty-body regression RED before this body changes.
+
+## Empty transparent HTML projection carriers
+
+### Refutation before follow-up correction
+
+`lab/results/remaining-parity-2026-10-22/green9-infra-empty-html/receipt.json.gz`
+SHA-256 `7a891d21163a31fd06aded24c03916bd830212e82048f84ca76751beb42e1bd0`
+records UTC `2026-10-22T14:16:40.511601+00:00`–`2026-10-22T14:16:41.011754+00:00`,
+exact source/L0 inputs, HEAD/dirty stat, asset hashes and immutable failed log.
+The genuine page-only RED8 assertion still fails after SetPage becomes Empty.
+`entities/content/sequence.rs:15–20` normalizes only vector cardinality, not Empty
+children; `entities/content/construction.rs:27–32` always preserves Styled.
+Thus transparent projected carriers can remain visually empty while the exporter
+correctly reserves explicit semantic paragraphs. This refutes closing the debt
+by changing SetPage's immediate leaf alone. It is not a constructor defect or
+permission to strip arbitrary empty paragraphs.
+
+### Exclusive follow-up
+
+After the existing ordered emitted-child projection, discard literal Empty
+children from its transparent Sequence and normalize its cardinality. A Styled
+whose projected body is literal Empty projects to Empty as well; otherwise retain
+its exact style/body. Existing Source/Located/ShowRecipe visual projection remains
+unchanged. Do not collapse explicit Par, HtmlElem, HtmlFrame, Text, Strong or other
+semantic nodes, and do not execute dormant bodies or change diagnostic order.
+Keep the original meaningful page-only RED assertion intact. Preserve explicit
+empty Par through projection/export as a positive control, and retain the existing
+Frame-island preservation control. No generic exporter empty-HTML suppression,
+public API or new phase is authorized.
+
+## Preserve Figure product origin through semantic HTML projection
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/c11-figure-boundary-before/receipt.json`
+SHA-256 `e5985c169d029992f1c972ad27ddd3af3ea2a682898e47d29f05c5488f8c2ff7`
+retains UTC `2026-10-22T16:34:08.846371+00:00`–`2026-10-22T16:34:09.036410+00:00`,
+exact HEAD/dirty stat, unchanged source/config inputs, C11 source/build archive
+bindings, binary pins and the original failed F target receipt. Candidate SHA-256
+`140ea6f5c8d78355bd9912739bcefc586d3d638c8dda5d50f50e393a6e19810d`
+and ratified oracle SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+compile the exact original four-line source (SHA-256
+`49560c2a3e13e9bb32fed8ea4a0a762b631b7f9eaefa5237f61ce5838e41a934`)
+through the same source path. Both exit zero with identical complete experimental
+HTML warning. Candidate body is `<p>raw table</p>`; native body is
+`<p>raw</p><p>table</p>`. Kind values themselves are correct. The original F
+expectation `rawtable` observes concatenated paragraph text; deleting spaces or
+changing that expectation would hide a real language block-boundary failure.
+
+The existing exporter owner `00_nucleo/prompts/infra/export/html/document.md`,
+"Figure show-product paragraph morphology" and "Captured Figure product origin
+transport", already specifies this measured Figure boundary. Its actual
+project_visual_root needs Realized.original to recognize the consumed Figure
+without rendering it. The newly reused earlier bundle projection discarded that
+original before the exporter could observe it. Generic map_content's Realized
+branch in entities/content/traversal.rs:438 maps only the visual child and retains
+original unchanged; keeping the carrier executes no original recipe or body.
+
+### Exclusive obligation
+
+Preserve a Realized carrier through this render-copy semantic projection by
+cloning its existing record and recursively projecting only visual. Keep original
+and every other field unchanged. The existing HTML exporter remains sole owner
+of Figure product block classification; do not duplicate that classifier, add
+blanket paragraph breaks, change kind inference or whitespace policy, execute
+origins, or expand public API/phase. Existing diagnostic order, dormant footer/
+page templates, frame islands and target separation remain unchanged.
+
+The existing synthetic carrier-heading unit observer expected a bare HtmlElem
+for a Realized wrapper. Update only that representation observation: require the
+retained original to remain unchanged, then check its projected visual against
+the same h2 tag/text and zero-warning assertions. Non-Realized cases keep their
+original checks. This is an explicit internal-carrier observer adjudication, not
+an acceptance relaxation. Add a hidden-origin Heading/SetPage control requiring
+zero diagnostic or rendered contribution, and a real-source exact Figure DOM
+regression. The original F expectation and all existing domain assertions remain
+unchanged. C11's immutable failed F test and fresh bilateral source measurement
+are pre-implementation RED evidence; final targeted HTML, F/G and full gates must
+pass on the new source-bound candidate.
+
+## Bundle PDF export warning integration
+
+For each PDF document entry, destructure the approved `PdfExport` result and
+append its diagnostics to the bundle's existing warning vector in occurrence
+order before returning the unchanged bytes/file record. Preserve the public
+bundle return signature, document order, page counts, timings, validation,
+standards, tags, serialization, font resolution and all unrelated HTML carrier
+work. Bundle export performs no direct stderr publication and never filters or
+deduplicates PDF export warnings.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

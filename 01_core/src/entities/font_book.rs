@@ -1,9 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/font_book.md
-//! @prompt-hash 3d8c6913
+//! @prompt-hash 1a0d27ef
 //! @layer L1
 //! @updated 2026-10-07
 
+use std::sync::Arc;
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::entities::font_list::FontNamePattern;
@@ -158,12 +159,12 @@ pub struct FontFlags {
 /// conjunto, portada do vanilla (`typst-library/src/text/font/info.rs:269-318`).
 /// Elimina os falsos positivos do bitmap por bloco de 256 codepoints (P880).
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Coverage(Vec<u32>);
+pub struct Coverage(Arc<[u32]>);
 
 impl Coverage {
     /// Cobertura vazia.
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self(Arc::from([]))
     }
 
     /// Build exact coverage from codepoints in arbitrary order.
@@ -205,7 +206,7 @@ impl Coverage {
             }
             next = end;
         }
-        Self(runs)
+        Self(runs.into())
     }
 
     /// Build the exact union of half-open integer ranges.
@@ -242,7 +243,7 @@ impl Coverage {
             }
             next = range.end;
         }
-        Self(runs)
+        Self(runs.into())
     }
 
     /// Verifica se o codepoint está coberto. O(n) no número de runs; o vanilla
@@ -257,7 +258,7 @@ impl Coverage {
         let mut inside = false;
         let mut cursor = 0u32;
 
-        for &run in &self.0 {
+        for &run in self.0.iter() {
             if cursor > codepoint {
                 return false;
             }
@@ -782,6 +783,26 @@ mod tests {
     // ── P937 — cobertura Unicode exacta por runs de codepoints ────────────
 
     #[test]
+    fn r6_coverage_clone_shares_immutable_sparse_runs() {
+        use std::hash::{Hash, Hasher};
+        let points: Vec<u32> = (0..65_536).map(|i| i * 16).collect();
+        let original = Coverage::from_codepoints(points.clone());
+        let copy = original.clone();
+        assert_eq!(copy, original);
+        assert_eq!(copy.iter().collect::<Vec<_>>(), points);
+        let hash = |coverage: &Coverage| {
+            let mut state = std::collections::hash_map::DefaultHasher::new();
+            coverage.hash(&mut state);
+            state.finish()
+        };
+        assert_eq!(hash(&copy), hash(&original));
+        assert_eq!(copy.0.as_ptr(), original.0.as_ptr(), "immutable runs must share");
+        drop(original);
+        assert!(copy.contains(16));
+        assert!(!copy.contains(17));
+    }
+
+    #[test]
     fn p937_coverage_vazia() {
         let cov = Coverage::new();
         assert!(cov.is_empty());
@@ -793,7 +814,7 @@ mod tests {
         // Exemplo do vanilla (info.rs:274-284): {2,3,4,9,10,11,15,18,19}
         // → [2, 3, 4, 3, 3, 1, 2, 2].
         let cov = Coverage::from_codepoints([2, 3, 4, 9, 10, 11, 15, 18, 19]);
-        assert_eq!(cov.0, vec![2, 3, 4, 3, 3, 1, 2, 2]);
+        assert_eq!(&*cov.0, &[2, 3, 4, 3, 3, 1, 2, 2]);
     }
 
     #[test]

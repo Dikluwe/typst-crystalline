@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdfa_icc_version_and_cidset_tests
-Hash do Código: c29cc462
+Hash do Código: 066bcbf9
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdfa_icc_version_and_cidset_tests.rs`
@@ -28,3 +28,7 @@ a productive Rust-language requirement.
 
 Check profile bytes/version and effective CID bits, not full PDF identity.
 Historical parser investigation and suite extraction are diagnostic evidence only.
+
+Under the approved PDF warning carrier contract, the local export helper returns
+`.output` for the existing byte assertions. The fixture remains warning-free;
+do not filter exporter warnings or relax profile/CIDSet checks.

@@ -1,13 +1,16 @@
 # L0 — core/compiler/eval/bindings/mod
-Hash do Código: 31b11854
+Hash do Código: a3f06121
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
-- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/mod.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
+
 
 ## Source evidence
 
@@ -152,3 +155,11 @@ V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Prescribed
 nominal V19 allowed visibly without suppression, alternatives tested. Heavy tasks
 sequential, MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; debug0/incremental0 in validation
 environment only. Reseal after valid V15/V26/exact provenance.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Reexport the typed native Symbol element callback through existing bindings composition; no new public signature or evaluator phase.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

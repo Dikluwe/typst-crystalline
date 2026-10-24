@@ -1,9 +1,11 @@
 # L0 — references
-Hash do Código: 9faa66ca
+Hash do Código: eb38f683
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/references/unique-label-target.toml sha256:ecf43b59f502d687be7b2f4d2cc7aeb4dc7383a4c0b393f88181c770b95e4764
 - 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:b19634c84ea14e71d8e352c96bbe5097a02a074b8c5a3009e80d761d1a90a182
 
 **Layer:** L1
@@ -91,3 +93,103 @@ No additional public contract beyond the exact three approved transport function
 Measurement before decision: reference-layout-origin/receipt.json under agents/counters binds oracle and frozen build8 errors. Heading without numbering has the same original message/hint but oracle source2:0 versus detached product; Page without numbering is source2:1 versus detached product. Eight layout_ref diagnostics at references.rs:79/95/136/146/159/174/185/202 hardcode detached spans, while productive Figure diagnostics already use current_source_span. layout/mod.rs:1208–1230 and1247–1252 installs/restores nearest non-detached Source and checkpoint.rs retains it. Thus no new RefElem field or source inference is needed.
 
 Supersede only the historical detached-span limitation: use layouter.current_source_span for missing page/ordinary labels, absent page/heading/equation numbering, Raw/text rejection and both existing Figure snapshot errors. Preserve every original message, hint, precedence and error transaction; bibliography still delegates its own owner. Source-free synthetic layout keeps detached through the existing initialized default. Require actual source error line/column regression and synthetic nearest-Source/default control. This is continuous mapping correction with no API, phase or semantic target expansion.
+
+## Checked ordinary-label multiplicity
+
+### Measured responsibility
+
+At the implementation baseline, `references.rs:53–78` delegates bibliography
+before ordinary lookup, and its later normal branch uses first-target lookup.
+`entities/label_registry.rs:40–55` already supplies all Locations/count without
+changing its public first-lookup compatibility. The frozen current-pin repeated
+header reference in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json`
+requires `label `<header>` occurs multiple times in the document`; unchanged
+product's missing-label refusal is not equivalent. This establishes a language
+diagnostic requirement after actual physical membership is available.
+
+The approved review is `lab/results/set-page-header-2026-10-21/review.md`,
+SHA-256 cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039.
+The direct human decision is preserved in
+`lab/results/set-page-header-implementation-2026-10-21/approval.json`.
+It authorizes only the frozen five public facades, opaque carriers and physical
+page phase; it does not authorize additional public contracts or generic
+observer/traversal changes. The implementation baseline is HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`. Exact owning source/L0 bytes,
+SHA-256, UTC and working-tree state before these amendments are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/before.json`.
+
+### Exclusive downstream validation
+
+Preserve bibliography precedence. For the existing normal Ref downstream routes,
+check actual distinct label Locations before selecting the first target or
+formatting its supplement/number. More than one distinct actual target emits
+`label `<NAME>` occurs multiple times in the document` at current_source_span;
+synthetic source-free calls keep the existing detached default. Do not treat a
+repeated prepared same-Location alias as a fresh target, mutate the registry,
+execute callbacks or compare content/hash/text to determine occurrence identity.
+
+Supersede only first-target acceptance of an ambiguous normal label. Unique and
+missing target validation, unreferencable/numbering paths, explicit-empty/rich
+supplements, Page form, internal destinations and geometry remain with their
+existing contracts. The realization owner owns its own checked producer path;
+layout is not a fallback place to execute physical-template callbacks. Require
+normal unique/duplicate/alias/bibliography/source diagnostics and actual repeated
+header RED→GREEN without weakening prior Figure/Ref or page-link controls.
+
+## Source-planned label body descent
+
+At the implementation baseline, `references.rs:30–42` renders the Label body
+through ordinary layout_content before recording its label point/page. The
+approved source plan stores this actual body as typed LabelBody, independently
+of the enclosing label's root/post-child registration. Under the planned facade,
+route exactly that source body through layout_planned_child(LabelBody, body),
+keeping current chain, position capture and page write unchanged. Legacy calls
+with no plan retain ordinary rendering through the same private adapter. Generated
+reference strings/prefixes are not source children and may not borrow that edge.
+This is the approved physical-plan routing boundary, not a new API or callback.
+
+### Injected trait boundary for the multiplicity check
+
+The source-current diagnostic build `compile-diagnostic-1` under the physical-page
+implementation evidence rejects direct labels-field access at references.rs:72
+with E0609: the injected introspector is the existing tracked Introspector trait,
+not a concrete TagIntrospector. Use its existing query(Selector::Label) result to
+inspect distinct Locations without a new trait method or concrete downcast.
+Compare Location handles only; preserve intentional duplicate handles as one
+target and retain the exact ambiguity diagnostic and all precedence above.
+
+## Bibliography-selected Ref source identity
+
+Evidence before decision: references.rs:59–69 delegates an actual bibliography
+key to the Cite owner before normal label validation. The source plan reserves
+a prospective Cite identity in that Ref packet's auxiliary_locations, while
+ordinary Ref remains non-locatable; conditional children are admitted only after
+actual bibliography selection. Exact pre-amendment bytes are retained beside
+the citation routing evidence.
+
+After the existing bibliography-key proof, observe only that packet's first
+reserved auxiliary Cite Location and record its actual current page/point through
+the existing position carrier. Scope current_location to the delegated citation
+and restore the enclosing value afterward. Do not allocate a Location, create a
+Located wrapper, promote generic Ref locatability or inspect dormant templates.
+The selected supplement follows CitationSupplement through its existing Cite
+owner; generated CSL text remains unplanned. Preserve bibliography precedence,
+checked normal-label multiplicity, current forms and legacy no-plan rendering.
+
+### Mixed generated/reference source parts
+
+Source measurement before correction: the productive Figure branch constructs
+Sequence[supplement, NBSP, number] and passes it to generic layout_link_capture,
+which intentionally clears source routing. The source plan records a reached
+PreparedReference node's selected child as PreparedReferenceSupplement; dropping
+that cursor leaves real nested source packets uncovered. The exact prior bytes
+are retained in agents/realization/prepared-reference-routing-before under the
+physical-page implementation evidence.
+
+For this branch only, recognize the current source packet's PreparedReference
+role and attach its PreparedReferenceSupplement cursor to the actual nonempty
+supplement part. Render the parts through the private mixed-source link helper;
+NBSP and numeric suffix stay generated/unplanned. Unprepared legacy fallback
+retains no borrowed source cursor. Preserve existing number/supplement precedence,
+empty handling, chain, destination, link fragments and geometry. Do not infer a
+new target, traverse a dormant target template or execute a callback in layout.

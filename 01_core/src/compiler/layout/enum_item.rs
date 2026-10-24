@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/enum_item.md
-//! @prompt-hash f094ec9b
+//! @prompt-hash 025011b8
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -91,7 +91,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.cursor_x = body_x;
 
     let body_indent_state = super::paragraph_indent::enter_fragment(layouter, &e.body);
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::EnumItemBody,
+        &e.body,
+    );
     layouter.flush_line();
     layouter.paragraph_indent = body_indent_state;
 

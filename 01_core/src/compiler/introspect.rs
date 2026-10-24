@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect.md
-//! @prompt-hash a634f9a8
+//! @prompt-hash bf44cebb
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -33,6 +33,7 @@ pub(crate) mod figure_counters;
 mod figure_demands;
 mod materialize_time;
 mod outline_entries;
+pub mod page_running;
 mod parent_index;
 mod populate;
 mod queries;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash 0b9929a7
+//! @prompt-hash 53fb6017
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -313,7 +313,8 @@ fn eval_expr_inner(
                     }
                 }
                 for mut tail in set_tails.into_iter().rev() {
-                    let raw_display = matches!(output, Value::Bool(_) | Value::Auto);
+                    let raw_display =
+                        matches!(output, Value::Bool(_) | Value::Auto | Value::Length(_));
                     let mut content =
                         value_to_display_content(output).unwrap_or(Content::Empty);
                     if raw_display {
@@ -886,6 +887,7 @@ fn content_has_state_or_counter(content: &crate::entities::content::Content) -> 
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1056,7 +1058,7 @@ mod v16_c_effect_tests {
         MemoryWorld {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id, text.into()),
+            source: Source::new(id, text.into()).expect("valid Source test fixture"),
         }
     }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash 0f4305c4
+//! @prompt-hash 9251ce23
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -146,6 +146,7 @@ pub(crate) fn eval_for_test_with_registry<W: World>(
                         | Content::Link(_)
                         | Content::Equation(_)
                         | Content::MathSequence(_)
+                        | Content::Symbol(_)
                         | Content::MathIdent(_)
                         | Content::MathText(_)
                         | Content::MathFrac(_)
@@ -516,7 +517,8 @@ mod regressions {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string())
+                    .expect("valid Source test fixture"),
                 files: std::collections::HashMap::new(),
                 reads: std::sync::atomic::AtomicUsize::new(0),
             }
@@ -627,26 +629,29 @@ mod regressions {
 
     #[test]
     fn ast_int_literal_parseable() {
-        let source = Source::detached("#let x = 42");
+        let source = Source::detached("#let x = 42").expect("valid Source test fixture");
         assert!(!source.root().erroneous());
     }
 
     #[test]
     fn ast_str_literal_parseable() {
-        let source = Source::detached("#let s = \"hello\"");
+        let source =
+            Source::detached("#let s = \"hello\"").expect("valid Source test fixture");
         assert!(!source.root().erroneous());
     }
 
     #[test]
     fn ast_bool_literal_parseable() {
-        let source = Source::detached("#let b = true");
+        let source =
+            Source::detached("#let b = true").expect("valid Source test fixture");
         assert!(!source.root().erroneous());
     }
 
     #[test]
     fn nome_modulo_deriva_de_file_id() {
         let id = FileId::from_raw(NonZeroU16::new(7).unwrap());
-        let source = Source::new(id, "#let x = 1".to_string());
+        let source =
+            Source::new(id, "#let x = 1".to_string()).expect("valid Source test fixture");
         let name = source.id().into_raw().get().to_string();
         assert_eq!(name, "7");
     }
@@ -744,7 +749,7 @@ mod regressions {
 
     fn find_heading_numbered(c: &Content) -> Option<bool> {
         fn go(c: &Content, active: bool) -> Option<bool> {
-            match c {
+            match c.source_body() {
                 Content::Heading(_) => Some(active),
                 Content::Sequence(items) => items.iter().find_map(|i| go(i, active)),
                 Content::Styled(styled) => {
@@ -773,6 +778,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -933,6 +939,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -1118,6 +1125,7 @@ mod regressions {
                 | Content::EnumItem(_)
                 | Content::Link(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -1294,6 +1302,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1420,6 +1429,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1662,6 +1672,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -1844,6 +1855,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -2062,6 +2074,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -2200,6 +2213,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -2452,6 +2466,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -4406,7 +4421,7 @@ mod regressions {
         use crate::entities::scope::{Capturer, Scope};
         use crate::entities::source::Source;
         use std::sync::Arc;
-        let source = Source::detached("x");
+        let source = Source::detached("x").expect("valid Source test fixture");
         let body = source.root().clone();
         let f = Func::closure(ClosureRepr {
             name: None,
@@ -4486,6 +4501,50 @@ mod regressions {
             m.scope().get("t"),
             Some(&Value::Type(crate::entities::value::Type::Function))
         );
+    }
+
+    #[test]
+    fn symbol_identity_markup_and_equality() {
+        assert!(eval_bool("#let a = [#sym.chess.king.white]; #let b = [#symbol(\"♔\")]; #let r = (repr(a.func()) == \"symbol\" and a.fields() == (text: \"♔\") and a == b and a != [♔])"));
+    }
+
+    #[test]
+    fn symbol_identity_math_full_unicode() {
+        assert!(eval_bool("#let c = eval(\"smt.eq.slant\", mode: \"math\").body; #let r = (repr(c.func()) == \"symbol\" and c.text == \"⪬︀\" and c.has(\"text\"))"));
+    }
+
+    #[test]
+    fn symbol_identity_native_function_and_selector() {
+        assert!(eval_bool("#let c = [#sym.chess.king.white]; #let f = c.func(); #let d = f(\"xy\"); #let r = (f != symbol and d.func() == f and d.text == \"xy\" and repr(f.where(text: \"♔\")) == \"symbol.where(text: \\\"♔\\\")\")"));
+    }
+
+    #[test]
+    fn symbol_identity_code_tail_emoji_and_math_paths() {
+        assert!(eval_bool("#let a = [#{sym.chess.king.white}]; #let b = [#emoji.face.halo]; #let c = eval(\"alpha\", mode: \"math\").body; #let d = eval(\"x\", mode: \"math\").body; #let e = eval(\"->\", mode: \"math\").body; #let r = (repr(a.func()) == \"symbol\" and repr(b.func()) == \"symbol\" and c.text == \"α\" and d.text == \"x\" and e.text == \"→\")"));
+    }
+
+    #[test]
+    fn symbol_identity_realization_boundaries() {
+        for (source, expected) in [
+            ("#show text.where(text: \"♔\"): [T]\n#sym.chess.king.white", "T"),
+            ("#let f = [#sym.chess.king.white].func(); #show f: [S]\n#sym.chess.king.white", "♔"),
+            ("#show regex(\"α\"): [R]\n$alpha$", "R"),
+            ("#show text.where(text: \"α\"): [T]\n$alpha$", "α"),
+            ("#show regex(\"A♔B\"): [R]\nA#(sym.chess.king.white)B", "R"),
+        ] {
+            let world = MockWorld::new(source);
+            let source = World::source(&world, World::main(&world)).unwrap();
+            let (module, _) = eval_for_test_keep_sink(&world, &source);
+            let module = module.unwrap();
+            let (document, _) = crate::compiler::realize::realize_document(
+                module.content().unwrap(), &world, &source,
+                &crate::entities::element_registry::ElementRegistry::new(),
+                &crate::entities::introspector::TagIntrospector::empty(), false,
+                crate::compiler::eval::EvalTarget::Paged,
+                crate::entities::compiler_features::Features::default(),
+            );
+            assert_eq!(document.unwrap().visual.plain_text().trim(), expected, "{}", source.text());
+        }
     }
 
     // ── P685 — tipos como valores de primeira classe ─────────────────────────
@@ -6079,8 +6138,10 @@ mod regressions {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                main: Source::new(main_id, "#include \"other.typ\"".to_string()),
-                other: Source::new(other_id, "#include \"main.typ\"".to_string()),
+                main: Source::new(main_id, "#include \"other.typ\"".to_string())
+                    .expect("valid Source test fixture"),
+                other: Source::new(other_id, "#include \"main.typ\"".to_string())
+                    .expect("valid Source test fixture"),
             }
         }
     }
@@ -6149,12 +6210,16 @@ mod regressions {
             for (path, text) in files {
                 let id = FileId::from_raw(NonZeroU16::new(next).unwrap());
                 next += 1;
-                map.insert(path.to_string(), Source::new(id, text.to_string()));
+                map.insert(
+                    path.to_string(),
+                    Source::new(id, text.to_string()).expect("valid Source test fixture"),
+                );
             }
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                main: Source::new(main_id, main_text.to_string()),
+                main: Source::new(main_id, main_text.to_string())
+                    .expect("valid Source test fixture"),
                 files: map,
             }
         }
@@ -8415,6 +8480,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -8548,6 +8614,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -8924,6 +8991,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -10055,6 +10123,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -11118,6 +11187,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -11226,7 +11296,7 @@ mod regressions {
         // Medido no vanilla (P810): `#eval("= Heading", mode: "markup")`
         // renderiza o heading.
         fn tem_heading(c: &Content) -> bool {
-            match c {
+            match c.source_body() {
                 Content::Heading(_) => true,
                 Content::Sequence(items) => items.iter().any(tem_heading),
                 Content::Styled(styled) => tem_heading(&styled.body),
@@ -11251,6 +11321,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -11597,6 +11668,7 @@ mod regressions {
                 | Content::EnumItem(_)
                 | Content::Link(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -11739,6 +11811,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -11874,6 +11947,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -12025,6 +12099,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -12150,6 +12225,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -12288,6 +12364,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -12486,6 +12563,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -12650,6 +12728,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -12883,6 +12962,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -13002,6 +13082,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -13151,6 +13232,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -13286,6 +13368,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -13420,6 +13503,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -13554,6 +13638,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -13685,6 +13770,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -14113,6 +14199,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -14213,7 +14300,7 @@ mod regressions {
 
     fn find_mathident_in(c: &Content) -> Option<String> {
         match c {
-            Content::MathIdent(s) => Some(s.to_string()),
+            Content::Symbol(s) | Content::MathIdent(s) => Some(s.to_string()),
             // single-letter em math mode produz MathText, não MathIdent.
             Content::MathText(s) => Some(s.to_string()),
             Content::Sequence(items) | Content::MathSequence(items) => {
@@ -14381,6 +14468,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -14557,7 +14645,9 @@ mod regressions {
     fn p1285_math_grapheme_e_numero_preservam_variantes_distintas() {
         fn leaf<'a>(content: &'a Content, text: &str) -> Option<&'a Content> {
             match content {
-                Content::MathIdent(value) | Content::MathText(value)
+                Content::Symbol(value)
+                | Content::MathIdent(value)
+                | Content::MathText(value)
                     if value.as_str() == text =>
                 {
                     Some(content)
@@ -14586,6 +14676,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -14694,8 +14785,8 @@ mod regressions {
 
         let grapheme = extract_math_content(&MockWorld::new("$ x $"));
         assert!(
-            matches!(leaf(&grapheme, "x"), Some(Content::MathIdent(value)) if value.as_str() == "x"),
-            "$ x $ deve preservar grapheme como MathIdent: {grapheme:?}"
+            matches!(leaf(&grapheme, "x"), Some(Content::Symbol(value)) if value.as_str() == "x"),
+            "$ x $ deve preservar grapheme como Symbol: {grapheme:?}"
         );
         assert!(leaf(&number, "x").is_none(), "guard rejeita número diferente");
         assert!(leaf(&grapheme, "2").is_none(), "guard rejeita grapheme diferente");
@@ -14796,6 +14887,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -14962,6 +15054,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15107,6 +15200,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15252,6 +15346,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15396,6 +15491,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15539,6 +15635,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15701,6 +15798,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -15863,6 +15961,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16025,6 +16124,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16187,6 +16287,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16330,6 +16431,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16474,6 +16576,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16617,6 +16720,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -16775,6 +16879,7 @@ mod regressions {
                     | Content::Link(_)
                     | Content::Equation(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)
@@ -16929,6 +17034,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -17056,6 +17162,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -17236,6 +17343,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -17548,6 +17656,7 @@ mod regressions {
     fn p958_mathtexts(c: &Content) -> Vec<String> {
         match c {
             Content::MathText(s) => vec![s.to_string()],
+            Content::Symbol(s) => vec![s.to_string()],
             Content::MathIdent(s) => vec![format!("IDENT:{s}")],
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().flat_map(p958_mathtexts).collect()
@@ -17802,6 +17911,7 @@ mod regressions {
             | Content::ListItem(_)
             | Content::EnumItem(_)
             | Content::Link(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -17957,6 +18067,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -24700,6 +24811,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -24829,6 +24941,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -24958,6 +25071,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -25087,6 +25201,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -25216,6 +25331,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -25538,6 +25654,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -25645,6 +25762,7 @@ mod regressions {
                 }
                 Content::Text(text)
                 | Content::MathText(text)
+                | Content::Symbol(text)
                 | Content::MathIdent(text) => {
                     let mut chars = text.chars();
                     let first = chars.next()?;
@@ -25775,6 +25893,7 @@ mod regressions {
                 }
                 Content::Text(text)
                 | Content::MathText(text)
+                | Content::Symbol(text)
                 | Content::MathIdent(text) => {
                     let mut chars = text.chars();
                     let last = chars.next()?;
@@ -26003,6 +26122,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -26253,6 +26373,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -26379,6 +26500,7 @@ mod regressions {
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
                 | Content::Link(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -26612,6 +26734,7 @@ mod regressions {
             | Content::EnumItem(_)
             | Content::Link(_)
             | Content::Equation(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -27520,7 +27643,8 @@ mod regressions {
             world.main(),
             expression.to_string(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         source
             .span_byte_range(errors[0].span)
             .expect("P1215: span do eval deve resolver contra a expressão")
@@ -27567,7 +27691,8 @@ mod regressions {
             world.main(),
             expression.clone(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let mut unexpectedly_present = Vec::new();
 
         for (profile, features) in p1300_profiles() {
@@ -27764,7 +27889,8 @@ mod regressions {
             world.main(),
             expression.to_string(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let (result, side_diagnostics) =
             eval_expression_with_features(&world, expression, features);
         let diagnostics = match result {
@@ -27923,7 +28049,8 @@ mod regressions {
             world.main(),
             expression.to_string(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let (result, side_diagnostics) =
             eval_expression_with_features(&world, expression, features);
         let mut mismatches = Vec::new();
@@ -28215,7 +28342,8 @@ mod regressions {
             world.main(),
             expression.to_string(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let (result, side_diagnostics) =
             eval_expression_with_features(&world, expression, features);
         let observe_diagnostic =
@@ -28326,7 +28454,8 @@ mod regressions {
                 world().main(),
                 expression.to_string(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             assert_on_source(&source, side, ranges);
         }
 
@@ -28418,7 +28547,8 @@ mod regressions {
                         world().main(),
                         expression.to_string(),
                         crate::compiler::parse::parse_code,
-                    );
+                    )
+                    .expect("valid Source test fixture");
                     let (result, side) =
                         eval_expression_with_features(&world(), expression, features);
                     assert_warnings(expression, &side, &[warning]);
@@ -28500,7 +28630,7 @@ mod regressions {
                         world().main(),
                         expression.to_string(),
                         crate::compiler::parse::parse_code,
-                    );
+                    ).expect("valid Source test fixture");
                     let (result, side) =
                         eval_expression_with_features(&world(), expression, features);
                     assert_warnings(expression, &side, &[]);
@@ -29727,7 +29857,8 @@ mod regressions {
                         world.main(),
                         expression.to_string(),
                         crate::compiler::parse::parse_code,
-                    );
+                    )
+                    .expect("valid Source test fixture");
                     let (result, side) =
                         eval_expression_with_features(&world, expression, features);
                     match *expression {
@@ -29952,7 +30083,8 @@ mod regressions {
                             world.main(),
                             expression.to_string(),
                             crate::compiler::parse::parse_code,
-                        );
+                        )
+                        .expect("valid Source test fixture");
                         let source = if imported {
                             world.files.get("routes/error.typ").unwrap().clone()
                         } else {
@@ -30243,7 +30375,8 @@ mod regressions {
                     world.main(),
                     expression.into(),
                     crate::compiler::parse::parse_code,
-                );
+                )
+                .expect("valid Source test fixture");
                 world.source = source.clone();
                 let (result, side) =
                     eval_expression_with_features(&world, expression, features);
@@ -30311,7 +30444,8 @@ mod regressions {
                 world.main(),
                 expression.into(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             assert!(!source.root().erroneous(), "invalid expression fixture");
             let result = {
                 let mut tracked_sink = sink.track_mut();
@@ -30726,7 +30860,8 @@ mod regressions {
                     world.main(),
                     expression.into(),
                     crate::compiler::parse::parse_code,
-                );
+                )
+                .expect("valid Source test fixture");
                 let (result, side) =
                     eval_expression_with_features(&world, expression, features);
                 assert!(side.is_empty(), "{profile}/{expression}: {side:?}");
@@ -31141,7 +31276,8 @@ mod regressions {
                     world.main(),
                     expression.into(),
                     crate::compiler::parse::parse_code,
-                );
+                )
+                .expect("valid Source test fixture");
                 let (result, side) =
                     eval_expression_with_features(&world, expression, features);
                 assert!(side.is_empty(), "{profile}: {side:?}");
@@ -31589,6 +31725,7 @@ mod regressions {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -31761,6 +31898,7 @@ mod regressions {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -31888,7 +32026,8 @@ mod regressions {
                     id,
                     text.into(),
                     crate::compiler::parse::parse_code,
-                );
+                )
+                .expect("valid Source test fixture");
                 let (result, _) = super::eval_source_with_features_and_introspector(
                     &world,
                     &source,
@@ -31904,7 +32043,8 @@ mod regressions {
                 id,
                 "1 + 2".into(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             let (result, _) = super::eval_source_with_features_and_introspector(
                 &world,
                 &source,

@@ -1,11 +1,14 @@
 # L0 — compiler/eval/bindings/value_methods/element_where
-Hash do Código: d52b049b
+Hash do Código: 54ecc57c
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
 - 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:99bae094b60a12dbe90a88c5e32df53c0422584e53097bdad7892943337ca219
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
+
 
 ## Ownership and extraction evidence
 
@@ -396,3 +399,11 @@ strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARI
 without new errors or warnings outside the selected repairs. Heavy checks are
 serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
 parity claims and unresolved scope exclusions above remain bounded.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Recognize the native Symbol element by callback pointer, with sole field text and nonlocatable status; do not recognize the raw symbol constructor or names.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash fef99b61
+//! @prompt-hash a7de3bb9
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 
 mod checkpoint;
 mod convergence;
@@ -20,6 +20,12 @@ mod page_commit;
 mod page_geometry;
 mod page_run;
 mod page_running;
+pub(in crate::compiler) mod page_running_requests;
+pub use crate::compiler::layout::page_running_requests::{
+    PageRunningBody, PageRunningDocument, PageRunningKey, PageRunningLayoutInputs,
+    PageRunningPassOutcome, PageRunningRequest, PageRunningRequests,
+    PageRunningResolution, PageRunningSlot, PageRunningTrace, SealedPageRunning,
+};
 pub mod references;
 pub mod vanilla_defaults;
 
@@ -200,6 +206,7 @@ mod word_segment;
 
 // Flush dos footnote bodies pendentes (P847 — extraído de `cursor.rs`).
 mod footnote_flush;
+mod footnote_fragments;
 
 mod format_options;
 pub use format_options::collect_document_format_options;
@@ -266,6 +273,8 @@ pub(super) enum ItemGroup {
 // em campos quando métodos não agregam. A API externa (`pub fn layout`,
 // `pub fn layout_content`) continua inalterada.
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
+    pub(super) page_running_pass: Option<page_running_requests::PlannedPass>,
+    page_running_generation: u64,
     pub(super) metrics: M,
     sizer: S,
 
@@ -274,6 +283,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Mantido sincronizado com `self.chain` por cada push/pop (Passo 100,
     /// ADR-0039).
     pub(super) style: TextStyle,
+    pub(super) text_horizontal_offset: Pt,
+    pub(super) superscript_source_break: bool,
+    pub(super) literal_script_break_pending: bool,
     /// Primeiro idioma efetivo, inclusive sem glifos emitidos.
     document_language: Option<crate::entities::lang::Lang>,
     /// Cadeia de estilos activa — source-of-truth do estilo (Passo 100,
@@ -358,6 +370,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) flow_frame_extent: (f64, f64),
     /// Causal width returned by the most recent isolated subframe.
     pub(super) last_sub_frame_flow_width: f64,
+    /// First admitted frame: unknown, no baseline, or actual baseline.
+    pub(super) flow_baseline: Option<Option<f64>>,
+    /// Baseline decision returned by the latest isolated frame.
+    pub(super) last_sub_frame_baseline: Option<Option<f64>>,
     /// Inner Block region; independent of the page and cell references.
     pub(super) block_place_region: Option<crate::entities::layout_types::Rect>,
     /// Available width is a constraint; the current Block allocation is intrinsic.
@@ -547,13 +563,17 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// de footnote bodies pendentes na página actual. Populado pelo
     /// arm `Content::Footnote` quando o marker `[N]` é emitido; flush
     /// em `new_page()` (antes de saving a Page) + `finish()` (última
-    /// página). Cada entry: `(número, body)`. Bodies são layoutados
+    /// página). Cada entry: `(número, body, prefixo gerado)`. Bodies são layoutados
     /// no rodapé via `layout_sub_frame` + posicionamento
     /// absoluto Y bottom.
     /// Sub-padrão "DeferredX buffer + flush em new_page" N=2 → 3
     /// cumulativo (P245 floats + P251 cell tails + P304 footnotes).
+    pub(super) pending_footnote_plans: Vec<Option<page_running_requests::Cursor>>,
     pub(super) pending_footnote_bodies:
-        Vec<(u32, Box<crate::entities::content::Content>)>,
+        Vec<(u32, Box<crate::entities::content::Content>, Content)>,
+    pub(super) pending_footnote_frames: Vec<Option<DeferredFootnoteFrame>>,
+    pub(super) footnote_reserved_height: f64,
+    pub(super) footnote_capture: Option<FootnoteCapture>,
     /// **P286 (frente `P-text-deco-multiline`; resolve P284 §5.3)** —
     /// collector opcional de segmentos `(start_x, end_x, baseline_y)`
     /// para decorações textuais wrap-aware (Underline/Strike/Overline).
@@ -590,6 +610,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) active_paragraph_dir: Option<crate::entities::dir::Dir>,
     pub(super) pending_line_dir: Option<crate::entities::dir::Dir>,
     pub(super) explicit_line_alignment: Option<HAlign>,
+    piece_alignment: Option<repeat::PieceAlignment>,
     /// **P472** — chave da última citação renderizada. Usada para ibid:
     /// quando a mesma key é citada consecutivamente, emite "ibid." em vez
     /// do número. `None` antes da primeira citação.
@@ -620,6 +641,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) column_width: f64,
     /// **P538c** — número de colunas da página actual em fluxo contínuo.
     /// `None` significa layout de página normal (uma coluna).
+    pub(super) page_column_notes: bool,
     pub(super) page_columns: Option<usize>,
     /// **P538c** — índice da coluna actual dentro da página (0-based).
     pub(super) current_column: usize,
@@ -728,6 +750,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1407 — peças de `repeat` inline aguardando a largura finita que só
     /// fica disponível ao resolver spacings fracionários/fechar a linha.
     pending_repeats: Vec<repeat::PendingRepeat>,
+    /// Immutable geometric assignments for the current certified inline scope.
+    inline_allocation: Option<std::sync::Arc<sequence::inline_allocation::Node>>,
     /// P1408 — largura natural já ocupada por cada fronteira `pending_fr`,
     /// na mesma ordem. `h(Nfr)` registra zero; `box(width: Nfr)` registra a
     /// largura exterior que será substituída pela parcela fracionária.
@@ -743,6 +767,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P1140.19 — a página corrente nasceu da boundary final de um page-run.
     /// `finish` não a materializa enquanto continuar vazia.
     pub(super) page_run_boundary_empty: bool,
+    /// The current successor of a weak break needs material before commitment.
+    weak_page_successor: bool,
+    /// Explicit layout material that requires a page even without paint.
+    page_has_unpainted_material: bool,
     /// P1292-D v11 — `place.flush()` arma exactamente a próxima unidade de
     /// flow para composição transaccional contra a região reduzida pelos
     /// floats que acabou de realizar. O Cursor consome esta sentinela.
@@ -760,7 +788,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) flow_suffix_checkpoint: Option<FlowSuffixCheckpoint>,
     /// Ocorrências já compostas depois da fronteira. São clones lógicos do
     /// Content imutável (Arc-backed) e permitem replay sem reler o futuro.
-    pub(super) flow_suffix_replay: Vec<Content>,
+    pub(super) flow_suffix_replay: Vec<(Content, Option<page_running_requests::Cursor>)>,
     /// Profundidade da ocorrência top-level actualmente especulada. Chamadas
     /// descendentes pertencem à mesma ocorrência e não entram duas vezes no
     /// replay-log.
@@ -792,6 +820,42 @@ pub(super) struct DecoSegment {
     pub start_x: Pt,
     pub end_x: Pt,
     pub baseline_y: Pt,
+    piece_line: Option<usize>,
+}
+
+type FootnoteRegion = (usize, usize, Option<(usize, usize)>);
+
+#[derive(Debug, Clone)]
+pub(super) struct DeferredFootnoteFrame {
+    pub(super) source_lines: bool,
+    pub(super) line_continuation: bool,
+    pub(super) deferred_region: Option<FootnoteRegion>,
+    pub(super) outer_size: Pt,
+    pub(super) height: f64,
+    pub(super) items: Vec<FrameItem>,
+    pub(super) deco: Vec<DecoSegment>,
+    pub(super) orphaned_x: Vec<PendingAlignXEntry>,
+    pub(super) orphaned_y: Vec<PendingAlignYEntry>,
+    pub(super) breaks: Vec<FootnoteBreak>,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct FootnoteBreak {
+    pub(super) protected_group_height: Option<f64>,
+    pub(super) tail_start: Option<f64>,
+    pub(super) item_count: usize,
+    pub(super) height: f64,
+    pub(super) gap_start_height: Option<f64>,
+    pub(super) deco_count: usize,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct FootnoteCapture {
+    pub(super) outer_size: Pt,
+    pub(super) breaks: Vec<FootnoteBreak>,
+    pub(super) atomic_depth: usize,
+    pub(super) origin_y: f64,
+    pub(super) enabled: bool,
 }
 
 /// **P245 (M9d / M7+4)** — entry do buffer `floats_pending` no
@@ -912,6 +976,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ) -> Self {
         let cfg = PageConfig::default();
         Self {
+            page_running_pass: None,
+            page_running_generation: 0,
             metrics,
             sizer,
 
@@ -923,6 +989,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // recompõe `style` da chain (11). A inconsistência 12-vs-11 ficava só no
             // espaço-líder de docs non-embrulhados. Derivar da chain unifica em 11.
             style: TextStyle::from(&StyleChain::default_chain()),
+            text_horizontal_offset: Pt(0.0),
+            superscript_source_break: false,
+            literal_script_break_pending: false,
             document_language: None,
             chain: StyleChain::default_chain(),
             text_tracking_state: text_tracking::State::default(),
@@ -958,6 +1027,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             flow_placement_end: None,
             flow_frame_extent: (0.0, 0.0),
             last_sub_frame_flow_width: 0.0,
+            flow_baseline: None,
+            last_sub_frame_baseline: None,
             block_place_region: None,
             block_auto_width: false,
             block_place_decorations: Vec::new(),
@@ -1017,11 +1088,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.
             pending_footnote_bodies: Vec::new(),
+            pending_footnote_plans: Vec::new(),
+            pending_footnote_frames: Vec::new(),
+            footnote_reserved_height: 0.0,
+            footnote_capture: None,
             // P537 — modo coluna inactivo por default.
             column_mode: false,
             column_origin_x: 0.0,
             column_width: 0.0,
             // P538c — fluxo contínuo multi-coluna inactivo por default.
+            page_column_notes: false,
             page_columns: None,
             current_column: 0,
             segmented_par_line_column: None,
@@ -1051,6 +1127,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             active_paragraph_dir: None,
             pending_line_dir: None,
             explicit_line_alignment: None,
+            piece_alignment: None,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
             bib_layout: None,
@@ -1075,12 +1152,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_align_centering: Vec::new(),
             pending_align_v_centering: Vec::new(),
             pending_repeats: Vec::new(),
+            inline_allocation: None,
             pending_fr_natural_widths: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
             layout_errors: Vec::new(),
             page_run_boundary_empty: false,
+            weak_page_successor: false,
+            page_has_unpainted_material: false,
             flow_suffix_checkpoint_pending: false,
             flow_suffix_transaction_active: false,
             flow_suffix_transaction_rejected: false,
@@ -1137,7 +1217,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
-            self.regions.current.height - self.page_config.margin.bottom
+            self.regions.current.height
+                - self.page_config.margin.bottom
+                - self.footnote_reserved_height
         }
     }
 
@@ -1182,12 +1264,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// cursor_y) }`. Single canonical site — mirror do gating
     /// que set `current_location`. Idempotência via `insert`.
     fn advance_locator_if_locatable(&mut self, content: &Content) {
+        if self.generated_source_pending() {
+            return;
+        }
         if is_locatable(content) {
             if let Some(location) = self.transported_root_location.take() {
                 self.current_location = Some(location);
                 return;
             }
-            let loc = self.locator.next();
+            let loc = if let Some(location) = self.planned_location() {
+                self.locator.observe(location);
+                location
+            } else {
+                self.locator.next()
+            };
             self.current_location = Some(loc);
             // P204D: emit Position concrete single-pass.
             let page = std::num::NonZeroUsize::new(self.pages.len() + 1)
@@ -1205,6 +1295,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        let saved = self.page_running_pass.as_mut().and_then(|pass| pass.cursor.take());
+        let note_atomic = self.begin_footnote_atomic(content);
+        self.layout_content_retaining_plan(content);
+        self.record_footnote_spacing(content);
+        self.end_footnote_atomic(note_atomic);
+        if let Some(pass) = &mut self.page_running_pass {
+            pass.cursor = saved;
+        }
+    }
+
+    fn layout_content_retaining_plan(&mut self, content: &Content) {
         let previous_span = self.current_source_span;
         let mut source = content;
         while let Content::Source(origin) = source {
@@ -1213,14 +1314,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
             source = &origin.body;
         }
-        let content = content.source_body();
-        if self.flow_suffix_checkpoint_pending {
-            self.flow_suffix_checkpoint_pending = false;
-            self.flow_suffix_transaction_active = true;
-            self.flow_suffix_transaction_rejected = false;
-            self.flow_suffix_checkpoint = Some(self.capture_flow_suffix_checkpoint());
-            self.flow_suffix_replay.clear();
-        }
+        let content = if self
+            .page_running_pass
+            .as_ref()
+            .is_some_and(|pass| pass.cursor.is_some())
+        {
+            content
+        } else {
+            content.source_body()
+        };
+        self.begin_flow_suffix_if_pending();
 
         if self.flow_suffix_transaction_active && self.flow_suffix_dispatch_depth == 0 {
             self.layout_flow_suffix_transaction(content);
@@ -1228,6 +1331,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.layout_content_once(content);
         }
         self.current_source_span = previous_span;
+    }
+
+    fn begin_flow_suffix_if_pending(&mut self) {
+        if self.flow_suffix_checkpoint_pending {
+            self.flow_suffix_checkpoint_pending = false;
+            self.flow_suffix_transaction_active = true;
+            self.flow_suffix_transaction_rejected = false;
+            self.flow_suffix_checkpoint = Some(self.capture_flow_suffix_checkpoint());
+            self.flow_suffix_replay.clear();
+        }
     }
 
     /// Executa uma ocorrência sem reabrir a sentinela transaccional. O
@@ -1248,7 +1361,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if !e.span.is_detached() {
                     self.current_source_span = e.span;
                 }
-                self.layout_content_once(&e.body);
+                self.layout_planned_child(
+                    crate::compiler::introspect::page_running::PlanEdge::SourceBody,
+                    &e.body,
+                );
                 self.current_source_span = previous;
                 return;
             }
@@ -1271,7 +1387,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     Content::Source(_) | Content::Styled(_) | Content::ShowRecipe(_)
                 )
                 .then_some(e.location);
-                self.layout_content_body(&e.body);
+                self.layout_planned_child_body(
+                    crate::compiler::introspect::page_running::PlanEdge::LocatedBody,
+                    &e.body,
+                );
                 self.transported_root_location = previous_root;
                 return;
             }
@@ -1280,7 +1399,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 return;
             }
             Content::ShowRecipe(e) => {
-                self.layout_content(&e.body);
+                self.layout_planned_child(
+                    crate::compiler::introspect::page_running::PlanEdge::ShowRecipeBody,
+                    &e.body,
+                );
                 return;
             }
             // All ordinary occurrences continue through the canonical locator gate.
@@ -1303,6 +1425,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -1412,10 +1535,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     fn layout_content_body(&mut self, content: &Content) {
+        bidi_origin::at_root(self, content, |layouter, content| {
+            layouter.dispatch_content_body(content);
+        });
+    }
+
+    fn dispatch_content_body(&mut self, content: &Content) {
+        text::observe_content_boundary(self, content);
         paragraph_indent::before_content(self, content);
         // Observe the logical input once; leaf arms remain static adapters.
         match content {
-            Content::Text(text) => self.smartquote_context.observe_text(text),
+            Content::Text(text) | Content::Symbol(text) => {
+                self.smartquote_context.observe_text(text)
+            }
             Content::Space | Content::SpaceFromNewline => {
                 self.smartquote_context.observe_text(" ")
             }
@@ -1595,7 +1727,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Atomizado (ADR-0109, P381) → layout/text.rs (folha de render).
-            Content::Text(text) => text::layout(self, text),
+            Content::Text(text) | Content::Symbol(text) => text::layout(self, text),
 
             Content::Space => space::layout(
                 self,
@@ -1713,7 +1845,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // figure_image.md` §P1473). Zero-size fora do pipeline de
             // `figure()`, paridade com Metadata/State (dado sem render
             // próprio até integração futura).
-            Content::FigureCaption(_) => {}
+            Content::FigureCaption(e) => {
+                self.register_planned_child(crate::compiler::introspect::page_running::PlanEdge::FigureCaptionBody);
+                if e.separator.is_some() {
+                    self.register_planned_child(crate::compiler::introspect::page_running::PlanEdge::FigureCaptionSeparator);
+                }
+            }
 
             // Passo 61/P457 — TOC: delegado a outline.rs.
             Content::Outline(e) => outline::layout_outline(self, e),
@@ -1771,7 +1908,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // structural/footnote.md` §P1473). `compiler/layout/footnote.rs`
             // não muda — continua a gerar a lista de notas como hoje, sem
             // consultar este constructor. Zero-size fora desse pipeline.
-            Content::FootnoteEntry(_) => {}
+            Content::FootnoteEntry(e) => {
+                self.register_planned_child(crate::compiler::introspect::page_running::PlanEdge::FootnoteEntryNote);
+                if e.separator.is_some() {
+                    self.register_planned_child(crate::compiler::introspect::page_running::PlanEdge::FootnoteEntrySeparator);
+                }
+            }
 
             // Atomizado (ADR-0109, P381) → layout/cite.rs.
             Content::Cite(e) => cite::layout(self, e),
@@ -2060,6 +2202,18 @@ pub fn layout(content: &Content) -> PagedDocument {
 /// **P544**: este entry point mantém o comportamento legacy com
 /// `FixedMetrics`. A pipeline de produção usa
 /// `layout_with_introspector_and_metrics` para métricas reais de fonte.
+/// Lay out a source-owned body with physical running-content discovery.
+pub fn layout_with_page_running<M: FontMetrics + Clone, S: ImageSizer + Clone>(
+    body: &PageRunningBody,
+    introspector: crate::entities::introspector::TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    inputs: PageRunningLayoutInputs<'_>,
+) -> PageRunningPassOutcome {
+    convergence::run_planned(body, introspector, metrics, sizer, font_size, inputs)
+}
+
 pub fn layout_with_introspector(
     content: &Content,
     introspector: crate::entities::introspector::TagIntrospector,

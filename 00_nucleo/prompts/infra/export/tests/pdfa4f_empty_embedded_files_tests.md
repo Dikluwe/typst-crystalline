@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdfa4f_empty_embedded_files_tests
-Hash do Código: 73719570
+Hash do Código: 711861db
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdfa4f_empty_embedded_files_tests.rs`
@@ -27,3 +27,7 @@ Keep the current fixture imports/assertions and test-module ownership.
 
 Resolve the name tree and absence/presence of attachment objects independently
 of their global IDs and total serialized bytes.
+
+Under the approved PDF warning carrier contract, the local export helper returns
+`.output` for the existing byte assertions. The fixture remains warning-free;
+do not filter exporter warnings or relax any archival assertion.

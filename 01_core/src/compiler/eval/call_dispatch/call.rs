@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md
-//! @prompt-hash 733b58bd
+//! @prompt-hash 3acabf14
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -222,12 +222,16 @@ mod call_once_tests {
             for (path, text) in files {
                 let id = FileId::from_raw(NonZeroU16::new(next).unwrap());
                 next += 1;
-                map.insert(path.to_string(), Source::new(id, text.to_string()));
+                map.insert(
+                    path.to_string(),
+                    Source::new(id, text.to_string()).expect("valid Source test fixture"),
+                );
             }
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                main: Source::new(main_id, main_text.to_string()),
+                main: Source::new(main_id, main_text.to_string())
+                    .expect("valid Source test fixture"),
                 files: map,
             }
         }
@@ -346,7 +350,8 @@ mod call_once_tests {
                     world.main(),
                     expr.clone(),
                     crate::compiler::parse::parse_code,
-                );
+                )
+                .expect("valid Source test fixture");
                 let start = expr.find("__missing").unwrap();
                 assert_eq!(
                     source.span_byte_range(errors[0].span),
@@ -524,7 +529,8 @@ mod call_once_tests {
             FileId::from_raw(NonZeroU16::new(1).unwrap()),
             "placeholder(panic(\"argument executed\"))".into(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let call = source
             .root()
             .children()

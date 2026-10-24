@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/whitespace.md
-//! @prompt-hash 82bcf281
+//! @prompt-hash 2c6eba0f
 //! @layer L3
 //! @updated 2026-10-17
 
@@ -47,6 +47,7 @@ fn visual_content(mut content: &Content) -> &Content {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -175,6 +176,7 @@ fn classified_content(content: &Content) -> &Content {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -408,6 +410,7 @@ fn paragraph_space_support<'a>(items: impl Iterator<Item = &'a Content>) -> Spac
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -580,6 +583,7 @@ fn supports_adjacent_space(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

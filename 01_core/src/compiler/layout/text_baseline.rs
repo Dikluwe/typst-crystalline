@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text_baseline.md
-//! @prompt-hash 085b8d47
+//! @prompt-hash 4a8c81ec
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::layout_types::{FrameItem, Pt};
@@ -23,6 +23,7 @@ pub(super) fn admit<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>
             }
         }
     }
+    layouter.certify_footnote_tail_baseline();
 }
 
 /// Fecha uma linha de espaços literais com o estilo que produziu os carriers,

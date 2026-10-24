@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access.md
-//! @prompt-hash 5db1a3d1
+//! @prompt-hash c209326d
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -405,7 +405,10 @@ mod tests {
             name: Some("csv".into()),
             params: vec![],
             sink_name: None,
-            body: crate::entities::source::Source::detached("none").root().clone(),
+            body: crate::entities::source::Source::detached("none")
+                .expect("valid Source test fixture")
+                .root()
+                .clone(),
             captured: Arc::new(Scope::new()),
             capturer: Capturer::Function,
         });
@@ -451,7 +454,7 @@ pub(in crate::compiler::eval) use self::content_methods::content_type_field;
 pub(crate) use self::content_methods::eval_content_method_at;
 pub(crate) use self::content_methods::{
     eval_content_method, eval_introspected_content_method_at,
-    eval_outline_entry_body_method, native_sequence,
+    eval_outline_entry_body_method, native_sequence, native_symbol_element,
 };
 pub(in crate::compiler::eval) use self::fields::{
     check_module_field_feature, eval_field_access, eval_field_access_with_target,
@@ -512,7 +515,7 @@ mod p1325_tests {
     fn check(text: &str, needle: &str, message: &str) {
         for mask in 0..4 {
             let world = TestWorld {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -605,7 +608,7 @@ mod p1325_tests {
     #[test]
     fn p1325_positive_lookup_values_and_morphology() {
         let world = TestWorld {
-            source: Source::detached(""),
+            source: Source::detached("").expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         };
@@ -687,7 +690,7 @@ mod p1325_located_tests {
         for snapshot in [false, true] {
             let text = "#subject.nope";
             let world = TestWorld {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -799,7 +802,7 @@ mod p1338_tests {
     fn check_ast(text: &str, anchor: Option<&str>, message: &str) {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -954,7 +957,7 @@ mod p1338_tests {
     fn p1338_preserve_ast_members_and_real_method_calls() {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(""),
+                source: Source::detached("").expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1053,7 +1056,7 @@ mod p1337_tests {
     fn check_ast(text: &str, anchor: &str, message: &str) {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1159,7 +1162,7 @@ mod p1337_tests {
     fn p1337_preserve_values_type_and_repr_and_ordinary_calls() {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(""),
+                source: Source::detached("").expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1257,7 +1260,7 @@ mod p1336_tests {
     fn check_ast(text: &str, anchor: &str, message: &str) {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(text),
+                source: Source::detached(text).expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1367,7 +1370,7 @@ mod p1336_tests {
     fn p1336_preserve_int_str_methods_and_type_namespaces() {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(""),
+                source: Source::detached("").expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1461,7 +1464,7 @@ mod p1326_tests {
         text: &str,
         features: Features,
     ) -> (Source, SourceResult<Module>, Vec<SourceDiagnostic>) {
-        let source = Source::detached(text);
+        let source = Source::detached(text).expect("valid Source test fixture");
         let world = TestWorld {
             source: source.clone(),
             library: Library::new(),
@@ -1537,7 +1540,7 @@ mod p1326_tests {
     fn p1326_existing_function_calls_with_alias_args_and_kind() {
         for features in profiles() {
             let world = TestWorld {
-                source: Source::detached(""),
+                source: Source::detached("").expect("valid Source test fixture"),
                 library: Library::new(),
                 book: FontBook::new(),
             };
@@ -1632,7 +1635,7 @@ mod p1471_tests {
 
     fn world_for(text: &str) -> TestWorld {
         TestWorld {
-            source: Source::detached(text),
+            source: Source::detached(text).expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         }

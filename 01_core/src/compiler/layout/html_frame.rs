@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/html_frame.md
-//! @prompt-hash 79056d0b
+//! @prompt-hash b724e8ae
 //! @layer L1
 
 use crate::entities::elements::pdf_artifact::ArtifactKind;
@@ -97,7 +97,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     elem: &HtmlFrameElem,
 ) {
-    layouter.layout_content(&elem.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::HtmlFrameBody,
+        &elem.body,
+    );
 }
 
 fn visible_top<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {

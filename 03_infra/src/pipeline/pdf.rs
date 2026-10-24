@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
-//! @prompt-hash 694c5b65
+//! @prompt-hash 5dbb3016
 //! @layer L3
 //! @updated 2026-10-10
 //!
@@ -477,20 +477,20 @@ fn compile_to_pdf_bytes_impl(
     // `export_pdf_with_font`/`export_pdf_multifont` ganham variantes
     // `_and_pages`); o `PdfBuilder` do oráculo continua sem filtro de
     // páginas, comportamento anterior preservado.
-    let (pdf, subset_ms) = if oracle {
-        let (pdf, subset) = crate::export::export_pdf_oracle_and_serialization(
+    let export = if oracle {
+        crate::export::export_pdf_oracle_and_serialization(
             &doc,
             &resolved,
             document_id,
             stream_mode,
             pdf_tags,
             serialization,
-        );
-        (pdf, subset)
+        )
     } else {
         match resolved.as_slice() {
-            [] => (
-                export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+            [] => {
+                let export =
+                    export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
                     &doc,
                     document_id,
                     stream_mode,
@@ -498,9 +498,12 @@ fn compile_to_pdf_bytes_impl(
                     serialization,
                     pages.clone(),
                     pdf_standards,
-                ),
-                0.0,
-            ),
+                );
+                PdfExport {
+                    output: (export.output, 0.0),
+                    warnings: export.warnings,
+                }
+            }
             [single @ ((_, font_variant, variations), bytes)] => {
                 // P668 — se a única fonte resolvida for uma VF com eixos
                 // não-default, usar o caminho multi-font, que já instancia
@@ -549,6 +552,8 @@ fn compile_to_pdf_bytes_impl(
             ),
         }
     };
+    warnings.extend(export.warnings);
+    let (pdf, subset_ms) = export.output;
     timings.subset_ms = subset_ms;
     timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
     timings.total_ms = timings.eval_ms

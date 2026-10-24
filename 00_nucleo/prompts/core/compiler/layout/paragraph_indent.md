@@ -1,12 +1,15 @@
 # L0 — paragraph_indent
-Hash do Código: f47f0cdc
+Hash do Código: b21ac82c
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_indent.rs`
 **Architecture:** ADR-0107/0108/0109/0127/0129/0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+
 
 ## Evidence before specification
 
@@ -45,3 +48,31 @@ Require RED→GREEN before implementation and source→layout/bilateral controls
 Before implementation add real functional RED through current APIs, not a missing future helper. Cover set/constructor, zero/negative/absolute+em/partial fonts, first/continued lines, repeated/empty boundaries, Simple/Optimized/hyphenation, RTL, inline/Par containers, pages/checkpoint/subframe and bibliography/default/override. Then discriminate shape/cost inputs rather than mirror helper arms. Preserve logical text in extreme frames; cropped PDF proves no deletion/copy. Repeat prior corpus/bilateral matrix and declare prior metrics/realization debt open, without relaxed controls. V15/V26 precede reseal/implementation, full gates/12GiB/no publication; whole objective/R3-T1 remain open.
 
 Decoration tests cover all three origins/signs, entry after break/subframe and empty body/metadata/empty Par with negative h. Preserve previous vertical differences; horizontal refinement certifies LTR only and full decoration/RTL geometry remains unmeasured. Keep original checkpoint boundary semantics while proving prefix text/discard/restored continuation.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,7 +1,8 @@
 # L0 — compiler/eval/call_dispatch/arguments
-Hash do Código: b244abbb
+Hash do Código: 6c0d0a36
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 ## Ownership and extraction evidence
@@ -85,3 +86,11 @@ With recursion. Preserve individual value_span/priorities/effects. Earlier eight
 target clause includes this constructor without changing other targets/signatures.
 Test full f()/f(x:1) ranges and invalid individual value; real RED before code,
 bilateral GREEN.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+The candidate1 diagnostic-red.json records missing Symbol text argument anchored to args instead of full call. Include only the typed native_symbol_element callback in the existing full-call span transport, including aliases/with; never infer identity from function names.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

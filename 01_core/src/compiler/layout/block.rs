@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 14ea61fd
+//! @prompt-hash 8b48e9ff
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -148,18 +148,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         || outset_top != 0.0
         || outset_bottom != 0.0;
 
-    let had_line =
-        super::html_frame::items_have_causal_line(&layouter.regions.current.current_line);
-    if had_line
-        || layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0
-    {
-        layouter.flush_line();
-    }
-
-    // P250 — spacing/above collapse (paridade vanilla CSS margin
-    // collapse `max(prev.below, curr.above)` entre Blocks
-    // consecutivos; `above` suprimido no primeiro Block dum
-    // Sequence — sinalizado via `block_chain_active == false`).
     let paragraph_spacing = match layouter.chain.custom("par.spacing") {
         Some(Value::Length(length)) => length.resolve_pt(font),
         _ => font * super::vanilla_defaults::PAR_SPACING,
@@ -169,36 +157,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .or(*spacing)
         .map(|l| l.resolve_pt(font))
         .unwrap_or(paragraph_spacing);
-    if had_line {
-        let end = layouter.flow_placement_y().unwrap_or(layouter.prev_line_baseline);
-        layouter.regions.current.cursor_y = Pt(end + above_pt);
-    } else if layouter.block_chain_active {
-        let gap = collapse_margin(
-            layouter.prev_block_below_pending,
-            layouter.prev_margin_is_parbreak,
-            above_pt,
-            !has_custom_above,
-        );
-        let prev_descent = layouter.prev_block_equation_descent;
-        layouter.regions.current.cursor_y =
-            Pt(layouter.prev_line_baseline + prev_descent + gap);
-        layouter.initial_baseline_pending = true;
-    } else if !layouter.initial_baseline_pending {
-        // A closed line still owns its causal end. Otherwise a region or
-        // fractional prefix has already prepared the next text baseline;
-        // recover the geometric origin before the body installs its own.
-        if let Some(end) = layouter
-            .flow_placement_y()
-            .filter(|_| layouter.fractional_block_height.is_none())
-        {
-            layouter.regions.current.cursor_y = Pt(end + above_pt);
-        } else if !layouter.is_sub_frame || layouter.fractional_block_height.is_some() {
-            let (top, _) =
-                layouter.metrics.text_edges(layouter.style.size, &layouter.style);
-            layouter.regions.current.cursor_y = layouter.regions.current.cursor_y - top;
-        }
-    }
-    layouter.prev_block_below_pending = 0.0;
+    admit_frame_start(layouter, above_pt, has_custom_above);
 
     // P248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) —
     // Block.breakable semantic real activação: medição
@@ -343,6 +302,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             h: Pt(h_pt),
         });
     }
+    let saved_flow_baseline = layouter.flow_baseline.take();
     let saved_flow_extent = std::mem::replace(
         &mut layouter.flow_frame_extent,
         (layouter.regions.current.line_start_x.0, 0.0),
@@ -361,13 +321,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let previous_indent = super::paragraph_indent::enter_fragment(layouter, body);
     let previous_planning =
         std::mem::replace(&mut layouter.paragraph_planning_suppressed, false);
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::BlockBody,
+        body,
+    );
     layouter.flush_line();
     layouter.paragraph_planning_suppressed = previous_planning;
     layouter.paragraph_indent = previous_indent;
     layouter.block_inline_region = previous_inline_region;
     layouter.relative_region_size = saved_relative_region;
     layouter.block_auto_width = saved_block_auto_width;
+    let body_baseline = layouter.flow_baseline;
+    layouter.flow_baseline = saved_flow_baseline;
     let body_width = layouter.flow_frame_extent.1;
     layouter.flow_frame_extent = saved_flow_extent;
     layouter.parent_bbox = saved_parent_bbox;
@@ -678,10 +643,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         body_flow_end.unwrap_or(layouter.regions.current.cursor_y.0)
     };
     layouter.record_flow_placement_end(end);
+    if let Some(baseline) = body_baseline {
+        layouter.record_flow_baseline(baseline);
+    }
     layouter.record_flow_width_at(block_origin_x.0, allocated_w);
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
+    /// Publish the actual first frame decision, including absence and zero.
+    pub(super) fn record_flow_baseline(&mut self, baseline: Option<f64>) {
+        if self.flow_baseline.is_none() {
+            self.flow_baseline = Some(baseline);
+        }
+    }
+
     /// Record allocated horizontal flow, excluding visual-only overlays.
     pub(super) fn record_flow_width_at(&mut self, origin: f64, width: f64) {
         let extent = origin - self.flow_frame_extent.0 + width;
@@ -1067,4 +1042,127 @@ mod a2_margin_priority_tests {
             }
         }
     }
+}
+
+/// Enter a geometric flow frame with the ordinary Block margin policy.
+fn admit_frame_start<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    above_pt: f64,
+    has_custom_above: bool,
+) {
+    let had_line =
+        super::html_frame::items_have_causal_line(&layouter.regions.current.current_line);
+    if had_line
+        || layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0
+    {
+        layouter.flush_line();
+    }
+
+    if had_line {
+        let end = layouter.flow_placement_y().unwrap_or(layouter.prev_line_baseline);
+        layouter.regions.current.cursor_y = Pt(end + above_pt);
+    } else if layouter.block_chain_active {
+        let gap = collapse_margin(
+            layouter.prev_block_below_pending,
+            layouter.prev_margin_is_parbreak,
+            above_pt,
+            !has_custom_above,
+        );
+        let prev_descent = layouter.prev_block_equation_descent;
+        layouter.regions.current.cursor_y =
+            Pt(layouter.prev_line_baseline + prev_descent + gap);
+        layouter.initial_baseline_pending = true;
+    } else if !layouter.initial_baseline_pending {
+        // A closed line still owns its causal end. Otherwise a region or
+        // fractional prefix has already prepared the next text baseline;
+        // recover the geometric origin before the body installs its own.
+        if let Some(end) = layouter
+            .flow_placement_y()
+            .filter(|_| layouter.fractional_block_height.is_none())
+        {
+            layouter.regions.current.cursor_y = Pt(end + above_pt);
+        } else if !layouter.is_sub_frame || layouter.fractional_block_height.is_some() {
+            let (top, _) =
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+            layouter.regions.current.cursor_y = layouter.regions.current.cursor_y - top;
+        }
+    }
+    layouter.prev_block_below_pending = 0.0;
+}
+
+/// Admit one already-prepared whole-region frame without dispatching its source.
+pub(super) fn admit_prepared_frame<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+) -> (crate::entities::layout_types::Point, f64) {
+    let spacing =
+        super::paragraph::spacing_for_size(&layouter.chain, layouter.style.size.0);
+    admit_frame_start(layouter, spacing, false);
+    let origin = crate::entities::layout_types::Point {
+        x: layouter.regions.current.line_start_x,
+        y: layouter.regions.current.cursor_y,
+    };
+    let width = layouter
+        .block_place_region
+        .map_or_else(|| layouter.available_width(), |r| r.w.0);
+    (origin, width)
+}
+
+/// Place an atomic local frame once and publish its actual flow boundary.
+pub(super) fn commit_prepared_frame<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    mut origin: crate::entities::layout_types::Point,
+    width: f64,
+    height: f64,
+    baseline: Option<Option<f64>>,
+    items: Vec<FrameItem>,
+) -> crate::entities::layout_types::Point {
+    if !layouter.is_sub_frame
+        && layouter.page_config.height.is_finite()
+        && height <= layouter.available_height()
+        && origin.y.0 + height > layouter.page_bottom_limit()
+        && !layouter.current_page_is_empty()
+    {
+        if layouter.flow_suffix_transaction_active {
+            layouter.flow_suffix_transaction_rejected = true;
+        } else {
+            layouter.new_page();
+            origin.x = layouter.regions.current.line_start_x;
+            origin.y = layouter.regions.current.cursor_y;
+            if !layouter.initial_baseline_pending {
+                origin.y = origin.y
+                    - layouter.metrics.text_edges(layouter.style.size, &layouter.style).0;
+            }
+        }
+    }
+    layouter.regions.current.current_items.push(FrameItem::Group {
+        paint_root: false,
+        pos: origin,
+        matrix: crate::entities::layout_types::TransformMatrix::identity(),
+        clip_mask: None,
+        inner_width: width,
+        inner_height: height,
+        items,
+    });
+    let end = origin.y.0 + height;
+    layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
+    layouter.regions.current.cursor_y = Pt(end);
+    layouter.prev_line_baseline = end;
+    layouter.last_block_descent_y = Some(end);
+    layouter.prev_block_equation_descent = 0.0;
+    layouter.last_equation_descent = 0.0;
+    layouter.last_flush_advance = 0.0;
+    layouter.line_inline_ascent = 0.0;
+    layouter.line_inline_descent = 0.0;
+    layouter.line_assumed_ascent = None;
+    layouter.initial_baseline_pending = false;
+    layouter.prev_block_below_pending =
+        super::paragraph::spacing_for_size(&layouter.chain, layouter.style.size.0);
+    layouter.prev_margin_is_parbreak = true;
+    layouter.block_chain_active = true;
+    layouter.record_flow_placement_end(end);
+    if let Some(baseline) = baseline {
+        layouter.record_flow_baseline(baseline.map(|y| origin.y.0 + y));
+    }
+    layouter.record_flow_width_at(origin.x.0, width);
+    origin
 }

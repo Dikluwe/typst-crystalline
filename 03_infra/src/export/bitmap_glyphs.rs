@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/bitmap_glyphs.md
-//! @prompt-hash f76730e4
+//! @prompt-hash 82e9cdc0
 //! @layer L3
-//! @updated 2026-07-31
+//! @updated 2026-10-24
 //!
 //! **P941** — Glifos bitmap (CBDT/CBLC) como imagens XObject, não fonte embutida.
 //! Ver `builder.md` §P941 para o desenho completo.
@@ -29,6 +29,8 @@ pub(crate) struct BitmapGlyph {
 /// Referência de um glifo bitmap já emitido como XObject, para o stream de página.
 #[derive(Clone)]
 pub(crate) struct BitmapGlyphRef {
+    /// Certified single-byte source code for a complete bitmap-only Type3 font.
+    pub type3_code: Option<u8>,
     /// Nome do XObject principal (ex.: `Im7`).
     pub name: String,
     /// Dimensões em pixels do strike.

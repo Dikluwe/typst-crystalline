@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash c319d05d
+//! @prompt-hash 18dd7def
 //! @layer L3
 //! @updated 2026-10-09
 //!
 //! A compilation-local owner of contextual contributions and their lifetimes.
 
 use super::*;
+
+mod page_running;
 use typst_core::compiler::realize::context_occurrences::{
     ContextOccurrenceArena, ContextOccurrenceFrame,
 };
@@ -20,6 +22,7 @@ pub(super) struct Prepared<'a> {
 }
 
 struct Execution {
+    version: u64,
     ctx: EvalContext,
     input: Arc<TagIntrospector>,
     result: SourceResult<Content>,
@@ -46,6 +49,9 @@ struct Producer {
 }
 
 struct Session<'a> {
+    running: page_running::RunningState,
+    running_enabled: bool,
+    next_execution_version: u64,
     occurrences: Option<ContextOccurrenceArena>,
     world: &'a dyn World,
     source: &'a Source,
@@ -63,6 +69,8 @@ struct Session<'a> {
     impossible: bool,
     bundle_html_targets: Option<Vec<bool>>,
     bundle_candidate: Option<TagIntrospector>,
+    bundle_physical_documents: Option<Vec<Option<PagedDocument>>>,
+    bundle_physical_starts: Option<Vec<typst_core::entities::locator::LocatorSeed>>,
 }
 
 fn publish_candidate_warnings(
@@ -92,6 +100,13 @@ fn ordered_blocks(
     content: &Content,
     chain: &StyleChain,
 ) -> Option<Vec<(Arc<ContextBlockElem>, StyleChain)>> {
+    ordered_body_blocks(&body_context_view(content), chain)
+}
+
+fn ordered_body_blocks(
+    content: &Content,
+    chain: &StyleChain,
+) -> Option<Vec<(Arc<ContextBlockElem>, StyleChain)>> {
     let mut actual_children = Vec::new();
     let explicit_children = if let Some(child) = typst_core::compiler::realize::reference_supplements::prepared_reference_supplement(content) {
         actual_children.push(child);
@@ -107,8 +122,8 @@ fn ordered_blocks(
             Content::Realized(e) => { actual_children.push(&e.visual); true }
             Content::Source(e) => { actual_children.push(&e.body); true }
             Content::Located(e) => { actual_children.push(&e.body); true }
-            Content::ShowRecipe(e) => return ordered_blocks(&e.body, &e.styles),
-            Content::Styled(e) => return ordered_blocks(&e.body, &chain.push_styles(&e.styles)),
+            Content::ShowRecipe(e) => return ordered_body_blocks(&e.body, &e.styles),
+            Content::Styled(e) => return ordered_body_blocks(&e.body, &chain.push_styles(&e.styles)),
             Content::Sequence(parts) | Content::MathSequence(parts) => { actual_children.extend(parts.iter()); true }
             Content::Strong(e) => { actual_children.push(&e.body); true }
             Content::Emph(e) => { actual_children.push(&e.body); true }
@@ -137,7 +152,7 @@ fn ordered_blocks(
             | Content::HtmlFrame(..)
             | Content::Raw(..)
             | Content::Equation(..)
-            | Content::MathIdent(..)
+            | Content::Symbol(..) | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
             | Content::MathAttach(..)
@@ -229,7 +244,7 @@ fn ordered_blocks(
         let mut ordered = Vec::new();
         let mut seen = HashSet::new();
         for child in actual_children {
-            for pair in ordered_blocks(child, chain)? {
+            for pair in ordered_body_blocks(child, chain)? {
                 if !seen.insert(pair.0.id) {
                     return None;
                 }
@@ -247,7 +262,7 @@ fn ordered_blocks(
     let mut unique = true;
     let _ = content.map_content(&mut |node| {
         if let Some(child) = typst_core::compiler::realize::reference_supplements::prepared_reference_supplement(node) {
-            match ordered_blocks(child, chain) {
+            match ordered_body_blocks(child, chain) {
                 Some(blocks) => {
                     for (elem, _) in blocks {
                         if let Some(pair) = by_id.get(&elem.id) {
@@ -292,7 +307,7 @@ fn ordered_blocks(
                     | Content::Link(..)
                     | Content::Equation(..)
                     | Content::MathSequence(..)
-                    | Content::MathIdent(..)
+                    | Content::Symbol(..) | Content::MathIdent(..)
                     | Content::MathText(..)
                     | Content::MathFrac(..)
                     | Content::MathAttach(..)
@@ -412,7 +427,7 @@ fn ordered_blocks(
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
-            | Content::MathIdent(..)
+            | Content::Symbol(..) | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
             | Content::MathAttach(..)
@@ -660,6 +675,7 @@ impl<'a> Session<'a> {
                             | Content::Link(..)
                             | Content::Equation(..)
                             | Content::MathSequence(..)
+                            | Content::Symbol(..)
                             | Content::MathIdent(..)
                             | Content::MathText(..)
                             | Content::MathFrac(..)
@@ -780,6 +796,7 @@ impl<'a> Session<'a> {
                     | Content::Link(..)
                     | Content::Equation(..)
                     | Content::MathSequence(..)
+                    | Content::Symbol(..)
                     | Content::MathIdent(..)
                     | Content::MathText(..)
                     | Content::MathFrac(..)
@@ -895,6 +912,9 @@ impl<'a> Session<'a> {
             .and_then(|id| id.checked_add(1))
             .unwrap_or(0);
         let mut session = Self {
+            running: page_running::RunningState::default(),
+            running_enabled: false,
+            next_execution_version: 0,
             occurrences: None,
             world,
             source,
@@ -911,6 +931,8 @@ impl<'a> Session<'a> {
             impossible,
             bundle_html_targets: None,
             bundle_candidate: None,
+            bundle_physical_documents: None,
+            bundle_physical_starts: None,
         };
         for (elem, chain) in blocks {
             let index = session.add(elem, chain, None);
@@ -968,7 +990,7 @@ impl<'a> Session<'a> {
         // Discovery and never-selected producers retain EvalContext::new's
         // legacy options. HTML is a distinct causal target: its closures must
         // retain the feature set selected by the compile invocation.
-        if node.selected || node.target == EvalTarget::Html {
+        if node.selected || node.target == EvalTarget::Html || self.running_enabled {
             ctx.features = self.features;
             ctx.full_error = self.full_error;
         }
@@ -1042,7 +1064,9 @@ impl<'a> Session<'a> {
         // Replay uses the recorded reads and clones each candidate into a
         // fresh context. This evaluation-only view has no later consumer.
         ctx.introspector = TagIntrospector::empty();
+        self.next_execution_version += 1;
         let execution = Box::new(Execution {
+            version: self.next_execution_version,
             ctx,
             input: Arc::clone(input),
             result,
@@ -1118,6 +1142,9 @@ impl<'a> Session<'a> {
         for &root in &self.roots {
             self.order_into(root, &mut order);
         }
+        for root in self.running_roots() {
+            self.order_into(root, &mut order);
+        }
         order
     }
 
@@ -1136,6 +1163,7 @@ impl<'a> Session<'a> {
             .into_iter()
             .filter_map(|i| self.nodes[i].current.as_ref())
             .flat_map(|e| e.sink.clone().into_diagnostics())
+            .chain(self.running_warnings())
             .collect()
     }
 
@@ -1158,13 +1186,24 @@ impl<'a> Session<'a> {
     fn realize(&mut self, index: usize, input: &Arc<TagIntrospector>) {
         if self.nodes[index].invalid {
             self.discard_descendants(index);
-            // Locations come from the real provisional tree, never the local id.
-            let topology = introspect_with_introspector(&self.content());
-            let Some(location) = topology
-                .context_block_locations
-                .get(&self.nodes[index].elem.id)
-                .copied()
-            else {
+            // A retained paginated producer consumes the actual physical
+            // input occurrence. A newly discovered producer still obtains its
+            // Location from the real provisional source topology.
+            let retained_location = if self.running_enabled
+                && self.nodes[index].target == EvalTarget::Paged
+                && self.nodes[index].current.is_some()
+            {
+                input.context_block_locations.get(&self.nodes[index].elem.id).copied()
+            } else {
+                None
+            };
+            let location = retained_location.or_else(|| {
+                introspect_with_introspector(&self.running_topology())
+                    .context_block_locations
+                    .get(&self.nodes[index].elem.id)
+                    .copied()
+            });
+            let Some(location) = location else {
                 self.impossible = true;
                 return;
             };
@@ -1245,6 +1284,29 @@ impl<'a> Session<'a> {
         run(&execution.ctx, &mut engine)
     }
 
+    // Eligibility is latched only from a reached source contribution and the
+    // actual paginated target. It never executes a dormant producer.
+    fn select_repeat_physical_channel(&mut self, content: &Content, paged_module: bool) {
+        if self.running_enabled || self.target != EvalTarget::Paged {
+            return;
+        }
+        self.running_enabled = if let Some(targets) = &self.bundle_html_targets {
+            if let Content::Sequence(parts) = content {
+                if parts.len() != targets.len() {
+                    return;
+                }
+                parts
+                    .iter()
+                    .zip(targets)
+                    .any(|(part, html)| !html && page_running::has_reached_repeat(part))
+            } else {
+                false
+            }
+        } else {
+            paged_module && page_running::has_reached_repeat(content)
+        };
+    }
+
     fn stabilize(
         &mut self,
         module: Option<&Module>,
@@ -1275,28 +1337,48 @@ impl<'a> Session<'a> {
                 }
             }
             let content = self.content();
-            let (runtime, mut phase_warnings) =
-                if let Some(html_targets) = self.bundle_html_targets.as_deref() {
-                    let Content::Sequence(parts) = &content else {
-                        return (terminal(self.source, Vec::new()), self.warnings());
-                    };
-                    let (result, warnings) = introspect_bundle_with_runtime_for_pipeline(
-                        parts.as_ref(),
-                        html_targets,
-                        self.features,
-                        self.world,
-                        self.source,
-                    );
-                    (result.map(|(intr, _starts)| intr), warnings)
-                } else {
-                    super::paged::introspect_with_runtime_for_target(
-                        &content,
-                        self.world,
-                        self.source,
-                        self.target,
-                        self.features,
-                    )
+            self.select_repeat_physical_channel(&content, module.is_some());
+            let physical = if self.running_enabled {
+                match self.physical_candidate(&content, input) {
+                    Ok(candidate) => Some(candidate),
+                    Err(errors) => return (self.fail(errors), self.warnings()),
+                }
+            } else {
+                None
+            };
+            // A completed no-request body owns the same read validation as
+            // Pending running discovery. Select its retained transactions;
+            // their recorded reads decide whether another execution is needed.
+            if physical.is_some() {
+                for node in &mut self.nodes {
+                    if node.active {
+                        node.selected = true;
+                    }
+                }
+            }
+            let (runtime, mut phase_warnings) = if let Some(candidate) = &physical {
+                (Ok(candidate.index.clone()), candidate.warnings.clone())
+            } else if let Some(html_targets) = self.bundle_html_targets.as_deref() {
+                let Content::Sequence(parts) = &content else {
+                    return (terminal(self.source, Vec::new()), self.warnings());
                 };
+                let (result, warnings) = introspect_bundle_with_runtime_for_pipeline(
+                    parts.as_ref(),
+                    html_targets,
+                    self.features,
+                    self.world,
+                    self.source,
+                );
+                (result.map(|(intr, _starts)| intr), warnings)
+            } else {
+                super::paged::introspect_with_runtime_for_target(
+                    &content,
+                    self.world,
+                    self.source,
+                    self.target,
+                    self.features,
+                )
+            };
             let mut candidate = match runtime {
                 Ok(intr) => intr,
                 Err(error) => {
@@ -1308,7 +1390,9 @@ impl<'a> Session<'a> {
                     );
                 }
             };
-            if let Some(html_targets) = &self.bundle_html_targets {
+            if let Some(html_targets) =
+                self.bundle_html_targets.as_ref().filter(|_| !self.running_enabled)
+            {
                 let page_warnings = match bundle_page_views(
                     &content,
                     html_targets,
@@ -1316,6 +1400,7 @@ impl<'a> Session<'a> {
                     input,
                     self.world,
                     self.source,
+                    None,
                 ) {
                     Ok(warnings) => warnings,
                     Err(errors) => return (self.fail(errors), self.warnings()),
@@ -1358,14 +1443,21 @@ impl<'a> Session<'a> {
                 }
             }
 
+            let physical_incomplete =
+                physical.as_ref().is_some_and(|candidate| !candidate.complete);
             let mut document = None;
             if let Some(module) = module {
                 for (key, style) in module.bibliography_styles() {
                     candidate.bib_store.add_style(*key, style.clone());
                 }
-                candidate.inject_positions(input.positions.clone());
-                candidate.inject_pages(input.page_store.clone());
-                let (doc, callback_warnings) =
+                if physical.is_none() {
+                    candidate.inject_positions(input.positions.clone());
+                    candidate.inject_pages(input.page_store.clone());
+                }
+                let physical_positions = physical.is_some();
+                let (doc, callback_warnings) = if let Some(candidate) = physical {
+                    (candidate.document, Vec::new())
+                } else {
                     match super::paged::layout_with_realized_math_callbacks_with_metrics(
                         &content,
                         candidate.clone(),
@@ -1373,54 +1465,61 @@ impl<'a> Session<'a> {
                         self.source,
                         &self.metrics,
                     ) {
+                        Ok((doc, warnings)) => (Some(doc), warnings),
+                        Err(errors) => return (self.fail(errors), self.warnings()),
+                    }
+                };
+                phase_warnings.extend(callback_warnings);
+                if let Some(doc) = doc {
+                    if !physical_positions {
+                        candidate.inject_positions(doc.extracted_positions.clone());
+                    }
+                    let (snapshot, page_warnings) = realize_page_snapshot_for_pipeline(
+                        &[(Vec::new(), std::num::NonZeroUsize::new(doc.pages.len()))],
+                        &mut candidate,
+                        self.world,
+                        self.source,
+                    );
+                    if let Err(errors) = snapshot {
+                        return (self.fail(errors), self.warnings());
+                    }
+                    phase_warnings.extend(page_warnings);
+                    let logical_numbers = (1..=doc.pages.len())
+                        .map(|p| {
+                            candidate
+                                .page_store
+                                .logical_number_for_page(
+                                    std::num::NonZeroUsize::new(p).unwrap(),
+                                )
+                                .unwrap_or(p)
+                        })
+                        .collect::<Vec<_>>();
+                    let logical_final = candidate
+                        .page_counter_final_values
+                        .values()
+                        .next()
+                        .and_then(|v| v.first())
+                        .copied()
+                        .unwrap_or(0);
+                    let references = page_reference_pages(&content, &doc);
+                    let (pages, numbering_warnings) = match realize_page_numberings(
+                        self.world,
+                        self.source,
+                        &doc,
+                        &logical_numbers,
+                        logical_final,
+                        &references,
+                    ) {
                         Ok(pair) => pair,
                         Err(errors) => return (self.fail(errors), self.warnings()),
                     };
-                phase_warnings.extend(callback_warnings);
-                candidate.inject_positions(doc.extracted_positions.clone());
-                let (snapshot, page_warnings) = realize_page_snapshot_for_pipeline(
-                    &[(Vec::new(), std::num::NonZeroUsize::new(doc.pages.len()))],
-                    &mut candidate,
-                    self.world,
-                    self.source,
-                );
-                if let Err(errors) = snapshot {
-                    return (self.fail(errors), self.warnings());
+                    phase_warnings.extend(numbering_warnings);
+                    if !physical_positions {
+                        candidate.inject_positions(doc.extracted_positions.clone());
+                    }
+                    candidate.inject_pages(pages);
+                    document = Some(doc);
                 }
-                phase_warnings.extend(page_warnings);
-                let logical_numbers = (1..=doc.pages.len())
-                    .map(|p| {
-                        candidate
-                            .page_store
-                            .logical_number_for_page(
-                                std::num::NonZeroUsize::new(p).unwrap(),
-                            )
-                            .unwrap_or(p)
-                    })
-                    .collect::<Vec<_>>();
-                let logical_final = candidate
-                    .page_counter_final_values
-                    .values()
-                    .next()
-                    .and_then(|v| v.first())
-                    .copied()
-                    .unwrap_or(0);
-                let references = page_reference_pages(&content, &doc);
-                let (pages, numbering_warnings) = match realize_page_numberings(
-                    self.world,
-                    self.source,
-                    &doc,
-                    &logical_numbers,
-                    logical_final,
-                    &references,
-                ) {
-                    Ok(pair) => pair,
-                    Err(errors) => return (self.fail(errors), self.warnings()),
-                };
-                phase_warnings.extend(numbering_warnings);
-                candidate.inject_positions(doc.extracted_positions.clone());
-                candidate.inject_pages(pages);
-                document = Some(doc);
             }
             if self.target == EvalTarget::Html && self.bundle_html_targets.is_none() {
                 let (snapshot, page_warnings) = realize_page_snapshot_for_pipeline(
@@ -1443,6 +1542,8 @@ impl<'a> Session<'a> {
                 } else {
                     (true, true)
                 };
+            valid &= !physical_incomplete;
+            closed &= !physical_incomplete;
             if html_positions_selected {
                 let html_same = input.html_positions == candidate.html_positions;
                 valid &= html_same;
@@ -1473,6 +1574,15 @@ impl<'a> Session<'a> {
                     }
                 }
             }
+            if self.running_enabled {
+                match self.outline_reads_valid(&candidate) {
+                    Ok((outline_valid, outline_closed)) => {
+                        valid &= outline_valid;
+                        closed &= outline_closed;
+                    }
+                    Err(errors) => return (self.fail(errors), self.warnings()),
+                }
+            }
             history.push(candidate.clone());
             if valid || attempt == 5 {
                 let mut warnings = self.warnings();
@@ -1493,6 +1603,12 @@ impl<'a> Session<'a> {
                                 Ok(found) => details.extend(found),
                                 Err(errors) => return (Err(errors), warnings),
                             }
+                        }
+                    }
+                    if self.running_enabled {
+                        match self.outline_nonconvergence_diagnostics(&history) {
+                            Ok(found) => details.extend(found),
+                            Err(errors) => return (self.fail(errors), self.warnings()),
                         }
                     }
                     if !details.is_empty() {
@@ -1550,7 +1666,11 @@ pub(super) fn prepare<'a>(
         features,
         EvalTarget::Paged,
     );
-    if session.discover() {
+    session.running_enabled =
+        module.is_some() && page_running::has_potential(&session.origin);
+    let selected = session.discover();
+    session.select_repeat_physical_channel(&session.content(), module.is_some());
+    if selected || session.running_enabled {
         if session.impossible {
             (terminal(source, session.errors()), session.warnings())
         } else {
@@ -1675,6 +1795,7 @@ pub(super) fn prepare_html(
 /// Bodies e identidades pertencentes à mesma geração causal validada.
 pub(super) struct PreparedBundle {
     pub(super) bodies: Vec<Content>,
+    pub(super) documents: Option<Vec<Option<PagedDocument>>>,
     pub(super) introspector: TagIntrospector,
     pub(super) document_starts: Vec<typst_core::entities::locator::LocatorSeed>,
 }
@@ -1703,6 +1824,10 @@ pub(super) fn prepare_bundle(
         EvalTarget::Paged,
     );
     session.bundle_html_targets = Some(html_targets.to_vec());
+    session.running_enabled = bodies
+        .iter()
+        .zip(html_targets)
+        .any(|(body, html)| !html && page_running::has_potential(body));
     let mut targets = HashMap::new();
     for (body, &html) in bodies.iter().zip(html_targets) {
         let Some(blocks) = ordered_blocks(body, &StyleChain::default_chain()) else {
@@ -1727,13 +1852,14 @@ pub(super) fn prepare_bundle(
         return (terminal(source, session.errors()), session.warnings());
     }
     session.discover();
+    session.select_repeat_physical_channel(&session.content(), false);
     if session.impossible {
         return (terminal(source, session.errors()), session.warnings());
     }
     // Um produtor posterior pode criar um elemento visto por query anterior,
     // mesmo sem filtered-counter read. No bundle, todo produtor participa
     // do mesmo fixpoint global.
-    let selected = !session.roots.is_empty();
+    let selected = !session.roots.is_empty() || session.running_enabled;
     if selected {
         for node in &mut session.nodes {
             node.selected = true;
@@ -1759,51 +1885,66 @@ pub(super) fn prepare_bundle(
         Content::Sequence(parts) if parts.len() == bodies.len() => parts.to_vec(),
         _ => return (terminal(source, Vec::new()), warnings),
     };
-    let (pure, starts) =
-        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
+    let (runtime, starts) = if session.running_enabled {
+        let Some(runtime) = session.bundle_candidate.take() else {
+            return (terminal(source, Vec::new()), warnings);
+        };
+        let Some(starts) = session.bundle_physical_starts.take() else {
+            return (terminal(source, Vec::new()), warnings);
+        };
+        if session.bundle_physical_documents.is_none() {
+            return (terminal(source, Vec::new()), warnings);
+        }
+        (runtime, starts)
+    } else {
+        let (pure, starts) =
+            typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
+                &raw_bodies,
+            );
+        let (runtime, runtime_warnings) = introspect_bundle_with_runtime_for_pipeline(
             &raw_bodies,
-        );
-    let (runtime, runtime_warnings) = introspect_bundle_with_runtime_for_pipeline(
-        &raw_bodies,
-        html_targets,
-        features,
-        world,
-        source,
-    );
-    if !selected {
-        warnings.extend(runtime_warnings);
-    }
-    let (runtime, runtime_starts) = match runtime {
-        Ok(pair) => pair,
-        Err(errors) => return (Err(errors), warnings),
-    };
-    let same_locations = runtime_starts == starts
-        && pure.elements.keys().collect::<HashSet<_>>()
-            == runtime.elements.keys().collect::<HashSet<_>>()
-        && pure.context_block_locations == runtime.context_block_locations
-        && pure.kind_index == runtime.kind_index
-        && pure.parent_locations == runtime.parent_locations;
-    if !same_locations {
-        return (terminal(source, Vec::new()), warnings);
-    }
-    let mut runtime = session.bundle_candidate.take().unwrap_or(runtime);
-    if !selected {
-        // P1486: sem produtores contextuais, a Session não entrou em
-        // stabilize(). O PDF ainda precisa do PageStore final para os
-        // rótulos, e os bodies HTML não devem consumir páginas.
-        let content = Content::Sequence(raw_bodies.clone().into());
-        match bundle_page_views(
-            &content,
             html_targets,
-            &mut runtime,
-            &TagIntrospector::empty(),
+            features,
             world,
             source,
-        ) {
-            Ok(page_warnings) => warnings.extend(page_warnings),
-            Err(errors) => return (Err(errors), warnings),
+        );
+        if !selected {
+            warnings.extend(runtime_warnings);
         }
-    }
+        let (runtime, runtime_starts) = match runtime {
+            Ok(pair) => pair,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        let same_locations = runtime_starts == starts
+            && pure.elements.keys().collect::<HashSet<_>>()
+                == runtime.elements.keys().collect::<HashSet<_>>()
+            && pure.context_block_locations == runtime.context_block_locations
+            && pure.kind_index == runtime.kind_index
+            && pure.parent_locations == runtime.parent_locations;
+        if !same_locations {
+            return (terminal(source, Vec::new()), warnings);
+        }
+        let mut runtime = session.bundle_candidate.take().unwrap_or(runtime);
+        if !selected {
+            // P1486: sem produtores contextuais, a Session não entrou em
+            // stabilize(). O PDF ainda precisa do PageStore final para os
+            // rótulos, e os bodies HTML não devem consumir páginas.
+            let content = Content::Sequence(raw_bodies.clone().into());
+            match bundle_page_views(
+                &content,
+                html_targets,
+                &mut runtime,
+                &TagIntrospector::empty(),
+                world,
+                source,
+                None,
+            ) {
+                Ok(page_warnings) => warnings.extend(page_warnings),
+                Err(errors) => return (Err(errors), warnings),
+            }
+        }
+        (runtime, starts)
+    };
     let executed_html: Vec<_> = session
         .nodes
         .iter()
@@ -1826,6 +1967,7 @@ pub(super) fn prepare_bundle(
     (
         Ok(PreparedBundle {
             bodies: final_bodies,
+            documents: session.bundle_physical_documents.take(),
             introspector: runtime,
             document_starts: starts,
         }),
@@ -1841,6 +1983,10 @@ fn bundle_page_views(
     input: &TagIntrospector,
     world: &dyn World,
     source: &Source,
+    supplied: Option<(
+        &[typst_core::entities::locator::LocatorSeed],
+        &[Option<PagedDocument>],
+    )>,
 ) -> SourceResult<Vec<SourceDiagnostic>> {
     use std::num::NonZeroUsize;
     use typst_core::entities::{
@@ -1852,15 +1998,25 @@ fn bundle_page_views(
     if parts.len() != html_targets.len() {
         return terminal(source, Vec::new());
     }
-    let (pure, starts) =
-        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(parts);
-    if pure.elements.keys().collect::<HashSet<_>>()
-        != candidate.elements.keys().collect::<HashSet<_>>()
-        || pure.context_block_locations != candidate.context_block_locations
-        || pure.kind_index != candidate.kind_index
-    {
-        return terminal(source, Vec::new());
-    }
+    let starts = if let Some((starts, documents)) = supplied {
+        if starts.len() != parts.len() || documents.len() != parts.len() {
+            return terminal(source, Vec::new());
+        }
+        starts.to_vec()
+    } else {
+        let (pure, starts) =
+            typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
+                parts,
+            );
+        if pure.elements.keys().collect::<HashSet<_>>()
+            != candidate.elements.keys().collect::<HashSet<_>>()
+            || pure.context_block_locations != candidate.context_block_locations
+            || pure.kind_index != candidate.kind_index
+        {
+            return terminal(source, Vec::new());
+        }
+        starts
+    };
     candidate.inject_positions(input.positions.clone());
     candidate.inject_pages(input.page_store.clone());
     let locations = snapshot_locations(candidate);
@@ -1869,20 +2025,29 @@ fn bundle_page_views(
     let mut descriptors = Vec::new();
     let mut warnings = Vec::new();
     let mut offset = 0;
-    for ((body, &html), &start) in parts.iter().zip(html_targets).zip(&starts) {
+    for (index, ((body, &html), &start)) in
+        parts.iter().zip(html_targets).zip(&starts).enumerate()
+    {
         let boundary = typst_core::entities::locator::Locator::from_seed(start).next();
         if html {
             docs.push(None);
             descriptors.push((vec![boundary], None));
             continue;
         }
-        let (doc, found) = layout_with_realized_math_callbacks_from(
-            body,
-            candidate.clone(),
-            world,
-            source,
-            start,
-        )?;
+        let (doc, found) = if let Some((_, documents)) = supplied {
+            let Some(doc) = documents[index].as_ref() else {
+                return terminal(source, Vec::new());
+            };
+            (doc.clone(), Vec::new())
+        } else {
+            layout_with_realized_math_callbacks_from(
+                body,
+                candidate.clone(),
+                world,
+                source,
+                start,
+            )?
+        };
         warnings.extend(found);
         for &loc in &locations {
             if let Some(p) = doc.extracted_positions.position_of(loc) {
@@ -2129,7 +2294,7 @@ mod p1494_tests {
     #[test]
     fn strip_terminal_colapsa_somente_sequencia_so_de_espacos() {
         let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
-        let source = Source::new(id, String::new());
+        let source = Source::new(id, String::new()).expect("valid Source test fixture");
         let spaces = Content::sequence(vec![
             Content::Space,
             Content::SpaceFromNewline,
@@ -2393,7 +2558,8 @@ mod figure_pipeline_transaction_tests {
             source: Source::new(
                 FileId::from_raw(NonZeroU16::new(1).unwrap()),
                 source.to_owned(),
-            ),
+            )
+            .expect("valid Source test fixture"),
         }
     }
     fn paged_warnings(source: &str) -> Vec<SourceDiagnostic> {
@@ -3254,5 +3420,154 @@ mod batch_g_source_root_tests {
         assert!(session.retired.is_empty());
         assert_eq!(session.body(0).plain_text(), "LAST");
         assert_eq!(session.body(2).plain_text(), "EXTRA");
+    }
+}
+
+#[cfg(test)]
+mod repeat_physical_location_proof_tests {
+    use super::*;
+
+    #[test]
+    fn ordinary_repeat_zero_copy_pipeline_execution_matches_physical_location() {
+        let original = r###"#set page(width:240pt,height:auto,margin:8pt)
+#set text(font:"DejaVu Sans",size:11pt)
+#let s=state("acceptance-repeat-source",0)
+#let c=counter("acceptance-repeat-source")
+BEFORE#box(width:80pt,height:16pt)[#repeat([#s.update(n=>n+1)#c.step()X#metadata("source") <acceptance-repeat-source>],gap:-100pt,justify:false)]TAIL
+#context { let p=here().position(); [STATE#s.final() COUNTER#c.final().first() LABELS#query(<acceptance-repeat-source>).len() PAGE#here().page() POSPAGE#p.page POSX#p.x POSY#p.y] }
+"###;
+        for header in [false, true] {
+            let program = if header {
+                original.replacen(
+                    "height:auto,margin:8pt)",
+                    "height:auto,margin:8pt,header:[])",
+                    1,
+                )
+            } else {
+                original.to_owned()
+            };
+            let world =
+                crate::world::SystemWorld::for_stdin(std::env::temp_dir(), program)
+                    .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+                        "<DejaVu Sans actual source proof>".into(),
+                        include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").to_vec(),
+                    )]);
+            let source = world.source(world.main()).unwrap();
+            let features = Features::default();
+            let (module, warnings) = eval_to_module_with_sink_target_features(
+                &world,
+                &source,
+                false,
+                EvalTarget::Paged,
+                features,
+            );
+            assert!(warnings.is_empty(), "{warnings:?}");
+            let module = module.expect("same actual source accepted by eval");
+            let origin = module.content().unwrap().clone();
+            let input = module.realization_introspector().cloned().unwrap_or_else(|| {
+                introspect_with_introspector(
+                    module.introspection_content().unwrap_or(&origin),
+                )
+            });
+            let mut session = Session::new(
+                origin,
+                &input,
+                &world,
+                &source,
+                false,
+                features,
+                EvalTarget::Paged,
+            );
+            session.running_enabled = page_running::has_potential(&session.origin);
+            session.discover();
+            session.select_repeat_physical_channel(&session.content(), true);
+            let (prepared, warnings) = session.stabilize(Some(&module));
+            assert!(warnings.is_empty(), "header={header}: {warnings:?}");
+            let prepared = prepared.expect("actual source physical candidate completes");
+            let (candidate, _, _) =
+                prepared.settled.as_ref().expect("physical channel settled");
+            for index in session.order() {
+                if !session.nodes[index].selected {
+                    continue;
+                }
+                let execution = session.nodes[index].current.as_ref().unwrap();
+                assert_eq!(
+                    candidate.context_block_locations.get(&session.nodes[index].elem.id),
+                    Some(&execution.location),
+                    "successful physical return must retain the same actual Location, header={header}",
+                );
+                assert!(
+                    session
+                        .with_replay_engine(index, |ctx, engine| {
+                            ctx.context_reads_valid_for(&execution.input, engine)
+                        })
+                        .unwrap(),
+                    "actual retained transaction proves reflexivity"
+                );
+                assert!(
+                    session
+                        .with_replay_engine(index, |ctx, engine| {
+                            ctx.context_reads_valid_for(candidate, engine)
+                        })
+                        .unwrap(),
+                    "actual retained transaction proves final observations"
+                );
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod remaining_inline_preparation_observer {
+    use super::*;
+    #[test]
+    fn remaining_inline_local_repeat_prepared_content() {
+        let program = r###"#set page(width:240pt,height:auto,margin:8pt)
+#set text(font:"DejaVu Sans",size:11pt)
+#let s=state("acceptance-repeat-source",0)
+#let c=counter("acceptance-repeat-source")
+BEFORE#box(width:1fr,height:16pt)[#repeat([#s.update(n=>n+1)#c.step()X#metadata("source") <acceptance-repeat-source>],gap:2pt,justify:false)]TAIL
+#context [STATE#s.final() COUNTER#c.final().first() LABELS#query(<acceptance-repeat-source>).len()]
+"###;
+        let world = crate::world::SystemWorld::for_stdin(
+            std::env::temp_dir(),
+            program.to_owned(),
+        )
+        .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+            "<DejaVu Sans local repeat source proof>".into(),
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").to_vec(),
+        )]);
+        let source = world.source(world.main()).unwrap();
+        let features = Features::default();
+        let (module, warnings) = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            features,
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+        let module = module.expect("same source accepted by eval");
+        let origin = module.content().unwrap().clone();
+        let input = module.realization_introspector().cloned().unwrap_or_else(|| {
+            introspect_with_introspector(
+                module.introspection_content().unwrap_or(&origin),
+            )
+        });
+        let (prepared, warnings) =
+            prepare(origin, &input, &world, &source, false, features, Some(&module));
+        assert!(warnings.is_empty(), "{warnings:?}");
+        let prepared = prepared.expect("existing physical preparation completes");
+        let (_, doc, _) = prepared.settled.expect("actual paginated Repeat settled");
+        let plain = doc.plain_text();
+        assert_eq!(
+            plain.matches('X').count(),
+            5,
+            "the oracle's five local visuals must retain source effects once"
+        );
+        let compact = plain.split_whitespace().collect::<String>();
+        assert!(compact.contains("STATE1COUNTER1LABELS1"), "{compact}");
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        assert_eq!(doc.pages.len(), 1);
     }
 }

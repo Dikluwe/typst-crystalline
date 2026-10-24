@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence/inline_prefix.md
-//! @prompt-hash 4768e219
+//! @prompt-hash bd0dc6a3
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -168,6 +168,7 @@ fn scalar_prefix_body(content: &Content) -> Option<&Content> {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -348,6 +349,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
+                | Content::Symbol(..)
                 | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)
@@ -478,6 +480,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
+                | Content::Symbol(..)
                 | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)
@@ -608,6 +611,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
+                | Content::Symbol(..)
                 | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)
@@ -730,6 +734,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)

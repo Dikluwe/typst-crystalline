@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/flow_suffix.md
-//! @prompt-hash a9a56d3a
+//! @prompt-hash b978efe2
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -37,7 +37,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         &mut self,
         content: &crate::entities::content::Content,
     ) {
-        self.flow_suffix_replay.push(content.clone());
+        let planned =
+            self.page_running_pass.as_ref().and_then(|pass| pass.cursor.clone());
+        self.flow_suffix_replay.push((content.clone(), planned));
         self.flow_suffix_dispatch_depth += 1;
         self.layout_content_once(content);
         self.flow_suffix_dispatch_depth -= 1;
@@ -84,8 +86,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.restore_flow_suffix_checkpoint(checkpoint);
         self.new_page();
         self.flow_suffix_dispatch_depth = 1;
-        for occurrence in &replay {
-            self.layout_content_once(occurrence);
+        for (occurrence, planned) in &replay {
+            if let Some(cursor) = planned {
+                self.layout_planned_cursor(cursor.clone(), occurrence, false);
+            } else {
+                self.layout_content_once(occurrence);
+            }
         }
         self.flow_suffix_dispatch_depth = 0;
     }

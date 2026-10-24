@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash b8a97882
+//! @prompt-hash 737b0da2
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -107,6 +107,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                             | Content::Link(..)
                             | Content::Equation(..)
                             | Content::MathSequence(..)
+                            | Content::Symbol(..)
                             | Content::MathIdent(..)
                             | Content::MathText(..)
                             | Content::MathFrac(..)
@@ -435,6 +436,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                             | Content::Link(..)
                             | Content::Equation(..)
                             | Content::MathSequence(..)
+                            | Content::Symbol(..)
                             | Content::MathIdent(..)
                             | Content::MathText(..)
                             | Content::MathFrac(..)
@@ -726,6 +728,7 @@ fn measurement_visual(c: &Content) -> Content {
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)

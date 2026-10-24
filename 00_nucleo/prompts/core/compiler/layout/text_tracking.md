@@ -1,5 +1,5 @@
 # L0 — text_tracking
-Hash do Código: 1b4832d1
+Hash do Código: 56666dcc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
@@ -45,3 +45,28 @@ Preserve causal tests, text/positions/styles/pages/diagnostics from pre-separati
 Require RED→GREEN and bilateral text/position/line controls, preserved uniform tracking and LTR, with restricted resealing. Distinguish repeated scopes, entry/exit, empty scopes, restoration, barrier, clone/checkpoint and wrap. RTL controls cover both directions/signed values; continued-line controls preserve terminals/LTR. All other open limits remain open.
 
 Maintenance follows continuous flow under ADR-0127 without a new public contract/default/compatibility/phase. Run existing functional controls before code and preserve expected outputs; actual V17 RED is 28 warnings, GREEN zero V17. Check success/fallback/error, short-circuit and effects. Revalidate build, full workspace suite, Clippy all-targets with warnings/unfulfilled expectations as errors, formatting, Rustdoc warnings as errors, strict/reverse V1/V5/V15/V26 lineage and SARIF without new warnings, under 12 GiB, zero swap and one job. Do not claim global memory/performance gain or parity without a separate measurement.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+Provide a private State::source_run_boundary only for adjacent validated source ranges within one actual superscript Text producer. Same lexical producer is mandatory; return the preceding resolved script style's signed interval across a generated face/size change, with zero for equal styles (the normal word boundary already owns it), nontext/empty/math/object/different-producer cases. Share the existing exhaustive previous-style projection without changing ordinary State::boundary semantics. This is a source partition, never an arbitrary source/Styled boundary.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

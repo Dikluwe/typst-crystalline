@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash bde0cb01
+//! @prompt-hash 5db5acc4
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -166,6 +166,7 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -371,6 +372,7 @@ pub(super) fn realize_outlines_for_pipeline(
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -491,6 +493,7 @@ pub(super) fn realize_outlines_for_pipeline(
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -619,40 +622,50 @@ fn visit_context_blocks(
         &Arc<typst_core::entities::elements::context_block::ContextBlockElem>,
     ),
 ) {
+    visit_body_context_blocks(&body_context_view(content), visit_root, visit);
+}
+
+fn visit_body_context_blocks(
+    content: &Content,
+    visit_root: bool,
+    visit: &mut impl FnMut(
+        &Arc<typst_core::entities::elements::context_block::ContextBlockElem>,
+    ),
+) {
     match content {
         Content::ContextBlock(elem) => {
             if visit_root {
                 visit(elem);
             }
         }
-        Content::Source(e) => visit_context_blocks(&e.body, visit_root, visit),
-        Content::Located(e) => visit_context_blocks(&e.body, false, visit),
-        Content::Realized(e) => visit_context_blocks(&e.visual, true, visit),
-        Content::ShowRecipe(e) => visit_context_blocks(&e.body, true, visit),
-        Content::Styled(e) => visit_context_blocks(&e.body, true, visit),
+        Content::Source(e) => visit_body_context_blocks(&e.body, visit_root, visit),
+        Content::Located(e) => visit_body_context_blocks(&e.body, false, visit),
+        Content::Realized(e) => visit_body_context_blocks(&e.visual, true, visit),
+        Content::ShowRecipe(e) => visit_body_context_blocks(&e.body, true, visit),
+        Content::Styled(e) => visit_body_context_blocks(&e.body, true, visit),
         Content::Sequence(parts) => {
             for part in parts.iter() {
-                visit_context_blocks(part, true, visit);
+                visit_body_context_blocks(part, true, visit);
             }
         }
         Content::Table(e) => {
             if let Some(resolved) = &e.resolved {
                 for cell in &resolved.cells {
-                    visit_context_blocks(cell, true, visit);
+                    visit_body_context_blocks(cell, true, visit);
                 }
             } else {
                 for child in &e.children {
-                    visit_context_blocks(child, true, visit);
+                    visit_body_context_blocks(child, true, visit);
                 }
                 if let Some(header) = &e.header {
-                    visit_context_blocks(header, true, visit);
+                    visit_body_context_blocks(header, true, visit);
                 }
                 if let Some(footer) = &e.footer {
-                    visit_context_blocks(footer, true, visit);
+                    visit_body_context_blocks(footer, true, visit);
                 }
             }
             if let Some(caption) = &e.caption {
-                visit_context_blocks(caption, true, visit);
+                visit_body_context_blocks(caption, true, visit);
             }
         }
         Content::TableCell(e) => {
@@ -662,7 +675,7 @@ fn visit_context_blocks(
                 .map(|r| &r.visual)
                 .or_else(|| e.resolved.as_ref().map(|r| &r.visual))
                 .unwrap_or(&e.body);
-            visit_context_blocks(visual, true, visit);
+            visit_body_context_blocks(visual, true, visit);
         }
         other => {
             let _ = other.map_content(&mut |node| {
@@ -1252,7 +1265,7 @@ fn layout_with_realized_math_callbacks_from_with_metrics(
     )])
 }
 
-fn realize_par_line_requests(
+pub(super) fn realize_par_line_requests(
     world: &dyn World,
     source: &Source,
     requests: Vec<ParLineCallbackRequest>,
@@ -1303,7 +1316,7 @@ fn realize_par_line_requests(
     Ok((SealedParLineCallbacks::new(resolutions), sink.into_diagnostics()))
 }
 
-fn realize_math_cancel_requests(
+pub(super) fn realize_math_cancel_requests(
     world: &dyn World,
     source: &Source,
     requests: Vec<typst_core::compiler::math::layout::callbacks::MathCancelRequest>,

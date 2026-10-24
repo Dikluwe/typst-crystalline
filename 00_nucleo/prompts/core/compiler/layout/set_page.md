@@ -1,5 +1,8 @@
 # L0 — Page configuration adapter
-Hash do Código: c2f82370
+Hash do Código: 08e87eb6
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/set_page.rs`
@@ -46,3 +49,18 @@ Mid-document real pagination when page columns change remains outside the origin
 For page-level per-column footnotes, construct SetPage(columns:Some(2)), Hello/Nota A/world., colbreak(false), Goodbye/Nota B/moon., transform/evaluate, and check distinct note x positions and y near each column bottom under the established p537_footnotes_columns_colbreak_posicionam_por_coluna criterion. Keep regression controls p537_footnotes_columns_colbreak_posicionam_por_coluna and p220_colbreak_dentro_columns_separa_colunas_reais unchanged. Reject page(columns:0) with exact `columns must be at least 1`; page(columns:-1) errors.
 
 Require clean cargo test --workspace and crystalline-lint, valid @prompt/@prompt-hash lineage in every affected owner and retained report `lab/results/construction/diagnostics/paridade-producao-p537b.md`. Historical tests/report paths and identifiers are provenance, not execution-step organization in the active owner. These acceptance obligations do not close the explicit conflicts or scope exclusions above.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Update private selected-slot source bindings in parallel with actual supplied Header/Footer/Background/Foreground deltas. A changed configuration commits preceding material using the previous bindings before installing the new bindings. Clearing/Auto/None replaces the slot without admitting its earlier template; repeated inherited physical insertions obtain separate requests. Preserve actual page-effective ambient frontier provenance rather than creation-time styles. Do not alter the existing columns-only transition or baseline escrow conflicts. No PageConfig/entity public field is added.
+
+### Acceptance and preserved boundaries
+
+Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.

@@ -1,5 +1,5 @@
 # L0 — infra/export/mod
-Hash do Código: c092762c
+Hash do Código: 5b56b32b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -144,3 +144,26 @@ mod.rs:201,224 and `lab/results/construction/diagnostics/clippy-locais-2026-10-1
 ## Owned test module declarations
 
 This facade declares separately owned line_cap_tests and delegates its test bodies; no ownership absorption.
+
+## Structured PDF export warnings
+
+The approved contract in
+`lab/results/pdf-export-warning-carrier-2026-10-23/review.md` replaces implicit
+stderr publication in PDF export with a public invocation-local carrier:
+`PdfExport<T> { output: T, warnings: Vec<SourceDiagnostic> }`. The carrier is
+`#[must_use]`, derives `Debug` and `Clone`, and exposes both fields. All 34 public
+PDF facades keep their names, parameters, order and meanings; the 20 byte-only
+returns become `PdfExport<Vec<u8>>` and the 14 timed returns become
+`PdfExport<(Vec<u8>, f64)>`. No legacy facade may discard warnings or retain a
+global stderr side effect.
+
+Convenience, font, multifont, timing and oracle facades preserve warning order
+and exact output/timing values. This approved source-compatibility break changes
+no format default, phase, validation, page selection, tagging, serialization,
+standard, font binding or PDF bytes. Direct callers receive detached L1 warning
+diagnostics and decide how to present them.
+
+Only under `cfg(test)`, derive equality and dereference the carrier to its output
+so the preexisting byte-focused unit corpus remains readable; equality includes
+the warning vector. These conveniences are absent from the production API and
+must not be used by productive callers to bypass warning handling.

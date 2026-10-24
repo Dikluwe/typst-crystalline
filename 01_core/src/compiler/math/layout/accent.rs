@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/accent.md
-//! @prompt-hash 1b5ec9f9
+//! @prompt-hash 82027f24
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -151,6 +151,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -274,6 +275,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -498,6 +500,7 @@ fn accent_identity_items(
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -729,6 +732,7 @@ fn dotless_base(content: &Content) -> Content {
 
     let transformed = match content.source_body() {
         Content::MathText(text) => Content::MathText(map_text(text)),
+        Content::Symbol(text) => Content::Symbol(map_text(text)),
         Content::MathIdent(text) => Content::MathIdent(map_text(text)),
         Content::MathSequence(items) => Content::MathSequence(Arc::from(
             items.iter().map(dotless_base).collect::<Vec<_>>(),

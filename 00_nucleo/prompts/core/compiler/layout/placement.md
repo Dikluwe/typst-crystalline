@@ -1,11 +1,12 @@
 # L0 — placement
-Hash do Código: 6ac30df8
+Hash do Código: 5d265148
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:4a93d5c55bf975b506b6f02ae484a91fdf7449716f9248dea2fcaa6b7b0738b6
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -72,3 +73,103 @@ Transient Grid placement reconstruction copies source_order exactly. Preserve ce
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Source-owned physical page child transport
+
+### Measurement and approved scope
+
+At the implementation baseline, `placement.rs:96–160 and :428–476` selects the
+actual body/subframe or deferred-body operation. Exact source/L0 texts, full
+SHA-256, UTC, HEAD and working-tree state before this amendment are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/child-adapters/before.json`.
+The approved review SHA-256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+and human `approval.json` under the implementation evidence ratify this finite
+physical-page source-routing phase. Existing geometry is preservation, not a new
+claim of upstream intent, global page parity or completed historical proposals.
+
+### Exclusive routing contract
+
+Actual Align and nonfloating Place bodies choose AlignBody and PlaceBody respectively and use the existing geometric planned-subframe adapter. Preserve all finite/Auto region choice, certified horizontal flow alignment, affine offsets, translations, fixup paths, style and cursor restoration. Neither a generated wrapper nor a measurement may borrow that source edge.
+
+Use private parent-descendant protocol helpers with explicit typed source edges;
+no new public API, entity field/variant, generic mapper, callback execution,
+source re-evaluation, result cache or layout-from-Frame semantic reconstruction.
+Retain legacy behavior when the planned cursor is absent. Actual source packets,
+source parentage and physical placement remain distinct; measurement cannot
+publish actions, consume transcripts or leak tentative diagnostics. Preserve
+existing current styles, original/visual identity, per-store position sealing and
+all stated geometry/effect/error limits. In particular, deferred footnote/float
+causality versus later physical placement requires source-bound language controls;
+this routing amendment does not declare that universal paint order is semantics.
+
+Require actual nested source Context/Figure/label/counter cases, repeated pages,
+no-paint children, wrong-edge/foreign cursor rejection, measurement inertness,
+retained/deferred/rollback and existing geometry/baseline/clip/float/note tests.
+No old assertion, fixture, diagnostic or explicit pending limitation is weakened.
+L0-first source-current RED→GREEN, scoped lineage/graph/seals and full established
+gates remain mandatory before completion.
+
+
+## Full-region Repeat horizontal alignment (2026-10-21)
+
+Measurement before decision: `lab/results/nested-fractions-repeat-2026-10-21/repeat-before/measurement.json.gz`
+preserves exact source, font, oracle and product bytes, HEAD/uncommitted stat and
+UTC for `fixed-align-right`. The existing scalar Repeat path matches that
+control's residual horizontal offset. Pinned `typst-layout/src/repeat.rs:43–58`
+applies inherited alignment to the repeat remainder. `placement.rs:75–92,120–124`
+currently grants a lexical override only to a single Grid/Table frame; the new
+full-region Repeat needs the same private flow alignment handoff to preserve
+the measured language result. Envelope-only shifting of a full-width frame
+cannot position its internal remainder. This is geometry, not a new phase/API.
+
+The private full-flow certificate admits exactly one Repeat as well as the
+existing Grid/Table, transparently through Source/Styled/Located/Realized and
+single-child Sequence. Keep finite width and absent/Top vertical restrictions
+and every other refusal. Install/restore the existing lexical horizontal override
+so Repeat owns its residual and the outer full-width envelope receives no second
+X translation. Preserve source AlignBody routing, actual height, styles, all
+other alignment/Place formulas and prior tests/tolerances. Require meaningful
+RED→GREEN for actual repeated glyph positions under external right alignment,
+plus the immutable bilateral right/center/justify controls and full validation.
+This is ADR-0127 continuous internal parity correction without public contracts,
+new modes, compatibility or eval/realize/layout phase changes.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+Preserve the optional resolved decoration association in existing coordinate translations; independently completed subframes return resolved tokens, so outer scopes cannot reuse child line identities. Alignment formulas and public contracts stay unchanged.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+## Source-owned textual Align override (2026-10-22)
+
+Before this correction, `lab/results/remaining-parity-2026-10-22/agents/repeat/source-align-regression-before.json` preserves sources/owners, UTC, exact dirty tree and immutable measurement hashes. The real candidate-2 build `feb025296531c92350e29bff032f655cc2fa47542cf8ab4aca0e239108bc4e8f` and its `qualification/repeat-8-matrix.json` observe explicit-child-left X at65.307373047pt versus oracle56.575195313pt; the same control was GREEN in `repeat-refuters-before/measurement.json.gz`. The excess8.732177734pt equals centering the actual7.535644532pt glyph in its25pt child. `placement.rs:22–70` rejects a Source wrapper in the textual classifier; `:121–159` consequently leaves the inherited center installed during the explicitly left-aligned actual body. The independently retained Repeat alignment exposes this previously masked Source-certificate gap. This is language placement, not a requirement for upstream private frame structure. A Source-versus-bare declared-metric contrast must refute or confirm the cause before implementation.
+
+For this owner's actual Align admission only, treat an existing Source wrapper as transparent when its entire body passes the existing closed textual classifier, recursively through already admitted textual envelopes. Preserve the original actual body, span, source cursor and dispatch; do not unwrap/reconstruct emitted Content or execute anything during classification. Unknown/effectful/geometric bodies still fail the positive textual proof. Keep finite width and absent/Top vertical restrictions, explicit per-axis resolution/restoration, and all original geometry calculations. The existing `text_alignment_body` caller in Auto RTL Block retains its prior Source refusal: a private classifier choice avoids widening that separate certificate. No public API, new producer/mode/default, or phase is added; this supersedes only the textual Align Source gap, leaving the Place-only gap open.
+
+Require actual layout controls for inherited center around Repeat of a25pt fixed Box: explicit child Left with bare10pt text stays GREEN, while the same Source-wrapped text must first demonstrate the RED and then reach the same expected residual-only x37.5pt in an80pt region at origin10pt. Retain the immutable eight-source bilateral matrix, earlier six piece/source-anchor regressions, source metadata/effects, Block caller controls, all tests and forward/reverse lineage. No fixture/tolerance/alert relaxation.

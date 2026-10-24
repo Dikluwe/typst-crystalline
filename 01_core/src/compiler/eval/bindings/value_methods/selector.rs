@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md
-//! @prompt-hash af81893d
+//! @prompt-hash ba034437
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -462,7 +462,8 @@ mod batch_c_selector_tests {
         let world = MemoryWorld {
             library: crate::entities::world_types::Library::new(),
             book: crate::entities::font_book::FontBook::new(),
-            source: crate::entities::source::Source::new(id, text.into()),
+            source: crate::entities::source::Source::new(id, text.into())
+                .expect("valid Source test fixture"),
         };
         crate::compiler::eval::tests::eval_for_test(&world, &world.source)
     }

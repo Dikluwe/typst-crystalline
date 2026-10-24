@@ -1,5 +1,5 @@
 # L0 — wiring/eval
-Hash do Código: bb87fdb0
+Hash do Código: 70f3bb17
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/eval.rs`
@@ -72,3 +72,53 @@ name remains `<stdin>` and the physical import/read base remains cwd. Acquisitio
 failure exits 2; do not guess another root. Preserve exclusive ownership; the code
 hash follows materialization. Source identity/presentation controls and existing
 eval diagnostics remain the acceptance boundary.
+
+
+## Approved diagnostic resource failure composition — approved 2026-10-22
+
+Integrate the diagnostics owner's private fallible resource preparation before
+successful serialization/stdout. Preserve original expression/physical/primary
+identities, all original errors and warnings, source acquisition and ordering.
+Diagnostic-path failure is operational exit 2, retaining original diagnostics
+and reporting the real acquisition error without successful stdout. Healthy
+semantics, warnings, serialization and statuses stay identical. No new public
+signature, flag, source identity or evaluation phase is introduced.
+
+
+Approval of this exact metadata correction is retained in `lab/results/world-metadata-errors-2026-10-22/approval.json`, review SHA-256 `31d632a54d40ca7df4139081c5297af774970a93b08cd605986b53e75e0ccc62`. The approved clauses supersede prior infallible signature/return preservation only for the two public APIs and the described private composition interfaces.
+
+Replace the preloaded-stdin Source expect with the existing source-acquisition Result/exit2 handling; construction failures are not assumed impossible. This is the already specified Source failure channel, not a new public signature.
+
+
+## Checked stderr composition — authorized 2026-10-22
+
+### Measured evidence
+
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/baseline.json` (SHA-256
+`9c6da7587761dd242cddf07abcf512169ad45d4bde63e3040dc1577e02e67b15`)
+retains exact HEAD, uncommitted source/archive, UTC, dirty stat and binary identity.
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/before/receipt.json` (SHA-256
+`e49aa4458f4cb413995af35f8297ecf4fcafd20141cbdab41067fc7ed5b3895c`)
+retains the real failed-sink and healthy controls before this correction. The
+source map is `lab/results/stderr-watch-errors-2026-10-22/agents/stderr/audit.md`.
+These observations precede the narrowly owned correction below; a panic is not
+required behavior or evidence of upstream intent.
+
+### Owned correction and acceptance
+
+Change only private run_eval composition to `io::Result<ExitCode>`. Send each
+existing input, original error/warning, metadata and serialization/output error
+text through the diagnostics owner's checked writer and propagate actual stderr
+write/flush errors with `?`. Preserve error-before-warning order, warning-before-
+serialization/stdout order and ordinary exits, identities and feature dispatch.
+Empty original diagnostic text does not touch stderr. Failure to emit before
+stdout prevents that later stdout operation. Do not alter serialization, source
+acquisition or diagnostic resource semantics.
+
+The existing pinned CLI-observables Nucleus governs shared output/exit obligations;
+this owner does not redefine it. The user's explicit request authorizes replacing
+stderr panic with exceptional operational exit 2. This changes private composition
+only, without public signature/flag/default mode or eval/layout phase change
+(ADR-0127). Retain healthy message bytes/order and all existing alerts/contracts.
+Require measured RED→GREEN, healthy parity, tests, hashes and direct/reverse lineage;
+no suppression or weakened assertion is authorized.

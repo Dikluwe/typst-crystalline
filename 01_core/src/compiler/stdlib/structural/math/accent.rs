@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/accent.md
-//! @prompt-hash be214cbd
+//! @prompt-hash fcb13bb7
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -59,16 +59,7 @@ pub(crate) fn normalize_math_accent(value: &str) -> Option<char> {
 }
 
 fn math_accent_base(value: &Value, span: Span) -> SourceResult<Content> {
-    match value {
-        Value::Content(content) => Ok(content.clone()),
-        Value::LocatedContent(content, _) => Ok(content.content().clone()),
-        Value::Str(text) => Ok(Content::text(text.as_str())),
-        Value::None => Ok(Content::Empty),
-        other => Err(vec![SourceDiagnostic::error(
-            span,
-            format!("expected content, found {}", vanilla_type_name_class(other)),
-        )]),
-    }
+    super::casts::math_lr_content_value(value, span)
 }
 
 fn math_accent_char(value: &Value, span: Span) -> SourceResult<char> {
@@ -81,10 +72,14 @@ fn math_accent_char(value: &Value, span: Span) -> SourceResult<char> {
                 vec![SourceDiagnostic::error(span, "expected exactly one character")]
             })
         }
-        Value::Content(Content::MathText(text)) => normalize_math_accent(text.as_str())
-            .ok_or_else(|| {
+        Value::Content(Content::MathText(text) | Content::Symbol(text)) => {
+            normalize_math_accent(text.as_str()).ok_or_else(|| {
                 vec![SourceDiagnostic::error(span, "expected a single-codepoint symbol")]
-            }),
+            })
+        }
+        Value::Content(content @ Content::Source(_)) => {
+            math_accent_char(&Value::Content(content.source_body().clone()), span)
+        }
         _ => {
             Err(vec![SourceDiagnostic::error(span, "expected a single-codepoint symbol")])
         }
@@ -193,5 +188,33 @@ mod tests {
     fn alias_e_combining_direto_conservam_o_mesmo_acento() {
         assert_eq!(normalize_math_accent("^"), Some('\u{0302}'));
         assert_eq!(normalize_math_accent("\u{0302}"), Some('\u{0302}'));
+    }
+
+    #[test]
+    fn r4_qualified_accent_accepts_native_content_symbol() {
+        use super::*;
+        use crate::entities::content::SourceContent;
+        let symbol = Content::Symbol("^".into());
+        for content in [
+            symbol.clone(),
+            Content::Source(std::sync::Arc::new(SourceContent {
+                body: symbol,
+                span: Span::detached(),
+            })),
+        ] {
+            assert_eq!(
+                math_accent_char(&Value::Content(content), Span::detached()).unwrap(),
+                '\u{0302}'
+            );
+        }
+        assert!(math_accent_char(
+            &Value::Content(Content::Symbol("ab".into())),
+            Span::detached()
+        )
+        .is_err());
+        assert_eq!(
+            math_accent_char(&Value::Str("^".into()), Span::detached()).unwrap(),
+            '\u{0302}'
+        );
     }
 }

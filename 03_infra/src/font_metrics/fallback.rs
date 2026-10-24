@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/fallback.md
-//! @prompt-hash c1344196
+//! @prompt-hash efe9f9c2
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-24
 
 use super::basic::{edge_offset_pt, typo_metrics};
 use super::math::{
@@ -43,7 +43,118 @@ fn face_kerning(
 }
 
 impl FontMetrics for FallbackFontMetrics<'_> {
+    fn text_superscript_runs(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> Vec<(std::ops::Range<usize>, TextStyle, Pt)> {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary(style);
+        let mut ranges =
+            Vec::<(std::ops::Range<usize>, super::resolution::FontCandidate)>::new();
+        for (start, c) in text.char_indices() {
+            let previous = ranges.last().map(|(_, candidate)| *candidate);
+            let candidate = if c.is_control() || c.is_whitespace() {
+                previous.or_else(|| primary.first().copied())
+            } else {
+                let covering = if style.math {
+                    self.covering(c, &primary, &variant)
+                } else {
+                    self.covering_text(c, &primary, &variant)
+                };
+                covering.or(previous)
+            };
+            let Some(candidate) = candidate else { return Vec::new() };
+            if let Some((range, last)) = ranges.last_mut() {
+                if last.slot_idx == candidate.slot_idx {
+                    range.end = start + c.len_utf8();
+                    continue;
+                }
+            }
+            ranges.push((start..start + c.len_utf8(), candidate));
+        }
+        if text.is_empty() {
+            let Some(candidate) = primary.first() else { return Vec::new() };
+            ranges.push((0..0, *candidate));
+        }
+        let mut result = Vec::with_capacity(ranges.len());
+        for (index, (range, candidate)) in ranges.into_iter().enumerate() {
+            let Some(cached) = self.cached_face(candidate.slot_idx) else {
+                return Vec::new();
+            };
+            let mut face = cached.face().clone();
+            for variation in axis_variations_for_text_style(style) {
+                face.set_variation(variation.tag, variation.value);
+            }
+            let causal = if index == 0 { text } else { &text[range.clone()] };
+            let (mut actual, x) =
+                super::basic::resolved_superscript_style(&face, causal, size, style);
+            let Some(info) = self.world.book().infos().get(candidate.slot_idx) else {
+                return Vec::new();
+            };
+            actual.font = Some(typst_core::entities::font_list::FontList::single(
+                info.family.clone().into(),
+            ));
+            result.push((range, actual, x));
+        }
+        result
+    }
+
+    fn text_superscript_metrics(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt, Pt, bool) {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary(style);
+        let candidate = text
+            .chars()
+            .find(|c| !c.is_control() && !c.is_whitespace())
+            .and_then(|c| self.covering(c, &primary, &variant))
+            .or_else(|| primary.first().copied());
+        if let Some(cached) = candidate.and_then(|c| self.cached_face(c.slot_idx)) {
+            let mut face = cached.face().clone();
+            for variation in axis_variations_for_text_style(style) {
+                face.set_variation(variation.tag, variation.value);
+            }
+            return super::basic::superscript_in_face(&face, text, size);
+        }
+        (size * 0.6, Pt(0.0), size * -0.5, false)
+    }
+
+    fn underline_metrics(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let candidate = text
+            .chars()
+            .find(|c| !c.is_control() && !c.is_whitespace())
+            .and_then(|c| self.covering(c, &primary, &variant))
+            .or_else(|| primary.first().copied());
+        if let Some(cached) =
+            candidate.and_then(|candidate| self.cached_face(candidate.slot_idx))
+        {
+            let mut face = cached.face().clone();
+            for variation in axis_variations_for_text_style(style) {
+                face.set_variation(variation.tag, variation.value);
+            }
+            return super::basic::underline_in_face(&face, size);
+        }
+        (size * 0.2, size * 0.06)
+    }
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        if style.superscript
+            && style.superscript_native != Some(false)
+            && !style.subscript
+            && self.text_superscript_metrics(text, size, style).3
+        {
+            let actual = TextStyle { size, ..style.clone() };
+            if let Some(width) = self.advance_shaped(text, size, &actual) {
+                return width;
+            }
+        }
+
         // **P677** — cache de `advance` por (texto, estilo). Evita re-medir
         // palavras e espaços repetidos no layout de documentos extensos.
         self.cached_advance_width(text, size, style, || {
@@ -83,8 +194,12 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let mut prev: Option<(usize, u16)> = None;
             let mut last_base: Option<(usize, u16)> = None;
 
-            for c in text.chars() {
-                let cand = self.covering(c, &primary, &variant);
+            for c in text.chars().filter(|c| !is_variation_selector(*c)) {
+                let cand = if style.math {
+                    self.covering(c, &primary, &variant)
+                } else {
+                    self.covering_text(c, &primary, &variant)
+                };
                 let mut slot = None;
                 let mut gid = 0u16;
 
@@ -1351,5 +1466,212 @@ mod tests {
             adv_400.val(),
             adv_800.val()
         );
+    }
+}
+
+#[cfg(test)]
+mod remaining_underline_tests {
+    use super::*;
+    use std::num::NonZeroU16;
+    use typst_core::{
+        contracts::world::World,
+        entities::{
+            duration::Duration,
+            file_id::FileId,
+            font_book::FontBook,
+            font_list::FontList,
+            source::Source,
+            world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+        },
+    };
+    struct FontWorld {
+        library: Library,
+        book: FontBook,
+        fonts: Vec<Font>,
+    }
+    impl World for FontWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, index: usize) -> Option<Font> {
+            self.fonts.get(index).cloned()
+        }
+        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
+            None
+        }
+        fn candidates_for_char(&self, _: char) -> Vec<usize> {
+            (0..self.fonts.len()).collect()
+        }
+    }
+    #[test]
+    fn r3_geometry_fallback_selectors_have_no_scalar_advance() {
+        let data = include_bytes!("../../fixtures/fonts/NewCMMath-Book.otf");
+        let mut book = FontBook::new();
+        book.push(crate::fonts::font_info_from_bytes(data, 0).unwrap());
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Font::from_data(data.to_vec())],
+        };
+        let metrics = FallbackFontMetrics::new(&world);
+        let size = Pt(12.0);
+        let style = TextStyle {
+            math: true,
+            font: Some(FontList::single("New Computer Modern Math".into())),
+            ..TextStyle::regular(size)
+        };
+        let base = metrics.advance("𝑥", size, &style);
+        for selector in ['\u{fe00}', '\u{fe0f}', '\u{e0100}', '\u{e01ef}'] {
+            assert_eq!(metrics.advance(&format!("𝑥{selector}"), size, &style), base);
+            assert_eq!(metrics.advance(&selector.to_string(), size, &style), Pt(0.0));
+        }
+    }
+
+    #[test]
+    fn remaining_underline_resolved_family_and_empty_text_use_the_injected_actual_face() {
+        let faces = [
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+        ];
+        let mut book = FontBook::new();
+        for data in faces {
+            book.push(
+                crate::fonts::font_info_from_bytes(data, 0)
+                    .expect("portable font metadata"),
+            );
+        }
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: faces.into_iter().map(|data| Font::from_data(data.to_vec())).collect(),
+        };
+        let provider = FallbackFontMetrics::new(&world);
+        for (data, family) in faces.into_iter().zip(["DejaVu Sans", "Nimbus Sans"]) {
+            let face = ttf_parser::Face::parse(data, 0).expect("declared actual font");
+            let table = face.underline_metrics().expect("actual table");
+            let upem = f64::from(face.units_per_em());
+            let style = TextStyle {
+                font: Some(FontList::single(family.into())),
+                size: Pt(99.0),
+                ..TextStyle::default()
+            };
+            for size in [11.0, 17.0] {
+                for text in ["LEFT RIGHT", ""] {
+                    let (offset, thickness) =
+                        provider.underline_metrics(text, Pt(size), &style);
+                    assert!(
+                        (offset.0 - (-f64::from(table.position) * size / upem)).abs()
+                            < 1e-8
+                    );
+                    assert!(
+                        (thickness.0 - (f64::from(table.thickness) * size / upem)).abs()
+                            < 1e-8
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn r8_superscript_resolves_actual_text_family_and_borrowed_provider() {
+        let faces = [
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+        ];
+        let mut book = FontBook::new();
+        for data in faces {
+            book.push(crate::fonts::font_info_from_bytes(data, 0).unwrap());
+        }
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: faces.into_iter().map(|data| Font::from_data(data.to_vec())).collect(),
+        };
+        let metrics = FallbackFontMetrics::new(&world);
+        let borrowed: &dyn FontMetrics = &metrics;
+        for (bytes, family) in faces.into_iter().zip(["DejaVu Sans", "Nimbus Sans"]) {
+            let style = TextStyle {
+                font: Some(FontList::single(family.into())),
+                ..TextStyle::default()
+            };
+            let face = Face::parse(bytes, 0).unwrap();
+            for size in [11.0, 17.0] {
+                for text in ["12", "12Z", ""] {
+                    assert_eq!(
+                        borrowed.text_superscript_metrics(text, Pt(size), &style),
+                        super::super::basic::superscript_in_face(&face, text, Pt(size))
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn r10_resolved_superscript_runs_keep_actual_faces_and_outer_size() {
+        let data = [
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+        ];
+        let mut book = FontBook::new();
+        for bytes in data {
+            book.push(crate::fonts::font_info_from_bytes(bytes, 0).unwrap());
+        }
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: data.into_iter().map(|d| Font::from_data(d.to_vec())).collect(),
+        };
+        let provider = FallbackFontMetrics::new(&world);
+        let style = TextStyle {
+            font: FontList::new(vec![
+                typst_core::entities::font_list::FontFamily::new("Nimbus Sans".into()),
+                typst_core::entities::font_list::FontFamily::new("DejaVu Sans".into()),
+            ]),
+            superscript: true,
+            ..TextStyle::default()
+        };
+        let face = Face::parse(data[0], 0).unwrap();
+        let expected =
+            f64::from(face.glyph_hor_advance(face.glyph_index(' ').unwrap()).unwrap())
+                / f64::from(face.units_per_em())
+                * 11.0;
+        assert!(
+            (provider.advance(" ", Pt(11.0), &style).0 - expected).abs() < 1e-10,
+            "text separator follows the declared face, not an incidental MATH table"
+        );
+        for size in [11.0, 17.0] {
+            let runs = provider.text_superscript_runs("123☃", Pt(size), &style);
+            assert_eq!(
+                runs.len(),
+                2,
+                "a broad fallback must not steal the declared face's numeric prefix"
+            );
+            assert_eq!(runs[0].0, 0..3);
+            assert_eq!(runs[1].0, 3..6);
+            for (i, range) in [0..3, 3..6].iter().enumerate() {
+                let face = Face::parse(data[i], 0).unwrap();
+                let m = face.superscript_metrics().unwrap();
+                let scale = size / f64::from(face.units_per_em());
+                assert_eq!(runs[i].0, *range);
+                assert!((runs[i].1.size.0 - f64::from(m.y_size) * scale).abs() < 1e-10);
+                assert!(
+                    (runs[i].1.baseline_offset.resolve_pt(runs[i].1.size.0)
+                        + f64::from(m.y_offset) * scale)
+                        .abs()
+                        < 1e-10
+                );
+                assert_eq!(runs[i].1.superscript_native, Some(false));
+            }
+        }
     }
 }

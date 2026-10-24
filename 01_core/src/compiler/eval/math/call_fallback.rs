@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math/call_fallback.md
-//! @prompt-hash a7bfb0a7
+//! @prompt-hash d8efd5aa
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -80,14 +80,14 @@ pub(super) fn eval_math_call_fallback(
         // fallback saltava de `lookup_math_op` directo para
         // o literal, e `Gamma(z)` saía `Gamma(𝑧)`. Ver
         // `compiler/eval.md` §P958.
-        Content::MathText(sym.into())
+        Content::Symbol(sym.into())
     } else if let Some(sym) = crate::compiler::stdlib::sym::sym_lookup(&name) {
         // **P958** — idem via módulo `sym` (símbolos bare de
         // P795), com warning de depreciação verbatim (P820).
         if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(&name) {
             engine.sink.warn_note(call.callee().span(), msg, "");
         }
-        Content::MathText(sym.value.to_string().into())
+        Content::Symbol(sym.value)
     } else {
         Content::MathIdent(name.into())
     };

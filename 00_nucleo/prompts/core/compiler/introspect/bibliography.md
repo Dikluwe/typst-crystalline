@@ -1,9 +1,13 @@
 # L0 — introspect/bibliography
-Hash do Código: e88fa2c3
+Hash do Código: f8914f54
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Ownership and source evidence
 
@@ -233,3 +237,31 @@ preserving fields/presence/stage/guards/props and the other carrier. Collection
 uses existing visual(). Change no visual()/phase/API. Generic mappers' mismatch
 with active view remains for a separate audit; the earlier fixture does not
 authorize changing product behavior.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Apply existing bibliography discovery/conversion semantics to the complete set of actually admitted source bodies and physical running resolutions before ordered citation construction. Operational templates that are captured/reserved but never requested are not emitted bibliography/citation contributions. Preserve source carriers, actual visual partition and existing bibliography conflict limits. This is not an arbitrary traversal of opaque callback or Value fields.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.
+
+
+## Unchanged-source physical plan projection
+
+The approved physical source-plan facade preserves the public body Content, so this owner additionally supplies a private root-only known-key Ref→Cite projection using the same key/supplement/form rule as convert_refs. It performs no allocation, traversal, callback or template scan. The source-plan owner supplies actual admitted keys and separately reserved source identity/conditional child provenance, and delegates this language conversion here. Ordinary conversion entrypoints and dynamic/static boundaries remain unchanged.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

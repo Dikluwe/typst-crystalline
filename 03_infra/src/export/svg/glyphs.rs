@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/glyphs.md
-//! @prompt-hash f0e9c5dd
+//! @prompt-hash 19845705
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-24
 
 use super::serialization::{color_to_css, fmt_num};
 use super::{FontKey, GlyphFontIdentity};
@@ -78,11 +78,16 @@ impl SvgGlyphFontContext {
 /// Cache de definições de glifos para o SVG.
 /// Cada glifo único (fonte + glyph_id + escala) é extraído uma vez e
 /// referenciado via `<use xlink:href="#id"/>`.
+enum GlyphDefinition {
+    Outline(String),
+    Raster { data: Vec<u8>, x: f64, y: f64, width: f64, height: f64 },
+}
+
 #[derive(Default)]
 pub(super) struct GlyphDefs {
     next_id: usize,
     ids: HashMap<(usize, u16, u64), String>,
-    paths: Vec<(String, String)>,
+    paths: Vec<(String, GlyphDefinition)>,
 }
 impl GlyphDefs {
     /// Obtém ou cria um identificador para o glifo dado.
@@ -100,8 +105,25 @@ impl GlyphDefs {
 
         let face = Face::parse(font_data, 0).ok()?;
         let mut builder = SvgGlyphPathBuilder::new(scale);
-        face.outline_glyph(GlyphId(glyph_id), &mut builder)?;
-        let path = builder.finish();
+        let path = if face.outline_glyph(GlyphId(glyph_id), &mut builder).is_some() {
+            GlyphDefinition::Outline(builder.finish())
+        } else {
+            let image = face.glyph_raster_image(GlyphId(glyph_id), u16::MAX)?;
+            if image.format != ttf_parser::RasterImageFormat::PNG
+                || image.pixels_per_em == 0
+            {
+                return None;
+            }
+            let factor =
+                scale * f64::from(face.units_per_em()) / f64::from(image.pixels_per_em);
+            GlyphDefinition::Raster {
+                data: image.data.to_vec(),
+                x: f64::from(image.x) * factor,
+                y: f64::from(image.y) * factor,
+                width: f64::from(image.width) * factor,
+                height: f64::from(image.height) * factor,
+            }
+        };
 
         let id = format!("g{}", self.next_id);
         self.next_id += 1;
@@ -119,9 +141,31 @@ impl GlyphDefs {
             xml.start_element("symbol");
             xml.write_attribute("id", id);
             xml.write_attribute("overflow", "visible");
-            xml.start_element("path");
-            xml.write_attribute("d", path);
-            xml.end_element();
+            match path {
+                GlyphDefinition::Outline(path) => {
+                    xml.start_element("path");
+                    xml.write_attribute("d", path);
+                    xml.end_element();
+                }
+                GlyphDefinition::Raster { data, x, y, width, height } => {
+                    use base64::Engine;
+                    xml.start_element("image");
+                    xml.write_attribute(
+                        "xlink:href",
+                        &format!(
+                            "data:image/png;base64,{}",
+                            base64::engine::general_purpose::STANDARD.encode(data)
+                        ),
+                    );
+                    xml.write_attribute("x", &fmt_num(*x));
+                    xml.write_attribute("y", &fmt_num(-y - height));
+                    xml.write_attribute("width", &fmt_num(*width));
+                    xml.write_attribute("height", &fmt_num(*height));
+                    xml.write_attribute("transform", "scale(1 -1)");
+                    xml.write_attribute("preserveAspectRatio", "none");
+                    xml.end_element();
+                }
+            }
             xml.end_element();
         }
         xml.end_element();
@@ -320,13 +364,19 @@ pub(super) fn render_text_shaped(
         .unwrap_or_else(|| "#000000".to_string());
     let mut x = 0.0;
     let y = 0.0;
-    for glyph in glyphs {
+    for (index, glyph) in glyphs.iter().enumerate() {
         let x_offset = f64::from(glyph.x_offset) * scale;
         let y_offset = f64::from(glyph.y_offset) * scale;
         let Some(id) =
             glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_bytes, scale)
         else {
-            x += f64::from(glyph.x_advance) * scale;
+            x += f64::from(glyph.x_advance) * scale
+                + crate::shaper::tracking::residual(
+                    glyphs,
+                    index,
+                    style,
+                    f64::from(units_per_em),
+                );
             continue;
         };
 
@@ -337,7 +387,13 @@ pub(super) fn render_text_shaped(
         xml.write_attribute("fill", &fill);
         xml.end_element();
 
-        x += f64::from(glyph.x_advance) * scale;
+        x += f64::from(glyph.x_advance) * scale
+            + crate::shaper::tracking::residual(
+                glyphs,
+                index,
+                style,
+                f64::from(units_per_em),
+            );
     }
 
     xml.end_element();
@@ -362,4 +418,116 @@ pub(super) fn render_html_text(
     );
     xml.write_text(text.as_str());
     xml.end_element();
+}
+
+#[cfg(test)]
+mod r10_bitmap_tests {
+    use super::*;
+    #[test]
+    fn r10_missing_outline_raster_retains_actual_glyph_paint() {
+        let bytes = include_bytes!("../../../fixtures/fonts/raster-glyph.ttf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let gid = face.glyph_index('☃').unwrap();
+        assert!(face.glyph_raster_image(gid, u16::MAX).is_some());
+        let mut defs = GlyphDefs::default();
+        let first = defs
+            .get_or_insert(0, gid.0, bytes, 0.01)
+            .expect("a supplied PNG raster glyph must remain visible");
+        assert_eq!(Some(first), defs.get_or_insert(0, gid.0, bytes, 0.01));
+        let mut xml = XmlWriter::new(xmlwriter::Options::default());
+        defs.write(&mut xml);
+        let svg = xml.end_document();
+        assert!(svg.contains("data:image/png;base64,"));
+    }
+}
+
+#[cfg(test)]
+mod r10_fractional_tracking_tests {
+    use super::*;
+    use typst_core::entities::{
+        content::Content,
+        layout_types::{FrameItem, Length, Page, TextStyle},
+    };
+    #[test]
+    fn r10_svg_positions_preserve_signed_fractional_tracking_between_clusters() {
+        let bytes = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let face = Face::parse(bytes, 0).unwrap();
+        let upem = f64::from(face.units_per_em());
+        let family = FontList::single("DejaVu Sans".into());
+        let pattern = regex::Regex::new(r#"<use\b[^>]*\bx="([^"]+)""#).unwrap();
+        for size in [11.0, 6.6] {
+            for tracking in [0.2, -0.2, 0.333] {
+                let q = (tracking * upem / size).round() as i32;
+                let mut nominal = Vec::new();
+                let glyphs = ['A', 'B', 'C']
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, c)| {
+                        let gid = face.glyph_index(c).unwrap();
+                        let width = i32::from(face.glyph_hor_advance(gid).unwrap());
+                        nominal.push(width);
+                        ShapedGlyph {
+                            glyph_id: gid.0,
+                            x_advance: width + if i == 1 { q } else { 0 },
+                            x_offset: 0,
+                            y_offset: 0,
+                            cluster: if i < 2 { 0 } else { 2 },
+                            char_code: c,
+                        }
+                    })
+                    .collect();
+                let style = TextStyle {
+                    font: Some(family.clone()),
+                    size: Pt(size),
+                    tracking: Some(Length::pt(tracking)),
+                    ..TextStyle::default()
+                };
+                let page = Page {
+                    width: 100.0,
+                    height: 100.0,
+                    logical_number: 1,
+                    numbering: None,
+                    supplement: Content::Empty,
+                    bleed: Default::default(),
+                    fill: Default::default(),
+                    background: vec![],
+                    foreground: vec![],
+                    items: vec![FrameItem::TextShaped {
+                        pos: Point { x: Pt(0.0), y: Pt(20.0) },
+                        glyphs,
+                        style,
+                        text: "ABC".into(),
+                        units_per_em: face.units_per_em(),
+                        bidi: None,
+                        font: None,
+                    }],
+                };
+                let fonts = vec![(
+                    (family.clone(), FontVariant::default(), FontVariations::default()),
+                    bytes.to_vec(),
+                )];
+                let svg = crate::export::svg::export_svg_with_fonts(
+                    &page,
+                    &crate::export::svg::SvgOptions::default(),
+                    &fonts,
+                );
+                let xs = pattern
+                    .captures_iter(&svg)
+                    .map(|capture| capture[1].parse::<f64>().unwrap())
+                    .collect::<Vec<_>>();
+                assert_eq!(xs.len(), 3);
+                assert!(
+                    (xs[1] - f64::from(nominal[0]) * size / upem).abs() < 1e-8,
+                    "same source cluster must not acquire another interval"
+                );
+                let expected =
+                    f64::from(nominal[0] + nominal[1]) * size / upem + tracking;
+                assert!(
+                    (xs[2] - expected).abs() < 1e-8,
+                    "size={size} tracking={tracking} actual={} expected={expected}",
+                    xs[2]
+                );
+            }
+        }
+    }
 }

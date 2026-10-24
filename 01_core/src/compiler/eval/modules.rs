@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/modules.md
-//! @prompt-hash 98394ce8
+//! @prompt-hash cb3a895c
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -433,12 +433,16 @@ mod import_syntax_tests {
             for (path, text) in files {
                 let id = FileId::from_raw(NonZeroU16::new(next).unwrap());
                 next += 1;
-                map.insert(path.to_string(), Source::new(id, text.to_string()));
+                map.insert(
+                    path.to_string(),
+                    Source::new(id, text.to_string()).expect("valid Source test fixture"),
+                );
             }
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                main: Source::new(main_id, main_text.to_string()),
+                main: Source::new(main_id, main_text.to_string())
+                    .expect("valid Source test fixture"),
                 files: map,
             }
         }
@@ -779,7 +783,8 @@ mod v16_c_structural_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

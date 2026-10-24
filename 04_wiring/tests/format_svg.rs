@@ -1,10 +1,10 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_svg.md
-//! @prompt-hash 71782e8c
+//! @prompt-hash 65779dd7
 
 #[path = "../../03_infra/tests/support/wiring/format_svg.rs"]
 mod harness;
 
-use harness::{Checks, TempDir};
+use harness::{read_svg_pages, Checks, TempDir};
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};
@@ -125,9 +125,20 @@ fn compile(
     pretty: Option<bool>,
     features: Option<&str>,
 ) -> Compilation {
+    compile_to_name(label, source, format, pretty, features, &format!("main.{format}"))
+}
+
+fn compile_to_name(
+    label: &str,
+    source: &str,
+    format: &str,
+    pretty: Option<bool>,
+    features: Option<&str>,
+    output_name: &str,
+) -> Compilation {
     let temp = TempDir::new(label);
     let input_path = temp.path.join("main.typ");
-    let output_path = temp.path.join(format!("main.{format}"));
+    let output_path = temp.path.join(output_name);
     fs::write(&input_path, source.as_bytes())
         .unwrap_or_else(|error| panic!("cannot write {}: {error}", input_path.display()));
 
@@ -476,6 +487,43 @@ fn observe_svg(
     }
 }
 
+fn observe_svg_pages(
+    checks: &mut Checks,
+    label: &str,
+    compiled: &Compilation,
+) -> Option<Vec<XmlObservation>> {
+    checks.require(
+        compiled.process.success,
+        format!(
+            "{label}: expected success, code={:?}, stderr={}",
+            compiled.process.code, compiled.process.stderr
+        ),
+    );
+    let pages = match read_svg_pages(
+        compiled.output_path.parent().expect("SVG output must have a parent"),
+    ) {
+        Ok(pages) => pages,
+        Err(error) => {
+            checks.require(false, format!("{label}: incomplete SVG pages: {error}"));
+            return None;
+        }
+    };
+    let mut observed = Vec::with_capacity(pages.len());
+    for (index, bytes) in pages.iter().enumerate() {
+        match normalize_xml(bytes) {
+            Ok(page) => observed.push(page),
+            Err(error) => {
+                checks.require(
+                    false,
+                    format!("{label}/page-{}: invalid XML: {error}", index + 1),
+                );
+                return None;
+            }
+        }
+    }
+    Some(observed)
+}
+
 #[test]
 fn public_identity_default_and_manual_construction() {
     let profiles = [
@@ -673,19 +721,64 @@ fn pretty_and_compact_are_valid_xml_with_same_source_morphology() {
     let source = format!(
         "{PAGE}#set text(fill: red)\n#set format.svg(pretty: true)\n[Styled root]\n"
     );
-    let document_pretty = compile("same-source-pretty", &source, "svg", None, None);
-    let caller_compact =
-        compile("same-source-compact", &source, "svg", Some(false), None);
+    let document_pretty =
+        compile_to_name("same-source-pretty", &source, "svg", None, None, "main-{p}.svg");
+    let caller_compact = compile_to_name(
+        "same-source-compact",
+        &source,
+        "svg",
+        Some(false),
+        None,
+        "main-{p}.svg",
+    );
+    let physical_pdf = compile("same-source-physical-pages", &source, "pdf", None, None);
     let mut checks = Checks::default();
-    let pretty = observe_svg(&mut checks, "same-source/pretty", &document_pretty);
-    let compact = observe_svg(&mut checks, "same-source/compact", &caller_compact);
+    require_success(&mut checks, "same-source/PDF", &physical_pdf);
+    let physical_pages = match pdf_summary(&physical_pdf.output_path) {
+        Ok((_, metadata)) => {
+            metadata.get("Pages").and_then(|pages| pages.parse::<usize>().ok())
+        }
+        Err(error) => {
+            checks.require(
+                false,
+                format!("same-source/PDF: page observer failure: {error}"),
+            );
+            None
+        }
+    };
+    checks.require(
+        physical_pages.is_some_and(|pages| pages > 1),
+        "same-source: fixture must span multiple physical pages",
+    );
+    let pretty = observe_svg_pages(&mut checks, "same-source/pretty", &document_pretty);
+    let compact = observe_svg_pages(&mut checks, "same-source/compact", &caller_compact);
     if let (Some(pretty), Some(compact)) = (pretty, compact) {
-        checks.require(pretty.pretty, "same-source/pretty: indentation missing");
-        checks.require(!compact.pretty, "same-source/compact: indentation leaked");
         checks.require(
-            pretty.canonical == compact.canonical,
-            "same-source: compact/pretty changed normalized XML morphology",
+            pretty.len() == compact.len(),
+            "same-source: compact/pretty page counts differ",
         );
+        checks.require(
+            Some(pretty.len()) == physical_pages,
+            "same-source/pretty: incomplete physical page coverage",
+        );
+        checks.require(
+            Some(compact.len()) == physical_pages,
+            "same-source/compact: incomplete physical page coverage",
+        );
+        for (index, (pretty, compact)) in pretty.iter().zip(&compact).enumerate() {
+            checks.require(
+                pretty.pretty,
+                format!("same-source/pretty/page-{}: indentation missing", index + 1),
+            );
+            checks.require(
+                !compact.pretty,
+                format!("same-source/compact/page-{}: indentation leaked", index + 1),
+            );
+            checks.require(
+                pretty.canonical == compact.canonical,
+                format!("same-source/page-{}: compact/pretty changed normalized XML morphology", index + 1),
+            );
+        }
     }
     checks.finish();
 }

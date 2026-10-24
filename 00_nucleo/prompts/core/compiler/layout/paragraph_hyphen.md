@@ -1,5 +1,5 @@
 # L0 — paragraph_hyphen
-Hash do Código: 714382fd
+Hash do Código: 91d33337
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -72,3 +72,54 @@ Costs pass shared LineCosts to base formula while keeping offset/range/strategy/
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+
+## R2 — terminal colon with explicit hyphenation (2026-10-23)
+
+### Measurement before classification
+
+`lab/results/hyphenation-continuation-r2-2026-10-23/baseline.json`,
+`baseline-source.json.gz` and `before/receipt.json` bind HEAD, the full uncommitted
+stat/status, exact source texts and hashes, UTC, fixtures, observer commands and
+binaries. Oracle is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+The original hyphenation and explicit-zero-tracking cases both lose complete
+line/page membership; Tekt emits whole-word incremental lines where vanilla
+emits discretionary breaks. Replacing only `Paragraph:` with `Paragraph.`
+qualifies complete words and every PDF bound at 0.001 pt. Bold and false/auto
+nonjustified controls also qualify. `paragraph_hyphen.rs:40–56` finds the alphabetic
+prefix then rejects colon in its suffix; `paragraph_prepare.rs:256` propagates
+that refusal to the whole paragraph. Pinned `inline/linebreak.rs:780–786` derives
+hyphen candidates from alphabetic word-boundary segments, retaining surrounding
+punctuation. This supports a missing terminal punctuation certificate, not a
+new source-derived pagination policy or a claim of full UAX14 support.
+
+### Exclusive bounded correction
+
+Admit ASCII colon alongside existing terminal period/comma/exclamation/question
+punctuation after a nonempty alphabetic prefix of a uniform hyphenated Word.
+Keep the full suffix attached to the final measured range, retain every byte,
+and compute hyphen points/character-edge penalties only from the alphabetic
+prefix. Measure all existing ranges and dash with injected FontMetrics; do not
+assume additive widths. Introduce no cut at colon, no new cost, copied constant,
+post-export normalization or page-count compensation. This supersedes the
+terminal punctuation list only. Internal/numeric/standalone colons, mixed styles
+or policies, nonzero-tracking candidate fallback and other exclusions remain
+as documented. The nonhyphenated path remains unchanged.
+
+Inference: accepting this word will let existing Simple/Optimized selection and
+regional widow/orphan admission act on the complete paragraph. Changed source
+text, altered period controls, lost SHY identity, modified penalties, relaxed
+unrelated refusal, or unchanged primary divergence refutes closure.
+
+Gate: ADR-0127 continuous internal parity correction; no public entity, trait,
+signature, mode/default path, compatibility or pipeline phase changes. L0 first,
+valid V15/V26 graph and resealing precede implementation. Require actual RED
+then GREEN for terminal-colon Unicode candidate/range/penalty preservation and
+source-to-layout widow protection under true hyphenation with absent/zero
+tracking. A passing refusal control retains mixed and unsupported-word refusal.
+Revalidate exact primary PDF words/lines/pages and all bounds at unchanged
+0.001 pt, strategy/justification/lexical/punctuation controls, existing A–H/R1
+controls, full established suite, Clippy/fmt/Rustdoc and full linter before closure.
+Do not declare uncertified supplemental contexts or general hyphenation complete.

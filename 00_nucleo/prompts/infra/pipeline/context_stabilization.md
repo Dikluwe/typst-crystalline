@@ -1,15 +1,18 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: bb35e5f9
+Hash do Código: e24eee86
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/context_stabilization.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 ## Current evidence
 
@@ -236,3 +239,322 @@ At each of the two recognition sites, retain bare ContextBlock recognition and c
 Actual duplicate IDs still make ordered topology impossible. The unselected legacy fallback retains first-ID order plus last-collected Arc/chain, one initial execution per ID, and its existing error/warning policy. It gains no retry or retained-cycle budget. No equality, hashing, Debug fingerprint or pointer-based producer deduplication is permitted. Preserve captured ShowRecipe snapshots, inner Styled overrides, Figure actual-child order, hidden-original exclusion, occurrence frames, reference Route ancestry, descendant invalidation, five attempts and retained diagnostics.
 
 Acceptance includes generic bare/Located/source ordering in both orientations, duplicate rejection, first-order/last-payload+chain and one legacy initial execution, current generated Ref plus ordinary Context capture, and all forty approved Ref controls. Each original recognition decision requires attributable enum-growth evidence. Any new wrapper admission or public/phase/default/compatibility change requires separate classification; the bounded Source correction and nominal closure are continuous internal flow under ADR-0127.
+
+
+## Approved physical running-content candidate integration
+
+Evidence before this decision is the immutable source-qualified current-pin
+SetPage baseline and ambient20/30 measurements under
+lab/results/set-page-header-2026-10-21. Header-only/repeated/footer/context/style
+and duplicate-label failures are language observations; the twelve existing gates
+passing is structural preservation only. Actual seven semantic REDs and one inert
+template control are recorded in
+lab/results/set-page-header-implementation-2026-10-21/initial-red/receipt.json.
+Human approval of review SHA256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+is recorded in that implementation directory's approval.json. ADR-0127 items1/3
+are satisfied for exactly the frozen five L1 facades/types and their phase/order.
+This section supersedes earlier preserve-phase/default boilerplate only for the
+approved physical channel. It adds no public L3 API, source reevaluation, new
+solver/budget, generic observation/equality rule, or unrelated behavior change.
+
+Use the approved owned Content/source plan and immutable request/resolution/trace
+facades as opaque L1 transports. L3 coordinates the actual World, Engine, retained
+arena frames, existing Context Session and candidate diagnostic sinks; no selector,
+Figure-kind, semantic child-edge, temporal action, style-rebase or render business
+logic moves to L3. The pure layout renderer executes no language closures. The
+initial canonical body identity comes from the existing reached realization and
+its protected operational templates; preparation publishes no invented body index
+or PageStore. Only a matching actual trace/store pair builds the complete Paged
+source-derived index. Global Bundle input uses actual ordered target metadata,
+features and document seeds; HTML has no physical requests.
+
+Keep the Session alive through physical discovery, including initially unselected
+body producers. Actual Pending requests select the approved physical contribution
+channel, without fabricating filtered/position reads or running unselected source
+producers a second time. Raw operational SetPage/PageRun templates are excluded
+from body discovery/substitution; realize only requested actual insertions in one
+retained frame per actual request lineage/key. Inspecting a dormant template for
+allocator reservation is not execution, query/counter admission or a new producer.
+Register actual generated Context descendants in the same Session, preserve their
+source/style/target/features, and rebind expanded Content through the approved L1
+function under the shared frame. No synthetic operational Located wrapper/Context
+query element or page-derived numeric Location is allowed.
+
+Reuse a body plan only with unchanged actual retained contribution versions and
+immutable source provenance. Content Eq/hash/Debug, equal counters/page counts or
+freshly reconstructed closure equality are not evidence. New source generations
+invalidate prior plan/request authority; pure layout reflow of the same retained
+plan keeps its authority. Candidate-local stores/transcripts must be complete and
+agree with current geometry/effective page environment; no partial candidate may
+reach shaping/export. Maintain the existing five contextual/page attempts and
+separate eight math/par.line request attempts, no hidden sixth execution or second
+context solver. Discovery/replay/replaced sinks remain discarded; publish only the
+retained final transactions through existing Sink policy, preserving source error
+precedence and independently sourced identical warnings.
+
+Own only this consumer's integration. Its existing private helpers and a private
+descendant page_running module may coordinate the protocol; each new productive
+file has its own canonical owner. Other owner's clauses do not authorize bodies
+here. Preserve legacy facade contracts, non-running paths, PageRun lexical restore,
+page snapshots and numbering, source parents/original morphology, HTML semantics,
+Bundle validation/resource/write policy and all unrelated F/G debts. Require actual
+focused GREEN and frozen CLI/counter/query/style/error/alias/dormant/template and
+rollback controls, followed by full twelve-gate validation, canonical paths,
+strict forward/reverse lineage, ownership/Nucleus pins/DAG and complete diagnostic
+comparison. No suppression, test relaxation, opaque catchall or convenience global
+hash reseal is authorized.
+
+### Actual physical-channel selection and retained ordinary Context reads
+
+Static evidence: the current Session selection originally targeted filtered
+counter/reference/HTML reads; the validation loop skips unselected producers.
+An initial source Context can fail its query-cardinality assertion before reaching
+a later filtered counter read (initial physical-page RED programs at
+`lab/results/set-page-header-implementation-2026-10-21/initial-red/tests.log`).
+Once L1 issues actual running requests, retaining that query failure forever
+would prevent the new complete candidate from correcting it. This is internal
+selection/transaction orchestration, within the already approved physical phase.
+
+Actual Pending running requests select retained active body producers for the
+existing recorded-read validation, without creating any fake filtered read and
+without discarding/reexecuting discovery transactions merely to select them.
+A retained producer with unchanged actual reads/location remains retained; a
+query-only producer with changed reads is invalidated for the next existing
+attempt. Physical and body descendants use the same Session/arena/history.
+Preparation of the approved physical route retains requested features/full-error
+options from discovery; do not evaluate the selected route with an unrelated
+legacy feature set. Preserve the five-attempt limit and original error precedence.
+
+
+### Outline phase read transactions in the existing candidate
+
+Source measurement and the omitted-phase evidence are owned by
+`00_nucleo/prompts/infra/pipeline/context_stabilization/page_running.md`, with the
+unchanged L1 algorithm specified in
+`00_nucleo/prompts/core/compiler/eval/rules/outline.md`. A physical candidate may
+introduce real Context descendants and execute Outline own-show reads before
+planning. Validating only ordinary producer nodes would omit those actual phase
+reads and could accept stale output.
+
+Compose the private physical child's active Outline transaction read proof into
+this owner's existing valid/closed decision. Require every actual first/focal run's reflexive proof against
+its recorded input and validation against the same complete candidate used
+for all ordinary producers. Preserve captured per-read styles/rules/guards/file,
+source errors, original precedence and the current five-attempt history. The child
+retains the transaction and diagnostics; generated actual Context descendants are
+normal Session producers included in its existing topology/order. No synthetic
+queryable producer, new Session, budget, public API or observation rule is allowed.
+A failed proof invalidates the same next outer candidate; an opaque/unproven
+reflexive result must not become a cache authorization. Keep the ordinary
+nonphysical route and its diagnostics unchanged.
+
+## Approved ordinary Repeat physical candidate eligibility
+
+Measurement before decision: the source-bound paired source receipt `lab/results/nested-fractions-repeat-2026-10-21/prototype-2/zero-source-phase-pair/measurement.json.gz` records no-header STATE1/COUNTER1/LABELS1 versus oracle0/0/0 and the empty-header stability rejection with immutable source/binary/state/UTC. The human approved exact review SHA-256 `2609d1a9231b1b8a665f2d8284b7343366a1bc44b0471fdd6008b0f180a52bb2` with “Aprovar a integração física de repeat”; `lab/results/nested-fractions-repeat-2026-10-21/phase-approval.json` records that authorization.
+
+For actual source-owned Repeat contributions in paginated preparation, retain the existing Session through physical discovery and derive the semantic candidate from the matching actual source plan/trace/store even without a running marginal. Reuse the existing facade/channel; no public signature or new solver. Layout-only reflow preserves source authority; actual accepted contribution replacement invalidates/rebinds it under existing rules. Do not select by an unexecuted template, fabricated observation or source reevaluation. A reached contextual Repeat contribution joins the same authority. Keep five attempts and independent callback budgets, sinks/errors/warnings, target separation and all prior noneligible paths.
+
+Require causal integrated RED→GREEN for actual no-header and empty-header sources, positive/zero/nested effects and produced Repeat, with HTML/Bundle/legacy controls and full immutable corpus/lineage validation. This approved section supersedes prior preserve-phase/default restrictions only for the named Repeat eligibility extension.
+
+The corrected real-source pipeline RED is recorded in
+`lab/results/nested-fractions-repeat-2026-10-21/real-repeat-pipeline-phase-corrected-red/receipt.json.gz`:
+with the declared DejaVu fixture installed, no-header returns effects1/1/1
+instead of0/0/0 and empty-header rejects contextual stability. This source has
+its reporting Context OUTSIDE the zero-copy Repeat. Preserve that active
+Context and its strict location/read checks; do not call it an inactive body
+producer or infer a missing-location exemption. Source-qualified diagnostics
+must establish any further stability cause before changing that decision.
+
+
+## Preserve physical position projection and actual transaction selection
+
+Measurement before decision: `phase-coverage-diagnostic/test.log` under
+`lab/results/nested-fractions-repeat-2026-10-21` reports for each actual paired
+source that the strict physical source index carries one active position,
+whereas the document carries four raw positions. Both unconditional parent
+position injections replace the former with the latter. Existing pagination
+coverage then remains false through all five attempts. The empty-header source
+retains its outside Context Location and strict read proof after attempt one.
+The no-header source reports its actual outside producer selected=false.
+The exact code state, UTC and diagnostic hashes precede this decision in
+`agents/acceptance/zero-source-phase-proposal/before-position-selection-correction.json`
+under the same evidence root.
+
+These measurements classify language source-membership/state/query results as
+parity; internal raw-position transport and selection are causal mechanics.
+They do not prove all remaining contextual stability causes closed. In
+particular, no-header candidate Context Location differs from discovery
+topology and may expose another failure under unchanged identity validation.
+
+### Exclusive internal correction
+
+When the existing physical facade supplies a matching source-derived candidate,
+retain that candidate's already projected position store through page snapshot
+and numbering realization. Raw document positions include computational source
+preparation that contributes no actual Repeat copy; they cannot overwrite the
+validated semantic projection. Keep raw document geometry unchanged and preserve
+the nonphysical route's existing document-position injection. Retain strict
+coverage, page stability, source/arena/trace/store validation and read replay.
+
+Every actual physical candidate, including a completed no-request Repeat body,
+selects retained active Context transactions for the same recorded-read
+validation already used by Pending running discovery. Selecting the transaction
+does not discard or execute it. Existing reflexive/current replay and exact
+Location equality alone decide invalidation; the next existing attempt may
+reexecute only invalidated transactions. No synthetic observation, missing
+Location exemption, new budget, source reevaluation or public API is authorized.
+
+The actual paired pipeline tests remain the causal acceptance gate. A remaining
+strict identity failure requires a separate measured source-transport correction;
+never turn the present Location mismatch into accepted equivalence.
+
+
+## Reexecute a retained producer at its actual physical input Location
+
+Measurement before decision: the corrected source-qualified phase receipt
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-3/approved-phase-controls-corrected/receipt.json.gz`
+ran 2026-10-22T10:38:58.955518+00:00 through
+2026-10-22T10:39:18.604479+00:00 with unchanged frozen inputs. The actual
+no-header source returns position x=0pt/y=0pt while pinned oracle returns
+x=158.33pt/y=16.36pt; both retain page1 and effects0/0/0. The otherwise identical
+empty-header source returns the actual oracle position. These are language
+Location observations; its separate geometry mismatch remains a separate debt.
+The earlier source-qualified trace mapped no-header Context0 to actual physical
+Location8 while discovery used its legacy topology. `realize` reconstructs that
+legacy topology for every invalidated execution instead of transporting the
+actual prior physical input's established Context Location. The existing terminal
+policy can return D5 with stable reads, so final-state success alone did not
+refute this position failure. Exact pre-change state and receipt hashes are in
+`agents/acceptance/zero-source-phase-proposal/before-physical-location-tests.json`
+under the same evidence root.
+
+Stage actual-source position and private retained-transaction proof regressions
+RED before implementation. For a retained current producer in the selected
+physical route, use its Location already established by the actual current input
+context map when present. New actual producers without an input occurrence
+continue to obtain their real provisional topology Location. This transport does
+not allocate a Location, infer producer continuity from an integer, replace a
+closure or alter execution identity. The actual retained Producer/occurrence
+frame remains its owner; a later source-generation change remains subject to the
+strict current candidate Location equality and recorded-read replay. Keep the
+nonphysical route's topology policy, both unconditional replay transactions,
+error precedence, missing-location failure and five-attempt terminal policy.
+No missing/mismatching Location exemption, body reevaluation, additional pass,
+API, or changed diagnostic policy is authorized.
+
+Acceptance requires both actual paired source position observations, original
+effects0/0/0 and source markers, plus exact final execution/candidate Location
+agreement with reflexive and current read validity. A newly generated producer
+still requires actual source discovery; dormant templates stay dormant. Existing
+header, changed-generation, Bundle and callback-budget controls remain required.
+
+
+### Actual retained Location transport RED
+
+`lab/results/nested-fractions-repeat-2026-10-21/physical-location-red/test.log`
+records the staged actual-source RED: private final physical return maps its
+Context to Location8 while its retained execution remains Location3; the actual
+no-header pipeline reports POSX0pt/POSY0pt. The empty-header position source and
+both original effects0/0/0 controls pass.
+`agents/acceptance/zero-source-phase-proposal/before-physical-location-transport.json`
+binds exact code state, dirty-file list, UTC and RED log hash before this change.
+This runtime proof confirms the transport cause and refutes final-state success
+as evidence of matching execution identity.
+
+Limit actual-input Location transport to an already retained current Execution
+of the same active Producer in the enabled physical route with actual Paged
+target. Its exact producer object/occurrence frame remains retained. New nodes
+without a current Execution, absent input occurrences and HTML target producers
+keep existing real provisional topology lookup. Do not synthesize, allocate,
+compare producer payloads, accept a present mismatch or transfer an old integer
+id's execution into a replacement Producer. Existing current candidate equality
+and unconditional reflexive/current observation replay remain strict after the
+transport; the five-attempt terminal policy is unchanged.
+
+
+## Local Repeat allocation observation and source control — 2026-10-22
+
+`lab/results/remaining-parity-2026-10-22/baseline-nine/measurement.json.gz`
+records source-effects-local-repeat with exact HEAD/dirty state, immutable
+source/font, source-bound product and pinned oracle provenance. Its prepared
+source allocation remains RED: the local Repeat has 23 X visuals instead of
+6, while the outside Context is active. The eval-only dump in
+`eval-content-before-fixed/receipt.json.gz` retains the initial Context node
+and cannot prove the final layout certificate's refusal cause.
+
+Keep an owner-local source-derived control that evaluates the exact bounded
+state/counter/label Repeat program using only its injected portable font,
+then calls the existing contextual preparation and inspects its actual final
+Content plus settled document. This is evidence before selecting a width
+correction, not permission to treat unknown Context output as zero or execute
+closures during preflight. Preserve strict source authority, actual Context
+reads, callback budgets, phase/target boundaries and warnings. Diagnostic
+printing may accompany a local failing investigation but must not remain in
+final productive or test output; archive that raw measurement in the lab.
+No public API or new preparation phase follows from this observer.
+
+
+The retained final prepared-content observation reveals only the positively
+known inline classes after Context substitution, while the settled document
+still paints 23 X text leaves and TAIL at x52.0751953125pt. Preserve this
+actual count and location with its source-bound stage-2 receipt; it does not
+prove state duplication. Before changing arithmetic, record the actual
+injected provider's source-token widths and the existing ordered sum/cursor
+calculation. A floating-point refusal is only a hypothesis until those
+measurements and a meaningful private allocation RED reproduce it. The
+withdrawn earlier Python rounding model remains refuted historical evidence.
+
+
+The actual-source control must assert the pinned oracle's five X visuals and
+STATE1/COUNTER1/LABELS1 together, rather than stopping at successful preparation.
+Preserve all font/source/preparation preconditions. This is a genuine source
+RED if the unchanged source still emits 23 X after the statement-whitespace
+repair; derive its cause from the separately printed actual width budget,
+never by special-casing these source names or expected counts in production.
+
+
+### Refuted source-count and rounding hypotheses
+
+The stage-3 source observer's expected six X was a counting error, not an
+upstream requirement. Fresh `baseline-nine/measurement.json.gz` shows five
+native X glyphs: BEFOREX plus four standalone X. Preserve the erroneous
+six-count receipt historically; the control now requires exactly five with
+STATE1/COUNTER1/LABELS1, without changing the source.
+
+`red3-infra-local-repeat/test.log` records actual injected fixed width
+226.95556640625pt in a224pt region, free -2.95556640625pt and final cursor
+232pt exactly. This refutes floating-point overshoot. Native breaks before
+LABELS1: first-line fixed occupancy174.947265625pt leaves a49.052734375pt
+Box, which produces five actual X copies with gap2pt. Full source tree
+substitution and callback/authority checks remain untouched. The allocation
+owner must choose complete known word boundaries before regional shares;
+unknown output cannot be assigned zero and no arithmetic epsilon is allowed.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

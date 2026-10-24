@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: 8fe48b50
+Hash do Código: 62d62755
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -551,3 +551,82 @@ Figure set/show-set transport kind and supplement plus numbering in lexical Styl
 Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
 
 Private source-span transport: each Figure set supplement stores its original value under figure.supplement and a companion figure.supplement-origin Value::Args with empty items/named and its exact last named value span. This carrier transports only span metadata, never arguments, entities, callbacks or user fields. Func diagnostic origin alone is insufficient because it preserves the first definition origin. Preparation reads the companion span without executing anything.
+
+## Measured remaining HTML and Length parity correction
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/measurement-before-decision.json`
+pins receipt SHA-256 `96025a9ff9d2c5a6057e9873285e43e4e81501bb40b55fe43b1244743e8ed09c`,
+UTC `2026-10-22T11:53:10.657191+00:00`–`2026-10-22T11:53:35.064880+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, complete dirty stat,
+source archive, commands/fonts/fixtures/build/tool and verified oracle pins.
+All provenance checks pass. Oracle commit is `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Length rendering, numeric Raw paint, page warnings, native page aliases and two
+container refusals differ. False-condition/uninserted/scalar controls pass. The
+coordinator froze exact source rejection in `lab/results/remaining-parity-2026-10-22/html-negative-policy.json`
+before implementation; no failed render is waived. Pinned `foundations/value.rs:192–205`,
+`text/raw.rs:563–606` and `typst-realize/src/lib.rs:635–655` distinguish actual
+content morphology, token styles, target-specific warnings and container errors.
+
+### Exclusive correction and acceptance
+
+Recognize native page by its actual existing native function identity as well as
+the current direct route, delegating to the same exclusive page owner. A plain
+renamed alias gets the same schema/origin and executes arguments once. Do not
+recognize an arbitrary function merely because its chosen name resembles page;
+preserve condition-before-target/arguments and existing refusal policies.
+
+Internal continuous ADR-0127 parity correction: no public field/trait/signature,
+new mode/default, phase or compatibility break. L0 precedes code and meaningful
+RED→GREEN; validate paths, valid owner/Nucleus graph, restricted hashes, tests,
+build, strict Clippy/rustdoc, reverse lineage and complete unsuppressed Tekt.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Explicit optional absence and closed-domain preservation — 2026-10-23
+
+### Evidence before decision
+
+The exact source and owner bytes, HEAD, dirty-tree stat and initial nine V16
+findings are preserved in
+`lab/results/v16-option-exhaustiveness-2026-10-23/before-state.json`,
+`before/` and `before-v16.sarif`. The parser source
+`tekt-linter/03_infra/rs_parser.rs:1605–1621` classifies every bare identifier
+pattern as a catch-all, including the Option unit variant `None`. The Rust
+compiler resolves that name to the unit variant; qualification makes that
+existing nominal meaning explicit to both tools. These are mechanical
+coverage observations, not a newly discovered runtime failure or new vanilla
+parity claim.
+
+### Exclusive correction and acceptance
+
+`rules/set.rs:914–936` already distinguishes numbering values, evaluation errors and omission. Qualify only its omission pattern as `Option::None`; retain unchanged style on omission, None clearing, function/string transport, validation and exact evaluation-error propagation.
+
+Use ADR-0127 continuous internal flow: no public contract, default, phase or
+compatibility changes. Add no lint exception, allow/expect attribute, severity
+change, suppression or match-to-if rewrite. Preserve all existing assertions
+and pending limitations. The initial V16 gate is structural RED; preservation
+tests may already pass before implementation and must not be misreported as
+behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
+rustdoc, formatting, canonical paths and both lineage directions.

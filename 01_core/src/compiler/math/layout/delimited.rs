@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/delimited.md
-//! @prompt-hash 818bf812
+//! @prompt-hash 29cacdf8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -157,9 +157,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             return self.layout_node(&elem.body, style);
         };
         let text = match &elem.body {
-            Content::Text(text) | Content::MathText(text) | Content::MathIdent(text) => {
-                Some(text.as_str())
-            }
+            Content::Text(text)
+            | Content::MathText(text)
+            | Content::Symbol(text)
+            | Content::MathIdent(text) => Some(text.as_str()),
             _ => None,
         };
         let Some(character) = text.and_then(|text| {
@@ -213,6 +214,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let text = match body {
                     Content::Text(text)
                     | Content::MathText(text)
+                    | Content::Symbol(text)
                     | Content::MathIdent(text) => Some(text.as_str()),
                     _ => None,
                 };

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ast/math`
-Hash do Código: dec2cbf3
+Hash do Código: 322f953d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/ast/math.rs`
@@ -103,3 +103,23 @@ canonical lineage.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/ast/math.md`. Historical observations are not a new parity certification.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

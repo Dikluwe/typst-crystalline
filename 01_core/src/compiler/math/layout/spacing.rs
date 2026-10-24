@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/spacing.md
-//! @prompt-hash 72a23572
+//! @prompt-hash af9c43ec
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -40,7 +40,7 @@ fn base_math_class(content: &Content) -> MathClass {
                 .and_then(default_math_class)
                 .unwrap_or(MathClass::Alphabetic)
         }
-        Content::MathText(text) => text
+        Content::Symbol(text) | Content::MathText(text) => text
             .chars()
             .next()
             .and_then(default_math_class)
@@ -526,7 +526,10 @@ fn is_textual_spaced_item(content: &Content) -> bool {
         Content::Sequence(children) => children.iter().all(|child| {
             matches!(
                 child.source_body(),
-                Content::Text(_) | Content::MathText(_) | Content::MathIdent(_)
+                Content::Text(_)
+                    | Content::MathText(_)
+                    | Content::Symbol(_)
+                    | Content::MathIdent(_)
             )
         }),
         Content::Source(_)
@@ -550,6 +553,7 @@ fn is_textual_spaced_item(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -652,7 +656,9 @@ fn is_textual_spaced_item(content: &Content) -> bool {
 
 fn is_bare_pipe(content: &Content) -> bool {
     match content.source_body() {
-        Content::MathText(text) | Content::MathIdent(text) => text.as_str() == "|",
+        Content::MathText(text) | Content::Symbol(text) | Content::MathIdent(text) => {
+            text.as_str() == "|"
+        }
         Content::MathStyled(e) => is_bare_pipe(&e.body),
         Content::Styled(styled) => is_bare_pipe(&styled.body),
         Content::Source(_)

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/class.md
-//! @prompt-hash 1eabe3c8
+//! @prompt-hash 8be787b1
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -71,20 +71,7 @@ pub fn native_math_class(
         .expect("domínio do cast vanilla é subset dos 15 nomes reconhecidos");
 
     let body = match args.items.get(1) {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s)) => Content::text(s.as_str()),
-        // P772y — `math.class("relation", sym.suit.heart)`: símbolo
-        // Unicode como body (paridade com a conversão de markup, P471).
-        Some(Value::Symbol(s)) => Content::Text(s.value.clone()),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "class() body espera content, string ou symbol, recebeu {}",
-                    other.type_name()
-                ),
-            )])
-        }
+        Some(body) => super::casts::math_lr_content_value(body, Span::detached())?,
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),

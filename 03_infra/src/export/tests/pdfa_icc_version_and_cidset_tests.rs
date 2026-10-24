@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfa_icc_version_and_cidset_tests.md
-//! @prompt-hash 98302333
+//! @prompt-hash 209449af
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -44,6 +44,7 @@ fn export_with_standard(standard: PdfStandards) -> Vec<u8> {
         None,
         standard,
     )
+    .output
 }
 
 fn catalog_body(pdf: &[u8]) -> String {

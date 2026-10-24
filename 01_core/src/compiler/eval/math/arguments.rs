@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math/arguments.md
-//! @prompt-hash 56b1559e
+//! @prompt-hash 2a07db77
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -350,7 +350,8 @@ mod residue_tests {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                source: Source::new(id(), text.into()),
+                source: Source::new(id(), text.into())
+                    .expect("valid Source test fixture"),
             }
         }
     }

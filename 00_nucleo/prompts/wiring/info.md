@@ -1,5 +1,5 @@
 # L0 — wiring/info
-Hash do Código: 50377ddb
+Hash do Código: 843648c2
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/info.rs`
@@ -30,3 +30,34 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/src/i
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+
+## Checked stderr composition — authorized 2026-10-22
+
+### Measured evidence
+
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/baseline.json` (SHA-256
+`9c6da7587761dd242cddf07abcf512169ad45d4bde63e3040dc1577e02e67b15`)
+retains exact HEAD, uncommitted source/archive, UTC, dirty stat and binary identity.
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/before/receipt.json` (SHA-256
+`e49aa4458f4cb413995af35f8297ecf4fcafd20141cbdab41067fc7ed5b3895c`)
+retains the real failed-sink and healthy controls before this correction. The
+source map is `lab/results/stderr-watch-errors-2026-10-22/agents/stderr/audit.md`.
+These observations precede the narrowly owned correction below; a panic is not
+required behavior or evidence of upstream intent.
+
+### Owned correction and acceptance
+
+Change only private run_info composition to `io::Result<ExitCode>`. Preserve
+snapshot fields, certificate presence privacy, human/JSON serialization and
+stdout. Emit existing serialization/stdout error text through the diagnostics
+owner's checked writer; propagate actual stderr write/flush failure. Preserve
+ordinary successful and failed serialization/output exit codes.
+
+The existing pinned CLI-observables Nucleus governs shared output/exit obligations;
+this owner does not redefine it. The user's explicit request authorizes replacing
+stderr panic with exceptional operational exit 2. This changes private composition
+only, without public signature/flag/default mode or eval/layout phase change
+(ADR-0127). Retain healthy message bytes/order and all existing alerts/contracts.
+Require measured RED→GREEN, healthy parity, tests, hashes and direct/reverse lineage;
+no suppression or weakened assertion is authorized.

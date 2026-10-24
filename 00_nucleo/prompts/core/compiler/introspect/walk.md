@@ -1,8 +1,12 @@
 # L0 — introspect/walk
-Hash do Código: 84685146
+Hash do Código: 4e146285
+
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
@@ -688,3 +692,26 @@ Measurement before decision: ordinary-block-hidden-heading/receipt.json under ag
 Classify a Realized ordinary Block original as root-only, preserving any root snapshot/label/action if that root has a semantic payload, then visit its actual visual children normally. Extend the existing explicit OriginalOnly return to Block; do not reclassify arbitrary containers as empty or change generic alias policy. A registered Located visual Block whose canonical original at that Location is also Block must still visit actual Block children through ChildrenOnly, preserving one root. Restrict this same-type transport case; do not bind Figure Location to arbitrary Block/replacement products or reopen all aliases. Existing Table/Figure behavior and causal order remain unchanged.
 
 The separate labeled Block probe records oracle [1,1] versus build8 [2,0]: child count duplication belongs to this correction; absence of Block label query membership is a pre-existing nonlocatable-label projection gap, retained as open rather than silently expanding Label ownership. Require hidden/identity/identity-labeled child language regressions plus existing reached Context membership, positions, counters and source wrappers. No callbacks, public field/API, new phase, cache, suppression or global registry relaxation.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Share the existing exhaustive source partition and feature dispatch with the typed plan driver. Separate source capture/reservation from admitted incremental emission without changing legacy unplanned walk. Carry explicit typed source edges, effective chains, root-only/original/visual roles and independent source parents. Include generated Context execution registration and no-Location facts; never infer packet address from Location, pointer, text or hash. A planned PageRun visits only its body until physical running plans are selected; reserve operational templates without admitting them. Root population, field snapshots and derived facts must consume validated admitted order rather than preliminary body-only state.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

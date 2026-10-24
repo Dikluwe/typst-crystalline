@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link_capture.md
-//! @prompt-hash b84b60a6
+//! @prompt-hash 90997bcd
 //! @layer L1
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -205,12 +205,49 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         target: LinkTarget,
         expand: bool,
     ) {
+        self.capture_link_body(target, expand, |layouter| layouter.layout_content(body));
+    }
+
+    pub(super) fn layout_link_capture_planned(
+        &mut self,
+        body: &Content,
+        target: LinkTarget,
+        expand: bool,
+        cursor: Option<super::page_running_requests::Cursor>,
+    ) {
+        self.capture_link_body(target, expand, |layouter| {
+            if let Some(cursor) = cursor {
+                layouter.layout_planned_cursor(cursor, body, false);
+            } else {
+                layouter.layout_content(body);
+            }
+        });
+    }
+
+    pub(super) fn layout_link_capture_mixed(
+        &mut self,
+        parts: &[Content],
+        target: LinkTarget,
+        expand: bool,
+        routes: &[Option<super::page_running_requests::Cursor>],
+    ) {
+        self.capture_link_body(target, expand, |layouter| {
+            super::sequence::layout_mixed_source_parts(layouter, parts, routes);
+        });
+    }
+
+    fn capture_link_body(
+        &mut self,
+        target: LinkTarget,
+        expand: bool,
+        body: impl FnOnce(&mut Self),
+    ) {
         let id = self.link_capture.targets.len();
         self.link_capture.targets.push(target);
         self.link_capture.active.push(id);
         self.regions.current.current_line.push(marker(id, true));
         self.regions.current.current_items.push(marker(id, true));
-        self.layout_content(body);
+        body(self);
         if expand {
             self.expand_fr_spacings();
         }

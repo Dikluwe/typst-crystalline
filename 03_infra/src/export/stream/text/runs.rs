@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash 55b70cb2
+//! @prompt-hash d51e8d9b
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use super::super::{FontScenario, PageContext};
 use super::{push_shaped_spacing, remap_glyph_id, shaped_tr_ops, verbose_block_prefix};
@@ -121,9 +121,9 @@ pub(in crate::export::stream) fn emit_verbose_text_run(
     match &ctx.font_scenario {
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
             ops.push_str(&format!(
-                "/F1 {:.1} Tf
+                "/F1 {} Tf
 ",
-                style.size.val()
+                super::font_size(style.size.val())
             ));
             ops.push_str(
                 "1 0 0 -1 0 0 Tm
@@ -153,10 +153,10 @@ Q
                 return;
             };
             ops.push_str(&format!(
-                "/F{} {:.1} Tf
+                "/F{} {} Tf
 ",
                 fi + 1,
-                style.size.val()
+                super::font_size(style.size.val())
             ));
             ops.push_str(
                 "1 0 0 -1 0 0 Tm
@@ -183,9 +183,8 @@ Q
 /// delta model de P486/P520/P548 (idem `push_tj_glyph_entries`). Na
 /// fronteira entre itens: um ajuste extra que leva o ponto de texto
 /// exactamente ao `pos.x` do item seguinte — computado contra o cursor
-/// **com o arredondamento aplicado pelo renderer** (cada ajuste TJ é um
-/// inteiro em milésimos de em), para que a deriva de arredondamento nunca
-/// acumule além de um quantum por fronteira.
+/// fracionário efetivamente serializado. Larguras e ajustes TJ conservam
+/// as frações de milésimos de em, inclusive sem tracking.
 fn push_run_tj_entries(
     ops: &mut String,
     run: &[FrameItem],
@@ -202,17 +201,9 @@ fn push_run_tj_entries(
         if let Some(cur) = cursor {
             // Número TJ = milésimos de em SUBTRAÍDOS da posição: para levar
             // o ponto de `cur` a `pos.x`, o número é (cur − pos.x)/size×1000.
-            let fractional =
-                style.tracking.map(|t| t.resolve_pt(size) != 0.0).unwrap_or(false);
-            let scale = if fractional { 100000.0 } else { 1.0 };
-            let boundary =
-                (((cur - pos.x.val()) / size * 1000.0) * scale).round() / scale;
+            let boundary = (cur - pos.x.val()) / size * 1000.0;
             if boundary != 0.0 {
-                if fractional {
-                    ops.push_str(&format!("{boundary:.5} "));
-                } else {
-                    ops.push_str(&format!("{boundary:.0} "));
-                }
+                ops.push_str(&format!("{boundary} "));
                 cursor = Some(cur - boundary / 1000.0 * size);
             }
         } else {
@@ -221,32 +212,73 @@ fn push_run_tj_entries(
         for (i, g) in glyphs.iter().enumerate() {
             if g.x_offset != 0 {
                 let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
-                ops.push_str(&format!("{:.0} ", xoff_tu));
+                ops.push_str(&format!("{xoff_tu} "));
             }
             let nominal =
                 glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
             let residual = crate::shaper::tracking::residual(glyphs, i, style, upm);
             let residual_tu =
                 if residual == 0.0 { 0.0 } else { residual / size * 1000.0 };
-            let integer_tu = ((nominal - g.x_advance) as f64 / upm * 1000.0).round();
-            let advance_tu = if residual_tu == 0.0 {
-                integer_tu
-            } else {
-                ((integer_tu - residual_tu) * 100000.0).round() / 100000.0
-            };
+            let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0 - residual_tu;
             let new_gid = if glyph_mapping.is_empty() {
                 g.glyph_id
             } else {
                 remap_glyph_id(g.glyph_id, glyph_mapping)
             };
-            if residual_tu == 0.0 {
-                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
-            } else {
-                ops.push_str(&format!("<{:04X}> {:.5} ", new_gid, advance_tu));
-            }
-            // Avanço tal como o renderer o aplica (com o ajuste arredondado).
+            ops.push_str(&format!("<{:04X}> {advance_tu} ", new_gid));
+            // The PDF width and fractional TJ jointly determine the cursor.
             let applied = (nominal as f64 / upm - advance_tu / 1000.0) * size;
             cursor = cursor.map(|c| c + applied);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use typst_core::entities::layout_types::{Point, Pt, ShapedGlyph, TextStyle};
+
+    #[test]
+    fn fractional_pdf_coalesced_cursor_preserves_absolute_boundary() {
+        let style = TextStyle::regular(Pt(11.0));
+        let run: Vec<_> = [0.0, 12.345678]
+            .into_iter()
+            .map(|x| FrameItem::TextShaped {
+                pos: Point { x: Pt(x), y: Pt(20.0) },
+                text: "A".into(),
+                glyphs: vec![ShapedGlyph {
+                    glyph_id: 65,
+                    x_advance: 1280,
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: 'A',
+                }],
+                style: style.clone(),
+                units_per_em: 2048,
+                bidi: None,
+                font: None,
+            })
+            .collect();
+        let mut ops = String::new();
+        push_run_tj_entries(
+            &mut ops,
+            &run,
+            &HashMap::new(),
+            &HashMap::from([(65, 1400)]),
+        );
+        let mut cursor = 0.0;
+        let mut painted = Vec::new();
+        for token in ops.split_whitespace() {
+            if token.starts_with('<') {
+                painted.push(cursor);
+                cursor += 1400.0 / 2048.0 * 11.0;
+            } else {
+                cursor -= token.parse::<f64>().unwrap() / 1000.0 * 11.0;
+            }
+        }
+        assert_eq!(painted.len(), 2);
+        assert!((painted[1] - 12.345678).abs() < 1e-7, "{ops}");
+        assert!((cursor - 12.345678 - 1280.0 / 2048.0 * 11.0).abs() < 1e-7, "{ops}");
     }
 }

@@ -1,5 +1,5 @@
 # L0 — space
-Hash do Código: e58fb288
+Hash do Código: 0037b18e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -59,3 +59,66 @@ Literal 0/± and PDF-minimum RED→GREEN require actual bilateral causal/corpus 
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## Weak-space closure retains the actual terminal causal bottom
+
+### Measurement before decision
+
+The source-bound `lab/results/nested-fractions-repeat-2026-10-21/prototype-3/`
+receipts show equal glyph world origins/text but auto page height43.86484375
+versus pinned vanilla28.357421875 for nested fixed Repeat and unequal
+fractional siblings. The exact current source/L0 and dirty HEAD/stat/UTC
+are preserved in `agents/box/auto-page-height-investigation/` there.
+`repeat-auto-height-red/receipt.json.gz` records two genuine source-equivalent
+failures with declared metrics: actual page42.55 versus terminal baseline17.7
+plus bottom margin10. The pre-finish state is cursor32.55, previous baseline17.7,
+no recorded bottom, flush advance14.85, no remaining causal line and flow end
+(17.7,32.55). Source inspection locates the cause at this owner's edge-crossing
+weak-space flush: a full certified line plus trailing weak newline closes
+before finish, leaving only a predicted following baseline as page geometry.
+The same RED occurs in ordinary dispatch; it is not a physical phase defect.
+
+### Decision and invariant
+
+Preserve weak whitespace advance, grouping, logical consumption, edge-crossing
+flush and future wrap behavior exactly. After this owner actually flushes a
+causal line on a weak-space edge crossing, retain its just-committed terminal
+baseline as last_block_descent_y only when the normal close did not already
+publish a bottom. Preserve a normal inline descent bottom or existing closed
+frame decision. Do not publish anything for marker-only or otherwise noncausal
+input, and never use current cursor (the next predicted baseline) as its bottom.
+Later real content closes normally and replaces this prior bottom; an earlier
+weak-space closure cannot freeze subsequent auto height. No wrapper materiality,
+paint, phase, baseline coefficient, public contract or comparison bound changes.
+
+### Acceptance
+
+Require the two source-equivalent nested/fractional Repeat cases in ordinary
+and planned dispatch, subsequent actual text replacing the prior terminal
+bottom, and existing after-material wrap/initial-marker/adjacent-weak/Literal
+controls. Final bilateral sources, full tests, lineage and hashes remain gates.
+
+
+## R10 — expanded signed-tracking, fallback-space and literal-tail refuters
+
+Measurement before decision: candidate2-build/receipt.json/source.json.gz and
+candidate2-matrix/receipt.json bind exact dirty inputs, UTC, sources and binary
+f2a61237c15688e655ff7c62a117cb50a4d3a154e426bd31bed61fa999385e68
+against the fixed bd5ebec2 oracle. Original15 script PDF/SVG controls and all
+R8/R9 controls pass; the54 additional controls expose22 failures. At Nimbus11,
+trailing literal LF loses a3.058pt following markup space; explicit DejaVu
+fallback overmeasures that space by0.43858pt. At DejaVu11 tracking0.2pt, the
+script's three intervals overadvance by0.18018pt. Nimbus synthetic digits need
+0.12pt intervals and the following fallback glyph needs the same last-prefix
+interval rather than zero. Pinned inline/shaping.rs:1269-1295 divides tracking
+by outer ctx.size before each glyph's actual reduced size is applied; :473-510
+retains outer-size line edges. Source sequence/space causes and actual selected
+text face explain the remaining cases, without a font-name branch or looser
+physical-word/page/0.001pt gate. This is private parity integration of the
+approved method, not another public contract/default/phase change.
+
+### Exclusive owning obligation
+
+An immediately pending authored literal-script LF permits exactly the next original markup separator at the fresh line origin, retaining that separator's actual Markup/Newline provenance and effective outer style. Preserve its carrier and advance without creating a baseline by itself; consume the pending cause once. Keep ordinary initial/marker-only suppression, adjacent weak collapse, signed tracking, wrapping and terminal-bottom behavior unchanged.
+
+Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.

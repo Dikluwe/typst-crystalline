@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/source.md
-//! @prompt-hash 7c00bf20
+//! @prompt-hash 123237be
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -12,6 +12,7 @@ use rustc_hash::FxHasher;
 
 use crate::compiler::parse::parse;
 use crate::entities::file_id::FileId;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{LinkedNode, SyntaxNode};
 
@@ -51,15 +52,8 @@ struct SourceInner {
 
 impl Source {
     /// Cria `Source` com `FileId` explícito — usado por L3 ao carregar ficheiros.
-    pub fn new(id: FileId, text: String) -> Self {
-        let content_hash = {
-            let mut h = FxHasher::default();
-            text.hash(&mut h);
-            h.finish()
-        };
-        let mut root = parse(&text);
-        root.numberize(id, Span::FULL).unwrap();
-        Self(Arc::new(SourceInner { id, text, root, content_hash }))
+    pub fn new(id: FileId, text: String) -> SourceResult<Self> {
+        Self::new_with_parser(id, text, parse)
     }
 
     /// Hash do conteúdo — O(1), pré-computado na construção (ADR-0031).
@@ -75,23 +69,37 @@ impl Source {
         id: FileId,
         text: String,
         parser: fn(&str) -> SyntaxNode,
-    ) -> Self {
+    ) -> SourceResult<Self> {
+        Self::with_numbering_interval(id, text, parser, Span::FULL)
+    }
+
+    fn with_numbering_interval(
+        id: FileId,
+        text: String,
+        parser: fn(&str) -> SyntaxNode,
+        within: std::ops::Range<u64>,
+    ) -> SourceResult<Self> {
         let content_hash = {
             let mut h = FxHasher::default();
             text.hash(&mut h);
             h.finish()
         };
         let mut root = parser(&text);
-        root.numberize(id, Span::FULL).unwrap();
-        Self(Arc::new(SourceInner { id, text, root, content_hash }))
+        root.numberize(id, within).map_err(|_| {
+            vec![SourceDiagnostic::error(
+                Span::from_range(id, 0..text.len()),
+                "cannot number source spans",
+            )]
+        })?;
+        Ok(Self(Arc::new(SourceInner { id, text, root, content_hash })))
     }
 
     /// Cria `Source` sem `FileId` real — para testes e contextos sem filesystem.
     ///
     /// Usa um `FileId` sentinel (1). Dois `detached()` partilham o mesmo id —
     /// comportamento aceitável fora de um `World` real.
-    pub fn detached(text: impl Into<String>) -> Self {
-        let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+    pub fn detached(text: impl Into<String>) -> SourceResult<Self> {
+        let id = FileId::from_raw(NonZeroU16::MIN);
         Self::new(id, text.into())
     }
 
@@ -99,8 +107,8 @@ impl Source {
     pub fn detached_with_parser(
         text: impl Into<String>,
         parser: fn(&str) -> SyntaxNode,
-    ) -> Self {
-        let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+    ) -> SourceResult<Self> {
+        let id = FileId::from_raw(NonZeroU16::MIN);
         Self::new_with_parser(id, text.into(), parser)
     }
 
@@ -200,46 +208,48 @@ mod tests {
     use crate::entities::{file_id::FileId, syntax_kind::SyntaxKind};
 
     fn test_id() -> FileId {
-        FileId::from_raw(NonZeroU16::new(1).unwrap())
+        FileId::from_raw(NonZeroU16::MIN)
     }
 
     #[test]
     fn source_root_markup() {
-        let src = Source::new(test_id(), "Hello *world*".into());
+        let src = Source::new(test_id(), "Hello *world*".into())
+            .expect("valid Source test fixture");
         assert_eq!(src.root().kind(), SyntaxKind::Markup);
         assert!(!src.root().erroneous());
     }
 
     #[test]
     fn source_vazia() {
-        let src = Source::new(test_id(), "".into());
+        let src = Source::new(test_id(), "".into()).expect("valid Source test fixture");
         assert_eq!(src.len_bytes(), 0);
         assert_eq!(src.text(), "");
     }
 
     #[test]
     fn source_detached_heading() {
-        let src = Source::detached("= Heading");
+        let src = Source::detached("= Heading").expect("valid Source test fixture");
         let has_heading = src.root().children().any(|n| n.kind() == SyntaxKind::Heading);
         assert!(has_heading);
     }
 
     #[test]
     fn source_com_erros() {
-        let src = Source::detached("#{{{broken");
+        let src = Source::detached("#{{{broken").expect("valid Source test fixture");
         assert!(src.root().erroneous());
     }
 
     #[test]
     fn source_id_roundtrip() {
         let id = test_id();
-        let src = Source::new(id, "text".into());
+        let src = Source::new(id, "text".into()).expect("valid Source test fixture");
         assert_eq!(src.id(), id);
     }
 
     #[test]
     fn source_text_preservado() {
-        let src = Source::new(test_id(), "Hello *world*".into());
+        let src = Source::new(test_id(), "Hello *world*".into())
+            .expect("valid Source test fixture");
         assert_eq!(src.text(), "Hello *world*");
     }
 
@@ -247,7 +257,7 @@ mod tests {
 
     #[test]
     fn source_hash_o1_apos_construcao() {
-        let s = Source::detached("hello world");
+        let s = Source::detached("hello world").expect("valid Source test fixture");
         // Múltiplas chamadas retornam o mesmo hash — pré-computado
         assert_eq!(s.content_hash(), s.content_hash());
     }
@@ -255,16 +265,16 @@ mod tests {
     #[test]
     fn source_eq_mesmo_conteudo() {
         let id = test_id();
-        let s1 = Source::new(id, "hello".into());
-        let s2 = Source::new(id, "hello".into());
+        let s1 = Source::new(id, "hello".into()).expect("valid Source test fixture");
+        let s2 = Source::new(id, "hello".into()).expect("valid Source test fixture");
         assert_eq!(s1, s2);
     }
 
     #[test]
     fn source_neq_conteudo_diferente() {
         let id = test_id();
-        let s1 = Source::new(id, "hello".into());
-        let s2 = Source::new(id, "world".into());
+        let s1 = Source::new(id, "hello".into()).expect("valid Source test fixture");
+        let s2 = Source::new(id, "world".into()).expect("valid Source test fixture");
         assert_ne!(s1, s2);
     }
 
@@ -272,7 +282,7 @@ mod tests {
     fn source_pode_ser_chave_de_hashmap() {
         use rustc_hash::FxHashMap;
         let mut map: FxHashMap<Source, &str> = FxHashMap::default();
-        let s = Source::detached("test");
+        let s = Source::detached("test").expect("valid Source test fixture");
         map.insert(s.clone(), "value");
         assert_eq!(map.get(&s), Some(&"value"));
     }
@@ -285,7 +295,8 @@ mod tests {
 
     #[test]
     fn span_to_line_col_inicio_do_texto() {
-        let src = Source::new(test_id(), "abc".into());
+        let src =
+            Source::new(test_id(), "abc".into()).expect("valid Source test fixture");
         let sp = raw_span(&src, 0..0);
         assert_eq!(src.span_to_line_col(sp), Some((1, 0)));
     }
@@ -293,7 +304,8 @@ mod tests {
     #[test]
     fn span_to_line_col_depois_de_newline() {
         // "abc\nde" — offset 4 é o 'd' (segunda linha, coluna 0).
-        let src = Source::new(test_id(), "abc\nde".into());
+        let src =
+            Source::new(test_id(), "abc\nde".into()).expect("valid Source test fixture");
         let sp = raw_span(&src, 4..4);
         assert_eq!(src.span_to_line_col(sp), Some((2, 0)));
     }
@@ -302,21 +314,24 @@ mod tests {
     fn span_to_line_col_multibyte_unicode_coluna_em_chars() {
         // "áéí" — cada char tem 2 bytes em UTF-8.
         // Offset 2 é início do 'é' (coluna 1 em chars).
-        let src = Source::new(test_id(), "áéí".into());
+        let src =
+            Source::new(test_id(), "áéí".into()).expect("valid Source test fixture");
         let sp = raw_span(&src, 2..2);
         assert_eq!(src.span_to_line_col(sp), Some((1, 1)));
     }
 
     #[test]
     fn span_to_line_col_detached_devolve_none() {
-        let src = Source::new(test_id(), "qualquer coisa".into());
+        let src = Source::new(test_id(), "qualquer coisa".into())
+            .expect("valid Source test fixture");
         assert_eq!(src.span_to_line_col(Span::detached()), None);
     }
 
     #[test]
     fn span_to_line_col_ficheiro_diferente_devolve_none() {
         use std::num::NonZeroU16;
-        let src = Source::new(test_id(), "hello".into());
+        let src =
+            Source::new(test_id(), "hello".into()).expect("valid Source test fixture");
         let other_id = FileId::from_raw(NonZeroU16::new(42).unwrap());
         let sp = Span::from_range(other_id, 0..0);
         assert_eq!(src.span_to_line_col(sp), None);
@@ -325,7 +340,8 @@ mod tests {
     #[test]
     fn span_to_line_col_fim_do_texto() {
         // "abc" — offset 3 == len → posição após o 'c' (coluna 3).
-        let src = Source::new(test_id(), "abc".into());
+        let src =
+            Source::new(test_id(), "abc".into()).expect("valid Source test fixture");
         let sp = raw_span(&src, 3..3);
         assert_eq!(src.span_to_line_col(sp), Some((1, 3)));
     }
@@ -334,7 +350,8 @@ mod tests {
     fn span_to_line_col_span_numbered_via_linked_find() {
         // Spans numbered: obter o span dum nó real da CST e confirmar
         // que span_to_line_col devolve a posição do nó.
-        let src = Source::new(test_id(), "hello world".into());
+        let src = Source::new(test_id(), "hello world".into())
+            .expect("valid Source test fixture");
         let root = src.root();
         // Pegar no primeiro filho com span numbered.
         let first_child = root.children().next().expect("root tem filhos");
@@ -348,9 +365,23 @@ mod tests {
     #[test]
     fn span_to_line_col_offset_fora_de_limites_retorna_none() {
         // Raw-range com offset além do texto — defensivo.
-        let src = Source::new(test_id(), "abc".into());
+        let src =
+            Source::new(test_id(), "abc".into()).expect("valid Source test fixture");
         let sp = raw_span(&src, 100..200);
         // start=100 excede text.len()=3 → None.
         assert_eq!(src.span_to_line_col(sp), None);
+    }
+
+    #[test]
+    fn no_panic_source_construction_reports_numbering_failure_with_origin() {
+        let id = FileId::from_raw(std::num::NonZeroU16::MIN);
+        let errors = Source::with_numbering_interval(id, "αβ".into(), parse, 0..1)
+            .expect_err("an invalid numbering interval must not publish a Source");
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].message, "cannot number source spans");
+        assert_eq!(errors[0].span.id(), Some(id));
+        assert_eq!(errors[0].span.range(), Some(0..4));
+        assert!(errors[0].hints.is_empty());
+        assert!(errors[0].trace.is_empty());
     }
 }

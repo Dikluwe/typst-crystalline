@@ -1,5 +1,5 @@
 # L0 — images/scan
-Hash do Código: 53b9118b
+Hash do Código: 86e28332
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -27,6 +27,8 @@ the existing thread-local payload cache lifetime/key behavior; do not promise ne
 document-scoped invalidation or merge distinct pointers by equal bytes. RGB JPEG
 references the supplied ICC; gray/CMYK keep their own space and JPEG dimensions
 retain the existing frame-derived behavior. Raster alpha mask IDs precede main IDs.
+Keep the next object ID and image-name counter together in a private scan cursor so
+the warning carrier does not expand the image-item helper beyond the linted arity.
 Unknown formats are omitted; decode failures retain warning/omission and do not
 register successful pointer entries. Build recursive page resource dictionaries
 with unique references and return an empty string when no images exist.
@@ -95,3 +97,16 @@ target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
 prepared transport, native-target integration and parity slices recorded as
 T1c/T2/T3 are complete only after integrated verification; broken/partial states
 are no production certificate. T4 and publication remain out of scope.
+
+## Structured omission warnings
+
+The approved
+`lab/results/pdf-export-warning-carrier-2026-10-23/review.md` contract makes image
+scan receive the current build's warning vector. A malformed supported image
+that reaches direct export remains omitted and appends the exact
+`failed to decode image ({detail}) — imagem omitida` detached warning. An unknown
+format remains omitted and appends the exact
+`Formato de imagem desconhecido — imagem omitida` detached warning. Preserve
+encounter order, pointer deduplication, validation behavior and successful
+registration rules. Do not write stderr, discard a warning, manufacture a source
+span or weaken the normal pipeline's pre-export malformed-image error.

@@ -1,5 +1,6 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 73d74e24
+Hash do Código: 89d71fd8
+
 
 
 
@@ -7,6 +8,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
@@ -15,6 +17,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:8388731d50379499612641a70a85695c0e7139ec605289c29161e12086abd78a
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
+
 
 ## Ownership and extraction evidence
 
@@ -610,3 +613,41 @@ Figure declares ordered body,caption,kind,supplement fields. Resolved occurrence
 ### Acceptance and boundaries
 
 Require functional RED→GREEN, frozen kind/set/show-set/supplement/hidden-parent cases, alias/homonym and field snapshots, full build/tests, paths, strict forward/reverse lineage, V15/V26 and differential lint. No suppressions, opaque catchall, fake neutral child or weakened assertion. Caption omission/none, complete caption synthesis, supplement-dependent preview selection, complete function-number formatting, HTML implicit captions/references, Dynamic field enumeration, and mixed Table header/ordinary-cell supplemental target order remain explicit bounded debts.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+New Symbol constructor missing-argument errors use the transported full call; wrong-type text uses its positional occurrence value_span. Preserve evaluation order and all other native functions.
+
+
+## R4 — measured public mathematical projection / qualified conversion
+
+### Measurement before decision
+
+`lab/results/math-fields-r4-2026-10-23/baseline.json` and `before/receipt.json`
+retain UTC, HEAD, complete uncommitted diff stat, source map, archived sources
+and binary SHA-256. The oracle is pinned bd5ebec285505889e8ff1d4f68804ab147a699f3
+(tree cac836c07e4dec2a89219370428292393a3216b5). The before probe records
+fields/has/at and accepted/rejected constructor values rather than inferring
+intent from implementation. Upstream math/matrix.rs:45–67,238–272 and
+math/mod.rs:227–234 declare the already existing language fields. Local
+content_methods.rs:151–158,378–380 omits these projections; frac.rs:43–53
+and root.rs:27–38 reject supported operands. These are language semantics
+and morphology, distinct from byte or Rust algorithm parity.
+
+### Exclusive correction and gate
+
+Project MathText text through content_field and candidates. Vec declares delim/align/gap/children; Cases delim/reverse/gap/children; Class class/body. Use owning getters to distinguish Set from Unset; unknown remains Undeclared. Enumerate fields in declaration order; omit absent options, preserve explicitly set defaults. Keep authoritative LocatedContent snapshots, transparent causal wrappers and opaque unrelated Styled. Add co-located behavioral tests for ordered fields, has/at, direct getter, absent versus unknown, explicit defaults and native Symbol children. Existing matrix controls remain unchanged.
+
+This R4 clause supersedes only conflicting historical operand/field clauses
+above. Internal parity correction follows continuous ADR-0127: L0 first,
+reseal, actual functional RED before implementation, GREEN and full validation.
+No new public Rust field/signature/trait method, default mode or phase change.
+Preserve other semantics and all received changes. Record source-bound builds,
+full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
+A–H and R1–R3 without reclassifying their existing limitations as parity.

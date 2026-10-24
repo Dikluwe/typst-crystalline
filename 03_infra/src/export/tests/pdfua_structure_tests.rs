@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfua_structure_tests.md
-//! @prompt-hash 1ac19bf6
+//! @prompt-hash 198067d9
 //! @layer L3
 //! @updated 2026-09-23
 
@@ -18,6 +18,7 @@ fn export(doc: &typst_core::entities::layout_types::PagedDocument) -> Vec<u8> {
         None,
         standards,
     )
+    .output
 }
 
 #[test]

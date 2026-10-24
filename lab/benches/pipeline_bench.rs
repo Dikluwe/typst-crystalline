@@ -18,7 +18,8 @@ use typst_infra::world::SystemWorld;
 fn fixture(text: &str, embedded: bool) -> (SystemWorld, Source) {
     let world = SystemWorld::for_eval(env!("CARGO_MANIFEST_DIR"));
     let world = if embedded { world.with_embedded_fonts() } else { world };
-    let source = Source::new(world.main(), text.to_owned());
+    let source = Source::new(world.main(), text.to_owned())
+        .expect("valid pipeline benchmark source fixture");
     (world, source)
 }
 

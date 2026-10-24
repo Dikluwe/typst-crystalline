@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 3ae73754
+//! @prompt-hash 581dd10a
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -101,9 +101,34 @@ fn literal_line_right(items: &[FrameItem]) -> f64 {
         .fold(0.0_f64, f64::max)
 }
 
+fn has_inline_formula(items: &[FrameItem]) -> bool {
+    items.iter().any(|item| match item {
+        FrameItem::Semantic {
+            kind: crate::entities::layout_types::SemanticKind::Formula,
+            placement: crate::entities::layout_types::SemanticPlacement::Inline,
+            ..
+        } => true,
+        FrameItem::Link { items, .. }
+        | FrameItem::Semantic { items, .. }
+        | FrameItem::TextReplacement { items, .. } => has_inline_formula(items),
+        FrameItem::TextSeparator { .. }
+        | FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::Group { .. }
+        | FrameItem::Glyph { .. }
+        | FrameItem::Line { .. }
+        | FrameItem::Image { .. }
+        | FrameItem::Shape { .. } => false,
+    })
+}
+
 /// Transparent visual envelopes share line coordinates; transformed groups do not.
-fn visit_text_styles(items: &[FrameItem], visit: &mut impl FnMut(&TextStyle)) {
-    for item in items {
+fn visit_text_styles(
+    items: &[FrameItem],
+    math_text: bool,
+    visit: &mut impl FnMut(&TextStyle),
+) {
+    for (index, item) in items.iter().enumerate() {
         if super::html_frame::is_context_marker(item) {
             continue;
         }
@@ -115,15 +140,36 @@ fn visit_text_styles(items: &[FrameItem], visit: &mut impl FnMut(&TextStyle)) {
                 origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
                 ..
             } => visit(style),
+            FrameItem::TextSeparator {
+                style,
+                origin:
+                    crate::entities::layout_types::TextSeparatorOrigin::Markup
+                    | crate::entities::layout_types::TextSeparatorOrigin::Newline,
+                ..
+            } if math_text => {
+                if super::html_frame::items_have_material(&items[index + 1..]) {
+                    visit(style)
+                }
+            }
             FrameItem::Semantic {
                 kind:
-                    crate::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
-                    | crate::entities::layout_types::SemanticKind::ParbreakBoundary,
+                    crate::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary,
+                items,
+                ..
+            } => {
+                if math_text {
+                    visit_text_styles(items, true, visit);
+                }
+            }
+            FrameItem::Semantic {
+                kind: crate::entities::layout_types::SemanticKind::ParbreakBoundary,
                 ..
             } => {}
             FrameItem::Link { items, .. }
             | FrameItem::Semantic { items, .. }
-            | FrameItem::TextReplacement { items, .. } => visit_text_styles(items, visit),
+            | FrameItem::TextReplacement { items, .. } => {
+                visit_text_styles(items, math_text, visit)
+            }
             FrameItem::TextSeparator { .. }
             | FrameItem::Group { .. }
             | FrameItem::Glyph { .. }
@@ -142,7 +188,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     fn record_line_width(&mut self, preserve_terminal_literal: bool) {
         if super::html_frame::items_have_causal_line(&self.regions.current.current_line) {
             let right = super::helpers::line_content_right(
-                &self.regions.current.current_line,
+                self.regions
+                    .current
+                    .current_line
+                    .iter()
+                    .enumerate()
+                    .filter(|(index, _)| !super::repeat::piece_paint(self, *index))
+                    .map(|(_, item)| item),
                 &self.metrics,
             );
             let right = if preserve_terminal_literal {
@@ -389,19 +441,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut text_count = 0usize;
         let mut actual_text_top = 0.0_f64;
         let mut actual_text_bottom = 0.0_f64;
-        visit_text_styles(&self.regions.current.current_line, &mut |style| {
-            let size = style.size;
-            mixed_text_sizes |= (text_count > 0 && size.0 != outer_font_size.0)
-                || first_text_size.is_some_and(|first| size.0 != first);
-            first_text_size = first_text_size.or(Some(size.0));
-            if max_text.as_ref().is_none_or(|(max, _)| size.0 > max.0) {
-                max_text = Some((size, style.clone()));
-            }
-            text_count += 1;
-            let (top, bottom) = self.metrics.text_edges(size, style);
-            actual_text_top = actual_text_top.max(top.0);
-            actual_text_bottom = actual_text_bottom.min(bottom.0);
-        });
+        visit_text_styles(
+            &self.regions.current.current_line,
+            has_inline_formula(&self.regions.current.current_line),
+            &mut |style| {
+                let size = style.size;
+                mixed_text_sizes |= (text_count > 0 && size.0 != outer_font_size.0)
+                    || first_text_size.is_some_and(|first| size.0 != first);
+                first_text_size = first_text_size.or(Some(size.0));
+                if max_text.as_ref().is_none_or(|(max, _)| size.0 > max.0) {
+                    max_text = Some((size, style.clone()));
+                }
+                text_count += 1;
+                let (top, bottom) = self.metrics.text_edges(size, style);
+                actual_text_top = actual_text_top.max(top.0);
+                actual_text_bottom = actual_text_bottom.min(bottom.0);
+            },
+        );
         let forced_smaller_singleton = force_outer_singleton
             && text_count == 1
             && first_text_size.is_some_and(|size| size < outer_font_size.0);
@@ -631,11 +687,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if had_items {
             self.prev_line_baseline = self.regions.current.cursor_y.0;
             let decoration_start = Pt(super::paragraph_indent::bounds(self).0);
+            let piece_line = super::repeat::piece_line(self);
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(super::DecoSegment {
                     start_x: decoration_start,
                     end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
+                    piece_line,
                 });
             }
         }
@@ -899,6 +957,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
         self.pending_line_dir = None;
         self.close_link_line_segments();
+        super::repeat::commit_piece_line(self);
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -921,7 +980,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let baseline_y = self.regions.current.cursor_y.0;
             self.prev_line_baseline = baseline_y;
             self.regions.current.cursor_y += advance;
+            self.record_flow_baseline(Some(baseline_y));
             self.record_flow_placement_end(baseline_y + line_descent);
+            self.record_footnote_break();
             // **P1131** — uma linha substitui o fundo vertical anterior
             // quando ele existe. Texto comum fecha na baseline (aresta
             // inferior padrão do vanilla para `height: auto`); uma caixa

@@ -1,9 +1,9 @@
 # L0 — infra/shaper/shaping
-Hash do Código: 63280d13
+Hash do Código: 37f8280b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:283876383094ef7a2af90ad0598b9ca3ca5cbe0f7fc7714546cc8758da40878d
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
@@ -244,3 +244,74 @@ before two-pair scoped seals; build/fmt/strict all-target Clippy (-D warnings,
 -D unfulfilled_lint_expectations)/strict Rustdoc/V1/V5/V15/V26/reverse lineage/
 full suite/diff --check/integrity. Heavy commands sequential MemoryMax12GiB/
 High10GiB/swap0/jobs1; no commit/push/merge/release. General objective remains open.
+
+R3 fallback-selection pin correction: consume explicit semantic math mode for additional mathematical fallback; a font table alone does not change language mode. This consumer retains its existing operations. Evidence and refuters: `00_nucleo/prompts/infra/shaper/font_selection.md` and source-bound R3 receipts. Catalog entries, declared families, public contracts and phases remain unchanged.
+
+
+## R8 — approved font-backed superscript integration
+
+Evidence before decision: the source-bound `footnote-layout-r8-2026-10-24/before/receipt.json`,
+`font-tables.json` and `red-geometry.json` under `lab/results/construction/diagnostics/`
+record wrong 0.65 scaling/positive baseline and font-dependent pinned geometry at
+bd5ebec285505889e8ff1d4f68804ab147a699f3. `approval.json` binds the human-approved
+FontMetrics::text_superscript_metrics addition. OS/2/whole-run GSUB are text metrics;
+MATH constants and fixture/font-name coefficients are not substitutes. This private
+integration follows ADR-0127 continuous parity flow, superseding only superscript
+scaling/feature assumptions below. Keep subscript behavior and unrelated folds.
+For actual superscript text, use the selected varied face and complete original
+text to certify native sups. Request the same sups feature in measured widths and
+emitted glyphs; isolate cached superscript shaping from ordinary/ssty runs. An
+uncovered glyph refuses native use for the entire supplied text even when another
+subrun happens to be covered. Preserve all other feature and variation policies.
+
+Require actual RED→GREEN tests, fixed-pin PDF/SVG controls, unchanged geometry tolerance and complete workspace/lineage validation.
+
+
+R8 mixed-face cache refuter before deciding: native sups eligibility uses the
+complete supplied text, while the current emitted-glyph cache key uses only each
+subrun text plus a superscript flag. Hypothesis: warming native Nimbus digits can
+contaminate the same digit subrun inside a refused mixed Nimbus/DejaVu run. Refute
+with portable real-face warm/cold geometry equality and measured/emitted advance
+agreement; do not infer a correction solely from source structure. This test
+serves the already-approved complete-run feature and cache-coherence obligations.
+
+The initial Cyrillic fixture was invalid (Nimbus covers Ж); red-cache-valid.log
+then refutes the assumed two-face split for snowman: the existing longest-cover
+policy selects DejaVu for the complete run. Preserve that policy. The corrected
+refuter checks actual whole-run fallback and the already-supported multiline
+input123\nZ, whose Nimbus digit subrun can reuse a previous native123 entry
+while its complete supplied text refuses native coverage. Record the actual
+warm/cold outcome before deciding on a cache correction.
+
+
+R8 confirmed cache decision: red-cache-multiline.json/log bind the unchanged
+source and actual portable-font test. Warm123 emits native GIDs150/164/169 with
+333du advances inside123\nZ, while cold emits ordinary18/19/20 with556du. The
+snowman control preserves the actual whole-face fallback selection and passes.
+Key the emitted-glyph cache by the actual native-sups decision for the complete
+supplied text, evaluated before lookup from the selected cached face plus existing
+axis variations. Request that same decision on a miss. Retrieve the already
+selected face through the font-selection owner; do not change selection or
+introduce an extra World::font dependency for a cache hit. Ordinary runs retain
+the existing fast path. This is internal cache correctness, not a public addition.
+
+
+## R8 approved resolved native-script choice
+
+Measurement before decision: R8 numbering-candidate5/receipt.json records
+Nimbus11 numbering1 Z with1.4718pt error; the full marker chose synthesis but its
+shortened digit was shaped with sups again. The root is
+lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24/.
+The exact public TextStyle::superscript_native: Option<bool>, default None, was
+approved from owner draft SHA4b14829d1eb38475d1985a9707a6e6ce40166196dfe524afe512d99b9cabf4d0
+and is recorded in native-carrier-approval.json. Its data/default contract belongs
+only to core/entities/layout_types.md; this owner retains its existing consumer.
+No MATH flag, baseline sign, font-name constant, private string or source identity
+may substitute for the explicit choice. No extra public field/signature/phase.
+Some(false) forbids sups in measured width and emitted glyphs; Some(true) requests
+it with actual coverage/axes verification; None preserves automatic supplied-run
+coverage. Semantic superscript/subscript guards remain. Compute effective choice
+before emitted-cache lookup and key that actual decision. Preserve original
+text, glyph/source-font identity, offsets, counters and all unrelated features.
+
+Require new field/default/forced-false RED→GREEN, all twelve numbering refuters at0.001pt PDF/SVG, original ten notes, six font controls, warm/cold cache and full preservation/workspace/lineage gates.

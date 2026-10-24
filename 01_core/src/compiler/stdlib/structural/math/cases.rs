@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/cases.md
-//! @prompt-hash e4027436
+//! @prompt-hash 131a474a
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -189,7 +189,7 @@ fn math_cases_child(value: &Value, span: Span) -> SourceResult<Content> {
             content => Ok(content.clone()),
         },
         Value::Str(text) => Ok(Content::text(text.as_str())),
-        Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
+        Value::Symbol(symbol) => Ok(Content::Symbol(symbol.value.clone())),
         Value::None => Ok(Content::Empty),
         other => Err(vec![SourceDiagnostic::error(
             span,

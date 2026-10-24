@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/color/conversion.md
-//! @prompt-hash 47c58360
+//! @prompt-hash fab5e011
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Conversões entre espaços cromáticos e representação sRGB.
 
 use super::*;
+
+mod icc;
 
 impl Color {
     // ── Conversões ───────────────────────────────────────────
@@ -71,13 +73,7 @@ impl Color {
                 let (r, g, b) = hsv_to_rgb(h, s, v);
                 (r, g, b, a)
             }
-            Self::Cmyk { c, m, y, k } => {
-                // CMY → RGB: r=(1-c)(1-k), g=(1-m)(1-k), b=(1-y)(1-k).
-                let r = (1.0 - c) * (1.0 - k);
-                let g = (1.0 - m) * (1.0 - k);
-                let b = (1.0 - y) * (1.0 - k);
-                (r, g, b, 1.0)
-            }
+            Self::Cmyk { c, m, y, k } => icc::to_rgba(c, m, y, k),
             Self::Spot(spot) => spot.to_process().to_rgba_f32(),
         }
     }
@@ -465,6 +461,83 @@ impl Color {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cmyk_icc_public_projection_matches_pinned_profile() {
+        // Oracle: cmyk-before-v2/primary.typ.oracle.json; exact public values,
+        // not candidate/prototype outputs or an implementation lookup table.
+        for (percent, bytes, hex) in [
+            ([0.0_f64, 0.0, 0.0, 0.0], [255_u8, 255, 255], "#ffffff"),
+            ([0.0, 0.0, 0.0, 100.0], [35, 31, 32], "#231f20"),
+            ([100.0, 0.0, 0.0, 0.0], [0, 174, 239], "#00aeef"),
+            ([0.0, 100.0, 0.0, 0.0], [236, 0, 140], "#ec008c"),
+            ([0.0, 100.0, 100.0, 0.0], [237, 29, 36], "#ed1d24"),
+            ([13.0, 27.0, 61.0, 9.0], [203, 169, 109], "#cba96d"),
+            ([83.0, 19.0, 47.0, 26.0], [0, 122, 117], "#007a75"),
+            ([88.0, 7.0, 22.0, 86.0], [0, 45, 56], "#002d38"),
+            ([59.15, 40.35, 49.15, 11.63], [107, 124, 118], "#6b7c76"),
+        ] {
+            let [c, m, y, k] = percent.map(|value| (value / 100.0) as f32);
+            let color = Color::cmyk(c, m, y, k);
+            let [r, g, b] = bytes.map(|value| f32::from(value) / 255.0);
+            assert_eq!(color.to_rgba_f32(), (r, g, b, 1.0), "{percent:?}");
+            assert_eq!(color.to_srgb(), (bytes[0], bytes[1], bytes[2], 255));
+            assert_eq!(
+                color.clone().to_space(ColorSpace::Srgb).unwrap().to_rgba_f32(),
+                (r, g, b, 1.0)
+            );
+            assert_eq!(color.to_hex(), hex);
+        }
+    }
+
+    #[test]
+    fn cmyk_icc_public_projection_distinguishes_source_byte_rounding() {
+        // Independently measured single-axis witness: rounding-before/receipt.json.
+        // Unlike mixed half-byte controls, these distinguish both adjacent bytes.
+        let expected = [
+            ["#6ecff6", "#6dcef6", "#6dcef6"],
+            ["#f59ac2", "#f599c2", "#f599c2"],
+            ["#fff799", "#fff798", "#fff798"],
+            ["#939598", "#929497", "#929497"],
+        ];
+        for (axis, results) in expected.into_iter().enumerate() {
+            for (percent, hex) in [49.999_f64, 50.0, 50.001].into_iter().zip(results) {
+                let mut values = [0.0; 4];
+                values[axis] = (percent / 100.0) as f32;
+                let [c, m, y, k] = values;
+                assert_eq!(
+                    Color::cmyk(c, m, y, k).to_hex(),
+                    hex,
+                    "axis {axis}, {percent}%"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn cmyk_icc_projection_keeps_process_storage_and_spot_identity() {
+        let values = [0.1319, 0.2783, 0.6137, 0.0911];
+        let [c, m, y, k] = values;
+        let process = Color::cmyk(c, m, y, k);
+        assert_eq!(process.clone().to_space(ColorSpace::Cmyk).unwrap(), process);
+        for alpha in [false, true] {
+            assert_eq!(
+                process.clone().components(alpha),
+                values.map(ColorComponent::Ratio).to_vec()
+            );
+        }
+        let colorant = Arc::new(SpotColorant {
+            name: Some("Audit".into()),
+            fallback: Color::cmyk(0.13, 0.27, 0.61, 0.09),
+        });
+        let spot =
+            Color::Spot(SpotColor { colorant: colorant.clone(), tint: Ratio(0.5) });
+        assert_eq!(spot.clone().space(), ColorSpace::Spot((*colorant).clone()));
+        assert_eq!(spot.clone().components(true), vec![ColorComponent::Ratio(0.5)]);
+        assert_ne!(spot, spot.to_process());
+        // Oracle: cmyk-before-v2/controls.typ.oracle.json, explicit projection.
+        assert_eq!(spot.to_space(ColorSpace::Srgb).unwrap().to_hex(), "#e2cead");
+    }
 
     #[test]
     fn colors_ci_oklch_to_rgb_observed_colors_and_alpha() {

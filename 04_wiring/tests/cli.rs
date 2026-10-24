@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash bd096df1
+//! @prompt-hash 61dd5e45
 //! @layer L4
 //! @updated 2026-10-06
 //!
@@ -4345,5 +4345,135 @@ fn query_compiled_document_error_precedes_selector_but_retrieval_has_no_warning(
             String::from_utf8_lossy(&result.stderr),
             format!("error: {message}\n")
         );
+    }
+}
+
+#[cfg(target_os = "linux")]
+mod init_output_regressions {
+    use super::*;
+
+    fn fixture() -> (PathBuf, PathBuf) {
+        let data = init_fixture(
+            "1.2.3",
+            "[template]\npath = \"template\"\nentrypoint = \"src/main.typ\"",
+        );
+        let destination = data.join("created-project");
+        (data, destination)
+    }
+
+    fn command(data: &std::path::Path, destination: &std::path::Path) -> Command {
+        let mut command = Command::new(BIN);
+        command
+            .args(["init", "@local/starter:1.2.3"])
+            .arg(destination)
+            .env("XDG_DATA_HOME", data)
+            .env("XDG_CACHE_HOME", data.join("cache"))
+            .env("NO_COLOR", "1");
+        command
+    }
+
+    fn full() -> fs::File {
+        fs::OpenOptions::new().write(true).open("/dev/full").unwrap()
+    }
+
+    fn assert_project(destination: &std::path::Path) {
+        assert_eq!(
+            fs::read(destination.join("src/main.typ")).unwrap(),
+            b"Hello from template"
+        );
+        assert!(!destination.join("typst.toml").exists());
+    }
+
+    #[test]
+    fn init_output_full_stdout_preserves_created_project() {
+        let (data, destination) = fixture();
+        let result = command(&data, &destination).stdout(full()).output().unwrap();
+        assert_project(&destination);
+        assert_eq!(result.status.code(), Some(2));
+        assert!(result.stderr.is_empty(), "{:?}", result.stderr);
+        fs::remove_dir_all(data).unwrap();
+    }
+
+    #[test]
+    fn init_output_both_full_preserves_created_project() {
+        let (data, destination) = fixture();
+        let result = command(&data, &destination)
+            .stdout(full())
+            .stderr(full())
+            .output()
+            .unwrap();
+        assert_project(&destination);
+        assert_eq!(result.status.code(), Some(2));
+        fs::remove_dir_all(data).unwrap();
+    }
+
+    #[test]
+    fn init_output_broken_pipe_preserves_created_project() {
+        use std::os::{fd::OwnedFd, unix::net::UnixStream};
+        let (data, destination) = fixture();
+        let (writer, reader) = UnixStream::pair().unwrap();
+        drop(reader);
+        let descriptor: OwnedFd = writer.into();
+        let result = command(&data, &destination)
+            .stdout(Stdio::from(descriptor))
+            .output()
+            .unwrap();
+        assert_project(&destination);
+        assert_eq!(result.status.code(), Some(2));
+        assert!(result.stderr.is_empty(), "{:?}", result.stderr);
+        fs::remove_dir_all(data).unwrap();
+    }
+
+    #[test]
+    fn init_output_success_bytes_and_unused_stderr_failure_are_preserved() {
+        for failed_stderr in [false, true] {
+            let (data, destination) = fixture();
+            let mut command = command(&data, &destination);
+            if failed_stderr {
+                command.stderr(full());
+            }
+            let result = command.output().unwrap();
+            assert_project(&destination);
+            assert_eq!(result.status.code(), Some(0));
+            assert_eq!(
+                result.stdout,
+                format!(
+                    "Successfully created project in {}\nEntrypoint: {}\n",
+                    destination.display(),
+                    destination.join("src/main.typ").display()
+                )
+                .as_bytes()
+            );
+            assert!(result.stderr.is_empty());
+            fs::remove_dir_all(data).unwrap();
+        }
+    }
+
+    #[test]
+    fn init_output_initialization_errors_keep_healthy_and_failed_stderr_policy() {
+        for failed_stderr in [false, true] {
+            let (data, destination) = fixture();
+            let mut command = Command::new(BIN);
+            command
+                .args(["init", "not-a-package"])
+                .arg(&destination)
+                .env("XDG_DATA_HOME", &data)
+                .env("XDG_CACHE_HOME", data.join("cache"))
+                .env("NO_COLOR", "1");
+            if failed_stderr {
+                command.stderr(full());
+            }
+            let result = command.output().unwrap();
+            assert!(!destination.exists());
+            assert_eq!(result.status.code(), Some(if failed_stderr { 2 } else { 1 }));
+            assert!(result.stdout.is_empty());
+            if !failed_stderr {
+                assert_eq!(
+                    result.stderr,
+                    b"error: package specification must start with '@'\n"
+                );
+            }
+            fs::remove_dir_all(data).unwrap();
+        }
     }
 }

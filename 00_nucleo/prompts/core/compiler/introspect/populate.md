@@ -1,6 +1,9 @@
 # L0 — introspect/populate
 Hash do Código: 915bc53e
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
 ## Ownership and evidence
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/populate.rs`.
@@ -133,3 +136,18 @@ L0 precedes functional RED and implementation. Require independent fixed expecta
 ### First labelled counter identity
 
 Actual RED integration-tests-4 returns [false,false] for first typed key/unnumbered absence; ownership-oracle-2 fixes the first registry Location independently of later differently typed labels. After registering raw labels unchanged, insert per-label counter identity and numbering error classification only when labels.lookup(label)==the current Location. Apply the same first-target gate to existing Figure/Heading/Equation/Table/Footnote key insertions, so a later different kind cannot replace the first target or turn an unnumbered first Figure into numbered. Preserve all per-Location counts/indexes/actions, raw duplicate label registry, and existing scalar/error observers. This is a scoped internal causal-map repair, with no new public API or weakened ambiguity policy.
+
+
+## Approved physical-page source construction
+
+### Evidence before decision
+
+Clean baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`; exact source/owner bytes, hashes, UTC and working-tree state are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/before-l0.json.gz`. Current-pin bilateral source/query evidence and independent source-driver anchors are in `lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` (SHA-256 `38520d31351eb01fe7a191243a6a36318aba0c60473e0a2cc54103b36d8866bf`) and `lab/results/set-page-header-2026-10-21/agents/parity/index-driver.md`. Repeated physical raw marginals contribute distinct located semantic occurrences; counter/query order is background/header/body/footer/foreground. Dormant overwritten templates remain inert. These are language semantics/refusals, not frame scanning, Rust equality or execution-count parity. The human ratified the exact additive API/phase package in the frozen `lab/results/set-page-header-2026-10-21/agents/core/proposal.md` (SHA-256 `f509e593d67ec2c2ca19f9c32f2d561a9149d4db903e5b12f11d76dbf9cbdaa2`).
+
+### Exclusive responsibility
+
+Remain the single owner of root-payload store mutation. The planned physical driver calls this incremental population in validated source operation order before dependent histories/projections; preserve exact automatic/manual classification, first-label eligibility, kind/counter/state/metadata/bibliography writes and callback-free behavior. No independent source/Frame interpretation or copying of stale body-only vectors. Auxiliary derived operations sharing a Location remain distinct and never create duplicate automatic actions.
+
+### Acceptance and preserved boundaries
+
+Require owning L0 before productive code and actual functional RED→GREEN, complete source-packet/parent/authority proofs, fresh raw versus Located-alias controls, retained retries and no phantom dormant/measurement effects. Reuse the shared arena and existing strict read/Sink transactions. No additional public surface, default, field, phase or compatibility change beyond the frozen approved package; no global Frame introspection, copied histories, invented Location, I/O or observer weakening. Preserve old tests and immutable F/G receipts; maintain exhaustive closed decisions and validate full suites/build/strict lint/Clippy/Rustdoc/fmt/paths/forward and reverse lineage/Nucleus DAG. Unrelated bounded debts remain explicit.

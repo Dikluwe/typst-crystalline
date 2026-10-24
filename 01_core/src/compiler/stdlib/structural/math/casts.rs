@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/casts.md
-//! @prompt-hash e9a64462
+//! @prompt-hash c6abcde6
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -19,7 +19,7 @@ pub(super) fn math_lr_content_value(value: &Value, span: Span) -> SourceResult<C
         Value::Content(content) => Ok(content.clone()),
         Value::LocatedContent(content, _) => Ok(content.content().clone()),
         Value::Str(text) => Ok(Content::text(text.as_str())),
-        Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
+        Value::Symbol(symbol) => Ok(Content::Symbol(symbol.value.clone())),
         Value::None => Ok(Content::Empty),
         other => Err(vec![SourceDiagnostic::error(
             span,
@@ -69,10 +69,11 @@ pub(super) fn math_lr_size_from_args(args: &Args) -> SourceResult<(Rel<Length>, 
 
 pub(super) fn p1293_math_content(value: &Value, span: Span) -> SourceResult<Content> {
     match value {
+        Value::None => Ok(Content::Empty),
         Value::Content(content) => Ok(content.clone()),
         Value::LocatedContent(content, _) => Ok(content.content().clone()),
         Value::Str(text) => Ok(Content::MathText(text.clone())),
-        Value::Symbol(symbol) => Ok(Content::MathText(symbol.value.clone())),
+        Value::Symbol(symbol) => Ok(Content::Symbol(symbol.value.clone())),
         other => Err(vec![SourceDiagnostic::error(
             span,
             format!("expected content, found {}", vanilla_type_name_class(other)),

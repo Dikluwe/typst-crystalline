@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 5f03cf9c
+//! @prompt-hash 9ef427d3
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -933,7 +933,7 @@ pub(crate) fn eval_set_rule(
                     )]);
                 }
                 Some((_, Err(err))) => return Err(err),
-                None => {} // neutro: N16[β] — argumento numbering omitido em set-rule: estilos inalterados
+                Option::None => {} // Omitted numbering preserves the current style.
             }
             let number_align = set.args().items().find_map(|arg| {
                 if let Arg::Named(named) = arg {
@@ -1073,7 +1073,11 @@ pub(crate) fn eval_set_rule(
         return Ok(Value::None);
     }
 
-    if target == "page" {
+    if target_function.as_ref().is_some_and(|function| {
+        matches!(function.repr(), crate::entities::func::FuncRepr::NativeWithEngine(native)
+            if std::ptr::fn_addr_eq(native.call,
+                crate::compiler::stdlib::native_page as fn(_, _, _, _, _, _) -> _))
+    }) {
         return eval_set_page(set, scopes, ctx, engine);
     }
 
@@ -1358,7 +1362,8 @@ mod v16_c_structural_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }

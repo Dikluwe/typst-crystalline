@@ -1,5 +1,5 @@
 # L0 — stream
-Hash do Código: 83199c99
+Hash do Código: 3922e873
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -212,3 +212,16 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+## Compact coordinate regression expectations
+
+`lab/results/pdf-bbox-precision-2026-10-23/compact-green.log` records two
+legacy byte expectations failing after the compact absolute-origin regression
+turned GREEN. stream.rs:488–492 checks linked child700pt Y; :727 checks the
+Type1 envelope. Keep both test names, coordinates, text and operator sequence.
+Update only expected Td decimal spellings to five decimals, including the
+negative wrong-Y assertion; retain the complete compact envelope assertion.
+Historical byte-invariance wording is superseded only for Td precision. This
+owner supplies regression expectations, not descendant formatting logic. No
+new public/default/phase behavior. Require all exporter regressions and complete
+final-state validation, preserving the failed candidate log.

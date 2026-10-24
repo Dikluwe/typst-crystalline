@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/heading.md
-//! @prompt-hash 38c1dd2b
+//! @prompt-hash ee9ee274
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -297,6 +297,88 @@ pub(super) fn walk_heading(
                 tags.push(Tag::Start(loc, Box::new(info)));
                 tags.push(Tag::End(loc, 0));
             }
+        }
+    }
+}
+
+/// Source operands frozen at the correctly ordered planned Heading root.
+pub(super) struct PlannedHeading {
+    location: Location,
+    auto_index: usize,
+    auto_label: Label,
+    resolved_text: String,
+    frozen_body: Content,
+    numbering_active: bool,
+}
+
+pub(super) fn begin_planned(
+    h: &HeadingElem,
+    location: Location,
+    chain: &StyleChain,
+    intr: &TagIntrospector,
+    auto_label_counter: &mut usize,
+) -> PlannedHeading {
+    *auto_label_counter += 1;
+    let auto_index = *auto_label_counter;
+    let numbering_active =
+        matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
+    let (auto_label, resolved_text) =
+        compute_heading_auto_toc(intr, location, auto_index, numbering_active);
+    PlannedHeading {
+        location,
+        auto_index,
+        auto_label,
+        resolved_text,
+        frozen_body: materialize_time(&h.body, intr, location),
+        numbering_active,
+    }
+}
+
+pub(super) fn finish_planned(
+    h: &HeadingElem,
+    planned: PlannedHeading,
+    intr: &mut TagIntrospector,
+    tags: &mut Vec<Tag>,
+) {
+    let loc = planned.location;
+    let info = ElementInfo::new(ElementPayload::Labelled {
+        label: planned.auto_label,
+        resolved_text: Some(planned.resolved_text),
+        figure_number: None,
+    });
+    populate_intr_from_tag_start(intr, &info, loc);
+    tags.push(Tag::Start(loc, Box::new(info)));
+    tags.push(Tag::End(loc, 0));
+    if let Some((label, number, body, level)) = compute_heading_for_toc(
+        intr,
+        loc,
+        planned.auto_index,
+        planned.frozen_body,
+        h.level as usize,
+        planned.numbering_active,
+    ) {
+        if h.outlined {
+            intr.outlined_heading_locations.push(loc);
+            let info = ElementInfo::new(ElementPayload::HeadingForToc {
+                label: label.clone(),
+                number: number.clone(),
+                body: body.clone(),
+                level,
+            });
+            populate_intr_from_tag_start(intr, &info, loc);
+            tags.push(Tag::Start(loc, Box::new(info)));
+            tags.push(Tag::End(loc, 0));
+        }
+        if h.is_bookmarked() {
+            let info = ElementInfo::new(ElementPayload::HeadingForBookmarks {
+                label,
+                number,
+                body,
+                level,
+            });
+            populate_intr_from_tag_start(intr, &info, loc);
+            tags.push(Tag::Start(loc, Box::new(info)));
+            tags.push(Tag::End(loc, 0));
         }
     }
 }

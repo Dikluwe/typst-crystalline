@@ -1,5 +1,5 @@
 # L0 — builder
-Hash do Código: c1a5f9e0
+Hash do Código: 0c3e58dc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -136,3 +136,14 @@ target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
 prepared transport, native-target integration and parity slices recorded as
 T1c/T2/T3 are complete only after integrated verification; broken/partial states
 are no production certificate. T4 and publication remain out of scope.
+
+## Invocation-local PDF warnings
+
+Under the approved
+`lab/results/pdf-export-warning-carrier-2026-10-23/review.md` contract,
+`PdfBuilder` owns one warning vector per build and returns it through
+`PdfExport<(Vec<u8>, f64)>`. Helvetica, CIDFont and multifont dispatch preserve
+the vector without filtering, deduplication or global state. Image scanning and
+font preparation append warnings in encounter order. Successful bytes, subset
+timing, object allocation and every existing export option remain unchanged.
+The builder performs no stdout/stderr publication.

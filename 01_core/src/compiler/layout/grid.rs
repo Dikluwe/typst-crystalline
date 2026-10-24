@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid.md
-//! @prompt-hash 85c7a855
+//! @prompt-hash 881ad70a
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 //!
 //! Braço `Content::Grid` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037.
@@ -31,7 +31,7 @@ use crate::entities::{
     sides::Sides,
 };
 
-use super::grid_placement::{place_cells, PlacedCell};
+use super::grid_placement::PlacedCell;
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
 
@@ -224,6 +224,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     return;
                 }
             };
+        let source_routes = match row_groups::planned_sources(
+            self.page_running_pass.as_ref().and_then(|pass| pass.cursor.clone()),
+            cells,
+            header,
+            footer,
+            num_cols,
+        ) {
+            Ok(routes) => routes,
+            Err(errors) => {
+                self.layout_errors.extend(errors);
+                self.cell_align = saved_cell_align;
+                return;
+            }
+        };
+        if source_routes
+            .as_ref()
+            .is_some_and(|routes| routes.len() != combined_cells.len())
+        {
+            self.layout_errors.push(
+                crate::entities::source_result::SourceDiagnostic::error(
+                    self.current_source_span,
+                    "grid source projection does not match selected cells",
+                ),
+            );
+            self.cell_align = saved_cell_align;
+            return;
+        }
         let cells: &[Content] = &combined_cells;
 
         // Guarda Passo 83 — rows vazias caem em [Auto] para evitar
@@ -264,23 +291,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let prepared = cells
             .iter()
             .all(|c| matches!(c,Content::TableCell(c) if c.resolved.is_some()));
-        let placed_cells: Vec<PlacedCell> = if prepared {
+        let indexed_placed: Vec<(Option<usize>, PlacedCell)> = if prepared {
             cells
                 .iter()
-                .map(|c| {
+                .enumerate()
+                .map(|(source_index, c)| {
                     let Content::TableCell(c) = c else { unreachable!() };
                     let r = c.resolved.as_ref().unwrap();
-                    PlacedCell {
-                        body: Content::TableCell(c.clone()),
-                        row: r.y,
-                        col: r.x,
-                        colspan: r.colspan,
-                        rowspan: r.rowspan,
-                    }
+                    (
+                        Some(source_index),
+                        PlacedCell {
+                            body: Content::TableCell(c.clone()),
+                            row: r.y,
+                            col: r.x,
+                            colspan: r.colspan,
+                            rowspan: r.rowspan,
+                        },
+                    )
                 })
                 .collect()
         } else {
-            match place_cells(cells, num_cols) {
+            match super::grid_placement::place_cells_indexed(cells, num_cols) {
                 Ok(placed) => placed,
                 Err(diagnostics) => {
                     self.layout_errors.extend(diagnostics);
@@ -289,6 +320,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
             }
         };
+
+        let mut placed_cells = Vec::with_capacity(indexed_placed.len());
+        let mut placed_routes = source_routes
+            .as_ref()
+            .map(|_| Vec::with_capacity(indexed_placed.len()));
+        for (source_index, cell) in indexed_placed {
+            if let (Some(routes), Some(output)) = (&source_routes, &mut placed_routes) {
+                let route = if let Some(index) = source_index {
+                    let Some(route) = routes.get(index) else {
+                        self.layout_errors.push(
+                            crate::entities::source_result::SourceDiagnostic::error(
+                                self.current_source_span,
+                                "placed cell source index is outside its projection",
+                            ),
+                        );
+                        self.cell_align = saved_cell_align;
+                        return;
+                    };
+                    route.clone()
+                } else {
+                    None
+                };
+                output.push(route);
+            }
+            placed_cells.push(cell);
+        }
 
         // Derive num_rows_produced_final do placed (pode estender
         // além de rows_of_items.len() para cells explicit com y > N).
@@ -321,20 +378,38 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        let emitted_row_starts = self.emit_grid_cells(
-            &mut measured_cells,
-            &placed_cells,
-            &cells_per_row,
-            num_rows_produced_final,
-            num_cols,
-            &row_heights,
-            &col_starts,
-            &resolved_widths,
-            &row_tracks,
-            inset,
-            stroke,
-            fill,
-        );
+        let emitted_row_starts = if let Some(routes) = &placed_routes {
+            self.emit_grid_cells_planned(cell_emission::GridEmissionInput {
+                measured_cells: &mut measured_cells,
+                placed_cells: &placed_cells,
+                cells_per_row: &cells_per_row,
+                num_rows_produced_final,
+                num_cols,
+                row_heights: &row_heights,
+                col_starts: &col_starts,
+                resolved_widths: &resolved_widths,
+                row_tracks: &row_tracks,
+                inset,
+                stroke,
+                fill,
+                routes: Some(routes),
+            })
+        } else {
+            self.emit_grid_cells(
+                &mut measured_cells,
+                &placed_cells,
+                &cells_per_row,
+                num_rows_produced_final,
+                num_cols,
+                &row_heights,
+                &col_starts,
+                &resolved_widths,
+                &row_tracks,
+                inset,
+                stroke,
+                fill,
+            )
+        };
 
         rules::emit_explicit_rules(
             hlines,
@@ -412,6 +487,7 @@ mod smoke {
             &[50.0, 50.0],
             2,
             Some(&stroke),
+            false,
         );
         let h_lines: Vec<_> = layouter
             .regions
@@ -470,6 +546,7 @@ mod smoke {
             &[50.0, 50.0],
             2,
             Some(&stroke),
+            false,
         );
         let h_lines: Vec<_> = layouter
             .regions
@@ -559,6 +636,7 @@ mod smoke {
             &[50.0, 50.0],
             2,
             None,
+            false,
         );
         let h_lines: Vec<_> = layouter
             .regions

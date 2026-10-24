@@ -1,5 +1,5 @@
 # L0 — public html module and feature gate
-Hash do Código: 60d65ea5
+Hash do Código: c7a48804
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
@@ -108,3 +108,23 @@ Keep the direct native_html_frame pub(in crate::compiler) reexport before inline
 Acceptance covers all 112 tags/specific casts, all 76 globals with invalid/unset/order/None-versus-string/Presence/empty-list controls, strict normal/void/raw bodies, all thirteen void classifications, root/std/alias/With identities, all 114 format identity pairs, four feature/target quadrants and eight profiles, gated lookup/errors/hints/spans, and real DOM escaping/nesting/raw/frame output. Unknown, crash, timeout, ambiguous cast or unobserved DOM fails closed. Preserve independent fixtures/correctors; direct Rust reconstruction cannot hide a changed public signature. Require build/full workspace/core/test inventory, strict Clippy/Rustdoc/fmt, strict/reverse lineage, valid pins/V15/V26 and restricted resealing. No production, render-speed or global-parity claim follows.
 
 Apply pinned format-native-identity nucleus. Native/Format grouping is justified by same payload/ABI for projection/execution, but test every alternative for name/namespace/pointer/Eq/Hash/clone/With/dispatch; inventory/link V19 to tests without suppression, explicitly name new variant in exhaustive matches. No external definition/signature/field/trait/compatibility/default/phase changes, ADR-0127 continuous flow. Before code functional RED via current factories for fifteen cases and real observation against unmarked Native; GREEN full corpus/144 field-call/456 compatibility outside where/kind, public-contract and sizeof before/after. L0/ownership/V26 before restricted eleven-pair reseal; build/workspace/strict Clippy/Rustdoc/fmt/strict-reverse lineage/global no new errors/warnings. Sequential 12GiB/High10GiB/swap0/jobs1. Only where/kind admission closes; full selection/show/query/synthesis/carrier morphology/counter, FG1/RM1/SY1/RG1/V16 retain separate scopes/gates. No old-candidate copying or publication.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

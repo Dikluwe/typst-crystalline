@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 073e809d
+Hash do Código: f7bcdf66
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
@@ -89,3 +89,6 @@ no items. The iterator exposes no public allocation identity or telemetry API;
 ordinary style resolution and public contracts remain unchanged. Test borrowed
 order, empty-node presence, and empty-chain termination. The observation owner
 compares the returned deltas and retains opaque Unproven values.
+
+## R8 approved resolved carrier bridge
+Measurement: src/entities/style_chain.rs:827–855 constructs the full resolved TextStyle. The approved layout_types.md R8 contract adds superscript_native: Option<bool>. From<&StyleChain> must initialize None: this is resolved render provenance, never a new StyleDelta property. No public StyleChain signature changes.

@@ -1,16 +1,19 @@
 # L0 — compiler/eval/rules/realize — Paragraph realization
-Hash do Código: 560ab8aa
+Hash do Código: 9a935e69
+
+
+
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/eval/rules/realize.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
-
-Layer: L1
-Exclusive consumer: `01_core/src/compiler/eval/rules/realize.rs`
 
 ## Extraction evidence and contract
 
@@ -164,3 +167,51 @@ broader paragraph parity remain separately open; exhaustiveness does not close
 those debts. This package preserves the local decision and earlier carrier
 contracts while making future nominal additions reviewable. It authorizes no
 public contract, product mode, phase change or suppression.
+
+## Actual singleton flow entry before paragraph recipes (2026-10-22)
+
+`lab/results/remaining-parity-2026-10-22/agents/repeat/singleton-paragraph-before.json` records exact source/L0 hashes, dirty tree and UTC before the new controls. Candidate-7's real successful build and full `validation/tests-domain-infra.log` retain three genuine paragraph regressions: show-par identity receives plain Text instead of prepared Par; its function no longer produces Strong; and a Heading-to-inline actual product loses its matched paragraph metadata effect. All three unchanged tests were GREEN in the previous P5 full core log. Removing statement-generated separators is independently measured language correctness; restoring phantom whitespace to fabricate a multi-item Sequence is not an authorized repair.
+
+`realize.rs:24–26` currently enters through `realize_node`, whose Text leaf is deliberately inline. `realize_scoped_flow` already distinguishes this actual flow entry: it prepares singleton Text, crosses Source/ShowRecipe/Styled while preserving their metadata, and delegates all other bodies to existing realization. Existing Par uses inline-body preparation and remains single. The actual callers are paragraph-recipe frontiers in `rules/apply.rs:120` and `realize/recipes.rs:659`; this evidence does not prove that no-show-Par Bidi roots use this entry. The latter's existing source-level regression must be measured separately.
+
+Make `realize_paragraphs` reuse that existing scoped-flow entry for its supplied actual root. Keep the Source span, lexical Styles and captured ShowRecipe snapshot/guards/file/context intact, with no callback execution or reconstruction outside existing owners. Existing Sequence flow preparation, already-prepared Par, math/opaque leaves and all unsupported classifications keep their present handling. Do not replace `realize_node` or `realize_inline_node` generically, invent a Sequence to evade singleton classification, prepare arbitrary Text/Styled descendants, or create nested Par around an existing Par. Preserve the independent statement-whitespace correction and existing producer/effect/style-precedence assertions. No public signature, new behavior flag or eval/layout phase is introduced.
+
+Require meaningful direct, Source-owned and Styled singleton-root controls: each actual Text root becomes exactly one paragraph with the same text and original span/styles. Existing direct/Source/Styled Par roots remain singly prepared across repeated entry. Run the three original paragraph regressions unchanged, plus original core/infra Bidi source tests as measured preservation gates rather than an assumed closure. Full tests, all-target Clippy/rustdoc/fmt, raw parity, paths and forward/reverse lineage remain mandatory without suppressions or tolerance changes.
+
+
+The later C8 actual inline-source measurement in
+`00_nucleo/prompts/core/compiler/realize/recipes.md` distinguishes a genuine
+eligible singleton flow from a captured inline packet whose inherited Par
+recipes are all causally guarded. The coordinator selects the existing
+`realize_node` for the latter; `realize_paragraphs` itself retains the scoped
+entry above. This does not authorize reverting singleton preparation or changing
+any leaf transformation. Both existing crate-private functions remain exclusively
+owned here and may be delegated through the rules hub without public API growth.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

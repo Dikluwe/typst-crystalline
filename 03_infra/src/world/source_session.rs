@@ -1,12 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/source_session.md
-//! @prompt-hash dad86b24
+//! @prompt-hash f2666aa0
 //! @layer L3
 //! @updated 2026-10-08
 
 use std::path::PathBuf;
 use std::sync::Mutex;
-use typst_core::entities::{file_id::FileId, source::Source};
+use typst_core::entities::{
+    file_id::FileId,
+    source::Source,
+    world_types::{FileError, FileResult},
+};
 
 const MAX_ENTRIES: usize = 8;
 const MAX_BYTES: usize = 1024 * 1024;
@@ -30,8 +34,16 @@ impl SourceSession {
     pub fn new() -> Self {
         Self { entries: Mutex::new(Vec::new()) }
     }
-    pub(super) fn get_or_parse(&self, path: PathBuf, id: FileId, text: String) -> Source {
-        let mut entries = self.entries.lock().unwrap();
+    pub(super) fn get_or_parse(
+        &self,
+        path: PathBuf,
+        id: FileId,
+        text: String,
+    ) -> FileResult<Source> {
+        let mut entries = self
+            .entries
+            .lock()
+            .map_err(|_| FileError::Other("source session lock is poisoned".into()))?;
         if let Some(index) =
             entries.iter().position(|e| e.path == path && e.source.id() == id)
         {
@@ -39,21 +51,21 @@ impl SourceSession {
             if entry.source.text() == text {
                 let source = entry.source.clone();
                 entries.push(entry);
-                return source;
+                return Ok(source);
             }
         }
         if !path.is_absolute() || text.len() > MAX_ENTRY_BYTES {
             drop(entries);
-            return Source::new(id, text);
+            return super::cache::source_from_result(Source::new(id, text));
         }
-        let source = Source::new(id, text);
+        let source = super::cache::source_from_result(Source::new(id, text))?;
         entries.push(Entry { path, source: source.clone() });
         while entries.len() > MAX_ENTRIES
             || entries.iter().map(|e| e.source.len_bytes()).sum::<usize>() > MAX_BYTES
         {
             entries.remove(0);
         }
-        source
+        Ok(source)
     }
 }
 
@@ -129,7 +141,9 @@ mod tests {
         let fixture = Fixture::new();
         let session = <SourceSession as Default>::default();
         for n in 0..=MAX_ENTRIES {
-            session.get_or_parse(fixture.0.join(format!("{n}.typ")), id(1), "a".into());
+            session
+                .get_or_parse(fixture.0.join(format!("{n}.typ")), id(1), "a".into())
+                .expect("valid source session fixture");
         }
         assert_eq!(session.entries.lock().unwrap().len(), MAX_ENTRIES);
         assert!(!session
@@ -139,8 +153,9 @@ mod tests {
             .iter()
             .any(|entry| entry.path == fixture.0.join("0.typ")));
         let oversized = "a".repeat(MAX_ENTRY_BYTES + 1);
-        let source =
-            session.get_or_parse(fixture.0.join("large.typ"), id(1), oversized.clone());
+        let source = session
+            .get_or_parse(fixture.0.join("large.typ"), id(1), oversized.clone())
+            .expect("valid source session fixture");
         assert_eq!(source.text(), oversized);
         assert_eq!(session.entries.lock().unwrap().len(), MAX_ENTRIES);
         assert!(!session
@@ -151,11 +166,13 @@ mod tests {
             .any(|entry| entry.path == fixture.0.join("large.typ")));
         let aggregate = <SourceSession as Default>::default();
         for n in 0..3 {
-            aggregate.get_or_parse(
-                fixture.0.join(format!("aggregate{n}.typ")),
-                id(1),
-                "a".repeat(MAX_ENTRY_BYTES),
-            );
+            aggregate
+                .get_or_parse(
+                    fixture.0.join(format!("aggregate{n}.typ")),
+                    id(1),
+                    "a".repeat(MAX_ENTRY_BYTES),
+                )
+                .expect("valid source session fixture");
         }
         let retained = aggregate.entries.lock().unwrap();
         assert_eq!(retained.len(), 2);
@@ -172,14 +189,24 @@ mod tests {
         let session = Arc::new(SourceSession::new());
         let w = f.world("main.typ", &session);
         let main = w.source(w.main()).unwrap();
-        let imported = w.source(w.register_file(import.clone())).unwrap();
+        let imported = w
+            .source(
+                w.register_file(import.clone())
+                    .expect("valid registration test fixture"),
+            )
+            .unwrap();
         let w2 = f.world("main.typ", &session);
         let main2 = w2.source(w2.main()).unwrap();
         assert!(same(&main, &main2));
-        assert_eq!(w2.dependencies(), vec![f.0.join("main.typ")]);
-        let imported2 = w2.source(w2.register_file(import)).unwrap();
+        assert_eq!(
+            w2.dependencies().expect("healthy dependency fixture"),
+            vec![f.0.join("main.typ")]
+        );
+        let imported2 = w2
+            .source(w2.register_file(import).expect("valid registration test fixture"))
+            .unwrap();
         assert!(same(&imported, &imported2));
-        assert_eq!(w2.dependencies().len(), 2);
+        assert_eq!(w2.dependencies().expect("healthy dependency fixture").len(), 2);
         assert!(w2.read_cache.lock().unwrap().is_empty());
     }
     #[test]
@@ -208,13 +235,21 @@ mod tests {
         let p = f.file("one.typ", "same");
         let q = f.file("two.typ", "same");
         let session = SourceSession::new();
-        let a = session.get_or_parse(p.clone(), id(2), "same".into());
-        let b = session.get_or_parse(p.clone(), id(3), "same".into());
-        let c = session.get_or_parse(q, id(2), "same".into());
+        let a = session
+            .get_or_parse(p.clone(), id(2), "same".into())
+            .expect("valid source session fixture");
+        let b = session
+            .get_or_parse(p.clone(), id(3), "same".into())
+            .expect("valid source session fixture");
+        let c = session
+            .get_or_parse(q, id(2), "same".into())
+            .expect("valid source session fixture");
         assert!(!same(&a, &b));
         assert!(!same(&a, &c));
         assert_eq!(b.id(), id(3));
-        let d = session.get_or_parse(p, id(2), "same".into());
+        let d = session
+            .get_or_parse(p, id(2), "same".into())
+            .expect("valid source session fixture");
         assert!(same(&a, &d));
     }
     #[test]
@@ -242,10 +277,14 @@ mod tests {
         let q = f.file("two.typ", "two");
         let session = Arc::new(SourceSession::new());
         let w = f.world("main.typ", &session);
-        let a = w.source(w.register_file(p.clone())).unwrap();
+        let a = w
+            .source(w.register_file(p.clone()).expect("valid registration test fixture"))
+            .unwrap();
         let w2 = f.world("main.typ", &session);
-        w2.register_file(q);
-        let b = w2.source(w2.register_file(p)).unwrap();
+        w2.register_file(q).expect("valid registration test fixture");
+        let b = w2
+            .source(w2.register_file(p).expect("valid registration test fixture"))
+            .unwrap();
         assert_ne!(a.id(), b.id());
         assert!(!same(&a, &b));
         assert_eq!(b.id(), id(3));
@@ -255,12 +294,23 @@ mod tests {
         let f = Fixture::new();
         let session = SourceSession::new();
         let p = f.0.join("0.typ");
-        let a = session.get_or_parse(p.clone(), id(1), "a".into());
+        let a = session
+            .get_or_parse(p.clone(), id(1), "a".into())
+            .expect("valid source session fixture");
         for n in 1..8 {
-            session.get_or_parse(f.0.join(format!("{n}.typ")), id(1), "a".into());
+            session
+                .get_or_parse(f.0.join(format!("{n}.typ")), id(1), "a".into())
+                .expect("valid source session fixture");
         }
-        assert!(same(&a, &session.get_or_parse(p, id(1), "a".into())));
-        session.get_or_parse(f.0.join("8.typ"), id(1), "a".into());
+        assert!(same(
+            &a,
+            &session
+                .get_or_parse(p, id(1), "a".into())
+                .expect("valid source session fixture")
+        ));
+        session
+            .get_or_parse(f.0.join("8.typ"), id(1), "a".into())
+            .expect("valid source session fixture");
         let entries = session.entries.lock().unwrap();
         assert_eq!(entries.len(), MAX_ENTRIES);
         assert!(!entries.iter().any(|e| e.path == f.0.join("1.typ")));
@@ -271,7 +321,9 @@ mod tests {
         let session = SourceSession::new();
         let text = "a".repeat(MAX_ENTRY_BYTES);
         for n in 0..3 {
-            session.get_or_parse(f.0.join(format!("{n}.typ")), id(1), text.clone());
+            session
+                .get_or_parse(f.0.join(format!("{n}.typ")), id(1), text.clone())
+                .expect("valid source session fixture");
         }
         let entries = session.entries.lock().unwrap();
         assert_eq!(entries.len(), 2);
@@ -282,8 +334,12 @@ mod tests {
         drop(entries);
         let path = f.0.join("large.typ");
         let large = "a".repeat(MAX_ENTRY_BYTES + 1);
-        let a = session.get_or_parse(path.clone(), id(1), large.clone());
-        let b = session.get_or_parse(path, id(1), large);
+        let a = session
+            .get_or_parse(path.clone(), id(1), large.clone())
+            .expect("valid source session fixture");
+        let b = session
+            .get_or_parse(path, id(1), large)
+            .expect("valid source session fixture");
         assert!(!same(&a, &b));
         assert_eq!(a.len_bytes(), MAX_ENTRY_BYTES + 1);
         assert_eq!(session.entries.lock().unwrap().len(), 2);
@@ -309,14 +365,18 @@ mod tests {
         let f = Fixture::new();
         let p = f.file("main.typ", "shared");
         let session = Arc::new(SourceSession::new());
-        let _ = session.get_or_parse(p.clone(), id(1), "shared".into());
+        let _ = session
+            .get_or_parse(p.clone(), id(1), "shared".into())
+            .expect("valid source session fixture");
         let threads = (0..8)
             .map(|n| {
                 let s = session.clone();
                 let p = p.clone();
                 std::thread::spawn(move || {
                     let text = format!("value{n}");
-                    let source = s.get_or_parse(p, id(n + 1), text.clone());
+                    let source = s
+                        .get_or_parse(p, id(n + 1), text.clone())
+                        .expect("valid source session fixture");
                     assert_eq!(source.id(), id(n + 1));
                     assert_eq!(source.text(), text);
                 })
@@ -326,5 +386,22 @@ mod tests {
             t.join().unwrap();
         }
         assert!(session.entries.lock().unwrap().len() <= MAX_ENTRIES);
+    }
+
+    #[test]
+    fn no_panic_source_session_poison_stays_an_error() {
+        let session = SourceSession::new();
+        std::thread::scope(|scope| {
+            let thread = scope.spawn(|| {
+                let _guard = session.entries.lock().unwrap();
+                panic!("intentional test-only source session poison");
+            });
+            assert!(thread.join().is_err());
+        });
+        let error = session
+            .get_or_parse(PathBuf::from("/poison.typ"), id(1), "valid".into())
+            .unwrap_err();
+        assert_eq!(error, FileError::Other("source session lock is poisoned".into()));
+        assert!(session.entries.is_poisoned());
     }
 }

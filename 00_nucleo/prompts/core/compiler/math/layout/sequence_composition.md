@@ -1,8 +1,11 @@
 # L0 — compiler/math/layout/sequence_composition
-Hash do Código: 028f69c4
+Hash do Código: 71e4bcb0
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Ownership and evidence
 
@@ -87,3 +90,15 @@ Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
 zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
 CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
 complete parity.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## R3 native Symbol grapheme composition
+
+Evidence precedes this decision in `00_nucleo/prompts/core/compiler/math/layout/mod.md` and `lab/results/math-geometry-r3-2026-10-23/before/receipt.json`; actual RED in `red-tests/receipt.json` proves omitted independent advances and unsplit payload. Pinned `math/ir/resolve.rs:326–358` creates one glyph per grapheme. Compose the native Symbol's transient glyph nodes through existing sequence spacing and hconcat; keep selectors/combining marks attached with Unicode grapheme segmentation, preserve the authored public Symbol, and measure each cluster once. The owning dispatch/flatten projection delegates here, retaining source spans and neighboring boundary classes. No entity/public API, phase, callback or exporter change. Existing MathIdent/Text lexical runs remain unchanged. RED→GREEN and complete PDF/SVG comparisons at 0.001 pt are required under continuous ADR-0127.

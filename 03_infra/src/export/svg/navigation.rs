@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/navigation.md
-//! @prompt-hash 4e55e946
+//! @prompt-hash 982023f3
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -86,6 +86,10 @@ pub(super) fn render_link(
     size: &Size,
     session: &mut SvgRenderSession<'_>,
 ) {
+    // Visual overflow is not part of this link's nominal interaction area.
+    for item in items {
+        render_item(xml, item, session);
+    }
     xml.start_element("a");
     match target {
         LinkTarget::Url(url) => {
@@ -110,8 +114,5 @@ pub(super) fn render_link(
     xml.write_attribute("fill", "transparent");
     xml.write_attribute("data-crystalline-link-hit-area", "true");
     xml.end_element();
-    for item in items {
-        render_item(xml, item, session);
-    }
     xml.end_element();
 }

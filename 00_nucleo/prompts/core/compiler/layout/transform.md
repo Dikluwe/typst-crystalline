@@ -1,16 +1,20 @@
 # L0 — transform
-Hash do Código: 316f5617
+Hash do Código: b1b36e5e
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/transform.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/layout/transform.rs`
-**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 ## Evidence before specification
 
@@ -73,3 +77,105 @@ Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait me
 Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
 Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.
+
+## Source-owned physical page child transport
+
+### Measurement and approved scope
+
+At the implementation baseline, `transform.rs:49–58 and :640–657` selects the
+actual body/subframe or deferred-body operation. Exact source/L0 texts, full
+SHA-256, UTC, HEAD and working-tree state before this amendment are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/child-adapters/before.json`.
+The approved review SHA-256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+and human `approval.json` under the implementation evidence ratify this finite
+physical-page source-routing phase. Existing geometry is preservation, not a new
+claim of upstream intent, global page parity or completed historical proposals.
+
+### Exclusive routing contract
+
+The legacy Matrix body uses TransformBody in the ordinary-origin planned subframe; the actual native transform composition uses TransformBody in the geometric planned subframe. Native preliminary measurement stays unplanned, never consumes a resolution or publishes semantic packets. Preserve operation/reflow/region/pivot/baseline/clip/decor and final affine formulas exactly.
+
+Use private parent-descendant protocol helpers with explicit typed source edges;
+no new public API, entity field/variant, generic mapper, callback execution,
+source re-evaluation, result cache or layout-from-Frame semantic reconstruction.
+Retain legacy behavior when the planned cursor is absent. Actual source packets,
+source parentage and physical placement remain distinct; measurement cannot
+publish actions, consume transcripts or leak tentative diagnostics. Preserve
+existing current styles, original/visual identity, per-store position sealing and
+all stated geometry/effect/error limits. In particular, deferred footnote/float
+causality versus later physical placement requires source-bound language controls;
+this routing amendment does not declare that universal paint order is semantics.
+
+Require actual nested source Context/Figure/label/counter cases, repeated pages,
+no-paint children, wrong-edge/foreign cursor rejection, measurement inertness,
+retained/deferred/rollback and existing geometry/baseline/clip/float/note tests.
+No old assertion, fixture, diagnostic or explicit pending limitation is weakened.
+L0-first source-current RED→GREEN, scoped lineage/graph/seals and full established
+gates remain mandatory before completion.
+
+
+## Measured nonexpanding Repeat alignment — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/repeat-refuters-before/measurement.json.gz`
+retains exact source/font/binary/build inputs, UTC2026-10-22T12:02:34.973885+00:00
+through12:02:51.345977+00:00, uncommitted HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227` and its dirty-file stat. Product
+SHA-256 `9f696f72294ea255cb5ef499e1882265c52e73b2d91dc1ca0bf76768ea803fcb`
+and ratified oracle commit`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, executable
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`
+are pinned. The eight-source manifest and full matrix are in the adjacent
+`agents/repeat/` evidence. Nested fixed-child center/right and unequal-width
+multiline center/right fail; decorated multiline also loses line paint.
+Direct Shape, natural text and an explicit inner-left override are GREEN.
+Repeat clears inherited alignment before composing its piece; pinned upstream
+`typst-layout/src/repeat.rs:19,55–59` preserves lexical styles and separately
+places copies. `shape.rs:251–283` emits flow geometry without line alignment,
+refuting global translation. Nested-only inheritance does not fix the measured
+multiline defect. Language geometry/paint are required; data structures and
+iteration mechanics are free under ADR-0107. Classification and pre-edit hashes
+are preserved in `agents/repeat/classification-before-L0.json`.
+
+### Private contract
+
+Preserve decoration metadata through existing transforms and translations without deriving identity from geometric values. Completed independent local scopes resolve their own line association. No transform formula or public API changes.
+
+Require genuine declared-metric RED→GREEN for nested center/right, unequal-width multiline and decorated multiline; preserve direct Shape/natural-text/inner-left controls, source effects once, rollback, complete bilateral PDF/SVG geometry at the unchanged bound, all tests and both lineage directions. No warning suppression, ignored case, threshold relaxation, fake source identity or public/phase expansion.
+
+## Explicit optional absence and closed-domain preservation — 2026-10-23
+
+### Evidence before decision
+
+The exact source and owner bytes, HEAD, dirty-tree stat and initial nine V16
+findings are preserved in
+`lab/results/v16-option-exhaustiveness-2026-10-23/before-state.json`,
+`before/` and `before-v16.sarif`. The parser source
+`tekt-linter/03_infra/rs_parser.rs:1605–1621` classifies every bare identifier
+pattern as a catch-all, including the Option unit variant `None`. The Rust
+compiler resolves that name to the unit variant; qualification makes that
+existing nominal meaning explicit to both tools. These are mechanical
+coverage observations, not a newly discovered runtime failure or new vanilla
+parity claim.
+
+### Exclusive correction and acceptance
+
+`transform.rs:469–474` already enumerates Auto/Ratio/Length TransformScale and absence. Qualify only the absence pattern as `Option::None`; preserve identity factor on omission, Auto axis following, absolute-length basis, zero/negative factors, diagnostics and reflow. Retain the exhaustive match rather than introducing a wildcard or conditional rewrite.
+
+Use ADR-0127 continuous internal flow: no public contract, default, phase or
+compatibility changes. Add no lint exception, allow/expect attribute, severity
+change, suppression or match-to-if rewrite. Preserve all existing assertions
+and pending limitations. The initial V16 gate is structural RED; preservation
+tests may already pass before implementation and must not be misreported as
+behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
+rustdoc, formatting, canonical paths and both lineage directions.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

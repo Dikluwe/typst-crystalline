@@ -1,5 +1,5 @@
 # L0 — math/layout/tests
-Hash do Código: c3b4f99a
+Hash do Código: df2f0b5f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
@@ -200,3 +200,81 @@ Only fixtures/adapters change Style::Size(Pt) to Size(absolute Length), and
 StyleDelta.size expectations to Option<Length>. Preserve existing language
 observations/functional contracts; never replace correct geometry with snapshots
 of the new representation.
+
+## Measured Raw morphology inside math
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/math-length-before/receipt.json.gz`
+SHA-256 `d94a39c8bd3fb37880866dbd1e4b6ee9004fc77eab39d0bcdf7bb78090a165bc`
+retains UTC `2026-10-22T13:18:01.270679+00:00`–`2026-10-22T13:18:04.556564+00:00`,
+exact coordination HEAD/dirty stat, both immutable sources, font bytes, commands,
+cached product's separate verified archived build/source and ratified oracle pins.
+Length interpolation and explicit inline typc Raw inside an Equation already
+compile with equal nonspace text but differ in numeric paint and SVG geometry:
+maximum glyph-origin delta `1.1204531249999832pt`, product/oracle root heights
+`68.57484375pt`/`67.4765625pt`. These are preexisting debts in that cached source;
+they do not establish a new regression caused by the display adapter. All
+source/binary/archive/font/worker guards pass.
+
+Pinned `lab/typst-original/crates/typst-library/src/text/raw.rs:657–669` gives
+Raw its Mono font and 0.8 relative size; `typst-layout/src/rules.rs:657–680`
+realizes Raw lines to styled text. `typst-library/src/math/ir/resolve.rs:127–150`
+realizes content before math resolution and `typst-layout/src/math/text.rs:17–39`
+lays out actual text into a frame. The current pure math catch-all flattens Raw
+to plain_text, losing its language morphology. The existing external bridge
+already preserves actual text/glyph baselines; only baseline-less frames use
+axis centering. No new layout formula follows from the measured delta.
+
+### Exclusive obligation
+
+Test actual Raw layout with injected metrics: numeric typc paint, existing Mono
+font and 0.8 size, upright glyphs, actual baseline zero, and extents measured
+from that same run. Cover direct Raw and recursive Sequence/custom-only Styled
+wrappers. Independently retain plain Text and mathematical identifier baseline,
+style and geometry behavior; preservation controls may be GREEN before the fix.
+Do not derive expected positions from a proposed new offset formula or mistake
+unit tests for full bilateral paginated parity. Productive dispatch policy is
+owned exclusively by math/layout/mod.md; external_bridge remains unchanged.
+
+
+## Raw is normal text inside an equation
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/candidate-2/qualification/math-length-2/receipt.json.gz`
+retains the two immutable Length/explicit-typc-Raw sources, successful byte/font/
+source/build guards, UTC 2026-10-22T13:44:23.723338+00:00–13:44:26.943012+00:00,
+HEAD/complete uncommitted changed-file list and source-bound candidate
+`feb025296531c92350e29bff032f655cc2fa47542cf8ab4aca0e239108bc4e8f`.
+The ratified oracle remains bd5ebec285505889e8ff1d4f68804ab147a699f3 with executable
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+Raw morphology/paint now agrees, but actual glyph origins and page height do not.
+`agents/inline/math-raw-face-cause.json` under that result root (SHA-256
+`6de15bd9fafd430fda8f795e339c295a1710c4f0ee68d5669cc373fcbe4df264`)
+binds the actual two font bytes/tables and candidate receipt. At the actual 8.8pt,
+NewCM's `12pt` advance/ascent/descent are 17.116/5.8608/1.7072pt; Mono's are
+21.1921875/6.53125/1.83046875pt. Those differences exactly explain the measured
+centering, baseline and bottom error. This refutes a fitted axis/baseline offset.
+
+Pinned raw.rs:657–669 installs ordinary Mono/relative-size text defaults;
+rules.rs:657–680 realizes Raw lines to text; math/ir/resolve.rs:127–150 and
+math/text.rs:17–39 resolve and lay out that actual textual content. Current
+Raw inherits `math=true` from its outer Equation. The metric provider appends
+MATH fallback and resolution.rs:176–184 then prefers a MATH face over explicit
+Mono, while the renderer draws Mono glyphs. The classification, not the bridge
+geometry formula, is the missing boundary. This is language typography/geometry;
+no copied upstream buffer or flag representation is required.
+
+### Exclusive test responsibility
+
+Add a metric provider whose declared normal-text and mathematical glyph metrics
+differ, modeling the measured real-face distinction. Compare the Raw MathBox's
+advance and ink extents with the independently declared normal-text run at its
+actual 0.8 size, while retaining its baseline, numeric paint and Mono morphology.
+Use two enclosing sizes and more than one Raw lexeme. Preserve a mathematical
+identifier's separate glyph metrics before and after Raw layout, so a global
+math-metric disable cannot pass. Keep all existing FixedMetrics Raw and ordinary
+Text/MathIdent controls unchanged; they previously masked this real-font cause.
+These tests authorize no productive geometry formula or bridge change. The
+exclusive correction belongs to core/compiler/layout/raw.md.

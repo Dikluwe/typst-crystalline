@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/helpers.md
-//! @prompt-hash 70d7de76
+//! @prompt-hash ce00f864
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -430,12 +430,48 @@ pub(super) fn resolve_pt(
 ) -> f64 {
     use crate::entities::value::Value;
     match val {
-        None => fallback, // neutro: N16[γ] — Value::Auto e None resolvem para fallback em dimensões (fallback aberto)
+        Option::None => fallback,
         Some(Value::Length(l)) => l.abs.to_pt(),
         Some(Value::Float(f)) => *f,
         Some(Value::Int(i)) => *i as f64,
         Some(Value::Auto) => fallback,
-        Some(_) => fallback,
+        Some(
+            Value::None
+            | Value::Bool(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..),
+        ) => fallback,
     }
 }
 
@@ -497,6 +533,7 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -866,6 +903,27 @@ mod v16_d_tests {
     use crate::entities::elements::shape::ShapeElem;
     use crate::entities::{span::Span, value::Value};
     use std::sync::Arc;
+
+    #[test]
+    fn dimension_projection_preserves_absence_numeric_values_and_unsupported_domains() {
+        use crate::entities::layout_types::{Length, Ratio};
+
+        assert_eq!(resolve_pt(None, 23.0), 23.0);
+        assert_eq!(resolve_pt(Some(&Value::Auto), 23.0), 23.0);
+        assert_eq!(resolve_pt(Some(&Value::Length(Length::pt(7.5))), 23.0), 7.5);
+        assert_eq!(resolve_pt(Some(&Value::Length(Length::em(2.0))), 23.0), 0.0);
+        assert_eq!(resolve_pt(Some(&Value::Float(-3.25)), 23.0), -3.25);
+        assert_eq!(resolve_pt(Some(&Value::Int(0)), 23.0), 0.0);
+        for value in [
+            Value::None,
+            Value::Bool(false),
+            Value::Str("unsupported".into()),
+            Value::Ratio(Ratio(0.5)),
+            Value::Content(Content::text("not a numeric dimension")),
+        ] {
+            assert_eq!(resolve_pt(Some(&value), -11.0), -11.0);
+        }
+    }
 
     #[test]
     fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {

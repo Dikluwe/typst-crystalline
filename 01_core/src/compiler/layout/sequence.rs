@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence.md
-//! @prompt-hash 357336af
+//! @prompt-hash 6d094097
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 //!
 //! Layout de `Content::Sequence` — iteração peekable com sticky
 //! lookahead e spacing collapse. Extraído de `layout/mod.rs` no P425
@@ -16,6 +16,7 @@ use super::metrics::FontMetrics;
 use super::{ItemGroup, Layouter};
 
 mod fractional_preflight;
+pub(super) mod inline_allocation;
 mod inline_prefix;
 
 #[cfg(test)]
@@ -36,10 +37,45 @@ use self::inline_prefix::{
 ///   remaining + cabe em página inteira → new_page() antes do block).
 /// - Spacing collapse via Layouter fields `prev_block_below_pending` +
 ///   `block_chain_active`.
+#[derive(Clone, Copy)]
+enum PartRoutes<'a> {
+    Source(&'a [super::page_running_requests::Cursor]),
+    Mixed(&'a [Option<super::page_running_requests::Cursor>]),
+}
+
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
 ) {
+    layout_with_routes(layouter, parts, None);
+}
+
+pub(super) fn layout_mixed_source_parts<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<'_, M, S>,
+    parts: &[Content],
+    routes: &[Option<super::page_running_requests::Cursor>],
+) {
+    if parts.len() != routes.len() {
+        if let Some(pass) = &mut layouter.page_running_pass {
+            pass.invalid = true;
+        }
+        layouter.layout_errors.push(
+            crate::entities::source_result::SourceDiagnostic::error(
+                layouter.current_source_span,
+                "invalid mixed source-part route count",
+            ),
+        );
+        return;
+    }
+    layout_with_routes(layouter, parts, Some(PartRoutes::Mixed(routes)));
+}
+
+fn layout_with_routes<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<'_, M, S>,
+    parts: &[Content],
+    planned: Option<PartRoutes<'_>>,
+) {
+    layouter.observe_page_environment();
     super::paragraph_indent::start_scope(layouter, parts);
     let needs_bidi = layouter.bidi_cursor.is_some()
         || parts.split(|p| matches!(p, Content::Parbreak)).any(|p| {
@@ -55,7 +91,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     let previous = layouter.paragraph_planning_suppressed;
     layouter.paragraph_planning_suppressed = true;
-    layout_parts(layouter, parts, FractionalRegionBasis::Inherited);
+    layout_parts(layouter, parts, FractionalRegionBasis::Inherited, planned);
     layouter.paragraph_planning_suppressed = previous;
 }
 
@@ -66,6 +102,14 @@ pub(super) fn layout_segmented_region<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     content: &Content,
 ) {
+    layout_segmented_region_planned(layouter, content, None);
+}
+
+pub(super) fn layout_segmented_region_planned<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<'_, M, S>,
+    content: &Content,
+    planned: Option<&[super::page_running_requests::Cursor]>,
+) {
     let content = content.source_body();
     if let Content::Styled(styled) = content {
         let body = &styled.body;
@@ -74,29 +118,37 @@ pub(super) fn layout_segmented_region<M: FontMetrics, S: ImageSizer>(
         let previous_style = layouter.style.clone();
         layouter.chain = layouter.chain.push_styles(styles);
         layouter.style = crate::entities::layout_types::TextStyle::from(&layouter.chain);
-        layout_segmented_unstyled(layouter, body);
+        layout_segmented_unstyled(layouter, body, planned);
         layouter.chain = previous_chain;
         layouter.style = previous_style;
         return;
     }
-    layout_segmented_unstyled(layouter, content);
+    layout_segmented_unstyled(layouter, content, planned);
 }
 
 fn layout_segmented_unstyled<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     content: &Content,
+    planned: Option<&[super::page_running_requests::Cursor]>,
 ) {
     match content.source_body() {
-        Content::Sequence(parts) => {
-            layout_parts(layouter, parts, FractionalRegionBasis::CursorRemaining)
-        }
-        Content::Empty => {
-            layout_parts(layouter, &[], FractionalRegionBasis::CursorRemaining)
-        }
+        Content::Sequence(parts) => layout_parts(
+            layouter,
+            parts,
+            FractionalRegionBasis::CursorRemaining,
+            planned.map(PartRoutes::Source),
+        ),
+        Content::Empty => layout_parts(
+            layouter,
+            &[],
+            FractionalRegionBasis::CursorRemaining,
+            planned.map(PartRoutes::Source),
+        ),
         other => layout_parts(
             layouter,
             std::slice::from_ref(other),
             FractionalRegionBasis::CursorRemaining,
+            planned.map(PartRoutes::Source),
         ),
     }
 }
@@ -105,7 +157,17 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
     basis: FractionalRegionBasis,
+    planned: Option<PartRoutes<'_>>,
 ) {
+    // The immutable tree follows original children through their existing
+    // typed source routes. A refused enclosing scope cannot certify a partial
+    // transparent descendant without its exterior siblings.
+    let inherited_inline_allocation = layouter.inline_allocation.take();
+    let owns_inline_scope = inherited_inline_allocation.is_none();
+    let mut inline_allocation = inherited_inline_allocation
+        .clone()
+        .unwrap_or_else(|| inline_allocation::prepare(layouter, parts));
+    let mut inline_allocation_base = 0usize;
     let saved_text_segment = layouter.text_segment_chain.clone();
     let saved_geometric_lines = layouter.geometric_text_lines;
     if !super::html_frame::items_have_causal_line(&layouter.regions.current.current_line)
@@ -138,16 +200,29 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         &layouter.regions.current.current_line,
     );
     while let Some(part) = iter.next() {
+        if part_index > 0
+            && matches!(parts[part_index - 1].source_body(), Content::Parbreak)
+        {
+            let end = parts[part_index..]
+                .iter()
+                .position(|p| {
+                    matches!(p.source_body(), Content::Parbreak | Content::SetPage(_))
+                })
+                .map_or(parts.len(), |n| part_index + n);
+            super::footnote::preflight_following_prose(layouter, &parts[part_index..end]);
+        }
         if enclosing_dir.is_none()
             && (part_index == 0
                 || matches!(
-                    parts[part_index - 1],
+                    parts[part_index - 1].source_body(),
                     Content::Parbreak | Content::SetPage(_)
                 ))
         {
             let end = parts[part_index..]
                 .iter()
-                .position(|p| matches!(p, Content::Parbreak | Content::SetPage(_)))
+                .position(|p| {
+                    matches!(p.source_body(), Content::Parbreak | Content::SetPage(_))
+                })
                 .map_or(parts.len(), |n| part_index + n);
             layouter.active_paragraph_dir = super::paragraph::shared_direction(
                 &parts[part_index..end],
@@ -159,6 +234,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
                 });
             }
         }
+        super::footnote::preflight_carrier(layouter, &parts[part_index..]);
         // **P864** — detetar `Content::Parbreak` entre itens do mesmo grupo.
         // Se o item anterior (mesmo tipo) foi separado por um Parbreak,
         // aplica o espaçamento de parágrafo entre grupos e reinicia o estado
@@ -329,7 +405,61 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         {
             layouter.paragraph_planning_suppressed = false;
         }
-        layouter.layout_content(part);
+        let child_allocation = match inline_allocation.as_ref() {
+            inline_allocation::Node::Sequence(children) => children
+                .get(part_index - inline_allocation_base)
+                .cloned()
+                .unwrap_or_else(|| {
+                    Some(std::sync::Arc::new(inline_allocation::Node::Blocked))
+                }),
+            inline_allocation::Node::Blocked
+            | inline_allocation::Node::Fraction { .. } => {
+                (!inline_allocation::independent(part))
+                    .then(|| std::sync::Arc::new(inline_allocation::Node::Blocked))
+            }
+        };
+        let saved_child_allocation =
+            std::mem::replace(&mut layouter.inline_allocation, child_allocation);
+        if let Some(routes) = planned {
+            let route = match routes {
+                PartRoutes::Source(routes) => routes.get(part_index).map(Some),
+                PartRoutes::Mixed(routes) => routes.get(part_index).map(Option::as_ref),
+            };
+            match route {
+                Some(Some(cursor)) => {
+                    layouter.layout_planned_cursor(cursor.clone(), part, false)
+                }
+                Some(None) => layouter.layout_content(part),
+                None => {
+                    if let Some(pass) = &mut layouter.page_running_pass {
+                        pass.invalid = true;
+                    }
+                    layouter.layout_errors.push(
+                        crate::entities::source_result::SourceDiagnostic::error(
+                            layouter.current_source_span,
+                            "invalid source-part route",
+                        ),
+                    );
+                    layouter.layout_content(part);
+                }
+            }
+        } else {
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::SequencePart(
+                    part_index,
+                ),
+                part,
+            );
+        }
+        layouter.inline_allocation = saved_child_allocation;
+        if owns_inline_scope && matches!(part.source_body(), Content::SetPage(_)) {
+            // Restart the complete original suffix only after the real typed
+            // page dispatch installed its geometry. Original source indices
+            // above remain unchanged; only assignment lookup uses this base.
+            inline_allocation_base = part_index + 1;
+            inline_allocation =
+                inline_allocation::prepare(layouter, &parts[inline_allocation_base..]);
+        }
         layouter.paragraph_planning_suppressed = planning_guard;
         layouter.fractional_block_height = saved_fractional_height;
 
@@ -408,6 +538,7 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     if !enclosing_scope {
         layouter.bidi_cursor = None;
     }
+    layouter.inline_allocation = inherited_inline_allocation;
     layouter.bidi_scope_active = enclosing_scope;
 }
 
@@ -548,5 +679,183 @@ mod p1380_tests {
         assert!(!p1389_single_word("More text"));
         assert!(!p1389_single_word("More\ntext"));
         assert!(!p1389_single_word(""));
+    }
+}
+
+#[cfg(test)]
+mod source_bidi_boundary_tests {
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::entities::{
+        bidi_context::ParagraphBidiSegment,
+        content::SetPageDelta,
+        dir::Dir,
+        file_id::FileId,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageDimension, PageMarginSpec, TextStyle},
+        span::Span,
+        style::{Style, Styles},
+        value::Value,
+    };
+    use comemo::Track;
+
+    fn marker() -> Content {
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            3..24,
+        );
+        Content::SetPage(Arc::new(SetPageDelta {
+            width: Some(PageDimension::Length(70.0)),
+            height: Some(PageDimension::Length(400.0)),
+            margin: Some(PageMarginSpec::uniform(0.0)),
+            ..SetPageDelta::default()
+        }))
+        .with_source_span(span)
+    }
+
+    fn text(body: &str) -> Content {
+        Content::styled(
+            Content::text(body),
+            Styles::new().push_custom("text.dir", Value::Dir(Dir::RTL)),
+        )
+    }
+
+    fn layouter(
+        intr: &dyn Introspector,
+    ) -> Layouter<'_, super::super::FixedMetrics, NullImageSizer> {
+        let mut l =
+            Layouter::new(super::super::FixedMetrics, NullImageSizer, 12.0, intr.track());
+        l.chain = l
+            .chain
+            .push_styles(&Styles::from_iter([Style::Size(Length::pt(12.0))]))
+            .push_custom("par.justify", Value::Bool(false))
+            .push_custom("text.hyphenate", Value::Bool(false));
+        l.style = TextStyle::from(&l.chain);
+        l
+    }
+
+    #[test]
+    fn remaining_parity_root_source_page_boundaries_keep_complete_bidi_spans() {
+        for prefix in [false, true] {
+            let intr = TagIntrospector::empty();
+            let mut l = layouter(&intr);
+            let marker = marker();
+            let span = marker.source_span();
+            let mut parts = Vec::new();
+            if prefix {
+                parts.push(text("LEFT مرحبا"));
+            }
+            parts.push(marker.clone());
+            parts.push(text("ABC 123 مرحبا"));
+            l.layout_content(&Content::sequence(parts));
+            assert_eq!(marker.source_span(), span);
+            let doc = l.finish();
+            assert_eq!(doc.pages.last().unwrap().width, 70.0);
+            let mut words = 0;
+            for page in &doc.pages {
+                for item in &page.items {
+                    if let FrameItem::Text { text, bidi, .. } = item {
+                        let span =
+                            bidi.as_ref().expect("source configuration is a boundary");
+                        let ParagraphBidiSegment::Text { text: original, .. } =
+                            &span.input().segments()[span.segment()]
+                        else {
+                            panic!("word must retain original text segment")
+                        };
+                        assert_eq!(span.input().base_dir(), Dir::RTL);
+                        assert_eq!(original.get(span.range()), Some(text.as_str()));
+                        words += 1;
+                    }
+                }
+            }
+            assert_eq!(words, if prefix { 5 } else { 3 });
+        }
+    }
+
+    #[test]
+    fn remaining_parity_root_source_page_boundary_preserves_opaque_sibling_refusal() {
+        let intr = TagIntrospector::empty();
+        let mut l = layouter(&intr);
+        l.layout_content(&Content::sequence(vec![
+            marker(),
+            Content::metadata(Value::Int(7)),
+            text("ABC 123 مرحبا"),
+        ]));
+        let doc = l.finish();
+        let mut words = 0;
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Text { bidi, .. } = item {
+                    words += 1;
+                    assert!(
+                        bidi.is_none(),
+                        "configuration cannot erase an opaque sibling"
+                    );
+                }
+            }
+        }
+        assert_eq!(words, 3, "refusal must retain the emitted words");
+    }
+}
+
+#[cfg(test)]
+mod r8_note_admission_tests {
+    use super::*;
+    use crate::entities::{
+        elements::{
+            footnote::FootnoteElem, linebreak::LinebreakElem, v_space::VSpaceElem,
+        },
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageMargins},
+    };
+    use comemo::Track;
+    #[test]
+    fn r8_deferred_entry_moves_original_carrier_before_emission() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.regions.current.width = 300.0;
+        l.page_config.height = 100.0;
+        l.regions.current.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec =
+            crate::entities::layout_types::PageMarginSpec::uniform(20.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.regions.current.line_start_x = Pt(20.0);
+        l.regions.current.cursor_y = Pt(20.0);
+        l.initial_baseline_pending = true;
+        l.line_assumed_ascent = None;
+        let body = Content::sequence(vec![
+            Content::text("LINE"),
+            Content::Linebreak(std::sync::Arc::new(LinebreakElem {
+                justify: false,
+                justify_explicit: false,
+            })),
+            Content::text("TAIL"),
+        ]);
+        let parts = vec![
+            Content::VSpace(std::sync::Arc::new(VSpaceElem {
+                amount: Length::pt(45.0),
+                weak: false,
+                weak_explicit: false,
+            })),
+            Content::text("ALPHA"),
+            Content::Footnote(std::sync::Arc::new(FootnoteElem {
+                body,
+                numbering: None,
+            })),
+        ];
+        layout(&mut l, &parts);
+        let doc = l.finish();
+        let page = doc.pages.iter().position(|p| super::super::tests::frame_items_recursive(&p.items).iter().any(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "ALPHA"))).unwrap();
+        assert_eq!(page, 1, "carrier was not moved");
     }
 }

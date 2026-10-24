@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/ast/mod.md
-//! @prompt-hash 678bfb5c
+//! @prompt-hash 3fcbc779
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn markup_from_markup_node() {
-        let src = Source::detached("Hello *world*");
+        let src = Source::detached("Hello *world*").expect("valid Source test fixture");
         let node = src.root();
         assert_eq!(node.kind(), SyntaxKind::Markup);
         let markup = Markup::from_untyped(node);
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn markup_from_wrong_kind_returns_none() {
-        let src = Source::detached("Hello *world*");
+        let src = Source::detached("Hello *world*").expect("valid Source test fixture");
         let text_node = src.root().children().find(|n| n.kind() == SyntaxKind::Text);
         if let Some(node) = text_node {
             let markup = Markup::from_untyped(node);
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn markup_to_untyped_roundtrip() {
-        let src = Source::detached("Hello");
+        let src = Source::detached("Hello").expect("valid Source test fixture");
         let node = src.root();
         let markup = Markup::from_untyped(node).unwrap();
         let back = markup.to_untyped();
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn span_delegates_to_untyped() {
-        let src = Source::detached("Hello");
+        let src = Source::detached("Hello").expect("valid Source test fixture");
         let node = src.root();
         let markup = Markup::from_untyped(node).unwrap();
         let _span = markup.span();

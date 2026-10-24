@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table_header.md
-//! @prompt-hash 3eaf0be8
+//! @prompt-hash 5e63259a
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -16,5 +16,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TableHeaderElem,
 ) {
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::TableHeaderBody,
+        &e.body,
+    );
 }

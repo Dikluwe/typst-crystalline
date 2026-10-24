@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/ast/markup.md
-//! @prompt-hash 0121257c
+//! @prompt-hash 030f8c8b
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -364,7 +364,7 @@ mod tests {
 
     #[test]
     fn strong_body_accessible() {
-        let src = Source::detached("*bold*");
+        let src = Source::detached("*bold*").expect("valid Source test fixture");
         let strong = src.root().children().find_map(Strong::from_untyped);
         assert!(strong.is_some());
         let _ = strong.unwrap().body();
@@ -372,7 +372,7 @@ mod tests {
 
     #[test]
     fn heading_depth_default_is_one() {
-        let src = Source::detached("= Heading");
+        let src = Source::detached("= Heading").expect("valid Source test fixture");
         let heading = src.root().children().find_map(Heading::from_untyped);
         assert!(heading.is_some());
         let depth = heading.unwrap().depth();
@@ -381,7 +381,7 @@ mod tests {
 
     #[test]
     fn text_get_returns_content() {
-        let src = Source::detached("hello");
+        let src = Source::detached("hello").expect("valid Source test fixture");
         let text = src.root().children().find_map(Text::from_untyped);
         assert!(text.is_some());
         assert_eq!(text.unwrap().get(), "hello");

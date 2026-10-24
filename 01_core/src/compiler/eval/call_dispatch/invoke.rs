@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash a99d5890
+//! @prompt-hash 0ec9dcfe
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -195,9 +195,12 @@ pub(super) fn invoke_resolved_call(
     }
 }
 
-// Keep a constructor's proven source inside a deferred recipe, before capture.
+// Retain bounded constructor diagnostic origins before deferred recipe capture.
 fn reference_call_origin(content: Content, span: crate::entities::span::Span) -> Content {
-    if matches!(content.source_body(), Content::Ref(_)) {
+    if matches!(
+        content.source_body(),
+        Content::Ref(_) | Content::Repeat(_) | Content::Heading(_)
+    ) {
         content.with_source_span(span)
     } else {
         content
@@ -291,5 +294,53 @@ mod reference_origin_tests {
         );
         let unrelated = Content::strong(Content::text("X"));
         assert!(reference_call_origin(unrelated, callsite).source_span().is_detached());
+    }
+}
+
+#[cfg(test)]
+mod repeat_origin_tests {
+    use super::*;
+    use crate::entities::{
+        ast::{expr::Expr, AstNode},
+        file_id::FileId,
+        source::Source,
+        span::Span,
+        syntax_node::SyntaxNode,
+    };
+
+    fn actual_call(node: &SyntaxNode) -> Option<FuncCallNode<'_>> {
+        if let Some(Expr::FuncCall(call)) = Expr::from_untyped(node) {
+            return Some(call);
+        }
+        node.children().find_map(actual_call)
+    }
+
+    #[test]
+    fn repeat_invocation_retains_actual_ast_origin_before_recipe_capture() {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let text = "Before\n#repeat([X])\n";
+        let source = Source::new(file, text.into()).expect("valid Source test fixture");
+        let call = actual_call(source.root()).expect("actual Repeat call AST");
+        let start = text.find("repeat").unwrap();
+        let expected = start..text.trim_end().len();
+        assert_eq!(source.span_byte_range(call.span()), Some(expected.clone()));
+        let synthetic = Content::repeat(Content::text("X"), None, true);
+        let constructed = reference_call_origin(synthetic.clone(), call.span());
+        assert_eq!(constructed.source_span(), call.span());
+        assert_eq!(source.span_byte_range(constructed.source_span()), Some(expected));
+        assert!(matches!(constructed.source_body(), Content::Repeat(repeated)
+            if repeated.body.plain_text() == "X" && repeated.gap.is_none() && repeated.justify));
+
+        let first_origin = call.args().span();
+        let alias = synthetic.clone().with_source_span(first_origin);
+        assert_eq!(reference_call_origin(alias, call.span()).source_span(), first_origin);
+        assert!(reference_call_origin(synthetic.clone(), Span::detached())
+            .source_span()
+            .is_detached());
+        assert!(synthetic.source_span().is_detached());
+        let unrelated = Content::strong(Content::text("X"));
+        assert!(reference_call_origin(unrelated, call.span())
+            .source_span()
+            .is_detached());
     }
 }

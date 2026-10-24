@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "content-symbol-identity"
+title = "Native selected-symbol content, approved batch E"
+[[claims]]
+id = "native-leaf"
+level = "must"
+statement = "Content::Symbol(EcoString) is a native leaf holding the complete selected Unicode string, including variation selectors. Raw Value::Symbol remains distinct. The owner approved this public addition on 2026-10-23."
+[[claims]]
+id = "reflection"
+level = "must"
+statement = "Before realization, symbol content has native name symbol, text field, bracket representation, selected-text equality with other symbols and inequality with ordinary Text. Its callable element function is distinct from the raw symbol constructor."
+[[claims]]
+id = "transport"
+level = "must"
+statement = "Exhaustive native traversal, origin/location transport, hashing and reconstruction preserve Symbol as a childless leaf and preserve the full string. Display insertion from raw symbols and symbol-producing math expressions retains native identity."
+[[claims]]
+id = "render"
+level = "must"
+statement = "Symbol participates in existing text realization outside math and existing math glyph, class and style processing inside math, preserving text, geometry and effects; it is not intrinsically a bare equation outside math."
+[[claims]]
+id = "no-impersonation"
+level = "must-not"
+statement = "Do not impersonate native Symbol using Dynamic, custom style markers, exporter-only relabeling, glyph heuristics for identity, or conversion of numeric/quoted MathText to Symbol. Do not move pipeline phases or extend other public contracts."

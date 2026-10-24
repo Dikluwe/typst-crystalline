@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "unique-label-target"
+title = "Unique normal reference targets"
+
+[[claims]]
+id = "distinct-targets"
+level = "must"
+statement = "After existing bibliography precedence, normal language references require one actual distinct target Location; multiple distinct targets are rejected with the sourced label-multiplicity diagnostic before selecting or formatting a target."
+
+[[claims]]
+id = "alias-preservation"
+level = "must"
+statement = "Repeated emission of one prepared Location remains one target. Raw independent occurrences remain distinct even when their content, source span or rendered text matches."
+
+[[claims]]
+id = "compatibility"
+level = "must-not"
+statement = "Checking normal reference multiplicity must not mutate LabelRegistry first-lookup compatibility, widen Page-reference behavior, execute callbacks, weaken read replay or infer occurrence identity from Content or Value equality, Debug or hashes."

@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "typc-length-display"
+title = "Length display as inline Typst code"
+[[claims]]
+id = "length-morphology"
+level = "must"
+statement = "Length display preserves its repr as inline Raw with lang typc and block false; the existing Raw defaults and lexical overrides apply without changing its numeric value."
+[[claims]]
+id = "numeric-token-style"
+level = "must"
+statement = "A completely recognized inline typc numeric expression preserves exact numeric, plus/minus and space tokens. Numeric tokens use Typst Light #b60157, code operators #d73948, and spaces retain their logical occurrences; recognition invokes no evaluator."
+[[claims]]
+id = "target-presentation"
+level = "must"
+statement = "Paged and semantic HTML numeric Raw presentation preserve the same token classification. HTML uses code data-lang typc and colored spans without paged layout; unsupported Raw retains its existing refusal."

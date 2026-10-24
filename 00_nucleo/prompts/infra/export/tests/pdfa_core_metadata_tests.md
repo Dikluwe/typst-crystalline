@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdfa_core_metadata_tests
-Hash do Código: 73aa5fe5
+Hash do Código: 43690e0e
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdfa_core_metadata_tests.rs`
@@ -28,3 +28,7 @@ new productive API or claim complete PDF/A validation from dictionary checks.
 
 Retain positive and negative field checks and metadata/trailer relationships.
 The current assertions, not a historical pass total, define regression coverage.
+
+Under the approved PDF warning carrier contract, the local export helper returns
+`.output` for the existing byte assertions. The fixture remains warning-free;
+do not filter exporter warnings or relax metadata relationships.

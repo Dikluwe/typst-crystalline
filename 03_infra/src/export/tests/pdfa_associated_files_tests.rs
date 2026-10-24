@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfa_associated_files_tests.md
-//! @prompt-hash eb104567
+//! @prompt-hash 80fe1eac
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -62,6 +62,7 @@ fn export_doc_with_standard(doc: &PagedDocument, standard: PdfStandards) -> Vec<
         None,
         standard,
     )
+    .output
 }
 
 /// Réplica de `p1475_pdfa_conformance_core_tests::xmp_packet` — módulo
@@ -114,7 +115,7 @@ fn expected_af_relationship_name(
     relationship: Option<AttachedFileRelationship>,
 ) -> &'static str {
     match relationship {
-        None => "Unspecified",
+        Option::None => "Unspecified",
         Some(AttachedFileRelationship::Source) => "Source",
         Some(AttachedFileRelationship::Data) => "Data",
         Some(AttachedFileRelationship::Alternative) => "Alternative",

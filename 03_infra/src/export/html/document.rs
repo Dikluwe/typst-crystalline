@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/document.md
-//! @prompt-hash 226f1b00
+//! @prompt-hash dfd97583
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -72,12 +72,22 @@ fn project_visual_root(content: &Content) -> Option<Content> {
         Content::State(_) | Content::StateUpdate(_) | Content::Metadata(_) => {
             Some(Content::Empty)
         }
+        Content::Sequence(parts) => {
+            parts.iter().any(|part| matches!(part, Content::Empty)).then(|| {
+                Content::sequence(
+                    parts
+                        .iter()
+                        .filter(|part| !matches!(part, Content::Empty))
+                        .cloned()
+                        .collect(),
+                )
+            })
+        }
         Content::Empty
         | Content::Text(..)
         | Content::Space
         | Content::SpaceFromNewline
         | Content::Parbreak
-        | Content::Sequence(..)
         | Content::HtmlElem(..)
         | Content::HtmlFrame(..)
         | Content::Par { .. }
@@ -91,6 +101,7 @@ fn project_visual_root(content: &Content) -> Option<Content> {
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -689,7 +700,7 @@ mod figure_product_morphology {
                     rules: Arc::from([]),
                     styles: StyleChain::default_chain(),
                     guards: vec![],
-                    file: Source::detached("").id(),
+                    file: Source::detached("").expect("valid Source test fixture").id(),
                 })),
                 visual: done.visual.clone(),
             }))
@@ -957,6 +968,9 @@ mod batch_g_cell_flow_tests {
             Some(3),
         );
         let table = Content::table(vec![], vec![], vec![cell]);
-        assert_eq!(document_body(&table), "<table><tbody><tr><td colspan=\"2\" rowspan=\"3\"><h2>ROW</h2></td></tr></tbody></table>");
+        assert_eq!(
+            document_body(&table),
+            "<table><tbody><tr><td colspan=\"2\" rowspan=\"3\"><h2>ROW</h2></td></tr></tbody></table>"
+        );
     }
 }

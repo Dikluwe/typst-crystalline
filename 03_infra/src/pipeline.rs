@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash f59d6dd0
+//! @prompt-hash 363e520b
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -71,8 +71,9 @@ use crate::export::{
     export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard,
     export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard,
     export_png, export_png_with_fonts, export_svg_with_context,
-    export_svg_with_fonts_and_contexts, FontKey, GlyphFontRequest, PdfSerializationMode,
-    PdfTags, StreamMode, SvgDestinationContext, SvgGlyphFontContext,
+    export_svg_with_fonts_and_contexts, FontKey, GlyphFontRequest, PdfExport,
+    PdfSerializationMode, PdfTags, StreamMode, SvgDestinationContext,
+    SvgGlyphFontContext,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -136,7 +137,7 @@ pub use raster::{
 };
 mod svg;
 pub use svg::{
-    compile_to_svg_string, compile_to_svg_string_full_error,
+    compile_to_svg_output_files, compile_to_svg_string, compile_to_svg_string_full_error,
     compile_to_svg_string_with_timings_full_error,
     compile_to_svg_string_with_timings_full_error_and_features,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty,
@@ -239,11 +240,14 @@ pub fn eval_expression_with_document_features(
     expression: &str,
     features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
-    let expression = Source::new_with_parser(
+    let expression = match Source::new_with_parser(
         world.main(),
         expression.to_string(),
         typst_core::compiler::parse::parse_code,
-    );
+    ) {
+        Ok(expression) => expression,
+        Err(errors) => return (Err(errors), vec![]),
+    };
     eval_source_with_document_features(world, source, &expression, features)
 }
 
@@ -390,12 +394,85 @@ pub fn expand_context_blocks_and_reintrospect(
 /// grid — nunca era recolhido; `substitute_context_blocks` trocava-o então
 /// por `Content::Empty`, produzindo resultado silenciosamente vazio. Ver
 /// `00_nucleo/prompts/infra/pipeline.md` §P1037.
+/// A private inspection view: operational templates are not body producers.
+/// This clone is never published, indexed, or used as a layout contribution.
+fn body_context_view(content: &Content) -> Content {
+    content
+        .map_content(&mut |node| {
+            if let Content::Located(located) = node {
+                let mut located = (**located).clone();
+                located.body = body_context_view(&located.body);
+                return Ok(Some(Content::Located(Arc::new(located))));
+            }
+            if let Content::PageRun(page) = node {
+                let mut page = (**page).clone();
+                page.header = None;
+                page.footer = None;
+                page.background = None;
+                page.foreground = None;
+                return Ok(Some(Content::PageRun(Arc::new(page))));
+            }
+            Ok(None)
+        })
+        .expect("inspection only clones content")
+}
+
+/// Generic bottom-up traversal intentionally suppresses Located.body's root
+/// callback. Account for that existing contract at this operational boundary.
+fn source_content_root(mut content: &Content) -> &Content {
+    while let Content::Source(source) = content {
+        content = &source.body;
+    }
+    content
+}
+
+fn page_run_at_callback(
+    content: &Content,
+) -> Option<&Arc<typst_core::entities::elements::page_run::PageRunElem>> {
+    if let Content::PageRun(page) = source_content_root(content) {
+        return Some(page);
+    }
+    if let Content::Located(located) = source_content_root(content) {
+        if let Content::PageRun(page) = source_content_root(&located.body) {
+            return Some(page);
+        }
+    }
+    None
+}
+
+fn restore_page_run_templates(
+    content: &Content,
+    original: &typst_core::entities::elements::page_run::PageRunElem,
+) -> Content {
+    if let Content::Source(source) = content {
+        let mut source = (**source).clone();
+        source.body = restore_page_run_templates(&source.body, original);
+        return Content::Source(Arc::new(source));
+    }
+    if let Content::Located(located) = content {
+        let mut located = (**located).clone();
+        located.body = restore_page_run_templates(&located.body, original);
+        return Content::Located(Arc::new(located));
+    }
+    let Content::PageRun(page) = content else {
+        unreachable!(
+            "the paired callback identifies a PageRun through transparent wrappers"
+        )
+    };
+    let mut page = (**page).clone();
+    page.header = original.header.clone();
+    page.footer = original.footer.clone();
+    page.background = original.background.clone();
+    page.foreground = original.foreground.clone();
+    Content::PageRun(Arc::new(page))
+}
+
 fn collect_context_blocks(
     content: &Content,
     chain: &StyleChain,
 ) -> HashMap<u64, (Arc<ContextBlockElem>, StyleChain)> {
     let mut map = HashMap::new();
-    collect_context_blocks_into(content, chain, &mut map);
+    collect_context_blocks_into(&body_context_view(content), chain, &mut map);
     map
 }
 
@@ -553,7 +630,7 @@ fn collect_context_blocks_into(
                     | Content::Link(..)
                     | Content::Equation(..)
                     | Content::MathSequence(..)
-                    | Content::MathIdent(..)
+                    | Content::Symbol(..) | Content::MathIdent(..)
                     | Content::MathText(..)
                     | Content::MathFrac(..)
                     | Content::MathAttach(..)
@@ -790,6 +867,7 @@ fn substitute_context_blocks_in_chain(
         | Content::HtmlFrame(..)
         | Content::Raw(..)
         | Content::Equation(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -877,8 +955,21 @@ fn substitute_context_blocks_in_chain(
         | Content::ContextBlock(..)
         | Content::Dynamic(..) => {}
     }
+    let mut operational_templates = Vec::new();
+    let _ = content.map_content(&mut |node| {
+        if let Some(page) = page_run_at_callback(node) {
+            operational_templates.push(page.clone());
+        }
+        Ok(None)
+    });
+    let mut operational_templates = operational_templates.into_iter();
     content
         .map_content(&mut |node| {
+            if page_run_at_callback(node).is_some() {
+                let original = operational_templates.next()
+                    .expect("paired structural traversals preserve order");
+                return Ok(Some(restore_page_run_templates(node, &original)));
+            }
             if let Some(rebuilt) = typst_core::compiler::realize::reference_supplements::map_prepared_reference_supplement(node, |child| {
                 Ok(substitute_context_blocks_in_chain(child.clone(), resolved, chain))
             })? {
@@ -928,7 +1019,7 @@ fn substitute_context_blocks_in_chain(
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
-                | Content::MathIdent(..)
+                | Content::Symbol(..) | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)
                 | Content::MathAttach(..)

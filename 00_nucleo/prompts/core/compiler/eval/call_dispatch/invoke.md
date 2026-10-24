@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/invoke
-Hash do Código: 01e31fb6
+Hash do Código: 3dbf7d90
 
 
 Núcleos Tekt:
@@ -223,3 +223,114 @@ argument transport, tracing, interception priority, recipe capture/restoration,
 Type/noncallable paths and all existing namespaces unchanged. Actual new-Ref
 source and distinct alias controls must pass; tests also preserve detached
 synthetic defaults, first origin and unrelated Content.
+
+
+## Measured Repeat layout-diagnostic origin transport — 2026-10-22
+
+### Evidence before decision
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/repeat-after/measurement.json.gz`
+preserves uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`,
+UTC/source/L0 hashes and exact dirty-file stat, candidate build receipt and
+ratified oracle identity. Measurement SHA-256 is
+`2d3884c52e80f20d32c72d14113d04f6b229ff94953f92b5f7cf9324c9673bd5`;
+candidate binary SHA-256 is
+`380224b96e7d12e15f7d8ee02ad2200d96664eb14f0bbe879fbd3eb265bd96d7`.
+The oracle retains commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Its unbounded-region rows run at UTC
+`2026-10-22T01:44:19.907521+00:00` (product) and
+`2026-10-22T01:44:21.283382+00:00` (oracle). The immutable source is
+`agents/repeat/fixtures/unbounded-region.typ` under the same result root.
+Both reject with `repeat with no size restrictions`; candidate stderr has no
+source location, while oracle has its actual line4, column1 and complete call
+underline. Full stderr is retained, not normalized away. `prototype-1/parity-matrix.json`
+classifies this observable mismatch RED_DIAGNOSTIC under its unchanged policy.
+The selected source, commands and all provenance are also retained in
+`agents/repeat/origin-transport/diagnostic-measurement-excerpt.json.gz`.
+
+At this consumer's lines45–78 invocation intercepts raw constructor Content
+before deferred recipe capture. Existing private `reference_call_origin` at
+lines199–205 retains actual FuncCallNode::span only for Ref. The expression
+owner's eval_expr later adds Content origin for content/code blocks, deferred
+show-rule contexts and Ref, so a plain Repeat constructor has no diagnostic
+origin. Layout's existing Source carrier already installs current_source_span
+and the Repeat layout error already uses it; no formatter change or derived
+source reconstruction is required. `Content::with_source_span` preserves a
+known first origin and leaves a detached synthetic constructor unchanged.
+
+### Scoped origin contract and classification
+
+Before interception/capture, extend the existing private retained-origin match
+from Ref to the exact two source roots Ref and Repeat. Keep actual call.span in
+the existing SourceContent diagnostic carrier. Existing first Source wins,
+including aliases; no function-name classification, rewritten body, guessed
+column, message-derived span, callback replay, generic constructor policy or
+all-Content wrapping. Synthetic Repeat construction outside lexical invocation
+remains detached. All other roots stay unchanged. This narrowly supersedes
+the prior NonRef-unchanged clause only for Repeat.
+
+This is continuous vanilla-parity diagnostic transport under ADR-0107,
+ADR-0108 and ADR-0127: no public entity/trait/signature/default/compatibility
+change and no eval-layout phase movement. Source origin is existing metadata,
+not a new source occurrence or recipe execution point. Preserve callee/args
+once, traces, callbacks, show-interception order and recipe capture/restoration.
+
+### Acceptance
+
+Add a co-located test before implementation: parse an actual Source with a
+Repeat call, resolve the real AST call span back to its independently declared
+byte range, transport exactly that span, and preserve Repeat payload/defaults.
+Keep first-origin alias, synthetic-detached and unrelated-root controls.
+Confirm a genuine detached-origin assertion RED, then GREEN. Recompile and
+rerun the immutable unbounded fixture against the pinned oracle; require exact
+source location/underline and existing diagnostic policy. A call AST range
+alone does not certify the CLI column; actual new candidate stderr must decide
+that. No column offset constant, formatter adjustment or weakened comparison
+is authorized by this owner. Existing Ref origin/alias and invocation suites,
+full tests, Hash/rustdoc/Clippy and both lineage directions remain required.
+
+## Measured refutation and final causal HTML boundary
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/empty-warning-before/receipt.json`
+SHA-256 `8bd8aac399399978418fd9a5c82cdbfa07bf93c6fe9779401901b55cc489a4d6` records UTC
+`2026-10-22T12:42:21.170883+00:00`–`2026-10-22T12:42:21.559949+00:00`, exact HEAD/dirty stat, sources, argv,
+stdout/stderr and the cached baseline's own verified source archive/build, oracle
+and font pins. The cached binary is not claimed as current uncommitted source.
+Empty page/empty nested page do not warn or error. Returned ContentBlock content
+and nested initial Bundle content warn rather than error; the construction-marker
+proposal is refuted and must not be materialized. Direct standalone Html ContentBlock
+insertion and semantic HtmlFrame/Block reject page configuration. Both Heading/Page
+warning orders are measured; missing standalone Heading warnings cannot justify
+late sorting. This supersedes only the refuted construction/Document-consumption
+clauses, preserved as diagnostic history in that task's LAB records.
+
+Extend the existing bounded call-origin adapter to actual Heading content roots,
+preserving their first real call span before recipe capture. Other constructors
+retain their current treatment. Do not reevaluate arguments/recipes or invent
+text-based spans. This is internal diagnostic provenance, no public API/phase.
+
+Meaningful before-code RED and final bilateral exact source/message/hint/order/body
+checks remain required. Internal ADR-0127 continuous flow; no new public contract,
+default or phase. Preserve full unsuppressed lint/test/path/hash/lineage gates.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

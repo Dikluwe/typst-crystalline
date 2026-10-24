@@ -1,8 +1,9 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: c3a8e6b7
+Hash do Código: f8b06e48
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/figure_image.rs`
@@ -88,3 +89,11 @@ body/caption/kind/lexical/resolved fields, without executing any callback. The r
 repeated-reference matrix remains the language-level RED→GREEN requirement. This
 is an internal correction within the approved alias/carrier contract, with no new
 public signature, entity field, phase, inference or generic Func/Content equality.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

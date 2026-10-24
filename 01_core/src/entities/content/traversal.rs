@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash 3e75afab
+//! @prompt-hash 613c32c4
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -305,6 +305,7 @@ impl Content {
             | Content::SpaceFromNewline
             | Content::Parbreak
             | Content::Raw(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathPrimes(..)
@@ -576,7 +577,7 @@ impl Content {
             | Content::SetPage(_)
             | Content::CounterUpdate(_)
             | Content::CounterDisplay(_)
-            | Content::MathIdent(_)
+            | Content::Symbol(_) | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image(_)
             | Content::Divider(_)
@@ -1273,7 +1274,7 @@ impl Content {
             | Content::SetPage(_)
             | Content::CounterUpdate(_)
             | Content::CounterDisplay(_)
-            | Content::MathIdent(_)
+            | Content::Symbol(_) | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image(_)
             | Content::Divider(_)
@@ -1635,7 +1636,7 @@ impl Content {
             | Content::SetPage(_)
             | Content::CounterUpdate(_)
             | Content::CounterDisplay(_)
-            | Content::MathIdent(_)
+            | Content::Symbol(_) | Content::MathIdent(_)
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
             | Content::SmartQuote(_)
@@ -2401,6 +2402,7 @@ mod container_reuse_tests {
                 | Content::EnumItem(_)
                 | Content::Link(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::Linebreak(_)
@@ -2490,6 +2492,7 @@ mod container_reuse_tests {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
@@ -2648,6 +2651,7 @@ mod container_reuse_tests {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
+                | Content::Symbol(_)
                 | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)

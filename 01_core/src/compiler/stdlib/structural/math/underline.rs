@@ -1,12 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/underline.md
-//! @prompt-hash 77d237e2
+//! @prompt-hash b4d77e20
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Comportamento de `math.underline` na camada stdlib.
 
-use super::casts::vanilla_type_name_class;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -22,14 +21,7 @@ pub fn native_math_underline(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     let body = match args.items.as_slice() {
-        [Value::Content(body)] => body.clone(),
-        [Value::Str(text)] => Content::text(text.as_str()),
-        [other] => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("expected content, found {}", vanilla_type_name_class(other)),
-            )])
-        }
+        [body] => super::casts::math_lr_content_value(body, args.span)?,
         [] => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/raw.md
-//! @prompt-hash 1a521fdb
+//! @prompt-hash b79223b7
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -16,6 +16,52 @@ use crate::entities::elements::raw::RawElem;
 use crate::entities::layout_types::{Pt, TextStyle};
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+// Complete recognition precedes output, so a refused stream cannot partly render.
+fn numeric_typc_tokens(
+    text: &str,
+) -> Option<Vec<(crate::entities::syntax_kind::SyntaxKind, &str)>> {
+    use crate::entities::syntax_kind::SyntaxKind as Kind;
+    let mut lexer = crate::compiler::lexer::Lexer::new(
+        text,
+        crate::entities::syntax_mode::SyntaxMode::Code,
+    );
+    let mut tokens = Vec::new();
+    let mut expecting_number = true;
+    let mut sign_allowed = true;
+    let mut has_number = false;
+    loop {
+        let start = lexer.cursor();
+        let kind = lexer.next().0;
+        if kind == Kind::End {
+            break;
+        }
+        let token = &text[start..lexer.cursor()];
+        if kind == Kind::Space && token.chars().all(|c| c == ' ') {
+            tokens.push((kind, token));
+            continue;
+        }
+        if matches!(kind, Kind::Numeric | Kind::Int | Kind::Float) && expecting_number {
+            expecting_number = false;
+            has_number = true;
+            sign_allowed = true;
+        } else if matches!(kind, Kind::Plus | Kind::Minus) {
+            if expecting_number {
+                if !sign_allowed {
+                    return None;
+                }
+                sign_allowed = false;
+            } else {
+                expecting_number = true;
+                sign_allowed = true;
+            }
+        } else {
+            return None;
+        }
+        tokens.push((kind, token));
+    }
+    (has_number && !expecting_number).then_some(tokens)
+}
 
 fn item(
     scope: &str,
@@ -302,6 +348,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         default_style(&prev, &layouter.chain)
     };
+    // Raw is normal text even when its exterior is mathematical. Its actual
+    // text face owns both metric selection and drawing.
+    base_style.math = false;
     let block_font = base_style.size.val();
     let raw_indent_state = owns_block.then(|| begin_block(layouter, block_font, &prev));
     if let Some(crate::entities::value::Value::Color(c)) =
@@ -320,6 +369,33 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             b: 0x48 as f32 / 255.0,
             a: 1.0,
         });
+    }
+
+    if !e.block && e.lang.as_deref() == Some("typc") {
+        if let Some(tokens) = numeric_typc_tokens(&e.text) {
+            use crate::entities::syntax_kind::SyntaxKind;
+            for (kind, text) in tokens {
+                layouter.style = base_style.clone();
+                if kind == SyntaxKind::Space {
+                    for _ in text.chars() {
+                        super::space::advance(
+                            layouter,
+                            crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                        );
+                    }
+                } else {
+                    layouter.style.fill =
+                        Some(if matches!(kind, SyntaxKind::Plus | SyntaxKind::Minus) {
+                            Color::rgb(0xd7, 0x39, 0x48)
+                        } else {
+                            Color::rgb(0xb6, 0x01, 0x57)
+                        });
+                    layouter.layout_word(text);
+                }
+            }
+            layouter.style = prev;
+            return;
+        }
     }
 
     let lang = e.lang.as_deref().unwrap_or("txt").to_lowercase();
@@ -389,4 +465,84 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.paragraph_indent = state;
     }
     layouter.style = prev;
+}
+
+#[cfg(test)]
+mod remaining_typc_length_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::FrameItem;
+    use comemo::Track;
+
+    #[test]
+    fn remaining_typc_numeric_raw_uses_numeric_paint() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&Content::raw("158.33pt", Some("typc".into()), false));
+        let doc = l.finish();
+        let expected = Color::Srgb {
+            r: 0xb6 as f32 / 255.0,
+            g: 0x01 as f32 / 255.0,
+            b: 0x57 as f32 / 255.0,
+            a: 1.0,
+        };
+        let fills: Vec<_> = doc
+            .pages
+            .iter()
+            .flat_map(|p| &p.items)
+            .filter_map(|item| {
+                if let FrameItem::Text { style, .. }
+                | FrameItem::TextShaped { style, .. } = item
+                {
+                    Some(style.fill.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(!fills.is_empty());
+        assert!(fills.iter().all(|fill| fill.as_ref() == Some(&expected)), "{fills:?}");
+    }
+
+    #[test]
+    fn remaining_typc_numeric_raw_retains_operator_spaces() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&Content::raw("12pt + 0.5em", Some("typc".into()), false));
+        let doc = l.finish();
+        assert_eq!(doc.plain_text().trim(), "12pt + 0.5em");
+        let separators: Vec<_> = doc
+            .pages
+            .iter()
+            .flat_map(|page| &page.items)
+            .filter_map(|item| {
+                if let FrameItem::TextSeparator { origin, advance, style, .. } = item {
+                    Some((*origin, *advance, style.size))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(separators.len(), 2, "actual literal Raw spaces: {separators:?}");
+        for (origin, advance, size) in separators {
+            assert_eq!(
+                origin,
+                crate::entities::layout_types::TextSeparatorOrigin::Literal
+            );
+            assert!(advance.val().is_finite() && advance.val() > 0.0);
+            assert_eq!(size.val(), 11.0 * 0.8);
+        }
+    }
 }

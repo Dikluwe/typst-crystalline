@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/figure.md
-//! @prompt-hash b5f83fac
+//! @prompt-hash 3a522b9b
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -12,6 +12,12 @@ use crate::entities::introspector::Introspector;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+#[derive(Clone)]
+enum CaptionPrefix {
+    Generated(Content),
+    Prepared { supplement: Option<Content>, suffix: Content },
+}
 
 /// Layout de `figure(...)` (atomização ADR-0109 P378): calcula o prefixo de
 /// numeração (gate na chain, número via Introspector) e delega o desenho a
@@ -61,12 +67,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     .figure_page_numbers
                     .push(layouter.current_page_number());
                 let suffix = Content::text(format!("{number}: "));
-                match supplement {
-                    Some(supplement) if !supplement.is_empty() => Content::Sequence(
-                        vec![supplement, Content::text(" "), suffix].into(),
-                    ),
-                    Some(_) | None => suffix,
-                }
+                CaptionPrefix::Prepared { supplement, suffix }
             })
         } else {
             None
@@ -96,11 +97,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             format_counter(&[number], &pattern).unwrap_or_else(|| number.to_string());
         let supplement =
             figure_supplement_for_lang(kind_key, layouter.chain.lang().as_ref());
-        Some(Content::text(format!("{supplement} {formatted}: ")))
+        Some(CaptionPrefix::Generated(Content::text(format!(
+            "{supplement} {formatted}: "
+        ))))
     } else {
         None
     };
-    layout_figure(layouter, body, caption, caption_prefix);
+    match caption_prefix {
+        Some(prefix @ CaptionPrefix::Prepared { .. }) => {
+            layout_figure_prefix(layouter, body, caption, Some(prefix))
+        }
+        Some(CaptionPrefix::Generated(prefix)) => {
+            layout_figure(layouter, body, caption, Some(prefix))
+        }
+        None => layout_figure(layouter, body, caption, None),
+    }
 }
 
 /// Renderiza uma figura com legenda opcional (Passo 62/75, DEBT-14/15).
@@ -115,23 +126,52 @@ pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
     caption: &Option<Content>,
     caption_prefix: Option<Content>,
 ) {
+    layout_figure_prefix(
+        layouter,
+        body,
+        caption,
+        caption_prefix.map(CaptionPrefix::Generated),
+    );
+}
+
+fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    caption: &Option<Content>,
+    caption_prefix: Option<CaptionPrefix>,
+) {
     // Figure is a block even when it has no caption. Snapshot validation in
     // layout has already completed before this renderer changes paragraph flow.
     super::parbreak::layout(layouter);
 
     // 1. Desenhar o corpo da figura.
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::FigureBody,
+        body,
+    );
 
     // 2. Desenhar a legenda, se existir.
     if let Some(cap) = caption {
         layouter.layout_content(&Content::linebreak());
 
         if let Some(prefix) = caption_prefix {
-            let caption_block = Content::Sequence(vec![prefix, cap.clone()].into());
-            layouter.layout_content(&caption_block);
-        } else {
-            layouter.layout_content(cap);
+            match prefix {
+                CaptionPrefix::Generated(prefix) => layouter.layout_content(&prefix),
+                CaptionPrefix::Prepared { supplement, suffix } => {
+                    if let Some(supplement) = supplement {
+                        if !supplement.is_empty() {
+                            layouter.layout_planned_child(crate::compiler::introspect::page_running::PlanEdge::FigureSelectedSupplement, &supplement);
+                            layouter.layout_content(&Content::text(" "));
+                        }
+                    }
+                    layouter.layout_content(&suffix);
+                }
+            }
         }
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::FigureCaption,
+            cap,
+        );
     }
     super::parbreak::layout(layouter);
 }

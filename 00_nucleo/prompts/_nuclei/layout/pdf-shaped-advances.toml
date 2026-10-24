@@ -13,8 +13,12 @@ statement = "Shaped PDF emission sets Tc=0 inside the text block before TJ in Co
 [[claims]]
 id = "boundary-authority"
 level = "must"
-statement = "Inter-item TJ compensation preserves supplied absolute positions and existing rounding model, never substitutes nominal advance for position."
+statement = "Inter-item TJ compensation preserves supplied absolute positions using the serialized fractional cursor, never substitutes nominal advance for position."
 [[claims]]
 id = "plain-and-bitmap-boundary"
 level = "must-not"
 statement = "Do not apply shaped-advance rules to Type1 fallback or Text emitting Tj without advances; bitmap remains image drawing. Do not change font, glyphs, offsets or layout selection to repair PDF spacing."
+[[claims]]
+id = "fractional-font-space"
+level = "must"
+statement = "CIDFont widths retain effective face advances in fractional 1/1000-em units. Single/coalesced shaped TJ offsets, advance differences, tracking residue and absolute boundaries retain fractional precision consistently with those widths; do not quantize to integer text units."

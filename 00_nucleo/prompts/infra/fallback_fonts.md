@@ -8,7 +8,7 @@ Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:300b35e6b7c70e79742d5edc4cda0f3419b15a41662e194fd1516b33b8cae1bb
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
 ```
 
 ## Current evidence
@@ -51,3 +51,5 @@ historical probe does not certify the current ratified oracle.
 The common catalog preserves that exact text::families() order, separately from
 class-recovery catalogs used when no declared family resolves and from the math
 catalog. It does not select by language or script.
+
+R3 fallback-selection pin correction: consume explicit semantic math mode for additional mathematical fallback; a font table alone does not change language mode. This consumer retains its existing operations. Evidence and refuters: `00_nucleo/prompts/infra/shaper/font_selection.md` and source-bound R3 receipts. Catalog entries, declared families, public contracts and phases remain unchanged.

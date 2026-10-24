@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash db761ae7
+//! @prompt-hash 87c15f04
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -377,6 +377,8 @@ pub struct EvalContext {
     pub(crate) occurrence_show_depth: usize,
     pub(crate) occurrence_show_path: Vec<Content>,
     pub(crate) realization_locator: crate::entities::locator::Locator,
+    pub(in crate::compiler) page_running_captures:
+        crate::compiler::realize::page_running::CaptureMemo,
     pub(crate) context_occurrence_slots:
         Option<crate::compiler::realize::context_occurrences::OccurrenceSlots>,
 
@@ -439,6 +441,8 @@ impl EvalContext {
             occurrence_show_path: Vec::new(),
             realization_locator: crate::entities::locator::Locator::new(),
             context_occurrence_slots: None,
+            page_running_captures:
+                crate::compiler::realize::page_running::CaptureMemo::default(),
             in_context: false,
             next_context_id: 0,
             bibliography_styles: HashMap::new(),
@@ -612,11 +616,14 @@ pub fn eval_expression_with_features_and_introspector(
     features: crate::entities::compiler_features::Features,
     introspector: &crate::entities::introspector::TagIntrospector,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
-    let source = Source::new_with_parser(
+    let source = match Source::new_with_parser(
         world.main(),
         expression.to_string(),
         crate::compiler::parse::parse_code,
-    );
+    ) {
+        Ok(source) => source,
+        Err(errors) => return (Err(errors), vec![]),
+    };
     eval_source_with_features_and_introspector(world, &source, features, introspector)
 }
 
@@ -919,6 +926,7 @@ pub fn eval_with_full_error_target_and_features(
             if has_recipes
                 || crate::compiler::realize::bare_math::needs_preparation(&content)
                 || crate::compiler::realize::figure::needs_preparation(&content)
+                || crate::compiler::realize::page_running::needs_capture(&content)
                 || (target == EvalTarget::Paged
                     && crate::compiler::realize::reference_supplements::needs_preparation(
                         &content,

@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/svg
-Hash do Código: f1a5150c
+Hash do Código: 4a73b491
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/svg.rs`
@@ -11,6 +11,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
+- 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 ```
 
@@ -121,3 +122,63 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+## Ratified complete SVG output collection (2026-10-22)
+
+### Evidence and ratification
+
+`lab/results/remaining-parity-2026-10-22/svg-outputs-before/receipt.json.gz`
+records exact UTC, HEAD/uncommitted diffstat, fixed executable/build/source archive,
+font bytes and actual CLI results for the unchanged two-page finite source and
+a separately pinned12-page source. `qualification.json` preserves strict1e-8 SVG
+geometry, glyph/paint and complete destination-name comparisons: all10cases RED,
+including selected page2 whose filename alone had concealed first-page content.
+The human approved the exact additive proposal SHA-256
+`d2a1ddfd71d9f741253b00b20c23084aae474e4c9cb979d70f3daa37b40d943d`;
+`lab/results/remaining-parity-2026-10-22/svg-pages-approval.json` records the gate.
+This is the existing paged compile/export phase, without source reconstruction,
+new flag, second evaluation or PNG/bundle behavior change.
+
+Add exactly public `compile_to_svg_output_files(world: &dyn World, source: &Source,
+full_error: bool, features: Features, pretty_override: Option<bool>,
+pages_override: Option<PageRanges>, output: &Path)` returning
+`(Result<Vec<(PathBuf, Vec<u8>)>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings)`.
+The bytes are UTF-8 SVG; this facade writes neither files nor stdout. Compile once
+through the existing common paged pipeline and bind actual fonts once. Export
+every selected actual page with its own destination and glyph-font contexts.
+Explicit typed page override selects physical indices in ascending order; None
+selects all. Preserve pretty override/document/default precedence and original
+warning order. Old first-page APIs stay compatible and independent.
+
+A path containing {p}, {0p} or {n} is indexable: replace every {p} by the original
+physical index, {0p}/{n} by that index padded to total document decimal width, and
+{t} by original total count. A lone {t} is not indexable and remains literal.
+Preserve ordinary non-UTF-8 single paths. Multiple selected pages to '-' fail
+with `cannot export multiple images to stdout`; multiple pages without an
+indexable path fail with `cannot export multiple images without a page number
+template ({p}, {0p}) in the output path`. Errors have detached operational spans
+and produce no partial collection. An empty selection returns an empty vector.
+
+The complete output collection must satisfy the measured RED gates before
+any candidate certification. A legacy first-page adapter cannot satisfy this
+facade's complete-output contract.
+Tests must cover actual two-page output/selected page2, all template forms and
+padding/repetition, plain/stdout rejection, empty selection, pretty and legacy
+compatibility. The unchanged CLI full-page comparison remains required.
+
+
+### Private naming of the unchanged output result
+
+Measured before this readability correction: `lab/results/remaining-parity-2026-10-22/preflight-clippy-final/receipt.json.gz`
+(2026-10-22T14:37:23.430220+00:00 through 2026-10-22T14:37:43.562476+00:00, HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`,
+exact dirty-file stat and inputs in that receipt) records Clippy
+`type_complexity` on the nested output return type. Its complete log SHA-256
+is `aa2fbd49b9e4eb8bc46cf5d8ae7c9dc19b2ee273ccc71bb91a40561acfd8ce0e`. The public API and its previously measured behavior
+are not the defect.
+
+Use a module-private `SvgOutputFilesResult` alias for exactly
+`Result<Vec<(PathBuf, Vec<u8>)>, Vec<SourceDiagnostic>>` in the return tuple.
+This is a transparent alias, not a new public type, opaque wrapper or changed
+function contract. Preserve the exact expanded public type specified above,
+all callers, output selection, diagnostics and ownership. Do not add a lint
+allow/expect or change the Clippy policy.

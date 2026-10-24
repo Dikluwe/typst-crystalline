@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/packages.md
-//! @prompt-hash 9e6d7bff
+//! @prompt-hash f6d5bbb7
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -132,13 +132,16 @@ impl SystemWorld {
                 format!("pacote '{}': typst.toml sem [package].entrypoint", spec)
             })?;
         let entry_path = dir.join(entrypoint);
-        let id = self.register_file(entry_path.clone());
-        self.source(id).map_err(|_| {
-            format!(
+        let id = self
+            .register_file(entry_path.clone())
+            .map_err(|error| error.to_string())?;
+        self.source(id).map_err(|error| match error {
+            typst_core::entities::world_types::FileError::NotFound => format!(
                 "pacote '{}': entrypoint '{}' não encontrado",
                 spec,
                 entry_path.display()
-            )
+            ),
+            other => other.to_string(),
         })
     }
 

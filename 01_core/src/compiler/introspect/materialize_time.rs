@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash 51b66794
+//! @prompt-hash de69fcec
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -185,7 +185,7 @@ pub(super) fn materialize_time(
         | Content::Outline(_)
         | Content::Linebreak(_)
         | Content::MathAlignPoint(_)
-        | Content::MathIdent(_)
+        | Content::Symbol(_) | Content::MathIdent(_)
         | Content::MathText(_)
         // P287 — SmartQuote leaf (sem CounterDisplay possível).
         | Content::SmartQuote(_)

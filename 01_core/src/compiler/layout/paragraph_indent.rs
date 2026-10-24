@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_indent.md
-//! @prompt-hash 8b1f3850
+//! @prompt-hash fd6ce251
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -159,6 +159,7 @@ fn requires_paragraph(c: &Content) -> bool {
         | Content::HtmlElem(_)
         | Content::HtmlFrame(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -549,7 +550,8 @@ mod tests {
             source: Source::new(
                 FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                 text,
-            ),
+            )
+            .expect("valid Source test fixture"),
         };
         let module = eval_for_test(&world, &world.source).unwrap();
         layout(module.content().unwrap())

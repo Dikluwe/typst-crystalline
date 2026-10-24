@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash 9a480b5e
+//! @prompt-hash c8ebb6ae
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -178,6 +178,7 @@ pub fn compile_to_bundle_files(
     warnings.extend(contextual_warnings);
     let context_stabilization::PreparedBundle {
         bodies: prepared_bodies,
+        documents: prepared_documents,
         introspector: bundle_intr,
         document_starts,
     } = match prepared {
@@ -224,6 +225,9 @@ pub fn compile_to_bundle_files(
                     world,
                     source,
                     body,
+                    prepared_documents
+                        .as_ref()
+                        .and_then(|docs| docs[document_index - 1].as_ref()),
                     &bundle_intr,
                     location_start,
                     page_offset,
@@ -318,11 +322,39 @@ pub(super) fn collect_bundle_entries(
     }
 }
 
+#[derive(Clone, Copy)]
+struct HtmlProjectionContext {
+    origin: Span,
+    container: bool,
+    validate_only: bool,
+}
+
+pub(super) fn prepare_html_semantics(
+    content: &Content,
+    warnings: &mut Vec<SourceDiagnostic>,
+) -> SourceResult<Content> {
+    let context = HtmlProjectionContext {
+        origin: Span::detached(),
+        container: false,
+        validate_only: false,
+    };
+    let mut errors = Vec::new();
+    let prepared =
+        bundle_html_visual_content(content, warnings, false, true, context, &mut errors);
+    if errors.is_empty() {
+        Ok(prepared)
+    } else {
+        Err(errors)
+    }
+}
+
+#[cfg(test)]
 fn bundle_html_semantic_content(
     content: &Content,
     warnings: &mut Vec<SourceDiagnostic>,
 ) -> Content {
-    bundle_html_visual_content(content, warnings, false, true)
+    prepare_html_semantics(content, warnings)
+        .expect("existing semantic projection fixture is valid")
 }
 
 fn bundle_html_visual_content(
@@ -330,28 +362,96 @@ fn bundle_html_visual_content(
     warnings: &mut Vec<SourceDiagnostic>,
     table_row_slot: bool,
     emitted: bool,
+    context: HtmlProjectionContext,
+    errors: &mut Vec<SourceDiagnostic>,
 ) -> Content {
     use typst_core::entities::html::{HtmlBody, HtmlElem};
 
+    if !errors.is_empty() {
+        return content.clone();
+    }
     match content {
-        Content::Source(e) => {
-            bundle_html_visual_content(&e.body, warnings, false, emitted)
-        }
+        Content::Source(e) => bundle_html_visual_content(
+            &e.body,
+            warnings,
+            false,
+            emitted,
+            HtmlProjectionContext { origin: e.span, ..context },
+            errors,
+        ),
         Content::ShowRecipe(e) => {
-            bundle_html_visual_content(&e.body, warnings, false, emitted)
+            bundle_html_visual_content(&e.body, warnings, false, emitted, context, errors)
         }
         Content::Located(e) => {
-            bundle_html_visual_content(&e.body, warnings, false, emitted)
+            bundle_html_visual_content(&e.body, warnings, false, emitted, context, errors)
         }
         Content::Realized(e) => {
-            bundle_html_visual_content(&e.visual, warnings, false, emitted)
+            let mut realized = e.as_ref().clone();
+            realized.visual = bundle_html_visual_content(
+                &e.visual, warnings, false, emitted, context, errors,
+            );
+            Content::Realized(Arc::new(realized))
         }
         // A frame is paginated independently. Its body must not be converted
         // into HTML nodes before the frame resolver sees it.
-        Content::HtmlFrame(_) => content.clone(),
-        Content::Label(label) => {
-            bundle_html_visual_content(&label.body, warnings, false, emitted)
+        Content::HtmlFrame(frame) => {
+            let _ = bundle_html_visual_content(
+                &frame.body,
+                warnings,
+                false,
+                emitted,
+                HtmlProjectionContext { container: true, validate_only: true, ..context },
+                errors,
+            );
+            content.clone()
         }
+        Content::Block(block) => {
+            let _ = bundle_html_visual_content(
+                &block.body,
+                warnings,
+                false,
+                emitted,
+                HtmlProjectionContext { container: true, validate_only: true, ..context },
+                errors,
+            );
+            content.clone()
+        }
+        Content::SetPage(page) => {
+            if emitted
+                && page.as_ref()
+                    != &typst_core::entities::content::SetPageDelta::default()
+            {
+                if context.container {
+                    errors.push(SourceDiagnostic::error(
+                        context.origin,
+                        "page configuration is not allowed inside of containers",
+                    ));
+                } else if !context.validate_only {
+                    let warning = SourceDiagnostic::warning(
+                        context.origin,
+                        "page set rule was ignored during HTML export",
+                    );
+                    if !warnings.iter().any(|old| {
+                        old.span == warning.span && old.message == warning.message
+                    }) {
+                        warnings.push(warning);
+                    }
+                }
+            }
+            if emitted {
+                Content::Empty
+            } else {
+                content.clone()
+            }
+        }
+        Content::Label(label) => bundle_html_visual_content(
+            &label.body,
+            warnings,
+            false,
+            emitted,
+            context,
+            errors,
+        ),
         Content::Heading(heading) => {
             // Vanilla reserves h1 for the document title.
             let level = heading.level.saturating_add(1);
@@ -361,14 +461,17 @@ fn bundle_html_visual_content(
                 let mut attrs = typst_core::entities::html::HtmlAttrs::default();
                 attrs.insert("role".into(), "heading".into());
                 attrs.insert("aria-level".into(), level.to_string().into());
-                if emitted {
-                    warnings.push(
-                        SourceDiagnostic::warning(
-                            Span::detached(),
-                            format!("heading of level {} was transformed to <div role=\"heading\" aria-level=\"{}\">, which is not supported by all assistive technology", heading.level, level),
-                        ).with_hint(format!("HTML only supports <h1> to <h6>, not <h{}>", level))
-                         .with_hint("you may want to restructure your document so that it doesn't contain deep headings"),
-                    );
+                if emitted && !context.validate_only {
+                    let warning = SourceDiagnostic::warning(
+                        context.origin,
+                        format!("heading of level {} was transformed to <div role=\"heading\" aria-level=\"{}\">, which is not supported by all assistive technology", heading.level, level),
+                    ).with_hint(format!("HTML only supports <h1> to <h6>, not <h{}>", level))
+                     .with_hint("you may want to restructure your document so that it doesn't contain deep headings");
+                    if !warnings.iter().any(|old| {
+                        old.span == warning.span && old.message == warning.message
+                    }) {
+                        warnings.push(warning);
+                    }
                 }
                 ("div".into(), Some(attrs))
             };
@@ -380,6 +483,8 @@ fn bundle_html_visual_content(
                     warnings,
                     false,
                     emitted,
+                    context,
+                    errors,
                 ))),
             )))
         }
@@ -387,31 +492,60 @@ fn bundle_html_visual_content(
             items
                 .iter()
                 .map(|item| {
-                    bundle_html_visual_content(item, warnings, table_row_slot, emitted)
+                    bundle_html_visual_content(
+                        item,
+                        warnings,
+                        table_row_slot,
+                        emitted,
+                        context,
+                        errors,
+                    )
                 })
+                .filter(|item| !emitted || !matches!(item, Content::Empty))
                 .collect(),
         ),
-        Content::Styled(styled) => Content::styled(
-            bundle_html_visual_content(&styled.body, warnings, false, emitted),
-            styled.styles.clone(),
-        ),
+        Content::Styled(styled) => {
+            let container = context.container
+                || styled.styles.delta().custom.iter().any(|(key, value)| {
+                    key == "eval.page.container" && value == &Value::Bool(true)
+                });
+            let body = bundle_html_visual_content(
+                &styled.body,
+                warnings,
+                false,
+                emitted,
+                HtmlProjectionContext { container, ..context },
+                errors,
+            );
+            if emitted && matches!(body, Content::Empty) {
+                Content::Empty
+            } else {
+                Content::styled(body, styled.styles.clone())
+            }
+        }
         Content::Par { body } => Content::Par {
-            body: Box::new(bundle_html_visual_content(body, warnings, false, emitted)),
+            body: Box::new(bundle_html_visual_content(
+                body, warnings, false, emitted, context, errors,
+            )),
         },
         Content::Strong(strong) => Content::strong(bundle_html_visual_content(
             &strong.body,
             warnings,
             false,
             emitted,
+            context,
+            errors,
         )),
         Content::Emph(emph) => Content::emph(bundle_html_visual_content(
-            &emph.body, warnings, false, emitted,
+            &emph.body, warnings, false, emitted, context, errors,
         )),
         Content::HtmlElem(elem) => Content::HtmlElem(Arc::new(HtmlElem::new(
             elem.tag.clone(),
             elem.attrs.clone(),
             elem.body.map_content(|body| {
-                bundle_html_visual_content(body, warnings, false, emitted)
+                bundle_html_visual_content(
+                    body, warnings, false, emitted, context, errors,
+                )
             }),
         ))),
         Content::Table(table) => {
@@ -421,23 +555,33 @@ fn bundle_html_visual_content(
                 resolved.cells = resolved
                     .cells
                     .iter()
-                    .map(|cell| bundle_html_visual_content(cell, warnings, true, emitted))
+                    .map(|cell| {
+                        bundle_html_visual_content(
+                            cell, warnings, true, emitted, context, errors,
+                        )
+                    })
                     .collect();
                 table.resolved = Some(Arc::new(resolved));
             } else {
                 table.header = table.header.as_ref().map(|header| {
-                    bundle_html_visual_content(header, warnings, true, emitted)
+                    bundle_html_visual_content(
+                        header, warnings, true, emitted, context, errors,
+                    )
                 });
                 table.children = table
                     .children
                     .iter()
                     .map(|child| {
-                        bundle_html_visual_content(child, warnings, true, emitted)
+                        bundle_html_visual_content(
+                            child, warnings, true, emitted, context, errors,
+                        )
                     })
                     .collect();
                 // Preserve this raw field without admitting its unrendered effects.
                 table.footer = table.footer.as_ref().map(|footer| {
-                    bundle_html_visual_content(footer, warnings, true, false)
+                    bundle_html_visual_content(
+                        footer, warnings, true, false, context, errors,
+                    )
                 });
             }
             // Caption is currently unrendered table data, not an emitted child.
@@ -452,6 +596,8 @@ fn bundle_html_visual_content(
                     warnings,
                     false,
                     emitted,
+                    context,
+                    errors,
                 );
                 cell.resolved = Some(Arc::new(resolved));
             } else if let Some(standalone) = &cell.standalone {
@@ -461,11 +607,14 @@ fn bundle_html_visual_content(
                     warnings,
                     false,
                     emitted,
+                    context,
+                    errors,
                 );
                 cell.standalone = Some(Arc::new(standalone));
             } else {
-                cell.body =
-                    bundle_html_visual_content(&cell.body, warnings, false, emitted);
+                cell.body = bundle_html_visual_content(
+                    &cell.body, warnings, false, emitted, context, errors,
+                );
             }
             Content::TableCell(Arc::new(cell))
         }
@@ -476,6 +625,8 @@ fn bundle_html_visual_content(
                 warnings,
                 table_row_slot,
                 emitted,
+                context,
+                errors,
             );
             Content::TableHeader(Arc::new(header))
         }
@@ -486,6 +637,8 @@ fn bundle_html_visual_content(
                 warnings,
                 table_row_slot,
                 emitted,
+                context,
+                errors,
             );
             Content::TableFooter(Arc::new(footer))
         }
@@ -501,6 +654,7 @@ fn bundle_html_visual_content(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -548,7 +702,6 @@ fn bundle_html_visual_content(
         | Content::GridHeader(..)
         | Content::GridFooter(..)
         | Content::GridCell(..)
-        | Content::SetPage(..)
         | Content::PageRun(..)
         | Content::Align(..)
         | Content::Place(..)
@@ -574,7 +727,6 @@ fn bundle_html_visual_content(
         | Content::Colbreak(..)
         | Content::Stack(..)
         | Content::Boxed(..)
-        | Content::Block(..)
         | Content::Bibliography(..)
         | Content::Cite(..)
         | Content::Footnote(..)
@@ -603,6 +755,7 @@ fn render_bundle_document(
     world: &dyn World,
     source: &Source,
     body: &Content,
+    settled: Option<&PagedDocument>,
     bundle_intr: &typst_core::entities::introspector::TagIntrospector,
     location_start: typst_core::entities::locator::LocatorSeed,
     page_offset: usize,
@@ -624,7 +777,7 @@ fn render_bundle_document(
         // Labels identify elements during global introspection, but have no
         // visual node in the semantic HTML tree. Keep them until contextual
         // evaluation is complete, then pass their bodies to the exporter.
-        let prepared = bundle_html_semantic_content(&prepared, warnings);
+        let prepared = prepare_html_semantics(&prepared, warnings)?;
         let format_options = collect_document_format_options(body)?;
         let pretty = resolve_html_pretty(options.pretty_override, &format_options);
         let metrics = FallbackFontMetrics::new(world);
@@ -677,13 +830,17 @@ fn render_bundle_document(
             page_offset,
         )?);
     }
-    let (mut document, layout_warnings) = layout_with_realized_math_callbacks_from(
-        &render_content,
-        render_intr,
-        world,
-        source,
-        location_start,
-    )?;
+    let (mut document, layout_warnings) = if let Some(document) = settled {
+        (document.clone(), Vec::new())
+    } else {
+        layout_with_realized_math_callbacks_from(
+            &render_content,
+            render_intr,
+            world,
+            source,
+            location_start,
+        )?
+    };
     warnings.extend(layout_warnings);
     warnings.extend(
         document
@@ -745,7 +902,7 @@ fn render_bundle_document(
             ) {
                 return Err(vec![diag]);
             }
-            let (bytes, _) =
+            let export =
                 export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
                     &document,
                     &resolved,
@@ -756,6 +913,8 @@ fn render_bundle_document(
                     pages,
                     standards,
                 );
+            warnings.extend(export.warnings);
+            let (bytes, _) = export.output;
             Ok((bytes, false, page_count))
         }
         "svg" => {
@@ -908,6 +1067,12 @@ mod carrier_tests {
         for wrapped in carriers(heading) {
             let mut warnings = vec![];
             let result = bundle_html_semantic_content(&wrapped, &mut warnings);
+            let result = if let Content::Realized(realized) = result {
+                assert_eq!(realized.original.plain_text(), "must-not-render");
+                realized.visual.clone()
+            } else {
+                result
+            };
             let Content::HtmlElem(elem) = result else {
                 panic!("heading was not projected");
             };
@@ -915,6 +1080,35 @@ mod carrier_tests {
             assert_eq!(elem.body.content().unwrap().plain_text(), "Kept");
             assert!(warnings.is_empty());
         }
+    }
+
+    #[test]
+    fn remaining_html_realized_origin_stays_dormant_through_projection() {
+        let hidden = Content::sequence(vec![
+            Content::heading(6, Content::text("HIDDEN-HEADING")),
+            Content::SetPage(Arc::new(typst_core::entities::content::SetPageDelta {
+                columns: Some(2),
+                ..Default::default()
+            })),
+        ]);
+        let original = Content::figure(hidden, None, None, None);
+        let content = Content::Realized(Arc::new(RealizedContent {
+            original: original.clone(),
+            visual: Content::text("VISIBLE"),
+        }));
+        let mut warnings = vec![];
+        let projected = prepare_html_semantics(&content, &mut warnings).unwrap();
+        assert!(
+            warnings.is_empty(),
+            "consumed original is not an emitted warning source: {warnings:?}"
+        );
+        let Content::Realized(realized) = &projected else {
+            panic!("retain the original classifier witness")
+        };
+        assert_eq!(realized.original.plain_text(), original.plain_text());
+        let html = crate::export::export_html(&projected).unwrap();
+        assert!(html.ends_with("<body><p>VISIBLE</p></body></html>"), "{html}");
+        assert!(!html.contains("HIDDEN-HEADING"));
     }
 }
 
@@ -925,6 +1119,17 @@ mod batch_g_html_bundle_tests {
         compiler_features::{Feature, Features},
         html::HtmlFrameElem,
     };
+
+    #[test]
+    fn remaining_html_projection_preserves_explicit_empty_paragraph() {
+        let paragraph = Content::Par { body: Box::new(Content::Empty) };
+        let mut warnings = vec![];
+        let projected = bundle_html_semantic_content(&paragraph, &mut warnings);
+        assert!(matches!(projected, Content::Par { .. }));
+        assert!(warnings.is_empty());
+        let html = crate::export::export_html(&projected).unwrap();
+        assert!(html.contains("<body><p></p></body>"), "{html}");
+    }
 
     #[test]
     fn batch_g_html_table_projection_preserves_sections_spans_and_dormant_caption() {
@@ -987,23 +1192,47 @@ mod batch_g_html_bundle_tests {
         let mut features = Features::empty();
         features.enable(Feature::Bundle);
         features.enable(Feature::Html);
-        for (source,expected) in [
-            ("#document(\"one.html\")[#table(columns:1,[#heading([BODY])])]", "<td><h2>BODY</h2></td>"),
-            ("#document(\"one.html\")[#table(columns:1,table.header([#heading([HEAD])]),[BODY])]", "<th><h2>HEAD</h2></th>"),
+        for (source, expected) in [
+            (
+                "#document(\"one.html\")[#table(columns:1,[#heading([BODY])])]",
+                "<td><h2>BODY</h2></td>",
+            ),
+            (
+                "#document(\"one.html\")[#table(columns:1,table.header([#heading([HEAD])]),[BODY])]",
+                "<th><h2>HEAD</h2></th>",
+            ),
             ("#document(\"one.html\")[#table.cell[#heading([CELL])]]", "<h2>CELL</h2>"),
-            ("#document(\"one.html\")[#table(columns:1,[BODY],table.footer([#heading([FOOT])]))]", "<td><h2>FOOT</h2></td>"),
+            (
+                "#document(\"one.html\")[#table(columns:1,[BODY],table.footer([#heading([FOOT])]))]",
+                "<td><h2>FOOT</h2></td>",
+            ),
         ] {
-            let world=crate::world::SystemWorld::for_stdin(std::path::PathBuf::from("/tmp"),source.into());
-            let source=world.source(world.main()).unwrap();
-            let (result,_,_)=compile_to_bundle_files(&world,&source,BundleCompileOptions {
-                full_error:false,features,document_id:None,pdf_stream_mode:StreamMode::Verbose,
-                pdf_serialization:PdfSerializationMode::Compact,pdf_tagged_override:None,
-                pdf_pages_override:None,pdf_standard_override:None,png_ppi_override:None,
-                html_serialization:crate::export::HtmlSerializationMode::Vanilla,pretty_override:None,
-            });
-            let files=result.expect("supported table descendant must receive final HTML projection");
-            let html=String::from_utf8(files[0].data.clone()).unwrap();
-            assert!(html.contains(expected),"{html}");
+            let world = crate::world::SystemWorld::for_stdin(
+                std::path::PathBuf::from("/tmp"),
+                source.into(),
+            );
+            let source = world.source(world.main()).unwrap();
+            let (result, _, _) = compile_to_bundle_files(
+                &world,
+                &source,
+                BundleCompileOptions {
+                    full_error: false,
+                    features,
+                    document_id: None,
+                    pdf_stream_mode: StreamMode::Verbose,
+                    pdf_serialization: PdfSerializationMode::Compact,
+                    pdf_tagged_override: None,
+                    pdf_pages_override: None,
+                    pdf_standard_override: None,
+                    png_ppi_override: None,
+                    html_serialization: crate::export::HtmlSerializationMode::Vanilla,
+                    pretty_override: None,
+                },
+            );
+            let files = result
+                .expect("supported table descendant must receive final HTML projection");
+            let html = String::from_utf8(files[0].data.clone()).unwrap();
+            assert!(html.contains(expected), "{html}");
         }
     }
 
@@ -1114,11 +1343,17 @@ mod batch_g_html_bundle_tests {
             .expect("standalone Footer body is supported");
         assert!(html.contains("EMITTED-FOOT"));
         assert_eq!(warnings.len(), 1);
-        assert_eq!(warnings[0].message, "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology");
-        assert_eq!(warnings[0].hints, vec![
-            "HTML only supports <h1> to <h6>, not <h7>",
-            "you may want to restructure your document so that it doesn't contain deep headings",
-        ]);
+        assert_eq!(
+            warnings[0].message,
+            "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology"
+        );
+        assert_eq!(
+            warnings[0].hints,
+            vec![
+                "HTML only supports <h1> to <h6>, not <h7>",
+                "you may want to restructure your document so that it doesn't contain deep headings",
+            ]
+        );
     }
 
     #[test]
@@ -1156,10 +1391,16 @@ mod batch_g_html_bundle_tests {
             .filter(|w| w.message.contains("heading of level 6"))
             .collect::<Vec<_>>();
         assert_eq!(deep.len(), 1);
-        assert_eq!(deep[0].message, "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology");
-        assert_eq!(deep[0].hints, vec![
-            "HTML only supports <h1> to <h6>, not <h7>",
-            "you may want to restructure your document so that it doesn't contain deep headings",
-        ]);
+        assert_eq!(
+            deep[0].message,
+            "heading of level 6 was transformed to <div role=\"heading\" aria-level=\"7\">, which is not supported by all assistive technology"
+        );
+        assert_eq!(
+            deep[0].hints,
+            vec![
+                "HTML only supports <h1> to <h6>, not <h7>",
+                "you may want to restructure your document so that it doesn't contain deep headings",
+            ]
+        );
     }
 }

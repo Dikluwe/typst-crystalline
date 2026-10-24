@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/cursor.md
-//! @prompt-hash 9e17dfab
+//! @prompt-hash 758a8dcb
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -211,8 +211,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (por exemplo, o newline após o texto), o que deslocaria visualmente a
         // linha RTL para a esquerda por um espaço. Usar `line_content_right`
         // evita esse erro.
-        let line_refs: Vec<&FrameItem> =
-            self.regions.current.current_line.iter().collect();
+        let line_refs: Vec<&FrameItem> = self
+            .regions
+            .current
+            .current_line
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| !super::repeat::piece_paint(self, *index))
+            .map(|(_, item)| item)
+            .collect();
+        if self.piece_alignment.is_some()
+            && !line_refs.iter().any(|item| {
+                super::html_frame::items_have_causal_line(std::slice::from_ref(*item))
+            })
+        {
+            return;
+        }
         let content_right = self.metrics.line_content_right(&line_refs);
         // O prefixo literal de um run RTL ocupa a borda visual direita.
         // O seu span já contém os avanços e os intervalos de tracking.
@@ -256,6 +270,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         };
         let free = right_margin - content_right - interval - prefix_span;
         let offset = if explicit == Some(HAlign::Center) { free / 2.0 } else { free };
+        let deferred = super::repeat::defer_piece_line(
+            self,
+            if explicit == Some(HAlign::Center) { HAlign::Center } else { HAlign::Right },
+            free,
+        );
         let translated: Vec<FrameItem> = self
             .regions
             .current
@@ -270,7 +289,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     }
                 );
                 let (ix, iy) = super::helpers::item_pos(&item);
-                let visual_x = ix + offset + if leading_literal { prefix_relocation } else { 0.0 };
+                let visual_x = ix + if deferred { 0.0 } else { offset }
+                    + if leading_literal { prefix_relocation } else { 0.0 };
                 super::helpers::translate_frame_item(item, Pt(visual_x), Pt(iy))
             })
             .collect();

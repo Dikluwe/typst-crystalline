@@ -1,25 +1,24 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/boxed.md
-//! @prompt-hash 68005e6e
+//! @prompt-hash 37ca0007
 //! @layer L1
-//! @updated 2026-10-17
+//! @updated 2026-10-21
 //!
-//! Atomização (ADR-0109, P376): o layout de `Boxed` (Box inline) movido do
-//! monólito `layout_content` para o arquivo da feature. Content-preserving —
-//! a lógica é idêntica; só o endereço mudou. O `match` no núcleo delega numa linha.
+//! Inline Box composition from actual child geometry.
+//! Certified fractional widths precede body composition; opaque scopes retain line closure.
 
 use crate::entities::elements::boxed::BoxedElem;
 use crate::entities::layout_types::{FrameItem, Pt};
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
-/// Layout do container INLINE `Boxed` (P156H/P231/P243/P247/P248/P252/P273.7).
+/// Compose an inline Box using its actual body frame.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BoxedElem,
 ) {
     if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
-        if e.width_fraction.is_none() && layouter.block_chain_active {
+        if layouter.block_chain_active {
             let gap = if layouter.prev_margin_is_parbreak {
                 layouter
                     .prev_block_below_pending
@@ -33,41 +32,41 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.regions.current.cursor_y = Pt(layouter.prev_line_baseline
                 + layouter.prev_block_equation_descent
                 + gap);
-            // The sized frame installs its own ascent at this geometric origin.
+            // The actual Box frame installs its own ascent at this geometric origin.
             layouter.initial_baseline_pending = true;
             layouter.line_assumed_ascent = None;
             layouter.prev_margin_is_parbreak = false;
             layouter.prev_block_below_pending = 0.0;
             layouter.block_chain_active = false;
             layouter.prev_block_equation_descent = 0.0;
-        } else if e.width_fraction.is_none() && at_fresh_root_origin(layouter) {
+        } else if at_fresh_root_origin(layouter) {
             layouter.regions.current.cursor_y = Pt(layouter.page_config.margin.top);
             layouter.initial_baseline_pending = true;
             layouter.line_assumed_ascent = None;
             layouter.prev_margin_is_parbreak = false;
-        } else if e.width_fraction.is_some() && layouter.prev_margin_is_parbreak {
-            let font = layouter.style.size.val();
-            // Paridade Vanilla P1119: transição Parágrafo -> Linha de Caixas Inline (Parbreak)
-            // Salto exato de baseline = 28.81670pt para fonte base 11pt (ascender 8.4667 + leading 7.15 + spacing 13.2)
-            let par_to_box_gap = 28.81670_f64 * (font / 11.0);
-            layouter.regions.current.cursor_y =
-                Pt(layouter.prev_line_baseline + par_to_box_gap);
-            // rationale: calibração P1119/P1120 normalizada da base medida de 11pt; owner `boxed.md`.
-            let top_edge_pt = 7.633997_f64 * (font / 11.0);
-            layouter.line_assumed_ascent = Some(top_edge_pt);
-            layouter.prev_margin_is_parbreak = false;
-            layouter.prev_block_below_pending = 0.0;
-            layouter.block_chain_active = false;
-            layouter.prev_block_equation_descent = 0.0;
-        } else if e.width_fraction.is_some() || !layouter.initial_baseline_pending {
+        } else if !layouter.initial_baseline_pending {
             layouter.ensure_initial_baseline();
         }
     }
 
+    let assigned =
+        super::sequence::inline_allocation::assigned(layouter.inline_allocation.take());
     if e.width_fraction.is_some() {
-        layout_fractional(layouter, e);
+        if let Some(width) = assigned {
+            // The exterior certificate supplies a final total width. Compose
+            // this body once in its real independent region, including flow.
+            layout_sized(layouter, e, Some(width));
+        } else {
+            // An uncertified inline adapter still has the parent's provisional
+            // width. Its descendants cannot treat that width as a local share.
+            let saved = layouter.inline_allocation.replace(std::sync::Arc::new(
+                super::sequence::inline_allocation::Node::Blocked,
+            ));
+            layout_fractional(layouter, e);
+            layouter.inline_allocation = saved;
+        }
     } else {
-        layout_sized(layouter, e);
+        layout_sized(layouter, e, None);
     }
 }
 
@@ -100,7 +99,7 @@ fn at_fresh_root_origin<M: FontMetrics, S: ImageSizer>(
         && layouter.flow_suffix_checkpoint.is_none()
 }
 
-// Fractional widths are allocated at line closure (composition stage B).
+// Fractional widths are allocated by the existing line-close owner.
 fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BoxedElem,
@@ -136,11 +135,8 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     let inset_top = inset.top.resolve_pt(font);
     let inset_bottom = inset.bottom.resolve_pt(font);
 
-    // P247 — outset paralelo Block (inline): margem externa
-    // expande bounds Shape mas para Boxed o eixo Y inline
-    // não avança cursor; usa line_height como proxy de
-    // altura visual (paridade font-size; refino futuro
-    // medir body altura real).
+    // Outset expands the backing paint around the actual Box height.
+    // It does not change body position, nominal advance or line extents.
     let outset_left = outset.left.resolve_pt(font);
     let outset_right = outset.right.resolve_pt(font);
     let outset_top = outset.top.resolve_pt(font);
@@ -151,25 +147,23 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
         || outset_top != 0.0
         || outset_bottom != 0.0;
 
-    // P247 — snapshot items_before para inserir Shape antes
-    // do body (Z-order paralelo Block).
+    // Retain the insertion point so the backing paints before its body.
     let items_before = layouter.regions.current.current_items.len();
 
-    // P247 — outset.left avança cursor antes do inset.left.
-    // start_x captura cursor ANTES do outset_left para que
-    // outer_w = cursor_x_final - start_x cubra o intervalo
-    // completo outset.l+inset.l+body+inset.r+outset.r.
+    // The parent supplies either a geometric top or an installed baseline.
+    // A pending first body receives top inset before installing real ascent.
     let start_x = layouter.regions.current.cursor_x.0;
-    layouter.regions.current.cursor_x += Pt(outset_left);
+    let parent_baseline = layouter.regions.current.cursor_y.0;
+    let geometric_pending = layouter.initial_baseline_pending;
+    if geometric_pending {
+        layouter.regions.current.cursor_y += Pt(inset_top);
+    }
 
-    // Box é INLINE: avança cursor.x apenas (sem flush_line).
-    // Aplica inset_left antes do body.
+    // The inline body starts after left inset; outset remains paint-only.
     layouter.regions.current.cursor_x += Pt(inset_left);
 
-    // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
-    // — promoção real `Boxed.width`: quando `Some(w)`, clampa
-    // `regions.current.width` ao valor user-provided durante
-    // body layout via save/restore.
+    // An explicit width temporarily constrains body layout and is restored
+    // before the parent resumes its own line.
     let saved_width = layouter.regions.current.width;
     if let Some(w) = width {
         let w_pt = w.resolve_pt(font);
@@ -184,19 +178,12 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     let (measured_body_width, measured_body_height) =
         layouter.measure_content_constrained(body, body_measure_width);
 
-    // P248 — Boxed.height overflow semantic real activação.
-    // Quando `height: Some(h)` e body natural altura > h E
-    // `clip: true` → wrap body items em FrameItem::Group com
-    // `clip_mask: Rect` altura h (reuso mecanismo P242).
-    // Quando `clip: false` → emit normal (overflow visível;
-    // paridade vanilla). `height: None` → preservado P156H.
+    // Capture the body's committed range separately from its pending tail.
+    // Explicit-height clipping below retains the existing fractional path.
     let body_items_before = layouter.regions.current.current_items.len();
 
-    // P273.7 — save/restore parent_bbox análogo Block P273.6
-    // (Decisão 3γ.2.γ: popular apenas quando width+height
-    // literais). Decisão 1 Fase A `3γ.2.γ-inline-baseline-y`:
-    // bbox.y = cursor.y baseline-relative (coerente com P156H
-    // limitação line_height inline).
+    // Preserve the bounded explicit-size parent paint reference policy.
+    // The backing restores the exterior reference after body composition.
     let saved_parent_bbox = layouter.parent_bbox;
     if let (Some(w), Some(h)) = (width, height) {
         let w_pt = w.resolve_pt(font);
@@ -210,25 +197,29 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     }
 
     let parent_line_len_before = layouter.regions.current.current_line.len();
-    // **P1120** — as extensões inline acumuladas pelo body ficam isoladas:
-    // quando a caixa tem `height` explícita, é a caixa (e não o body) que
-    // define a extensão da linha.
+    // Collect body extents independently; the Box's explicit total height
+    // supplies the resulting parent-line contribution.
     let saved_line_ascent = layouter.line_inline_ascent;
     let saved_line_descent = layouter.line_inline_descent;
     layouter.line_inline_ascent = 0.0;
     layouter.line_inline_descent = 0.0;
-    // P625/P631/P1491 — layout inline do body isolando a linha do pai e
-    // aplicando RTL apenas aos itens produzidos pelo body. A separação
-    // física da linha também impede um body de bloco (por exemplo, rect) de
-    // descarregar os itens inline que precedem a caixa.
+    // Isolate the parent line while the one planned body is emitted.
+    // Local alignment and internal flushes cannot consume the parent prefix.
     let parent_line = std::mem::take(&mut layouter.regions.current.current_line);
-    // P1502 — os pendentes pertencem à mesma linha que seus índices.
+    // This body temporarily owns the line. Its committed local frames cannot
+    // consume the enclosing flow's first-frame baseline decision.
+    let parent_flow_baseline = layouter.flow_baseline.take();
+    // Pending fraction/repeat indices belong to the line that owns them.
     let parent_pending_fr = std::mem::take(&mut layouter.regions.current.pending_fr);
     let parent_pending_fr_natural_widths =
         std::mem::take(&mut layouter.pending_fr_natural_widths);
     let parent_pending_repeats = std::mem::take(&mut layouter.pending_repeats);
     let body_origin_x = layouter.regions.current.cursor_x.0;
-    let (_, body_items) = layouter.layout_sub_frame_inline(
+    let planned = layouter.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::BoxedBody,
+    );
+    let saved_sub_frame = std::mem::replace(&mut layouter.is_sub_frame, true);
+    let (_, mut body_items) = layouter.layout_sub_frame_inline_planned(
         body,
         super::sub_frame::SubLayoutRegion {
             origin_x: 0.0,
@@ -237,19 +228,64 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
             align_rtl: true,
             unconstrained_height: true,
         },
+        planned,
     );
-    // O body foi disposto com índices locais; rebasear antes de reunir
-    // seu estado com o prefixo, sem expor pendentes do pai a flushes internos.
+    layouter.is_sub_frame = saved_sub_frame;
+    layouter.flow_baseline = parent_flow_baseline;
+    // A body may have closed local lines before returning its pending tail.
+    // Both ranges belong to this Box and must participate in its line extent.
+    let mut committed_body: Vec<FrameItem> = layouter
+        .regions
+        .current
+        .current_items
+        .drain(body_items_before..)
+        .collect();
+    let committed_body_count = committed_body.len();
+    committed_body.append(&mut body_items);
+    let mut body_items = committed_body;
+    let first_body_baseline = first_baseline(&body_items);
+    let (actual_text_top, actual_text_bottom) =
+        fractional_text_edges(&body_items, &layouter.metrics);
+    let body_ascent = layouter.line_inline_ascent.max(actual_text_top);
+    let body_descent = layouter.line_inline_descent.max(-actual_text_bottom);
+    let body_has_text_baseline = frame_items_have_text_baseline(&body_items);
+    let natural_body_height = if body_has_text_baseline {
+        body_ascent + body_descent
+    } else {
+        measured_body_height
+    };
+    let box_height = height
+        .map_or(inset_top + natural_body_height + inset_bottom, |h| h.resolve_pt(font));
+    let natural_baseline =
+        if body_has_text_baseline { inset_top + body_ascent } else { box_height };
+    let frame_baseline = natural_baseline - baseline_shift;
+    let installed_ascent = frame_baseline.max(0.0);
+    let outer_baseline = if geometric_pending {
+        parent_baseline + installed_ascent
+    } else {
+        parent_baseline
+    };
+    if let Some(first) = first_body_baseline {
+        let shift_y = outer_baseline + baseline_shift - first.y.0;
+        offset_items(&mut body_items, 0.0, shift_y);
+    }
+    layouter.regions.current.cursor_y = Pt(outer_baseline);
+    if geometric_pending {
+        layouter.line_assumed_ascent = Some(installed_ascent);
+        layouter.initial_baseline_pending = false;
+    }
+    // Rebase the local pending indices before restoring the parent prefix.
+    // Internal body flushes never see or drain those exterior queues.
     let mut body_pending_fr = std::mem::take(&mut layouter.regions.current.pending_fr);
     let mut body_pending_fr_natural_widths =
         std::mem::take(&mut layouter.pending_fr_natural_widths);
     let mut body_pending_repeats = std::mem::take(&mut layouter.pending_repeats);
     for (index, _) in &mut body_pending_fr {
-        *index += parent_line_len_before;
+        *index += committed_body_count + parent_line_len_before;
     }
     for repeat in &mut body_pending_repeats {
-        repeat.start += parent_line_len_before;
-        repeat.end += parent_line_len_before;
+        repeat.start += committed_body_count + parent_line_len_before;
+        repeat.end += committed_body_count + parent_line_len_before;
     }
     layouter.regions.current.current_line = parent_line;
     layouter.regions.current.pending_fr = parent_pending_fr;
@@ -261,32 +297,25 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     layouter.pending_repeats = parent_pending_repeats;
     layouter.pending_repeats.append(&mut body_pending_repeats);
     if body_items.is_empty() && measured_body_width > 0.0 {
-        offset_items(
-            &mut layouter.regions.current.current_items[body_items_before..],
-            body_origin_x,
-            0.0,
-        );
         layouter.regions.current.cursor_x = Pt(body_origin_x + measured_body_width);
     }
-    let body_has_text_baseline = frame_items_have_text_baseline(&body_items);
     layouter.regions.current.current_line.extend(body_items);
     layouter.text_tracking_state.interrupt();
     let fraction_insert_at =
         width_fraction.map(|_| layouter.regions.current.current_line.len());
 
-    // P273.7 — restore parent_bbox (LIFO). Shape emit do
-    // próprio Boxed (linha ~1485) usa parent_bbox outer
-    // (paridade Block P273.6 §2.3).
+    // Restore the exterior paint reference before emitting the Box backing.
     layouter.parent_bbox = saved_parent_bbox;
 
-    // P243 — restaurar width original.
+    // Restore the parent's available width.
     layouter.regions.current.width = saved_width;
 
-    // **P1028** — forçar largura exterior quando `width` é especificado.
+    // Record provisional nominal occupancy once; line closure replaces it
+    // with the fractional allocation instead of adding both widths.
     let outer_w = if let Some(w) = width {
-        outset_left + inset_left + w.resolve_pt(font) + inset_right + outset_right
+        w.resolve_pt(font)
     } else {
-        layouter.regions.current.cursor_x.0 - start_x + inset_right + outset_right
+        layouter.regions.current.cursor_x.0 - start_x + inset_right
     };
     layouter.regions.current.cursor_x = Pt(start_x + outer_w);
     if let (Some(fr), Some(insert_at)) = (width_fraction, fraction_insert_at) {
@@ -294,37 +323,16 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
         layouter.pending_fr_natural_widths.push(outer_w);
     }
 
-    // **P1120** — ascent do body: o vanilla coloca o body no topo da caixa e
-    // a baseline da caixa é a do body, logo o ascent da caixa é o do body e o
-    // descent é `h − ascent`. Sem medição do body (texto simples), o ascent é
-    // a aresta superior do texto — o mesmo valor que o vanilla usa aí.
-    let (text_top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
-    let body_ascent = layouter.line_inline_ascent.max(text_top.0);
-    let body_descent = layouter.line_inline_descent;
     layouter.line_inline_ascent = saved_line_ascent;
     layouter.line_inline_descent = saved_line_descent;
 
-    // **P1491** — a baseline explícita desloca a baseline natural do frame,
-    // sem alterar a sua altura. Corpos textuais herdam a baseline do texto;
-    // corpos sem baseline natural (por exemplo, rect) alinham pela base.
-    let natural_body_height = if body_has_text_baseline {
-        body_ascent + body_descent
-    } else {
-        measured_body_height
-    };
-    let box_height = height.map_or(inset_top + natural_body_height + inset_bottom, |h| {
-        inset_top + h.resolve_pt(font) + inset_bottom
-    });
-    let natural_baseline =
-        if body_has_text_baseline { inset_top + body_ascent } else { box_height };
-    let frame_baseline = natural_baseline - baseline_shift;
     layouter.note_inline_extent(
         frame_baseline.max(0.0),
         (box_height - frame_baseline).max(0.0),
     );
 
-    // P1119/P1120 / P248 — altura explícita: extensão da linha, anotação do
-    // `Group` do body e clip quando activo.
+    // Preserve the established fractional grouping and pending-index protocol
+    // while recording explicit height and its optional clip.
     if let Some(h) = height {
         let h_pt = h.resolve_pt(font);
         let mut found_group = false;
@@ -338,12 +346,11 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
             && !layouter.regions.current.current_line[parent_line_len_before..].is_empty()
         {
             let pos_box = crate::entities::layout_types::Point {
-                x: Pt(start_x + outset_left + inset_left),
+                x: Pt(start_x + inset_left),
                 y: layouter.regions.current.cursor_y,
             };
-            // **P1120** — os items do body foram produzidos em coordenadas
-            // absolutas da linha; dentro do `Group` passam a ser locais à
-            // matriz do grupo (o exportador soma `pos` outra vez).
+            // Body items use line coordinates. Normalize them to the group's
+            // origin so the exporter adds that origin exactly once.
             let mut body_items: Vec<FrameItem> = layouter
                 .regions
                 .current
@@ -379,7 +386,7 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
                     .drain(parent_line_len_before..)
                     .collect();
                 let pos_box = crate::entities::layout_types::Point {
-                    x: Pt(start_x + outset_left + inset_left),
+                    x: Pt(start_x + inset_left),
                     y: layouter.regions.current.cursor_y
                         - layouter
                             .metrics
@@ -399,27 +406,16 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    // P247 — emissão FrameItem::Shape inline (fill/stroke/outset).
-    // Inline contexto: altura visual = line_height (proxy);
-    // ajustada por outset.top + outset.bottom.
+    // Backing geometry uses the actual Box baseline and total height.
+    // Outset expands only this paint rectangle.
     if has_shape || has_outset {
-        let (top_edge, bottom_edge) =
-            layouter.metrics.text_edges(layouter.style.size, &layouter.style);
-        let inner_h = match height {
-            Some(h) => h.resolve_pt(font),
-            None => top_edge.0 + inset_top + bottom_edge.0.abs() + inset_bottom,
-        };
-        let outer_h = inner_h + outset_top + outset_bottom;
+        let outer_h = box_height + outset_top + outset_bottom;
         let pos = crate::entities::layout_types::Point {
-            x: Pt(start_x),
-            // Top da caixa em relação à baseline real: baseline - top_edge - inset_top - outset_top
-            y: layouter.regions.current.cursor_y - top_edge - Pt(inset_top + outset_top),
+            x: Pt(start_x - outset_left),
+            y: Pt(outer_baseline - frame_baseline - outset_top),
         };
-        // P252 — stroke-overhang real activação Boxed
-        // (paralelo Block; fecha último scope-out P156H
-        // stroke-overhang; Boxed A.4 COMPLETO 6/6).
-        // No Typst padrão, o stroke de box() é desenhado centrado na borda
-        // sem expandir a geometria exterior do frame (paridade vanilla).
+        // The stroke is centered on the backing edge and does not change
+        // the Box's nominal layout dimensions.
         let radius_is_zero_p247 = radius.top_left
             == crate::entities::layout_types::Length::ZERO
             && radius.top_right == crate::entities::layout_types::Length::ZERO
@@ -439,13 +435,12 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
             FrameItem::Shape {
                 pos,
                 kind: shape_kind,
-                width: outer_w,
+                width: outer_w + outset_left + outset_right,
                 height: outer_h,
                 fill: fill.clone().map(crate::entities::frame_paint::FramePaint::Solid),
                 stroke: prepared_stroke,
-                // P273.6 — Boxed's own shape; gradient relative=parent
-                // resolve via outer layouter.parent_bbox (Boxed difere
-                // save/restore P273.7).
+                // The backing resolves parent-relative paint against the
+                // exterior reference restored above.
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: layouter.parent_bbox,
             },
@@ -457,6 +452,7 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
 fn layout_sized<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BoxedElem,
+    assigned_width: Option<f64>,
 ) {
     use crate::entities::geometry::ShapeKind;
     use crate::entities::layout_types::{Length, Point, Rect, TransformMatrix};
@@ -472,7 +468,8 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     };
     let inset = resolve(e.inset);
     let outset = resolve(e.outset);
-    let explicit_w = e.width.map(|v| v.resolve_pt(font).max(0.0));
+    let explicit_w =
+        assigned_width.or_else(|| e.width.map(|v| v.resolve_pt(font).max(0.0)));
     let explicit_h = e.height.map(|v| v.resolve_pt(font).max(0.0));
     let inner_w = (explicit_w.unwrap_or_else(|| {
         super::paragraph_indent::current_width(layouter, layouter.available_width())
@@ -493,17 +490,28 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
             h: Pt(h),
         });
     }
-    let (body_h, mut body, deco, align_x, align_y) = layouter
-        .layout_sub_frame_at_geometric_origin(
-            &e.body,
-            super::sub_frame::SubLayoutRegion {
-                origin_x: 0.0,
-                width: inner_w,
-                height: inner_h,
-                align_rtl: true,
-                unconstrained_height: inner_h.is_none(),
-            },
-        );
+    let planned = layouter.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::BoxedBody,
+    );
+    let (body_h, mut body, deco, align_x, align_y) = layouter.layout_sub_frame_planned(
+        &e.body,
+        super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: inner_w,
+            height: inner_h,
+            align_rtl: true,
+            unconstrained_height: inner_h.is_none(),
+        },
+        true,
+        planned,
+    );
+    // Capture this completed body's witness before any later child can
+    // publish another subframe result. None remains a legacy fallback.
+    let completed_body_baseline = if baseline_body_is_certified(&e.body) {
+        layouter.last_sub_frame_baseline
+    } else {
+        None
+    };
     layouter.parent_bbox = saved_bbox;
     let natural_w = super::helpers::line_content_right(&body, &layouter.metrics)
         .max(layouter.last_sub_frame_width);
@@ -526,7 +534,11 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     );
     layouter.pending_align_v_centering = saved_y;
 
-    let natural_baseline = first_baseline(&body).map_or(box_h, |p| inset.top + p.y.0);
+    let natural_baseline = match completed_body_baseline {
+        Some(Some(y)) => inset.top + y,
+        Some(None) => box_h,
+        None => first_baseline(&body).map_or(box_h, |p| inset.top + p.y.0),
+    };
     let baseline = natural_baseline - e.baseline.resolve_pt(font);
     if layouter.initial_baseline_pending {
         // A first box installs its own ascent; zero is a valid installed value.
@@ -649,6 +661,7 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
             start_x: seg.start_x + pos.x + Pt(inset.left),
             end_x: seg.end_x + pos.x + Pt(inset.left),
             baseline_y: seg.baseline_y + pos.y + Pt(inset.top),
+            piece_line: seg.piece_line,
         }));
     }
     layouter.regions.current.current_line.push(FrameItem::Group {
@@ -663,6 +676,162 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.cursor_x = start.x + Pt(box_w);
     layouter.note_inline_extent(baseline.max(0.0), (box_h - baseline).max(0.0));
     layouter.text_tracking_state.interrupt();
+}
+
+fn fractional_text_edges<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (f64, f64) {
+    let mut top = 0.0_f64;
+    let mut bottom = 0.0_f64;
+    for item in items {
+        let edges = match item {
+            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+                metrics.text_edges(style.size, style)
+            }
+            FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::TextReplacement { items, .. } => {
+                let (t, b) = fractional_text_edges(items, metrics);
+                (Pt(t), Pt(b))
+            }
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. } => (Pt(0.0), Pt(0.0)),
+        };
+        top = top.max(edges.0 .0);
+        bottom = bottom.min(edges.1 .0);
+    }
+    (top, bottom)
+}
+
+/// A complete body proof is necessary: a later observed line cannot certify
+/// an earlier opaque frame. This gate never dispatches or measures content.
+fn baseline_body_is_certified(content: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    match content {
+        Content::Source(v) => baseline_body_is_certified(&v.body),
+        Content::ShowRecipe(v) => baseline_body_is_certified(&v.body),
+        Content::Located(v) => baseline_body_is_certified(&v.body),
+        Content::Realized(v) => baseline_body_is_certified(&v.visual),
+        Content::Styled(v) => baseline_body_is_certified(&v.body),
+        Content::Strong(v) => baseline_body_is_certified(&v.body),
+        Content::Emph(v) => baseline_body_is_certified(&v.body),
+        Content::Label(v) => baseline_body_is_certified(&v.body),
+        Content::Sequence(parts) => parts.iter().all(baseline_body_is_certified),
+        Content::Par { body } => baseline_body_is_certified(body),
+        Content::Boxed(v) => baseline_body_is_certified(&v.body),
+        Content::Block(v) => baseline_body_is_certified(&v.body),
+        Content::Repeat(v) => baseline_body_is_certified(&v.body),
+        Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Linebreak(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Shape(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::CounterUpdate(_)
+        | Content::ContextBlock(_)
+        | Content::Document { .. }
+        | Content::Asset { .. } => true,
+        Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::Symbol(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Columns(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::Dynamic(_) => false,
+    }
 }
 
 /// First textual baseline in frame coordinates; wrappers do not erase it.
@@ -686,9 +855,7 @@ fn first_baseline(items: &[FrameItem]) -> Option<crate::entities::layout_types::
     })
 }
 
-/// **P1120** — desloca `items` por `(dx, dy)`. Usado ao mover items já
-/// posicionados na linha para dentro de um `FrameItem::Group`, cuja matriz
-/// `cm` volta a somar a origem do grupo no exportador.
+/// Translate owned items when normalizing line coordinates to a group origin.
 fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
     for item in items {
         match item {
@@ -1552,5 +1719,1122 @@ mod composition_regressions {
             assert_eq!(doc.pages.len(), 2);
             close(page_geometry(&doc, 1).shapes[0].0.y.0, 10.0);
         }
+    }
+
+    #[derive(Clone, Copy)]
+    struct FractionalFaceMetrics {
+        top_ratio: f64,
+    }
+    impl FontMetrics for FractionalFaceMetrics {
+        fn advance(
+            &self,
+            text: &str,
+            size: Pt,
+            style: &crate::entities::layout_types::TextStyle,
+        ) -> Pt {
+            super::super::FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(
+            &self,
+            size: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> (Pt, Pt) {
+            (size * self.top_ratio, size * 1.2)
+        }
+        fn cap_height(
+            &self,
+            size: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> Pt {
+            size * self.top_ratio
+        }
+        fn text_edges(
+            &self,
+            size: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> (Pt, Pt) {
+            (size * self.top_ratio, Pt(0.0))
+        }
+    }
+    fn fractional_box_element(body: Content, height: f64) -> BoxedElem {
+        let mut e = box_element(body);
+        e.width = None;
+        e.width_fraction = Some(1.0);
+        e.height = Some(Length::pt(height));
+        e
+    }
+    fn fractional_metric_document(
+        content: Content,
+        top_ratio: f64,
+        stale_paragraph_flag: bool,
+    ) -> crate::entities::layout_types::PagedDocument {
+        fractional_metric_document_with_width(
+            content,
+            top_ratio,
+            stale_paragraph_flag,
+            240.0,
+        )
+    }
+    fn fractional_metric_document_with_width(
+        content: Content,
+        top_ratio: f64,
+        stale_paragraph_flag: bool,
+        page_width: f64,
+    ) -> crate::entities::layout_types::PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FractionalFaceMetrics { top_ratio },
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = page_width;
+        l.page_config.height = f64::INFINITY;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = page_width;
+        l.regions.current.height = f64::INFINITY;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.prev_margin_is_parbreak = stale_paragraph_flag;
+        l.layout_content(&content);
+        l.finish()
+    }
+    fn fractional_paragraph_content(e: BoxedElem, spacing: f64, leading: f64) -> Content {
+        use crate::entities::style::Styles;
+        Content::styled(
+            Content::sequence(vec![
+                Content::text("BEFORE"),
+                Content::Parbreak,
+                Content::Boxed(Arc::new(e)),
+            ]),
+            Styles::new()
+                .push_custom("par.spacing", Value::Length(Length::pt(spacing)))
+                .push_custom("par.leading", Value::Length(Length::pt(leading))),
+        )
+    }
+    #[test]
+    fn fractional_box_paragraph_spacing_uses_actual_face_not_calibration() {
+        for top_ratio in [0.3, 0.9] {
+            for spacing in [0.0, 23.0] {
+                for leading in [0.0, 19.0] {
+                    let e = fractional_box_element(Content::text("BOX"), 16.0);
+                    let doc = fractional_metric_document(
+                        fractional_paragraph_content(e, spacing, leading),
+                        top_ratio,
+                        false,
+                    );
+                    assert_eq!(doc.pages.len(), 1);
+                    let g = page_geometry(&doc, 0);
+                    close(
+                        point(&g, "BOX").y.0 - point(&g, "BEFORE").y.0,
+                        spacing + 11.0 * top_ratio,
+                    );
+                    assert_eq!(g.text.iter().filter(|(s, _)| s == "BOX").count(), 1);
+                }
+            }
+        }
+    }
+    #[test]
+    fn fractional_box_body_face_owns_ascent_and_explicit_total_height() {
+        use crate::entities::style::{Style, Styles};
+        let top_ratio = 0.7;
+        let spacing = 13.0;
+        for body_size in [8.0, 22.0] {
+            let body = Content::styled(
+                Content::text("BOX"),
+                Styles::from_iter([Style::Size(Length::pt(body_size))]),
+            );
+            let e = fractional_box_element(body, 40.0);
+            let doc = fractional_metric_document(
+                fractional_paragraph_content(e, spacing, 7.0),
+                top_ratio,
+                false,
+            );
+            let g = page_geometry(&doc, 0);
+            let geometric_top = point(&g, "BEFORE").y.0 + spacing;
+            close(point(&g, "BOX").y.0, geometric_top + body_size * top_ratio);
+            close(doc.pages[0].height, geometric_top + 40.0 + 10.0);
+        }
+    }
+    #[test]
+    fn fractional_box_safe_baseline_shift_preserves_body_geometric_top() {
+        for shift in [0.0, 3.0] {
+            let mut e = fractional_box_element(Content::text("BOX"), 16.0);
+            e.baseline = Length::pt(shift);
+            let doc = fractional_metric_document(
+                fractional_paragraph_content(e, 13.0, 7.0),
+                0.7,
+                false,
+            );
+            let g = page_geometry(&doc, 0);
+            let geometric_top = point(&g, "BEFORE").y.0 + 13.0;
+            close(point(&g, "BOX").y.0, geometric_top + 11.0 * 0.7);
+            close(doc.pages[0].height, geometric_top + 16.0 + 10.0);
+        }
+    }
+    #[test]
+    fn fractional_box_inset_reduces_body_region_within_total_height() {
+        let mut e = fractional_box_element(Content::text("BOX"), 24.0);
+        e.inset = Sides::uniform(Length::pt(3.0));
+        let doc = fractional_metric_document(
+            fractional_paragraph_content(e, 13.0, 7.0),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let geometric_top = point(&g, "BEFORE").y.0 + 13.0;
+        close(point(&g, "BOX").x.0, 13.0);
+        close(point(&g, "BOX").y.0, geometric_top + 3.0 + 11.0 * 0.7);
+        close(doc.pages[0].height, geometric_top + 24.0 + 10.0);
+    }
+    #[test]
+    fn fractional_box_outset_is_paint_only_for_body_and_suffix() {
+        let content = |outset| {
+            let mut e = fractional_box_element(Content::text("BOX"), 16.0);
+            e.outset = Sides::uniform(Length::pt(outset));
+            e.fill = Some(Color::rgb(255, 0, 0));
+            Content::sequence(vec![Content::Boxed(Arc::new(e)), Content::text("AFTER")])
+        };
+        let plain = fractional_metric_document(content(0.0), 0.7, false);
+        let expanded = fractional_metric_document(content(4.0), 0.7, false);
+        let p = page_geometry(&plain, 0);
+        let g = page_geometry(&expanded, 0);
+        close(point(&g, "BOX").x.0, point(&p, "BOX").x.0);
+        close(point(&g, "BOX").y.0, point(&p, "BOX").y.0);
+        close(point(&g, "AFTER").x.0, point(&p, "AFTER").x.0);
+        close(point(&g, "AFTER").y.0, point(&p, "AFTER").y.0);
+        assert_eq!(g.shapes.len(), 1);
+        close(g.shapes[0].0.x.0, p.shapes[0].0.x.0 - 4.0);
+        close(g.shapes[0].0.y.0, p.shapes[0].0.y.0 - 4.0);
+    }
+    #[test]
+    fn fractional_box_stale_paragraph_flag_without_chain_is_neutral() {
+        let content =
+            Content::Boxed(Arc::new(fractional_box_element(Content::text("BOX"), 16.0)));
+        let plain = fractional_metric_document(content.clone(), 0.7, false);
+        let stale = fractional_metric_document(content, 0.7, true);
+        let p = page_geometry(&plain, 0);
+        let g = page_geometry(&stale, 0);
+        close(point(&g, "BOX").x.0, point(&p, "BOX").x.0);
+        close(point(&g, "BOX").y.0, point(&p, "BOX").y.0);
+        close(stale.pages[0].height, plain.pages[0].height);
+    }
+    #[test]
+    fn fractional_box_published_body_position_follows_actual_geometric_top() {
+        let e = fractional_box_element(located(9017, Content::text("BOX")), 16.0);
+        let doc = fractional_metric_document(
+            fractional_paragraph_content(e, 13.0, 7.0),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let published = published_point(&doc, 9017);
+        close(published.x.0, point(&g, "BOX").x.0);
+        close(published.y.0, point(&g, "BOX").y.0 - 11.0 * 0.7);
+        no_private_positions(&doc.pages[0].items);
+    }
+
+    #[test]
+    fn fractional_box_committed_geometric_body_keeps_frame_height() {
+        let e = fractional_box_element(shape(7.0, 10.0), 16.0);
+        let doc = fractional_metric_document(
+            fractional_paragraph_content(e, 13.0, 7.0),
+            0.7,
+            false,
+        );
+        assert_eq!(doc.pages.len(), 1);
+        let g = page_geometry(&doc, 0);
+        assert_eq!(g.shapes.len(), 1);
+        let geometric_top = point(&g, "BEFORE").y.0 + 13.0;
+        close(g.shapes[0].0.x.0, 10.0);
+        close(g.shapes[0].0.y.0, geometric_top);
+        close(g.shapes[0].1, 7.0);
+        close(g.shapes[0].2, 10.0);
+        close(doc.pages[0].height, geometric_top + 16.0 + 10.0);
+        assert_eq!(g.text.iter().filter(|(s, _)| s == "BEFORE").count(), 1);
+    }
+
+    fn nested_inline_space(weight: f64) -> Content {
+        Content::HSpace(Arc::new(crate::entities::elements::h_space::HSpaceElem {
+            amount: crate::entities::elements::h_space::Spacing::Fractional(weight),
+            weak: false,
+            weak_explicit: false,
+        }))
+    }
+    fn nested_inline_body() -> Content {
+        Content::sequence(vec![
+            Content::text("A"),
+            nested_inline_space(1.0),
+            Content::text("B"),
+        ])
+    }
+    #[test]
+    fn nested_inline_child_fraction_uses_only_its_box_budget() {
+        let glyph_width = 11.0 * 0.6;
+        for exterior_spaces in [false, true] {
+            let mut parts = vec![Content::text("P")];
+            if exterior_spaces {
+                parts.push(nested_inline_space(1.0));
+            }
+            parts.push(Content::Boxed(Arc::new(fractional_box_element(
+                nested_inline_body(),
+                16.0,
+            ))));
+            if exterior_spaces {
+                parts.push(nested_inline_space(1.0));
+            }
+            parts.push(Content::text("Q"));
+            let doc = fractional_metric_document(Content::sequence(parts), 0.7, false);
+            let g = page_geometry(&doc, 0);
+            let free_width = 220.0 - 2.0 * glyph_width;
+            let budget = if exterior_spaces { free_width / 3.0 } else { free_width };
+            let box_left =
+                10.0 + glyph_width + if exterior_spaces { budget } else { 0.0 };
+            close(point(&g, "A").x.0, box_left);
+            close(point(&g, "B").x.0 + glyph_width, box_left + budget);
+            close(point(&g, "Q").x.0 + glyph_width, 230.0);
+            for marker in ["P", "A", "B", "Q"] {
+                assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+            }
+        }
+    }
+    #[test]
+    fn nested_inline_fractional_box_recurses_with_its_actual_inner_width() {
+        let inner =
+            Content::Boxed(Arc::new(fractional_box_element(nested_inline_body(), 16.0)));
+        let outer = Content::Boxed(Arc::new(fractional_box_element(
+            Content::sequence(vec![Content::text("I"), inner, Content::text("J")]),
+            24.0,
+        )));
+        let doc = fractional_metric_document(
+            Content::sequence(vec![Content::text("P"), outer, Content::text("Q")]),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let glyph_width = 11.0 * 0.6;
+        close(point(&g, "I").x.0, 10.0 + glyph_width);
+        close(point(&g, "A").x.0, 10.0 + 2.0 * glyph_width);
+        close(point(&g, "B").x.0 + glyph_width, point(&g, "J").x.0);
+        close(point(&g, "J").x.0 + glyph_width, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph_width, 230.0);
+        for marker in ["P", "I", "A", "B", "J", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+    #[test]
+    fn nested_inline_assigned_box_crosses_source_and_style_transparently() {
+        use crate::entities::style::{Style, Styles};
+        let wrapped =
+            Content::Source(Arc::new(crate::entities::content::SourceContent {
+                span: crate::entities::span::Span::detached(),
+                body: Content::styled(
+                    Content::sequence(vec![Content::Boxed(Arc::new(
+                        fractional_box_element(nested_inline_body(), 16.0),
+                    ))]),
+                    Styles::from_iter([Style::bold(true)]),
+                ),
+            }));
+        let doc = fractional_metric_document(
+            Content::sequence(vec![Content::text("P"), wrapped, Content::text("Q")]),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let glyph_width = 11.0 * 0.6;
+        close(point(&g, "A").x.0, 10.0 + glyph_width);
+        close(point(&g, "B").x.0 + glyph_width, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph_width, 230.0);
+    }
+    #[test]
+    fn nested_inline_complete_flow_scope_keeps_its_exterior_budget() {
+        let styles = crate::entities::style::Styles::new()
+            .push_custom("eval.flow.scope", crate::entities::value::Value::Bool(true));
+        let tail = Content::Source(Arc::new(crate::entities::content::SourceContent {
+            span: crate::entities::span::Span::detached(),
+            body: Content::styled(
+                Content::sequence(vec![
+                    Content::text("P"),
+                    Content::Boxed(Arc::new(fractional_box_element(
+                        nested_inline_body(),
+                        16.0,
+                    ))),
+                    Content::text("Q"),
+                ]),
+                styles,
+            ),
+        }));
+        let doc = fractional_metric_document(
+            Content::Sequence(Arc::from(vec![tail])),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let glyph_width = 11.0 * 0.6;
+        close(point(&g, "A").x.0, 10.0 + glyph_width);
+        close(point(&g, "B").x.0 + glyph_width, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph_width, 230.0);
+        for marker in ["P", "A", "B", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+
+    #[test]
+    fn nested_inline_fraction_rounding_keeps_body_and_suffix_on_the_line() {
+        let mut fractional = fractional_box_element(nested_inline_body(), 16.0);
+        fractional.width_fraction = Some(0.1);
+        let mut suffix = box_element(Content::text("Q"));
+        suffix.width = Some(Length::pt(6.6));
+        suffix.height = Some(Length::pt(16.0));
+        let doc = fractional_metric_document_with_width(
+            Content::sequence(vec![
+                Content::Boxed(Arc::new(fractional)),
+                nested_inline_space(0.2),
+                nested_inline_space(0.3),
+                Content::Boxed(Arc::new(suffix)),
+            ]),
+            0.7,
+            false,
+            244.0,
+        );
+        let g = page_geometry(&doc, 0);
+        let glyph_width = 11.0 * 0.6;
+        let box_width = (224.0 - 6.6) * (0.1 / (0.1 + 0.2 + 0.3));
+        close(point(&g, "A").x.0, 10.0);
+        close(point(&g, "B").x.0 + glyph_width, 10.0 + box_width);
+        close(point(&g, "Q").x.0 + glyph_width, 234.0);
+        close(point(&g, "A").y.0, point(&g, "Q").y.0);
+        for marker in ["A", "B", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+
+    #[test]
+    fn nested_inline_zero_assigned_box_does_not_consume_body_advance() {
+        for body in [Content::Empty, Content::text("A")] {
+            let visible = !matches!(body, Content::Empty);
+            let fractional = fractional_box_element(body, 16.0);
+            let mut suffix = box_element(Content::text("Q"));
+            suffix.width = Some(Length::pt(220.0));
+            suffix.height = Some(Length::pt(16.0));
+            let doc = fractional_metric_document(
+                Content::sequence(vec![
+                    Content::Boxed(Arc::new(fractional)),
+                    Content::Boxed(Arc::new(suffix)),
+                ]),
+                0.7,
+                false,
+            );
+            let g = page_geometry(&doc, 0);
+            close(point(&g, "Q").x.0, 10.0);
+            assert_eq!(g.text.iter().filter(|(s, _)| s == "Q").count(), 1);
+            assert_eq!(
+                g.text.iter().filter(|(s, _)| s == "A").count(),
+                usize::from(visible)
+            );
+            if visible {
+                close(point(&g, "A").x.0, 10.0);
+            }
+        }
+    }
+    // Independent declared-metric acceptance cases from the Repeat audit.
+    // These values are fixture inputs, not measurements fitted to an output.
+    struct RepeatBaselineMetrics;
+    impl FontMetrics for RepeatBaselineMetrics {
+        fn advance(
+            &self,
+            text: &str,
+            _: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> Pt {
+            Pt(text.chars().count() as f64 * 10.0)
+        }
+        fn text_width(
+            &self,
+            text: &str,
+            size: Pt,
+            style: &crate::entities::layout_types::TextStyle,
+        ) -> Pt {
+            self.advance(text, size, style)
+        }
+        fn vertical_metrics(
+            &self,
+            _: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> (Pt, Pt) {
+            (Pt(6.0), Pt(8.0))
+        }
+        fn cap_height(&self, _: Pt, _: &crate::entities::layout_types::TextStyle) -> Pt {
+            Pt(6.0)
+        }
+        fn text_edges(
+            &self,
+            _: Pt,
+            _: &crate::entities::layout_types::TextStyle,
+        ) -> (Pt, Pt) {
+            (Pt(6.0), Pt(-2.0))
+        }
+    }
+    fn repeat_baseline_box(
+        body: Content,
+        width: f64,
+        height: f64,
+        inset: f64,
+        shift: f64,
+    ) -> Content {
+        let mut e = box_element(body);
+        e.width = Some(Length::pt(width));
+        e.height = Some(Length::pt(height));
+        e.inset = Sides::uniform(Length::pt(inset));
+        e.baseline = Length::pt(shift);
+        Content::Boxed(Arc::new(e))
+    }
+    fn repeat_baseline_piece(gap: f64) -> Content {
+        Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem {
+            body: Content::text("X"),
+            gap: Some(Length::pt(gap)),
+            justify: false,
+        }))
+    }
+    fn repeat_baseline_document(
+        body: Content,
+    ) -> crate::entities::layout_types::PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            RepeatBaselineMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 260.0;
+        l.page_config.height = f64::INFINITY;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 260.0;
+        l.regions.current.height = f64::INFINITY;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(12.0)));
+        l.layout_content(&Content::sequence(vec![
+            Content::text("BEFORE"),
+            body,
+            Content::text("TAIL"),
+        ]));
+        l.finish()
+    }
+    #[test]
+    fn box_repeat_zero_copies_keep_the_prepared_piece_baseline() {
+        for (gap, expected_copies) in [(-100.0, 0), (3.0, 6)] {
+            let doc = repeat_baseline_document(repeat_baseline_box(
+                repeat_baseline_piece(gap),
+                80.0,
+                16.0,
+                0.0,
+                0.0,
+            ));
+            let g = page_geometry(&doc, 0);
+            assert_eq!(g.text.iter().filter(|(s, _)| s == "X").count(), expected_copies);
+            close(point(&g, "BEFORE").y.0, 10.0 + 6.0);
+            close(point(&g, "TAIL").y.0, 10.0 + 6.0);
+            assert!(doc.layout_errors.is_empty());
+        }
+    }
+    #[test]
+    fn box_repeat_unpainted_baseline_does_not_replace_earlier_text() {
+        let doc = repeat_baseline_document(repeat_baseline_box(
+            Content::sequence(vec![Content::text("A"), repeat_baseline_piece(-100.0)]),
+            80.0,
+            40.0,
+            0.0,
+            0.0,
+        ));
+        let g = page_geometry(&doc, 0);
+        assert!(!g.text.iter().any(|(s, _)| s == "X"));
+        for marker in ["BEFORE", "A", "TAIL"] {
+            close(point(&g, marker).y.0, 10.0 + 6.0);
+        }
+    }
+    #[test]
+    fn box_repeat_first_unpainted_baseline_precedes_later_text() {
+        let doc = repeat_baseline_document(repeat_baseline_box(
+            Content::sequence(vec![repeat_baseline_piece(-100.0), Content::text("A")]),
+            80.0,
+            40.0,
+            0.0,
+            0.0,
+        ));
+        let g = page_geometry(&doc, 0);
+        assert!(!g.text.iter().any(|(s, _)| s == "X"));
+        close(point(&g, "BEFORE").y.0, 10.0 + 6.0);
+        close(point(&g, "TAIL").y.0, 10.0 + 6.0);
+        close(point(&g, "A").y.0, 10.0 + 8.0 + 12.0 + 6.0);
+    }
+    #[test]
+    fn box_repeat_unpainted_baseline_composes_nested_insets_and_shifts() {
+        for (inner_shift, outer_shift) in [(0.0, 0.0), (1.0, 2.0)] {
+            let inner = repeat_baseline_box(
+                repeat_baseline_piece(-100.0),
+                80.0,
+                16.0,
+                2.0,
+                inner_shift,
+            );
+            let doc = repeat_baseline_document(repeat_baseline_box(
+                inner,
+                100.0,
+                24.0,
+                3.0,
+                outer_shift,
+            ));
+            let g = page_geometry(&doc, 0);
+            assert!(!g.text.iter().any(|(s, _)| s == "X"));
+            let baseline = 10.0 + 6.0 + 2.0 + 3.0 - inner_shift - outer_shift;
+            close(point(&g, "BEFORE").y.0, baseline);
+            close(point(&g, "TAIL").y.0, baseline);
+        }
+    }
+    #[test]
+    fn box_repeat_witness_preserves_empty_body_bottom_baseline() {
+        let doc = repeat_baseline_document(repeat_baseline_box(
+            Content::Empty,
+            80.0,
+            16.0,
+            0.0,
+            0.0,
+        ));
+        let g = page_geometry(&doc, 0);
+        close(point(&g, "BEFORE").y.0, 10.0 + 16.0);
+        close(point(&g, "TAIL").y.0, 10.0 + 16.0);
+    }
+    #[test]
+    fn box_repeat_witness_preserves_shape_body_bottom_baseline() {
+        let doc = repeat_baseline_document(repeat_baseline_box(
+            shape(7.0, 9.0),
+            80.0,
+            16.0,
+            0.0,
+            0.0,
+        ));
+        let g = page_geometry(&doc, 0);
+        close(point(&g, "BEFORE").y.0, 10.0 + 16.0);
+        close(point(&g, "TAIL").y.0, 10.0 + 16.0);
+    }
+    #[test]
+    fn box_repeat_witness_does_not_invent_baseline_after_first_shape() {
+        let doc = repeat_baseline_document(repeat_baseline_box(
+            Content::sequence(vec![shape(7.0, 9.0), Content::text("A")]),
+            80.0,
+            40.0,
+            0.0,
+            0.0,
+        ));
+        let g = page_geometry(&doc, 0);
+        close(point(&g, "BEFORE").y.0, 10.0 + 40.0);
+        close(point(&g, "TAIL").y.0, 10.0 + 40.0);
+        // Direct Shape subframes keep their existing9pt progress; this is
+        // separate from the authoritative absence of a first-frame baseline.
+        close(point(&g, "A").y.0, 10.0 + 9.0);
+    }
+    #[test]
+    fn box_repeat_opaque_stack_prefix_keeps_existing_first_paint_fallback() {
+        for inside_repeat in [false, true] {
+            let stack =
+                Content::Stack(Arc::new(crate::entities::elements::stack::StackElem {
+                    children: Arc::from(vec![Content::text("S"), Content::text("T")]),
+                    dir: crate::entities::dir::Dir::TTB,
+                    spacing: Some(Length::pt(3.0)),
+                }));
+            let prefix = if inside_repeat {
+                Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem {
+                    body: stack,
+                    gap: Some(Length::pt(3.0)),
+                    justify: false,
+                }))
+            } else {
+                stack
+            };
+            let doc = repeat_baseline_document(repeat_baseline_box(
+                Content::sequence(vec![prefix, Content::text("A")]),
+                80.0,
+                60.0,
+                0.0,
+                0.0,
+            ));
+            let g = page_geometry(&doc, 0);
+            // Stack's metadata producer is uncertified. Preserve the existing
+            // affine first-painted Text fallback, including under Repeat.
+            close(point(&g, "BEFORE").y.0, point(&g, "S").y.0);
+            close(point(&g, "TAIL").y.0, point(&g, "S").y.0);
+            assert!(point(&g, "A").y.0 > point(&g, "S").y.0);
+            assert!(doc.layout_errors.is_empty());
+        }
+    }
+    fn source_page_style_tail() -> Content {
+        use crate::entities::style::Styles;
+        let font = Styles::new()
+            .push_custom(
+                "text.font",
+                Value::Array(vec![Value::Str("DejaVu Sans".into())]),
+            )
+            .push_custom("eval.flow.scope", Value::Bool(true));
+        let page = Styles::new()
+            .push_custom("page.margin-bottom", Value::Float(8.0))
+            .push_custom("page.margin-top", Value::Float(8.0))
+            .push_custom("page.margin-right", Value::Float(8.0))
+            .push_custom("page.margin-left", Value::Float(8.0))
+            .push_custom("page.height", Value::Auto)
+            .push_custom("page.width", Value::Float(240.0))
+            .push_custom("eval.flow.scope", Value::Bool(true));
+        Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::SpaceFromNewline,
+                Content::styled(
+                    Content::Sequence(Arc::from(vec![
+                        Content::Empty,
+                        Content::text("BEFORE"),
+                        Content::Parbreak,
+                        Content::Boxed(Arc::new(fractional_box_element(
+                            nested_inline_body(),
+                            16.0,
+                        ))),
+                        Content::Space,
+                        Content::text("AFTER"),
+                        Content::SpaceFromNewline,
+                    ])),
+                    font,
+                ),
+            ])),
+            page,
+        )
+    }
+    fn source_page_change() -> Content {
+        Content::SetPage(Arc::new(crate::entities::content::SetPageDelta {
+            width: Some(crate::entities::layout_types::PageDimension::Length(240.0)),
+            height: Some(crate::entities::layout_types::PageDimension::Auto),
+            margin: Some(PageMarginSpec::uniform(8.0)),
+            ..Default::default()
+        }))
+    }
+    fn assert_source_page_tail(
+        doc: &crate::entities::layout_types::PagedDocument,
+        page: usize,
+    ) {
+        let g = page_geometry(doc, page);
+        let glyph = 11.0 * 0.6;
+        close(doc.pages[page].width, 240.0);
+        close(point(&g, "A").x.0, 8.0);
+        close(point(&g, "B").x.0 + glyph, point(&g, "AFTER").x.0 - glyph);
+        close(point(&g, "AFTER").x.0 + 5.0 * glyph, 240.0 - 8.0);
+        for marker in ["BEFORE", "A", "B", "AFTER"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+    #[test]
+    fn nested_inline_actual_page_style_tree_uses_dispatched_geometry() {
+        let content = Content::Sequence(Arc::from(vec![
+            source_page_change(),
+            source_page_style_tail(),
+        ]));
+        let doc = fractional_metric_document_with_width(content, 0.7, false, 360.0);
+        assert_eq!(doc.pages.len(), 1);
+        assert_source_page_tail(&doc, 0);
+    }
+    #[test]
+    fn nested_inline_actual_page_style_tree_preserves_prior_page_prefix() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::text("OLD"),
+            source_page_change(),
+            source_page_style_tail(),
+        ]));
+        let doc = fractional_metric_document_with_width(content, 0.7, false, 360.0);
+        assert_eq!(doc.pages.len(), 2);
+        close(doc.pages[0].width, 360.0);
+        assert_eq!(
+            page_geometry(&doc, 0).text.iter().filter(|(s, _)| s == "OLD").count(),
+            1
+        );
+        assert_source_page_tail(&doc, 1);
+    }
+
+    fn repeat_auto_height_scene(siblings: bool) -> Content {
+        use crate::entities::style::Styles;
+        let repeat =
+            |text| Content::repeat(Content::text(text), Some(Length::pt(2.0)), false);
+        let fractional = |body, weight| {
+            let mut e = box_element(body);
+            e.width = None;
+            e.width_fraction = Some(weight);
+            e.height = None;
+            Content::Boxed(Arc::new(e))
+        };
+        let parts = if siblings {
+            vec![
+                Content::text("A"),
+                fractional(repeat("B"), 1.0),
+                Content::text("M"),
+                fractional(repeat("C"), 2.0),
+                Content::text("TAIL"),
+                Content::SpaceFromNewline,
+            ]
+        } else {
+            let mut inner = box_element(repeat("B"));
+            inner.width = Some(Length::pt(40.0));
+            inner.height = None;
+            vec![
+                Content::text("A"),
+                fractional(
+                    Content::Sequence(Arc::from(vec![
+                        Content::text("I"),
+                        Content::Boxed(Arc::new(inner)),
+                        Content::text("J"),
+                    ])),
+                    1.0,
+                ),
+                Content::text("TAIL"),
+                Content::SpaceFromNewline,
+            ]
+        };
+        let font = Styles::new()
+            .push_custom(
+                "text.font",
+                Value::Array(vec![Value::Str("DejaVu Sans".into())]),
+            )
+            .push_custom("eval.flow.scope", Value::Bool(true));
+        let page = Styles::new()
+            .push_custom("page.margin-bottom", Value::Float(10.0))
+            .push_custom("page.margin-top", Value::Float(10.0))
+            .push_custom("page.margin-right", Value::Float(10.0))
+            .push_custom("page.margin-left", Value::Float(10.0))
+            .push_custom("page.height", Value::Auto)
+            .push_custom("page.width", Value::Float(220.0))
+            .push_custom("eval.flow.scope", Value::Bool(true));
+        Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::SpaceFromNewline,
+                Content::styled(Content::Sequence(Arc::from(parts)), font),
+            ])),
+            page,
+        )
+    }
+    fn repeat_auto_height_document(
+        content: &Content,
+        planned: bool,
+        following: bool,
+    ) -> crate::entities::layout_types::PagedDocument {
+        use super::super::page_running_requests::TraceSection;
+        use crate::compiler::introspect::page_running::prepare_page_running_body;
+        use crate::compiler::realize::context_occurrences::ContextOccurrenceArena;
+        let extended = following.then(|| {
+            Content::Sequence(Arc::from(vec![
+                content.clone(),
+                Content::Parbreak,
+                Content::text("LATER"),
+            ]))
+        });
+        let content = extended.as_ref().unwrap_or(content);
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FractionalFaceMetrics { top_ratio: 0.7 },
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 220.0;
+        l.page_config.height = f64::INFINITY;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 220.0;
+        l.regions.current.height = f64::INFINITY;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        if planned {
+            let mut ctx = crate::compiler::eval::EvalContext::new();
+            let mut arena = ContextOccurrenceArena::new(content);
+            let mut frame = arena.frame();
+            let body = arena
+                .evaluate(&mut frame, &mut ctx, |ctx| {
+                    prepare_page_running_body(content, ctx)
+                })
+                .expect("source-equivalent planned body");
+            l.page_running_pass =
+                Some(super::super::page_running_requests::PlannedPass::new(&body, None));
+            l.layout_planned_root(&body, TraceSection::Body);
+        } else {
+            l.layout_content(content);
+        }
+        l.finish()
+    }
+    fn assert_repeat_auto_height(siblings: bool) {
+        let scene = repeat_auto_height_scene(siblings);
+        for planned in [false, true] {
+            let doc = repeat_auto_height_document(&scene, planned, false);
+            assert_eq!(doc.pages.len(), 1);
+            assert!(doc.layout_errors.is_empty());
+            let g = page_geometry(&doc, 0);
+            for marker in ["A", "TAIL"] {
+                assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+            }
+            let baseline = point(&g, "TAIL").y.0;
+            close(baseline, 10.0 + 11.0 * 0.7);
+            assert!(g.text.iter().all(|(_, p)| (p.y.0 - baseline).abs() < 1e-8));
+            assert!(
+                (doc.pages[0].height - baseline - 10.0).abs() < 1e-8,
+                "planned={planned} actual height={} terminal baseline={baseline}",
+                doc.pages[0].height
+            );
+        }
+    }
+    #[test]
+    fn repeat_auto_height_nested_fixed_source_keeps_terminal_causal_baseline() {
+        assert_repeat_auto_height(false);
+    }
+    #[test]
+    fn repeat_auto_height_unequal_sibling_source_keeps_terminal_causal_baseline() {
+        assert_repeat_auto_height(true);
+    }
+
+    #[test]
+    fn repeat_auto_height_following_text_replaces_weakly_closed_line_bottom() {
+        for siblings in [false, true] {
+            let scene = repeat_auto_height_scene(siblings);
+            for planned in [false, true] {
+                let doc = repeat_auto_height_document(&scene, planned, true);
+                assert_eq!(doc.pages.len(), 1);
+                assert!(doc.layout_errors.is_empty());
+                let g = page_geometry(&doc, 0);
+                assert_eq!(g.text.iter().filter(|(s, _)| s == "LATER").count(), 1);
+                let tail = point(&g, "TAIL").y.0;
+                let later = point(&g, "LATER").y.0;
+                assert!(later > tail, "real following text owns the next line");
+                close(doc.pages[0].height, later + 10.0);
+            }
+        }
+    }
+    #[test]
+    fn remaining_inline_shape_flow_boundary_preserves_following_fraction_budget() {
+        let body = Content::Sequence(Arc::from(vec![
+            shape(12.0, 8.0),
+            Content::text("P"),
+            Content::Boxed(Arc::new(fractional_box_element(nested_inline_body(), 16.0))),
+            Content::text("Q"),
+        ]));
+        let doc = fractional_metric_document(body, 0.7, false);
+        assert!(doc.layout_errors.is_empty());
+        assert_eq!(doc.pages.len(), 1);
+        let g = page_geometry(&doc, 0);
+        let glyph = 11.0 * 0.6;
+        close(point(&g, "A").x.0, 10.0 + glyph);
+        close(point(&g, "B").x.0 + glyph, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph, 230.0);
+        assert_eq!(g.shapes.len(), 1);
+        for marker in ["P", "A", "B", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+
+    #[test]
+    fn remaining_inline_negative_fraction_composes_body_in_its_actual_share() {
+        let mut e = fractional_box_element(nested_inline_body(), 16.0);
+        e.width_fraction = Some(-1.0);
+        let doc = fractional_metric_document(
+            Content::Sequence(Arc::from(vec![
+                Content::text("P"),
+                Content::Boxed(Arc::new(e)),
+                Content::text("Q"),
+            ])),
+            0.7,
+            false,
+        );
+        let g = page_geometry(&doc, 0);
+        let glyph = 11.0 * 0.6;
+        close(point(&g, "A").x.0, 10.0 + glyph);
+        close(point(&g, "B").x.0 + glyph, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph, 230.0);
+        for marker in ["P", "A", "B", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+
+    #[test]
+    fn remaining_inline_rtl_latin_fraction_keeps_actual_local_body_width() {
+        use crate::entities::{dir::Dir, style::Styles};
+        let body = Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::text("P"),
+                Content::Boxed(Arc::new(fractional_box_element(
+                    nested_inline_body(),
+                    16.0,
+                ))),
+                Content::text("Q"),
+            ])),
+            Styles::new().push_custom("text.dir", Value::Dir(Dir::RTL)),
+        );
+        let doc = fractional_metric_document(body, 0.7, false);
+        let g = page_geometry(&doc, 0);
+        let glyph = 11.0 * 0.6;
+        close(point(&g, "P").x.0, 10.0);
+        close(point(&g, "A").x.0, 10.0 + glyph);
+        close(point(&g, "B").x.0 + glyph, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph, 230.0);
+        for marker in ["P", "A", "B", "Q"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+
+    #[test]
+    fn remaining_inline_paragraph_after_tall_box_starts_after_physical_bottom() {
+        use crate::entities::style::Styles;
+        let body = Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::text("P"),
+                Content::Boxed(Arc::new(fractional_box_element(
+                    Content::text("A"),
+                    40.0,
+                ))),
+                Content::Parbreak,
+                Content::text("NEXT"),
+            ])),
+            Styles::new()
+                .push_custom("par.spacing", Value::Length(Length::pt(13.0)))
+                .push_custom("par.leading", Value::Length(Length::pt(7.0))),
+        );
+        let doc = fractional_metric_document(body, 0.7, false);
+        let g = page_geometry(&doc, 0);
+        close(point(&g, "NEXT").y.0, 10.0 + 40.0 + 13.0 + 11.0 * 0.7);
+        close(doc.pages[0].height, point(&g, "NEXT").y.0 + 10.0);
+        for marker in ["P", "A", "NEXT"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+    }
+    #[test]
+    fn remaining_inline_paragraph_descent_controls_cover_shifts_empty_and_double_breaks()
+    {
+        use crate::entities::style::Styles;
+        for height in [0.0, 40.0] {
+            for shift in [-5.0, 0.0, 5.0] {
+                for double in [false, true] {
+                    let mut e = fractional_box_element(Content::text("A"), height);
+                    e.baseline = Length::pt(shift);
+                    let mut parts = vec![
+                        Content::text("P"),
+                        Content::Boxed(Arc::new(e)),
+                        Content::Parbreak,
+                    ];
+                    if double {
+                        parts.push(Content::Parbreak);
+                    }
+                    parts.push(Content::text("NEXT"));
+                    let body = Content::styled(
+                        Content::Sequence(Arc::from(parts)),
+                        Styles::new()
+                            .push_custom("par.spacing", Value::Length(Length::pt(13.0)))
+                            .push_custom("par.leading", Value::Length(Length::pt(7.0))),
+                    );
+                    let doc = fractional_metric_document(body, 0.7, false);
+                    let g = page_geometry(&doc, 0);
+                    let text_top = 11.0 * 0.7;
+                    let box_baseline = text_top - shift;
+                    let baseline = 10.0 + text_top.max(box_baseline);
+                    let line_descent = (height - box_baseline).max(0.0);
+                    close(
+                        point(&g, "NEXT").y.0,
+                        baseline + line_descent + 13.0 + text_top,
+                    );
+                    assert_eq!(g.text.iter().filter(|(s, _)| s == "NEXT").count(), 1);
+                }
+            }
+        }
+        let body = Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::text("P"),
+                Content::Parbreak,
+                Content::text("NEXT"),
+            ])),
+            Styles::new()
+                .push_custom("par.spacing", Value::Length(Length::pt(13.0)))
+                .push_custom("par.leading", Value::Length(Length::pt(7.0))),
+        );
+        let doc = fractional_metric_document(body, 0.7, false);
+        let g = page_geometry(&doc, 0);
+        close(point(&g, "NEXT").y.0, point(&g, "P").y.0 + 13.0 + 11.0 * 0.7);
+    }
+
+    #[test]
+    fn remaining_inline_shape_boundary_inside_sized_subframe_keeps_its_actual_region() {
+        let body = Content::Sequence(Arc::from(vec![
+            shape(12.0, 8.0),
+            Content::text("P"),
+            Content::Boxed(Arc::new(fractional_box_element(nested_inline_body(), 16.0))),
+            Content::text("Q"),
+        ]));
+        let mut e = box_element(body);
+        e.width = Some(Length::pt(100.0));
+        e.height = None;
+        let doc = fractional_metric_document(Content::Boxed(Arc::new(e)), 0.7, false);
+        let g = page_geometry(&doc, 0);
+        let glyph = 11.0 * 0.6;
+        close(point(&g, "A").x.0, 10.0 + glyph);
+        close(point(&g, "B").x.0 + glyph, point(&g, "Q").x.0);
+        close(point(&g, "Q").x.0 + glyph, 110.0);
+        assert_eq!(g.shapes.len(), 1);
+    }
+
+    #[test]
+    fn remaining_inline_paragraph_to_shape_preserves_settled_descent_and_margin_collapse()
+    {
+        use crate::entities::style::Styles;
+        let body = Content::styled(
+            Content::Sequence(Arc::from(vec![
+                Content::text("P"),
+                Content::Boxed(Arc::new(fractional_box_element(
+                    Content::text("A"),
+                    40.0,
+                ))),
+                Content::Parbreak,
+                shape(12.0, 8.0),
+            ])),
+            Styles::new()
+                .push_custom("par.spacing", Value::Length(Length::pt(13.0)))
+                .push_custom("par.leading", Value::Length(Length::pt(7.0))),
+        );
+        let doc = fractional_metric_document(body, 0.7, false);
+        let g = page_geometry(&doc, 0);
+        assert_eq!(g.shapes.len(), 1);
+        close(g.shapes[0].0.y.0, 10.0 + 40.0 + (11.0_f64 * 1.2).max(13.0));
+    }
+    #[test]
+    fn remaining_inline_known_weak_wrap_allocates_before_original_source_dispatch() {
+        let body = Content::Sequence(Arc::from(vec![
+            Content::text("P"),
+            Content::Boxed(Arc::new(fractional_box_element(nested_inline_body(), 16.0))),
+            Content::text("Q"),
+            Content::Space,
+            Content::text("STATE"),
+            Content::text("1"),
+            Content::Space,
+            Content::text("COUNTER"),
+            Content::text("1"),
+            Content::Space,
+            Content::text("LABELS"),
+            Content::text("1"),
+        ]));
+        let doc = fractional_metric_document_with_width(body, 0.7, false, 180.0);
+        let g = page_geometry(&doc, 0);
+        let glyph = 11.0 * 0.6;
+        let first_fixed = 16.0 * glyph + 2.0 * glyph;
+        let share = 160.0 - first_fixed;
+        close(point(&g, "A").x.0, 10.0 + glyph);
+        close(point(&g, "B").x.0 + glyph, 10.0 + glyph + share);
+        close(point(&g, "Q").x.0, 10.0 + glyph + share);
+        close(point(&g, "LABELS").x.0, 10.0);
+        assert!(point(&g, "LABELS").y.0 > point(&g, "COUNTER").y.0);
+        for marker in ["P", "A", "B", "Q", "STATE", "COUNTER", "LABELS"] {
+            assert_eq!(g.text.iter().filter(|(s, _)| s == marker).count(), 1);
+        }
+        assert_eq!(g.text.iter().filter(|(s, _)| s == "1").count(), 3);
     }
 }

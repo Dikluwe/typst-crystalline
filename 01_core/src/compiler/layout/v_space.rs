@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/v_space.md
-//! @prompt-hash 617664bb
+//! @prompt-hash fa349f6a
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -18,6 +18,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &VSpaceElem,
 ) {
+    // Explicit spacing is language content even when its extent is zero.
+    if !layouter.is_sub_frame {
+        layouter.page_has_unpainted_material = true;
+    }
     let pt = e.amount.resolve_pt(layouter.style.size.val());
     // Termina linha em curso se houver content pendente — caso
     // contrário texto na linha actual fica meio-render.

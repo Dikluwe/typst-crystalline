@@ -1,5 +1,5 @@
 # L0 — pagebreak
-Hash do Código: 89c3acd1
+Hash do Código: 27621bce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -27,8 +27,38 @@ not a reason to change logical numbering or the test expectation.
 
 This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-Consume an already-open empty page-run boundary without an additional ordinary break. Otherwise close any horizontally pending line, or a line containing a private paged position carrier, before requesting the existing regional transition. A carrier-only flush must remain neutral for line advance and page dimensions, but must associate those captured positions with the page being closed. Preserve ordinary overflow handling: do not flush pending content at every regional transition. For `to`, request the additional transition only when the next physical page index does not match parity. Preserve the present behavior; the consumer does not inspect the element's weak flag.
+Consume an already-open empty page-run boundary without an additional ordinary break. Otherwise close any horizontally pending line, or a line containing a private paged position carrier, before requesting the existing regional transition. A carrier-only flush must remain neutral for line advance and page dimensions, but must associate those captured positions with the page being closed. Preserve ordinary overflow handling: do not flush pending content at every regional transition. For `to`, request the additional transition only when the next physical page index does not match parity. The weak-flag limitation is superseded by the correction below.
 
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+
+## Weak pagebreak parity correction — 2026-10-23
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/baseline.json` binds the uncommitted source/L0/config state to HEAD, dirty stat and UTC; `before/receipt.json` binds both verified executables, inputs, commands and observations. `pagebreak.rs:21-58` ignores weak and always requests transitions; `finish.rs:103-106` requires the newly opened page unless it is a PageRun boundary. `page_run.rs:126-131` unconditionally closes its body. The pinned source `lab/typst-original/crates/typst-library/src/layout/page.rs:554-557` explicitly defines skipping weak breaks on empty pages; its tests `tests/suite/layout/pagebreak.typ:15-24,61-76` document weak/material distinctions. Initial, repeated, terminal and strong/weak controls plus parity and explicit PageRun probes distinguish language intent from mechanics. Page membership, content and geometry are observables; the private successor flag is a chosen mechanism. The inference that an optional successor suffices is refuted by lost notes/placed content, changed strong/parity empties, or leaked rollback state.
+
+### Decision and exclusive responsibility
+
+Skip a weak ordinary transition on an empty page, while still honoring `to` against the current physical page. A weak transition after material closes that page, but leaves its successor optional until material arrives. Repeated weak breaks do not force that successor. A strong break after an empty weak successor makes that successor required without producing another empty page. Parity adjustment commits intermediate pages deliberately and leaves only the final weak successor optional. Preserve carrier flushes and PageRun boundary consumption. Tests cover initial/terminal/repeated weak breaks, parity, strong/weak combinations, PageRun, notes, placed content and rollback.
+
+This is an ADR-0127 continuous-flow language-parity correction: L0 first, reseal, RED→GREEN and complete revalidation. No public contract, default mode, pipeline phase or compatibility change is authorized. Existing nucleus obligations and unrelated limits remain binding.
+
+### Material after a PageRun boundary
+
+`lab/results/weak-pagebreak-2026-10-23/before-boundaries/receipt.json`, case `run-material-break`, measures `#page[One]Two #pagebreak(weak:true)Three` on the same verified baseline: Tekt puts Two and Three on one page whereas the pinned oracle separates them. `pagebreak.rs:21` consumes the PageRun flag without checking material already admitted since that boundary. Consume such a boundary only while the current page is still empty. This correction is owned here; no global content-dispatch reset is required.
+
+
+## Refutation: unpainted material and required successors
+
+### Evidence before decision
+
+`lab/results/weak-pagebreak-2026-10-23/edge-after/receipt.json` and `unpainted-before/receipt.json` bind the first candidate executable to UTC/inputs/commands; its build and source state are in `validation.json` and `final-source.json.gz`. These controls refute painting alone as page materiality: hidden text, zero/fractional horizontal spacing and zero/weak/strong vertical spacing can require a page without paint; empty/metadata-only Hide does not. `h_space.rs:27-45` advances or queues spacing without an item, `v_space.rs:20-42` records advancement, and `hide.rs:20-28` removes only painted output. `pagebreak.rs:42-44` also overwrites an empty strong successor's requiredness during weak parity adjustment, dropping a required final page. These are language-visible page obligations, not a request to copy upstream collection mechanics. The earlier painting-only hypothesis was rejected, not qualified by changing the oracle or deleting its cases.
+
+### Exclusive correction
+
+Include admitted unpainted material in page emptiness. When a weak ordinary break is skipped on an empty required successor, its parity adjustment preserves that required-successor status; only an actual weak transition after material or a consumed weak PageRun boundary opens an optional successor. Preserve required initial and strong successor pages through parity adjustments.
+
+L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.

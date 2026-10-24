@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/morphology.md
-//! @prompt-hash 986bdfce
+//! @prompt-hash 1b619707
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -141,6 +141,7 @@ impl Content {
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
+                | Content::Symbol(..)
                 | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)

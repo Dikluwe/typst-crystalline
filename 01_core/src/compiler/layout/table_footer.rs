@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table_footer.md
-//! @prompt-hash ab3d744d
+//! @prompt-hash 07f3e412
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -16,5 +16,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TableFooterElem,
 ) {
-    layouter.layout_content(&e.body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::TableFooterBody,
+        &e.body,
+    );
 }

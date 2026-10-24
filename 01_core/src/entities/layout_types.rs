@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/layout_types.md
-//! @prompt-hash 09949f62
+//! @prompt-hash cbafa45d
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-10-24
 //!
 //! Excepção Regra 6 da ADR-0037: agrega tipos geométricos e
 //! estruturais fundamentais do layout (`Pt`, `Point`, `FrameItem`,
@@ -203,6 +203,8 @@ pub struct TextStyle {
     pub subscript: bool,
     /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
     pub superscript: bool,
+    /// Resolved native choice; false preserves synthesis across fragments.
+    pub superscript_native: Option<bool>,
     /// **Passo 449 (P449)**: cor de fundo do highlight (`#highlight[...]`).
     pub highlight: Option<Color>,
     /// **P471**: raio dos cantos do rectângulo de highlight.

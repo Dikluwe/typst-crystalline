@@ -1,5 +1,5 @@
 # L0 — stdlib/calc
-Hash do Código: 18654592
+Hash do Código: ea324e7d
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/calc.rs`
@@ -63,3 +63,23 @@ Remove only uncalled bare_diagnostic from p1334_tests; used homonyms elsewhere s
 ## Acceptance
 
 Preserve all stated semantics/syntax/morphology/diagnostics/spans/defaults/native identities, 1:1 owners and pins. Later scalar-owner revisions refine their own implementation obligations; boundary criteria cannot silently revoke approved later formulas. Revalidate workspace build/check all-targets/core suite/test inventory/Clippy/lineage without deleting expectations. No new signature/compatibility/default/phase is authorized by consolidation.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

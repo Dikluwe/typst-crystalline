@@ -1,12 +1,15 @@
 # L0 — entities/content/source
-Hash do Código: b1627754
+Hash do Código: 344f8445
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/content/source.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml sha256:c7269dd3cf9d8084731457973737db5df87a3d428b80ab5701593deaecdea87e
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/entities/content/source.rs`
 
 ## Evidence and ratified ownership
 
@@ -92,3 +95,11 @@ contracts or the global objective.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/source.md` preserves the original evidence and chronology.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

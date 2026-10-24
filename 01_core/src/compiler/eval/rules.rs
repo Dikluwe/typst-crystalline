@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules.md
-//! @prompt-hash ab124fd6
+//! @prompt-hash 98749f91
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -61,7 +61,7 @@ use self::pdf::pdf_pages_found_name;
 use self::pdf::pdf_standard_expected_list;
 pub(crate) use self::pdf::pdf_standards_conflict_diagnostic;
 use self::pdf::validate_pdf_page_range_element;
-pub(crate) use self::realize::realize_paragraphs;
+pub(crate) use self::realize::{realize_node, realize_paragraphs};
 pub(super) use self::set::eval_set_rule;
 pub(super) use self::show::eval_show_rule;
 
@@ -286,7 +286,7 @@ mod tests {
         MockWorld {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id, src.to_string()),
+            source: Source::new(id, src.to_string()).expect("valid Source test fixture"),
         }
     }
 
@@ -357,6 +357,7 @@ mod tests {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

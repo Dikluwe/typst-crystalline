@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/layout_containers.md
-//! @prompt-hash 7c6a0f8f
+//! @prompt-hash 021524fb
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -1026,13 +1026,19 @@ fn native_repeat_rejeita_body_int() {
 }
 
 #[test]
-fn native_repeat_rejeita_gap_negativo() {
+fn native_repeat_accepts_signed_gap_preserving_payload_and_defaults() {
     null_ctx!(ctx);
     use crate::entities::layout_types::Length;
     let mut args = p(vec![Value::Content(Content::text("."))]);
     args.named.insert("gap".into(), Value::Length(Length::pt(-1.0)));
-    let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id());
-    assert!(r.is_err(), "gap negativo deve retornar Err");
+    let result = native_repeat(&mut ctx, &args, &null_world(), test_file_id())
+        .expect("the ratified oracle accepts a signed Length gap");
+    let Value::Content(Content::Repeat(repeated)) = result else {
+        panic!("expected Repeat content")
+    };
+    assert_eq!(repeated.gap, Some(Length::pt(-1.0)));
+    assert!(repeated.justify);
+    assert_eq!(repeated.body.plain_text(), ".");
 }
 
 #[test]

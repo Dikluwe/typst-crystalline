@@ -1,8 +1,16 @@
 # L0 — helpers
-Hash do Código: 9f46e160
+Hash do Código: 253a261d
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/helpers.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -10,11 +18,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/layout/helpers.rs`
-**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 ## Evidence before specification
 
@@ -139,3 +142,38 @@ argument, algorithm and output. Equal axes or Ellipse kind do not infer Circle.
 This is only the required migration for the approved field, not a new geometry
 behavior or permission to materialize any unrelated pending proposal. Full-target
 compilation and existing tests must retain all current observations/tolerances.
+
+## Explicit optional absence and closed-domain preservation — 2026-10-23
+
+### Evidence before decision
+
+The exact source and owner bytes, HEAD, dirty-tree stat and initial nine V16
+findings are preserved in
+`lab/results/v16-option-exhaustiveness-2026-10-23/before-state.json`,
+`before/` and `before-v16.sarif`. The parser source
+`tekt-linter/03_infra/rs_parser.rs:1605–1621` classifies every bare identifier
+pattern as a catch-all, including the Option unit variant `None`. The Rust
+compiler resolves that name to the unit variant; qualification makes that
+existing nominal meaning explicit to both tools. These are mechanical
+coverage observations, not a newly discovered runtime failure or new vanilla
+parity claim.
+
+### Exclusive correction and acceptance
+
+`helpers.rs:432–438` handles Length, Float, Int, Auto and absence, but `Some(_)` accepts every other current and future Value. Qualify absence as `Option::None` and replace that payload wildcard with the complete nominal current Value complement. Preserve absolute-Length-only projection, Float/Int conversion and caller-supplied fallback for Auto, absence and all currently unsupported values. Unsupported values remain a legacy approximation, not a promise of language dimension equivalence. Add preservation tests before implementation; use a temporary real Value enum extension to prove this exact match rejects future variants, restoring the original enum byte-for-byte.
+
+Use ADR-0127 continuous internal flow: no public contract, default, phase or
+compatibility changes. Add no lint exception, allow/expect attribute, severity
+change, suppression or match-to-if rewrite. Preserve all existing assertions
+and pending limitations. The initial V16 gate is structural RED; preservation
+tests may already pass before implementation and must not be misreported as
+behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
+rustdoc, formatting, canonical paths and both lineage directions.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,8 +1,9 @@
 # L0 — Layout attempt convergence
-Hash do Código: b466a9dc
+Hash do Código: 8480ad0c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/convergence.rs`
@@ -49,3 +50,36 @@ This internal parity correction follows ADR-0127 continuous flow within layout, 
 Require functional column RED with relative gutter/interentry margin before implementation. Controls cover public cache (prior Content/signatures), prefix-free CSL, hanging/plain mode preservation, empty input, order/citations and rollback. Bilateral PDF compares list boxes/text while preserving indent/citation-grouping divergences in the report. Validate build/workspace/doctests, strict Clippy/Rustdoc, fmt, V1/V5/V15/V26 and reverse lineage; SARIF has no new error/warning. Reseal only after valid ownership/graph. Use MemoryMax12GiB/High8GiB/swap0, jobs1/debug0/incremental0, sequential heavy commands; no commit/push/release.
 
 C010 continuous-flow ADR-0127 adds only lint metadata, changing no executable body/cfg/public contract/default/phase/dependency/architecture. L0 before code and restricted resealing; removing new attributes/lineage header must recover rustfmt-normalized prior source. Establish RED before, then all-targets inventory exactly 46 arities+five test warnings fulfilled by 49 expectations, no new warnings and unfulfilled_lint_expectations as error;11 correction arities stay visible. Confirm workspace/all-targets C010 warning and unchanged calls/function controls, error-free build/fmt/strict-reverse lineage/Tekt no new findings/existing Counter tests/coverage under 12GiB/zero swap/one job. Prior full suite remains evidence for unchanged executable code; no attribute-mirror tests or new metadata performance claim. Private signature/caller changes require their L0 migration first; newly necessary public/compatibility change needs concrete ADR-0127 approval, not this exception.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Own a separate private planned-attempt path for the approved facade, retaining the existing legacy run signature, five-attempt limit, injected metrics/sizer/introspector, bibliography preparation and same Locator seed behavior. Each planned candidate creates fresh transactional running state alongside math/par.line state. A candidate may expose Complete only after stable maps, complete accepted source/body/slot coverage, valid retained source/environment authority, and successful consumption of every supplied channel. Pending returns running requests and source-owned trace alongside the unchanged callback request type; it never exports the tentative document. Discard rejected attempt transcripts as a unit. No second Context or arena is created here.
+
+### Acceptance and preserved boundaries
+
+Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+
+## Opaque physical trace storage
+
+The source-bound Clippy RED in
+`lab/results/set-page-deferred-corrections-2026-10-21/candidate-2/validation-remainder/clippy.log:83–113`
+identifies oversized private pass variants and the public result's opaque trace
+storage. Exact before texts, SHA-256, UTC and working-tree state are in
+`lab/results/set-page-report-blockers-2026-10-21/agents/layout/trace-callers-before.json.gz`
+and `agents/layout/before.json.gz` under that evidence root.
+
+The trace owner retains every existing source, admission, request, sealed geometry
+and completeness value behind one compiler-private owning payload Box. Access
+those same fields through `trace.data`; preserve exact mutation/read order,
+cloning, authority, geometry, verification and acceptance. This is private storage
+indirection only: the public opaque PageRunningTrace and all public fields and
+function signatures stay unchanged. No new semantic fact, source traversal, phase,
+callback, diagnostic suppression or relaxed gate is authorized.

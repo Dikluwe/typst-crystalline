@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/attach.md
-//! @prompt-hash c48fa357
+//! @prompt-hash 952a9588
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -25,7 +25,7 @@ fn p1293_math_attach_slot(value: &Value, span: Span) -> SourceResult<MathAttachS
         }
         Value::Str(text) => Ok(MathAttachSlot::Present(Content::MathText(text.clone()))),
         Value::Symbol(symbol) => {
-            Ok(MathAttachSlot::Present(Content::MathText(symbol.value.clone())))
+            Ok(MathAttachSlot::Present(Content::Symbol(symbol.value.clone())))
         }
         other => Err(vec![SourceDiagnostic::error(
             span,
@@ -113,4 +113,31 @@ pub fn native_math_attach(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     math_attach_from_args(args).map(Value::Content)
+}
+
+#[cfg(test)]
+mod r4_tests {
+    use super::*;
+
+    #[test]
+    fn r4_attach_slots_preserve_native_symbol_and_presence() {
+        let symbol = Value::Symbol(crate::entities::symbol::Symbol::new("α", "alpha"));
+        for slot in ["t", "b", "tl", "bl", "tr", "br"] {
+            let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+            args.named.insert(slot.into(), symbol.clone());
+            let actual = math_attach_from_args(&args).unwrap();
+            args.named
+                .insert(slot.into(), Value::Content(Content::Symbol("α".into())));
+            assert_eq!(actual, math_attach_from_args(&args).unwrap(), "{slot}");
+        }
+        assert!(matches!(
+            p1293_math_attach_slot(&Value::None, Span::detached()).unwrap(),
+            MathAttachSlot::ExplicitNone
+        ));
+        assert!(matches!(
+            p1293_math_attach_slot(&Value::Content(Content::Empty), Span::detached())
+                .unwrap(),
+            MathAttachSlot::Present(Content::Empty)
+        ));
+    }
 }

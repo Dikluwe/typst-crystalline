@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "svg-output-files"
+title = "Complete direct SVG output through the existing paged pipeline"
+[[claims]]
+id = "one-settled-document"
+level = "must"
+statement = "Direct SVG output selection and export use the same single settled paged compilation, preserving source effects, warnings and stability contracts."
+[[claims]]
+id = "complete-collection"
+level = "must"
+statement = "The SVG output capability returns all selected physical-page outputs in document order or a complete error, and composition publishes every returned output without changing selection or template policy."
+[[claims]]
+id = "owner-layer"
+level = "must"
+statement = "L3 owns page selection and filename templates; L4 only forwards typed overrides and publishes returned paths and bytes."
+[[claims]]
+id = "legacy-compatible"
+level = "must"
+statement = "Existing public first-page SVG string APIs preserve signatures, first-page selection, empty-page fallback, warning payloads and pretty precedence."

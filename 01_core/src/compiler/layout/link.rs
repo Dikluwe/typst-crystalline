@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link.md
-//! @prompt-hash ae77aefb
+//! @prompt-hash ee56dc4b
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -458,6 +458,43 @@ mod fragment_regressions {
         same_geometry(&plain, &linked);
         assert!(ink(&linked).iter().all(|i| i.target.is_some()));
     }
+    #[test]
+    fn link_nominal_box_hit_area_uses_frame_top_and_size() {
+        let body = Content::Boxed(Arc::new(BoxedElem {
+            body: Content::text("AB"),
+            width: Some(Length::pt(60.0)),
+            width_fraction: None,
+            height: Some(Length::pt(16.0)),
+            inset: Sides::uniform(Length::ZERO),
+            baseline: Length::ZERO,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+        }));
+        let plain = render(body.clone(), 140.0, 100.0);
+        let linked = render(url(body), 140.0, 100.0);
+        same_geometry(&plain, &linked);
+        let [FrameItem::Link { target, pos, size, items }] =
+            linked.pages[0].items.as_slice()
+        else {
+            panic!("one nominal Box must retain one target and its complete body");
+        };
+        assert!(
+            matches!(target, LinkTarget::Url(uri) if uri.as_str() == "https://outer.example")
+        );
+        assert_eq!(
+            (pos.x.0, pos.y.0, size.width.0, size.height.0),
+            (10.0, 10.0, 60.0, 16.0)
+        );
+        assert!(items.iter().any(|item| matches!(item, FrameItem::Group { inner_width, inner_height, .. } if *inner_width == 60.0 && *inner_height == 16.0)));
+        assert_eq!(
+            ink(&linked).iter().map(|item| item.text.as_str()).collect::<String>(),
+            "AB"
+        );
+    }
+
     #[test]
     fn fragment_link_columns_keep_each_fragment_in_its_region() {
         let body = Content::Columns(Arc::new(ColumnsElem {

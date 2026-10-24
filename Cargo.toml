@@ -75,3 +75,10 @@ two-face             = { version = "0.4.3", default-features = false, features =
 # lorem byte-parity — P805 (mesma crate do vanilla: Markov chain determinística)
 lipsum               = "0.9.1"
 codex                = { git = "https://github.com/typst/codex", rev = "2e43ab90079cf9f9fa670d421c8c38233143b376" } # P1496 — catálogo pinado de sym/emoji
+
+# Resource recipe for the typst binary; L0: 00_nucleo/prompts/wiring/main.md.
+# Keep symbols for diagnostics; size comparisons strip disposable copies only.
+[profile.release]
+opt-level = "s"
+lto = "thin"
+codegen-units = 1

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/position_marker.md
-//! @prompt-hash 84ad1036
+//! @prompt-hash 1c86c4c4
 //! @layer L1
 
 use std::{collections::HashSet, num::NonZeroUsize};
@@ -24,6 +24,7 @@ const PREFIX: &str = "\0tekt-position:";
 pub(super) enum Target {
     Location(Location),
     Label(Label),
+    Packet { event: usize, post_children: bool },
 }
 
 fn marker(index: usize, point: Point) -> FrameItem {
@@ -119,6 +120,25 @@ fn project(
     *items = retained;
 }
 
+/// A source tag after the last weak boundary belongs to the final page's end.
+fn project_terminal(
+    items: &[FrameItem],
+    position: Position,
+    positions: &mut [Option<Position>],
+) {
+    for item in items {
+        let Some((index, _)) = decode(item) else {
+            continue;
+        };
+        let Some(slot) = positions.get_mut(index) else {
+            continue;
+        };
+        if slot.is_none() {
+            *slot = Some(position);
+        }
+    }
+}
+
 impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
     fn capture_position(&mut self, target: Target, point: Point) {
         // The HTML island already carries its own contextual observations.
@@ -127,13 +147,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         }
         // Labels are recorded after their body. Once its line is committed,
         // keep the anchor with that body instead of the next admitted line.
-        let committed_label = matches!(&target, Target::Label(_))
-            && !super::html_frame::items_have_causal_line(
-                &self.regions.current.current_line,
-            )
-            && super::html_frame::items_have_causal_line(
-                &self.regions.current.current_items,
-            );
+        let committed_label = matches!(
+            &target,
+            Target::Label(_) | Target::Packet { post_children: true, .. }
+        ) && !super::html_frame::items_have_causal_line(
+            &self.regions.current.current_line,
+        ) && super::html_frame::items_have_causal_line(
+            &self.regions.current.current_items,
+        );
         let index = self.position_captures.len();
         self.position_captures.push(target);
         if committed_label {
@@ -141,6 +162,15 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         } else {
             self.regions.current.current_line.push(marker(index, point));
         }
+    }
+
+    pub(super) fn record_packet_position(
+        &mut self,
+        event: usize,
+        post_children: bool,
+        point: Point,
+    ) {
+        self.capture_position(Target::Packet { event, post_children }, point);
     }
 
     pub(super) fn record_location_position(
@@ -180,6 +210,26 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
                 );
             }
         }
+        // Nonmaterial terminal captures survive an omitted successor. Their
+        // destination is the actual last page's end, not its provisional index.
+        if self.weak_page_successor || self.page_run_boundary_empty {
+            if let Some(last) = self.pages.last() {
+                let position = Position {
+                    page: NonZeroUsize::new(self.pages.len()).unwrap(),
+                    point: Point { x: Pt(0.0), y: Pt(last.height) },
+                };
+                project_terminal(
+                    &self.regions.current.current_items,
+                    position,
+                    &mut projected,
+                );
+                project_terminal(
+                    &self.regions.current.current_line,
+                    position,
+                    &mut projected,
+                );
+            }
+        }
         // Resolve the latest logical write, even if its visual carrier was dropped.
         let mut locations = HashSet::new();
         let mut labels = HashSet::new();
@@ -201,6 +251,17 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
                             self.runtime
                                 .label_positions
                                 .insert(label.clone(), position.point);
+                        }
+                    }
+                }
+                Target::Packet { event, .. } => {
+                    if let (Some(pass), Some(position)) =
+                        (&mut self.page_running_pass, position)
+                    {
+                        if let Some(admission) =
+                            pass.trace.data.admissions.get_mut(*event)
+                        {
+                            admission.project_page(position.page);
                         }
                     }
                 }
@@ -518,5 +579,37 @@ mod tests {
         assert_eq!(doc.pages[0].plain_text(), control.pages[0].plain_text());
         assert_eq!(doc.extracted_label_pages[&Label("anchor".into())], 1);
         assert!(doc.extracted_label_positions[&Label("anchor".into())].x.0 > 10.0);
+    }
+
+    #[test]
+    fn weak_pagebreak_terminal_captures_follow_the_last_effective_page() {
+        for parity in [None, Some(crate::entities::parity::Parity::Odd)] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.layout_content(&Content::text("One"));
+            l.layout_content(&Content::pagebreak(true, parity));
+            let loc = Location::from_raw(423);
+            let label = Label("terminal".into());
+            let page = NonZeroUsize::new(l.pages.len() + 1).unwrap();
+            l.record_location_position(
+                loc,
+                Position { page, point: point(10.0, 20.0) },
+                false,
+            );
+            l.record_label_position(label.clone(), page.get(), point(10.0, 20.0));
+            let doc = l.finish();
+            let expected_page = if parity.is_some() { 2 } else { 1 };
+            assert_eq!(doc.pages.len(), expected_page);
+            let projected = doc.extracted_positions.position_of(loc).unwrap();
+            assert_eq!(projected.page.get(), expected_page);
+            assert_eq!(projected.point, point(0.0, doc.pages.last().unwrap().height));
+            assert_eq!(doc.extracted_label_pages[&label], expected_page);
+            assert_eq!(doc.extracted_label_positions[&label], projected.point);
+        }
     }
 }

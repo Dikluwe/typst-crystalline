@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/bidi_origin.md
-//! @prompt-hash 59213587
+//! @prompt-hash 32762c87
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -147,6 +147,169 @@ pub(super) fn prepare<M: FontMetrics, S: ImageSizer>(
         input: Arc::new(ParagraphBidiInput::new(base, segments)?),
         next: 0,
     })
+}
+
+/// A genuine Sequence/Par keeps its existing complete-flow entry authority.
+fn owns_root_scope(content: &Content) -> bool {
+    match content {
+        Content::Source(source) => owns_root_scope(&source.body),
+        Content::Located(located) => owns_root_scope(&located.body),
+        Content::Styled(styled) => owns_root_scope(&styled.body),
+        Content::Strong(elem) => owns_root_scope(&elem.body),
+        Content::Emph(elem) => owns_root_scope(&elem.body),
+        Content::Sequence(..) | Content::Par { .. } => false,
+        Content::Realized(..)
+        | Content::ShowRecipe(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::Symbol(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..)
+        | Content::TableCell(..)
+        | Content::Table(..) => true,
+    }
+}
+
+/// Certify the complete original singleton root, or guard its whole refusal.
+pub(super) fn at_root<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<'_, M, S>,
+    content: &Content,
+    dispatch: impl FnOnce(&mut Layouter<'_, M, S>, &Content),
+) {
+    if l.bidi_scope_active || l.bidi_cursor.is_some() || !owns_root_scope(content) {
+        dispatch(l, content);
+        return;
+    }
+    let previous_dir = l.active_paragraph_dir;
+    let previous_cursor = l.bidi_cursor.take();
+    let previous_scope = l.bidi_scope_active;
+    if previous_dir.is_none() && l.pending_line_dir.is_none() {
+        let parts = std::slice::from_ref(content);
+        let direction = super::paragraph::shared_direction(parts, &l.chain);
+        let cursor = direction.and_then(|dir| prepare(l, parts, dir));
+        if cursor.is_some() {
+            l.active_paragraph_dir = direction;
+            l.bidi_cursor = cursor;
+        }
+    }
+    // Even an opaque root owns its refusal; descendants cannot recertify it.
+    l.bidi_scope_active = true;
+    dispatch(l, content);
+    if l.bidi_cursor.is_some()
+        && super::html_frame::items_have_material(&l.regions.current.current_line)
+    {
+        if let Some(direction) = l.active_paragraph_dir {
+            l.pending_line_dir = Some(direction);
+        }
+    }
+    l.active_paragraph_dir = previous_dir;
+    l.bidi_cursor = previous_cursor;
+    l.bidi_scope_active = previous_scope;
 }
 
 #[cfg(test)]

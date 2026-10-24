@@ -1,9 +1,10 @@
 # L0 — stack
-Hash do Código: 0b05c72a
+Hash do Código: d66bf6ce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -64,3 +65,39 @@ Internal continuous-flow ADR-0127 maintenance introduces no enum/field, trait me
 Before code, run new FrameVisitor control and workspace suite with unchanged expected outputs, and establish structural RED for 70 family warnings through AST reading. Afterwards require zero covered-family V16 and no new warning, retaining external V16 as pending. For productive core matches reached by cargo check -p typst-core, use a disposable copy with a sentinel FrameItem variant to measure absent E0004 barriers before/present after. The probe covers only compiled sites, not cfg(test) helpers or L3 blocked by dependency. Across the whole package replay patterns/guards/bodies, verify unchanged enum/signatures, real build/tests and no stub bodies.
 
 Revalidate full workspace suite, cargo build, Clippy workspace/all-targets -D warnings and -D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings with four HTML indexes, strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/configuration during commands. Heavy commands run sequentially with MemoryMax 12GiB/MemorySwapMax 0/CARGO_BUILD_JOBS1. Structural cleanup does not establish new global parity, memory gain or measured AI benefit.
+
+## Source-owned physical page child transport
+
+### Measurement and approved scope
+
+At the implementation baseline, `stack.rs:168–180 and :234–246` selects the
+actual body/subframe or deferred-body operation. Exact source/L0 texts, full
+SHA-256, UTC, HEAD and working-tree state before this amendment are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/child-adapters/before.json`.
+The approved review SHA-256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+and human `approval.json` under the implementation evidence ratify this finite
+physical-page source-routing phase. Existing geometry is preservation, not a new
+claim of upstream intent, global page parity or completed historical proposals.
+
+### Exclusive routing contract
+
+Both direction branches identify each actual child by StackChild(source_index), carry that cursor into the existing finite subframe, then retain current baseline, width, spacing, item/decor translation and composition. The preliminary stack measurement remains unplanned and contributes no semantic event. Never use the child value or final coordinates as its source address.
+
+Use private parent-descendant protocol helpers with explicit typed source edges;
+no new public API, entity field/variant, generic mapper, callback execution,
+source re-evaluation, result cache or layout-from-Frame semantic reconstruction.
+Retain legacy behavior when the planned cursor is absent. Actual source packets,
+source parentage and physical placement remain distinct; measurement cannot
+publish actions, consume transcripts or leak tentative diagnostics. Preserve
+existing current styles, original/visual identity, per-store position sealing and
+all stated geometry/effect/error limits. In particular, deferred footnote/float
+causality versus later physical placement requires source-bound language controls;
+this routing amendment does not declare that universal paint order is semantics.
+
+Require actual nested source Context/Figure/label/counter cases, repeated pages,
+no-paint children, wrong-edge/foreign cursor rejection, measurement inertness,
+retained/deferred/rollback and existing geometry/baseline/clip/float/note tests.
+No old assertion, fixture, diagnostic or explicit pending limitation is weakened.
+L0-first source-current RED→GREEN, scoped lineage/graph/seals and full established
+gates remain mandatory before completion.

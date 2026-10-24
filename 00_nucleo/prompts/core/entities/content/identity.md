@@ -1,8 +1,14 @@
 # L0 — entities/content/identity
-Hash do Código: 82734be4
+Hash do Código: 85cf346a
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/content/identity.rs`
+**Governance:** ADR-0107, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -11,9 +17,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/entities/content/identity.rs`
-**Governance:** ADR-0107, ADR-0129, ADR-0130.
 
 ## Base identity contract
 
@@ -186,3 +189,26 @@ certify every Content/Value equality pair or broader language parity.
 ## Historical provenance
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/identity.md` preserves the original evidence and chronology.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R4 — direct public field diagnostics
+
+Evidence precedes correction: before-final/receipt.json under
+lab/results/math-fields-r4-2026-10-23 records pinned bd5ebec2, UTC, source
+map, binary SHA and working-tree stat. Direct omitted vec.gap/cases.reverse
+reports does-not-have-field locally, whereas vanilla distinguishes unset with
+`field ... is not known at this point`; these are observable language errors.
+
+Correct only MathVec and MathCases diagnostic elem_name entries to vec and cases respectively, as measured in absent-field oracle diagnostics. Preserve public Symbol identity and every other mapping/Debug representation.
+
+This supersedes only conflicting lookup/name clauses above; continuous
+ADR-0127 parity correction without public Rust signature/entity/trait, phase
+or default changes. Tests first, RED→GREEN, existing suites and full lineage/lint.

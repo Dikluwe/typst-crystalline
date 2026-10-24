@@ -1,5 +1,8 @@
 # L0 — compiler/eval/math/call_fallback
-Hash do Código: a489b966
+Hash do Código: 6c73bdd2
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 ## Ownership and evidence
 
@@ -12,3 +15,11 @@ Own unknown/global/symbol mathematical call fallback. Preserve lexical/global fu
 ## Acceptance
 
 L1 tests, `cargo build` and `crystalline-lint .` must pass. Do not infer performance gains.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Retain native Symbol for resolved symbol/Greek fallback call heads, preserving existing argument evaluation and unknown-identifier paths.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

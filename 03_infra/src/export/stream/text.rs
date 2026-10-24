@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash a42dd064
+//! @prompt-hash 6a2d6b4e
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 #[cfg(test)]
 use super::PageContext;
@@ -16,6 +16,16 @@ use std::collections::HashMap;
 mod runs;
 
 pub(super) use runs::{emit_verbose_text_run, verbose_run_end};
+
+/// Preserve existing integral/decimal spelling without quantizing fractional sizes.
+fn font_size(size: f64) -> String {
+    let decimal = (size * 10.0).round() / 10.0;
+    if (decimal - size).abs() <= 1e-10 {
+        format!("{size:.1}")
+    } else {
+        format!("{size:.5}")
+    }
+}
 
 /// P530 — devolve o índice da fonte embutida que corresponde ao
 /// `(FontList, FontVariant)` derivado do `TextStyle`.
@@ -110,8 +120,8 @@ fn emit_text_pdf_inner(
                 ("", "", String::new())
             };
             ops.push_str(&format!(
-                "{rg}{q_open}BT\n/{font_ref} {:.1} Tf\n{tc_op}{bold_ops}{:.1} {:.1} Td\n({safe}) Tj\nET\n{q_close}",
-                style.size.val(), pos_x, base_y
+                "{rg}{q_open}BT\n/{font_ref} {} Tf\n{tc_op}{bold_ops}{:.5} {:.5} Td\n({safe}) Tj\nET\n{q_close}",
+                font_size(style.size.val()), pos_x, base_y
             ));
         }
         FontScenario::Cidfont { char_to_gid, .. } => {
@@ -120,8 +130,8 @@ fn emit_text_pdf_inner(
             }
             let hex_str = text_to_hex_string(text, char_to_gid);
             ops.push_str(&format!(
-                "{rg}BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
-                style.size.val(),
+                "{rg}BT\n/F1 {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
+                font_size(style.size.val()),
                 pos_x,
                 base_y
             ));
@@ -133,9 +143,9 @@ fn emit_text_pdf_inner(
             let fi = font_index_for_style(fonts, style);
             let hex_str = text_to_hex_string(text, &per_font_char_to_gid[fi]);
             ops.push_str(&format!(
-                "{rg}BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
+                "{rg}BT\n/F{} {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
                 fi + 1,
-                style.size.val(),
+                font_size(style.size.val()),
                 pos_x,
                 base_y
             ));
@@ -161,6 +171,36 @@ fn emit_text_pdf_inner(
 /// pelo que o espaço na linha é idêntico ao de um glifo de fonte. A fórmula de
 /// posicionamento (sinal de `y`) segue krilla `text/glyph/bitmap.rs` e foi
 /// verificada visualmente com `mutool draw` (ver `builder.md` §P941).
+fn emit_bitmap_type3_text(
+    ops: &mut String,
+    origin: (f64, f64),
+    glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
+    style: &typst_core::entities::layout_types::TextStyle,
+    refs: &HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
+    font_index: usize,
+    units_per_em: u16,
+) -> bool {
+    if !glyphs
+        .iter()
+        .all(|g| refs.get(&g.glyph_id).is_some_and(|r| r.type3_code.is_some()))
+    {
+        return false;
+    }
+    let upem = f64::from(units_per_em.max(1));
+    let size = style.size.0;
+    let mut x = origin.0;
+    ops.push_str("q\n");
+    for (index, g) in glyphs.iter().enumerate() {
+        let code = refs[&g.glyph_id].type3_code.unwrap();
+        let gx = x + f64::from(g.x_offset) * size / upem;
+        let gy = origin.1 + f64::from(g.y_offset) * size / upem;
+        ops.push_str(&format!("BT\n/F{font_index} {} Tf\n0 Tr\n0 Tc\n1 0 0 1 {gx:.9} {gy:.9} Tm\n<{code:02X}> Tj\nET\n",font_size(size)));
+        x += f64::from(g.x_advance) * size / upem
+            + crate::shaper::tracking::residual(glyphs, index, style, upem);
+    }
+    true
+}
+
 pub(super) fn emit_bitmap_glyph_draws(
     ops: &mut String,
     pos_x: f64,
@@ -196,8 +236,8 @@ pub(super) fn emit_bitmap_glyph_draws(
 
 /// **P956** — entradas do array `TJ` partilhadas pelos modos compact e
 /// verbose: delta model P520/P548 (nominal − x_advance), `x_offset` P486 e
-/// remap de subsetting P516. Produz os mesmos bytes que o loop inline
-/// pré-P956 do caminho compact.
+/// remap de subsetting P516. Conserva as frações em unidades de texto,
+/// tanto sem tracking quanto com resíduo de tracking.
 pub(super) fn push_tj_glyph_entries(
     ops: &mut String,
     glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
@@ -210,7 +250,7 @@ pub(super) fn push_tj_glyph_entries(
         // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
         if g.x_offset != 0 {
             let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
-            ops.push_str(&format!("{:.0} ", xoff_tu));
+            ops.push_str(&format!("{xoff_tu} "));
         }
         // P520/P548 — delta model: o CIDFont /W já fornece a largura
         // nominal (hmtx). O TJ deve conter apenas a diferença entre essa
@@ -236,15 +276,7 @@ pub(super) fn push_tj_glyph_entries(
                 }
             })
             .unwrap_or(0.0);
-        if residual_tu == 0.0 {
-            ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
-        } else {
-            ops.push_str(&format!(
-                "<{:04X}> {:.5} ",
-                new_gid,
-                advance_tu.round() - residual_tu
-            ));
-        }
+        ops.push_str(&format!("<{:04X}> {} ", new_gid, advance_tu - residual_tu));
     }
 }
 
@@ -423,6 +455,20 @@ fn emit_shaped_pdf_inner(
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
+                if emit_bitmap_type3_text(
+                    ops,
+                    (pos_x, base_y),
+                    glyphs,
+                    style,
+                    bmp,
+                    1,
+                    units_per_em,
+                ) {
+                    if restore {
+                        ops.push_str("Q\n");
+                    }
+                    return !restore;
+                }
                 emit_bitmap_glyph_draws(
                     ops,
                     pos_x,
@@ -435,9 +481,9 @@ fn emit_shaped_pdf_inner(
                 return false;
             }
             let rg = fill_rg_prefix(&style.fill);
-            ops.push_str(&format!("{rg}BT\n/F1 {:.1} Tf\n", style.size.val()));
+            ops.push_str(&format!("{rg}BT\n/F1 {} Tf\n", font_size(style.size.val())));
             push_shaped_spacing(ops);
-            ops.push_str(&format!("{pos_x:.3} {base_y:.3} Td\n[ "));
+            ops.push_str(&format!("{pos_x:.5} {base_y:.5} Td\n[ "));
             push_tj_glyph_entries(
                 ops,
                 glyphs,
@@ -465,6 +511,20 @@ fn emit_shaped_pdf_inner(
                 return false;
             };
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
+                if emit_bitmap_type3_text(
+                    ops,
+                    (pos_x, base_y),
+                    glyphs,
+                    style,
+                    bmp,
+                    fi + 1,
+                    units_per_em,
+                ) {
+                    if restore {
+                        ops.push_str("Q\n");
+                    }
+                    return !restore;
+                }
                 emit_bitmap_glyph_draws(
                     ops,
                     pos_x,
@@ -479,9 +539,13 @@ fn emit_shaped_pdf_inner(
             let glyph_mapping = &per_font_glyph_mapping[fi];
             let glyph_to_nominal = &per_font_glyph_to_nominal[fi];
             let rg = fill_rg_prefix(&style.fill);
-            ops.push_str(&format!("{rg}BT\n/F{} {:.1} Tf\n", fi + 1, style.size.val()));
+            ops.push_str(&format!(
+                "{rg}BT\n/F{} {} Tf\n",
+                fi + 1,
+                font_size(style.size.val())
+            ));
             push_shaped_spacing(ops);
-            ops.push_str(&format!("{pos_x:.3} {base_y:.3} Td\n[ "));
+            ops.push_str(&format!("{pos_x:.5} {base_y:.5} Td\n[ "));
             push_tj_glyph_entries(
                 ops,
                 glyphs,
@@ -578,8 +642,8 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
                 super::text_replacement::opening(ops, text);
             }
             ops.push_str(&format!(
-                "/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
-                size.val(),
+                "/F1 {} Tf\n{:.5} {:.5} Td\n<{:04X}> Tj\n",
+                font_size(size.val()),
                 pos_x,
                 base_y,
                 new_gid
@@ -609,9 +673,9 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
                 super::text_replacement::opening(ops, text);
             }
             ops.push_str(&format!(
-                "/F{} {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
+                "/F{} {} Tf\n{:.5} {:.5} Td\n<{:04X}> Tj\n",
                 fi + 1,
-                size.val(),
+                font_size(size.val()),
                 pos_x,
                 base_y,
                 new_gid
@@ -679,7 +743,7 @@ fn emit_text_pdf_verbose_inner(
             };
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&verbose_tr_ops(style));
-            ops.push_str(&format!("/{font_ref} {:.1} Tf\n", style.size.val()));
+            ops.push_str(&format!("/{font_ref} {} Tf\n", font_size(style.size.val())));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n({safe}) Tj\nET\n"));
             if restore {
@@ -695,7 +759,7 @@ fn emit_text_pdf_verbose_inner(
             let hex_str = text_to_hex_string(text, char_to_gid);
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&verbose_tr_ops(style));
-            ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
+            ops.push_str(&format!("/F1 {} Tf\n", font_size(style.size.val())));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\n"));
             if restore {
@@ -712,7 +776,7 @@ fn emit_text_pdf_verbose_inner(
             let hex_str = text_to_hex_string(text, &per_font_char_to_gid[fi]);
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&verbose_tr_ops(style));
-            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
+            ops.push_str(&format!("/F{} {} Tf\n", fi + 1, font_size(style.size.val())));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\n"));
             if restore {
@@ -817,6 +881,20 @@ fn emit_shaped_pdf_verbose_inner(
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
+                if emit_bitmap_type3_text(
+                    ops,
+                    (pos_x, base_y),
+                    glyphs,
+                    style,
+                    bmp,
+                    1,
+                    units_per_em,
+                ) {
+                    if restore {
+                        ops.push_str("Q\n");
+                    }
+                    return !restore;
+                }
                 emit_bitmap_glyph_draws(
                     ops,
                     pos_x,
@@ -830,7 +908,7 @@ fn emit_shaped_pdf_verbose_inner(
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&shaped_tr_ops(style, font));
-            ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
+            ops.push_str(&format!("/F1 {} Tf\n", font_size(style.size.val())));
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
             push_tj_glyph_entries(
@@ -865,6 +943,20 @@ fn emit_shaped_pdf_verbose_inner(
                 return false;
             };
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
+                if emit_bitmap_type3_text(
+                    ops,
+                    (pos_x, base_y),
+                    glyphs,
+                    style,
+                    bmp,
+                    fi + 1,
+                    units_per_em,
+                ) {
+                    if restore {
+                        ops.push_str("Q\n");
+                    }
+                    return !restore;
+                }
                 emit_bitmap_glyph_draws(
                     ops,
                     pos_x,
@@ -878,7 +970,7 @@ fn emit_shaped_pdf_verbose_inner(
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&shaped_tr_ops(style, font));
-            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
+            ops.push_str(&format!("/F{} {} Tf\n", fi + 1, font_size(style.size.val())));
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
             push_tj_glyph_entries(
@@ -948,7 +1040,7 @@ pub(in crate::export) fn emit_glyph_pdf_verbose_marked(
                 super::text_replacement::opening(ops, text);
             }
             ops.push_str("0 Tr\n");
-            ops.push_str(&format!("/F1 {:.1} Tf\n", size.val()));
+            ops.push_str(&format!("/F1 {} Tf\n", font_size(size.val())));
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\n"));
             if actualtext_close {
                 super::text_replacement::closing(ops);
@@ -975,7 +1067,7 @@ pub(in crate::export) fn emit_glyph_pdf_verbose_marked(
                 super::text_replacement::opening(ops, text);
             }
             ops.push_str("0 Tr\n");
-            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, size.val()));
+            ops.push_str(&format!("/F{} {} Tf\n", fi + 1, font_size(size.val())));
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\n"));
             if actualtext_close {
                 super::text_replacement::closing(ops);
@@ -1077,6 +1169,91 @@ mod tests {
             !ops.contains("2 Tr"),
             "coalesced variable runs must not acquire a synthetic stroke: {ops}"
         );
+    }
+
+    #[test]
+    fn fractional_pdf_compact_absolute_origins() {
+        let style = typst_core::entities::layout_types::TextStyle::regular(
+            typst_core::entities::layout_types::Pt(11.0),
+        );
+        let empty = HashMap::new();
+        let chars = HashMap::from([('A', 1)]);
+        let nominal = HashMap::from([(1, 500)]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &empty,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let mut plain = String::new();
+        emit_text_pdf(&mut plain, 12.34567, 23.45678, "A", &style, &scenario);
+        let mut type1 = String::new();
+        emit_text_pdf(&mut type1, 12.34567, 23.45678, "A", &style, &FontScenario::Type1);
+        let mut glyph = String::new();
+        emit_glyph_pdf(&mut glyph, 12.34567, 23.45678, 1, style.size, &style, &scenario);
+        let mut shaped = String::new();
+        let glyphs = [ShapedGlyph {
+            glyph_id: 1,
+            x_advance: 500,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'A',
+        }];
+        emit_shaped_pdf(
+            &mut shaped,
+            12.34567,
+            23.45678,
+            &glyphs,
+            "A",
+            &style,
+            &scenario,
+            1000,
+            None,
+        );
+        for ops in [plain, type1, glyph, shaped] {
+            let td = ops.lines().find_map(|line| line.strip_suffix(" Td")).unwrap();
+            let xy: Vec<f64> =
+                td.split_whitespace().map(|v| v.parse().unwrap()).collect();
+            assert!(
+                (xy[0] - 12.34567).abs() < 1e-7 && (xy[1] - 23.45678).abs() < 1e-7,
+                "{ops}"
+            );
+        }
+    }
+
+    #[test]
+    fn fractional_pdf_single_glyph_advances_and_offsets() {
+        let glyphs = [ShapedGlyph {
+            glyph_id: 65,
+            x_advance: 1280,
+            x_offset: 13,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'A',
+        }];
+        let mut ops = String::new();
+        push_tj_glyph_entries(
+            &mut ops,
+            &glyphs,
+            &HashMap::from([(65, 3)]),
+            &HashMap::from([(65, 1400)]),
+            2048.0,
+            None,
+        );
+        let mut cursor = 0.0;
+        let mut painted = None;
+        for token in ops.split_whitespace() {
+            if token.starts_with('<') {
+                assert_eq!(token, "<0003>");
+                painted = Some(cursor);
+                cursor += 1400.0 / 2048.0 * 11.0;
+            } else {
+                cursor -= token.parse::<f64>().unwrap() / 1000.0 * 11.0;
+            }
+        }
+        assert!((painted.unwrap() - 13.0 / 2048.0 * 11.0).abs() < 1e-7, "{ops}");
+        assert!((cursor - (1280.0 + 13.0) / 2048.0 * 11.0).abs() < 1e-7, "{ops}");
     }
 
     #[test]
@@ -1407,6 +1584,26 @@ mod tests {
                 42.123 + t,
             ]) {
                 assert!((x - want).abs() < 1e-6, "{ops}");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod r8_font_size_tests {
+    use super::*;
+    use typst_core::entities::layout_types::{Pt, TextStyle};
+    #[test]
+    fn r8_emitted_font_size_retains_fractional_note_and_script_metrics() {
+        for size in [7.69677734375, 9.35, 6.5422607421875, 11.0] {
+            let style = TextStyle::regular(Pt(size));
+            let mut ops = String::new();
+            emit_text_pdf(&mut ops, 0.0, 0.0, "1", &style, &FontScenario::Type1);
+            let prefix = ops.split(" Tf").next().unwrap();
+            let actual: f64 = prefix.split_whitespace().last().unwrap().parse().unwrap();
+            assert!((actual - size).abs() <= 0.000005, "{size}: {ops}");
+            if size == 11.0 {
+                assert!(ops.contains("/F1 11.0 Tf"));
             }
         }
     }

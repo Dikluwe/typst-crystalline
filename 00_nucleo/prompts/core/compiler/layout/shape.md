@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: 4c5e184c
+Hash do Código: 16ba88bc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -106,3 +106,34 @@ geometry at two font sizes; repeat logical/paint bounds for explicit2pt/2em/mixe
 radii, reused aliases and Block/Box nesting through the actual layout path.
 Only explicit Circle radius conversion/constructor identity moves out of prior
 blanket Circle debt. Auto/default and unrelated Circle surfaces remain open.
+
+
+## Private first-flow baseline witness
+
+### Measurement before correction
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/zero-source-after/measurement.json.gz`
+binds actual source, candidate/oracle SHA-256, fonts, HEAD, uncommitted diffstat
+and UTC. Zero-copy Repeat loses its prepared baseline, moving adjacent BEFORE/TAIL
+while its body height remains real. Source inspection at pinned
+`lab/typst-original/crates/typst-layout/src/repeat.rs:19–29`,
+`inline/box.rs:32–47,79–89`, and `flow/distribute.rs:689–699` shows that
+a prepared frame retains baseline even without copies, and the FIRST actual
+in-flow frame decides baseline presence. The local Box paint scan cannot see it.
+Exact preamendment owners/sources and state are archived in
+`lab/results/nested-fractions-repeat-2026-10-21/baseline-witness-before.json`.
+These are language geometry obligations; private carrier representation is mechanics.
+
+### Exclusive private obligation
+
+At actual Shape frame emission publish authoritative no-baseline as a first-flow decision. Do not infer a font baseline for a shape or let a later Text override its absence. Existing Shape geometry, purity, origin and extent remain unchanged.
+
+Require genuine RED→GREEN for empty Repeat baseline, positive copies, earlier Text,
+earlier empty frame, nested insets/shift, Shape/empty controls, LIFO and checkpoint
+restoration, then the same pinned bilateral SVG/PDF observations without relaxing
+1e-8 geometry or semantic membership. Unknown legacy producers retain their
+previous fallback unless a measured owning frame explicitly supplies a decision.
+This is an ADR-0127 continuous private layout correction, with no public contract,
+new product mode/default, compatibility break or eval/layout phase change.
+L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
+zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.

@@ -1,5 +1,5 @@
 # L0 — entities/color/conversion
-Hash do Código: 52a4849c
+Hash do Código: dcfd0b31
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/color/conversion.rs`
@@ -16,11 +16,25 @@ Clean HEAD `ea7ae25ab` on 2026-09-30 places the extracted block at color.rs:280�
 
 The first rotate repair still failed without changing tolerance. hue-intermediate.json within evidence measures equal L/chroma but hue 28.442533493041992 upstream versus 28.442523956298828 locally, propagating into RGB after+45°. palette hues.rs:134–146 uses PI+atan2(-b,-a) then degrees; local atan2(b,a)/rem_euclid had observably different f32 rounding. No red-specific constant or relaxed tolerance is justified.
 
+## Measurement before the forward CMYK decision — 2026-10-21
+
+The current facade evidence in `00_nucleo/prompts/core/entities/color.md` is shared context, not a second consumer authorization. Its underlying `lab/results/cmyk-box-corrections-2026-10-21/cmyk-before-v2/{receipt.json,source-state.json.gz}` freezes uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, exact dirty stat and inputs, UTC `2026-10-21T23:25:57.418317+00:00`–`2026-10-21T23:25:58.345718+00:00`, product `01802238278d24a6291fb5f6a235f92b5544a723330891169ea638bb724b3cc7`, and oracle `bd5ebec285505889e8ff1d4f68804ab147a699f3`/tree `cac836c07e4dec2a89219370428292393a3216b5`/binary `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Exact language comparisons are RED in 68/71 primary rows, 3/9 controls, 587/625 byte-lattice rows and 256/256 deterministic interior rows, with no input drift.
+
+Pinned `visualize/color.rs:2239–2263` rounds `(component * 255.0)` in f32 with half-away-from-zero before byte projection, evaluates its perceptual fixed profile, then returns `f32::from(byte) / 255.0` and alpha one. The source/purity audit and profile identity are in `lab/results/cmyk-box-corrections-2026-10-21/agents/cmyk/source-audit.{md,json}`. The 881-row lab prototype ledger supports feasibility only; production must still pass the same public language corpus and downstream controls with its actual pinned dependencies and source state.
+
 ## Conversion contract
 
 Use pinned libm sinf/cosf/atan2f at corresponding sites, with explicit symbol whitelist; retain formula/order/alpha/hue paths/spot identity. Encode sRGB as powf*1.055−0.055 without fusion. Keep fused exponential decode and linear `(1/12.92 as f32)*c`. Private polar conversion clamps chroma minimum to zero and uses pinned sincosf, shared by Oklch→sRGB and Oklch→LinearRgb; whitelist sincosf. Color→Oklch helpers use measured PI+libm::atan2f(-b,-a), degrees and existing circular normalization.
 
-For to_space(Srgb), clamp converted channels/alpha to 0..1 only on upstream FromColor paths; preserve Srgb identity and raw LinearRgb→Srgb from_linear without added clamp. to_rgba_f32 remains raw for existing consumers, never a global clamp. For to_space(LinearRgb), convert Oklab/Oklch directly by matrix without intermediate encode/decode, clamping converted FromColor results; other sources use existing decode and identity stays identity. Do not change CMYK/ICC or other-space formulas in this repair.
+For to_space(Srgb), clamp converted channels/alpha to 0..1 only on upstream FromColor paths; preserve Srgb identity and raw LinearRgb→Srgb from_linear without added clamp. to_rgba_f32 remains raw for existing consumers, never a global clamp. For to_space(LinearRgb), convert Oklab/Oklch directly by matrix without intermediate encode/decode, clamping converted FromColor results; other sources use existing decode and identity stays identity. That earlier numerical repair excluded CMYK/ICC; the separate measured forward CMYK correction below supersedes that exclusion only for its exact scope. Keep every other-space formula unchanged.
+
+## Canonical pure CMYK projection
+
+This owner alone wires a private child module `icc` to the existing `Color::Cmyk` arm in `to_rgba_f32`. The helper's exclusive implementation specification is `00_nucleo/prompts/core/entities/color/conversion/icc.md`; no public module/re-export is added. Delegate source f32 channels to the pure fixed-profile helper, return exact normalized RGB and alpha one, and remove the naive arm formula. `to_srgb`, `to_space(Srgb)` and `to_hex` must use this same canonical result, with no second color calibration. Existing downstream `to_space` routes consume the corrected CMYK projection while retaining their own numerical and alpha contracts. Spot explicit fallback already uses `to_process`; ensure its CMYK result reaches the same projection without changing Spot value/space/equality before explicit conversion.
+
+CMYK constructor fields, same-space `to_space(Cmyk)` identity, `.components()` with/without alpha, direct lighten/darken, and inverse RGB→CMYK remain unchanged. Quantization happens only at forward profile projection, never in CMYK storage or general numeric RGB inputs. Non-CMYK raw range/alpha, transfer functions, direct Oklab/Oklch routes, the known-upstream-bug Luma alpha preservation, errors and exhaustive enum domains remain protected.
+
+Authorize only the helper owner's pure moxcms 0.8.1 capability set and immutable `typst_assets::icc::CMYK_TO_XYZ`, with default moxcms features disabled and pxfm 0.1.24 pinned. This explicitly supersedes the earlier no-dependency/ICC-change constraint for this private correction; it does not permit profile instances, metadata/default/parser paths, clocks, I/O, mutable globals, lab imports, unsafe, or blanket lint exclusions. Observe V14 with exact declared types/symbols rather than suppressing it.
 
 ## Explicit enum domains
 
@@ -31,6 +45,8 @@ The later `lab/results/construction/diagnostics/tekt-enums-2026-10-16/before.jso
 ## Acceptance
 
 L0 precedes observable RED tests and implementation under continuous ADR-0127 without public API/binding/default/compatibility/phase changes. Replace empty smoke coverage with independent oracle-referenced conversions, quadrants and alpha. Verify rotate channels/Oklch reconversion, target bounds, raw LinearRgb→Srgb control, alpha, negative chroma, independent public component values and nominal-red hue at unchanged tolerances. Retain color/gradient regressions, L1 suite/build/lint and ownership hashes. Remaining probe differences stay visible, without generic parity or performance claims.
+
+For the new CMYK correction, add oracle-based RED regressions before implementation through existing public Color conversion methods and existing native constructor fixtures. Include endpoints, independent interior points, original calibrated vector and half-byte boundaries; check exact normalized f32 channels/alpha as well as hex. Retain raw numeric RGBA precision, same-space CMYK fields, Spot projection and identity controls. Re-run the immutable 71+9+625+256-row language corpus with empty stderr, exact decoded numeric/hex equality and no new tolerance. Only independently refuted naive endpoint/black-roundtrip expectations may change, after root records RED, preserving all affected target/alpha assertions. Profile unit tests supplement rather than replace these public checks. Retain all existing color/operator/gradient, Hash, full lint and direct/reverse lineage gates; finite forward evidence does not certify inverse conversion, arbitrary ICC, exports or all color parity.
 
 For the recorded V16 repair, obtain functional local tests and scoped lint RED first. In a disposable workspace only, add sentinel variants to Color, ColorSpace, MathStyleKind, FuncRepr and StateUpdate. Run `cargo check --offline --locked -p typst-core` with one job and shared artifact cache; record sources/hashes/argv/UTC/diagnostics. Each of 21 selected matches must change from absence of its own E0004 to E0004 at that match, regardless of other failures. Unsentinelled compile and real behavior tests approve production; the negative probe does not prove parity. Never edit productive definitions during probe commands.
 

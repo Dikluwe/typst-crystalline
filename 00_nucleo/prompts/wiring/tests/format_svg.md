@@ -1,5 +1,5 @@
 # L0 — wiring/tests/format_svg
-Hash do Código: 1da30030
+Hash do Código: ed0b3994
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/format_svg.rs`
@@ -102,3 +102,41 @@ indexes, strict V1/V5/V15/V26/reverse lineage and diff --check. L0 first; reseal
 limited to authorized owners/code. Heavy jobs sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1; freeze sources/L0/configuration during commands.
 No import-syntax mirror tests, unmeasured RAM/AI-gain claims or release publication.
+
+
+## Complete-page SVG serialization observation (2026-10-22)
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/repeat/svg-pages-harness-before.json`
+records exact source/L0 hashes and text, complete frozen input hashes, uncommitted
+HEAD/diffstat and UTC before this test-only correction. Candidate-9's frozen full
+wiring run records the unchanged serialization scenario failing in
+`candidate-9/validation/tests-wiring.log:341-365`. Its 20pt square-page source
+really spans pages; the helper requests literal `main.svg`, and the approved
+complete-SVG CLI correctly rejects a multipage output without a page template.
+The other six original SVG tests pass. This is a stale test caller, not authority
+to revert complete-page output or restore silent first-page export.
+
+### Exclusive test correction and acceptance
+
+Keep the exact source, document and caller pretty options, feature selection,
+all original tests and all original XML/morphology/neutrality assertions. Factor
+the existing subprocess invocation only enough to accept an explicit output name;
+existing callers retain their literal names. The same-source pretty/compact
+scenario requests `main-{p}.svg`, observes every actual numbered page through
+the separately owned L3 test-support reader, and normalizes each page with the
+unchanged XML observer. Require process success, nonempty contiguous page sets,
+equal pretty/compact page counts, and valid XML plus original indentation and
+canonical morphology assertions for every corresponding page. Require this
+fixture actually to span more than one physical page.
+
+Independently compile the identical source as PDF and use the existing
+`pdf_summary`/pdfinfo Pages observation to require that both SVG collections
+cover the complete physical page count. Equality between two incomplete SVG
+collections is insufficient. No guessed first-page artifact, skipped tail,
+changed fixture, synthesized XML, softened expectation, tolerance or production
+code/API change. Preserve all seven original scenarios and full validation.
+The L3 helper owns filesystem enumeration only; final language assertions stay
+in this L4 owner. This correction adds no production imports, public contract,
+mode/default or phase.

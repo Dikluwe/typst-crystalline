@@ -1,8 +1,11 @@
 # L0 — compiler/realize/reference_supplements
-Hash do Código: d7975fda
+Hash do Código: 34f98b2c
 
 Layer L1. Exclusive productive consumer:
 `01_core/src/compiler/realize/reference_supplements.rs`.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/references/unique-label-target.toml sha256:ecf43b59f502d687be7b2f4d2cc7aeb4dc7383a4c0b393f88181c770b95e4764
 
 ## Measurement, approval and exact boundary
 
@@ -132,3 +135,48 @@ source root may receive the proven lexical origin from ORIGIN; existing first
 source wins. Preserve this before show invocation, never force origin afterward
 on new replacement Content. Unit controls cover alias first-origin, genuinely
 new Ref origin, nonRef unchanged, and Source outside exact marked transport.
+
+## Unique ordinary Ref target after physical admission
+
+### Measurement before correction
+
+At the implementation baseline, `reference_supplements.rs:296–310` records the
+actual label Query but takes only its first result; `entities/label_registry.rs:40–55`
+already exposes compatible first lookup plus all Locations/count. The frozen
+`lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` repeated-header
+Ref control rejects with pinned vanilla message
+`label `<header>` occurs multiple times in the document`, while the unchanged
+product reports a missing label. Equal nonzero exits do not preserve diagnostics.
+Physical admission supplies actual distinct targets; this owner must not resolve
+the newly complete membership by silently selecting the first.
+
+The approved review is `lab/results/set-page-header-2026-10-21/review.md`,
+SHA-256 cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039.
+The direct human decision is preserved in
+`lab/results/set-page-header-implementation-2026-10-21/approval.json`.
+It authorizes only the frozen five public facades, opaque carriers and physical
+page phase; it does not authorize additional public contracts or generic
+observer/traversal changes. The implementation baseline is HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`. Exact owning source/L0 bytes,
+SHA-256, UTC and working-tree state before these amendments are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/before.json`.
+
+### Unique target responsibility
+
+For normal-language Ref, after existing bibliography precedence and the actual
+strict label Query/eligibility read, reject more than one distinct actual target
+Location before choosing a target or executing its selected supplement. Emit
+`label `<NAME>` occurs multiple times in the document` at the retained bound
+lexical Ref Source, with NAME substituted exactly. Preserve zero-target error,
+unique-target numbering/eligibility and supplement behavior, existing source and
+Route/error transactions, actual read replay and producer transport. A single
+prepared Location emitted repeatedly remains one occurrence, not a duplicate raw
+insertion. Do not deduplicate by Content/Value/Rust equality, hash, text or span.
+
+This clause supersedes only the earlier first-label behavior for normal language
+reference selection. Keep LabelRegistry public first-lookup compatibility,
+bibliography precedence/conflict debt, Page-form behavior and generic observers
+unchanged. No new public facade or fake observation is authorized. Require an
+independent actual RED for duplicated ordinary targets, repeated physical headers,
+same-Location aliases, unique/missing labels, source origin and bibliography
+precedence; stable failure must retain exact diagnostic, not merely an exit code.

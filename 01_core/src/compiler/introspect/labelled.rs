@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/labelled.md
-//! @prompt-hash e1686ee9
+//! @prompt-hash 37dbb8e3
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -103,6 +103,7 @@ pub(super) fn compute_labelled<I: Introspector>(
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -202,7 +203,9 @@ pub(super) fn compute_labelled<I: Introspector>(
     }
 }
 
-fn located_reference_original(content: &Content) -> Option<(&Content, Location)> {
+pub(super) fn located_reference_original(
+    content: &Content,
+) -> Option<(&Content, Location)> {
     let mut current = content;
     let mut location = None;
     loop {

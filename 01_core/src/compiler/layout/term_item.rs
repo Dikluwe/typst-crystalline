@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/term_item.md
-//! @prompt-hash ec6c47ad
+//! @prompt-hash 288c4a58
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -32,11 +32,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let prev_style = layouter.style.clone();
     layouter.chain = layouter.chain.push_styles(&Styles::from_iter([Style::bold(true)]));
     layouter.style = TextStyle::from(&layouter.chain);
-    layouter.layout_content(&e.term);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::TermItemTerm,
+        &e.term,
+    );
     layouter.chain = prev_chain;
     layouter.style = prev_style;
     layouter.layout_content(&Content::text(": "));
-    layouter.layout_content(&e.description);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::TermItemDescription,
+        &e.description,
+    );
     layouter.flush_line();
     layouter.regions.current.cursor_x = margin_pt;
 }

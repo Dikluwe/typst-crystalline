@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/caches
-Hash do Código: e559f648
+Hash do Código: f7b8cb95
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/caches.rs`
@@ -64,3 +64,39 @@ remain. No new types/builders/APIs/lint suppression. L0 first and scoped reseali
 continuous ADR-0127. Selected gate must fail before and pass after; preserve test
 names/inputs/expectations/tolerances. Revalidate all-target Clippy/workspace suite/
 build/fmt/Rustdoc/lineage. No tests merely mirroring initializer syntax.
+
+
+## R8 — approved font-backed superscript integration
+
+Evidence before decision: the source-bound `footnote-layout-r8-2026-10-24/before/receipt.json`,
+`font-tables.json` and `red-geometry.json` under `lab/results/construction/diagnostics/`
+record wrong 0.65 scaling/positive baseline and font-dependent pinned geometry at
+bd5ebec285505889e8ff1d4f68804ab147a699f3. `approval.json` binds the human-approved
+FontMetrics::text_superscript_metrics addition. OS/2/whole-run GSUB are text metrics;
+MATH constants and fixture/font-name coefficients are not substitutes. This private
+integration follows ADR-0127 continuous parity flow, superseding only superscript
+scaling/feature assumptions below. Keep subscript behavior and unrelated folds.
+Include superscript identity in both shaped-width and scalar-advance cache keys;
+otherwise equal-size native sups and ordinary text collide. Preserve every existing
+key component and explicit language/axis identity. Test distinct keys.
+
+Require actual RED→GREEN tests, fixed-pin PDF/SVG controls, unchanged geometry tolerance and complete workspace/lineage validation.
+
+
+## R8 approved resolved native-script choice
+
+Measurement before decision: R8 numbering-candidate5/receipt.json records
+Nimbus11 numbering1 Z with1.4718pt error; the full marker chose synthesis but its
+shortened digit was shaped with sups again. The root is
+lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24/.
+The exact public TextStyle::superscript_native: Option<bool>, default None, was
+approved from owner draft SHA4b14829d1eb38475d1985a9707a6e6ce40166196dfe524afe512d99b9cabf4d0
+and is recorded in native-carrier-approval.json. Its data/default contract belongs
+only to core/entities/layout_types.md; this owner retains its existing consumer.
+No MATH flag, baseline sign, font-name constant, private string or source identity
+may substitute for the explicit choice. No extra public field/signature/phase.
+Include superscript_native in both scalar-advance and shaped-width identity
+where its value changes requested features; equal text/font/size with None and
+Some(false) must not share a native width. Keep all existing key components.
+
+Require new field/default/forced-false RED→GREEN, all twelve numbering refuters at0.001pt PDF/SVG, original ten notes, six font controls, warm/cold cache and full preservation/workspace/lineage gates.

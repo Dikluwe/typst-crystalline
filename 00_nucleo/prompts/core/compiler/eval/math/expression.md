@@ -1,5 +1,9 @@
 # L0 — compiler/eval/math/expression
-Hash do Código: 978f875f
+Hash do Código: 9745e8e2
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Ownership and evidence
 
@@ -12,3 +16,12 @@ Evaluate the exhaustive mathematical expression match while preserving morpholog
 ## Acceptance
 
 The L1 suite and math tests must pass; `crystalline-lint .` must validate ownership and hashes. Do not infer performance gains.
+
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Produce native Symbol for symbol lookup, Greek names, field access, single graphemes and shorthand. Numeric/quoted MathText remains its own carrier. Retain deprecation and scope shadowing behavior.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

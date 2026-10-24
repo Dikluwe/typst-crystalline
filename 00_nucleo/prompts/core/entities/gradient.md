@@ -1,5 +1,5 @@
 # L0 — Gradient facade and shared semantic contract
-Hash do Código: 812dc437
+Hash do Código: 1482e2f0
 
 **Layer:** L1. **Exclusive consumer:** `01_core/src/entities/gradient.rs`.
 The facade owns GradientStop, RelativeTo, public reexports and historical local
@@ -89,6 +89,53 @@ mul_sub in encode; num.rs:718–722 implements mul_sub without fusion. The older
 fmaf-encode assertion is therefore refuted for this source. oklab.rs:355–368
 clamps chroma to zero before polar conversion; hues.rs:155–157 uses sincosf
 through libm. None of these old measurements certifies the current upstream pin.
+
+## Measured CMYK endpoint expectation correction — 2026-10-21
+
+`lab/results/cmyk-box-corrections-2026-10-21/agents/cmyk/gradient-endpoint-audit/receipt.json`
+(SHA-256 `36c300812ac93c727d260d76a783427b70b847f92c860a5d4c223f215b439013`)
+records exact fixture bytes, commands, complete stdout/stderr, frozen productive
+input hashes, uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, dirty-file stat and
+UTC `2026-10-22T00:22:44.584114+00:00` through `2026-10-22T00:22:45.146508+00:00`. Both evaluations exited zero with empty stderr and
+unchanged inputs. Ratified vanilla commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
+`cac836c07e4dec2a89219370428292393a3216b5`, binary
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`,
+and identified candidate `90d348465b4b23e7f8ff3a808ec8d5d2e15ea2e7652ba7616cc37e3fbd66d8a4`
+returned identical language values for
+`gradient.linear(rgb(255, 0, 0), rgb(0, 0, 255), space: cmyk)` endpoints.
+At 0%, CMYK components are `(0, 1, 1, 0)`, hex is `#ed1d24`, and
+normalized RGBA is `(237/255, 29/255, 36/255, 1)` in f32. At 100%, components
+are `(1, 1, 0, 0)`, hex is `#2e3092`, and normalized RGBA is
+`(46/255, 48/255, 146/255, 1)` in f32. The latter blue channel is
+`0.572549045085907`, refuting the historical test's `b1 > 0.7` assumption.
+
+Pinned `visualize/gradient.rs:1369–1401` converts stop colors to the selected
+mixing space; `:1461–1484` samples those prepared stops. Existing local
+`entities/gradient/interpolation.rs:271–289,353–358` preserves CMYK endpoint
+components, and the canonical Color conversion now projects them through the
+measured fixed profile. This is language-value evidence, not a requirement to
+copy upstream preprocessing mechanics. It indicates a refuted old naive RGB
+expectation, not a gradient algorithm defect; differing endpoint components or
+RGBA in a fresh source-bound comparison would refute that classification.
+
+The actual full-suite RED is retained in
+`lab/results/cmyk-box-corrections-2026-10-21/final/validation/tests-domain-infra.log`
+(SHA-256 `3550c8231b7950b7d78a73f20bad3a62497881bf681a23eb6a5a7c07f218bdf9`): the unchanged
+`entities::gradient::tests::p270_linear_sample_cmyk_endpoints` failed at
+`gradient.rs:1074` with `assertion failed: b1 > 0.7`. The source and measured
+oracle values above refute that expectation before its replacement.
+
+Replace only the facade's `p270_linear_sample_cmyk_endpoints` heuristic channel
+thresholds and their naive-conversion comment with exact assertions for both
+CMYK targets, raw CMYK components with and without alpha, both measured hex
+strings and all normalized f32 RGBA channels.
+Expected values come from the ratified oracle above. Preserve all other
+sampling, interpolation, alpha, space, offset, tolerance and fixture contracts.
+Do not relax the 0.7 threshold, modify interpolation, remove/ignore the test or
+claim complete gradient/ICC parity. This is ADR-0127 continuous internal test
+expectation correction: L0 first, the recorded full-suite RED, exact replacement
+and focused/full revalidation, with no public signature/default/phase change.
 
 ## Facade data and public composition
 

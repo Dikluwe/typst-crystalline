@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/func.md
-//! @prompt-hash ec86f5e9
+//! @prompt-hash eb709f76
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -463,7 +463,7 @@ mod tests {
     use crate::entities::value::Value;
 
     fn make_closure() -> Func {
-        let source = Source::detached("x + 1");
+        let source = Source::detached("x + 1").expect("valid Source test fixture");
         let body = source.root().clone();
         Func::closure(ClosureRepr {
             name: None,

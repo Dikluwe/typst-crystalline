@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
-//! @prompt-hash 87403de5
+//! @prompt-hash 2a79b3d8
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -8,6 +8,7 @@ pub(in crate::compiler) mod bare_math;
 pub mod context_occurrences;
 pub(in crate::compiler) mod figure;
 pub(in crate::compiler) mod figure_kind;
+pub mod page_running;
 pub(in crate::compiler) mod recipes;
 pub mod reference_supplements;
 pub(in crate::compiler) mod sequences;
@@ -47,16 +48,89 @@ pub(crate) fn locate(content: Content, ctx: &mut EvalContext) -> Content {
     }))
 }
 
+/// Complete only a newly synthesized Outline product in the caller's real arena.
+pub(in crate::compiler) fn finish_outline_insertion(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    if context_occurrences::allocation_owner(ctx).is_none() {
+        return Ok(content);
+    }
+    let previous_styles = std::mem::replace(
+        engine.styles,
+        page_running::insertion_context_styles(engine.styles),
+    );
+    let previous_realizing = std::mem::replace(&mut ctx.realizing_show_rules, true);
+    let previous_defer = std::mem::replace(&mut ctx.defer_show_rules, false);
+    let result = context_occurrences::with_template(ctx, |ctx| {
+        observe_occurrences(&content, ctx);
+        let visual = recipes::realize(&content, ctx, engine)?;
+        let visual = finish_occurrence_root(&visual, ctx, true)?;
+        normalize_insertions(&visual)
+    });
+    *engine.styles = previous_styles;
+    ctx.realizing_show_rules = previous_realizing;
+    ctx.defer_show_rules = previous_defer;
+    result
+}
+
 fn finish_occurrences(content: &Content, ctx: &mut EvalContext) -> SourceResult<Content> {
-    content.map_content(&mut |node| {
-        if !matches!(node, Content::Located(_) | Content::Realized(_))
-            && extract_payload(node).is_some()
-        {
-            Ok(Some(locate(node.clone(), ctx)))
-        } else {
-            Ok(None)
-        }
-    })
+    if !page_running::needs_capture(content) {
+        return content.map_content(&mut |node| {
+            if !matches!(node, Content::Located(_) | Content::Realized(_))
+                && extract_payload(node).is_some()
+            {
+                Ok(Some(locate(node.clone(), ctx)))
+            } else {
+                Ok(None)
+            }
+        });
+    }
+    finish_occurrence_root(content, ctx, true)
+}
+
+fn finish_occurrence_root(
+    content: &Content,
+    ctx: &mut EvalContext,
+    prepare_root: bool,
+) -> SourceResult<Content> {
+    if let Content::Source(source) = content {
+        return finish_occurrence_root(&source.body, ctx, prepare_root)
+            .map(|body| body.with_source_span(source.span));
+    }
+    if let Content::Located(located) = content {
+        return finish_occurrence_root(&located.body, ctx, false).map(|body| {
+            Content::Located(Arc::new(LocatedContent {
+                body,
+                location: located.location,
+            }))
+        });
+    }
+    if let Some(operational) =
+        page_running::map_body(content, |body| finish_occurrence_root(body, ctx, true))?
+    {
+        return Ok(operational);
+    }
+    let processed = if let Content::TableCell(cell) = content {
+        table_cells::finish_selected_occurrences(cell, ctx)?
+    } else {
+        let mut first = true;
+        content.map_content_pre(&mut |node| {
+            if std::mem::replace(&mut first, false) {
+                return Ok(None);
+            }
+            finish_occurrence_root(node, ctx, true).map(Some)
+        })?
+    };
+    if prepare_root
+        && !matches!(processed, Content::Realized(_))
+        && extract_payload(&processed).is_some()
+    {
+        Ok(locate(processed, ctx))
+    } else {
+        Ok(processed)
+    }
 }
 
 fn normalize_insertions(content: &Content) -> SourceResult<Content> {
@@ -115,7 +189,7 @@ fn normalize_insertions(content: &Content) -> SourceResult<Content> {
                 | Content::Link(_)
                 | Content::Equation(_)
                 | Content::MathSequence(_)
-                | Content::MathIdent(_)
+                | Content::Symbol(_) | Content::MathIdent(_)
                 | Content::MathText(_)
                 | Content::MathFrac(_)
                 | Content::MathAttach(_)
@@ -236,7 +310,7 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
         match node {
             Content::Located(e) => {
                 ctx.realization_locator.observe(e.location);
-                if let Content::ContextBlock(block) = &e.body {
+                if let Content::ContextBlock(block) = e.body.source_body() {
                     ctx.next_context_id =
                         ctx.next_context_id.max(block.id.saturating_add(1));
                 }
@@ -254,6 +328,9 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
                 }
             }
             Content::Realized(e) => observe_occurrences(&e.original, ctx),
+            Content::SetPage(_) => page_running::for_each_template(node, &mut |body| {
+                observe_occurrences(body, ctx)
+            }),
             // No node-local reservation; the mapper still visits descendants.
             Content::Source(_)
             | Content::Empty
@@ -275,6 +352,7 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -323,7 +401,6 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
             | Content::GridHeader(_)
             | Content::GridFooter(_)
             | Content::GridCell(_)
-            | Content::SetPage(_)
             | Content::PageRun(_)
             | Content::Align(_)
             | Content::Place(_)
@@ -418,12 +495,16 @@ pub fn realize_document(
         recipes::realize(content, &mut ctx, &mut engine)
             .and_then(|visual| finish_occurrences(&visual, &mut ctx))
             .and_then(|visual| normalize_insertions(&visual))
-            .map(|visual| {
+            .and_then(|visual| {
                 let visual = visual.wrap_page_columns();
-                RealizedDocument {
-                    introspector: introspect_with_introspector(&visual),
-                    visual,
-                }
+                let introspector = if page_running::needs_capture(&visual) {
+                    crate::compiler::introspect::page_running::provisional_body_index(
+                        &visual, &mut ctx,
+                    )?
+                } else {
+                    introspect_with_introspector(&visual)
+                };
+                Ok(RealizedDocument { introspector, visual })
             })
     };
     (result, sink.into_diagnostics())
@@ -528,7 +609,7 @@ fn prepare_context_recipe(
         || Arc::clone(engine.show_rules),
         |recipe| textual::compose_rules(recipe, engine.show_rules),
     );
-    if rules.is_empty() {
+    if rules.is_empty() && !page_running::retains_context_styles(engine.styles) {
         return content;
     }
     let mut guards = engine.active_guards.clone();
@@ -550,11 +631,13 @@ fn prepare_context_recipe(
         guards,
         file: captured.map_or(engine.current_file, |recipe| recipe.file),
     }));
-    Content::styled(
-        content,
-        crate::entities::style::Styles::new()
-            .push_custom("eval.context.recipe", Value::Content(snapshot)),
-    )
+    let styles = crate::entities::style::Styles::new()
+        .push_custom("eval.context.recipe", Value::Content(snapshot));
+    if page_running::retains_context_styles(engine.styles) {
+        page_running::transport_context(content, styles, ctx, engine)
+    } else {
+        Content::styled(content, styles)
+    }
 }
 
 fn anchor_recipe_errors(
@@ -647,6 +730,80 @@ mod finish_occurrences_tests {
             finish_occurrences(&table, &mut ctx).unwrap(),
             Content::Located(_)
         ));
+    }
+
+    #[test]
+    fn physical_page_finish_selected_cell_visual_preserves_dormant_snapshots() {
+        use crate::entities::elements::table_cell::{
+            TableCellResolved, TableCellStage, TableCellStandaloneResolved,
+        };
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let template = Content::strong(Content::text("RAW SNAPSHOT"));
+        let dormant = Content::strong(Content::heading(1, Content::text("DORMANT")));
+        let Content::TableCell(cell) =
+            Content::table_cell(template.clone(), None, None, None, None)
+        else {
+            unreachable!()
+        };
+        let mut cell = (*cell).clone();
+        cell.resolved = Some(Arc::new(TableCellResolved {
+            x: 0,
+            y: 0,
+            colspan: 1,
+            rowspan: 1,
+            fill: None,
+            stroke: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            visual: Content::heading(1, Content::text("SELECTED")),
+            stage: TableCellStage::Complete,
+            guards: vec![88],
+        }));
+        cell.standalone = Some(Arc::new(TableCellStandaloneResolved {
+            properties: None,
+            visual: dormant.clone(),
+            stage: TableCellStage::Prepared,
+            guards: vec![99],
+        }));
+        let dormant_plan = cell.standalone.as_ref().unwrap().clone();
+        let mut ctx = EvalContext::new();
+        let result =
+            finish_occurrence_root(&Content::TableCell(Arc::new(cell)), &mut ctx, true)
+                .unwrap();
+        let Content::TableCell(after) = result else {
+            panic!("TableCell remains a nonlocatable container")
+        };
+        assert!(
+            Arc::ptr_eq(after.standalone.as_ref().unwrap(), &dormant_plan),
+            "the nonselected plan must remain untouched"
+        );
+        let (Content::Strong(before), Content::Strong(after_raw)) =
+            (&template, &after.body)
+        else {
+            panic!("raw morphology")
+        };
+        assert!(Arc::ptr_eq(before, after_raw));
+        let selected = after.resolved.as_ref().unwrap();
+        assert_eq!(selected.stage, TableCellStage::Complete);
+        assert_eq!(selected.guards, vec![88]);
+        let Content::Located(location) = &selected.visual else {
+            panic!("selected real Heading must be canonical before provisional indexing")
+        };
+        assert!(matches!(location.body, Content::Heading(_)));
+        assert_eq!(selected.visual.plain_text(), "SELECTED");
+        let alias = location.location;
+        let replay =
+            finish_occurrence_root(&Content::TableCell(after), &mut ctx, true).unwrap();
+        let Content::TableCell(replay) = replay else { unreachable!() };
+        let Content::Located(replay) = &replay.resolved.as_ref().unwrap().visual else {
+            unreachable!()
+        };
+        assert_eq!(
+            alias, replay.location,
+            "existing selected alias retains its identity"
+        );
     }
 
     #[test]

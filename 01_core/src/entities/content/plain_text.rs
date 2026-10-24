@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/plain_text.md
-//! @prompt-hash 569ed8ff
+//! @prompt-hash 1ed1b895
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -61,7 +61,7 @@ impl Content {
             Self::PdfArtifact(e) => e.plain_text(),
             Self::Equation(e) => e.plain_text(),
             Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
-            Self::MathIdent(s) => s.to_string(),
+            Self::Symbol(s) | Self::MathIdent(s) => s.to_string(),
             Self::MathText(s) => s.to_string(),
             // Modelo D (Lote 2 P317): família math delega ao elemento.
             Self::MathFrac(e) => e.plain_text(),

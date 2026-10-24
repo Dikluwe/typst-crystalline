@@ -1,5 +1,5 @@
 # L0 — builder/fonts
-Hash do Código: b714220e
+Hash do Código: aefbc094
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/builder/fonts.rs`
@@ -181,3 +181,50 @@ no new suppression or threshold/unchanged body-value/call controls, Grid/Table/
 outline/SVG-tiling before-after/full workspace suite/build/all-target Clippy/
 Rustdoc/fmt/strict+reverse lineage/Tekt no new warnings under12GiB/zero swap/one job.
 No carrier-mirror/global-parity/PDF-UA claim.
+
+## Variable-font fallback warnings
+
+When requested variable-font instancing fails and the existing default-instance
+fallback is used, append one detached `SourceDiagnostic::warning` to the current
+builder's PDF warning vector. Preserve the exact existing message, font identity,
+fallback bytes, mappings, widths, timing and output. Do not write stderr, suppress
+the warning, change external-tool detection or turn the successful fallback into
+an error. Transport follows the approved
+`lab/results/pdf-export-warning-carrier-2026-10-23/review.md` contract.
+
+
+## R10 — source-preserving raster glyph fallback
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,bitmap-evidence.json,font-tables.json}` binds received R9 code/dirty stat/UTC and fixed bd5ebec2 binaries. Nimbus/Liberation mixed123☃ selects Noto Color Emoji. The received PDF raster route emits only image Do, losing the source character in extraction; SVG glyphs.rs:100-105 requires an outline and emits no raster. Pinned paired PDFs/SVGs preserve source text and the PNG. Font-family names are evidence, never runtime branches; supported actual raster data authenticates the correction. Source character, physical position/advance, PNG pixels and geometry are language observations. Object numbering, Type3 versus CID structures and byte encoding are mechanics.
+
+Classification: private font/export parity correction under ADR-0127 continuous flow, with no new public method/entity/phase/mode/dependency. The previously approved FontMetrics method remains separately bounded. No invisible duplicate source text, fake outline, font-name coefficient, or oracle-byte copying. Build a1016-byte self-authored portable bitmap font fixture from the preserved fontTools generator; it is test data, not a font copied from the oracle or a productive dependency. Authenticate its bytes explicitly in the receipt.
+
+### Exclusive owning obligation
+
+For a complete bitmap-only used glyph set with at most256 original GIDs, construct an extractable Type3 font with deterministic single-byte codes, original shaped cluster ToUnicode, actual face advance widths and bitmap-derived bounding boxes/FontMatrix. CharProcs draw the existing shared prepared image resources; allocate IDs outside reserved image/font/gradient ranges. Preserve single-font and multifont ownership and per-face identity. Unsupported/incomplete raster sets and >256 glyphs retain prior path with an explicit remaining limit. The body stream's font resource still matches its actual source face. No outline font embedding/CIDSet for a bitmap-only Type3 font. Keep ordinary Type0/CID output, subsetting, accessibility wrappers and resource recipe intact. Require real extraction of the portable source glyph in both modes and font paths plus existing bitmap/picture/page/semantic tests.
+Require module RED→GREEN before implementation, fixed-pin actual fallback PDF/SVG paint/text/geometry controls, previous A–H/R1–R9, full workspace/lineage/resource gates and byte preservation of received unrelated inputs.
+
+
+R10 bitmap replacement closure refuter before deciding: the new raster helper
+always restores its own q and reports no pending graphic tail. The existing
+text-replacement protocol has a measured close-before-Q requirement. Hypothesis:
+a source-identical bitmap inside TextReplacement may retain text but lose its
+physical bbox. Compare the complete Poppler word record for plain/replaced
+source in Compact/Verbose and single/multifont; equality refutes the need for a
+runtime change. This is an additional test under the existing acceptance, not
+a decision to alter code from source structure alone.
+
+
+R10 closure decision after actual RED: red-svg-residual.json/log/source archive
+in the R10 evidence root confirms the hypothesis for the portable bitmap.
+Plain source bbox is(10,13.25,19,22.25); source-identical TextReplacement becomes
+(10,20,11,20). The old helper closes Q before the existing ActualText protocol
+can close its marked content. For the certified Type3 path, preserve the existing
+restore/deferred-tail convention: open the helper q once, emit the actual text,
+and let the caller close Q when restore=true or return a pending tail when
+restore=false. The existing draw/replacement owner then closes its original
+marks/ActualText before Q. Preserve normal/legacy image paths and all source
+text, glyph positions, bytes of prepared PNGs, advances, offsets and bitmap
+font selection. No new signature, mode, phase or invisible text. The expanded
+plain/replacement test must pass in both modes and single/multifont, together
+with SVG fractional tracking and all previous gates.

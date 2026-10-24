@@ -1,13 +1,17 @@
 # L0 — compiler/layout/realized
-Hash do Código: 9a5d0522
+Hash do Código: 4dd6a6fd
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/realized.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+
 
 ## Evidence before specification
 
@@ -56,3 +60,22 @@ Position controls require RED→GREEN for coordinates/no fictitious paint/height
 Write colocated Source producer/nonproducer, Located/Source, no-duplicate collection, fallback and predicate tests; establish Source transparency RED first. Existing preservation/single_evaluation_ controls pass before/after. Separate real-workspace Value/Content sentinel copies require E0004 at six selected points after correction, preserving prior absence/other errors/sources. Reseal edited pairs only; SARIF removes only selected V16, preserves other diagnostics and allows only prescribed equivalent V19. Heavy commands sequential under 12GiB/zero swap/one Cargo job. Origin cleanup alone does not close the overall objective.
 
 OutlineEntry tests cover bare entry with Located element, Located entry, Source and Realized: no fast-path certification; fallback retains causal index without new product IDs. Preserve previous CLI measurements and expectations; repeat direct/synthesized/mixed fixtures with body() and field access at language level, never PDF bytes. Separate Content sentinel real-workspace copy adds E0004 at six W1–W6 points after, not before, without other errors; preserve logs/inputs. Reseal only five affected pairs after valid V15/V26. Require workspace build/fmt/Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings, full suite, strict/reverse lineage, diff-check and differential SARIF: six V16 removed 239→233, six new informative V19; extractor complement loses one alternative and both needs_fresh_index groups move OutlineEntry false→true. No new V20 or unrelated diagnostic change after line-shift mapping. V19 records uniform consequences, not per-alternative execution. No suppression/global configuration, publish/commit/push; record state/UTC/hashes. Other V16 leave the overall objective open.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+For a planned source, register original anchors and original semantic packet phases from the exact RealizedOriginal source subtree without emitting or executing it, preserving actual Locations and source ownership. Emit the visual through RealizedVisual typed route and retain block-equation paragraph boundaries. Do not reconstruct an unprepared original through a second semantic index in this planned path; legacy unplanned fallback remains unchanged. The source plan and accepted trace own semantic membership independently of the original-anchor position registration.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

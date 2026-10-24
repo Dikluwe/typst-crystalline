@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Sondas RED do catálogo P1495, sem alterar fontes nem artefatos.
+"""Sondas do catálogo P1495, sem alterar fontes nem artefatos.
 
-O oráculo é o binário vanilla bd5ebec2 ratificado no re-sync 2026-10-17. Um exit 1 é RED de paridade;
+O oráculo é o binário vanilla bd5ebec2 ratificado no re-sync 2026-10-17. Um exit 1 indica falha de paridade ou do contrato das extensões;
 exit 2 denuncia defeito do oráculo/harness. Extensões legadas são reportadas,
 mas não contam como violação contra o novo vanilla.
 """
@@ -171,7 +171,8 @@ def verdict(kind, name, oracle, crystal):
             return "BASELINE_DEFECT"
         if crystal.get("exit") != 0 or crystal.get("error") is not None:
             return "EXTENSION_MISSING"
-        if bare and (not isinstance(crystal["value"], dict) or crystal["value"].get("func") != "text"):
+        # Approved batch E insertion preserves native Symbol identity, including legacy extensions.
+        if bare and (not isinstance(crystal["value"], dict) or crystal["value"].get("func") != "symbol"):
             return "EXTENSION_DRIFT"
         observed = (
             crystal["value"].get("text")

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/figure_counters.md
-//! @prompt-hash 04b2040e
+//! @prompt-hash 10cc250e
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -63,6 +63,15 @@ pub(super) fn prepare_figure_counters_for_bodies(
             &StyleChain::default_chain(),
         )?);
     }
+    finish_demands(demands, intr, engine, observer)
+}
+
+pub(super) fn finish_demands(
+    demands: Vec<FigureCounterDemand>,
+    intr: &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    observer: &EvalContext,
+) -> SourceResult<()> {
     let mut staged: Vec<FigureCounterSnapshot> = Vec::new();
     let mut scopes = Scopes::new(None);
     for demand in &demands {

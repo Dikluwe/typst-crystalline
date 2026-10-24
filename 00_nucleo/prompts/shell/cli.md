@@ -1,10 +1,17 @@
 # L0 — Shell CLI parsing and semantic serialization
-Hash do Código: a0a86112
+Hash do Código: 0afcb4fe
+
+
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/cli.rs`
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
 - 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
@@ -15,9 +22,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
-
-**Layer:** L2
-**Exclusive consumer:** `02_shell/src/cli.rs`
 
 
 ## Evidence, ownership and classification
@@ -717,3 +721,69 @@ Figure semantic projection uses L1 get_field for typed lexical/resolved kind and
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Ratified direct SVG page selection (2026-10-22)
+
+### Evidence and ratification
+
+`lab/results/remaining-parity-2026-10-22/svg-outputs-before/receipt.json.gz`
+records exact UTC, HEAD/uncommitted diffstat, fixed executable/build/source archive,
+font bytes and actual CLI results for the unchanged two-page finite source and
+a separately pinned12-page source. `qualification.json` preserves strict1e-8 SVG
+geometry, glyph/paint and complete destination-name comparisons: all10cases RED,
+including selected page2 whose filename alone had concealed first-page content.
+The human approved the exact additive proposal SHA-256
+`d2a1ddfd71d9f741253b00b20c23084aae474e4c9cb979d70f3daa37b40d943d`;
+`lab/results/remaining-parity-2026-10-22/svg-pages-approval.json` records the gate.
+This is the existing paged compile/export phase, without source reconstruction,
+new flag, second evaluation or PNG/bundle behavior change.
+
+The existing parsed `--pages` value now reaches direct SVG's approved output
+collection facade. This supersedes only the older claim that pages are neutral
+for direct SVG and that SVG multi-file selection is not promised. Parser fields,
+syntax, signatures, errors and defaults do not change. L3 owns image selection
+and templates; L2 parses no template, writes no output and does not infer defaults.
+PNG remains outside this ratification.
+
+
+## Checked stderr composition — authorized 2026-10-22
+
+### Measured evidence
+
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/baseline.json` (SHA-256
+`9c6da7587761dd242cddf07abcf512169ad45d4bde63e3040dc1577e02e67b15`)
+retains exact HEAD, uncommitted source/archive, UTC, dirty stat and binary identity.
+`lab/results/stderr-watch-errors-2026-10-22/agents/measurement/before/receipt.json` (SHA-256
+`e49aa4458f4cb413995af35f8297ecf4fcafd20141cbdab41067fc7ed5b3895c`)
+retains the real failed-sink and healthy controls before this correction. The
+source map is `lab/results/stderr-watch-errors-2026-10-22/agents/stderr/audit.md`.
+These observations precede the narrowly owned correction below; a panic is not
+required behavior or evidence of upstream intent.
+
+### Owned correction and acceptance
+
+Keep public `parse() -> RunIntent` and argument grammar unchanged. Replace only
+the custom invalid document-ID and malformed input eprintln sites with private
+checked write_all/flush helpers. The passed text retains its existing final LF.
+The private terminal helper explicitly branches on actual write/flush failure,
+then exits 2 through the existing argument-error process boundary; it must not
+retry stderr, print to stdout, or route these messages through clap `.exit()`,
+which the pinned dependency implements by ignoring `.print()` errors. The error
+is observable as fatal exit 2 when its physical sink cannot emit text; do not
+claim successful emission. Keep normal clap help/version/parser behavior separate;
+no public parser contract, completion tree or command grammar changes.
+
+Write the helper's meaningful injected-writer controls first: exact healthy bytes,
+partial-write completion, original write error and flush error. No stdout success
+message, new API, flag/default mode or phase is introduced. The user's explicit
+stderr/watch correction request authorizes this exceptional terminal handling;
+existing ordinary argument exit 2 is unchanged (ADR-0127). Validate real failed
+sinks and healthy CLI parity, tests, hashes and lineage without suppressions.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

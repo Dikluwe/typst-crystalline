@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdfua_structure_tests
-Hash do Código: c477be31
+Hash do Código: 34c91036
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -40,3 +40,7 @@ identifies this unit's references and 1:1 owners before the decision. Manifesto
 1ae7513e was confirmed. Uncertified constructors use None and read patterns use
 `..`, retaining existing language observations. Transformations obey the pinned
 origin nucleus without phase/API expansion.
+
+Under the approved PDF warning carrier contract, the local export helper returns
+`.output` for the existing byte assertions. The fixture remains warning-free;
+do not filter exporter warnings or relax structure assertions.

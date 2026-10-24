@@ -1,8 +1,11 @@
 # L0 — compiler/layout/grid/borders
-Hash do Código: 8dfb9ce5
+Hash do Código: 53d31e74
+
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
+
 
 ## Evidence before specification
 
@@ -65,3 +68,64 @@ geometry or diagnostic refutes preservation. Broader parity limitations in
 this owner remain open.
 
 The current nominal complement (no outer cell-specific fields) is: `Source`, `ShowRecipe`, `Realized`, `Located`, `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathMatrix`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R5 — pintura compartilhada e coordenadas de linha (2026-10-24)
+
+### Medição anterior à decisão
+
+`lab/results/construction/diagnostics/painting-r5-2026-10-24/baseline.json` e
+`baseline-source.json.gz` preservam HEAD cf21f47a3b63f0e9fc5308925e1d0b67925e7227,
+árvore não commitada, lista exata/diffstat, UTC, fontes/L0 e binários. O oráculo
+continua bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, SHA256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+`before/receipt.json` mede tabela: 18/10 pixels distintos a72dpi e1548/1532
+a600dpi; os outros seis documentos coincidem a72dpi. `pdf-experiments/receipt.json`
+isola deduplicação de linhas idênticas e transformação local: só ambas zeram
+a diferença nas duas resoluções. Isso sustenta correção de pintura observável,
+não igualdade de bytes/comandos. `borders.rs:332-360` emite fundo e topo
+coincidentes de linhas adjacentes; `row_pagination.rs:26-32` contém a decisão
+de quebra; `cell_emission.rs:124-190` conhece alturas e ordem física.
+`draw.rs:483-495,914-932` emite endpoints absolutos arredondados e inverte
+inclinação no espaço local já refletido. `before-local/receipt.json` registra
+linha inclinada em Box recortado:183 pixels distintos a72dpi e5511 a600dpi.
+Esses são efeitos de linguagem/render; intenção upstream não foi inferida.
+
+### Classificação e aceitação
+
+Correção interna de paridade, fluxo contínuo ADR-0127: nenhum campo, enum, trait,
+API pública, default de produto, fase ou quebra de compatibilidade novo.
+Atualizar L0 antes de testes/código, V15/V26 antes de reseal bidirecional,
+RED funcional antes da implementação, GREEN sem enfraquecer expectativas.
+Exigir PDF rasterizado bilateral a72/600dpi e SVG físico, transparência, fills,
+None/zero, spans, gaps, strokes distintos e bordas em quebras de página;
+linhas inclinadas/negativas/fracionárias/top/local e modos Compact/Verbose.
+Preservar texto, geometria, efeitos, ordem dos corpos e demais gates A–H/R1–R4,
+suítes/build/Clippy/doc/fmt/lint zero, uma tarefa pesada por vez,12GiB/zero swap.
+Não certificar prioridades gerais de strokes distintos, gutters ricos, spans
+multipágina ou paridade global por essa amostra. PNG nativo e nomes públicos
+de fontes são superfícies separadas; nenhuma renomeação/normalização de
+comparadores é autorizada para aparentar MATCH.
+
+### Contrato exclusivo desta unidade
+
+Suprimir um run horizontal de fundo somente se houver run de topo da próxima
+linha com os mesmos endpoints e Stroke declarativo completo, sem quebra física
+de página entre eles. Manter o topo posterior, depois do fill posterior.
+Construir runs candidatos apenas das células que começam na próxima linha,
+com a mesma fusão/contiguidade existente; não atravessar spans/gaps nem
+fundir sobreposições parciais ou strokes diferentes. O caller fornece prova
+da permanência na página; sem prova, preservar ambos. Comparar descrições
+antes de preparar FrameStroke; não varrer/deduplicar FrameItem, não adicionar
+PartialEq ao transporte. Extensão por meia espessura só na emissão final,
+verticais e prioridades distintas preservadas. Célula conhecida None continua
+None. Testes verificam cobertura/alpha de uma fronteira e refutadores.

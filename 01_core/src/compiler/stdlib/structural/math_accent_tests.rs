@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md
-//! @prompt-hash 715e6437
+//! @prompt-hash caabab58
 //! @layer L1
 #![cfg(test)]
 //!
@@ -297,7 +297,8 @@ impl EvalWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(file_id(), text.into()),
+            source: Source::new(file_id(), text.into())
+                .expect("valid Source test fixture"),
         }
     }
 }
@@ -360,6 +361,7 @@ fn find_accent(content: &Content) -> Option<&Content> {
         | Content::ListItem(..)
         | Content::EnumItem(..)
         | Content::Link(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -469,7 +471,7 @@ fn eval_repr(text: &str) -> String {
 #[test]
 fn p1429_rotas_bare_qualificada_e_wrappers_convergem() {
     let expected =
-        "accent(base: x, accent: \"\\u{302}\", size: 150% + 0pt, dotless: false)";
+        "accent(base: [x], accent: \"\\u{302}\", size: 150% + 0pt, dotless: false)";
     assert_eq!(eval_repr("$accent(x, \"^\", size: #150%, dotless: #false)$"), expected);
     assert_eq!(eval_repr("$hat(size: #150%, dotless: #false, x)$"), expected);
 

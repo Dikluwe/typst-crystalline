@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/pad.md
-//! @prompt-hash 99d734e3
+//! @prompt-hash 56144cf6
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -61,7 +61,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     }
 
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::PadBody,
+        body,
+    );
     layouter.flush_line();
 
     // P273.9 — restore parent_bbox (LIFO).

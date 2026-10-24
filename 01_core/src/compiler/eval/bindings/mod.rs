@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/mod.md
-//! @prompt-hash ae15632a
+//! @prompt-hash b646381c
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -32,7 +32,7 @@ pub(super) use field_access::{
 };
 pub(crate) use field_access::{
     eval_content_method, eval_introspected_content_method_at,
-    eval_outline_entry_body_method, native_sequence,
+    eval_outline_entry_body_method, native_sequence, native_symbol_element,
 };
 pub(super) use method_dispatch::{
     is_mutating_method, try_eval_mutating_method, MutatingCall,

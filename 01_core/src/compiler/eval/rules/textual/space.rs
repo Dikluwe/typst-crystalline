@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/textual/space.md
-//! @prompt-hash 1142112c
+//! @prompt-hash a8184fe7
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -34,6 +34,7 @@ fn space_origin(content: &Content) -> Option<bool> {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -164,6 +165,7 @@ fn space_with_origin(original: &Content, had_newline: bool) -> Content {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -286,6 +288,7 @@ fn space_with_origin(original: &Content, had_newline: bool) -> Content {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -425,6 +428,7 @@ fn supportive_text(content: &Content) -> String {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -551,6 +555,7 @@ fn canonical_space(content: &Content, had_newline: bool) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -678,6 +683,7 @@ fn space_boundary_content(mut content: &Content) -> &Content {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

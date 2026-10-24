@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/mod
-Hash do Código: ec135bb6
+Hash do Código: 52ff166c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -180,3 +180,21 @@ Migrate legacy Figure fixtures that intend native element kinds to explicit type
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Fractional PDF run-boundary observation
+
+`lab/results/pdf-bbox-precision-2026-10-23/green.log` records the legacy
+p979_ajuste_de_fronteira_posiciona_segundo_item byte assertion failing on
+-233.3333333333331 instead of -233. mod.rs:9886–9902 claimed exact110pt but
+rounded to110−0.004pt. Retain its name, two glyphs, sizes and absolute target;
+interpret TJ against the fixture width to assert the second painted position
+at110pt within1e-7pt. This strengthens geometric acceptance instead of preserving
+integer serialization. No production behavior is owned here. Keep all other
+assertions and complete suite gates; no tolerance expansion or byte-parity claim.
+
+
+## R1 footnote marker test correction
+
+Measurement before decision: the source-bound `validation-first/tests-domain-infra.log` and state archive under `lab/results/footnote-markers-r1-2026-10-23/` record five failures requiring obsolete `[1]`/`[2]`/`[3]` entry text. The pinned successful note probes in `before/receipt.json` and `after-debug/receipt.json` expose the actual language correction. ADR-0107 does not require retaining those defective bytes.
+
+Update only the existing footnote marker smoke assertions to require each formatted number twice in the decoded verbose content stream (inline call and entry), and reject generated bracket forms for these default-numbering fixtures. Retain every existing body-sentinel, overflow, page and no-note control. The fixture uses the existing Type1 text fallback; this stream assertion is a local exporter smoke test, while actual language acceptance remains the pinned PDF words/pages probe. No production exporter logic, reference PDF or public signature changes are authorized. L0-first resealing and complete validation remain required.

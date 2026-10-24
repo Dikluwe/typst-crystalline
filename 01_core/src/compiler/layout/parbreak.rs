@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/parbreak.md
-//! @prompt-hash 903e586e
+//! @prompt-hash fe25bb58
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -49,6 +49,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S
         mark_boundary(layouter);
         layouter.flush_line();
         let flow_end = layouter.flow_placement_y();
+        if let Some(end) = flow_end {
+            // The next paragraph's weak-margin branch starts from the actual
+            // settled line bottom, including an inline object's descent.
+            layouter.prev_block_equation_descent =
+                (end - layouter.prev_line_baseline).max(0.0);
+        }
         // O espaçamento que prepara o próximo parágrafo não estende uma
         // página auto se nenhum conteúdo vier depois desta fronteira.
         layouter.last_block_descent_y = Some(

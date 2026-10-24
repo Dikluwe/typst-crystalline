@@ -1,7 +1,8 @@
 # L0 — table
-Hash do Código: b68f9dd4
+Hash do Código: 51e4af3e
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
@@ -58,3 +59,20 @@ Nested-table acceptance requires all three terms/glyphs survive, not only pairwi
 Arity correction follows continuous-flow ADR-0127 without public/default/phase/compatibility change; L0 first, restricted resealing, too_many_arguments RED→GREEN without suppression/threshold change and satisfied prior expectations. Check bodies/value transport, preserve fixtures/expected outputs without carrier-mirror tests. Run existing Grid/Table/outline and SVG/tiling before/after, full workspace suite/build/Clippy all-targets/Rustdoc/fmt/strict-reverse lineage/Tekt without new warnings under 12GiB/zero swap/one job. No global parity/PDF-UA claim.
 
 V17 maintenance preserves public/default/compatibility/phase and owner boundary. No helper hiding conjunction, suppression or linter change. Run functional controls before code unchanged; structural RED 28, GREEN zero V17; check success/fallback/error/short-circuit/effects. Revalidate full build/workspace suite, Clippy all-targets warning/unfulfilled-expectation errors, fmt, strict Rustdoc, strict/reverse V1/V5/V15/V26 and SARIF no new warning under 12GiB/zero swap/one job; no unmeasured global gain/parity.
+
+
+## Approved physical source routing
+
+### Evidence before decision
+
+Exact source/owner bytes, HEAD, dirty-tree state and UTC before these amendments are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/grid-original-before.json.gz`. The finite direct-site classification is `lab/results/set-page-header-2026-10-21/agents/parity/descendant-site-classification.json`. Source anchors include `01_core/src/compiler/layout/grid.rs:212-325`, `01_core/src/compiler/layout/grid_placement.rs:232-399`, `01_core/src/compiler/layout/grid/row_groups.rs:22-64`, `01_core/src/compiler/layout/grid/tracks.rs:224,543-561`, `01_core/src/compiler/layout/grid/cell_body.rs:285-346`, and `01_core/src/compiler/layout/table.rs:83-126`. Placement visibly reorders inputs; Auto-height products may be consumed later; Align/Block/prefix constructors wrap particular real source children. These establish transport ownership, not a new geometry/parity claim. The exact public/phase package is ratified in `lab/results/set-page-header-implementation-2026-10-21/approval.json`; no further public contract is introduced here.
+
+### Exclusive routing contract
+
+On the planned path preserve source wrappers when projecting raw visual children; the same existing Grid/default engine renders their selected body once. Resolved cells retain their exact plan index. Route source caption through TableCaption, including when the owner constructs a generated prefix Sequence; prefix and spacing remain unplanned. Header/Footer routes use exact selected source fields only in the raw fallback; resolved Table still consumes its complete known cells. Parallel empty semantic carriers remain generated-only and all prior support limits remain.
+
+Preserve legacy unplanned rendering, source parents, explicit aliases, all existing source/geometry/style/diagnostic expectations and the bounded support/debts above. Measurement or generated-only output has no source fact; actual selected source descendants cannot silently become unplanned. Keep the exhaustive static dispatcher and owner-local child decisions. Use nominal plan/edge provenance, never Content/Func equality, text or frame scanning. Deferred physical positions remain separate from causal source anchor/order; preserve the actual source admission through page movement. Missing/conflicting edges fail closed before Complete.
+
+### Acceptance
+
+Require original-index preservation after explicit-first placement, resolved/raw/standalone selected children, header/footer and padding, aligned/inset generated wrappers retaining their source descendants, no phantom measurement effect or duplicate cache admission, source parents/aliases and deferred page anchors. Preserve prior tests and the original native path byte-for-byte in expectation. Actual source-language and unchanged legacy geometry/refusal controls plus full build/suites/strict lint/Clippy/Rustdoc/fmt/forward/reverse lineage are required before closure; no speed or broader Table/PDF-UA parity is inferred.

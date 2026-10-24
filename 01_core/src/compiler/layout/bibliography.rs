@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/bibliography.md
-//! @prompt-hash 4f429996
+//! @prompt-hash 0d9f567f
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -167,7 +167,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .unwrap_or_else(|| layouter.chain.clone());
     super::paragraph::close_in_chain(layouter, previous_segment, true);
     if let Some(title) = &b.title {
-        layouter.layout_content(title);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::BibliographyTitle,
+            title,
+        );
         layouter.flush_line();
     }
     if let Some(plan) = layouter.bib_layout.clone() {

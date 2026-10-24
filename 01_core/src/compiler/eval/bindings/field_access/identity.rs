@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/identity.md
-//! @prompt-hash 3f64171a
+//! @prompt-hash 2a888ce9
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -173,7 +173,8 @@ mod native_format_catalogue_projection_tests {
         let Value::Func(svg) = module.scope().get("svg").unwrap() else { panic!("svg") };
         let Value::Func(pdf) = module.scope().get("pdf").unwrap() else { panic!("pdf") };
         let native = Func::native("ns.sample", crate::compiler::stdlib::native_assert);
-        let source = crate::entities::source::Source::detached("x");
+        let source = crate::entities::source::Source::detached("x")
+            .expect("valid Source test fixture");
         let closure = Func::closure(ClosureRepr {
             name: None,
             params: vec![],

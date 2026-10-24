@@ -1,9 +1,13 @@
 # L0 — math/layout/delimited
-Hash do Código: 382e9262
+Hash do Código: f289756c
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/delimited.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+
 
 ## Consumer evidence
 
@@ -68,3 +72,12 @@ for existing tests. Only test helpers p1436_target_pt and p1437_mid_target_pt us
 Preserve productive routes, test names/bodies, external APIs, defaults and phase.
 This ADR-0127 internal correction requires all workspace-target build/check,
 core suite, test inventory, Clippy and lineage; remove no expectation to pass.
+
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

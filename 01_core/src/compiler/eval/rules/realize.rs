@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/realize.md
-//! @prompt-hash 1e79ebad
+//! @prompt-hash f4c6bd24
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -22,7 +22,7 @@ macro_rules! realize_body {
 /// `Content::Parbreak`s em nós `Content::Par`. Sub-árvores matemáticas
 /// (`Equation`, `MathSequence` e família `Math*`) são preservadas sem wrapping.
 pub(crate) fn realize_paragraphs(content: Content) -> Content {
-    realize_node(&content)
+    realize_scoped_flow(&content)
 }
 
 /// Retorna os itens de um fluxo já realizados. `Sequence` é achatada e os
@@ -60,6 +60,7 @@ fn flow_boundary_body(mut content: &Content) -> &Content {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -253,6 +254,7 @@ pub(crate) fn is_paragraph_node(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -511,7 +513,7 @@ mod v16_c_paragraph_tests {
         MemoryWorld {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id, text.into()),
+            source: Source::new(id, text.into()).expect("valid Source test fixture"),
         }
     }
 
@@ -607,5 +609,65 @@ mod v16_c_paragraph_tests {
             flow.iter().map(Content::plain_text).collect::<Vec<_>>(),
             vec!["PREFIX", "A", "SUFFIX"]
         );
+    }
+    fn assert_one_frontier_paragraph(content: &Content) {
+        let mut paragraphs = 0;
+        content.visit_content_static(&mut |node| {
+            paragraphs += usize::from(matches!(node, Content::Par { .. }));
+            true
+        });
+        assert_eq!(
+            paragraphs, 1,
+            "one actual flow root must yield one paragraph: {content:?}"
+        );
+        assert_eq!(content.plain_text(), "BODY");
+    }
+
+    #[test]
+    fn remaining_parity_root_paragraph_direct_text() {
+        let realized = realize_paragraphs(Content::text("BODY"));
+        assert_one_frontier_paragraph(&realized);
+        assert!(matches!(realized, Content::Par { .. }));
+    }
+
+    #[test]
+    fn remaining_parity_root_paragraph_source_span() {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let span = crate::entities::span::Span::from_range(file, 3..7);
+        let realized = realize_paragraphs(Content::text("BODY").with_source_span(span));
+        assert_one_frontier_paragraph(&realized);
+        assert_eq!(realized.source_span(), span);
+        assert!(matches!(realized.source_body(), Content::Par { .. }));
+    }
+
+    #[test]
+    fn remaining_parity_root_paragraph_outer_style() {
+        use crate::entities::style::{Style, Styles};
+        let styles = Styles::from_iter([Style::bold(true)]);
+        let realized =
+            realize_paragraphs(Content::styled(Content::text("BODY"), styles.clone()));
+        assert_one_frontier_paragraph(&realized);
+        let Content::Styled(styled) = realized else {
+            panic!("the actual lexical scope must remain outside the paragraph")
+        };
+        assert_eq!(styled.styles, styles);
+        assert!(matches!(&styled.body, Content::Par { .. }));
+    }
+
+    #[test]
+    fn remaining_parity_root_existing_paragraph_not_nested() {
+        use crate::entities::style::{Style, Styles};
+        let par = Content::par(Content::text("BODY"));
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let span = crate::entities::span::Span::from_range(file, 3..7);
+        for root in [
+            par.clone(),
+            par.clone().with_source_span(span),
+            Content::styled(par, Styles::from_iter([Style::bold(true)])),
+        ] {
+            let once = realize_paragraphs(root);
+            assert_one_frontier_paragraph(&once);
+            assert_one_frontier_paragraph(&realize_paragraphs(once));
+        }
     }
 }

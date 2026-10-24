@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/identity.md
-//! @prompt-hash 4e1b9ce7
+//! @prompt-hash 85b7416a
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -45,6 +45,7 @@ fn is_equation_constructor_content(content: &Content) -> bool {
         | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -177,6 +178,7 @@ impl Content {
             Self::Link(_) => "link",
             Self::Equation(_) => "equation",
             Self::MathSequence(_) => "math.sequence",
+            Self::Symbol(_) => "symbol",
             Self::MathIdent(_) => "math.ident",
             Self::MathText(_) => "math.text",
             Self::MathFrac(_) => "math.frac",
@@ -198,12 +200,12 @@ impl Content {
             Self::MathAlignPoint(_) => "math.align.point",
             Self::Linebreak(_) => "linebreak",
             Self::MathMatrix(_) => "mat",
-            Self::MathCases(_) => "math.cases",
+            Self::MathCases(_) => "cases",
             Self::MathAccent(_) => "math.accent",
             Self::MathCancel(_) => "math.cancel",
             Self::MathUnderline(_) => "math.underline",
             Self::MathOverline(_) => "math.overline",
-            Self::MathVec(_) => "math.vec",
+            Self::MathVec(_) => "vec",
             Self::MathClassOverride(_) => "math.class",
             Self::MathLimitsOverride(_) => "math.limits",
             Self::MathUnderover(_) => "math.underover",
@@ -326,6 +328,7 @@ impl fmt::Debug for Content {
                 | Content::Link(..)
                 | Content::Equation(..)
                 | Content::MathSequence(..)
+                | Content::Symbol(..)
                 | Content::MathIdent(..)
                 | Content::MathText(..)
                 | Content::MathFrac(..)
@@ -463,6 +466,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::MathSequence(seq) => {
             f.debug_tuple("math.sequence").field(&seq.as_ref()).finish()
         }
+        Content::Symbol(s) => write!(f, "symbol({:?})", s),
         Content::MathIdent(s) => write!(f, "math.ident({:?})", s),
         Content::MathText(s) => write!(f, "math.text({:?})", s),
         Content::MathFrac(fr) => write!(f, "math.frac({:?})", fr),

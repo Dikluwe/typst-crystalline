@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfa_core_metadata_tests.md
-//! @prompt-hash 23df28d9
+//! @prompt-hash 6d654443
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -52,6 +52,7 @@ fn export_with_standard(standard: PdfStandards) -> Vec<u8> {
         None,
         standard,
     )
+    .output
 }
 
 /// Extrai o pacote XMP (`<?xpacket ...?> ... <?xpacket end="r"?>`) como

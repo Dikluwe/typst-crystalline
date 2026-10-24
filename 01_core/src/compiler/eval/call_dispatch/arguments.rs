@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/arguments.md
-//! @prompt-hash 349d31b7
+//! @prompt-hash 925b39e6
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -112,6 +112,11 @@ pub(in crate::compiler::eval) fn transport_native_call_span(
                 || std::ptr::fn_addr_eq(
                     native.call,
                     crate::compiler::eval::bindings::native_sequence
+                        as fn(_, _, _, _) -> _,
+                )
+                || std::ptr::fn_addr_eq(
+                    native.call,
+                    crate::compiler::eval::bindings::native_symbol_element
                         as fn(_, _, _, _) -> _,
                 )
                 || std::ptr::fn_addr_eq(

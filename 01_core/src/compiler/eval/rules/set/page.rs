@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/page.md
-//! @prompt-hash e9af2257
+//! @prompt-hash d6ba3cec
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -186,9 +186,9 @@ pub(super) fn eval_set_page(
                             d.get("left").is_some() || d.get("right").is_some();
                         if logical && physical {
                             return Err(vec![SourceDiagnostic::error(
-                                    span,
-                                    "`inside` and `outside` are mutually exclusive with `left` and `right`",
-                                )]);
+                                span,
+                                "`inside` and `outside` are mutually exclusive with `left` and `right`",
+                            )]);
                         }
                         let extract_field = |k: &str| -> SourceResult<Option<f64>> {
                             if let Some(v) = d.get(k) {
@@ -566,8 +566,8 @@ pub(super) fn eval_set_page(
             engine.styles.push_custom("page.margin-bottom", Value::Float(mb));
     }
 
-    Ok(Value::Content(Content::SetPage(std::sync::Arc::new(
-        crate::entities::content::SetPageDelta {
+    Ok(Value::Content(
+        Content::SetPage(std::sync::Arc::new(crate::entities::content::SetPageDelta {
             paper,
             flipped,
             binding,
@@ -586,8 +586,9 @@ pub(super) fn eval_set_page(
             fill,
             background,
             foreground,
-        },
-    ))))
+        }))
+        .with_source_span(set.span()),
+    ))
 }
 
 #[cfg(test)]
@@ -612,7 +613,8 @@ mod v16_c_structural_tests {
                 source: Source::new(
                     FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
                     text.into(),
-                ),
+                )
+                .expect("valid Source test fixture"),
             }
         }
     }
@@ -700,7 +702,8 @@ mod v16_c_structural_tests {
                 TestWorld::new("").main(),
                 text.clone(),
                 crate::compiler::parse::parse_code,
-            );
+            )
+            .expect("valid Source test fixture");
             let set = source
                 .root()
                 .children()
@@ -715,8 +718,12 @@ mod v16_c_structural_tests {
             with_engine(|scopes, ctx, engine| {
                 let result = eval_set_page(set, scopes, ctx, engine);
                 if let Some((abs, rel)) = expected {
-                    let Value::Content(Content::SetPage(delta)) = result.unwrap() else {
+                    let Value::Content(content) = result.unwrap() else {
                         panic!("page delta")
+                    };
+                    assert_eq!(content.source_span(), set.span());
+                    let Content::SetPage(delta) = content.source_body() else {
+                        panic!("page delta body")
                     };
                     let bleed = delta.bleed.as_ref().unwrap();
                     for side in [bleed.left, bleed.right, bleed.top, bleed.bottom] {
@@ -760,7 +767,8 @@ mod v16_c_structural_tests {
             TestWorld::new("").main(),
             "set page(bleed: (left: 1pt, x: 2pt, top: 3pt, y: 4pt, rest: 5pt))".into(),
             crate::compiler::parse::parse_code,
-        );
+        )
+        .expect("valid Source test fixture");
         let set = source
             .root()
             .children()
@@ -773,10 +781,14 @@ mod v16_c_structural_tests {
             })
             .unwrap();
         with_engine(|scopes, ctx, engine| {
-            let Value::Content(Content::SetPage(delta)) =
+            let Value::Content(content) =
                 eval_set_page(set, scopes, ctx, engine).unwrap()
             else {
                 panic!("page delta")
+            };
+            assert_eq!(content.source_span(), set.span());
+            let Content::SetPage(delta) = content.source_body() else {
+                panic!("page delta body")
             };
             let bleed = delta.bleed.as_ref().unwrap();
             for (side, points) in [

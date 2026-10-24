@@ -1,7 +1,13 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: ddd4bcd5
+Hash do Código: 857089e0
+
+
+
+**Layer:** L3 (cfg(test) only)
+**Exclusive consumer:** `03_infra/src/integration_tests.rs`
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
@@ -9,9 +15,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
-
-**Layer:** L3 (cfg(test) only)
-**Exclusive consumer:** `03_infra/src/integration_tests.rs`
 
 ## Current evidence
 
@@ -288,3 +291,85 @@ new compiler facade. Change neither do_eval nor generic layout helpers, and do
 not manually invoke/unpack a reference producer or restore eager evaluation.
 Require preserved full-suite RED and focused GREEN with exact state/UTC and
 source hashes. No productive behavior, public API or phase contract is changed.
+
+The approved `PdfExport` migration updates the shared direct-export helper to
+return its `.output` bytes. Existing integration fixtures remain warning-free;
+the dedicated image-omission test owns nonempty carrier assertions. Do not add a
+legacy facade or suppress warnings for compatibility with these tests.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R5 — physical painting observer migration (2026-10-24)
+
+### Measurement before classification
+
+`lab/results/construction/diagnostics/painting-r5-2026-10-24/test-observer-migration-before.json`
+preserves exact source/L0, HEAD cf21f47a3b63f0e9fc5308925e1d0b67925e7227,
+uncommitted tree, full diffstat and UTC. `validation-attempt3/validation-state.json.gz`
+freezes the tested productive state; `tests-domain-infra.log:7947-7977,9517-9528`
+records four failures. Three root Grid observers at tests.rs:9422,9487,9701
+require seven/twenty-six segments, explicitly including duplicate shared borders.
+Their actual corrected six/seventeen are not by themselves parity evidence.
+The independent original Table raster now has zero changed pixels in PDF/SVG
+at72/600dpi (`candidate2/receipt.json`), and the actual preimplementation alpha
+regression is preserved in `red-core-tests/test.log`.
+Integration tests.rs:1714-1737 reads raw m/l operands and ignores cm: local(0,0)
+→(100,50) under Y reflection is wrongly judged to ascend. The independent
+coordinate interpreter and bilateral signed-line experiment preserve physical
+downward direction. Counts/operator representation are mechanics under ADR-0107;
+coverage, dimensions, alpha and transformed endpoints are language observables.
+
+Continuous ADR-0127 test-only observer correction introduces no public contract,
+product default, phase or compatibility change. This narrowly supersedes blanket
+assertion/count preservation only for the four named mechanical expectations;
+all input fixtures, font sizes, dimensions, actual geometry/diagnostic assertions
+and all other tests/thresholds remain unchanged. L0 first, restricted reciprocal
+resealing, focused GREEN and full final-source validation are required. The prior
+four functional RED→GREEN regressions remain required, not replaced by this
+migration. Neither aborted/failed validation nor edited counts certify success.
+
+### Exclusive owner obligation
+
+Keep the exact #line(dx:100pt,dy:50pt) source and evaluate/layout/export route.
+In its test-only fixture observer, compose q/Q/cm affine transforms independently
+of productive TransformMatrix methods before comparing m/l endpoints. Require
+exactly two points, balanced state,100pt horizontal and -50pt PDF vertical delta
+at1e-6pt; retain end_y<start_y. Cover Compact and Verbose. Do not change export,
+layout helpers, other PDF tests, fonts, product flags or the original direction
+expectation. Raw-operand ordering is intentionally superseded by physical-space
+ordering; no broader PDF parser or acceptance tolerance change is authorized.
+
+
+## R10 — bitmap deduplication gate follows shared resource identity
+
+Measurement before decision: the first frozen R10 validation under
+`lab/results/construction/diagnostics/superscript-r10-2026-10-24/validation-complete/`
+records p941_emoji_repetido_dedup_um_xobject failing6 versus2. Exact source is
+sealed-before-p941-source.json.gz and before-p941-canonical-final.json. The
+paired candidate-source-bound p941-gate-measurement.json/PDF demonstrates two
+unique primary image object IDs, optional alpha masks, and all three original
+source occurrences 🎉🚀🎉. Six raw /Im-name occurrences arise from page/font
+resource references and CharProc Do operands, not six raster payloads. Old
+comments assume exactly three raw Do operations, which is an implementation
+layout, not glyph/source multiplicity. This source equality and dedup/artifact
+cost are observable; a required dictionary placement/string-count is mechanics
+under ADR-0107. No runtime defect is established by this old assertion.
+
+Update only this existing test's observer: parse original Im indirect-resource
+IDs and require exactly two distinct primary image objects, with two to four
+image objects including at most one alpha mask per glyph; preserve all three
+source characters via actual pdftotext extraction. Keep source fixture, font,
+existing no-full-CBDT-embedding/mixed tests, skips, input and all other assertions.
+Do not weaken word/page/geometry thresholds or rewrite productive export to
+satisfy a raw substring count. Add no new public API/mode/phase; this test-only
+parity-gate refinement follows ADR-0127 continuous flow. The actual full-suite
+failure is RED; reexecute the corrected focused test and complete all final
+workspace/lineage/differential/resource gates from newly sealed source, retaining
+the failed validation and its source state unchanged.

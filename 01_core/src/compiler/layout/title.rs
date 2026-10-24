@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/title.md
-//! @prompt-hash dde585ae
+//! @prompt-hash ae55ebd0
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -39,7 +39,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &mut layouter.paragraph_indent,
         super::paragraph_indent::State::inline(),
     );
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::TitleBody,
+        body,
+    );
     layouter.flush_line();
     layouter.paragraph_indent = title_indent;
     layouter.style = prev;

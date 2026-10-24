@@ -1,14 +1,17 @@
 # L0 — Logical text origin for bidi
-Hash do Código: c9aa0b18
+Hash do Código: 180cc34b
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
-- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
 **Layer:** L1.
 **Exclusive consumer:** `01_core/src/compiler/layout/bidi_origin.rs`.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+
 
 ## Evidence before specification
 
@@ -39,3 +42,72 @@ Certification traverses Source without changing logical text, direction, complet
 ## Acceptance and limits
 
 Require RED→GREEN for traversal of two equal words with distinct UTF8 offsets, causal Space, override and unsupported None; real-source Sequence/Par, wraps and checkpoint tests; zero I/O and unsafe. Verify None for sequences with opaque objects and separated leaves. Full-pipeline tests require spans in every text leaf and RTL order with an initial Latin fragment. Direct Styled Tracking/Highlight/Superscript tests must first be RED. Source-origin tests and C2/C/macro collections, builds and lineage are required before certification. Preserve all restrictions above rather than claiming general bidi parity.
+
+
+## Complete singleton bidi entry after statement whitespace correction
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/baseline-source.json.gz` binds the
+uncommitted source at HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`,
+UTC `2026-10-22T11:48:34.231064+00:00`; the companion `baseline.json.gz`
+retains the exact changed-file list, diffstat and product identity. Candidate-7's
+`validation/tests-domain-infra.log:7934-7938,9512-9515` records the unchanged
+source-context tests failing after the statement-whitespace correction. These
+records establish a lost certified context, not general bidi parity.
+
+The exact baseline comparison leaves paragraph/sequence/bidi-origin/style-scope
+and their failing tests unchanged. `compiler/lexer/markup.rs:346-384` keeps a
+space before an alphanumeric character inside Text. The new statement filter in
+`compiler/eval/markup_stream.rs:85-91` correctly removes the post-statement
+newline; its normalization/lexical-style fold now permits direct Styled(Text)
+instead of relying on an incidental leading Empty to retain Sequence. Only
+Sequence and explicit Par currently install complete logical context; Text
+consumes an existing cursor, and Styled dispatches its actual body. Restoring
+forbidden whitespace, inserting a virtual Sequence/Par, or independently
+certifying a descendant of an opaque enclosing object would be incorrect.
+
+### Exclusive bounded correction
+
+Own a private complete-entry wrapper called at the existing content-body
+boundary. With an existing bidi scope, dispatch unchanged. Otherwise classify
+the original root exhaustively: Source/Located/Styled/Strong/Emph may expose a
+Sequence or explicit Par boundary; defer those roots to their existing owners.
+Every other root owns a temporary refusal guard. Resolve shared lexical
+direction and prepare the entire original root using the existing collector,
+without expanding its accepted variants or region/style restrictions. A refused
+opaque root still keeps the guard around descendants; neither Text nor Styled
+may recertify a partial child. Pending recipes and Realized are not newly
+transparent to this certificate. Explicit Par and already-isolated subframes
+retain their own existing boundaries.
+
+Only establish a new complete logical input when neither active nor pending
+paragraph direction already anchors an exterior incremental paragraph. Existing
+anchor authority is preserved, including checkpoint-restored pending lines; in
+that case dispatch under the refusal guard without creating a fragment context.
+Call the existing dispatcher once with the original borrowed Content and source
+route, never a synthesized tree. Save/restore existing active direction, cursor
+and scope; preserve the accepted tail direction when material remains. No new
+field, public API, phase, evaluation, callback, location, scope search or formula.
+Use an exhaustive nominal root-boundary classifier with no wildcard/open
+complement; future Content variants require a decision.
+
+### Acceptance
+
+Before the body correction, direct Styled(Text) UTF-8 mixed-direction input must
+fail to supply complete spans, and a root opaque Link containing the same textual
+Sequence must fail the no-partial-recertification expectation. Require exact
+original UTF-8 subranges through wraps, lexical base, all words/separators and
+restoration. Preserve the existing source-context, explicit Par, integral
+Sequence refusal, checkpoint, generic-subframe and typed-transformation controls.
+Unchanged full-pipeline source assertions must pass; none may be removed or
+relaxed. No warning suppression, invented text, altered whitespace or rendering
+threshold. Continuous internal correction under ADR-0127.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

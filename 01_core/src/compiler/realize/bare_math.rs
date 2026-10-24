@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/bare_math.md
-//! @prompt-hash c8f739b2
+//! @prompt-hash 38cc597a
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -85,6 +85,7 @@ fn plain_without_bare_math(content: &Content) -> bool {
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -261,6 +262,7 @@ pub(in crate::compiler) fn prepare(
             | Content::EnumItem(_)
             | Content::Link(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)

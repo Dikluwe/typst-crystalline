@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/matrix.md
-//! @prompt-hash 1411eb9d
+//! @prompt-hash 3683fb2d
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -552,6 +552,7 @@ pub(super) fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::Equation(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

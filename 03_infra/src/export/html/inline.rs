@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/inline.md
-//! @prompt-hash 6dc04158
+//! @prompt-hash bcc5faaa
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -13,6 +13,52 @@ use typst_core::compiler::lang::quotes::{resolve_smart_quote, SmartQuoteContext}
 use typst_core::entities::content::Content;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_core::entities::span::Span;
+
+// Complete recognition precedes output, so a refused stream cannot partly render.
+fn numeric_typc_tokens(
+    text: &str,
+) -> Option<Vec<(typst_core::entities::syntax_kind::SyntaxKind, &str)>> {
+    use typst_core::entities::syntax_kind::SyntaxKind as Kind;
+    let mut lexer = typst_core::compiler::lexer::Lexer::new(
+        text,
+        typst_core::entities::syntax_mode::SyntaxMode::Code,
+    );
+    let mut tokens = Vec::new();
+    let mut expecting_number = true;
+    let mut sign_allowed = true;
+    let mut has_number = false;
+    loop {
+        let start = lexer.cursor();
+        let kind = lexer.next().0;
+        if kind == Kind::End {
+            break;
+        }
+        let token = &text[start..lexer.cursor()];
+        if kind == Kind::Space && token.chars().all(|c| c == ' ') {
+            tokens.push((kind, token));
+            continue;
+        }
+        if matches!(kind, Kind::Numeric | Kind::Int | Kind::Float) && expecting_number {
+            expecting_number = false;
+            has_number = true;
+            sign_allowed = true;
+        } else if matches!(kind, Kind::Plus | Kind::Minus) {
+            if expecting_number {
+                if !sign_allowed {
+                    return None;
+                }
+                sign_allowed = false;
+            } else {
+                expecting_number = true;
+                sign_allowed = true;
+            }
+        } else {
+            return None;
+        }
+        tokens.push((kind, token));
+    }
+    (has_number && !expecting_number).then_some(tokens)
+}
 
 pub(super) fn inline(
     content: &Content,
@@ -51,6 +97,36 @@ pub(super) fn inline_with_context(
             {
                 context.observe_text(&atom.text);
                 format!("<code data-lang=\"typc\"><span style=\"color: #d73948\">{}</span></code>",escape_text(&atom.text,mode))
+            } else if !atom.block && atom.lang.as_deref() == Some("typc") {
+                let tokens = numeric_typc_tokens(&atom.text).ok_or_else(|| {
+                    SourceDiagnostic::error(
+                        Span::detached(),
+                        "HTML export does not yet support this content",
+                    )
+                })?;
+                let mut code = String::from("<code data-lang=\"typc\">");
+                for (kind, token) in tokens {
+                    context.observe_text(token);
+                    if kind == typst_core::entities::syntax_kind::SyntaxKind::Space {
+                        code.push_str(&escape_text(token, mode));
+                    } else {
+                        let color =
+                            if matches!(kind,
+                            typst_core::entities::syntax_kind::SyntaxKind::Plus |
+                            typst_core::entities::syntax_kind::SyntaxKind::Minus)
+                            {
+                                "#d73948"
+                            } else {
+                                "#b60157"
+                            };
+                        code.push_str(&format!(
+                            "<span style=\"color: {color}\">{}</span>",
+                            escape_text(token, mode)
+                        ));
+                    }
+                }
+                code.push_str("</code>");
+                code
             } else {
                 return Err(SourceDiagnostic::error(
                     Span::detached(),
@@ -198,4 +274,21 @@ pub(super) fn inline_with_context(
             ))
         }
     })
+}
+
+#[cfg(test)]
+mod remaining_typc_length_tests {
+    use super::*;
+    #[test]
+    fn remaining_typc_numeric_html_retains_code_and_palette() {
+        for (text, expected) in [
+            ("158.33pt", "<span style=\"color: #b60157\">158.33pt</span>"),
+            ("12pt + 0.5em", "<span style=\"color: #b60157\">12pt</span> <span style=\"color: #d73948\">+</span> <span style=\"color: #b60157\">0.5em</span>"),
+        ] {
+            let html = inline(&Content::raw(text, Some("typc".into()), false),
+                HtmlSerializationMode::Vanilla, None,
+                &typst_core::entities::style_chain::StyleChain::default_chain()).unwrap();
+            assert_eq!(html, format!("<code data-lang=\"typc\">{expected}</code>"));
+        }
+    }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 58bcffb3
+Hash do Código: bf2fce1f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -163,3 +163,99 @@ Revalidate full workspace/build/all targets, core/shaper/fallback tests, strict 
 ## Historical provenance
 
 The complete original owner, including initial stubs, superseded margin/deprecation stages and bounded proposals, is archived at `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/layout_types.md`. Temporary construction records remain under `lab/history/construction/records/00_nucleo/materialization/`. Their numbered history preserves provenance, not the organization of this enduring owner contract.
+
+
+## R8 — resolved native superscript carrier (PUBLIC CONTRACT APPROVED)
+
+Status: **APPROVED FOR MATERIALIZATION**. The human approved exactly
+TextStyle::superscript_native: Option<bool>, default None, from the saved draft
+SHA-256 4b14829d1eb38475d1985a9707a6e6ce40166196dfe524afe512d99b9cabf4d0.
+The explicit answer and UTC are recorded in the R8 native-carrier-approval.json.
+The original FontMetrics method approval remains separate; no other public
+addition is authorized. All tests-first, reseal and complete validation gates apply.
+
+### Measurement before proposal
+
+The R8 evidence root is
+`lab/results/construction/diagnostics/footnote-layout-r8-2026-10-24/`.
+`candidate5-source.json`/`.json.gz`, candidate-debug5 and candidate5/receipt.json
+bind the exact dirty source, UTC, inputs and binary. All ten original note cases
+pass complete physical PDF word/page boxes at0.001pt; svg-candidate5/receipt.json
+also passes glyph origins and separator geometry. The six font/size controls are
+recorded separately in fonts-candidate3/receipt.json. These are finite controls,
+not universal text-shaping certification.
+
+`numbering-candidate5/receipt.json` contains twelve real additional note probes.
+For Nimbus Sans11pt, numbering `1 Z`, the call digit is x48.127–50.3248 while the
+fixed oracle is x48.127–51.7966:1.4718pt disagreement. Its entry digit is
+x29.35–31.21813 instead of x29.35–32.46916. At17pt the maximum call disagreement is
+2.2746pt. DejaVu/Liberation and the refused native `(1) Z` control pass the same
+unchanged tolerance. The fixed oracle remains commit
+bd5ebec285505889e8ff1d4f68804ab147a699f3, tree
+cac836c07e4dec2a89219370428292393a3216b5, binary
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+
+`text/style.rs::for_text` receives the approved method's native=false for the
+complete marker, sizes/shifts synthetically, but retains only geometric values.
+`text.rs`/word_layout split the marker into words. `shaper/shaping.rs` sees the
+partial `1`, whose face supports sups, and applies a native glyph again. The
+semantic superscript flag cannot encode this separate choice: synthetic text is
+still superscript. Baseline/size values, MATH flags, font names, private strings
+or invented source identity must not become hidden feature-choice channels.
+`red-cache-multiline.json` independently records warm/cold glyph/advance
+inconsistency and its authorized cache correction; that cache fix does not
+transport a discarded layout decision.
+
+### Exact proposed public addition
+
+Add only this field to the existing public TextStyle:
+
+```rust
+pub superscript_native: Option<bool>,
+```
+
+This is resolved render metadata, separate from semantic `superscript`. It is
+not a Typst source property and is never added to StyleDelta, StyleChain, parser,
+eval, CLI or a new mode. Default and StyleChain conversion initialize None.
+
+- None: preserve automatic face/run coverage detection for unresolved/manual
+  styles. Ordinary and mathematical text remain None.
+- Some(false): L1 resolved synthetic script sizing/offset. Width measurement and
+  painting must not reactivate sups on a later word/subrun, even when that shorter
+  text alone is covered.
+- Some(true): L1 selected native sups, with the approved outer-size/zero-offset
+  policy. L3 requests the feature while preserving actual face/variation/complete
+  run verification. No second scaling or shift.
+
+Preserve `superscript` as true for both synthetic/native superscript and retain
+all semantic strong/emph/math provenance. Clones, effective-style merges,
+fragments, Text/TextShaped/Glyph style transport and reconciliation preserve the
+resolved choice. A new source style starts unresolved; do not synthesize a
+choice from glyph IDs, later coverage or coordinates.
+
+This owner declares only the pure data/default/conversion contract. Actual
+caller population belongs to core/compiler/layout/text/style.md; advance/width
+and shaping consumption belong to the existing infra font_metrics and shaper
+owners; their cache keys must include effective feature choice where it affects
+results. They retain their own1:1 L0s and require conditional L0 updates before
+materialization. The already-approved FontMetrics signature stays unchanged.
+No other entity/FrameItem field, enum variant, trait method, public signature,
+dependency, global cache, source replay or pipeline phase is proposed.
+
+### Gate, compatibility and acceptance
+
+This is a public entity-field addition, and Rust callers that spell every
+TextStyle field without `..Default` must include the new field. ADR-0127 STOP
+therefore applies; the earlier trait-method approval does not cover this field.
+The exact saved addition and hash are now explicitly approved as recorded above.
+
+After approval: tests first must show false surviving complete-marker→word→width
+and paint, true retaining native glyphs, None retaining automatic behavior,
+borrowed provider fidelity, cache separation and semantic superscript identity.
+Require the twelve numbering/font/size refuters to pass0.001pt PDF/SVG; preserve
+the original ten note cases, six font controls, literal brackets, source/counter/
+callback once, nesting, split/reentry/column/rollback and refused controls. Run
+complete workspace/build/tests/Clippy/fmt/Rustdoc, strict and reverse lineage,
+full lint and A–H/R1–R7 preservation. Keep arbitrary mixed-face shaping, opaque
+carrier migration and literal-newline flow limits explicitly measured; this
+field alone does not certify those broader scopes.

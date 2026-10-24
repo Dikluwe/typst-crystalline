@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md
-//! @prompt-hash 0a35490b
+//! @prompt-hash f7b96e98
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -91,13 +91,7 @@ pub fn native_math_equation(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     let body = match args.items.as_slice() {
-        [Value::Content(body)] => body.clone(),
-        [other] => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("expected content, found {}", other.type_name()),
-            )])
-        }
+        [body] => super::casts::math_lr_content_value(body, args.span)?,
         [] => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

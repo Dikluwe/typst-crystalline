@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/html.md
-//! @prompt-hash 627fd360
+//! @prompt-hash cd3a4424
 //! @layer L3
 //! @updated 2026-10-05
 //!
@@ -118,6 +118,7 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
         );
         warnings.extend(contextual_warnings);
         let prepared = prepared?;
+        let prepared = super::bundle::prepare_html_semantics(&prepared, &mut warnings)?;
         let metrics = FallbackFontMetrics::new(world);
         let resolve_frame = |elem: &typst_core::entities::html::HtmlFrameElem,
                              chain: &StyleChain|
@@ -181,6 +182,7 @@ fn html_callback_root(mut content: &Content) -> &Content {
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)
@@ -335,6 +337,7 @@ fn collect_html_frames(
             | Content::Link(..)
             | Content::Equation(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)

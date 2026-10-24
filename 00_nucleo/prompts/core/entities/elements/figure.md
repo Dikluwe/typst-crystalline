@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: c8036146
+Hash do Código: 729e459e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -107,3 +107,50 @@ Both maps recurse body, caption, and one selected supplement Content in that ord
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Explicit optional absence and closed-domain preservation — 2026-10-23
+
+### Evidence before decision
+
+The exact source and owner bytes, HEAD, dirty-tree stat and initial nine V16
+findings are preserved in
+`lab/results/v16-option-exhaustiveness-2026-10-23/before-state.json`,
+`before/` and `before-v16.sarif`. The parser source
+`tekt-linter/03_infra/rs_parser.rs:1605–1621` classifies every bare identifier
+pattern as a catch-all, including the Option unit variant `None`. The Rust
+compiler resolves that name to the unit variant; qualification makes that
+existing nominal meaning explicit to both tools. These are mechanical
+coverage observations, not a newly discovered runtime failure or new vanilla
+parity claim.
+
+### Exclusive correction and acceptance
+
+`figure.rs:251–260` already distinguishes unknown outer presence, explicit auto, Element and Name. Qualify only the inner absence pattern as `Option::None`. Preserve omitted-field unknownness, explicit-auto Value::Auto, typed function/name projection and prepared-kind precedence; no new field or inference is authorized.
+
+Use ADR-0127 continuous internal flow: no public contract, default, phase or
+compatibility changes. Add no lint exception, allow/expect attribute, severity
+change, suppression or match-to-if rewrite. Preserve all existing assertions
+and pending limitations. The initial V16 gate is structural RED; preservation
+tests may already pass before implementation and must not be misreported as
+behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
+rustdoc, formatting, canonical paths and both lineage directions.

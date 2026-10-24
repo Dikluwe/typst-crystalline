@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/color.md
-//! @prompt-hash b6da7ebf
+//! @prompt-hash 9678fb77
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -694,13 +694,10 @@ mod tests {
     }
 
     #[test]
-    fn cmyk_k1_eh_preto() {
-        // CMYK k=1 → preto (0, 0, 0).
+    fn cmyk_k1_projects_through_fixed_profile() {
+        // Pinned oracle cmyk-before-v2: K-only black projects to #231f20.
         let c = Color::cmyk(0.0, 0.0, 0.0, 1.0);
-        let (r, g, b, _) = c.to_srgb();
-        assert_eq!(r, 0);
-        assert_eq!(g, 0);
-        assert_eq!(b, 0);
+        assert_eq!(c.to_srgb(), (35, 31, 32, 255));
     }
 
     // ── Cross-variant ──

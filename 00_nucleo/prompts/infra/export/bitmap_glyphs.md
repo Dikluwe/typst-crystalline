@@ -1,5 +1,5 @@
 # L0 — infra/export/bitmap_glyphs
-Hash do Código: 275c1560
+Hash do Código: 05d221c2
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/bitmap_glyphs.rs`
@@ -41,3 +41,15 @@ and units. Absence selects the caller's normal font fallback; never synthesize p
 `00_nucleo/prompts/infra/export/images/png.md` owns decoding/compression.
 Check supported PNG payload/metrics, duplicate IDs, out-of-range IDs and unsupported/
 invalid raster omission. No font selection, public format extension or I/O belongs here.
+
+
+## R10 — source-preserving raster glyph fallback
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,bitmap-evidence.json,font-tables.json}` binds received R9 code/dirty stat/UTC and fixed bd5ebec2 binaries. Nimbus/Liberation mixed123☃ selects Noto Color Emoji. The received PDF raster route emits only image Do, losing the source character in extraction; SVG glyphs.rs:100-105 requires an outline and emits no raster. Pinned paired PDFs/SVGs preserve source text and the PNG. Font-family names are evidence, never runtime branches; supported actual raster data authenticates the correction. Source character, physical position/advance, PNG pixels and geometry are language observations. Object numbering, Type3 versus CID structures and byte encoding are mechanics.
+
+Classification: private font/export parity correction under ADR-0127 continuous flow, with no new public method/entity/phase/mode/dependency. The previously approved FontMetrics method remains separately bounded. No invisible duplicate source text, fake outline, font-name coefficient, or oracle-byte copying. Build a1016-byte self-authored portable bitmap font fixture from the preserved fontTools generator; it is test data, not a font copied from the oracle or a productive dependency. Authenticate its bytes explicitly in the receipt.
+
+### Exclusive owning obligation
+
+The internal BitmapGlyphRef carrier may additionally hold an optional single-byte Type3 code, assigned only by the builder for an authenticated complete <=256-glyph bitmap font; None preserves the existing image-only path. This crate-private carrier is not an external entity/API change. Preserve all actual raster metrics and dedup keys.
+Require module RED→GREEN before implementation, fixed-pin actual fallback PDF/SVG paint/text/geometry controls, previous A–H/R1–R9, full workspace/lineage/resource gates and byte preservation of received unrelated inputs.

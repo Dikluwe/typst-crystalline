@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/pdf_semantic_label.md
-//! @prompt-hash 6a4ec2f3
+//! @prompt-hash 015a5ad0
 //! @layer L3
 //! @updated 2026-09-15
 //!
@@ -31,7 +31,7 @@ fn semantic_label_emits_lbl_structure_and_marked_content() {
             items: vec![],
         }],
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose).output;
     let raw = String::from_utf8_lossy(&pdf);
     assert!(raw.contains("/S /Lbl"));
     assert!(raw.contains("/Lbl << /MCID 0 >> BDC"));

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 64af3c1d
+//! @prompt-hash 26e5ed0c
 //! @layer L3
-//! @updated 2026-10-10
+//! @updated 2026-10-24
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -15,7 +15,7 @@ mod fallback;
 mod math;
 mod resolution;
 
-pub(crate) use basic::edge_offset_pt;
+pub(crate) use basic::{edge_offset_pt, superscript_in_face};
 use caches::{AdvanceWidthKey, CachedFace, ShapedWidthKey};
 pub(crate) use math::{build_math_glyph_reverse_map, ssty_eligible_text};
 use typst_core::entities::layout_types::Pt;

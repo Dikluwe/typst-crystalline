@@ -1,5 +1,5 @@
 # L0 — svg/glyphs
-Hash do Código: 7790632c
+Hash do Código: f42a8266
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/glyphs.rs`
@@ -78,3 +78,50 @@ after, preserve all functional fixtures/expectations/tolerances and values/calls
 PNG-SVG-PDF/preference/diagnostic/resource/MCID behavior, no global mutation or
 carrier-mirror tests. Full workspace suite/build/all-target Clippy/unfulfilled
 expectations/Rustdoc/fmt/strict+reverse lineage under12GiB/zero swap/one job.
+
+
+## R10 — source-preserving raster glyph fallback
+
+Measurement before decision: `lab/results/construction/diagnostics/superscript-r10-2026-10-24/{baseline.json,before/receipt.json,bitmap-evidence.json,font-tables.json}` binds received R9 code/dirty stat/UTC and fixed bd5ebec2 binaries. Nimbus/Liberation mixed123☃ selects Noto Color Emoji. The received PDF raster route emits only image Do, losing the source character in extraction; SVG glyphs.rs:100-105 requires an outline and emits no raster. Pinned paired PDFs/SVGs preserve source text and the PNG. Font-family names are evidence, never runtime branches; supported actual raster data authenticates the correction. Source character, physical position/advance, PNG pixels and geometry are language observations. Object numbering, Type3 versus CID structures and byte encoding are mechanics.
+
+Classification: private font/export parity correction under ADR-0127 continuous flow, with no new public method/entity/phase/mode/dependency. The previously approved FontMetrics method remains separately bounded. No invisible duplicate source text, fake outline, font-name coefficient, or oracle-byte copying. Build a1016-byte self-authored portable bitmap font fixture from the preserved fontTools generator; it is test data, not a font copied from the oracle or a productive dependency. Authenticate its bytes explicitly in the receipt.
+
+### Exclusive owning obligation
+
+Extend only authenticated missing-outline PNG raster glyph definitions. Extract actual raster data/bearings/ppem from supplied font bytes, retain identity key by font/GID/scale, and embed PNG data in the definition with a single scale/translation and Y inversion coherent with existing shaped offsets. Do not lose advance on absent/unsupported data; preserve current outline/cache/font binding behavior. No system font lookup. Require portable missing-outline raster RED→GREEN and actual paired image geometry/pixels/complete text-source controls.
+Require module RED→GREEN before implementation, fixed-pin actual fallback PDF/SVG paint/text/geometry controls, previous A–H/R1–R9, full workspace/lineage/resource gates and byte preservation of received unrelated inputs.
+
+
+## R10 — fractional tracking paint correction
+
+Measurement before decision: candidate3-build/receipt.json/source.json.gz and
+candidate3-matrix-svg/receipt.json under the R10 evidence root bind exact source,
+dirty state, UTC and binary9ac2dcfaf0bee19a94317e1f09da8861d21fd52ede9f791934fc899b3debf071.
+All69 script PDF controls and the R8/R9 corpus pass. Twelve signed-tracking SVG
+controls fail by0.003125–0.016pt. render_text_shaped advances x using only stored
+integer font-unit advances, whereas PDF stream/text and shaper/tracking::width
+already add the authoritative tracking-owner residual. This loses an actual
+fractional interval, including in the ordinary Alpha prefix, not a font-name or
+PDF-byte discrepancy. These are physical glyph positions (language/render),
+not a required serializer algorithm. No tolerance or test input may change.
+
+Delegate fractional per-glyph advance compensation to the existing
+crate::shaper::tracking::residual in both successful and unsupported-definition
+advances. Preserve same-cluster suppression, signed values, terminal boundaries,
+font/scale/position/raster identities and no tracking duplication. Require a
+portable actual-SVG coordinate RED with different clusters sharing a glyph run,
+signed values and paint sizes, plus all69 script SVG/PDF and original R8/R9,
+full workspace/Clippy/fmt/Rustdoc/lineage/resource gates. This is internal parity,
+no new public/default/phase or formula copied away from its owning unit.
+
+
+### R10 — Clippy test construction correction
+
+Measurement before decision: validation-complete2/clippy.log under the R10
+evidence root rejects glyphs.rs:513 with regex_creation_in_loops. All tests
+passed; the immutable SVG-use parser is rebuilt for each size/tracking pair.
+clippy-correction.json and before-clippy-source.json.gz bind the exact state
+and UTC. This is test construction mechanics, not a product parity change.
+Construct that identical parser once before both loops; retain every input,
+parsed coordinate, assertion and tolerance. Require the focused test, denied
+warning Clippy and full frozen validation again; no lint suppression.

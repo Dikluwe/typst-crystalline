@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/content.md
-//! @prompt-hash 5f083ff9
+//! @prompt-hash 11dd0499
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -59,6 +59,10 @@ impl ObservationEq for crate::entities::content::Content {
 
             Self::Empty => match other {
                 Self::Empty => ObservationRelation::Same,
+                _ => ObservationRelation::Different,
+            },
+            Self::Symbol(a0) => match other {
+                Self::Symbol(b0) => a0.observation_relation(b0),
                 _ => ObservationRelation::Different,
             },
             Self::Text(a0) => match other {

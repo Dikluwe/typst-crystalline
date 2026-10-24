@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/caches.md
-//! @prompt-hash 8ae5e4d1
+//! @prompt-hash 95e45117
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-24
 
 use super::FallbackFontMetrics;
 use crate::font_variant::axis_variations_for_text_style;
@@ -66,6 +66,8 @@ pub(super) struct ShapedWidthKey {
     lang: Option<typst_core::entities::lang::Lang>,
     axis_hash: u64,
     math: bool,
+    superscript: bool,
+    superscript_native: Option<bool>,
 }
 
 /// **P677** — chave para cache de `advance` (caminho rápido não-shaped).
@@ -86,6 +88,8 @@ pub(super) struct AdvanceWidthKey {
     /// sem este campo, uma medição em prosa e outra em math com o mesmo
     /// texto/estilo colidiam na cache.
     math: bool,
+    superscript: bool,
+    superscript_native: Option<bool>,
     /// **P1293** — em math, `TextItem` e `GlyphFragment` partilham fonte e
     /// tamanho, mas somente o segundo recebe italics correction.
     math_text_item: bool,
@@ -147,6 +151,8 @@ impl FallbackFontMetrics<'_> {
             lang: style.lang,
             axis_hash,
             math: style.math,
+            superscript: style.superscript,
+            superscript_native: style.superscript_native,
         })
     }
 
@@ -227,6 +233,8 @@ impl FallbackFontMetrics<'_> {
             lang: style.lang,
             axis_hash,
             math: style.math,
+            superscript: style.superscript,
+            superscript_native: style.superscript_native,
             math_text_item: style.math_text_item,
             math_size: style.math_size as u8,
         })
@@ -479,5 +487,23 @@ mod infra_review_regressions {
             }
         }
         assert_eq!(style.size, Pt(12.0));
+    }
+}
+
+#[cfg(test)]
+mod r8_cache_identity_tests {
+    use super::*;
+    #[test]
+    fn r8_superscript_and_ordinary_runs_have_distinct_width_keys() {
+        let normal = TextStyle { size: Pt(11.0), ..TextStyle::default() };
+        let script = TextStyle { superscript: true, ..normal.clone() };
+        assert_ne!(
+            FallbackFontMetrics::shaped_width_key("1", &normal),
+            FallbackFontMetrics::shaped_width_key("1", &script)
+        );
+        assert_ne!(
+            FallbackFontMetrics::advance_width_key("1", Pt(11.0), &normal),
+            FallbackFontMetrics::advance_width_key("1", Pt(11.0), &script)
+        );
     }
 }

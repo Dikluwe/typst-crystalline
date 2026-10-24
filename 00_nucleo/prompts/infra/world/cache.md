@@ -1,5 +1,5 @@
 # L0 — infra/system-world/cache
-Hash do Código: 5dbfb07a
+Hash do Código: b38c9482
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
@@ -99,3 +99,66 @@ Source::new. Register ids/dependencies normally; each World's OnceLock keeps its
 own snapshot/error and no read error enters session. Synthetic/from_source/code/
 expression stay outside cross-World cache. Keep private interfaces where possible
 to avoid external repairs.
+
+
+## Approved identity-failure contract — 2026-10-22
+
+Replace the explicit physical FileId exhaustion panic clause and public signature:
+
+```rust
+pub fn register_file(&self, path: PathBuf) -> FileResult<FileId>;
+```
+
+FileResult and FileError are existing types. Return
+`FileError::Other("FileId counter exhausted".into())` before allocating/publishing
+anything when a new identity cannot be represented. Known canonical paths still
+return Ok(existing_id), including at capacity. Never wrap/reuse another file's id,
+overwrite its slot, or mark a failed registration successful.
+
+Keep canonicalization, lookup, lock ordering, concurrent identity uniqueness and
+source/error memoization. Identity/source acquisition lock poison is an ordinary
+FileError, not unwrap/expect, poisoned-state reuse, clear_poison, panic capture or
+silent missing file. Private SourceSlot/source-session adapters propagate Source
+construction failures through existing FileResult. Synthetic source slots can
+memoize the failed construction result; for_stdin/for_eval retain their public
+signatures and existing acquisition timing, with World::source returning that
+error. This phase does not change other public font/dependency contracts.
+
+Migrate resolution/package callers using their existing Result channels. Preserve
+all valid-source/session/identity and concurrency controls. Replace tests of the
+old approved exhaustion panic with stronger exact Err/no-publication/no-id-reuse
+controls, keeping the same exhausted state and input.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+
+## Approved dependency error contract — approved 2026-10-22
+
+Change only the public dependency return to `FileResult<Vec<PathBuf>>`.
+A healthy registry returns Ok of the exact sorted unique existing inventory.
+A poisoned path_to_id registry returns existing
+`FileError::Other("file identity registry lock is poisoned".into())`.
+Never recover poisoned contents, clear poison, return an empty/default graph,
+reinitialize a registry or mutate any identity. This supersedes the old
+infallible dependency-enumeration signature under the recorded human approval.
+
+
+Approval of this exact metadata correction is retained in `lab/results/world-metadata-errors-2026-10-22/approval.json`, review SHA-256 `31d632a54d40ca7df4139081c5297af774970a93b08cd605986b53e75e0ccc62`. The approved clauses supersede prior infallible signature/return preservation only for the two public APIs and the described private composition interfaces.

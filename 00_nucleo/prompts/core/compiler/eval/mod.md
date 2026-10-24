@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: a1a8f0c7
+Hash do Código: c89ae1ed
 
 
 **Layer:** L1
@@ -14,6 +14,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 - 00_nucleo/prompts/_nuclei/show-occurrence.toml sha256:fcd0b9d9148567685d6ad281d549bdcaf1008d151f9de8afc320f76e05ca371c
@@ -351,3 +352,77 @@ feature-owned borrowed needs_preparation predicate, only when target is Paged.
 It performs no query/callback/preparation and never admits unused variables.
 HTML implicit Ref rendering remains explicitly outside this phase. Preserve the
 single run_pass/realization call, warnings, returned content/index and public APIs.
+
+## Selection for deferred physical page-template capture
+
+### Measured missing coordination path
+
+At the implementation baseline, `mod.rs:917–925` chooses realization only for
+captured recipes, bare math, reached Figure and Paged Ref preparation. SetPage is
+opaque to the generic borrowed traversal, so a page template alone cannot retain
+its lexical recipe environment through this gate. The frozen current-pin
+`lab/results/set-page-header-2026-10-21/baseline-parity/receipt.json` and separate
+`ambient-baseline/receipt.json` preserve valid source/binary/state identities and
+measure missing header semantic contributions and page-effective20/30 styles;
+identical compile exits do not certify parity.
+
+The approved review is `lab/results/set-page-header-2026-10-21/review.md`,
+SHA-256 cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039.
+The direct human decision is preserved in
+`lab/results/set-page-header-implementation-2026-10-21/approval.json`.
+It authorizes only the frozen five public facades, opaque carriers and physical
+page phase; it does not authorize additional public contracts or generic
+observer/traversal changes. The implementation baseline is HEAD
+`cf21f47a3b63f0e9fc5308925e1d0b67925e7227`. Exact owning source/L0 bytes,
+SHA-256, UTC and working-tree state before these amendments are archived in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/before.json`.
+
+### Exclusive gate extension
+
+After the existing single source evaluation, a feature-owned borrowed capture-only
+presence predicate may additionally select the same realization facade for reached
+raw SetPage/PageRun operational Content. It is a coordination predicate, not
+semantic admission: no closure, kind preview, show application, callback,
+allocation, counter/state fold, layout or source re-execution. The realization
+owner still decides parent admission before capturing fields; do not pre-visit a
+hidden template merely to discover active Figure/Table/Context descendants.
+
+Retain the existing short-circuit conditions, target/features/Engine/Sink,
+realized index and direct wrapping fallback. Operational physical requests remain
+Paged-only; selecting capture does not admit running matter into HTML or add
+implicit HTML rendering. Preserve None/Auto/omission and prepared captures/aliases.
+No EvalContext public field, new mode, changed default or extra phase is authorized
+beyond the exact approved physical-page coordination. Require template-only,
+ordinary no-template, hidden/overridden effects, PageRun body, both-target and
+single-evaluation regressions through the actual pipeline.
+
+### Private operational output-capture memo
+
+The approved operational capture implementation may revisit a freshly captured
+SetPage/PageRun through recipe and cell completion during one EvalContext. Add
+only a compiler-private weak memo initialized empty in new(). It recognizes actual
+captured output operator Arcs; raw input equality or a copied header token cannot
+claim a new owning occurrence. Weak entries do not retain source products across
+evaluations. The realization owner owns token creation and uses the actual
+producer frame's retained slots for retries. This changes no public EvalContext
+field/signature, observation law, source-evaluation count or pipeline phase.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

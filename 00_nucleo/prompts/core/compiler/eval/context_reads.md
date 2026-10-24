@@ -1,5 +1,5 @@
 # L0 — compiler/eval/context_reads
-Hash do Código: 4553a1e9
+Hash do Código: db72833b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
@@ -144,3 +144,36 @@ native kind pointer with changed name/namespace; Figure selector's changed
 name/namespace/origin; malformed nonlocation/nonbool slots with opaque dynamic
 kind remain Unproven. Then compose those existing observations, preserving
 Different dominance and Unproven invalidation. No global observer changes.
+
+
+## Actual Outline synthesis inputs
+
+Measurement: `compiler/eval/rules/outline.rs:166–181` directly consumes
+`headings_for_toc`, `outlined_heading_locations` and the corresponding canonical
+source elements. With an empty index its loop executes no entry/native function,
+so it records no causal reads although a later nonempty index changes the actual
+product. Existing native entry indentation also consumes the relevant Outline
+prefix widths. Exact pre-change source/L0 bytes are in
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/outline-before/`;
+the companion receipt records HEAD/dirty state/UTC. This is an unobserved real
+input dependency, not authorization to invent a query or weaken observation.
+
+Record one crate-private OutlineInputs request at the actual heading-outline
+synthesis boundary, including the Outline parent key needed by the existing
+prefix-width lookup. Its pure ordered Value projection covers the real headings
+and aligned Locations/source content consumed by synthesis, and that parent's
+actual prefix-width inputs. Observe empty inputs as empty values too, so absence
+is a dependency. Replay recomputes that exact projection from the candidate index;
+use existing strict ObservationEq unchanged, including Different and Unproven
+invalidation. No generic observer/equality expansion, hashing, visual equality,
+cache or selector shortcut. Existing entry page/indentation reads remain real
+independent dependencies. Preserve ordering, missing-source behavior and all
+existing counter/reference/state request semantics. The request is private and
+adds no public API or pipeline phase. Acceptance requires empty-to-nonempty
+invalidity, same-input reflexivity, and relevant source/Location/number/prefix
+changes detected through the existing replay protocol.
+
+The private input row observes source.content() and the corresponding Location
+as separate ordinary Values. Synthesis never reads IntrospectedContent.fields();
+therefore unrelated introspected field snapshots must not become an invented
+dependency. The strict source Content and Location observers remain unchanged.

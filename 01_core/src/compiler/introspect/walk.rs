@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/walk.md
-//! @prompt-hash 94e72597
+//! @prompt-hash d7c561c8
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -101,6 +101,7 @@ pub(crate) fn reserve_locations(content: &Content, locator: &mut Locator) {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -221,6 +222,7 @@ pub(crate) fn reserve_locations(content: &Content, locator: &mut Locator) {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -362,6 +364,7 @@ enum RootVisit {
     Full,
     OriginalOnly,
     ChildrenOnly,
+    PlannedRootOnly,
 }
 
 #[expect(
@@ -495,6 +498,7 @@ fn walk_at(
                     | Content::Link(_)
                     | Content::Equation(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)
@@ -682,6 +686,7 @@ fn walk_at(
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -900,6 +905,7 @@ fn walk_at(
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1013,6 +1019,13 @@ fn walk_at(
     } else {
         None
     };
+
+    if root_visit == RootVisit::PlannedRootOnly {
+        if let Some(loc) = emitted_loc {
+            tags.push(Tag::End(loc, hash_content(content)));
+        }
+        return;
+    }
 
     if root_visit == RootVisit::OriginalOnly
         && matches!(content, Content::Table(_) | Content::Figure(_) | Content::Block(_))
@@ -1191,7 +1204,7 @@ fn walk_at(
         | Content::Raw(_)
         | Content::Link(_)
         | Content::MathSequence(_)
-        | Content::MathIdent(_)
+        | Content::Symbol(_) | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
         | Content::MathAttach(_)
@@ -1497,6 +1510,37 @@ fn walk_at(
     }
 }
 
+/// Emit only one already-addressed source root into a fresh planned candidate.
+/// The local Locator never assigns a semantic identity: each productive root
+/// must supply the shared arena's existing location before this entry is called.
+pub(super) fn planned_root(
+    content: &Content,
+    location: Option<Location>,
+    chain: &StyleChain,
+    label: Option<&Label>,
+    intr: &mut TagIntrospector,
+    tags: &mut Vec<Tag>,
+) {
+    let mut locator = Locator::new();
+    if let Some(location) = location {
+        locator.observe(location);
+    }
+    let mut auto_label = 0;
+    let lang = chain.lang();
+    walk_at(
+        content,
+        &mut locator,
+        tags,
+        intr,
+        &mut auto_label,
+        lang.as_ref(),
+        chain,
+        label,
+        location,
+        RootVisit::PlannedRootOnly,
+    );
+}
+
 fn walk_table_visual(
     e: &crate::entities::elements::table::TableElem,
     locator: &mut Locator,
@@ -1588,6 +1632,7 @@ mod reserve_tests {
                     | Content::Link(_)
                     | Content::Equation(_)
                     | Content::MathSequence(_)
+                    | Content::Symbol(_)
                     | Content::MathIdent(_)
                     | Content::MathText(_)
                     | Content::MathFrac(_)

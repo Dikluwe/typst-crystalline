@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash 8f398595
+//! @prompt-hash 6de68ac4
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -220,7 +220,7 @@ pub(super) fn widths_array(face: &Face<'_>, mappings: &[(u16, String)]) -> Strin
     let mut parts = Vec::new();
     for (gid, _hex) in mappings {
         let adv = face.glyph_hor_advance(ttf_parser::GlyphId(*gid)).unwrap_or(500) as f64;
-        let w = (adv / upem * 1000.0).round() as i32;
+        let w = adv / upem * 1000.0;
         parts.push(format!("{gid} [{w}]"));
     }
     parts.join(" ")
@@ -352,6 +352,26 @@ pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn fractional_pdf_widths_preserve_effective_face_advance() {
+        let face = Face::parse(include_bytes!("../../fixtures/fonts/DejaVuSans.ttf"), 0)
+            .unwrap();
+        let gid = face.glyph_index('H').unwrap();
+        let widths = widths_array(&face, &[(gid.0, "0048".into())]);
+        let width: f64 = widths
+            .split('[')
+            .nth(1)
+            .unwrap()
+            .trim_end_matches(']')
+            .parse()
+            .unwrap();
+        // DejaVu Sans H: 1540 font units / 2048 units per em.
+        assert!(
+            (width / 1000.0 * 11.0 - 1540.0 / 2048.0 * 11.0).abs() < 1e-7,
+            "{widths}"
+        );
+    }
 
     fn glyph(gid: u16, cluster: u32) -> ShapedGlyph {
         ShapedGlyph {

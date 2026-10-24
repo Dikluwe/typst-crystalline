@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/emptiness.md
-//! @prompt-hash c6bd010a
+//! @prompt-hash 698f684e
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -135,6 +135,7 @@ impl Content {
             | Self::Link(..)
             | Self::Equation(..)
             | Self::MathSequence(..)
+            | Self::Symbol(..)
             | Self::MathIdent(..)
             | Self::MathText(..)
             | Self::MathFrac(..)

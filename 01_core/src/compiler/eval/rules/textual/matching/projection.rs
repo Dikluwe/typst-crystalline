@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/textual/matching/projection.md
-//! @prompt-hash 9dc37e33
+//! @prompt-hash a6e1eb81
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -50,6 +50,7 @@ fn slice_node(node: &Content, from: usize, until: usize) -> Content {
     use std::sync::Arc;
     match node {
         Content::Text(text) => Content::text(&text[from..until]),
+        Content::Symbol(text) => Content::Symbol(text[from..until].into()),
         Content::Source(e) => slice_node(&e.body, from, until).with_source_span(e.span),
         Content::Located(e) => {
             Content::Located(Arc::new(crate::entities::content::LocatedContent {

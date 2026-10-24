@@ -1,15 +1,18 @@
 # L0 — compiler/eval/rules/textual
-Hash do Código: ee2daace
+Hash do Código: a9a07229
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/rules/textual.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:66cf98676c3f6ddd3641e4e67eaed2ed2b71a06d5fd9a0be93dbc3059e506074
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:2213a4793474159cfae64b699263b16621a492ad2056fbaf5d28ac7950593c6b
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/eval/rules/textual.rs`
-**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 ## Measurement before decision
 
@@ -350,3 +353,15 @@ forced realization/document finalization despite no applicable root recipe,
 changing identity range before contribution existed. Pure contextual_root recognizes
 only marker; executes/removes no wrapper/closure. Preserve local deltas of emitted
 values and Raw/Sequence transport. Nominal Content complement retains visible V19.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+Symbol has a textual projection for compatible captured runs and coalescing. Mathematical realization excludes cross-element grouping explicitly using the existing recipe_math_depth; explicit math-symbol regex matching remains per element. Preserve textual consumption and guard rules.
+
+Candidate3-adjacent retains A♔B instead of R while the pinned oracle and pre-E binary produce R. Coalesce generic Symbol captures like text only in compatible environments, using the normalized Text target for native node-effect eligibility outside math; retain raw Symbol for reflection and preserve native effects inside math. Pending lexical coalescing recognizes Text or Symbol without prematurely applying effects.

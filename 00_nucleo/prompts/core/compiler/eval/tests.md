@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: bf067b09
+Hash do Código: c8e8048c
 
 
 
@@ -7,11 +7,13 @@ Hash do Código: bf067b09
 **Exclusive consumer:** `01_core/src/compiler/eval/tests.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
+
+
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:cd963a81970f86c33abcf36ffb19ec69acfd789ab528092c8abb7a95129ebd99
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
-
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:66cf98676c3f6ddd3641e4e67eaed2ed2b71a06d5fd9a0be93dbc3059e506074
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
@@ -26,6 +28,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
+
 
 ## Source evidence
 
@@ -658,3 +661,67 @@ producer, accept arbitrary ContextBlocks or replace the semantic assertion with
 Debug/string output. Real non-Figure passthrough and rendered numbering belong
 to actual contextual integration controls. Require the preserved full-suite RED
 and focused GREEN, with before/after source hashes and UTC provenance.
+
+## Complete-suite Source transparency regression — 2026-10-22
+
+### Evidence before correction
+
+`lab/results/remaining-parity-2026-10-22/candidate-7/validation/tests-domain-infra.log`
+SHA-256 `e5900986d7df6f773083e7b95a967d76d451bccb7afe12a93e326d04b98ac8da`
+records the complete unfiltered core/infra run. Its frozen inputs are retained in
+`candidate-7/validation/validation-state.json.gz` and the unchanged-input check in
+`candidate-7/validation/validation-freeze.json` at
+`2026-10-22T14:53:49.321659+00:00`, under that same result root. The source-bound
+build receipt `candidate-7/candidate-build/receipt.json`, SHA-256
+`bcdd2171a19fd1e93bc4934388c35e8fb79563c957994fd9d6bae176930dd9fe`, retains
+UTC `2026-10-22T14:44:18.153459+00:00`–`2026-10-22T14:44:36.818708+00:00`,
+exact HEAD/uncommitted diffstat, inputs, source archive and product SHA-256
+`91cba2e532c185020023aed9a0c031540e57f4b966673649b9a5b1cd8935ec95`.
+The existing test bodies are unchanged from the initial baseline archive.
+Six page-column layout regressions show missing implicit Columns after actual
+SetPage gained its proven Source origin: four one-page requirements observe two
+pages, and two RTL requirements begin in the wrong column. Bare-only SetPage
+classification in content/page_structure.rs prevents the transform. Four further
+observer failures stop at Source instead of examining the actual SetPage/Heading
+body. Three separate paragraph failures have another owner and are not evidence
+to change page configuration or remove Source. These actual failures supersede
+focused-suite confidence; no warning/test/geometry threshold is waived.
+
+### Exclusive correction and acceptance
+
+Make only the existing find_heading_numbered helper and p814 markup-eval
+Heading observer transparent to Source through source_body. Keep the original
+numbering true/false expectations, actual Heading requirement and text assertion
+unchanged. No reinterpretation of repr, removal of origins, production behavior
+or unrelated helper change is authorized. These are observer corrections, not
+newly passing productive regressions; the global suite still must pass.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## Approved batch E integration
+
+Measured inputs: `lab/results/symbol-identity-2026-10-23/baseline.json`,
+`before/receipt.json` and `additional/receipt.json`; see the shared nucleus for
+the approved native leaf contract. This owner retains its existing responsibility.
+Test public Symbol identity and full text across insertion paths, callable function distinct from raw symbol, fields, equality, selector filters and raw/value separation. Tests must fail against pre-E productive behavior before implementation.
+Preserve all pre-existing working-tree changes, effects and other variants.
+
+Realization integration tests use raw evaluated modules and realize_document to test actual effects: Symbol receives non-math text filters and spanning regex, ignores native Symbol show after conversion, and receives math regex while retaining immunity to native text filters in math. These are measured outcomes, not inferred upstream intent.

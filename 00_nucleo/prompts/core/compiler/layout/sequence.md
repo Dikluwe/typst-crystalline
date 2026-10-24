@@ -1,9 +1,10 @@
 # L0 — sequence
-Hash do Código: 805db18d
+Hash do Código: c558095d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
@@ -66,3 +67,192 @@ Require occurrence/UTF8/restoration/parbreak tests and bilateral wraps for logic
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Route ordinary sibling dispatch by exact SequencePart index under the active source plan, including Source-normalized siblings and source-bearing grouping wrappers. Rejected fractional/paragraph lookahead and isolated measurements remain nonadmitting. Fast paragraph/planning/grouping paths must preserve each source packet's accepted boundary, including zero-paint facts and derived phases, or use the equivalent existing incremental path without changing source morphology/default strategy. Never match a constructed Sequence or copied sibling back to a plan using equality/hash/pointers. Preserve existing sticky, fraction, bidi and spacing contracts.
+
+### Acceptance and preserved boundaries
+
+Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+Segmented column emission may supply a per-part list of exact source cursors captured by the column constructor's original-index map. Dispatch those children under their retained plan addresses; generated padding emits no source fact. This does not alter layout_parts algorithms or turn generated segment wrappers into source occurrences.
+
+
+A known feature constructor may supply a parallel mixed route for an unchanged normal-flow part slice: None denotes its generated prefix and Some(cursor) the retained actual source child. Preserve the same sequence preflight, grouping, sticky, paragraph, bidi, spacing and fractional geometry; generated siblings never consume the parent source edge. Require exact part/route cardinality and reject mismatch. Do not create a source Sequence occurrence for a generated constructor wrapper.
+
+
+## Certified inline fractional budget scope
+
+Fresh `lab/results/nested-fractions-repeat-2026-10-21/{original-before,box-before}/`
+measurements and baseline-source provenance precede this amendment. The new
+canonical owner
+`00_nucleo/prompts/core/compiler/layout/sequence/inline_allocation.md` owns
+positive inert no-wrap eligibility and immutable assignment construction.
+This consumer installs each original child's assigned node only around its
+existing typed dispatch and restores the exterior node afterward. Nested
+Sequence consumes its corresponding Sequence node; Blocked forbids interior
+partial preparation, while genuine independent flow boundaries start fresh.
+Preserve every actual child route, source order, paragraph-planner certificate,
+vertical Block preflight, grouping, margin and existing guards. No emission or
+identity mutation occurs during width preparation and no scope is promoted
+from unknown fixed width. Add direct semantic nested-budget RED tests before
+implementation; retain old and bounded no-plan behavior exactly. This is an
+internal layout parity correction, not a new eval/realize/layout phase or API.
+
+## Source-scope refinement measurement (2026-10-21)
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/scope-refuters/measurement.json.gz`
+records exact source/font bytes, UTC, HEAD, dirty state, commands, diagnostics,
+PDF/SVG and source-bound prototype binary
+`380224b96e7d12e15f7d8ee02ad2200d96664eb14f0bbe879fbd3eb265bd96d7`
+against the same ratified oracle commit/tree/SHA above. All six sources compile
+without errors. Global-flow-tail paints joined PAB and Q at134.05884 in the
+prototype, versus PA and BQ at215.79541 in the oracle. Fraction-rounding-residual
+paints joined AB and Q at226.88379, versus A at8, B at36.686947 and Q at225.4.
+These are source-language positions; PDF token grouping alone does not certify
+source deletion. Zero-width controls retain the visible source body and fixed
+sibling, including coincident A/Q; an empty zero Box has its own real baseline.
+
+`eval/markup_stream.rs:305` adds `eval.flow.scope` to a complete lexical tail;
+`layout/paragraph_prepare.rs:65–99` already positively classifies bounded text
+fields/channels. Rejecting every custom delta propagates Blocked into such a
+complete tail. The initial arithmetic model in
+`agents/box/rounding-certificate-analysis.json` is withdrawn as a causal proof:
+Python's compensated builtin sum did not model the current Rust ordered sum.
+`agents/box/rounding-ordered-fold-correction.json` preserves that refutation
+and a separate provisional ordered-fold analysis; it is not compiler evidence.
+`lab/results/nested-fractions-repeat-2026-10-21/corrected-certificate-red/`
+retains the exact input/source state, UTC, full test log and receipt. Its
+corrected scope test fails at actual29.8 versus expected133.2, while fourteen
+controls, including the
+rounding geometry control, pass. Preserve their exact test inputs/tolerances.
+No arithmetic correction follows from the refuted model or its passing control;
+retain the existing normalized ratios and strict cursor<=right proof unchanged.
+
+### Refinement decision and refuters
+
+Scope installation must transport the positively certified complete lexical
+tail, including eval.flow.scope, without restarting a partial allocation at an
+inner transparent Sequence. Unknown deltas still propagate Blocked; actual
+independent flows remain isolated. No source-event authority is inferred from
+the immutable tree. Preserve original source routes and all old dispatch.
+
+
+## Actual page-style tree measurement (2026-10-21)
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-2/original-after/measurement.json.gz`
+and `prototype-2/eval-content-probe/receipt.json.gz` retain the frozen candidate,
+source/archive/rlib binding, HEAD/dirty state, UTC, exact programs/fonts/commands,
+full diagnostics and actual Content trees. The original three main debts remain
+RED despite synthetic core controls. `01-source.content.txt` is exactly root
+Sequence[SetPage, Styled(page channels, Sequence[Space, Styled(text.font,
+Sequence[Empty, BEFORE, Parbreak, fractional Box[A,hfr,B], Space, AFTER,
+Space])])]. Its outer page delta contains four Float8 margins, Auto height,
+Float240 width and eval.flow.scope=true. `02-source.content.txt` confirms the
+same real page/text wrappers around parent and child fractions. Paragraph
+preparation refuses Box/Repeat atomically; it does not authorize their dispatch
+without this allocation owner. The current text-only Styled class rejects the
+whole page-style tail and propagates Blocked after the actual SetPage installs
+the new region. That is the measured source route missing from prior tests.
+
+### Page-boundary decision and acceptance
+
+A fresh complete Sequence scope may prepare its full remaining ORIGINAL suffix
+again immediately after its existing direct typed SetPage dispatch has installed
+actual geometry. Preserve original typed source indices and every preceding
+source occurrence; a plan-base offset affects assignment lookup only. An
+inherited subpath/Blocked capability may not restart a partial suffix and drop
+exterior siblings. Inert preflight encountering SetPage must refuse geometry for
+all following parts, including after a Parbreak, until that actual dispatch.
+Admit only the explicit proved page.width/page.height/four page.margin-* style
+transport channels alongside the existing positive text delta class. They carry
+lexical metadata and cannot themselves predict or apply future page geometry.
+Unknown page/style channels still refuse honestly; no page/phase/default changes.
+
+Test the exact dumped tree with initial360pt page/10pt margin and actual SetPage
+to240pt/8pt, and a prior OLD prefix on the old page. Derive final A/B/AFTER bounds
+from declared11pt*0.6 metrics and the real224pt region, retaining the exact final
+source weak newline. Existing metrics::line_content_right excludes weak
+TextSeparator at the terminal edge; that source token is not a second fixed
+suffix word. Preserve all prior tests and tolerances. These main-case tests must
+fail before implementation and become green with the original three bilateral
+sources; the page wrapper is not an uncertified-path waiver for those cases.
+
+
+## Source-transparent configuration boundary for complete bidi input
+
+### Measurement before decision
+
+`lab/results/remaining-parity-2026-10-22/verify14-existing-bidi/receipt.json.gz`
+retains the frozen uncommitted inputs, HEAD, UTC, changed-file list and commands.
+Its core bidi controls pass, while the unchanged pipeline test
+`bidi_complete_context_reaches_pipeline_for_mixed_source` still fails at
+`03_infra/src/pipeline/tests.rs:3241`: textual leaves lack complete origin.
+Candidate-7's earlier full-workspace failure and the exact task baseline are
+retained separately, without treating that historical failure as the new run.
+
+`eval/markup_stream.rs:408-422` now preserves Source(SetPage), required for the
+actual marker's diagnostic/source identity. Current Sequence at :205-213 tests
+only bare Parbreak/SetPage when finding the preceding and next configuration
+boundary. Thus an actual source envelope makes configuration appear opaque in
+the entire text segment; the integral refusal guard correctly prevents a child
+from independently recertifying it. The inline-budget restart already classifies
+`part.source_body()` at :441. These are internal source-route/complete-input
+causes; removing Source or relaxing whole-input refusal is not authorized.
+
+### Exclusive correction and acceptance
+
+In exactly the preceding-boundary and next-boundary predicates for incremental
+bidi preparation, inspect the borrowed `source_body()` rather than the raw
+carrier. Preserve the existing positive boundary set Parbreak/SetPage, original
+parts/indices/routes, real configuration dispatch and its installed region,
+complete refusal guard, and every other classifier/planner/preflight policy.
+Prepare only after the actual configuration marker has run; this does not
+speculatively prepare later geometry or broaden opaque-object admission.
+
+Add a Source(SetPage) control both before and between textual segments, requiring
+all emitted word spans to point to exact original UTF-8 ranges under the lexical
+base, actual configured geometry and preserved marker source span. A non-textual
+opaque sibling after the same marker must still make the whole paragraph refuse
+certification, without losing text. Keep original pipeline/core bidi assertions
+unchanged. Existing verify14 is the genuine source-level RED before correction;
+run new controls and unchanged pipeline filter GREEN afterward, plus complete
+workspace/lineage/hash/fmt/Clippy/Rustdoc and bilateral regressions. No API, phase,
+virtual Content, warning suppression, tolerance or default change.
+
+
+## R8 source-before-paint carrier admission
+
+Measurement before decision: R8 candidate2/deferred.typ keeps Alpha/call on page1
+and moves only LINE/TAIL to page2, whereas the fixed oracle retains an empty page1
+from explicit45pt spacing and puts the complete carrier and entry on page2. The
+existing footnote-local proposal was already refuted: admission after paragraph
+paint is too late. A preflight at the original sibling frontier can measure before
+that source child is dispatched. Geometry/page membership is language; queue and
+preflight mechanics need not mirror vanilla. This remains layout, with no public
+contract/default-mode/compatibility change (ADR-0127 continuous).
+Before dispatching a new sibling at an empty ordinary line frontier, request the
+footnote owner's private certified carrier preflight on the remaining original
+slice. Sequence owns only placement of this request before source-child admission;
+all eligibility/formulas belong to footnote. Keep the original part indices,
+planned/mixed routes, grouping, bidi/paragraph/fractional policy and dispatch once.
+No synthetic source child, source replay or frame-based identity reconstruction.
+
+Require actual deferred-carrier RED→GREEN, fits/oversized/refused/effect-once controls, all ten0.001pt PDF/SVG cases and full validation.
+
+
+## R9 — measured following-prose occupancy and frame origin
+
+Evidence before decision: candidate4-flow/receipt.json under lab/results/construction/diagnostics/long-footnotes-r9-2026-10-24 records four real-output failures with full inputs/UTC/binaries: h80-n5-following-lines interleaves TAIL1–8 before the deferred entry, and h100-n8/h120-n20 lose note capacity to a prepared following baseline. All words survive, but physical page membership differs. svg-candidate4/receipt.json passes66/68; Nimbus and Liberation separators differ by0.10285/0.360668945pt while every PDF word coordinate passes. native-overhang-evidence.json refutes glyph-overhang inference: those exact shifts equal (sTypoAscender−sCapHeight)*9.35/upem for the actual faces. sub_frame.rs:327–340 installs an ascender, line_commit.rs:547–590 reconciles the actual text edge, sub_frame.rs:490–515 already normalizes height, and footnote_fragments subtracts the same origin from line witnesses again. parbreak.rs:55–110 records real flow end independently of weak spacing. This is geometry/source admission, not a new language mode or eval/layout phase. ADR-0127 private continuous-flow correction applies.
+
+Exclusive owning obligation: At an actual incremental Parbreak-delimited paragraph frontier, before dispatching its first source child and before carrier preflight, pass the complete original sibling range up to the next Parbreak/SetPage to the finite following-prose admission owner. Do not skip opaque siblings, alter source cursors/routes, release paragraph planning guards, emit children speculatively or repeat source events. All refusal paths retain their existing traversal.
+
+Require new module RED→GREEN for following prose and one-origin capture, all72 actual PDF/SVG controls at unchanged0.001pt, original R8/refusal/effect-once and A–H/R1–R7 preservation, both build profiles, resources and full workspace/lineage validation.

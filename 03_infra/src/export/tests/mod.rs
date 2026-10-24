@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash a241fb00
+//! @prompt-hash 8a866e99
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -8908,9 +8908,20 @@ fn p297_math_underover_so_base_emite_so_base_no_pdf() {
     assert!(s.contains("xyz"), "base 'xyz' no PDF mesmo sem under/over");
 }
 
+fn assert_default_footnote_marker_pairs(content: &str, count: usize) {
+    for number in 1..=count {
+        assert_eq!(
+            content.matches(&format!("({number}) Tj")).count(),
+            2,
+            "chamada e entrada {number} presentes no stream: {content}"
+        );
+        assert!(!content.contains(&format!("[{number}]")), "sem colchetes gerados");
+    }
+}
+
 #[test]
 fn p295_footnote_marker_emite_n_inline_no_pdf() {
-    // 3 footnotes consecutivas; espera-se `[1]`, `[2]`, `[3]` no PDF.
+    // Três chamadas e três entradas: números 1, 2 e 3 no PDF.
     let doc = layout(&Content::sequence(vec![
         Content::text("antes "),
         Content::footnote(Content::text("nota1")),
@@ -8921,13 +8932,7 @@ fn p295_footnote_marker_emite_n_inline_no_pdf() {
     ]));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    assert!(
-        content.contains("[1]"),
-        "marker [1] no PDF; got snippet: {}",
-        &content[..content.len().min(500)]
-    );
-    assert!(content.contains("[2]"), "marker [2] no PDF");
-    assert!(content.contains("[3]"), "marker [3] no PDF");
+    assert_default_footnote_marker_pairs(&content, 3);
 }
 
 // ── Passo 296 — math accent + cancel emit standard (ADR-0098 N=13) ─
@@ -8993,7 +8998,7 @@ fn p304_footnote_body_renderizado_no_rodape() {
     let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    assert!(content.contains("[1]"), "marker `[1]` presente no PDF");
+    assert_default_footnote_marker_pairs(&content, 1);
     assert!(
         content.contains("BODYSECRET"),
         "P304: body PRESENTE no PDF (renderizado no rodapé)"
@@ -9003,7 +9008,7 @@ fn p304_footnote_body_renderizado_no_rodape() {
 #[test]
 fn p304_multiplos_footnote_bodies_renderizados() {
     // 3 footnotes na mesma página produzem 3 bodies empilhados
-    // no rodapé. Markers `[1]`, `[2]`, `[3]` inline; bodies
+    // no rodapé. Marcadores 1, 2 e 3 nas chamadas e entradas; bodies
     // `body1`, `body2`, `body3` no rodapé.
     let doc = layout(&Content::sequence(vec![
         Content::text("antes "),
@@ -9015,10 +9020,7 @@ fn p304_multiplos_footnote_bodies_renderizados() {
     ]));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    assert!(
-        content.contains("[1]") && content.contains("[2]") && content.contains("[3]"),
-        "markers todos presentes"
-    );
+    assert_default_footnote_marker_pairs(&content, 3);
     assert!(content.contains("BODYUM"), "body 1 no rodapé");
     assert!(content.contains("BODYDOIS"), "body 2 no rodapé");
     assert!(content.contains("BODYTRES"), "body 3 no rodapé");
@@ -9026,7 +9028,7 @@ fn p304_multiplos_footnote_bodies_renderizados() {
 
 #[test]
 fn p304_regressao_marker_inline_preservado() {
-    // CRÍTICO: P295 marker inline preservado bit-exact.
+    // Marcadores inline e entradas preservam os números causais.
     // Mesma estrutura do p295_footnote_marker_emite_n_inline_no_pdf
     // — markers ainda emitidos inline (não só no rodapé).
     let doc = layout(&Content::sequence(vec![
@@ -9037,9 +9039,8 @@ fn p304_regressao_marker_inline_preservado() {
     ]));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    // Marker P295 inline: `[1]` e `[2]` ambos presentes.
-    assert!(content.contains("[1]"), "marker [1] preservado");
-    assert!(content.contains("[2]"), "marker [2] preservado");
+    // Chamadas e entradas usam os mesmos números formatados.
+    assert_default_footnote_marker_pairs(&content, 2);
 }
 
 // ── Passo 305 (P295.2) — footnote overflow multi-página L3 ─────
@@ -9086,7 +9087,7 @@ fn p305_regressao_p304_single_page_marker_bit_exact() {
     let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    assert!(content.contains("[1]"), "marker [1] preservado P304");
+    assert_default_footnote_marker_pairs(&content, 1);
     assert!(content.contains("BODYSECRET"), "body P304 preservado");
 }
 
@@ -9887,7 +9888,7 @@ mod p979_tests {
     /// advance 600du a 12pt (7.2pt); item 1 em x=110.0. O ajuste TJ entre
     /// os dois glifos tem de fazer o segundo glifo começar exactamente em
     /// 110.0: cursor após o 1º = 100+7.2 = 107.2; ajuste = (107.2−110.0)
-    /// /12×1000 = −233.33 → -233.
+    /// /12×1000 = −233.333… sem quantização inteira.
     #[test]
     fn p979_ajuste_de_fronteira_posiciona_segundo_item() {
         let style = TextStyle::regular(Pt(12.0));
@@ -9896,10 +9897,19 @@ mod p979_tests {
             shaped_item(110.0, 700.0, vec![glyph(11, 600)], &style),
         ];
         let s = stream_de(items);
-        assert!(
-            s.contains("-233 <000B>"),
-            "ajuste de fronteira -233 esperado antes do 2º glifo: {s}"
-        );
+        let array = s.split("[ ").nth(1).unwrap().split("] TJ").next().unwrap();
+        let mut cursor = 100.0;
+        let mut positions = Vec::new();
+        for token in array.split_whitespace() {
+            if token.starts_with('<') {
+                positions.push(cursor);
+                cursor += 600.0 / 1000.0 * 12.0;
+            } else {
+                cursor -= token.parse::<f64>().unwrap() / 1000.0 * 12.0;
+            }
+        }
+        assert_eq!(positions.len(), 2);
+        assert!((positions[1] - 110.0).abs() < 1e-7, "{s}");
     }
 }
 

@@ -1,14 +1,17 @@
 # L0 — compiler/eval/observation/content
-Hash do Código: 49064824
+Hash do Código: 8f96a8e4
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
-- 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/observation/content.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
+
 
 ## Source evidence
 
@@ -82,3 +85,11 @@ guards, and file individually. Preserve rule/guard order, raw empty-node
 presence and shadowed values. Opaque body/rule/style controls must stay
 Unproven. The actual own-hidden Figure query RED8 test remains unchanged and
 must become Same through this proof.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Compare Symbol selected strings within the same variant for causal observation; never treat Text and Symbol as interchangeable.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

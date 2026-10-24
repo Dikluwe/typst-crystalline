@@ -1,5 +1,5 @@
 # L0 — svg/navigation
-Hash do Código: 4c3e29ad
+Hash do Código: ce7e9242
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/navigation.rs`
@@ -79,3 +79,11 @@ relaxed fixtures/tolerances/carrier-mirror tests; Grid/Table/outline/SVG/tiling
 before/after, full workspace suite/build/all-target Clippy/Rustdoc/fmt/strict/
 reverse lineage/Tekt no new warnings under 12 GiB, zero swap, one job. No global
 parity/PDF-UA certification.
+
+## Nominal hit boundary with overflowing visual descendants (2026-10-22)
+
+`lab/results/remaining-parity-2026-10-22/link-overflow-before/measurement.json.gz` and `agents/repeat/link-overflow-evidence.json` under that result root record unchanged nominal/overflow sources, actual candidate-2 bytes `feb025296531c92350e29bff032f655cc2fa47542cf8ab4aca0e239108bc4e8f`, its successful archived causal source, current coordination tree, fonts, UTC and pinned vanilla. Both exporters paint a moved opaque rectangle at(28,8)–(33,13), outside the same nominal Link rectangle(8,8)–(18,18). Only the product makes that opaque visual a descendant of the URL anchor. Under SVG2 interaction§15.4/15.5 (https://www.w3.org/TR/SVG2/interact.html), a hit at(30,10) can therefore activate the URL only in the product. Pinned `typst-layout/src/modifiers.rs:89–106` appends the nominal Link after visual items and `typst-svg/src/lib.rs:377–415` exports its independent rectangle. Exact source/L0 hashes and the pre-edit state are in `agents/repeat/link-overflow-source-before.json`. This is a measured interaction-boundary defect. The isolated decorated-link-nested paint-order disagreement alone was mechanical and did not authorize this change.
+
+Render existing visual children once in their original order and coordinate/session context, outside the current anchor. Then emit this Link's independent anchor containing only its supplied nominal transparent hit rectangle, at the same position and size. Visual overflow must not gain the current URL by ancestry; do not clip/delete/reposition visual ink to enforce the boundary. Preserve independently supplied child links, their targets/geometry/transforms, all destination-context routing/unknown fallback/escaping/HTML-frame behavior, and the existing decorative-cell bypass. Never infer a larger hit area from ink or arbitrary DOM structure. No public signature/phase/default mode changes; this is ADR-0127 continuous correction to the existing nominal hit-area contract.
+
+Require meaningful SVG RED→GREEN for a10pt nominal link frame and an opaque5pt child moved20pt beyond it: the actual painted child cannot descend from the outer anchor, while the exact10pt rectangle and target remain. Retain nominal controls, nested targets, affine contexts, missing/local/external destinations and all original SVG/HTML/PDF tests. Remeasure the same bilateral overflow inputs and original full55/Link annotation gates without changing any observer, paint sequence criterion or1e-8 threshold.

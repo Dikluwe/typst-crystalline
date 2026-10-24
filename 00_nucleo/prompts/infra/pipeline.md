@@ -1,13 +1,17 @@
 # L0 — infra/pipeline
-Hash do Código: 9d4eeafe
+Hash do Código: cfafcb75
+
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/pipeline.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
 
-**Layer:** L3
-**Exclusive consumer:** `03_infra/src/pipeline.rs`
 
 ## Current evidence
 
@@ -137,3 +141,123 @@ The generic collector callback must explicitly enumerate the115 alternatives oth
 Styled pushes its delta; ShowRecipe uses its captured chain. Bottom-up carrier reentry overwrites provisional descendant entries with their correct scope. Repeated numeric IDs retain the last collected Arc and chain. The session separately retains first-ID encounter order on its legacy fallback: first occurrence does not determine the final payload or chain. No equality, closure hash, Debug fingerprint or pointer-based producer deduplication is permitted. Both Source/Located orientations remain transparent under the existing Source contract; Source inside Located does not justify an empty producer decision.
 
 Acceptance preserves generic math/decoration descendants, bare and Located/source producers, captured and inner style overrides, hidden-original exclusion, last-map payload/chain, substitution topology and current generated Ref producers. Structural enum-growth evidence must identify this closed decision independently. Existing forty Ref controls, retained diagnostics and known-style/no-Location counter boundaries remain binding. Runtime execution of one grouped branch does not certify every alternative. The scope is continuous internal exhaustiveness and existing Source-contract preservation under ADR-0127, with no API, default, phase, compatibility or Nucleus change.
+
+
+## Approved physical running-content candidate integration
+
+Evidence before this decision is the immutable source-qualified current-pin
+SetPage baseline and ambient20/30 measurements under
+lab/results/set-page-header-2026-10-21. Header-only/repeated/footer/context/style
+and duplicate-label failures are language observations; the twelve existing gates
+passing is structural preservation only. Actual seven semantic REDs and one inert
+template control are recorded in
+lab/results/set-page-header-implementation-2026-10-21/initial-red/receipt.json.
+Human approval of review SHA256
+cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039
+is recorded in that implementation directory's approval.json. ADR-0127 items1/3
+are satisfied for exactly the frozen five L1 facades/types and their phase/order.
+This section supersedes earlier preserve-phase/default boilerplate only for the
+approved physical channel. It adds no public L3 API, source reevaluation, new
+solver/budget, generic observation/equality rule, or unrelated behavior change.
+
+Use the approved owned Content/source plan and immutable request/resolution/trace
+facades as opaque L1 transports. L3 coordinates the actual World, Engine, retained
+arena frames, existing Context Session and candidate diagnostic sinks; no selector,
+Figure-kind, semantic child-edge, temporal action, style-rebase or render business
+logic moves to L3. The pure layout renderer executes no language closures. The
+initial canonical body identity comes from the existing reached realization and
+its protected operational templates; preparation publishes no invented body index
+or PageStore. Only a matching actual trace/store pair builds the complete Paged
+source-derived index. Global Bundle input uses actual ordered target metadata,
+features and document seeds; HTML has no physical requests.
+
+Keep the Session alive through physical discovery, including initially unselected
+body producers. Actual Pending requests select the approved physical contribution
+channel, without fabricating filtered/position reads or running unselected source
+producers a second time. Raw operational SetPage/PageRun templates are excluded
+from body discovery/substitution; realize only requested actual insertions in one
+retained frame per actual request lineage/key. Inspecting a dormant template for
+allocator reservation is not execution, query/counter admission or a new producer.
+Register actual generated Context descendants in the same Session, preserve their
+source/style/target/features, and rebind expanded Content through the approved L1
+function under the shared frame. No synthetic operational Located wrapper/Context
+query element or page-derived numeric Location is allowed.
+
+Reuse a body plan only with unchanged actual retained contribution versions and
+immutable source provenance. Content Eq/hash/Debug, equal counters/page counts or
+freshly reconstructed closure equality are not evidence. New source generations
+invalidate prior plan/request authority; pure layout reflow of the same retained
+plan keeps its authority. Candidate-local stores/transcripts must be complete and
+agree with current geometry/effective page environment; no partial candidate may
+reach shaping/export. Maintain the existing five contextual/page attempts and
+separate eight math/par.line request attempts, no hidden sixth execution or second
+context solver. Discovery/replay/replaced sinks remain discarded; publish only the
+retained final transactions through existing Sink policy, preserving source error
+precedence and independently sourced identical warnings.
+
+Own only this consumer's integration. Its existing private helpers and a private
+descendant page_running module may coordinate the protocol; each new productive
+file has its own canonical owner. Other owner's clauses do not authorize bodies
+here. Preserve legacy facade contracts, non-running paths, PageRun lexical restore,
+page snapshots and numbering, source parents/original morphology, HTML semantics,
+Bundle validation/resource/write policy and all unrelated F/G debts. Require actual
+focused GREEN and frozen CLI/counter/query/style/error/alias/dormant/template and
+rollback controls, followed by full twelve-gate validation, canonical paths,
+strict forward/reverse lineage, ownership/Nucleus pins/DAG and complete diagnostic
+comparison. No suppression, test relaxation, opaque catchall or convenience global
+hash reseal is authorized.
+
+## Ratified complete SVG facade re-export (2026-10-22)
+
+### Evidence and ratification
+
+`lab/results/remaining-parity-2026-10-22/svg-outputs-before/receipt.json.gz`
+records exact UTC, HEAD/uncommitted diffstat, fixed executable/build/source archive,
+font bytes and actual CLI results for the unchanged two-page finite source and
+a separately pinned12-page source. `qualification.json` preserves strict1e-8 SVG
+geometry, glyph/paint and complete destination-name comparisons: all10cases RED,
+including selected page2 whose filename alone had concealed first-page content.
+The human approved the exact additive proposal SHA-256
+`d2a1ddfd71d9f741253b00b20c23084aae474e4c9cb979d70f3daa37b40d943d`;
+`lab/results/remaining-parity-2026-10-22/svg-pages-approval.json` records the gate.
+This is the existing paged compile/export phase, without source reconstruction,
+new flag, second evaluation or PNG/bundle behavior change.
+
+Re-export only the approved `svg::compile_to_svg_output_files` capability. Its
+selection, template, export and compatibility implementation belongs exclusively
+to the SVG owner; keep this facade decision-free and the import topology intact.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.
+
+## PDF warning carrier import
+
+Reexport the approved `PdfExport` type into the PDF child module through this
+module's existing private import surface. Public pipeline signatures remain
+unchanged; `pipeline/pdf.md` owns destructuring and warning integration. This
+root adds no publication, filtering, phase, option or fallback behavior.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

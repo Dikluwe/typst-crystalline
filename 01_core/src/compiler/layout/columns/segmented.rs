@@ -1,13 +1,27 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/segmented.md
-//! @prompt-hash c95ce1a0
+//! @prompt-hash 9538ed4b
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-10-24
 
 use super::*;
 
 pub(super) fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
+    let split = split_with_source_indices(content, count);
+    (split.segments, split.had_colbreak)
+}
+
+pub(super) struct SplitSource {
+    pub(super) segments: Vec<Content>,
+    pub(super) had_colbreak: bool,
+    pub(super) source_indices: Vec<Vec<usize>>,
+    pub(super) sequence: bool,
+    pub(super) outer_styled: bool,
+}
+
+pub(super) fn split_with_source_indices(content: &Content, count: usize) -> SplitSource {
     let mut segments: Vec<Vec<Content>> = vec![Vec::new()];
+    let mut source_indices = vec![vec![]];
     // P1379 — `#set page(...)` transporta as propriedades da página num
     // único Styled exterior. Inspecionar o body para encontrar colbreaks e
     // reaplicar o mesmo wrapper uma vez por região irmã.
@@ -15,29 +29,34 @@ pub(super) fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content
         Content::Styled(styled) => (&styled.body, Some(&styled.styles)),
         other => (other, None),
     };
-    let children = match content.source_body() {
-        Content::Sequence(seq) => seq.iter().collect::<Vec<_>>(),
-        Content::Empty => Vec::new(),
-        other => vec![other],
+    let (children, sequence) = match content.source_body() {
+        Content::Sequence(seq) => (seq.iter().collect::<Vec<_>>(), true),
+        Content::Empty => (Vec::new(), false),
+        other => (vec![other], false),
     };
     let mut had_colbreak = false;
-    for child in children {
+    for (index, child) in children.into_iter().enumerate() {
         if matches!(child, Content::Colbreak(_)) {
             had_colbreak = true;
             segments.push(Vec::new());
+            source_indices.push(vec![]);
         } else {
             segments.last_mut().unwrap().push(child.clone());
+            source_indices.last_mut().unwrap().push(index);
         }
     }
     // Garantir `count` segmentos.
     while segments.len() < count {
         segments.push(Vec::new());
+        source_indices.push(vec![]);
     }
     // Se por alguma razão houver mais segmentos do que count, fundir os
     // excessivos no último (preserva conteúdo).
     if segments.len() > count && count > 0 {
         let tail: Vec<Content> = segments.drain(count - 1..).flatten().collect();
         segments.push(tail);
+        let tail = source_indices.drain(count - 1..).flatten().collect();
+        source_indices.push(tail);
     }
     let segments = segments
         .into_iter()
@@ -49,7 +68,13 @@ pub(super) fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content
             }
         })
         .collect();
-    (segments, had_colbreak)
+    SplitSource {
+        segments,
+        had_colbreak,
+        source_indices,
+        sequence,
+        outer_styled: outer_styles.is_some(),
+    }
 }
 
 /// **P626/P627** — descobre a direcção de texto (canal `"text.dir"`) que
@@ -131,6 +156,7 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     column_region_width: f64,
     margin: f64,
     page_columns: bool,
+    planned: Option<(&[Vec<super::super::page_running_requests::Cursor>], bool)>,
 ) {
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
@@ -150,6 +176,12 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
 
     // Guardar footnotes eventualmente pendentes do contexto exterior.
     let saved_outer_footnotes = std::mem::take(&mut layouter.pending_footnote_bodies);
+    let saved_outer_footnote_plans = std::mem::take(&mut layouter.pending_footnote_plans);
+    let saved_outer_footnote_frames =
+        std::mem::take(&mut layouter.pending_footnote_frames);
+    let saved_outer_footnote_reserve =
+        std::mem::replace(&mut layouter.footnote_reserved_height, 0.0);
+    let saved_outer_footnote_capture = layouter.footnote_capture.take();
     let saved_par_line_column = layouter.segmented_par_line_column;
     let saved_par_line_overlay = layouter.segmented_par_line_overlay;
     let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
@@ -213,12 +245,32 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // `ensure_initial_baseline` continua único dono de adicionar o
         // top-edge; pré-somar ascender duplicava a primeira coluna.
         layouter.regions.current.cursor_y = column_start_y;
+        if page_columns {
+            layouter.footnote_reserved_height = 0.0;
+            layouter.refresh_footnote_reservation();
+        }
 
         // Layout do segmento e flush final da coluna.
         // P1379 — cada segmento explícito recebe uma distribuição `fr`
         // cursor-relativa própria, sem reutilizar `page_columns` como
         // sentinela e sem abrir outros contextos de `column_mode`.
-        super::super::sequence::layout_segmented_region(layouter, segment);
+        if let Some((routes, outer_styled)) = planned {
+            let (routes, scopes) = normalize_singleton_route(
+                layouter,
+                routes.get(idx).map(Vec::as_slice).unwrap_or(&[]),
+                outer_styled,
+            );
+            super::super::sequence::layout_segmented_region_planned(
+                layouter,
+                segment,
+                Some(&routes),
+            );
+            for scope in scopes.into_iter().rev() {
+                layouter.end_planned_packet(scope);
+            }
+        } else {
+            super::super::sequence::layout_segmented_region(layouter, segment);
+        }
         layouter.flush_line();
         if page_columns {
             if page_number_style.is_none() {
@@ -294,29 +346,20 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         all_column_items.extend(column_items);
     }
 
-    if !page_columns {
-        // Notas de contentor: flush acumulado na primeira coluna, abaixo do
-        // conteúdo do contentor.
-        layouter.column_mode = true;
-        layouter.column_origin_x = column_x_offsets[0];
-        layouter.column_width = column_region_width;
-        let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin.bottom;
-        layouter.flush_pending_footnote_bodies(Some(footnote_bottom));
-        let mut footnote_items =
-            std::mem::take(&mut layouter.regions.current.current_items);
-        layouter.column_mode = false;
-        let dx = column_x_offsets[0] - margin;
-        for item in &mut footnote_items {
-            *item = translate_item_x(item.clone(), dx);
-        }
-        all_column_items.extend(footnote_items);
-        // As notas desceram abaixo do conteúdo; actualizar altura consumida
-        // para que o cursor principal não sobreponha conteúdo seguinte.
-        max_column_bottom_y = Pt(footnote_bottom);
-    }
+    let local_notes = std::mem::take(&mut layouter.pending_footnote_bodies);
+    let local_plans = std::mem::take(&mut layouter.pending_footnote_plans);
+    let local_frames = std::mem::take(&mut layouter.pending_footnote_frames);
 
     // Restaurar footnotes do contexto exterior.
     layouter.pending_footnote_bodies = saved_outer_footnotes;
+    layouter.pending_footnote_plans = saved_outer_footnote_plans;
+    layouter.pending_footnote_frames = saved_outer_footnote_frames;
+    layouter.footnote_reserved_height = saved_outer_footnote_reserve;
+    layouter.footnote_capture = saved_outer_footnote_capture;
+    layouter.pending_footnote_bodies.extend(local_notes);
+    layouter.pending_footnote_plans.extend(local_plans);
+    layouter.pending_footnote_frames.extend(local_frames);
+    layouter.refresh_footnote_reservation();
     layouter.segmented_par_line_column = saved_par_line_column;
     layouter.segmented_par_line_overlay = saved_par_line_overlay;
     layouter.defer_segmented_par_line_patterns = saved_defer_par_line_patterns;
@@ -353,6 +396,72 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.prev_line_baseline = entry_prev_line_baseline;
         layouter.prev_block_equation_descent = entry_prev_equation_descent;
         layouter.initial_baseline_pending = entry_initial_baseline_pending;
+    }
+}
+
+/// Match only normalization performed by the known segment constructor/helper.
+fn normalize_singleton_route<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    routes: &[super::super::page_running_requests::Cursor],
+    outer_styled: bool,
+) -> (
+    Vec<super::super::page_running_requests::Cursor>,
+    Vec<super::super::page_running_requests::PacketScope>,
+) {
+    use crate::compiler::introspect::page_running::PlanEdge;
+    if routes.len() != 1 {
+        return (routes.to_vec(), vec![]);
+    }
+    let mut cursor = routes[0].clone();
+    let mut scopes = vec![];
+    while let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::SourceBody) {
+        scopes.push(layouter.begin_planned_packet(cursor.clone()));
+        cursor.packet = child;
+    }
+    if !outer_styled {
+        if let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::StyledBody) {
+            scopes.push(layouter.begin_planned_packet(cursor.clone()));
+            cursor.packet = child;
+            while let Some(child) = cursor.plan.child(cursor.packet, PlanEdge::SourceBody)
+            {
+                scopes.push(layouter.begin_planned_packet(cursor.clone()));
+                cursor.packet = child;
+            }
+        }
+    }
+    let sequence_len = cursor.plan.node(cursor.packet).and_then(|node| {
+        if let Content::Sequence(parts) = &node.content {
+            Some(parts.len())
+        } else {
+            None
+        }
+    });
+    if let Some(length) = sequence_len {
+        scopes.push(layouter.begin_planned_packet(cursor.clone()));
+        let routes = (0..length)
+            .filter_map(|index| {
+                let child =
+                    cursor.plan.child(cursor.packet, PlanEdge::SequencePart(index));
+                if child.is_none() {
+                    if let Some(pass) = &mut layouter.page_running_pass {
+                        pass.invalid = true;
+                    }
+                    layouter.layout_errors.push(
+                        crate::entities::source_result::SourceDiagnostic::error(
+                            layouter.current_source_span,
+                            "missing singleton column source child",
+                        ),
+                    );
+                }
+                child.map(|packet| super::super::page_running_requests::Cursor {
+                    packet,
+                    ..cursor.clone()
+                })
+            })
+            .collect();
+        (routes, scopes)
+    } else {
+        (vec![cursor], scopes)
     }
 }
 

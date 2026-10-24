@@ -1,13 +1,16 @@
 # L0 — compiler/eval/rules/textual/matching/projection
-Hash do Código: 8fa68922
+Hash do Código: b600c8ee
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
-- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/rules/textual/matching/projection.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
+
 
 ## Measurement before decision
 
@@ -71,3 +74,13 @@ Validate PDF/HTML separately; build/workspace/doctests/strict Clippy-Rustdoc/fmt
 V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Use
 12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. No RAM gain without
 paired experiment or suppression to clear gate; no commit/push/release.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+Slice an unmatched Symbol substring as Symbol with its complete byte-valid Unicode substring, preserving origin; converted non-math text remains Text.

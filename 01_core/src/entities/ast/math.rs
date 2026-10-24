@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/ast/math.md
-//! @prompt-hash 1a06ed02
+//! @prompt-hash b89f39d3
 //! @layer L1
 //! @updated 2026-03-26
 
@@ -293,7 +293,7 @@ mod tests {
     #[test]
     fn equation_block_requires_spaces() {
         // $ x $ is block (space after first $ and before last $)
-        let src = Source::detached("$ x $");
+        let src = Source::detached("$ x $").expect("valid Source test fixture");
         let has_equation = src
             .root()
             .children()

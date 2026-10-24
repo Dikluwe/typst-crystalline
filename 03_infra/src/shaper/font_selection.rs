@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/font_selection.md
-//! @prompt-hash c265d26b
+//! @prompt-hash 6aad5c49
 //! @layer L3
-//! @updated 2026-10-10
+//! @updated 2026-10-24
 
 use super::bidi::BidiRun;
 use super::cache::{FaceCache, PrimaryResolution};
@@ -51,23 +51,8 @@ pub(super) fn primary_candidates(
             }
         }
     } else {
-        // **P783/P784** — adicionar a cadeia de fallback matemático como
-        // primárias adicionais, para que glifos ausentes na primária sejam
-        // buscados em fontes math dedicadas antes do fallback global (todo
-        // o FontBook em ordem de índice). Dois gatilhos independentes
-        // (OR): `math` (P784 — sempre que o texto vem do motor de
-        // layout matemático, `layout/equation.rs`, independentemente de a
-        // fonte de corpo por omissão ter ou não tabela MATH própria — ela
-        // não tem, `Libertinus Serif` não tem MATH, então este era o único
-        // caso que realmente falhava e motivou este passo) e
-        // `primary_has_math` (P783 original — a fonte já resolvida declara
-        // MATH própria, útil se o utilizador define `font:
-        // "New Computer Modern Math"` explicitamente fora de `$...$`).
-        let primary_has_math = primary
-            .first()
-            .and_then(|cand| face_cache.get(world, cand.slot_idx))
-            .is_some_and(|cached| cached.face().tables().math.is_some());
-        if math || primary_has_math {
+        // Language mode selects the fallback chain; a MATH table is only capability.
+        if math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
                 if let Some(cands) =
@@ -291,6 +276,10 @@ impl<'a> CandidateSet<'a> {
         for &idx in candidates {
             let mut end = start;
             for c in text[start..].chars() {
+                if matches!(c, '\u{fe00}'..='\u{fe0f}' | '\u{e0100}'..='\u{e01ef}') {
+                    end += c.len_utf8();
+                    continue;
+                }
                 let covers = if idx < self.primary.len() {
                     face_covers_char(
                         self.world,
@@ -336,6 +325,13 @@ impl<'a> CandidateSet<'a> {
             .entry(c)
             .or_insert_with(|| world.candidates_for_char(c))
             .contains(&slot_idx)
+    }
+
+    pub(super) fn selected_face(
+        &mut self,
+        slot_idx: usize,
+    ) -> Option<&ttf_parser::Face<'_>> {
+        self.face_cache.get(self.world, slot_idx).map(|cached| cached.face())
     }
 
     pub(super) fn get(&mut self, idx: usize) -> Option<FontCandidate> {
@@ -631,6 +627,31 @@ mod primary_chain_reuse_tests {
     ) -> Vec<(usize, u16)> {
         slots(primary_candidates(world, list, variant, cache, math))
     }
+    #[test]
+    fn r3_geometry_math_table_does_not_change_text_mode() {
+        let mut world = world(false);
+        world.fonts[0] = Font::from_data(
+            std::fs::read(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("fixtures/fonts/DejaVuSans.ttf"),
+            )
+            .unwrap(),
+        );
+        assert!(ttf_parser::Face::parse(world.fonts[0].as_slice(), 0)
+            .unwrap()
+            .tables()
+            .math
+            .is_some());
+        let mut cache = FaceCache::new();
+        let families = list(&["Alpha"]);
+        let variant = FontVariant::default();
+        let plain = resolve(&world, &mut cache, &families, &variant, false);
+        assert_eq!(plain, vec![(0, 2048)]);
+        let math = resolve(&world, &mut cache, &families, &variant, true);
+        assert!(math.iter().any(|(slot, _)| *slot == 4));
+        assert_eq!(resolve(&world, &mut cache, &families, &variant, false), plain);
+    }
+
     #[test]
     fn repeated_primary_chain_avoids_new_catalog_queries() {
         let world = world(false);

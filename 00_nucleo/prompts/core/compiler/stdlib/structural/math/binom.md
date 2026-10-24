@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/binom
-Hash do Código: 0702f576
+Hash do Código: 95d988c8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/binom.rs`
@@ -18,3 +18,19 @@ The parent `math.rs` retains only static registration and shared catalog orchest
 ## Acceptance
 
 Existing core regressions remain green. The full core suite, `cargo build` and `crystalline-lint .` pass; header ownership is 1:1. No speedup is claimed without separate measurement.
+
+
+## R4 supplementary measurement and exclusive correction
+
+`lab/results/math-fields-r4-2026-10-23/before-expanded/receipt.json` retains
+UTC/source-map/HEAD/diff stat and binary hashes against pinned bd5ebec2.
+Binom lower None/integer/boolean and raw Symbol slots of attach differ;
+upstream math/frac.rs:134–150 explicitly uses Value::display for lower.
+These are language semantics/morphology, not Rust equality certification.
+
+Use the existing p1293_math_content for the required upper operand. For variadic lower operands use existing eval::value_to_display_content(value.clone()).unwrap_or(Content::Empty), matching the measured display conversion for None, String, Symbol, integer and boolean. Preserve arity/named validation and semantic delimiter/fraction construction. The display helper retains its own bounded scope; do not certify arbitrary unmeasured Value variants.
+
+This supersedes conflicting historical clauses only. Existing public fields,
+trait declaration/signatures, defaults and pipeline phases stay unchanged;
+ADR-0127 continuous parity flow, L0 before behavioral RED→GREEN, full validation
+and lineage/full lint zero, preserving all received changes.

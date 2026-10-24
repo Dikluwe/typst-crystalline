@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/html
-Hash do Código: e046d357
+Hash do Código: 28231f75
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/html.rs`
@@ -7,11 +7,15 @@ Hash do Código: e046d357
 Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
+```
+
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
-```
+- 00_nucleo/prompts/_nuclei/layout/page-rule-container-boundary.toml sha256:54dec4a08272a6ddbb91b63d388af8c25aaaa8afc7864b72226e1d125026682e
+
 
 ## Current evidence
 
@@ -124,3 +128,37 @@ these guards. Intrinsic positions introduce no public HTML page or PageStore.
 Preserve layout/resolver/pretty behavior. This owner-local ADR-0127 correction
 adds no global traversal transparency, public visitor/API, container catalogue,
 phase, target or default and makes no complete frame-language parity claim.
+
+## Measured refutation and final causal HTML boundary
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/empty-warning-before/receipt.json`
+SHA-256 `8bd8aac399399978418fd9a5c82cdbfa07bf93c6fe9779401901b55cc489a4d6` records UTC
+`2026-10-22T12:42:21.170883+00:00`–`2026-10-22T12:42:21.559949+00:00`, exact HEAD/dirty stat, sources, argv,
+stdout/stderr and the cached baseline's own verified source archive/build, oracle
+and font pins. The cached binary is not claimed as current uncommitted source.
+Empty page/empty nested page do not warn or error. Returned ContentBlock content
+and nested initial Bundle content warn rather than error; the construction-marker
+proposal is refuted and must not be materialized. Direct standalone Html ContentBlock
+insertion and semantic HtmlFrame/Block reject page configuration. Both Heading/Page
+warning orders are measured; missing standalone Heading warnings cannot justify
+late sorting. This supersedes only the refuted construction/Document-consumption
+clauses, preserved as diagnostic history in that task's LAB records.
+
+After existing contextual preparation and before existing export, delegate to the
+same private emitted HTML semantic projection already used for Bundle documents.
+Its single causal traversal emits reached Page and deep-Heading warnings with
+nearest Source origins and validates marked/semantic containers. It must not
+paginate HTML or convert actual HtmlFrame body content; such bodies are only
+validated for page-setting legality and passed unchanged to their frame resolver.
+
+Meaningful before-code RED and final bilateral exact source/message/hint/order/body
+checks remain required. Internal ADR-0127 continuous flow; no new public contract,
+default or phase. Preserve full unsuppressed lint/test/path/hash/lineage gates.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

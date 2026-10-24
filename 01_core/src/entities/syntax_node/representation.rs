@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/syntax_node/representation.md
-//! @prompt-hash 11022d07
+//! @prompt-hash 532721ec
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -253,7 +253,8 @@ impl SyntaxNode {
             return Err(Unnumberable);
         }
 
-        let mid = Span::from_number(id, (within.start + within.end) / 2).unwrap();
+        let midpoint = within.start + (within.end - within.start) / 2;
+        let mid = Span::from_number(id, midpoint).ok_or(Unnumberable)?;
         match &mut self.0 {
             NodeKind::Leaf(leaf) => leaf.span = mid,
             NodeKind::Inner(inner) => Arc::make_mut(inner).numberize(id, None, within)?,
@@ -427,35 +428,41 @@ impl InnerNode {
         range: Option<Range<usize>>,
         within: Range<u64>,
     ) -> NumberingResult {
+        let selected = range.clone().unwrap_or(0..self.children.len());
+        let children = self.children.get(selected.clone()).ok_or(Unnumberable)?;
         let descendants = match &range {
             Some(range) if range.is_empty() => return Ok(()),
-            Some(range) => self.children[range.clone()]
-                .iter()
-                .map(SyntaxNode::descendants)
-                .sum::<usize>(),
+            Some(_) => children.iter().try_fold(0usize, |total, child| {
+                total.checked_add(child.descendants()).ok_or(Unnumberable)
+            })?,
             None => self.descendants,
         };
-
-        let space = within.end - within.start;
-        let mut stride = space / (2 * descendants as u64);
+        let descendants = u64::try_from(descendants).map_err(|_| Unnumberable)?;
+        let space = within.end.checked_sub(within.start).ok_or(Unnumberable)?;
+        let denominator = descendants.checked_mul(2).ok_or(Unnumberable)?;
+        let mut stride = space.checked_div(denominator).ok_or(Unnumberable)?;
         if stride == 0 {
-            stride = space / self.descendants as u64;
+            let total = u64::try_from(self.descendants).map_err(|_| Unnumberable)?;
+            stride = space.checked_div(total).ok_or(Unnumberable)?;
             if stride == 0 {
                 return Err(Unnumberable);
             }
         }
-
         let mut start = within.start;
         if range.is_none() {
-            let end = start + stride;
-            self.span = Span::from_number(id, (start + end) / 2).unwrap();
+            let end = start.checked_add(stride).ok_or(Unnumberable)?;
+            let midpoint = start + (end - start) / 2;
+            self.span = Span::from_number(id, midpoint).ok_or(Unnumberable)?;
             self.upper = within.end;
             start = end;
         }
-
-        let len = self.children.len();
-        for child in &mut self.children[range.unwrap_or(0..len)] {
-            let end = start + child.descendants() as u64 * stride;
+        for child in self.children.get_mut(selected).ok_or(Unnumberable)? {
+            let count = u64::try_from(child.descendants()).map_err(|_| Unnumberable)?;
+            let width = count.checked_mul(stride).ok_or(Unnumberable)?;
+            let end = start.checked_add(width).ok_or(Unnumberable)?;
+            if end > within.end {
+                return Err(Unnumberable);
+            }
             child.numberize(id, start..end)?;
             start = end;
         }
@@ -754,5 +761,38 @@ mod tests {
         assert_eq!(root.descendants(), 4);
         assert!(!root.erroneous());
         assert_eq!(root.into_text().as_str(), "leftnew!right");
+    }
+
+    #[test]
+    fn no_panic_source_numbering_rejects_reserved_and_out_of_range_midpoints() {
+        let id = FileId::from_raw(std::num::NonZeroU16::MIN);
+        for within in [0..1, Span::FULL.end..Span::FULL.end + 1, u64::MAX - 1..u64::MAX] {
+            let mut node = SyntaxNode::leaf(SyntaxKind::Text, "x");
+            assert_eq!(node.numberize(id, within), Err(Unnumberable));
+        }
+    }
+
+    #[test]
+    fn no_panic_source_inner_numbering_rejects_invalid_child_intervals() {
+        let id = FileId::from_raw(std::num::NonZeroU16::MIN);
+        let mut inner = InnerNode::new(
+            SyntaxKind::Markup,
+            vec![SyntaxNode::leaf(SyntaxKind::Text, "x")],
+        );
+        assert_eq!(inner.numberize(id, Some(0..2), Span::FULL), Err(Unnumberable));
+        assert_eq!(
+            inner.numberize(id, None, Range { start: 7, end: 3 }),
+            Err(Unnumberable)
+        );
+    }
+
+    #[test]
+    fn no_panic_source_inner_numbering_rejects_zero_or_overflowing_counts() {
+        let id = FileId::from_raw(std::num::NonZeroU16::MIN);
+        for descendants in [0, usize::MAX] {
+            let mut inner = InnerNode::new(SyntaxKind::Markup, vec![]);
+            inner.descendants = descendants;
+            assert_eq!(inner.numberize(id, None, Span::FULL), Err(Unnumberable));
+        }
     }
 }

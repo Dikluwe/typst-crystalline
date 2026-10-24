@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash e941b9a4
+//! @prompt-hash 260d4326
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -35,7 +35,10 @@ pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
         x: layouter.regions.current.cursor_x,
         y: layouter.regions.current.cursor_y,
     };
-    layouter.layout_content(body);
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::LabelBody,
+        body,
+    );
     let page = layouter.current_page_number();
     layouter.record_label_position(label, page, pos);
 }
@@ -63,11 +66,46 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             form: None,
             style: None,
         };
+        let citation_location = layouter
+            .page_running_pass
+            .as_ref()
+            .and_then(|pass| pass.cursor.as_ref())
+            .and_then(|cursor| cursor.plan.node(cursor.packet))
+            .and_then(|node| node.auxiliary_locations.first().copied());
+        let previous_location = layouter.current_location;
+        if let Some(location) = citation_location {
+            layouter.locator.observe(location);
+            layouter.current_location = Some(location);
+            let page = std::num::NonZeroUsize::new(layouter.pages.len() + 1).unwrap();
+            let point = Point {
+                x: layouter.regions.current.cursor_x,
+                y: layouter.regions.current.cursor_y,
+            };
+            layouter.record_location_position(
+                location,
+                crate::entities::position::Position { page, point },
+                false,
+            );
+        }
         super::cite::layout(layouter, &cite);
+        layouter.current_location = previous_location;
         return;
     }
 
     let target_label = Label(elem.name.to_string());
+    if elem.form == crate::entities::elements::r#ref::RefForm::Normal {
+        let targets = layouter.introspector.query(&Selector::Label(target_label.clone()));
+        if targets
+            .first()
+            .is_some_and(|first| targets.iter().any(|target| target != first))
+        {
+            layouter.layout_errors.push(SourceDiagnostic::error(
+                layouter.current_source_span,
+                format!("label `<{}>` occurs multiple times in the document", elem.name),
+            ));
+            return;
+        }
+    }
 
     if elem.form == crate::entities::elements::r#ref::RefForm::Page {
         let known = layouter.introspector.query_by_label(&target_label).is_some()
@@ -249,18 +287,30 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
                     .supplement
                     .clone()
                     .or_else(|| figure.resolved_supplement.clone().flatten());
-                let text = match supplement {
-                    Some(supplement) if !supplement.is_empty() => Content::Sequence(
-                        vec![supplement, Content::text("\u{a0}"), Content::text(number)]
-                            .into(),
+                match supplement {
+                    Some(supplement) if !supplement.is_empty() => {
+                        let prepared = layouter.page_running_pass.as_ref()
+                            .and_then(|pass| pass.cursor.as_ref())
+                            .and_then(|cursor| cursor.plan.node(cursor.packet))
+                            .is_some_and(|node| node.role == crate::compiler::introspect::page_running::PlanRole::PreparedReference);
+                        let route = if prepared {
+                            layouter.planned_child_cursor(crate::compiler::introspect::page_running::PlanEdge::PreparedReferenceSupplement)
+                        } else {
+                            None
+                        };
+                        layouter.layout_link_capture_mixed(
+                            &[supplement, Content::text("\u{a0}"), Content::text(number)],
+                            LinkTarget::Destination(target_label),
+                            false,
+                            &[route, None, None],
+                        );
+                    }
+                    Some(_) | None => layouter.layout_link_capture(
+                        &Content::text(number),
+                        LinkTarget::Destination(target_label),
+                        false,
                     ),
-                    Some(_) | None => Content::text(number),
-                };
-                layouter.layout_link_capture(
-                    &text,
-                    LinkTarget::Destination(target_label),
-                    false,
-                );
+                }
                 return;
             }
         }

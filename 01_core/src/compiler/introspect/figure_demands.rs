@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/figure_demands.md
-//! @prompt-hash 6da6484a
+//! @prompt-hash 23137120
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -49,6 +49,7 @@ fn visit(
         }
         return Ok(());
     }
+    collect_planned_root(content, intr, chain, location, span, out)?;
     match content {
         Content::Source(e) => {
             let span = if e.span.is_detached() { span } else { e.span };
@@ -133,26 +134,6 @@ fn visit(
             visit(&e.body, intr, &pushed, location, span, out)?;
         }
         Content::Figure(e) => {
-            if let Some(kind) = &e.resolved_kind {
-                if e.caption.is_some()
-                    && !matches!(
-                        chain.custom("figure.numbering"),
-                        Some(crate::entities::value::Value::None)
-                    )
-                {
-                    let location = location.ok_or_else(|| {
-                        vec![SourceDiagnostic::error(
-                            span,
-                            "figure counter snapshot could not be verified",
-                        )]
-                    })?;
-                    out.push(FigureCounterDemand {
-                        key: super::figure_counters::figure_counter_key(kind),
-                        location,
-                        span,
-                    });
-                }
-            }
             visit(&e.body, intr, chain, None, span, out)?;
             if let Some(c) = &e.caption {
                 if e.resolved_kind.is_some()
@@ -343,35 +324,15 @@ fn visit(
                 visit(c, intr, chain, None, span, out)?;
             }
         }
-        Content::Ref(e) => {
-            if e.form == crate::entities::elements::r#ref::RefForm::Normal
-                && intr.bib_entry_for_key(e.name.as_str()).is_none()
-            {
-                let label = crate::entities::label::Label(e.name.to_string());
-                if let Some(target) = intr.query_by_label(&label) {
-                    if let Some(Content::Figure(figure)) = intr.element_at(target) {
-                        if let Some(kind) = &figure.resolved_kind {
-                            let key = super::figure_counters::figure_counter_key(kind);
-                            if intr.counters.actions().iter().any(|event| {
-                                event.location == target && event.key.is_none()
-                            }) {
-                                out.push(FigureCounterDemand {
-                                    key,
-                                    location: target,
-                                    span,
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        Content::Ref(_) => {}
+
         Content::Empty
         | Content::Text(..)
         | Content::Space
         | Content::SpaceFromNewline
         | Content::Parbreak
         | Content::Raw(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathPrimes(..)
@@ -404,6 +365,184 @@ fn visit(
         | Content::CounterDisplayCallback(..)
         | Content::ContextBlock(..)
         | Content::Dynamic(..) => {}
+    }
+    Ok(())
+}
+
+/// Root-only demand using a planned occurrence's actual identity/environment.
+pub(super) fn collect_planned_root(
+    content: &Content,
+    intr: &TagIntrospector,
+    chain: &StyleChain,
+    location: Option<Location>,
+    span: Span,
+    out: &mut Vec<FigureCounterDemand>,
+) -> SourceResult<()> {
+    match content {
+        Content::Figure(e) => {
+            if let Some(kind) = &e.resolved_kind {
+                if e.caption.is_some()
+                    && !matches!(
+                        chain.custom("figure.numbering"),
+                        Some(crate::entities::value::Value::None)
+                    )
+                {
+                    let location = location.ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            "figure counter snapshot could not be verified",
+                        )]
+                    })?;
+                    out.push(FigureCounterDemand {
+                        key: super::figure_counters::figure_counter_key(kind),
+                        location,
+                        span,
+                    });
+                }
+            }
+        }
+        Content::Ref(e) => {
+            if e.form == crate::entities::elements::r#ref::RefForm::Normal
+                && intr.bib_entry_for_key(e.name.as_str()).is_none()
+            {
+                let label = crate::entities::label::Label(e.name.to_string());
+                if let Some(target) = intr.query_by_label(&label) {
+                    if let Some(Content::Figure(figure)) = intr.element_at(target) {
+                        if let Some(kind) = &figure.resolved_kind {
+                            let key = super::figure_counters::figure_counter_key(kind);
+                            if intr.counters.actions().iter().any(|event| {
+                                event.location == target && event.key.is_none()
+                            }) {
+                                out.push(FigureCounterDemand {
+                                    key,
+                                    location: target,
+                                    span,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::Symbol(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => {}
     }
     Ok(())
 }

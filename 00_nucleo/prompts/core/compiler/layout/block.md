@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: 933b7d9b
+Hash do Código: e213c6ae
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -11,6 +11,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
@@ -81,3 +82,96 @@ This internal parity correction follows ADR-0127 continuous flow: no new public 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
 This internal parity correction under ADR-0127 adds no public contract/default/phase. L0 precedes RED→GREEN/restricted resealing. Causal width is only part of the ongoing block-region/width/transport correction: Auto height/backing, late alignment, fractions, fragmentation, outset and PDF Parent retain their own criteria. Testing a carrier alone does not approve render. Preserve full bilateral controls/refuters, suite/build/doc/fmt/lineage/inventories.
+
+
+## Approved physical page occurrence protocol
+
+### Evidence before decision
+
+At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
+
+### Exclusive protocol responsibility
+
+Route the actual body through `BlockBody` under its source plan, preserving canonical root and derived post-child facts on their accepted physical pages. Generated numbering/decorations and all preflight measurement remain unplanned. Keep every existing style/geometry/margin/strategy/restore formula and static delegation; do not use source equality or a wrapper Location to recover a missing route.
+
+
+## Private prepared full-region flow frames (2026-10-21)
+
+### Measurement before specification
+
+`lab/results/nested-fractions-repeat-2026-10-21/measurement-before-decision.json`
+pins exact baseline source/stat/HEAD/UTC and current oracle receipts. The original
+repeat-with-parent/child source produces duplicate INNER in Tekt; vanilla emits
+INNER once on its own following flow line. `repeat-before` independently confirms
+root Repeat interrupts both prefix and suffix paragraphs. Pinned
+`typst-layout/src/rules.rs:743–745` lowers Repeat to a Block single layouter;
+`flow/collect.rs:240–288` supplies normal collapsed paragraph margins. Existing
+`block.rs:148–201,642–691` owns those admission/exit rules. Copying inline glyphs
+or forcing an ordinary soft wrap fails the observable flow/height contract.
+
+### Exclusive helper obligations
+
+Provide private descendant helpers `admit_prepared_frame` and
+`commit_prepared_frame` for an already once-composed actual local frame. Admission
+closes the causal pending text and resolves default Block above/below spacing
+using the existing strength-aware collapse rule and geometric-origin distinction.
+Return actual flow origin and full usable local width; no body dispatch or
+measurement occurs in this helper. Preserve initial/subframe origins, local
+Block region and previous causal end. Commit performs ordinary finite-region
+admission for the atomic frame, without reexecuting its source, places the local
+items through one neutral Group, publishes actual allocated flow width/end,
+clears stale inline baseline/extent state and records the pending default weak
+below margin. Return its final actual origin so the feature translates its own
+local decorations by the same offset. Zero height is real; terminal pending
+margin is not part of physical frame height. Nonfinite Repeat bounds are diagnosed
+by the Repeat owner before requesting commit; no invented zero or fallback size.
+
+These are private layout helpers, not a new public Block/Repeat entity, synthetic
+source wrapper, source phase or default mode. Typed RepeatBody admission remains
+owned by Repeat, never BlockBody. Require causal first/prefix/suffix/nested/empty/
+finite-overflow/actual-height tests and source/counter/location controls, unchanged
+Block margin/region corpus, full tests/build/Clippy/rustdoc/fmt/hash/lineage gates.
+This continuous ADR-0127 correction supersedes no unrelated Block debt.
+
+
+## Private first-flow baseline witness
+
+### Measurement before correction
+
+`lab/results/nested-fractions-repeat-2026-10-21/prototype-1/zero-source-after/measurement.json.gz`
+binds actual source, candidate/oracle SHA-256, fonts, HEAD, uncommitted diffstat
+and UTC. Zero-copy Repeat loses its prepared baseline, moving adjacent BEFORE/TAIL
+while its body height remains real. Source inspection at pinned
+`lab/typst-original/crates/typst-layout/src/repeat.rs:19–29`,
+`inline/box.rs:32–47,79–89`, and `flow/distribute.rs:689–699` shows that
+a prepared frame retains baseline even without copies, and the FIRST actual
+in-flow frame decides baseline presence. The local Box paint scan cannot see it.
+Exact preamendment owners/sources and state are archived in
+`lab/results/nested-fractions-repeat-2026-10-21/baseline-witness-before.json`.
+These are language geometry obligations; private carrier representation is mechanics.
+
+### Exclusive private obligation
+
+Own private record_flow_baseline(Option<f64>): first certified decision wins, preserving authoritative absence and real zero. Isolate the Block body witness, then propagate its actual baseline at the existing frame commit without letting nested children choose the exterior first frame. The private prepared-frame adapter accepts an optional real baseline and translates it by the final atomic origin before publication, even when the frame paints nothing. Preserve heights, margins, finite admission and source-body count.
+
+Require genuine RED→GREEN for empty Repeat baseline, positive copies, earlier Text,
+earlier empty frame, nested insets/shift, Shape/empty controls, LIFO and checkpoint
+restoration, then the same pinned bilateral SVG/PDF observations without relaxing
+1e-8 geometry or semantic membership. Unknown legacy producers retain their
+previous fallback unless a measured owning frame explicitly supplies a decision.
+This is an ADR-0127 continuous private layout correction, with no public contract,
+new product mode/default, compatibility break or eval/layout phase change.
+L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
+zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.
+
+### Preserve uncertified versus absent baseline
+
+The read-only audit at `lab/results/nested-fractions-repeat-2026-10-21/agents/acceptance/baseline-barrier-audit.json`
+and Repeat audit identifies uninstrumented Align/Stack/Transform frame producers.
+Their unknown result is not proof that a first frame has no baseline. Preserve
+the full Option<Option<f64>> through the private prepared-frame baseline argument,
+recording a decision only for outer Some and translating only its actual inner y.
+Generic Block likewise propagates only a supplied body decision; outer None remains
+uncertified. Never flatten unknown into authoritative absence. The Box owner's
+whole-body certificate retains its existing affine-paint fallback on uncertified
+producer paths; this is no universal first-frame/flow-baseline claim.

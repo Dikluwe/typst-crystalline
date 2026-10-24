@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/mod.md
-//! @prompt-hash d44c546f
+//! @prompt-hash 8a1efa20
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -75,6 +75,23 @@ pub(crate) use spacing::p1450_boundary_classes;
 pub(crate) use spacing::p1451_boundary_classes;
 #[cfg(test)]
 pub(crate) use spacing::{p1436_boundary_classes, p1437_boundary_classes};
+
+pub(in crate::compiler) struct PlannedExternalFrame {
+    pub(in crate::compiler) content: Content,
+    pub(in crate::compiler) height: f64,
+    pub(in crate::compiler) width: f64,
+    pub(in crate::compiler) items: Vec<FrameItem>,
+}
+
+pub(in crate::compiler) fn prepare_direct_body(body: &Content) -> Content {
+    apply_math_default(body)
+}
+
+pub(in crate::compiler) fn external_styles(
+    style: &TextStyle,
+) -> crate::entities::style::Styles {
+    external_bridge::external_styles(style)
+}
 
 fn lower_math_overbrace(
     elem: &crate::entities::elements::math_underover::MathOverbraceElem,
@@ -614,7 +631,8 @@ fn needs_external_layout(content: &Content) -> bool {
         | Content::Boxed(_)
         | Content::Align(_)
         | Content::Pad(_)
-        | Content::Block(_) => true,
+        | Content::Block(_)
+        | Content::Raw(_) => true,
         Content::Sequence(items) => items.iter().any(needs_external_layout),
         // **P1027** — `Styled` que carrega propriedades de texto que o catch-all
         // de math não consegue aplicar (ele chama `layout_text_node` com o
@@ -651,11 +669,11 @@ fn needs_external_layout(content: &Content) -> bool {
         | Content::Title(_)
         | Content::Strong(_)
         | Content::Emph(_)
-        | Content::Raw(_)
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -803,6 +821,7 @@ fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
             | Content::Link(_)
             | Content::Equation(_)
             | Content::MathSequence(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1193,6 +1212,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             | Content::EnumItem(_)
             | Content::Link(_)
             | Content::Equation(_)
+            | Content::Symbol(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::MathFrac(_)
@@ -1291,6 +1311,30 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             | Content::ContextBlock(_)
             | Content::Dynamic(_) => (self.layout_node(&transformed, style), vec![0.0]),
         };
+        self.measure_box(math_box, &line_baselines)
+    }
+
+    pub(in crate::compiler) fn layout_equation_from_external(
+        &self,
+        frame: PlannedExternalFrame,
+        style: &TextStyle,
+    ) -> (Vec<FrameItem>, EquationExtent) {
+        let math_box = self.compose_external(
+            &frame.content,
+            style,
+            frame.height,
+            frame.width,
+            frame.items,
+            true,
+        );
+        self.measure_box(math_box, &[0.0])
+    }
+
+    fn measure_box(
+        &self,
+        math_box: MathBox,
+        line_baselines: &[f64],
+    ) -> (Vec<FrameItem>, EquationExtent) {
         let baseline_y = math_box.ascent;
         let extent = EquationExtent {
             width: math_box.width,
@@ -1307,6 +1351,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Percorre a árvore de Content matemático recursivamente, produzindo um `MathBox`.
     pub(super) fn layout_node(&self, content: &Content, style: &TextStyle) -> MathBox {
         match content.source_body() {
+            Content::Symbol(text) => self.layout_symbol(text, style),
             Content::MathIdent(name) => {
                 // **P809** — o itálico por defeito (codepoint) já foi aplicado
                 // no topo (`layout_equation`); aqui é só layout. A flag de
@@ -1639,7 +1684,10 @@ pub(super) fn should_tighten_text_frame(node: &Content, next: Option<&Content>) 
 /// Caractere de uma folha matemática simples, sem atravessar containers.
 fn single_math_leaf_char(content: &Content) -> Option<char> {
     let text = match content.source_body() {
-        Content::Text(text) | Content::MathText(text) | Content::MathIdent(text) => text,
+        Content::Symbol(text)
+        | Content::Text(text)
+        | Content::MathText(text)
+        | Content::MathIdent(text) => text,
         Content::Source(_)
         | Content::ShowRecipe(_)
         | Content::Realized(_)
@@ -1773,11 +1821,20 @@ pub(super) fn flatten_math_sequence_nodes(nodes: &[Content], out: &mut Vec<Conte
         let span = node.source_span();
         match node.source_body() {
             Content::MathSequence(children) => flatten_math_sequence_nodes(children, out),
+            Content::Symbol(text) => {
+                use unicode_segmentation::UnicodeSegmentation;
+                out.extend(
+                    text.graphemes(true).map(|cluster| Content::Symbol(cluster.into())),
+                );
+            }
             Content::Sequence(children)
                 if children.iter().all(|child| {
                     matches!(
                         child.source_body(),
-                        Content::Text(_) | Content::MathText(_) | Content::MathIdent(_)
+                        Content::Text(_)
+                            | Content::MathText(_)
+                            | Content::Symbol(_)
+                            | Content::MathIdent(_)
                     )
                 }) =>
             {
@@ -2126,6 +2183,42 @@ mod p1293_layout_owner_gap_tests {
 
         fn char_italics_correction(&self, _c: char, _size: Pt, _style: &TextStyle) -> Pt {
             Pt(0.5)
+        }
+    }
+
+    #[test]
+    fn r3_geometry_symbol_graphemes_keep_individual_advances() {
+        let style = TextStyle { math: true, ..style() };
+        let metrics = MetricsComIcNoAdvance;
+        let layouter = MathLayouter::new(&metrics, false, &style);
+        let symbol = layouter.layout_node(&Content::Symbol("xy".into()), &style);
+        let x = layouter.layout_node(&Content::Symbol("x".into()), &style);
+        let y = layouter.layout_node(&Content::Symbol("y".into()), &style);
+        assert_eq!(symbol.width, x.width + y.width);
+        assert_eq!(symbol.items.len(), 2);
+        let FrameItem::Text { pos, text, .. } = &symbol.items[1] else {
+            panic!("second grapheme must retain its paint")
+        };
+        assert_eq!(text.as_str(), "y");
+        assert_eq!(pos.x.0, x.width);
+        let ident = layouter.layout_node(&Content::MathIdent("xy".into()), &style);
+        assert_eq!(ident.items.len(), 1);
+        assert_eq!(ident.width + 1.0, symbol.width);
+    }
+
+    #[test]
+    fn r3_geometry_symbol_keeps_variation_and_combining_clusters() {
+        let style = TextStyle { math: true, ..style() };
+        let metrics = MetricsComIcNoAdvance;
+        let layouter = MathLayouter::new(&metrics, false, &style);
+        for cluster in ["x\u{fe00}", "x\u{e0100}", "x\u{301}"] {
+            let text = format!("{cluster}y");
+            let measured = layouter.layout_node(&Content::Symbol(text.into()), &style);
+            assert_eq!(measured.items.len(), 2);
+            let FrameItem::Text { text, .. } = &measured.items[0] else {
+                panic!("grapheme must retain its paint")
+            };
+            assert_eq!(text.as_str(), cluster);
         }
     }
 

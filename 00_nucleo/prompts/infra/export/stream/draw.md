@@ -1,5 +1,5 @@
 # L0 — stream/draw
-Hash do Código: 15b337b4
+Hash do Código: bec5ba29
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -262,3 +262,95 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+
+## R5 — pintura compartilhada e coordenadas de linha (2026-10-24)
+
+### Medição anterior à decisão
+
+`lab/results/construction/diagnostics/painting-r5-2026-10-24/baseline.json` e
+`baseline-source.json.gz` preservam HEAD cf21f47a3b63f0e9fc5308925e1d0b67925e7227,
+árvore não commitada, lista exata/diffstat, UTC, fontes/L0 e binários. O oráculo
+continua bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, SHA256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+`before/receipt.json` mede tabela: 18/10 pixels distintos a72dpi e1548/1532
+a600dpi; os outros seis documentos coincidem a72dpi. `pdf-experiments/receipt.json`
+isola deduplicação de linhas idênticas e transformação local: só ambas zeram
+a diferença nas duas resoluções. Isso sustenta correção de pintura observável,
+não igualdade de bytes/comandos. `borders.rs:332-360` emite fundo e topo
+coincidentes de linhas adjacentes; `row_pagination.rs:26-32` contém a decisão
+de quebra; `cell_emission.rs:124-190` conhece alturas e ordem física.
+`draw.rs:483-495,914-932` emite endpoints absolutos arredondados e inverte
+inclinação no espaço local já refletido. `before-local/receipt.json` registra
+linha inclinada em Box recortado:183 pixels distintos a72dpi e5511 a600dpi.
+Esses são efeitos de linguagem/render; intenção upstream não foi inferida.
+
+### Classificação e aceitação
+
+Correção interna de paridade, fluxo contínuo ADR-0127: nenhum campo, enum, trait,
+API pública, default de produto, fase ou quebra de compatibilidade novo.
+Atualizar L0 antes de testes/código, V15/V26 antes de reseal bidirecional,
+RED funcional antes da implementação, GREEN sem enfraquecer expectativas.
+Exigir PDF rasterizado bilateral a72/600dpi e SVG físico, transparência, fills,
+None/zero, spans, gaps, strokes distintos e bordas em quebras de página;
+linhas inclinadas/negativas/fracionárias/top/local e modos Compact/Verbose.
+Preservar texto, geometria, efeitos, ordem dos corpos e demais gates A–H/R1–R4,
+suítes/build/Clippy/doc/fmt/lint zero, uma tarefa pesada por vez,12GiB/zero swap.
+Não certificar prioridades gerais de strokes distintos, gutters ricos, spans
+multipágina ou paridade global por essa amostra. PNG nativo e nomes públicos
+de fontes são superfícies separadas; nenhuma renomeação/normalização de
+comparadores é autorizada para aparentar MATCH.
+
+### Contrato exclusivo desta unidade
+
+ShapeKind::Line usa origem no endpoint inicial físico e deltas assinados
+obtidos das dimensões recebidas e dos sinais dx/dy. Top: translação do início
+em coordenadas PDF e reflexão Y; local: translação apenas, pois Group já
+refletiu Y. Usar precisão de5casas para origem e deltas, preservando o espaço
+de endpoints fracionários. Helper privado neste owner, sem mudar recursos,
+BBox de paint, stroke/fill, clip, tags, opacidade, ordem ou outros ShapeKind.
+Estado fica dentro do q/Q já existente. Não refletir duas vezes grupos, não
+reduzir para endpoints absolutos no espaço de página. Testes interpretam
+operadores para verificar endpoints e restauração independentemente do
+emissor; raster bilateral detecta empate numérico no dispositivo.
+
+
+### R5 — refinamento medido do caminho recortado
+
+`before-qualified/line-local-tekt.pdf` e `line-local-vanilla.pdf` preservam o
+ensaio anterior à implementação; a imagem Tekt fica vazia, enquanto o oráculo
+pinta a linha dentro do recorte. O fluxo extraído em `before-local-streams.json`
+mostra Path (não ShapeKind::Line): após Group Y-down e clip100×100, Tekt
+emite(10,-10)→(70,-40); vanilla(0,0)→(60,30) sob origem(30,130)Y-down.
+`draw.rs:934-956` nega novamente Y local de MoveTo/LineTo/CubicTo. A hipótese
+anterior de inclinação invertida descrevia a outra ramificação Line; o caso
+CLI revela caminho fora do clip. Isso refina a causa sem mudar escopo público.
+
+Para ShapeKind::Path local, transportar pos+ponto/control-point em Y-down
+sem negação extra; ClosePath, recorte/paint/envelope/ordem/precisão existentes
+ficam. Não alterar Path top-level ou os outros ShapeKinds. Exigir RED real
+de endpoints sob Group com clip e restauração; bilateral PDF/SVG do caso
+recortado antes de encerrar. Reavaliar conic/tiling/curvas e suítes completas.
+
+
+### R5 — segmento reto transportado como Path
+
+`residual-experiments/receipt.json` mede o candidato fonte-vinculado: o controle
+line-signs mantém3pixels PDF distintos a600dpi; transformar apenas os dois
+segmentos retos para coordenadas locais zera o resíduo, preservando endpoints,
+cores e stroke. Esse fator refuta necessidade de mudar cor/fonte/layout.
+O experimento separado de fills SVG não altera12pixels de delta1; a hipótese
+de ordem dos fills não foi confirmada e não autoriza reordenação produtiva.
+
+Sob o mesmo q/Q, um Path de exatamente MoveTo+LineTo sem paint Tiling pode
+usar início físico pos+start e vetor end-start em espaço local Y-down, top
+ou local, com5casas. Compartilhar helper privado de coordenadas com ShapeLine,
+sem interpretar sinal como mudança do início de Path. Preservar fill/stroke,
+BBox/contexto de paint, efeitos, clipping e restauração. Path com mais itens,
+curvas, ClosePath ou Tiling mantém o percurso geral; corrigir sua negação
+local conforme cláusula anterior, sem alterar precisão/representação top.
+Esta cláusula supersede a restrição anterior contra qualquer mudança em
+Path top somente para esse segmento reto medido. Exigir RED de endpoints
+fracionários, sinais/start nãozero/top/local/ambos modos e pixel600bilateral
+do controle medido, seguido de GREEN e validação completa da nova fonte.

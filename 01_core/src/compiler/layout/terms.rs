@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/terms.md
-//! @prompt-hash c28850f7
+//! @prompt-hash 86052f8c
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -20,7 +20,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
         layouter.flush_line();
     }
-    for item in e.items.iter() {
-        layouter.layout_content(item);
+    for (index, item) in e.items.iter().enumerate() {
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::TermsItem(index),
+            item,
+        );
     }
 }

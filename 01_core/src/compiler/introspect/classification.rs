@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/classification.md
-//! @prompt-hash 5f62db77
+//! @prompt-hash f332896f
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -53,6 +53,7 @@ pub(super) fn classify_unreferencable_body(content: &Content) -> UnreferencableK
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

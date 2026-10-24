@@ -1,5 +1,5 @@
 # L0 — infra/tests/pdf_semantic_label
-Hash do Código: 4a764963
+Hash do Código: 7df419c2
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/tests/pdf_semantic_label.rs`
@@ -28,3 +28,7 @@ This harness authorizes no additional productive behavior.
 
 Keep the focal role/MCID assertion through the public export path; relationships
 and nonvisual meaning are observable, not an upstream serialization algorithm.
+
+Under the approved PDF warning carrier contract, extract `.output` before the
+existing semantic-label byte assertions. The fixture remains warning-free; do
+not suppress warnings or alter role/MCID expectations.

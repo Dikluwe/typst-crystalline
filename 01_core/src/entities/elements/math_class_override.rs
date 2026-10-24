@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/math_class_override.md
-//! @prompt-hash ba81332f
+//! @prompt-hash 75df96e0
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -29,6 +29,17 @@ pub struct MathClassOverrideElem {
 }
 
 impl Element for MathClassOverrideElem {
+    fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::value::Value;
+        match field {
+            "class" => Some(Value::Str(
+                crate::entities::math_class::math_class_name(self.class).into(),
+            )),
+            "body" => Some(Value::Content(self.body.clone())),
+            _ => None,
+        }
+    }
+
     fn plain_text(&self) -> String {
         self.body.plain_text()
     }

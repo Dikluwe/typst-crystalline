@@ -1,9 +1,16 @@
 # L0 — compiler/realize/context_occurrences
-Hash do Código: ed023763
+Hash do Código: 3a14fe56
 
 **Layer:** L1. **Exclusive consumer:** `01_core/src/compiler/realize/context_occurrences.rs`.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 **Status:** Ratified; materialization in progress.
+
+
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
 
 ## Context — ratified occurrence identity, 2026-10-18
 
@@ -67,3 +74,217 @@ never a separate allocation arena. Only actually reached raw ContextBlock visits
 reconstruct their ID; preexisting Located aliases and generated Ref producers
 retain their own identities. Test separate sites, retained retry/growth/error
 restoration and aliases. No mutable globals/hash/offset IDs or second arena.
+
+## Retained allocation domain and original boundary seeds
+
+### Measurement before correction
+
+The physical-page implementation baseline and frozen diagnostic runs retain the
+exact source/L0 audit under
+`lab/results/set-page-header-implementation-2026-10-21/agents/realization/arena-domain/before.json`.
+Current context_occurrences.rs:27–35 stores Locations and cursors but no installed
+arena owner; :57–76 checks the frame against its arena before installing ownerless
+slots; :80–94 returns only Location. Merely finding Some slots cannot prove that
+a later request belongs to that arena, and reading the live Locator checkpoint
+on replay loses the original source-boundary seed after interleaved producers.
+These are private protocol invariants already required by the approved physical
+page review SHA cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039,
+not a new public Context capability or generic language identity law.
+
+### Exclusive private protocol
+
+Retain the existing immutable arena owner Arc token in its installed slots.
+A compiler-descendant allocation_owner helper returns that exact capability only
+for a genuine installed arena frame; no frame and temporary legacy with_template
+slots return None. It certifies allocation domain only, never a Location or
+language object. Existing evaluate frame/arena validation and restoration remain.
+
+Store the original opaque LocatorSeed with every retained Location slot. The
+private next_with_seed helper uses exactly the same slot cursor/allocation path
+as next, requiring an actual owner capability and returning the stored pair on
+replay. A fresh pair records the checkpoint immediately before the existing
+Locator.next operation. Do not reconstruct seeds from Location integers or the
+later live tail. Existing no-frame next fallback, public Arena/Frame declarations,
+Context-ID slots/floors, template flag, alias reuse, Err restoration and budgets
+remain unchanged.
+
+The physical source plan retains the actual domain capability and one optional
+original document boundary pair through this private helper. Contribution plans
+reuse the same capability but allocate no additional document boundary. Planned
+realization/binding rejects a missing or foreign domain before callbacks or new
+allocations. Legacy temporary slots still serve their existing selected-template
+contract and cannot impersonate a physical request frame.
+
+Require actual public-body preparation/replay with interleaved frames, foreign
+Arena binding rejection, same-Arena acceptance through another legitimate plan
+frame, missing/temporary-frame rejection and unchanged legacy arena tests. L0
+precedes semantic RED→GREEN; no public signature/field/variant/default/phase,
+observer law, second arena, arbitrary offset or seed arithmetic is introduced.
+
+### Reserve dormant operational aliases before producer execution
+
+Source measurement: Arena::new first calls reserve_locations and scratch
+introspection; both keep SetPage operational fields opaque. Existing body
+Context discovery can execute a producer before the later public physical-body
+plan calls reserve_source. Thus a prepared header alias at the next free Location
+can collide with that earlier body producer. The approved reserve-only obligation
+must apply at arena construction, not only after discovery. A functional control
+uses body Located(ContextBlock,0), dormant header Located(Heading,1), then a real
+arena producer frame allocating a Heading; the result must not use Location1,
+and no dormant Heading may enter the source semantic index or execute a closure.
+
+Add only a feature-owned reserve scan of existing aliases in operational fields
+at arena initialization, recursively including nested operational fields and
+preserved originals. Do not alter generic traversal, admit or prepare a dormant
+header, derive locations numerically, run its show/closure/callback or replace
+the legacy scratch-index compatibility path. The new control must fail before
+changing Arena::new. Context-ID/rule floor reservation and first-body-producer
+ordering remain explicit associated obligations, not proven by the Location
+control alone.
+
+### Independent dormant Context and rule-floor controls
+
+The source evidence is independent of Location reservation: Session initialization
+computes next_id from collected actual body blocks, and execute resets a fresh
+EvalContext.next_context_id to that value. Thus earlier realization observation
+does not by itself retain a dormant operational template's higher Context floor.
+At context_occurrences.rs:18–21 and :40–46 the arena currently stores only Locator
+and owner; evaluate installs only those allocation resources. The exact source
+and owner before these tests are archived under the physical-page implementation
+agent's arena-domain/floors-before receipt.
+
+Before changing production, require separate failing controls for an existing
+dormant raw Context ID and a captured ShowRecipe's Context/rule floors. Neither
+control invokes its captured native closure/transformation. In the implementation,
+the same feature-owned reserve-only scan retains private maximum floors in the
+arena and evaluate raises the incoming EvalContext floors before the body producer
+executes. Existing higher caller floors must never be lowered; retained Context
+slots still replay their own IDs. This does not admit templates, allocate their
+contents, alter public APIs or prove a language identity from equal Content.
+The original Location-only test remains unchanged and is not evidence for these
+independent floors.
+
+### Reserve-only traversal and floor application
+
+The independent Location, raw Context and captured-recipe-floor controls all fail
+on the unchanged reservation path in reservation-red-all-2/receipt.json, without
+compiler errors or input drift. A feature-owned pre-order scan explicitly reserves
+Located handles, both Realized representations and raw Ref supplements; ordinary
+containers delegate their existing closed traversal. At SetPage/PageRun it scans
+only the four operational templates plus the lexical PageRun body, then stops
+generic descent at that node. This is reservation, never source admission or
+execution. Context IDs reserve id+1 and ShowRecipe reserves its Context floor and
+each captured rule id+1 using the existing saturating maximum convention.
+
+Retain those Context/rule maxima privately on the arena. Before each evaluate
+operation, max-raise the incoming EvalContext counters without lowering existing
+higher floors; Locator and slots retain their existing installation/restoration.
+Keep the prior reserve_locations and scratch canonical-index compatibility step.
+The three test bodies/expected conditions remain unchanged through the repair.
+
+## Private operational capture and allocation cohorts
+
+Source evidence: rebuilding the body plan retires L3 marginal frames although
+body query results compare actual Locations. Fresh marginal allocations then
+change those query values and trigger another body execution. The actual
+focused-diagnostic-4 failures and source-bound round snapshot retain this churn;
+no generic observation equality may be weakened.
+
+Retain private operational capture-token slots with their own replay cursor in
+the actual producer frame. A raw reached operator consumes one creation slot;
+frame replay retains its opaque Version Arc token, different producer frames do not.
+No owner/temporary legacy slots receive an unretained fresh token. Reset this
+capture cursor alongside the ordinary Location/Context cursors on evaluate.
+
+Maintain dedicated private running allocation cohorts inside installed slots,
+separate from ordinary document-boundary slots. An actual request selects a
+cohort by operation stage, physical key and exact owned operator-token Arc within
+the installed arena. A changed token resets only that stage/key cohort, leaving
+old identities reserved in the same Locator. Matching tokens retain only allocation
+slots, never prior execution output or effects. A scoped helper installs the
+selected cohort on the same live Locator/owner, resets its replay cursors, calls
+once and restores the caller on every normal return including Err. Realize and
+bind have separate stage meanings even when a caller uses one legitimate frame.
+No second arena, shared result cache, public field/signature or identity from
+Content/Version equality, hashes, span or numeric offsets is introduced.
+
+The private cohort token domain distinguishes captured operator Version-Arc authority
+from exact source-plan Arc plus template packet authority for legitimate unmarked
+raw synthetic bodies. These alternatives never compare equal. The latter is
+within-plan only and supplies no cross-plan producer claim.
+
+Carrier source correction: value.rs:177–181 actually stores Version in Arc,
+whereas value.rs:191 stores Args by value. The compile-only diagnostic refutes
+the earlier Args-Arc carrier assumption. Use a fresh empty Version Arc only as
+an opaque owned token authenticated by the private Native marker; neither
+Version components/equality nor PARITY_VERSION/sys.version participates. This
+changes no public language value, version contract or generic observer.
+
+## Actual contextual producer retention inside a running cohort
+
+### Measurement before correction
+
+The source-bound runtime-observation-1 execution preserves the actual failing
+physical_page_body_query_with_contextual_header_retains_descendants control:
+body execution versions 1,3,5,7,9 never complete. recipes.rs:240–248 reconstructs
+ContextBlockElem on every template insertion, even when the certified running
+cohort replays the same creation slot and actual owned closure. The source/L0
+bytes before this correction are retained in the implementation evidence under
+agents/realization/stable-context-before. The pinned language control observes
+two Figures and final count two; this is producer/replay correctness, not a
+requirement to equate arbitrary Rust functions or cache execution results.
+
+### Bounded private producer witness
+
+Only the slots installed by with_running_cohort retain contextual producer
+objects. At the existing Context-ID creation cursor, keep an optional owned
+ContextBlockElem Arc. The existing next_context_id remains the sole ID allocator
+and advances exactly once. Reuse the retained product only if its ID is the
+current retained ID and both live Func owners have the identical representation
+pointer. A changed actual Func owner replaces that one product even when its
+native function address, displayed name, ID or body appears equal. A changed
+operational capture token already resets the whole stage/key cohort. Different
+slots and parent arena frames remain disjoint. Unused slots remain reserved.
+
+No-frame/temporary slots and ordinary non-running selected-template insertion
+keep fresh immutable ContextBlock construction. The helper does not execute a
+closure or retain results, observations, chains or diagnostics. Context producer
+Arc continuity alone never certifies the surrounding captured styles or execution
+version; callers must replay under the actual current environment. Ref-generated
+producer exclusion and prepared Located aliases retain their existing behavior.
+This private correction implements the approved retained producer/arena contract;
+public functions, entity fields, allocation identity, phases and budgets remain.
+
+Require actual facade replay across rebuilt source plans, changed closure owner
+at the same certified creation slot, different operator/cohort separation and
+ordinary non-running template freshness. The language-level integrated RED is
+preserved before implementation; local tests must not invoke the deferred body.
+
+## Independent running-cohort reuse witnesses
+
+Measurement before correction: `lab/results/set-page-report-blockers-2026-10-21/agents/domain/before.json.gz` retains the
+exact source/L0 bytes, UTC, HEAD and dirty-file inventory. At the retained
+`context_occurrences.rs:364–380`, the reuse match guard conjoins exact operator
+token continuity with the presence and exact Arc identity of both arena owners.
+The retained full lint reports V17 at that compound decision guard. These are
+two independent private authority requirements, not interchangeable evidence.
+
+Express the token decision and owner decision separately before selecting the
+retained slots. A changed token rejects reuse immediately. A matching token
+still requires both actual owner capabilities and their exact Arc identity;
+missing or foreign ownership creates fresh slots in the caller's owner domain.
+Preserve stage/key selection, removal and reinsertion, all replay cursors,
+caller restoration on normal Err return, and the requirement to execute the
+operation once. Do not derive authority from value equality, hashes or numeric
+identifiers, cache outputs, or relax either witness. This internal clarification
+follows ADR-0127 continuous flow; signatures, phases and behavior are unchanged.
+Revalidate retained running producers, changed captures, foreign/missing arena
+rejection, frame separation and existing allocation/error-restoration controls.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content.md
-//! @prompt-hash dcc25c35
+//! @prompt-hash f81c5a72
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -242,6 +242,7 @@ pub enum Content {
     /// (canal `custom` `"text.<campo>"`, transparente à morfologia; transporte
     /// aninhado P373). O layout resolve o render da chain. Fonte única do render.
     Text(EcoString),
+    Symbol(EcoString),
     /// Espaço entre elementos (SpaceElem).
     Space,
     /// Espaço de markup inferido por newline; preserva a origem até a realização.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_commit.md
-//! @prompt-hash 96554e1f
+//! @prompt-hash 1f8b0ed8
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -146,6 +146,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             bleed,
             page_width,
             page_height,
+            super::PageRunningSlot::Background,
         );
         let mut foreground = super::page_canvas::layout_layer(
             self,
@@ -153,6 +154,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             bleed,
             page_width,
             page_height,
+            super::PageRunningSlot::Foreground,
         );
         foreground.extend(marginal_items);
         let page = Page {

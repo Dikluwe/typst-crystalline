@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/accent
-Hash do Código: 0e1d0953
+Hash do Código: d93de32a
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/accent.rs`
@@ -47,3 +47,48 @@ L0 first; functional Type/Symbol/textual-value RED before code, GREEN and full
 batch revalidation under 12 GiB/zero swap/jobs1. ADR-0127 continuous flow adds no
 public Rust contract, phase or product default. Reseal only affected owners after
 V15/V26; preserve math tests and original classifiers.
+
+
+## R4 — measured public mathematical projection / qualified conversion
+
+### Measurement before decision
+
+`lab/results/math-fields-r4-2026-10-23/baseline.json` and `before/receipt.json`
+retain UTC, HEAD, complete uncommitted diff stat, source map, archived sources
+and binary SHA-256. The oracle is pinned bd5ebec285505889e8ff1d4f68804ab147a699f3
+(tree cac836c07e4dec2a89219370428292393a3216b5). The before probe records
+fields/has/at and accepted/rejected constructor values rather than inferring
+intent from implementation. Upstream math/matrix.rs:45–67,238–272 and
+math/mod.rs:227–234 declare the already existing language fields. Local
+content_methods.rs:151–158,378–380 omits these projections; frac.rs:43–53
+and root.rs:27–38 reject supported operands. These are language semantics
+and morphology, distinct from byte or Rust algorithm parity.
+
+### Exclusive correction and gate
+
+Delegate math_accent_base conversion to casts::math_lr_content_value. Accent-character normalization and other arguments are unchanged.
+
+This R4 clause supersedes only conflicting historical operand/field clauses
+above. Internal parity correction follows continuous ADR-0127: L0 first,
+reseal, actual functional RED before implementation, GREEN and full validation.
+No new public Rust field/signature/trait method, default mode or phase change.
+Preserve other semantics and all received changes. Record source-bound builds,
+full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
+A–H and R1–R3 without reclassifying their existing limitations as parity.
+
+
+### R4 supplementary qualified-math accent carrier
+
+`render-candidate/receipt.json` under the R4 evidence root records exact
+source/binary hashes and UTC: code-mode eval succeeds but the same qualified
+accent inside a formula rejects the accent with `expected a single-codepoint
+symbol`; vanilla renders it. Local accent.rs:65–82 admits only MathText content.
+This is a carrier conversion omission, not a layout change.
+
+Accept native Content::Symbol alongside the existing MathText accent carrier,
+including Source wrappers through the existing source_body projection. Normalize
+with the same accent table and keep distinct invalid-character diagnostics. Do
+not admit arbitrary styled content, arbitrary text or change accent geometry.
+Add co-located RED→GREEN for native and Source-wrapped Symbol, invalid
+multicodepoint content and unchanged String/Symbol alias conversion. Repeat full
+validation on the final frozen source; the interrupted validation remains evidence.

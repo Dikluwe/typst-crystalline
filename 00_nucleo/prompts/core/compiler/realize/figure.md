@@ -1,5 +1,5 @@
 # L0 — compiler/realize/figure
-Hash do Código: 6a50bdf0
+Hash do Código: 79fa9e7b
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/realize/figure.rs`.
 
@@ -218,3 +218,23 @@ Dynamic field enumeration and mixed Table header/ordinary-cell supplemental targ
 order remain bounded debt. Static SetPage admission and full page-running timing
 are outside this owner. These limits do not exempt the ratified contextual Ref,
 caption-emitted effects, hidden-parent ordering or original snapshot contracts.
+
+
+## Fallible Source and file-registration integration
+
+Human approval on 2026-10-22 is retained in
+`lab/results/panic-elimination-2026-10-22/source-contract-approval.json`;
+its review SHA-256 is `2c879e8afa66721a8952dc8b9e7cf3c92dce58bf91aae5e28da5d603f5aa4d42`.
+Source::{new,new_with_parser,detached,detached_with_parser} now return the existing
+SourceResult<Source>; SystemWorld::register_file returns FileResult<FileId>.
+Preserve this unit's successful content/id/span/order/diagnostic behavior while
+propagating construction/registration failures through its existing error channel.
+A tuple-returning entry returns its error in the existing result component and
+retains already accumulated warnings. A synthetic source slot stores a failed
+construction as FileResult rather than inventing a Source. Test-only fixture
+helpers must explicitly require their valid construction/registration result;
+all previous substantive assertions remain. No productive unwrap/expect, panic
+catch, default Source, identity reuse or silent error is permitted for this migration.
+This clause supersedes only the old infallible return/panic expectations for the
+five approved APIs; it does not authorize unrelated signatures, fields, phases
+or broadening/loss of existing diagnostics or negative controls.

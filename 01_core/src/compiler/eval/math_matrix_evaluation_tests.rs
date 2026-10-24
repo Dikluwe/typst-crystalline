@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md
-//! @prompt-hash 91eed01d
+//! @prompt-hash 56094a47
 //! @layer L1
 #![cfg(test)]
 
@@ -23,7 +23,7 @@ impl TestWorld {
         Self {
             library: Library::new(),
             book: FontBook::new(),
-            source: Source::new(id(), text.into()),
+            source: Source::new(id(), text.into()).expect("valid Source test fixture"),
         }
     }
 }
@@ -88,6 +88,7 @@ fn find_mat(content: &Content) -> Option<&Content> {
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

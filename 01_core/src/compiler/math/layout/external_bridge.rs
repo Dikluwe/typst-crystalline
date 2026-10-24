@@ -1,10 +1,75 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/external_bridge.md
-//! @prompt-hash a6418578
+//! @prompt-hash 3c3cf62a
 //! @layer L1
 //! @updated 2026-10-01
 
 use super::*;
+
+pub(super) fn external_styles(style: &TextStyle) -> crate::entities::style::Styles {
+    use crate::entities::style::{Style, Styles};
+    let mut styles = vec![
+        Style::Size(crate::entities::layout_types::Length::pt(style.size.val())),
+        Style::bold(style.bold),
+        Style::italic(style.italic),
+    ];
+    if let Some(c) = style.fill.clone() {
+        styles.push(Style::Fill(c));
+    }
+    if let Some(h) = style.heading_level {
+        styles.push(Style::HeadingLevel(h));
+    }
+    if let Some(w) = style.weight {
+        styles.push(Style::Weight(w));
+    }
+    if let Some(t) = style.tracking {
+        styles.push(Style::Tracking(t));
+    }
+    if let Some(l) = style.leading {
+        styles.push(Style::Leading(l));
+    }
+    if let Some(l) = style.lang {
+        styles.push(Style::Lang(l));
+    }
+    if let Some(f) = &style.font {
+        styles.push(Style::Font(f.clone()));
+    }
+    Styles::from_iter(styles)
+}
+
+fn geometry_items(items: &[FrameItem]) -> Vec<FrameItem> {
+    items
+        .iter()
+        .filter_map(|item| {
+            if crate::compiler::layout::page_running_requests::is_position_marker(item) {
+                return None;
+            }
+            let mut item = item.clone();
+            match &mut item {
+                FrameItem::Group { items, .. } => {
+                    *items = geometry_items(items);
+                }
+                FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. } => {
+                    let had_items = !items.is_empty();
+                    *items = geometry_items(items);
+                    if had_items && items.is_empty() {
+                        return None;
+                    }
+                }
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Image { .. } => {}
+            }
+            Some(item)
+        })
+        .collect()
+}
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// **P994** — layout de conteúdo não-matemático embutido em math
@@ -42,7 +107,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         use crate::compiler::layout::{Layouter, SubLayoutRegion};
         use crate::entities::image_sizer::NullImageSizer;
         use crate::entities::introspector::{Introspector, TagIntrospector};
-        use crate::entities::style::{Style, Styles};
         use crate::entities::style_chain::StyleChain;
 
         // 1. Layouter temporário com as métricas reais (coerção &M → &dyn).
@@ -60,34 +124,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         //    `Style` correspondente (os dois lados existem); `font`/`weight`
         //    propagam o show-set da equação (P944) — paridade vanilla, cujo
         //    `EquationElem::show_set` cobre o conteúdo embutido.
-        let mut styles = vec![
-            Style::Size(crate::entities::layout_types::Length::pt(style.size.val())),
-            Style::bold(style.bold),
-            Style::italic(style.italic),
-        ];
-        if let Some(c) = style.fill.clone() {
-            styles.push(Style::Fill(c));
-        }
-        if let Some(h) = style.heading_level {
-            styles.push(Style::HeadingLevel(h));
-        }
-        if let Some(w) = style.weight {
-            styles.push(Style::Weight(w));
-        }
-        if let Some(t) = style.tracking {
-            styles.push(Style::Tracking(t));
-        }
-        if let Some(l) = style.leading {
-            styles.push(Style::Leading(l));
-        }
-        if let Some(l) = style.lang {
-            styles.push(Style::Lang(l));
-        }
-        if let Some(f) = &style.font {
-            styles.push(Style::Font(f.clone()));
-        }
-        layouter.chain =
-            StyleChain::default_chain().push_styles(&Styles::from_iter(styles));
+        layouter.chain = StyleChain::default_chain().push_styles(&external_styles(style));
         layouter.style = style.clone();
 
         // 3. Sub-frame sem limites (largura infinita — decisão registada no
@@ -104,22 +141,39 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             },
         );
 
+        self.compose_external(
+            content,
+            style,
+            height,
+            layouter.last_sub_frame_width,
+            items,
+            false,
+        )
+    }
+
+    pub(super) fn compose_external(
+        &self,
+        content: &Content,
+        style: &TextStyle,
+        height: f64,
+        frame_width: f64,
+        items: Vec<FrameItem>,
+        planned: bool,
+    ) -> MathBox {
+        let geometry = if planned { geometry_items(&items) } else { items.clone() };
         // 4. Guardas (ver doc acima).
-        if items.is_empty() {
+        if geometry.is_empty() {
             let text: EcoString = content.plain_text().into();
             if text.trim().is_empty() {
-                return MathBox {
-                    width: 0.0,
-                    ascent: 0.0,
-                    descent: 0.0,
-                    items: vec![],
-                };
+                return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items };
             }
-            return self.layout_text_node(&text, style);
+            let mut fallback = self.layout_text_node(&text, style);
+            fallback.items.extend(items);
+            return fallback;
         }
 
         // 5. Largura = largura real do sub-frame (cursor advance) ou limite direito dos itens
-        let items_width = items
+        let items_width = geometry
             .iter()
             .map(|item| match item {
                 FrameItem::Shape { pos, width, .. } => pos.x.val().max(0.0) + *width,
@@ -129,7 +183,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
             })
             .fold(0.0, f64::max);
-        let width = layouter.last_sub_frame_width.max(items_width);
+        let width = frame_width.max(items_width);
 
         // 6. Âncora vertical (paridade vanilla `layout_external`,
         //    `typst-layout/src/math/mod.rs:585-603`): o vanilla só aplica
@@ -147,7 +201,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let mut ink_top = None;
         let mut ink_bottom = None;
         self.scan_external_verticals(
-            &items,
+            &geometry,
             0.0,
             &mut first_baseline,
             &mut ink_top,

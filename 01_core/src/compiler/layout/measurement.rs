@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash 46031639
+//! @prompt-hash 40390b99
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -55,6 +55,7 @@ fn callback_free_math_measurement(content: &Content) -> bool {
     match content {
         Content::Empty
         | Content::Text(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::Space
@@ -541,7 +542,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         .fractional_block_height
                         .unwrap_or(body_h_with_inset)
                         .max(body_h_with_inset),
-                    None => body_h_with_inset,
+                    Option::None => body_h_with_inset,
                 };
                 (total_w, total_h)
             }
@@ -606,6 +607,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::EnumItem(..)
             | Content::Link(..)
             | Content::MathSequence(..)
+            | Content::Symbol(..)
             | Content::MathIdent(..)
             | Content::MathText(..)
             | Content::MathFrac(..)

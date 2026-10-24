@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/pdfa4f_empty_embedded_files_tests.md
-//! @prompt-hash e565af81
+//! @prompt-hash c625324a
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -71,6 +71,7 @@ fn export_doc_with_standard(doc: &PagedDocument, standard: PdfStandards) -> Vec<
         None,
         standard,
     )
+    .output
 }
 
 fn object_body(pdf: &[u8], id: usize) -> String {

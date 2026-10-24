@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/textual.md
-//! @prompt-hash 606f4fae
+//! @prompt-hash 5f5d4ef8
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -165,6 +165,7 @@ fn contextual_root(content: &Content) -> bool {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
@@ -444,7 +445,7 @@ pub(crate) fn coalesce_pending_text(
                 .iter()
                 .map(|rule| rule.id)
                 .eq(scope.rules.iter().map(|rule| rule.id))
-            && matches!(nested.body.source_body(), Content::Text(_))
+            && matches!(nested.body.source_body(), Content::Text(_) | Content::Symbol(_))
             && !nested.rules.iter().any(|rule| {
                 selector_matching::is_node_rule(&rule.selector)
                     && selector_matching::selector_matches(&nested.body, &rule.selector)
@@ -504,9 +505,15 @@ pub(crate) fn coalesce_for_insertion(
         let mut node_effect = false;
         if can_group(&body) {
             let _ = body.map_content_pre(&mut |node| {
+                let target = match node.source_body() {
+                    Content::Symbol(text) if ctx.recipe_math_depth == 0 => {
+                        Content::Text(text.clone())
+                    }
+                    _ => node.clone(),
+                };
                 node_effect |= effective.rules.iter().any(|rule| {
                     selector_matching::is_node_rule(&rule.selector)
-                        && selector_matching::selector_matches(node, &rule.selector)
+                        && selector_matching::selector_matches(&target, &rule.selector)
                 });
                 Ok(None)
             });
@@ -563,6 +570,7 @@ fn emitted_group_parts(content: &Content, out: &mut Vec<Content>) {
         | Content::Link(_)
         | Content::Equation(_)
         | Content::MathSequence(_)
+        | Content::Symbol(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 5e791e72
+//! @prompt-hash 9a4835f9
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-24
 
 use super::bidi::bidi_runs;
 use super::cache::{CachedRun, FaceCache, ShapeCache};
@@ -98,7 +98,20 @@ pub(crate) fn shaped_width(
                 } else {
                     buffer.set_direction(Direction::LeftToRight);
                 }
-                let output = rustybuzz::shape(&rb_face, &[], buffer);
+                let feature = rustybuzz::Feature::new(
+                    rustybuzz::ttf_parser::Tag::from_bytes(b"sups"),
+                    1,
+                    ..,
+                );
+                let native = style.superscript
+                    && style.superscript_native != Some(false)
+                    && !style.subscript
+                    && crate::font_metrics::superscript_in_face(
+                        &rb_face, text, style.size,
+                    )
+                    .3;
+                let features = if native { std::slice::from_ref(&feature) } else { &[] };
+                let output = rustybuzz::shape(&rb_face, features, buffer);
                 let positions = output.glyph_positions();
 
                 let run_width: i32 = positions.iter().map(|p| p.x_advance).sum();
@@ -274,7 +287,19 @@ pub(super) fn try_shape_context(
                             as i32
                     })
                     .unwrap_or(0);
-                let cache_key = ShapeCache::key(
+                let native_sups = if style.superscript
+                    && !style.subscript
+                    && style.superscript_native != Some(false)
+                {
+                    let mut face = candidates.selected_face(candidate.slot_idx)?.clone();
+                    for variation in &axis_vars {
+                        face.set_variation(variation.tag, variation.value);
+                    }
+                    crate::font_metrics::superscript_in_face(&face, text, style.size).3
+                } else {
+                    false
+                };
+                let mut cache_key = ShapeCache::key(
                     &subrun.text,
                     candidate.slot_idx,
                     run.rtl,
@@ -283,6 +308,16 @@ pub(super) fn try_shape_context(
                     ssty_level,
                     style.lang.as_ref().map(|lang| lang.as_str()),
                 );
+                if style.superscript
+                    && !style.subscript
+                    && style.superscript_native != Some(false)
+                {
+                    cache_key.push_str(if native_sups {
+                        "|sups:true"
+                    } else {
+                        "|sups:false"
+                    });
+                }
                 let cached = cache.map.get(&cache_key).cloned();
                 let (run_glyphs, _run_width, source_font) = if let Some(cached) = cached {
                     (cached.glyphs, cached.width, cached.font)
@@ -325,6 +360,11 @@ pub(super) fn try_shape_context(
                     // **P977** — feature ssty para texto math de script:
                     // os glifos shaped passam a ser as variantes
                     // `.st`/`.sts` (como o vanilla).
+                    let sups_feature = [rustybuzz::Feature::new(
+                        rustybuzz::ttf_parser::Tag::from_bytes(b"sups"),
+                        1,
+                        ..,
+                    )];
                     let ssty_feature;
                     let features: &[rustybuzz::Feature] = match ssty_level {
                         Some(level) => {
@@ -337,6 +377,7 @@ pub(super) fn try_shape_context(
                         }
                         None => &[],
                     };
+                    let features = if native_sups { &sups_feature[..] } else { features };
                     let output = rustybuzz::shape(&rb_face, features, buffer);
                     let infos = output.glyph_infos();
                     let positions = output.glyph_positions();
@@ -433,4 +474,120 @@ pub(super) fn try_shape_context(
 
 pub(super) fn byte_idx_to_char(s: &str, byte_idx: usize) -> Option<char> {
     s.get(byte_idx..)?.chars().next()
+}
+
+#[cfg(test)]
+mod r8_script_cache_tests {
+    use super::*;
+    use typst_core::entities::{
+        duration::Duration,
+        file_id::FileId,
+        font_book::FontBook,
+        font_list::{FontFamily, FontList},
+        layout_types::ShapedGlyph,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    struct FontWorld {
+        library: Library,
+        book: FontBook,
+        fonts: Vec<Font>,
+    }
+    impl World for FontWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, i: usize) -> Option<Font> {
+            self.fonts.get(i).cloned()
+        }
+        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
+            None
+        }
+        fn candidates_for_char(&self, _: char) -> Vec<usize> {
+            (0..self.fonts.len()).collect()
+        }
+    }
+    fn trace(items: Vec<FrameItem>) -> Vec<Vec<ShapedGlyph>> {
+        items
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::TextShaped { glyphs, .. } => Some(glyphs),
+                _ => None,
+            })
+            .collect()
+    }
+    #[test]
+    fn r8_native_feature_cache_is_independent_of_previous_script_runs() {
+        let data = [
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+        ];
+        assert!(ttf_parser::Face::parse(data[0], 0)
+            .unwrap()
+            .glyph_index('☃')
+            .is_none());
+        assert!(ttf_parser::Face::parse(data[1], 0)
+            .unwrap()
+            .glyph_index('☃')
+            .is_some());
+        let mut book = FontBook::new();
+        for bytes in data {
+            let mut info = crate::fonts::font_info_from_bytes(bytes, 0).unwrap();
+            info.coverage = crate::fonts::extract_coverage(
+                &ttf_parser::Face::parse(bytes, 0).unwrap(),
+            );
+            book.push(info);
+        }
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: data.into_iter().map(|b| Font::from_data(b.to_vec())).collect(),
+        };
+        let normal = TextStyle {
+            size: Pt(11.0),
+            superscript: true,
+            font: FontList::new(vec![
+                FontFamily::new("Nimbus Sans".into()),
+                FontFamily::new("DejaVu Sans".into()),
+            ]),
+            ..TextStyle::default()
+        };
+        let mixed = TextStyle { size: Pt(7.15), ..normal.clone() };
+        let pos = Point { x: Pt(0.0), y: Pt(0.0) };
+        for (text, expected_runs) in [("123☃", 1), ("123\nZ", 2)] {
+            let mut cache = ShapeCache::new();
+            let mut faces = FaceCache::new();
+            try_shape(&world, &pos, &"123".into(), &normal, &mut cache, &mut faces)
+                .unwrap();
+            let warmed = trace(
+                try_shape(&world, &pos, &text.into(), &mixed, &mut cache, &mut faces)
+                    .unwrap(),
+            );
+            let cold = trace(
+                try_shape(
+                    &world,
+                    &pos,
+                    &text.into(),
+                    &mixed,
+                    &mut ShapeCache::new(),
+                    &mut FaceCache::new(),
+                )
+                .unwrap(),
+            );
+            assert_eq!(cold.len(), expected_runs, "actual run selection for {text:?}");
+            assert_eq!(warmed,cold,"warming another superscript must not change emitted glyph forms or advances for {text:?}");
+        }
+    }
 }

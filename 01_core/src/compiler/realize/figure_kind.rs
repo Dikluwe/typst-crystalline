@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure_kind.md
-//! @prompt-hash 2d74b509
+//! @prompt-hash 740e13a1
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -554,6 +554,7 @@ fn semantic_children(content: &Content, span: Span) -> SourceResult<Vec<Content>
         | Content::Space
         | Content::SpaceFromNewline
         | Content::Parbreak
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathPrimes(..)

@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdf_page_labels_tests
-Hash do Código: 5031efe0
+Hash do Código: cc817ee5
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdf_page_labels_tests.rs`
@@ -49,3 +49,7 @@ ADR-0127 adds no public/default/phase/dependency/suppression change. L0 first,
 scoped resealing, unchanged control inputs/results/tolerances. Selected-lint
 RED→GREEN, workspace suite/build/all-target Clippy/fmt/Rustdoc/lineage; no
 syntax-mirror tests.
+
+Under the approved PDF warning carrier contract, test helpers extract `.output`
+from `PdfExport` before existing byte assertions. Fixtures in this owner are
+warning-free; do not suppress or alter exporter diagnostics to satisfy them.

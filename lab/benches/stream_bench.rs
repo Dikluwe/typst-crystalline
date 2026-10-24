@@ -115,6 +115,8 @@ fn bench_stream(c: &mut Criterion) {
                 *tags,
                 PdfSerializationMode::Pretty,
             );
+            assert!(smoke.warnings.is_empty(), "{name}/{mode:?}: unexpected warnings");
+            let smoke = smoke.output;
             assert!(smoke.starts_with(b"%PDF-"), "{name}/{mode:?}: invalid PDF header");
             assert!(
                 smoke.windows(5).any(|bytes| bytes == b"%%EOF"),

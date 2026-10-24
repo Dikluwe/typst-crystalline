@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/pdfua_identification_tests
-Hash do Código: f49c6b62
+Hash do Código: 9aad43ad
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/pdfua_identification_tests.rs`
@@ -30,3 +30,7 @@ Check exact field values/presence and combined schema properties through
 export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard.
 Do not infer complete PDF/UA conformance, Direction, language, assistive-technology
 behavior or title validation from this identification suite.
+
+Under the approved PDF warning carrier contract, the local export helper returns
+`.output` for the existing byte assertions. The fixture remains warning-free;
+do not filter exporter warnings or broaden the conformance claim.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/fields.md
-//! @prompt-hash 7b17ac42
+//! @prompt-hash 68319dc2
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -45,6 +45,7 @@ fn styled_equation(content: &Content) -> Option<&EquationElem> {
         | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
+        | Content::Symbol(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
         | Content::MathFrac(..)
@@ -169,6 +170,10 @@ impl Content {
     pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match (self, field) {
+            (Content::Symbol(text), "text") => {
+                Some(crate::entities::value::Value::Str(text.clone()))
+            }
+            (Content::Symbol(_), _) => None,
             (Content::Source(e), f) => e.body.get_field(f),
             (Content::ShowRecipe(e), f) => e.body.get_field(f),
             (Content::Located(e), f) => e.body.get_field(f),
@@ -177,7 +182,9 @@ impl Content {
             (Content::Sequence(children), "children") => {
                 Some(Value::Array(children.iter().cloned().map(Value::Content).collect()))
             }
-            (Content::Text(text), "text") => Some(Value::Str(text.clone())),
+            (Content::Text(text) | Content::MathText(text), "text") => {
+                Some(Value::Str(text.clone()))
+            }
             (Content::HSpace(e), "amount") => Some(match e.amount {
                 crate::entities::elements::h_space::Spacing::Absolute(length) => {
                     Value::Length(length)
@@ -262,6 +269,9 @@ impl Content {
             (Content::FigureCaption(e), f) => e.get_field(f),
             (Content::Equation(e), f) => e.get_field(f),
             (Content::MathMatrix(e), f) => e.get_field(f),
+            (Content::MathVec(e), f) => e.get_field(f),
+            (Content::MathCases(e), f) => e.get_field(f),
+            (Content::MathClassOverride(e), f) => e.get_field(f),
             (Content::TableCell(e), f) => e.get_field(f),
             (Content::MathPrimes(e), f) => e.get_field(f),
             (Content::MathLr(e), f) => e.get_field(f),
@@ -356,13 +366,10 @@ impl Content {
                 | Content::MathOverparen(..)
                 | Content::MathOvershell(..)
                 | Content::MathAlignPoint(..)
-                | Content::MathCases(..)
                 | Content::MathAccent(..)
                 | Content::MathCancel(..)
                 | Content::MathUnderline(..)
                 | Content::MathOverline(..)
-                | Content::MathVec(..)
-                | Content::MathClassOverride(..)
                 | Content::MathLimitsOverride(..)
                 | Content::MathUnderover(..)
                 | Content::MathOp(..)

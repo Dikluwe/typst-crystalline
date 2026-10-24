@@ -1,14 +1,19 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/row_pagination.md
-//! @prompt-hash 70ba977c
+//! @prompt-hash 1ed7eb5c
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-24
 //!
 //! Paginação conservadora de uma linha de grid.
 
 use super::*;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
+    pub(super) fn grid_row_breaks(&self, cursor_y: f64, row_h: f64) -> bool {
+        cursor_y + row_h > self.page_bottom_limit()
+            && row_h <= self.regions.current.height - self.page_config.margin.vertical()
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(super) fn paginate_grid_row(
         &mut self,
@@ -23,24 +28,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // Se a linha for maior que uma página inteira, aceitar overflow.
         // P234 nota: cells com rowspan > 1 cruzando pagination =
         // out-of-scope (Categoria C.2 multi-region span futura).
-        if self.regions.current.cursor_y.0 + row_h > self.page_bottom_limit() {
-            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            let page_usable_height =
-                self.regions.current.height - self.page_config.margin.vertical();
-            if row_h <= page_usable_height {
-                // P888 — uma linha vertical não pode atravessar uma
-                // quebra de página; descarregar tudo o que está aberto
-                // antes de mudar de página (fica na página que está a
-                // fechar), para a linha seguinte reabrir do zero.
-                flush_all_vsegments(
-                    open_vsegments,
-                    col_starts,
-                    resolved_widths,
-                    num_cols,
-                    self,
-                );
-                self.new_page();
-            }
+        if self.grid_row_breaks(self.regions.current.cursor_y.0, row_h) {
+            flush_all_vsegments(
+                open_vsegments,
+                col_starts,
+                resolved_widths,
+                num_cols,
+                self,
+            );
+            self.new_page();
         }
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/reference_supplements.md
-//! @prompt-hash 33dbccda
+//! @prompt-hash f6e44b59
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -303,6 +303,12 @@ fn produce(
     query.span = span;
     let result = crate::compiler::stdlib::native_query(ctx, &query, world, file)?;
     let Value::Array(targets) = result else { unreachable!("query returns array") };
+    if targets.len() > 1 {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("label `<{}>` occurs multiple times in the document", reference.name),
+        )]);
+    }
     let target = targets.into_iter().next().ok_or_else(|| {
         vec![SourceDiagnostic::error(
             span,

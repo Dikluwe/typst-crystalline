@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/attach
-Hash do Código: 132184ce
+Hash do Código: 39d19efb
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/attach.rs`
@@ -21,3 +21,19 @@ The parent `math.rs` retains only static registration and shared catalog orchest
 ## Acceptance
 
 Existing core regressions remain green. The full core suite, `cargo build` and `crystalline-lint .` pass; header ownership is 1:1. No speedup is claimed without separate measurement.
+
+
+## R4 supplementary measurement and exclusive correction
+
+`lab/results/math-fields-r4-2026-10-23/before-expanded/receipt.json` retains
+UTC/source-map/HEAD/diff stat and binary hashes against pinned bd5ebec2.
+Binom lower None/integer/boolean and raw Symbol slots of attach differ;
+upstream math/frac.rs:134–150 explicitly uses Value::display for lower.
+These are language semantics/morphology, not Rust equality certification.
+
+Keep base conversion and slot-state validation separate. For a present Symbol slot preserve Content::Symbol(value), rather than MathText, in all six slots. Omitted, explicit None and present empty remain distinct. Keep String slots MathText and all prior slot flags/diagnostics. Add co-located tests covering all six Symbol slots and their tri-state controls.
+
+This supersedes conflicting historical clauses only. Existing public fields,
+trait declaration/signatures, defaults and pipeline phases stay unchanged;
+ADR-0127 continuous parity flow, L0 before behavioral RED→GREEN, full validation
+and lineage/full lint zero, preserving all received changes.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/context_reads.md
-//! @prompt-hash 26931f3f
+//! @prompt-hash 088e5968
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -79,10 +79,48 @@ pub(crate) enum ContextReadRequest {
     LocationPageNumbering {
         location: crate::entities::location::Location,
     },
+    OutlineInputs {
+        parent_key: i64,
+        depth: usize,
+    },
     OutlineEntryPage {
         location: crate::entities::location::Location,
     },
     OutlineEntryIndented(Box<OutlineEntryIndentedRead>),
+}
+
+/// Actual ordered inputs consumed by heading-outline synthesis, including absence.
+pub(super) fn outline_inputs(
+    introspector: &crate::entities::introspector::TagIntrospector,
+    parent_key: i64,
+    depth: usize,
+) -> Value {
+    let headings = introspector
+        .headings_for_toc
+        .iter()
+        .zip(&introspector.outlined_heading_locations)
+        .filter_map(|((label, number, _body, level), location)| {
+            let source = introspector.elements.get(location)?;
+            if *level > depth {
+                return None;
+            }
+            Some(Value::Array(vec![
+                Value::Label(label.clone()),
+                number
+                    .as_ref()
+                    .map_or(Value::None, |number| Value::Str(number.clone().into())),
+                Value::Int(*level as i64),
+                Value::Location(*location),
+                Value::Content(source.content().clone()),
+            ]))
+        })
+        .collect();
+    let widths = introspector
+        .outline_prefix_widths(parent_key)
+        .iter()
+        .map(|width| width.map_or(Value::None, Value::Float))
+        .collect();
+    Value::Array(vec![Value::Array(headings), Value::Array(widths)])
 }
 
 #[derive(Clone)]
@@ -421,6 +459,7 @@ impl EvalContext {
                 &mut ctx,
                 read.span,
             ),
+            OutlineInputs { parent_key, depth } => Ok(outline_inputs(candidate, *parent_key, *depth)),
             OutlineEntryPage { location } => {
                 let mut scopes = crate::compiler::scopes::Scopes::new(None);
                 crate::compiler::stdlib::realize_outline_entry_page(
@@ -535,7 +574,8 @@ impl EvalContext {
                 | ContextReadRequest::LocationPage { .. }
                 | ContextReadRequest::LocationPosition { .. }
                 | ContextReadRequest::LocationPageNumbering { .. }
-                | ContextReadRequest::OutlineEntryPage { .. } => continue,
+                | ContextReadRequest::OutlineEntryPage { .. }
+                | ContextReadRequest::OutlineInputs { .. } => continue,
                 ContextReadRequest::OutlineEntryIndented(_) => continue,
             };
             let projections: Vec<_> = history

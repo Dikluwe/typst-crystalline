@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/tests.md
-//! @prompt-hash c923db88
+//! @prompt-hash e4d885d2
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -27,7 +27,7 @@ impl MockWorld {
         let id = FileId::from_raw(NonZeroU16::new(42).unwrap());
         Self {
             main_id: id,
-            source: Source::new(id, text.to_string()),
+            source: Source::new(id, text.to_string()).expect("valid Source test fixture"),
             library: Library::new(),
             book: FontBook::new(),
         }
@@ -179,8 +179,10 @@ fn system_world_register_file_returns_same_id() {
     let extra = dir.path().join("extra.typ");
     std::fs::write(&extra, "extra").unwrap();
 
-    let id1 = world.register_file(extra.clone());
-    let id2 = world.register_file(extra);
+    let id1 = world
+        .register_file(extra.clone())
+        .expect("valid registration test fixture");
+    let id2 = world.register_file(extra).expect("valid registration test fixture");
     assert_eq!(id1, id2);
 }
 
@@ -360,7 +362,9 @@ fn system_world_include_source_absoluto_em_pacote() {
     std::env::set_var("XDG_DATA_HOME", dir.path());
 
     let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
-    let x_id = world.register_file(pkg.join("src/sub/x.typ"));
+    let x_id = world
+        .register_file(pkg.join("src/sub/x.typ"))
+        .expect("valid registration test fixture");
     let src = world.include_source(x_id, "/src/lib.typ");
 
     if let Some(v) = prev {
@@ -406,7 +410,10 @@ fn synthetic_main_needs_no_physical_file() {
     let dir = tempdir();
     let world = SystemWorld::for_eval(dir.path());
     assert_eq!(world.source(world.main()).unwrap().text(), "");
-    assert_eq!(world.directory_of(world.main()), dir.path());
+    assert_eq!(
+        world.directory_of(world.main()).expect("healthy directory fixture"),
+        dir.path()
+    );
     assert!(!dir.path().join("<input-expression>").exists());
 }
 
@@ -417,7 +424,9 @@ fn source_cache_preserves_first_read_and_first_error() {
     std::fs::write(dir.path().join("main.typ"), "changed").unwrap();
     assert_eq!(world.source(world.main()).unwrap().text(), "original");
     let missing = dir.path().join("missing.typ");
-    let id = world.register_file(missing.clone());
+    let id = world
+        .register_file(missing.clone())
+        .expect("valid registration test fixture");
     assert!(matches!(world.source(id), Err(FileError::NotFound)));
     std::fs::write(missing, "appeared later").unwrap();
     assert!(matches!(world.source(id), Err(FileError::NotFound)));
@@ -434,7 +443,7 @@ fn byte_cache_is_shared_by_legacy_and_rooted_reads() {
     let rooted = world.read_path(&path).unwrap();
     assert!(Arc::ptr_eq(&legacy, &rooted));
     std::fs::write(&asset, b"changed").unwrap();
-    let id = world.register_file(asset);
+    let id = world.register_file(asset).expect("valid registration test fixture");
     assert_eq!(world.file(id).unwrap().as_slice(), b"original");
     assert!(Arc::ptr_eq(&legacy, &world.read_path(&path).unwrap()));
 }
@@ -455,12 +464,17 @@ fn byte_read_errors_are_not_cached() {
 fn canonical_ids_and_dependency_inventory_stay_stable() {
     let dir = tempfile_write("main.typ", "main");
     let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
-    assert_eq!(world.register_file(dir.path().join("./main.typ")), world.main());
+    assert_eq!(
+        world
+            .register_file(dir.path().join("./main.typ"))
+            .expect("valid registration test fixture"),
+        world.main()
+    );
     let missing = dir.path().join("missing.bin");
     assert!(world.read_bytes(world.main(), "missing.bin").is_err());
     let mut expected = vec![dir.path().join("main.typ").canonicalize().unwrap(), missing];
     expected.sort();
-    assert_eq!(world.dependencies(), expected);
+    assert_eq!(world.dependencies().expect("healthy dependency fixture"), expected);
 }
 
 #[test]
@@ -470,7 +484,9 @@ fn rooted_paths_preserve_origin_and_reject_lexical_escape() {
     std::fs::write(dir.path().join("sub/other.typ"), "other").unwrap();
     std::fs::write(dir.path().join("sub/data.bin"), b"local").unwrap();
     let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
-    let other = world.register_file(dir.path().join("sub/other.typ"));
+    let other = world
+        .register_file(dir.path().join("sub/other.typ"))
+        .expect("valid registration test fixture");
     let path = world.resolve_path(other, "data.bin").unwrap();
     assert_eq!(world.read_path(&path).unwrap().as_slice(), b"local");
     assert_eq!(
@@ -598,6 +614,7 @@ fn infra_review_concurrent_registration_has_one_identity() {
                     scope.spawn(move || {
                         b.wait();
                         w.register_file(p.clone())
+                            .expect("valid registration test fixture")
                     })
                 })
                 .collect();
@@ -622,19 +639,19 @@ fn expression_source_identity_registered_sources_and_physical_names() {
     assert_eq!(world.source(a.id()).unwrap().text(), "1 + 2");
     assert_eq!(world.file(a.id()).unwrap().as_slice(), b"1 + 2");
     assert_eq!(world.file(world.main()).unwrap().as_slice(), "= Açúcar".as_bytes());
-    assert!(world.dependencies().is_empty());
+    assert!(world.dependencies().expect("healthy dependency fixture").is_empty());
     for name in ["<stdin>", "<input-expression>"] {
         let path = dir.path().join(name);
         std::fs::write(&path, "physical").unwrap();
-        let id = world.register_file(path);
+        let id = world.register_file(path).expect("valid registration test fixture");
         assert_ne!(id, a.id());
         assert_ne!(id, world.main());
         assert_eq!(world.source(id).unwrap().text(), "physical");
     }
-    assert_eq!(world.dependencies().len(), 2);
+    assert_eq!(world.dependencies().expect("healthy dependency fixture").len(), 2);
     assert_eq!(world.source(world.main()).unwrap().text(), "= Açúcar");
     let empty = SystemWorld::for_eval(dir.path());
-    assert!(empty.dependencies().is_empty());
+    assert!(empty.dependencies().expect("healthy dependency fixture").is_empty());
     assert!(empty.file(empty.main()).unwrap().as_slice().is_empty());
 }
 
@@ -648,14 +665,14 @@ fn expression_source_identity_exhaustion_never_overwrites_or_poisons() {
     assert!(
         matches!(world.source_for_expression("0".into()), Err(FileError::Other(message)) if message == "FileId counter exhausted")
     );
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        world.register_file(dir.path().join("new.typ"))
-    }));
-    assert!(result.is_err());
+    let result = world.register_file(dir.path().join("new.typ"));
+    assert!(
+        matches!(result, Err(FileError::Other(message)) if message == "FileId counter exhausted")
+    );
     assert_eq!(world.source(last.id()).unwrap().text(), "42");
     assert_eq!(world.file(last.id()).unwrap().as_slice(), b"42");
     assert_eq!(world.source(world.main()).unwrap().text(), "");
-    assert!(world.dependencies().is_empty());
+    assert!(world.dependencies().expect("healthy dependency fixture").is_empty());
 }
 
 #[test]
@@ -670,7 +687,9 @@ fn expression_source_identity_concurrent_publication_and_reads() {
                 let world = &world;
                 let physical = &physical;
                 scope.spawn(move || {
-                    let physical_id = world.register_file(physical.clone());
+                    let physical_id = world
+                        .register_file(physical.clone())
+                        .expect("valid registration test fixture");
                     for _ in 0..8 {
                         assert_eq!(
                             world.file(physical_id).unwrap().as_slice(),
@@ -692,5 +711,172 @@ fn expression_source_identity_concurrent_publication_and_reads() {
         .collect::<std::collections::HashSet<_>>();
     assert_eq!(unique.len(), 12);
     assert!(all.iter().all(|pair| pair.0 == physical_id && pair.1 != physical_id));
-    assert_eq!(world.dependencies(), vec![physical]);
+    assert_eq!(world.dependencies().expect("healthy dependency fixture"), vec![physical]);
+}
+
+#[test]
+fn no_panic_source_registration_exhaustion_keeps_known_identity() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    let path = dir.path().join("known.typ");
+    let id = world.register_file(path.clone()).unwrap();
+    *world.next_id.lock().unwrap() = u32::from(u16::MAX) + 1;
+    let slots_before = world.slots.lock().unwrap().len();
+    assert_eq!(world.register_file(path), Ok(id));
+    assert!(
+        matches!(world.register_file(dir.path().join("new.typ")), Err(FileError::Other(message)) if message == "FileId counter exhausted")
+    );
+    assert_eq!(world.slots.lock().unwrap().len(), slots_before);
+    assert_eq!(world.path_to_id.lock().unwrap().len(), 1);
+    assert_eq!(*world.next_id.lock().unwrap(), u32::from(u16::MAX) + 1);
+    assert_eq!(world.source(world.main()).unwrap().text(), "");
+}
+
+fn poison_source_lock<T: Send>(lock: &std::sync::Mutex<T>) {
+    std::thread::scope(|scope| {
+        let thread = scope.spawn(|| {
+            let _guard = lock.lock().unwrap();
+            panic!("intentional test-only poison injection");
+        });
+        assert!(thread.join().is_err());
+    });
+    assert!(lock.is_poisoned());
+}
+
+#[test]
+fn no_panic_source_registration_poison_does_not_publish_identity() {
+    for selected in ["counter", "identities", "slots"] {
+        let dir = tempdir();
+        let world = SystemWorld::for_eval(dir.path());
+        match selected {
+            "counter" => poison_source_lock(&world.next_id),
+            "identities" => poison_source_lock(&world.path_to_id),
+            "slots" => poison_source_lock(&world.slots),
+            _ => unreachable!(),
+        }
+        let error = world.register_file(dir.path().join("new.typ")).unwrap_err();
+        assert!(
+            matches!(error, FileError::Other(ref message) if message.ends_with("lock is poisoned"))
+        );
+        if selected != "counter" {
+            assert_eq!(*world.next_id.lock().unwrap(), 2);
+        }
+        if selected != "identities" {
+            assert!(world.path_to_id.lock().unwrap().is_empty());
+        }
+        if selected != "slots" {
+            assert_eq!(world.slots.lock().unwrap().len(), 1);
+        }
+    }
+}
+
+#[test]
+fn no_panic_source_acquisition_and_expression_cache_poison_are_errors() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.slots);
+    assert!(
+        matches!(world.source(world.main()), Err(FileError::Other(message)) if message == "source slots lock is poisoned")
+    );
+    assert!(
+        matches!(world.source_for_expression("42".into()), Err(FileError::Other(message)) if message == "source slots lock is poisoned")
+    );
+    assert_eq!(*world.next_id.lock().unwrap(), 2);
+    assert_eq!(world.read_cache.lock().unwrap().len(), 1);
+
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.read_cache);
+    assert!(
+        matches!(world.file(world.main()), Err(FileError::Other(message)) if message == "source bytes cache lock is poisoned")
+    );
+    assert!(
+        matches!(world.source_for_expression("42".into()), Err(FileError::Other(message)) if message == "source bytes cache lock is poisoned")
+    );
+    assert_eq!(*world.next_id.lock().unwrap(), 2);
+    assert_eq!(world.slots.lock().unwrap().len(), 1);
+}
+
+#[test]
+fn metadata_dependencies_poison_is_an_error_without_recovery() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.path_to_id);
+    assert_eq!(
+        world.dependencies(),
+        Err(FileError::Other("file identity registry lock is poisoned".into()))
+    );
+    assert!(world.path_to_id.is_poisoned());
+    assert_eq!(*world.next_id.lock().unwrap(), 2);
+    assert_eq!(world.slots.lock().unwrap().len(), 1);
+}
+
+#[test]
+fn metadata_path_poison_is_not_unknown_identity() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.slots);
+    assert_eq!(
+        world.path_of(world.main()),
+        Err(FileError::Other("source slots lock is poisoned".into()))
+    );
+    assert!(world.slots.is_poisoned());
+    assert!(world.path_to_id.lock().unwrap().is_empty());
+}
+
+#[test]
+fn metadata_relative_path_poison_cannot_fall_back_to_root() {
+    let dir = tempdir();
+    std::fs::write(dir.path().join("asset.txt"), "must not be read").unwrap();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.slots);
+    assert_eq!(
+        world.world_read_bytes(world.main(), "asset.txt"),
+        Err("source slots lock is poisoned".into())
+    );
+    assert!(world.path_to_id.lock().unwrap().is_empty());
+}
+
+#[test]
+fn metadata_absolute_path_poison_cannot_fall_back_to_project() {
+    let dir = tempdir();
+    std::fs::write(dir.path().join("asset.txt"), "must not be read").unwrap();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.slots);
+    assert_eq!(
+        world.world_read_bytes(world.main(), "/asset.txt"),
+        Err("source slots lock is poisoned".into())
+    );
+    assert!(world.path_to_id.lock().unwrap().is_empty());
+}
+
+#[test]
+fn metadata_rooted_resolution_reports_slot_poison() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    poison_source_lock(&world.slots);
+    assert_eq!(
+        world.world_resolve_path(world.main(), "asset.txt"),
+        Err("source slots lock is poisoned".into())
+    );
+}
+
+#[test]
+fn metadata_healthy_absence_and_empty_graph_remain_successes() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    let unknown = FileId::from_raw(std::num::NonZeroU16::new(u16::MAX).unwrap());
+    assert_eq!(world.dependencies(), Ok(vec![]));
+    assert_eq!(
+        world.path_of(world.main()),
+        Ok(Some(dir.path().join("<input-expression>")))
+    );
+    assert_eq!(world.path_of(unknown), Ok(None));
+    assert_eq!(world.directory_of(unknown), Ok(dir.path().to_path_buf()));
+    let first = dir.path().join("a.typ");
+    let second = dir.path().join("z.typ");
+    let a = world.register_file(second.clone()).unwrap();
+    let b = world.register_file(first.clone()).unwrap();
+    assert_ne!(a, b);
+    assert_eq!(world.register_file(first.clone()), Ok(b));
+    assert_eq!(world.dependencies(), Ok(vec![first, second]));
 }

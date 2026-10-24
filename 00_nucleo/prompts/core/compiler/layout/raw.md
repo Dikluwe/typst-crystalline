@@ -1,5 +1,5 @@
 # L0 — raw highlight
-Hash do Código: 3280f8ed
+Hash do Código: 4685f020
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -8,6 +8,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
+- 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 
 **Layer:** L1
@@ -71,3 +72,95 @@ Atom presentation tests first refute Text Auto/general Raw rejection then requir
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## Measured remaining HTML and Length parity correction
+
+### Evidence before decision
+
+`lab/results/remaining-parity-2026-10-22/agents/html-length/measurement-before-decision.json`
+pins receipt SHA-256 `96025a9ff9d2c5a6057e9873285e43e4e81501bb40b55fe43b1244743e8ed09c`,
+UTC `2026-10-22T11:53:10.657191+00:00`–`2026-10-22T11:53:35.064880+00:00`,
+uncommitted HEAD `cf21f47a3b63f0e9fc5308925e1d0b67925e7227`, complete dirty stat,
+source archive, commands/fonts/fixtures/build/tool and verified oracle pins.
+All provenance checks pass. Oracle commit is `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+Length rendering, numeric Raw paint, page warnings, native page aliases and two
+container refusals differ. False-condition/uninserted/scalar controls pass. The
+coordinator froze exact source rejection in `lab/results/remaining-parity-2026-10-22/html-negative-policy.json`
+before implementation; no failed render is waived. Pinned `foundations/value.rs:192–205`,
+`text/raw.rs:563–606` and `typst-realize/src/lib.rs:635–655` distinguish actual
+content morphology, token styles, target-specific warnings and container errors.
+
+### Exclusive correction and acceptance
+
+Recognize a complete bounded inline typc numeric expression with the existing pure
+Code lexer before emitting it. Require numeric terms, optional unary sign, plus/minus
+operators and exact plain-space separators; an unrecognized stream takes the old Raw
+route without partial output. Apply the pinned shared token colors and existing Raw
+font/size/overrides; emit adjacent tokens without invented separators and literal
+spaces exactly once. Preserve Bool/Auto and every other syntax/fallback/block route.
+Add genuine RED style tests for actual Length-like numeric Raw and space/operator
+transport before implementation; verify effective glyph paint and 1e-8 geometry.
+
+Internal continuous ADR-0127 parity correction: no public field/trait/signature,
+new mode/default, phase or compatibility break. L0 precedes code and meaningful
+RED→GREEN; validate paths, valid owner/Nucleus graph, restricted hashes, tests,
+build, strict Clippy/rustdoc, reverse lineage and complete unsuppressed Tekt.
+
+The local numeric-space regression must inspect actual literal TextSeparator
+occurrences, advances and effective Raw size in addition to legacy plain_text.
+`entities/layout_types.rs:899–934` explicitly ignores those separators and joins
+text runs with invented spaces, so its passing pre-correction text assertion is
+only a preservation control. It cannot establish lexical spacing. Keep that
+original assertion and additionally require the two actual literal separators
+of `12pt + 0.5em`, positive finite advances and existing 0.8 Raw size. Full exact
+advances and styles remain certified by bilateral glyph geometry/paint at 1e-8.
+
+
+## Raw is normal text inside an equation
+
+### Measurement before correction
+
+`lab/results/remaining-parity-2026-10-22/candidate-2/qualification/math-length-2/receipt.json.gz`
+retains the two immutable Length/explicit-typc-Raw sources, successful byte/font/
+source/build guards, UTC 2026-10-22T13:44:23.723338+00:00–13:44:26.943012+00:00,
+HEAD/complete uncommitted changed-file list and source-bound candidate
+`feb025296531c92350e29bff032f655cc2fa47542cf8ab4aca0e239108bc4e8f`.
+The ratified oracle remains bd5ebec285505889e8ff1d4f68804ab147a699f3 with executable
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+Raw morphology/paint now agrees, but actual glyph origins and page height do not.
+`agents/inline/math-raw-face-cause.json` under that result root (SHA-256
+`6de15bd9fafd430fda8f795e339c295a1710c4f0ee68d5669cc373fcbe4df264`)
+binds the actual two font bytes/tables and candidate receipt. At the actual 8.8pt,
+NewCM's `12pt` advance/ascent/descent are 17.116/5.8608/1.7072pt; Mono's are
+21.1921875/6.53125/1.83046875pt. Those differences exactly explain the measured
+centering, baseline and bottom error. This refutes a fitted axis/baseline offset.
+
+Pinned raw.rs:657–669 installs ordinary Mono/relative-size text defaults;
+rules.rs:657–680 realizes Raw lines to text; math/ir/resolve.rs:127–150 and
+math/text.rs:17–39 resolve and lay out that actual textual content. Current
+Raw inherits `math=true` from its outer Equation. The metric provider appends
+MATH fallback and resolution.rs:176–184 then prefers a MATH face over explicit
+Mono, while the renderer draws Mono glyphs. The classification, not the bridge
+geometry formula, is the missing boundary. This is language typography/geometry;
+no copied upstream buffer or flag representation is required.
+
+### Exclusive correction and acceptance
+
+A real Raw token run uses normal text font selection even when its enclosing
+content is mathematical. Clear only the effective Raw run's `math` glyph
+classification after selecting existing defaults or an already-active Raw scope.
+Preserve Mono/explicit scoped font, relative size, color, numeric token paint,
+weight/italic behavior, source identity, literal separators and exterior restore.
+Do not reset unrelated `math_text_item`, script/size/cramped axes, alter global
+MATH covering policy, or change bridge dimensions, anchor formulas or phases.
+Both ordinary and already-defaulted Raw products retain one application of size.
+
+Before the body correction, require a reached math-sensitive injected-metric RED
+for actual Raw geometry at more than one size, and an independent ordinary
+mathematical-identifier control. FixedMetrics alone cannot distinguish the two
+face classes. Keep all previous paint/style/baseline assertions and tolerances.
+The two complete source-bound real-font comparisons must pass unchanged for
+closure. This is ADR-0127 continuous-flow parity work, with no new public field,
+method, dependency, default mode, compatibility break or phase.

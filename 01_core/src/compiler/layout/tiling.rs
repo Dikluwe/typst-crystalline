@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tiling.md
-//! @prompt-hash 800088cb
+//! @prompt-hash 307088b0
 //! @layer L1
 
 use std::sync::Arc;
@@ -427,7 +427,7 @@ mod preparation_regressions {
             layout.flow_suffix_transaction_active = true;
             layout.flow_suffix_transaction_rejected = true;
             layout.flow_suffix_dispatch_depth = 3;
-            layout.flow_suffix_replay.push(Content::text("outer replay"));
+            layout.flow_suffix_replay.push((Content::text("outer replay"), None));
             prepare_cell(layout, &sized(TilingBody::Content(Arc::new(Content::Empty))))
                 .unwrap();
             assert!(layout.flow_suffix_checkpoint.is_some());
@@ -436,7 +436,7 @@ mod preparation_regressions {
             assert!(layout.flow_suffix_transaction_rejected);
             assert_eq!(layout.flow_suffix_dispatch_depth, 3);
             assert_eq!(layout.flow_suffix_replay.len(), 1);
-            assert_eq!(layout.flow_suffix_replay[0].plain_text(), "outer replay");
+            assert_eq!(layout.flow_suffix_replay[0].0.plain_text(), "outer replay");
         });
     }
 

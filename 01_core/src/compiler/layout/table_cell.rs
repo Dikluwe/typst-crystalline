@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table_cell.md
-//! @prompt-hash 48c4cbd7
+//! @prompt-hash cd90026b
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -37,9 +37,29 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 resolved.inset,
                 resolved.breakable,
             );
-            layouter.layout_content(&body);
+            if let Some(cursor) = layouter.planned_child_cursor(
+                crate::compiler::introspect::page_running::PlanEdge::CellSelectedVisual,
+            ) {
+                let mut edges =
+                    vec![crate::compiler::introspect::page_running::PlanEdge::BlockBody];
+                if resolved.align.is_some() {
+                    edges.push(
+                        crate::compiler::introspect::page_running::PlanEdge::AlignBody,
+                    );
+                }
+                layouter.layout_planned_cursor(
+                    cursor.through_generated(&edges),
+                    &body,
+                    false,
+                );
+            } else {
+                layouter.layout_content(&body);
+            }
             return;
         }
     }
-    layouter.layout_content(e.visual());
+    layouter.layout_planned_child(
+        crate::compiler::introspect::page_running::PlanEdge::CellSelectedVisual,
+        e.visual(),
+    );
 }

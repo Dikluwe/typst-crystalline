@@ -1,9 +1,12 @@
 # L0 — compiler/stdlib/structural/math/matrix
-Hash do Código: 6a68c92a
+Hash do Código: ea33d738
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/matrix.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 
 ## Evidence before specification
 
@@ -59,3 +62,11 @@ M4 after validated extract_stroke: Length sets only thickness, Color only paint;
 ## Acceptance and limits
 
 Preserve local padding/gap-row override, P1431/core suite/build/crystalline-lint/1:1 lineage and language defaults/compatibility/phase. Functional preservation controls accepted/rejected/morphology/presence pass before/after. Structural RED is V17family 28/V16selected plus real-workspace future Value sentinel currently swallowed; GREEN zero covered gates/E0004 at selected matches, only intentional V19/no new diagnostics. Do not claim 39-variant execution or global parity. Check successful/error/fallback/short-circuit/effects, same expected values. Owner-only direct/reverse reseal after valid graph; build/full workspace/strict all-target Clippy including unfulfilled/fmt/Rustdoc/strict V1/V5/V15/V26/reverse/SARIF under sequential 12GiB/swap 0/jobs 1, preserve unrelated code and source/command/hash/UTC evidence. No memory/speed/AI gain without independent measurement.
+
+## Approved batch E integration
+
+Measurement: pre-E inputs and bilateral reflection in
+`lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
+The owner approved the native Symbol declaration on 2026-10-23.
+Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
+Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.

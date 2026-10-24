@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/extract_payload.md
-//! @prompt-hash ed27bd64
+//! @prompt-hash 110b7404
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -113,7 +113,7 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
-        | Content::MathIdent(_)
+        | Content::Symbol(_) | Content::MathIdent(_)
         | Content::MathText(_)
         | Content::MathFrac(_)
         | Content::MathAttach(_)

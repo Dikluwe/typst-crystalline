@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_select.md
-//! @prompt-hash bb875cf6
+//! @prompt-hash 0d612b69
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -146,18 +146,11 @@ pub(super) fn select_shaped(
 ) -> Vec<Line> {
     let n = p.words.len();
     if strategy == Strategy::Simple {
-        let mut lines = Vec::new();
-        let mut start = 0;
-        while start < n {
-            let width = shape.width(start == 0);
-            let mut end = start + 1;
-            while end < n && measure(p, Line { start, end: end + 1 }).width <= width {
-                end += 1;
-            }
-            lines.push(Line { start, end });
-            start = end;
-        }
-        return lines;
+        return select_simple(
+            n,
+            |first| shape.width(first),
+            |line| measure(p, line).width,
+        );
     }
     let mut prefix = vec![Measure::default(); n + 1];
     let before: Vec<Measure> = p
@@ -230,6 +223,26 @@ pub(super) fn select_shaped(
         end = start;
     }
     lines.reverse();
+    lines
+}
+
+/// Select greedy word ranges after the caller has certified all input widths.
+pub(super) fn select_simple(
+    word_count: usize,
+    width: impl Fn(bool) -> f64,
+    measure: impl Fn(Line) -> f64,
+) -> Vec<Line> {
+    let mut lines = Vec::new();
+    let mut start = 0;
+    while start < word_count {
+        let width = width(start == 0);
+        let mut end = start + 1;
+        while end < word_count && measure(Line { start, end: end + 1 }) <= width {
+            end += 1;
+        }
+        lines.push(Line { start, end });
+        start = end;
+    }
     lines
 }
 

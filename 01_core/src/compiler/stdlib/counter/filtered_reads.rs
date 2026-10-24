@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md
-//! @prompt-hash 0432f3fc
+//! @prompt-hash d842cbb1
 //! @layer L1
 //! @updated 2026-10-05
 
@@ -457,7 +457,8 @@ mod tests {
 
     fn assert_unavailable_context(key: CounterKey, known: bool, located: bool) {
         let world = TestWorld::default();
-        let source = Source::new(world.main(), "counter(\"x\").final()".into());
+        let source = Source::new(world.main(), "counter(\"x\").final()".into())
+            .expect("valid Source test fixture");
         let span = Span::from_range(world.main(), 0..source.text().len());
         let mut ctx = seeded_context(&key);
         ctx.in_context = known;

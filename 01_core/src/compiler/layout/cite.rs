@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/cite.md
-//! @prompt-hash 74b00b89
+//! @prompt-hash 01d62d7f
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -40,7 +40,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.last_cited_key = Some(e.key.clone());
         layouter.layout_content(&content);
         if let Some(s) = &e.supplement {
-            layouter.layout_content(s);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::CitationSupplement,
+                s,
+            );
         }
         return;
     }
@@ -69,7 +72,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if is_ibid {
         layouter.layout_content(&Content::text("ibid.".to_string()));
         if let Some(s) = &e.supplement {
-            layouter.layout_content(s);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::CitationSupplement,
+                s,
+            );
         }
         return;
     }
@@ -93,7 +99,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let text = format!("[{}] {}, op. cit.", n_str, author_abbrev);
         layouter.layout_content(&Content::text(text));
         if let Some(s) = &e.supplement {
-            layouter.layout_content(s);
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::CitationSupplement,
+                s,
+            );
         }
         return;
     }
@@ -139,6 +148,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     layouter.layout_content(&Content::text(text));
     if let Some(s) = &e.supplement {
-        layouter.layout_content(s);
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::CitationSupplement,
+            s,
+        );
     }
 }

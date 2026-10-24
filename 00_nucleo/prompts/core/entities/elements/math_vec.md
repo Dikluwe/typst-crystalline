@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_vec` — `MathVecElem`
-Hash do Código: 880b14e0
+Hash do Código: e83f6801
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -86,3 +86,31 @@ visit order, and their specific preservation obligations.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/math_vec.md` preserves the construction chronology.
+
+
+## R4 — measured public mathematical projection / qualified conversion
+
+### Measurement before decision
+
+`lab/results/math-fields-r4-2026-10-23/baseline.json` and `before/receipt.json`
+retain UTC, HEAD, complete uncommitted diff stat, source map, archived sources
+and binary SHA-256. The oracle is pinned bd5ebec285505889e8ff1d4f68804ab147a699f3
+(tree cac836c07e4dec2a89219370428292393a3216b5). The before probe records
+fields/has/at and accepted/rejected constructor values rather than inferring
+intent from implementation. Upstream math/matrix.rs:45–67,238–272 and
+math/mod.rs:227–234 declare the already existing language fields. Local
+content_methods.rs:151–158,378–380 omits these projections; frac.rs:43–53
+and root.rs:27–38 reject supported operands. These are language semantics
+and morphology, distinct from byte or Rust algorithm parity.
+
+### Exclusive correction and gate
+
+Override the existing Element::get_field method: children always returns ordered Content array; delim/align/gap return values only when their existing explicit bits are true. Delim serializes sentinel absent sides as None; align uses Align2D horizontal component, gap is full Relative. Unknown or unset returns None. No entity field or trait declaration changes.
+
+This R4 clause supersedes only conflicting historical operand/field clauses
+above. Internal parity correction follows continuous ADR-0127: L0 first,
+reseal, actual functional RED before implementation, GREEN and full validation.
+No new public Rust field/signature/trait method, default mode or phase change.
+Preserve other semantics and all received changes. Record source-bound builds,
+full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
+A–H and R1–R3 without reclassifying their existing limitations as parity.

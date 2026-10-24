@@ -1,8 +1,9 @@
 # L0 — grid
-Hash do Código: 59f6ee6a
+Hash do Código: 14a74d0a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
@@ -61,3 +62,65 @@ Arity maintenance follows continuous-flow ADR-0127 without public/default/phase/
 Run existing Grid/Table/outline/SVG/tiling before/after, full workspace suite/build/Clippy all-targets/Rustdoc/fmt/strict-reverse lineage/Tekt no new warnings under 12GiB/zero swap/one job. No global parity/PDF-UA claim.
 
 Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.
+
+
+## Approved physical source routing
+
+### Evidence before decision
+
+Exact source/owner bytes, HEAD, dirty-tree state and UTC before these amendments are archived in `lab/results/set-page-header-implementation-2026-10-21/agents/index/grid-original-before.json.gz`. The finite direct-site classification is `lab/results/set-page-header-2026-10-21/agents/parity/descendant-site-classification.json`. Source anchors include `01_core/src/compiler/layout/grid.rs:212-325`, `01_core/src/compiler/layout/grid_placement.rs:232-399`, `01_core/src/compiler/layout/grid/row_groups.rs:22-64`, `01_core/src/compiler/layout/grid/tracks.rs:224,543-561`, `01_core/src/compiler/layout/grid/cell_body.rs:285-346`, and `01_core/src/compiler/layout/table.rs:83-126`. Placement visibly reorders inputs; Auto-height products may be consumed later; Align/Block/prefix constructors wrap particular real source children. These establish transport ownership, not a new geometry/parity claim. The exact public/phase package is ratified in `lab/results/set-page-header-implementation-2026-10-21/approval.json`; no further public contract is introduced here.
+
+### Exclusive routing contract
+
+Carry a private source-cursor sidecar alongside the existing combined and placed cells. The index comes from exact original typed GridCell or Table resolved/raw child edges and the row-group owner's explicit extraction, never body equality, pointer comparison or coordinates. Preserve the existing GridLayoutInput/public PlacedCell types and occupied placement policy. Header/footer padding is generated with no source cursor; known source wrapper/Sequence spines may be omitted only when their complete nominal root fact is empty. Physical emission, not measurement, owns source admission.
+
+Preserve legacy unplanned rendering, source parents, explicit aliases, all existing source/geometry/style/diagnostic expectations and the bounded support/debts above. Measurement or generated-only output has no source fact; actual selected source descendants cannot silently become unplanned. Keep the exhaustive static dispatcher and owner-local child decisions. Use nominal plan/edge provenance, never Content/Func equality, text or frame scanning. Deferred physical positions remain separate from causal source anchor/order; preserve the actual source admission through page movement. Missing/conflicting edges fail closed before Complete.
+
+### Acceptance
+
+Require original-index preservation after explicit-first placement, resolved/raw/standalone selected children, header/footer and padding, aligned/inset generated wrappers retaining their source descendants, no phantom measurement effect or duplicate cache admission, source parents/aliases and deferred page anchors. Preserve prior tests and the original native path byte-for-byte in expectation. Actual source-language and unchanged legacy geometry/refusal controls plus full build/suites/strict lint/Clippy/Rustdoc/fmt/forward/reverse lineage are required before closure; no speed or broader Table/PDF-UA parity is inferred.
+
+
+## R5 — pintura compartilhada e coordenadas de linha (2026-10-24)
+
+### Medição anterior à decisão
+
+`lab/results/construction/diagnostics/painting-r5-2026-10-24/baseline.json` e
+`baseline-source.json.gz` preservam HEAD cf21f47a3b63f0e9fc5308925e1d0b67925e7227,
+árvore não commitada, lista exata/diffstat, UTC, fontes/L0 e binários. O oráculo
+continua bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, SHA256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+`before/receipt.json` mede tabela: 18/10 pixels distintos a72dpi e1548/1532
+a600dpi; os outros seis documentos coincidem a72dpi. `pdf-experiments/receipt.json`
+isola deduplicação de linhas idênticas e transformação local: só ambas zeram
+a diferença nas duas resoluções. Isso sustenta correção de pintura observável,
+não igualdade de bytes/comandos. `borders.rs:332-360` emite fundo e topo
+coincidentes de linhas adjacentes; `row_pagination.rs:26-32` contém a decisão
+de quebra; `cell_emission.rs:124-190` conhece alturas e ordem física.
+`draw.rs:483-495,914-932` emite endpoints absolutos arredondados e inverte
+inclinação no espaço local já refletido. `before-local/receipt.json` registra
+linha inclinada em Box recortado:183 pixels distintos a72dpi e5511 a600dpi.
+Esses são efeitos de linguagem/render; intenção upstream não foi inferida.
+
+### Classificação e aceitação
+
+Correção interna de paridade, fluxo contínuo ADR-0127: nenhum campo, enum, trait,
+API pública, default de produto, fase ou quebra de compatibilidade novo.
+Atualizar L0 antes de testes/código, V15/V26 antes de reseal bidirecional,
+RED funcional antes da implementação, GREEN sem enfraquecer expectativas.
+Exigir PDF rasterizado bilateral a72/600dpi e SVG físico, transparência, fills,
+None/zero, spans, gaps, strokes distintos e bordas em quebras de página;
+linhas inclinadas/negativas/fracionárias/top/local e modos Compact/Verbose.
+Preservar texto, geometria, efeitos, ordem dos corpos e demais gates A–H/R1–R4,
+suítes/build/Clippy/doc/fmt/lint zero, uma tarefa pesada por vez,12GiB/zero swap.
+Não certificar prioridades gerais de strokes distintos, gutters ricos, spans
+multipágina ou paridade global por essa amostra. PNG nativo e nomes públicos
+de fontes são superfícies separadas; nenhuma renomeação/normalização de
+comparadores é autorizada para aparentar MATCH.
+
+### Contrato exclusivo desta unidade
+
+Manter delegação de paginação/emissão/bordas nos owners existentes. Migrar
+apenas chamadas privadas de testes para fornecer ausência de próxima linha
+quando o fixture tem uma única linha. Não adicionar algoritmo no hub.

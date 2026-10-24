@@ -1,5 +1,5 @@
 # L0 — word_layout
-Hash do Código: d2cec8d2
+Hash do Código: 47bf03d1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
@@ -75,3 +75,17 @@ This internal parity correction follows ADR-0127 continuous flow: no new public 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
 Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change, preserving earlier refused/scalar paths. Regional certification expands only same-size/leading prepared text, zero baseline_offset, finite nonnegative edges, faces with different tops/descents; variable sizes/leading remain outside it. Require RED→GREEN four added regressions/prior controls,30+20 regional PDFs,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1, recording failed attempts. No full variable-metrics parity claim.
+
+
+## R8 horizontal superscript compensation is paint-only
+
+Source evidence precedes this correction: pinned inline/line.rs:458–484 applies
+script compensation by Frame::translate without changing advance. The approved
+metrics tuple supplies this offset; current text.rs adds it to cursor_x, which
+also shifts following text. The existing real font fixtures have zero X offset,
+so injected nonzero provider controls are necessary refuters, not font-name cases.
+Keep logical advance, wrapping, justification and source identity unchanged;
+translate only the text/highlight paint of the actual script run. This is private
+formula/state correction, no new public field/API/phase (ADR-0127 continuous).
+Add the active private text_horizontal_offset only to emitted Text and highlight x coordinates. Cursor, measured width, tracking, wrap and paragraph widths retain their current formulas.
+Require nonzero injected offset and following-text/rollback/subframe RED→GREEN, actual-font controls and complete validation.
