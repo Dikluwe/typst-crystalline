@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/decorations.md
-//! @prompt-hash a7ec1279
+//! @prompt-hash 20d54d31
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -109,7 +109,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         return;
     }
 
-    let uniform = if matches!(content, Content::Underline(_)) && !material_prefix {
+    let completed_flow = matches!(content, Content::Underline(_))
+        && !material_prefix
+        && layouter.block_chain_active
+        && layouter.flow_placement_y().is_some()
+        && layouter.regions.current.current_items.len() > initial_committed_len
+        && !super::html_frame::items_have_causal_line(
+            &layouter.regions.current.current_line,
+        )
+        && segments.iter().all(|segment| segment.piece_line.is_none());
+    let uniform = if completed_flow {
+        uniform_closed_frame_text(
+            &layouter.regions.current.current_items[initial_committed_len..],
+        )
+    } else if matches!(content, Content::Underline(_)) && !material_prefix {
         uniform_multiline_text(
             layouter.regions.current.current_items[initial_committed_len..]
                 .iter()
@@ -135,10 +148,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P286 — patch do primeiro segment: o `start_x` real é
     // o snapshot inicial (não line_start_x), porque o body
     // pode começar a meio de uma linha já em curso.
-    if let Some(first) = segments.first_mut() {
-        first.start_x = start_x_initial;
-        if !settled_initial_baseline {
-            first.baseline_y = baseline_y_initial;
+    if !completed_flow {
+        if let Some(first) = segments.first_mut() {
+            first.start_x = start_x_initial;
+            if !settled_initial_baseline {
+                first.baseline_y = baseline_y_initial;
+            }
         }
     }
     // P286 — acrescentar segment "final não-flushed" (a linha
@@ -166,21 +181,119 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // aplicado simetricamente em cada linha (§A.3 opção α).
     for seg in &segments {
         let line_y = Pt(seg.baseline_y.val() + offset_pt);
-        super::repeat::register_piece_paint(layouter, seg.piece_line);
+        if !completed_flow {
+            super::repeat::register_piece_paint(layouter, seg.piece_line);
+        }
         // Cada Line vai para `current_line` da página actual.
         // Para segments do meio (já flushed), o seu baseline_y
         // pertence a uma linha já em `current_items`; ainda
         // assim push em current_line é válido — o Layouter
         // não reordena por Y, apenas concatena no flush
         // seguinte (paridade vanilla painter pós-frame).
-        layouter.regions.current.current_line.push(FrameItem::Line {
+        let paint = FrameItem::Line {
             start: Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
             end: Point { x: Pt(seg.end_x.val() + extent_pt), y: line_y },
             thickness,
             color: color.clone(),
             cap: crate::entities::geometry::LineCap::Butt,
-        });
+        };
+        if completed_flow {
+            append_closed_frame_paint(
+                &mut layouter.regions.current.current_items,
+                initial_committed_len,
+                paint,
+            );
+        } else {
+            layouter.regions.current.current_line.push(paint);
+        }
     }
+}
+
+fn append_closed_frame_paint(
+    items: &mut Vec<FrameItem>,
+    start: usize,
+    mut paint: FrameItem,
+) {
+    let mut root = None;
+    let mut single = true;
+    for (index, item) in items.iter().enumerate().skip(start) {
+        if super::html_frame::is_context_marker(item) {
+            continue;
+        }
+        if root.is_some() {
+            single = false;
+            break;
+        }
+        if let FrameItem::Group { matrix, .. } = item {
+            if *matrix == crate::entities::layout_types::TransformMatrix::identity() {
+                root = Some(index);
+                continue;
+            }
+        }
+        single = false;
+        break;
+    }
+    if single {
+        if let Some(index) = root {
+            if let FrameItem::Group { pos, items, .. } = &mut items[index] {
+                super::helpers::shift_frame_item_x(&mut paint, -pos.x.0);
+                super::helpers::shift_frame_item_y(&mut paint, -pos.y.0);
+                items.push(paint);
+                return;
+            }
+        }
+    }
+    items.push(paint);
+}
+
+fn uniform_closed_frame_text(
+    items: &[FrameItem],
+) -> Option<(crate::entities::layout_types::TextStyle, String)> {
+    fn flatten<'a>(items: &'a [FrameItem], text: &mut Vec<&'a FrameItem>) -> bool {
+        for item in items {
+            if super::html_frame::is_context_marker(item) {
+                continue;
+            }
+            match item {
+                FrameItem::Text { .. } | FrameItem::TextSeparator { .. } => {
+                    text.push(item)
+                }
+                FrameItem::Group { matrix, clip_mask, items, .. } => {
+                    if *matrix
+                        != crate::entities::layout_types::TransformMatrix::identity()
+                        || clip_mask.is_some()
+                    {
+                        return false;
+                    }
+                    if !flatten(items, text) {
+                        return false;
+                    }
+                }
+                FrameItem::Semantic {
+                    kind:
+                        crate::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary,
+                    ..
+                } => text.push(item),
+                FrameItem::Semantic { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::TextReplacement { items, .. } => {
+                    if !flatten(items, text) {
+                        return false;
+                    }
+                }
+                FrameItem::Shape { .. } | FrameItem::Image { .. } => {}
+                FrameItem::TextShaped { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Line { .. } => return false,
+            }
+        }
+        true
+    }
+    let mut text = Vec::new();
+    if !flatten(items, &mut text) {
+        return None;
+    }
+    uniform_multiline_text(text.into_iter())
 }
 
 // Only actual flat text and its existing explicit-linebreak marker certify
@@ -211,7 +324,7 @@ fn uniform_multiline_text<'a>(
                 |item| matches!(item, FrameItem::Text { text, .. } if text.is_empty()),
             ) =>
             {
-                continue
+                continue;
             }
             FrameItem::TextShaped { .. }
             | FrameItem::Glyph { .. }

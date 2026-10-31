@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 9ef427d3
+//! @prompt-hash 90a54498
 //! @layer L1
-//! @updated 2026-10-08
+//! @updated 2026-10-24
 //!
 //! Comportamento de `eval/rules::set`.
 
@@ -133,6 +133,56 @@ pub(crate) fn eval_set_rule(
         }
     }
     let native_target = target_function.as_ref().and_then(|f| f.native_fn_addr());
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_footnote_entry as fn(_, _, _, _) -> _,
+        )
+    }) {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            let Some(name) = arg.name.as_deref() else {
+                return Err(vec![SourceDiagnostic::error(
+                    arg.span,
+                    "unexpected argument",
+                )]);
+            };
+            let value = match name {
+                "indent" | "gap" | "clearance" => {
+                    if !matches!(arg.value, Value::Length(_)) {
+                        return Err(vec![expected_length_error(
+                            &arg.value,
+                            arg.value_span,
+                        )]);
+                    }
+                    arg.value.clone()
+                }
+                "separator" => match &arg.value {
+                    Value::Content(_) | Value::None => arg.value.clone(),
+                    Value::Str(text) => Value::Content(Content::text(text.as_str())),
+                    value => {
+                        return Err(vec![SourceDiagnostic::error(
+                            arg.value_span,
+                            format!(
+                                "expected content, found {}",
+                                vanilla_type_name(value)
+                            ),
+                        )])
+                    }
+                },
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        arg.span,
+                        format!("unexpected argument: {name}"),
+                    )])
+                }
+            };
+            styles = styles.push_custom(format!("footnote.entry.{name}"), value);
+        }
+        *engine.styles = styles;
+        return Ok(Value::None);
+    }
     if native_target.is_some_and(|call| {
         std::ptr::fn_addr_eq(
             call,
@@ -1123,37 +1173,34 @@ pub(crate) fn eval_set_rule(
         return Ok(Value::None);
     }
 
-    if target == "table" {
-        // P459 — `#set table(numbering: "1.")` activa numeração automática de
-        // tables. O padrão vive na chain léxica (`custom("table.numbering")`),
-        // análogo a figure/equation (F-2 S3). O layout lê o gate e prefixa o
-        // caption quando ambos (caption + numbering) estão presentes.
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, engine)?;
-                    let span = named.expr().span();
-                    match val {
-                        Value::Str(s) => {
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("table.numbering", Value::Str(s));
-                        }
-                        Value::None => {
-                            *engine.styles =
-                                engine.styles.push_custom("table.numbering", Value::None);
-                        }
-                        other => {
-                            return Err(vec![type_mismatch(
-                                "string or none",
-                                &other,
-                                span,
-                            )]);
-                        }
-                    }
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _,
+        )
+    }) {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            match arg.name.as_deref() {
+                Some("align") => {
+                    crate::compiler::stdlib::table_alignment(&arg.value, arg.value_span)?;
+                    styles = styles.push_custom("table.align", arg.value);
                 }
+                Some("numbering") => {
+                    if !matches!(arg.value, Value::Str(_) | Value::None) {
+                        return Err(vec![type_mismatch(
+                            "string or none",
+                            &arg.value,
+                            arg.value_span,
+                        )]);
+                    }
+                    styles = styles.push_custom("table.numbering", arg.value);
+                }
+                _ => {}
             }
         }
+        *engine.styles = styles;
         return Ok(Value::None);
     }
 
@@ -1425,5 +1472,21 @@ mod v16_c_structural_tests {
         }
         let world = TestWorld::new("#let p=page\n#set p(width:120pt)\nOK");
         crate::compiler::eval::tests::eval_for_test(&world, &world.source).unwrap();
+    }
+
+    #[test]
+    fn r12_entry_set_rejects_wrong_types_and_unknown_or_positional_arguments() {
+        for (args, expected) in [
+            ("indent:1", "expected length, found integer"),
+            ("gap:\"bad\"", "expected length, found string"),
+            ("wrong:1pt", "unexpected argument: wrong"),
+            ("[X]", "unexpected argument"),
+        ] {
+            let world = TestWorld::new(&format!("#set footnote.entry({args})\nOK"));
+            let errors =
+                crate::compiler::eval::tests::eval_for_test(&world, &world.source)
+                    .unwrap_err();
+            assert_eq!(errors[0].message, expected);
+        }
     }
 }

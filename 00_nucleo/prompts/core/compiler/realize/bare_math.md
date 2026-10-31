@@ -1,5 +1,5 @@
 # L0 — Mathematical insertion preparation
-Hash do Código: 55b28d02
+Hash do Código: fec73901
 
 
 **Layer:** L1.
@@ -252,3 +252,29 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Migrate only the approved literal additions: raw Table items=None, legacy plans header_groups empty, Header level 1 unless cloning an existing header (preserve its level). Preserve every old semantic assertion and all other data; no new APIs/default/phase. Representation-only test assertions that freeze the superseded duplicate-header rejection must be replaced by positive source-order/range safety acceptance, without weakening unrelated controls.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

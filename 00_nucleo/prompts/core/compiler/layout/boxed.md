@@ -1,5 +1,5 @@
 # L0 — boxed
-Hash do Código: b179153f
+Hash do Código: e8015553
 
 
 **Layer:** L1
@@ -10,6 +10,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/nonexpanding-math-frame.toml sha256:8e6bd0ef718cc6d7e11292996777437b7f0fdb88c3c39d9d441c721459758563
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
@@ -655,3 +657,123 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+## Natural block mathematics in horizontal Stack — 2026-10-27
+
+### Measurement before classification
+
+`lab/results/construction/diagnostics/math-stack-width-fix-2026-10-27/before.json`
+freezes HEAD212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted diff/stat/status,
+2167 inputs and received release SHA d141e2ee123c262b37d0bf7e7c83fd00429504782b9f8f3c030072cd834cbdf1.
+The source inputs exactly match the previous Stack completion. The ratified oracle
+is commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1 and executable
+SHA22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+Fresh bilateral `before3/{receipt.json,geometry.json}` retains sources, hashes,
+UTC, argv and physical PDF/text observations. At400pt the following image starts
+at210.146 rather than18.292pt; at200pt it starts110.146 rather than18.292pt.
+A fixed100pt Block matches, but an Auto Block differs187.354pt, Auto Box194.354pt,
+compound math/text173.0715pt and finite wrapped prose10.266pt. Fixed Box differs
+2.5pt and a fixed inset Block3pt in equation position. Root/vertical/inline
+controls match. Numbered LTR instead requires a full390pt child: image402 rather
+than received210.146; blindly shrinking every equation is refuted.
+
+`stack.rs:128-146` supplies the finite available region to each child;
+`equation.rs:309-313` centers against that region using page margins, then
+`:586-590` advances cursor through the displaced extent. `line_commit.rs:184-205`
+records that right edge. `sub_frame.rs:289,357,569,614` isolates finite regions,
+auto-width intent and the causal width witness. `block.rs:310,358-373` already
+settles generic deferred X paths against completed allocation; `boxed.rs:496-535`
+composes once and settles local paths after deriving Auto size. Pinned upstream
+`stack.rs:173-179` disables child expansion on the stacking axis while retaining
+finite region size; `math/mod.rs:204-209` returns raw unnumbered frames and
+`:230-244` allocates numbered frames using region width. These are observed
+language geometry/accepted content; Rust algorithms/bytes need not match. No
+upstream intent is inferred. A following image shifted by region size, changed
+finite wrapping, duplicate effects, moved fixed-width math, or changed root/
+vertical controls refutes the candidate.
+
+### Classification and preservation
+
+ADR-0127 continuous internal parity flow. Keep public signatures/entity fields,
+traits, dependencies, features, default modes, pipeline phases and compatibility.
+Only existing layout-time frame policy changes. Private purpose/adapter arguments
+may carry natural-width intent; no new Layouter field or independent dispatcher.
+Keep received JPEG validation/streaming/dedup and the target alignment recipe byte
+identical. Preserve all received notes/image/h/Stack/counter work. Invalid initial
+multi-letter abc fixtures were rejected by both compilers; corrected a b c is the
+usable control. `phantom` is rejected by the oracle and remains an explicit
+out-of-scope binding refuter; the preexisting Repeat/math mismatch is retained,
+not qualified or used to claim width parity. Probe completion, not an assumed
+hang, is recorded; no process was stopped.
+
+### Exclusive responsibility
+
+For the existing sized geometric body route choose the private Auto-width adapter only when total width is unspecified; assigned/explicit width stays fixed. Preserve one composition, body constraint, original source cursor, height/inset/outset/clip/baseline/paint and fractional routes. Derive Auto width before visual pending centering using existing body geometry/advance, then settle returned local paths through the existing fixup protocol. No new public Box field, style or constructor behavior beyond the measured mathematical geometry correction.
+
+### Acceptance
+
+Add module-level functional RED before implementation for natural width independent
+of200/400pt constraint, LTR/RTL placement, different-width display lines, compound
+prose and finite wrapping, Auto/fixed Box and Block allocation, numbered reservation,
+exterior/root/vertical/inline preservation and state/source effects once. Compare
+complete source PDF and SVG geometry/pages/text at the unchanged0.001pt gate and
+independent raster; keep refuters explicit. Revalidate all previous Stack/image/h,
+Here/counter/footer, math/notes/relative-line and A-H/R1-R13 controls. Require all12
+technical gates, unfiltered lint zero warnings/errors, V15/V26 before restricted
+resealing and frozen source/L0/configuration during execution. Repeat JPEG17922,
+frozen timing/CI/Luma and nine-case RSS bounds plus direct received comparison,
+R6 normalized size/RSS/repeatability/math-time limits. Use one job,12GiB,zero swap;
+no competing build during resource timings. Preserve raw previous receipts and
+unrelated received inputs. No commit/push or new universal container parity claim.
+
+## Terminal optical policy and existing line ownership
+
+optical-isolation-red.json/source.json.gz binds exact dirty HEAD212aed0449, UTC,
+diffstat and source inputs. The actual parent-line test emits bb. at45pt rather
+than48pt after an isolated child with overhang:false returns. This refutes
+restoration of the new private policy; no break/cost/default/public/phase change
+is authorized. Source swaps are documented in optical_margin.md.
+
+After completing either sized or fractional Box, clear exterior terminal-text
+certification: the Box allocation itself is opaque to optical admission even
+when its paint contains text. Do not clear it before a possible exterior wrap
+that still closes the old parent line. Preserve inner real text policies,
+existing one-body composition, allocation, baselines and source plan routing.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

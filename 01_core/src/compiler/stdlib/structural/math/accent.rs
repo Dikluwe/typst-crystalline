@@ -1,16 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/accent.md
-//! @prompt-hash fcb13bb7
+//! @prompt-hash 9c74a95f
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Aliases, casts e construção semântica de `math.accent`.
 
 use crate::compiler::eval::EvalContext;
-use crate::entities::args::Args;
+use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::content::Content;
 use crate::entities::elements::math_accent::MathAccentExplicit;
 use crate::entities::file_id::FileId;
+use crate::entities::func::Func;
 use crate::entities::layout_types::Length;
 use crate::entities::rel::Rel;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -56,6 +57,64 @@ pub(crate) fn normalize_math_accent(value: &str) -> Option<char> {
         .find(|(accent, aliases)| Some(*accent) == direct || aliases.contains(&value))
         .map(|(accent, _)| *accent)
         .or(direct)
+}
+
+/// Normalize only a selected raw Symbol at its immediate call boundary.
+pub(in crate::compiler) fn symbol_accent_func(
+    selected: &str,
+    call_span: Span,
+) -> Option<Func> {
+    if !is_known_math_accent(selected) {
+        return None;
+    }
+    let accent = normalize_math_accent(selected)?;
+    let bound = Args::from_occurrences(
+        call_span,
+        vec![ArgOccurrence {
+            name: None,
+            value: Value::Str(accent.to_string().into()),
+            span: call_span,
+            value_span: call_span,
+        }],
+    );
+    Some(Func::native("(..) => ..", native_symbol_accent).with(bound))
+}
+
+fn native_symbol_accent(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let mut sequence = args.occurrence_sequence().into_iter();
+    let Some(accent) = sequence.next() else {
+        return Err(vec![SourceDiagnostic::error(args.span, "missing argument: accent")]);
+    };
+    let mut occurrences: Vec<_> = sequence.collect();
+    let base_position = {
+        let mut positions = occurrences
+            .iter()
+            .enumerate()
+            .filter(|(_, occurrence)| occurrence.name.is_none())
+            .map(|(index, _)| index);
+        let Some(base) = positions.next() else {
+            return Err(vec![SourceDiagnostic::error(
+                accent.span,
+                "missing argument: base",
+            )]);
+        };
+        if let Some(extra) = positions.next() {
+            return Err(vec![SourceDiagnostic::error(
+                occurrences[extra].span,
+                "unexpected argument",
+            )]);
+        }
+        base
+    };
+    let call_span = accent.span;
+    occurrences.insert(base_position + 1, accent);
+    math_accent_content(&Args::from_occurrences(call_span, occurrences))
+        .map(Value::Content)
 }
 
 fn math_accent_base(value: &Value, span: Span) -> SourceResult<Content> {

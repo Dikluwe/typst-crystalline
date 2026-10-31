@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/stack.md
-//! @prompt-hash 82d66c51
+//! @prompt-hash 34e2ebff
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -51,12 +51,6 @@ pub fn native_stack(
                         ),
                     )]
                 })?;
-                if len.abs.0 < 0.0 || len.em < 0.0 {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        "stack(spacing:): valor negativo não suportado neste passo (P156I)".to_string(),
-                    )]);
-                }
                 spacing = Some(len);
             }
             other => {

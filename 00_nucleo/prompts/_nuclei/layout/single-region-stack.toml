@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "single-region-stack"
+title = "Atomic Block and Stack share a single-region frame boundary"
+
+[[claims]]
+id = "whole-children"
+level = "must"
+statement = "A Stack in an unbreakable Block context retains every completed child frame and its full logical extent in one physical region. Ordinary fragment admission consults the inherited private Block context without changing main-flow geometry, source order or child execution count."
+
+[[claims]]
+id = "anchor-only"
+level = "must"
+statement = "For reverse vertical placement in a single declared region, the available placement anchor may be bounded by the region end; child extents, advances and committed logical height are never capped to remaining space. Negative overflow remains in the frame before clipping."
+
+[[claims]]
+id = "nearest-declared-boundary"
+level = "must"
+statement = "The nearest declared inner Block bottom wins; Auto Blocks inherit it through the existing opaque private context. The boundary is valid only on its producing physical page and column. Checkpoints copy and isolated subframes suspend and restore that context. Actual Place regions, percentage bases and Auto allocation retain their own owners."

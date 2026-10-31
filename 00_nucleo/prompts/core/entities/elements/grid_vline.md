@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/grid_vline` — `GridVLineElem`
-Hash do Código: 88cb11e6
+Hash do Código: 23981cef
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/grid_vline.rs`
@@ -49,3 +49,22 @@ ignoring col in equality. Its shorter summary is not a new contract change.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/grid_vline.md`. Historical observations are not a new parity certification.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

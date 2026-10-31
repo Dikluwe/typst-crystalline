@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence.md
-//! @prompt-hash 6d094097
+//! @prompt-hash b7bf07ab
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -244,7 +244,27 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         // vanilla: `+ a\n+ b\n\n+ c` numera `1. 2. 3.` — a numeração
         // atravessa a linha em branco. Só conteúdo real termina a lista.
         if let Some(group) = item_group(part) {
-            if layouter.parbreak_since_last_item
+            let changed_list_kind = matches!(
+                (layouter.last_seen_item_group, group),
+                (Some(ItemGroup::List), ItemGroup::Enum)
+                    | (Some(ItemGroup::Enum), ItemGroup::List)
+            );
+            if changed_list_kind {
+                let size = layouter.style.size.0;
+                let spacing = super::paragraph::spacing_for_size(&layouter.chain, size);
+                let leading =
+                    match layouter.chain.custom("par.leading") {
+                        Some(crate::entities::value::Value::Length(length)) => {
+                            length.resolve_pt(size)
+                        }
+                        _ => layouter.style.leading.map_or(
+                            size * super::vanilla_defaults::PAR_LEADING,
+                            |length| length.resolve_pt(size),
+                        ),
+                    };
+                layouter.regions.current.cursor_y += Pt(spacing - leading);
+                layouter.last_was_loose_item = false;
+            } else if layouter.parbreak_since_last_item
                 && layouter.last_seen_item_group == Some(group)
             {
                 layouter.regions.current.cursor_y += paragraph_advance(layouter);
@@ -324,9 +344,11 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         }
         let geometric_prefix = inline_prefix
             .is_some_and(|prefix| prefix.geometric && prefix.block_index == part_index);
-        let ordinary_boundary =
-            matches!(part.source_body(), Content::Block(_) | Content::Align(_))
-                && inline_prefix.is_none_or(|prefix| prefix.block_index != part_index);
+        let ordinary_boundary = matches!(
+            part.source_body(),
+            Content::Block(_) | Content::Align(_) | Content::Parbreak
+        ) && inline_prefix
+            .is_none_or(|prefix| prefix.block_index != part_index);
         if geometric_prefix || ordinary_boundary {
             if owns_text_segment {
                 super::paragraph::close_segment(
@@ -405,6 +427,15 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         {
             layouter.paragraph_planning_suppressed = false;
         }
+        // An item's body owns its own sibling scope. Nested sequences may
+        // clear their grouping, but cannot erase this exterior item boundary.
+        let item_group_state = match item_group(part) {
+            Some(ItemGroup::List | ItemGroup::Enum) => Some((
+                layouter.last_seen_item_group.take(),
+                std::mem::take(&mut layouter.parbreak_since_last_item),
+            )),
+            Some(ItemGroup::Terms) | None => None,
+        };
         let child_allocation = match inline_allocation.as_ref() {
             inline_allocation::Node::Sequence(children) => children
                 .get(part_index - inline_allocation_base)
@@ -450,6 +481,10 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
                 ),
                 part,
             );
+        }
+        if let Some((group, parbreak)) = item_group_state {
+            layouter.last_seen_item_group = group;
+            layouter.parbreak_since_last_item = parbreak;
         }
         layouter.inline_allocation = saved_child_allocation;
         if owns_inline_scope && matches!(part.source_body(), Content::SetPage(_)) {
@@ -857,5 +892,127 @@ mod r8_note_admission_tests {
         let doc = l.finish();
         let page = doc.pages.iter().position(|p| super::super::tests::frame_items_recursive(&p.items).iter().any(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "ALPHA"))).unwrap();
         assert_eq!(page, 1, "carrier was not moved");
+    }
+}
+
+#[cfg(test)]
+mod template_paragraph_tests {
+    use super::*;
+
+    fn large(text: &str) -> Content {
+        Content::styled(
+            Content::text(text),
+            crate::entities::style::Styles::from_iter([
+                crate::entities::style::Style::Size(
+                    crate::entities::layout_types::Length::pt(19.0),
+                ),
+            ]),
+        )
+    }
+    fn render(
+        body: Content,
+        spacing: Option<crate::entities::layout_types::Length>,
+    ) -> Vec<(String, f64, f64, f64)> {
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::{FrameItem, FrameVisitor},
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        if let Some(spacing) = spacing {
+            l.chain = l.chain.push_custom(
+                "par.spacing",
+                crate::entities::value::Value::Length(spacing),
+            );
+        }
+        l.page_config.width = 320.0;
+        l.page_config.height = 300.0;
+        l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(20.0);
+        l.page_config.margin_spec =
+            crate::entities::layout_types::PageMarginSpec::uniform(20.0);
+        l.regions.current.width = 320.0;
+        l.regions.current.height = 300.0;
+        l.regions.current.cursor_x = crate::entities::layout_types::Pt(20.0);
+        l.regions.current.line_start_x = crate::entities::layout_types::Pt(20.0);
+        l.regions.current.cursor_y = crate::entities::layout_types::Pt(20.0);
+        l.initial_baseline_pending = true;
+        l.line_assumed_ascent = None;
+        l.layout_content(&body);
+        struct Words(Vec<(String, f64, f64, f64)>);
+        impl FrameVisitor for Words {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, pos, style, .. } = item {
+                    if !text.trim().is_empty() {
+                        self.0.push((text.to_string(), pos.x.0, pos.y.0, style.size.0));
+                    }
+                }
+            }
+        }
+        let mut words = Words(Vec::new());
+        for p in l.finish().pages {
+            words.visit_items(&p.items);
+        }
+        words.0
+    }
+
+    fn author_y(words: &[(String, f64, f64, f64)]) -> f64 {
+        words.iter().find(|w| w.0 == "AUTHOR").expect("author survives").2
+    }
+    #[test]
+    fn template_paragraph_shared_size_owns_relative_spacing() {
+        use crate::entities::layout_types::Length;
+        for (spacing, delta) in
+            [(None, 9.6), (Some(Length::em(2.0)), 16.0), (Some(Length::pt(25.0)), 0.0)]
+        {
+            let implicit = render(
+                Content::sequence(vec![
+                    large("TITLE"),
+                    Content::Parbreak,
+                    Content::text("AUTHOR"),
+                ]),
+                spacing,
+            );
+            let explicit = render(
+                Content::sequence(vec![
+                    Content::par(large("TITLE")),
+                    Content::text("AUTHOR"),
+                ]),
+                spacing,
+            );
+            assert!(
+                (author_y(&implicit) - author_y(&explicit) - delta).abs() < 0.001,
+                "spacing={spacing:?}: {implicit:?} vs {explicit:?}"
+            );
+        }
+    }
+    #[test]
+    fn template_paragraph_equal_siblings_do_not_create_shared_scope() {
+        let siblings = render(
+            Content::sequence(vec![
+                large("TI"),
+                large("TLE"),
+                Content::Parbreak,
+                Content::text("AUTHOR"),
+            ]),
+            None,
+        );
+        let explicit = render(
+            Content::sequence(vec![
+                Content::par(Content::sequence(vec![large("TI"), large("TLE")])),
+                Content::text("AUTHOR"),
+            ]),
+            None,
+        );
+        assert!(
+            (author_y(&siblings) - author_y(&explicit)).abs() < 0.001,
+            "{siblings:?} vs {explicit:?}"
+        );
     }
 }

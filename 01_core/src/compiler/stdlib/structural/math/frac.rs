@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/frac.md
-//! @prompt-hash 9eece1f9
+//! @prompt-hash d0d7febe
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -61,17 +61,6 @@ pub(crate) fn math_frac_content(args: &Args) -> SourceResult<Content> {
             format!("unexpected argument: {name}"),
         )]);
     }
-    let style_count = args
-        .occurrence_sequence()
-        .iter()
-        .filter(|occurrence| occurrence.name.as_deref() == Some("style"))
-        .count();
-    if style_count > 1 {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "duplicate argument: style".to_string(),
-        )]);
-    }
     let [num, den] = args.items.as_slice() else {
         return Err(vec![SourceDiagnostic::error(
             args.span,
@@ -83,11 +72,17 @@ pub(crate) fn math_frac_content(args: &Args) -> SourceResult<Content> {
             .to_string(),
         )]);
     };
-    let style = args
-        .named
-        .get("style")
-        .map(|value| math_frac_style(value, args.span))
-        .transpose()?;
+    let mut style = None;
+    for occurrence in args.occurrence_sequence() {
+        if occurrence.name.as_deref() == Some("style") {
+            let span = if occurrence.value_span.is_detached() {
+                args.span
+            } else {
+                occurrence.value_span
+            };
+            style = Some(math_frac_style(&occurrence.value, span)?);
+        }
+    }
     Ok(Content::math_frac_full(
         math_frac_operand(num, args.span)?,
         math_frac_operand(den, args.span)?,
@@ -128,5 +123,139 @@ mod tests {
         let Content::MathFrac(explicit) = explicit else { panic!("expected fraction") };
         assert_eq!(omitted.style, None);
         assert_eq!(explicit.style, Some(MathFracStyle::Vertical));
+    }
+}
+
+#[cfg(test)]
+mod readiness_argument_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                )
+                .expect("valid fraction argument source fixture"),
+            }
+        }
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn run(text: &str) -> SourceResult<crate::entities::module::Module> {
+        let world = TestWorld::new(text);
+        crate::compiler::eval::eval_for_test(&world, &world.source)
+    }
+    fn style(text: &str) -> Option<crate::entities::elements::math_frac::MathFracStyle> {
+        let module =
+            run(text).unwrap_or_else(|e| panic!("fraction source must evaluate: {e:?}"));
+        let mut styles = Vec::new();
+        module.content().unwrap().visit_content_static(&mut |content| {
+            if let Content::MathFrac(frac) = content {
+                styles.push(frac.style);
+                return false;
+            }
+            true
+        });
+        assert_eq!(styles.len(), 1, "one fraction must survive");
+        styles[0]
+    }
+    #[test]
+    fn readiness_frac_bound_style_accepts_call_site_override() {
+        assert_eq!(
+            style(
+                r#"#let frac=math.frac.with(style:"vertical")
+$frac(1,2,style:"horizontal")$"#
+            ),
+            Some(crate::entities::elements::math_frac::MathFracStyle::Horizontal)
+        );
+    }
+    #[test]
+    fn readiness_frac_chained_partial_keeps_last_style() {
+        assert_eq!(
+            style(
+                r#"#let frac=math.frac.with(style:"vertical").with(style:"horizontal")
+$frac(1,2)$"#
+            ),
+            Some(crate::entities::elements::math_frac::MathFracStyle::Horizontal)
+        );
+    }
+    #[test]
+    fn readiness_frac_invalid_bound_style_keeps_original_origin() {
+        let text = r#"#let frac=math.frac.with(style:true)
+$frac(1,2,style:"horizontal")$"#;
+        let world = TestWorld::new(text);
+        let errors = crate::compiler::eval::eval_for_test(&world, &world.source)
+            .expect_err("invalid bound style is still cast");
+        let error = errors
+            .iter()
+            .find(|e| {
+                e.message
+                    == r#"expected "vertical", "skewed", or "horizontal", found boolean"#
+            })
+            .unwrap_or_else(|| panic!("{errors:?}"));
+        let start = text.find("true").unwrap();
+        assert_eq!(world.source.span_byte_range(error.span), Some(start..start + 4));
+    }
+    #[test]
+    fn readiness_frac_literal_duplicate_stays_a_source_error() {
+        for text in [
+            r#"$frac(1,2,style:"vertical",style:"horizontal")$"#,
+            r#"#math.frac([A],[B],style:"vertical",style:"horizontal")"#,
+        ] {
+            let errors = run(text).expect_err("literal duplicate must reject");
+            assert!(
+                errors.iter().any(|e| e.message.contains("duplicate argument: style")),
+                "{errors:?}"
+            );
+        }
+    }
+    #[test]
+    fn readiness_frac_partial_argument_expressions_execute_once() {
+        run(r#"#let n=0
+#let bound=math.frac.with(style:{n+=1;"vertical"})
+#bound([A],[B],style:{n+=1;"horizontal"})
+#assert.eq(n,2)"#)
+        .expect("both argument expressions once");
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/table_grid.md
-//! @prompt-hash 18d23ba5
+//! @prompt-hash 4648c961
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -452,7 +452,11 @@ fn p887_table_stroke_omitido_tem_default_1pt_preto() {
             Paint::Solid(Color::rgb(0, 0, 0)),
             "stroke default deve ser preta"
         );
-        assert_eq!(s.thickness, 1.0, "espessura default deve ser 1pt");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "espessura default deve ser 1pt"
+        );
     } else {
         panic!("esperado Content::Table");
     }
@@ -529,7 +533,10 @@ fn p230_native_grid_cell_stroke_aceita_length_shorthand() {
     let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::GridCell(e)) = r {
         assert!(e.stroke.is_some());
-        assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
+        assert_eq!(
+            e.stroke.clone().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(2.0)
+        );
     } else {
         panic!("esperado GridCell");
     }
@@ -545,7 +552,10 @@ fn p230_native_grid_cell_stroke_aceita_color_shorthand() {
     let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::GridCell(e)) = r {
         assert!(e.stroke.is_some());
-        assert_eq!(e.stroke.clone().unwrap().thickness, 1.0);
+        assert_eq!(
+            e.stroke.clone().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(1.0)
+        );
     } else {
         panic!("esperado GridCell");
     }

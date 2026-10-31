@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/labelled.md
-//! @prompt-hash 37dbb8e3
+//! @prompt-hash 23cc38c2
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -20,14 +20,12 @@ use crate::entities::elements::label::LabelElem;
 use crate::entities::introspector::Introspector;
 use crate::entities::introspector::TagIntrospector;
 use crate::entities::label::Label;
-use crate::entities::lang::Lang;
 use crate::entities::location::Location;
 use crate::entities::locator::Locator;
 use crate::entities::selector::Selector;
-use crate::entities::style_chain::StyleChain;
 use crate::entities::tag::Tag;
 
-use super::{classify_unreferencable_body, populate_intr_from_tag_start, walk};
+use super::{classify_unreferencable_body, populate_intr_from_tag_start};
 
 /// Computa `(resolved_text, figure_number)` para uma `Label` apontando a um
 /// `target` locatável (Heading/Equation/Figure), via o `Introspector`
@@ -238,9 +236,27 @@ pub(super) fn walk_label(
     tags: &mut Vec<Tag>,
     intr: &mut TagIntrospector,
     auto_label_counter: &mut usize,
-    lang: Option<&Lang>,
-    chain: &StyleChain,
+    environment: super::walk::TraversalEnvironment<'_>,
 ) {
+    let lang = environment.lang;
+    let chain = environment.chain;
+    if environment.math && super::walk::is_equation_root(&e.body) {
+        super::walk::walk_at(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            None,
+            None,
+            super::walk::RootVisit::Full,
+            true,
+        );
+        return;
+    }
+
     let label = Label(e.name.to_string());
     if let Some((reference, location)) = located_reference_original(&e.body) {
         let first = intr.labels.lookup(&label).is_none();
@@ -254,7 +270,19 @@ pub(super) fn walk_label(
             intr.unreferencable_labels
                 .insert(label, crate::entities::label_kind::UnreferencableKind::Other);
         }
-        walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+        super::walk::walk_at(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            None,
+            None,
+            super::walk::RootVisit::Full,
+            environment.math,
+        );
         return;
     }
     if e.auto {
@@ -264,7 +292,19 @@ pub(super) fn walk_label(
         let target = &e.body;
         let target_lang = chain.lang();
         let tags_len_before = tags.len();
-        walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
+        super::walk::walk_at(
+            target,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            Some(&label),
+            None,
+            super::walk::RootVisit::Full,
+            environment.math,
+        );
         // P788: o `label_to_counter_key.remove(&label)` que aqui
         // existia forçava o caminho legacy — removido (precedência
         // numérica; legacy fica como fallback).
@@ -315,7 +355,19 @@ pub(super) fn walk_label(
             || intr.resolved_labels.get(&label).is_some()
             || intr.labels.lookup(&label).is_some()
             || intr.unreferencable_labels.contains_key(&label);
-        walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
+        super::walk::walk_at(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            Some(&label),
+            None,
+            super::walk::RootVisit::Full,
+            environment.math,
+        );
         let known_after = intr.label_to_counter_key.contains_key(&label)
             || intr.figure_label_numbers.contains_key(&label)
             || intr.resolved_labels.get(&label).is_some()
@@ -333,6 +385,7 @@ pub(super) fn walk_label(
 #[cfg(test)]
 mod carrier_regressions {
     use super::*;
+    use crate::entities::lang::Lang;
     use crate::entities::{
         content::SourceContent, counter_update::CounterUpdate,
         elements::equation::EquationElem, file_id::FileId, span::Span, style::Styles,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/bare_math.md
-//! @prompt-hash 38cc597a
+//! @prompt-hash 40c97433
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -64,10 +64,14 @@ fn plain_without_bare_math(content: &Content) -> bool {
         Content::Realized(e) => plain_without_bare_math(&e.visual),
         Content::TableCell(e) => plain_without_bare_math(e.visual()),
         Content::Table(e) => {
-            let cells = e.resolved.as_ref().map_or(&e.children, |r| &r.cells);
+            let cells = e
+                .resolved
+                .as_ref()
+                .map_or(e.items.as_ref().unwrap_or(&e.children), |r| &r.cells);
             cells.iter().all(plain_without_bare_math)
                 && e.caption.as_ref().is_none_or(plain_without_bare_math)
                 && (e.resolved.is_some()
+                    || e.items.is_some()
                     || (e.header.as_ref().is_none_or(plain_without_bare_math)
                         && e.footer.as_ref().is_none_or(plain_without_bare_math)))
         }
@@ -574,6 +578,7 @@ mod batch_g_tests {
         assert!(!plain_without_bare_math(&Content::Table(Arc::new(raw.clone()))));
         raw.children.push(frac.clone());
         raw.resolved = Some(Arc::new(TableGridResolved {
+            header_groups: Vec::new(),
             cells: vec![Content::text("resolved")],
             num_cols: 1,
             num_rows: 1,
@@ -584,5 +589,17 @@ mod batch_g_tests {
         assert!(plain_without_bare_math(&Content::Table(Arc::new(raw.clone()))));
         raw.caption = Some(frac);
         assert!(!plain_without_bare_math(&Content::Table(Arc::new(raw))));
+    }
+    #[test]
+    fn issue_8954_ordered_raw_items_do_not_bypass_math_certificate() {
+        let Content::Table(base) = Content::table(vec![], vec![], vec![]) else {
+            panic!("table")
+        };
+        let mut table = base.as_ref().clone();
+        table.items = Some(vec![Content::table_header(
+            Content::equation(Content::text("x"), false),
+            true,
+        )]);
+        assert!(!plain_without_bare_math(&Content::Table(Arc::new(table))));
     }
 }

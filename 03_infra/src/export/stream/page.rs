@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/page.md
-//! @prompt-hash 7bc51033
+//! @prompt-hash 1c19f043
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -86,6 +86,20 @@ pub(super) fn emit_page_items(
 ) {
     let mut i = 0;
     while i < items.len() {
+        if let Some(second) = items.get(i + 1) {
+            if let Some(pair) = super::draw::joiner_pair(&items[i], second, ctx) {
+                *ops = super::draw::draw_joiner_pair_top(
+                    std::mem::take(ops),
+                    &items[i],
+                    second,
+                    page_height,
+                    ctx,
+                    pair,
+                );
+                i += 2;
+                continue;
+            }
+        }
         if verbose {
             let run_end = verbose_run_end(items, i, ctx);
             if run_end > i + 1 {

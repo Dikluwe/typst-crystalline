@@ -1,7 +1,8 @@
 # L0 — heading
-Hash do Código: 4b925a3d
+Hash do Código: 59020455
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml sha256:67e2de824eb08850828b20d39da52b8d33c59ced2138ddb4e8a2a9113aaa3cf1
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
@@ -65,3 +66,101 @@ At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source
 ### Exclusive protocol responsibility
 
 Route the actual body through `HeadingBody` under its source plan, preserving canonical root and derived post-child facts on their accepted physical pages. Generated numbering/decorations and all preflight measurement remain unplanned. Keep every existing style/geometry/margin/strategy/restore formula and static delegation; do not use source equality or a wrapper Location to recover a missing route.
+
+
+## Readiness: sequential heading flow (2026-10-28)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/before.json`
+and `source-before.json.gz` bind HEAD 212aed0449150dd296ceea13fc2be665cc5db01a,
+uncommitted tree, exact diffstat/UTC and source/owner hashes. All productive
+inputs match the readiness receipt. The pinned current oracle is
+64c5e8c02fe0394d913ead36e42ef8c1334d2107 (tree
+483bd6f1d8ac8810db47b65336d402647955fd17); older pins above are historical.
+The preserved readiness bbox/control-heading-numbering XML measures second
+heading yMin 17.9892 versus 57.9742, overlapping prior prose. First prose is
+36.863 versus 35.587. `heading.rs:59-80` selects page top whenever the block
+chain is inactive, without closing the preceding inline paragraph;
+`heading.rs:129-132` discards the heading's lower edge. `cursor.rs:109-143`
+may also consume an active preceding chain during the already-positioned body.
+These are observable ordering/geometry defects, not JPEG or Rust structure.
+The hypothesis is refuted by controls with multiline headings, successive
+headings, preceding prose/blocks, region transitions and restored style.
+
+### Exclusive correction and acceptance
+
+Close a material preceding paragraph through its existing paragraph boundary
+before computing heading entry; do not reset a mid-region heading to page top.
+Once own baseline is installed, consume the preceding block chain before
+numbering/body admission. After flush, use the actually committed final line
+baseline and its physical lower edge for the existing below collapse. Preserve
+numbering, source routing, margin priority, outer style and chain restoration.
+No new public signature/field/default/phase: continuous ADR-0127 parity repair.
+Tests must fail before implementation for prose→heading order and the heading
+lower edge before following prose. Revalidate numbered/unnumbered controls,
+outline/article/table/raw, previous margins, math/image/JPEG controls and full
+gates; compilation alone does not close readiness.
+
+
+RED confirmation: heading-red.json rejects prose→heading order; heading-red2.json
+also rejects explicit descender lower edge (default baseline edge control passed).
+`line_commit.rs:575-587,715-720,988-995` can reconcile the assumed ascent and
+change a baseline during flush; a pre-flush cursor is not the committed baseline.
+Install the heading's own top as assumed ascent and retain the final flush's
+baseline/end instead of overwriting it with the pre-flush cursor. For an empty
+body without a committed line retain the installed baseline. These observations
+refine the hypothesis above; do not infer a nonzero default bottom edge.
+
+
+Number gap evidence: heading-candidate/receipt.json now measures matching vertical
+coordinates for control-heading-numbering (prose yMin35.587, second heading
+57.9742, following prose75.429), but title x35.5232 versus36.2932 and second
+x43.3112 versus43.9712. Current-pin typst-layout/src/rules.rs:245-246,292-295
+explicitly defines a weak 0.3em gap; the current generated trailing text space
+is font-dependent. Replace only that generated separator with weak h(0.3em),
+keeping formatted numbering and body unchanged. Test its actual text positions
+before code, then remeasure text/pages/geometry and independent painting. This
+supersedes the earlier append-one-space clause; no public/phase change.
+
+## Readiness: first Heading uses the actual enclosing Block origin
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/heading-block-source-evidence.json binds source/owner/
+Nucleus hashes, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat/UTC and
+the number2-build/source archive with exact paired heading-numbering-local-none
+receipt. Its original nested source retains all words but differs by18.18299pt.
+Oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34;
+product92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7.
+block.rs:199-212 deliberately clears the preceding parent's flow/chain before
+its child; :282-295 retains the actual inner origin after inset in its scoped
+private geometric region. The Block owner already requires a fresh child
+baseline at that origin. heading.rs:65-80 instead selects the page margin when
+no earlier child flow exists. This is a source-supported origin hypothesis;
+actual nested/inset functional REDs precede implementation. Geometry and
+source order are language observations, not buffer/machine parity.
+
+### Exclusive correction and acceptance
+
+Only in Heading's existing no-prior-flow/chain branch, read the existing scoped
+Block region's inner-origin Y when present, otherwise retain page margin top.
+Add the same own text top metric once. Consume no parent gap or inset again;
+all existing prior-flow collapse, effective font/bold/size, numbering/gap, flush,
+source routing and restoration remain. No new field, facade, scope, pipeline
+phase, marker, callback or source evaluation. The existing Block region remains
+owned/installed/restored/isolated/invalidated by its current owners; Heading only
+consumes its origin while valid, as pinned by the existing Nucleus.
+
+Stage actual Heading→Block(Heading)→Heading REDs using the real Block path,
+including nonzero top inset, preserved original words once and parent/outgoing
+restoration. Require the nested title below its predecessor and exactly the
+inset delta without moving preceding content or double-counting inset. Then
+revalidate the original local-numbering-none source, initial and sequential
+headings, nested/inset/region transitions, tables/outline/raw and all earlier
+controls at original words/pages/0.001pt plus independent PDF/SVG paint. Any
+remaining metrics/layout difference remains a negative; no margin fitted from
+18.18299pt. Full lineage/lint/technical/historic/JPEG gates remain mandatory.
+ADR-0127 continuous internal origin-formula/parity correction; separate from
+the pending physical-phase gate.

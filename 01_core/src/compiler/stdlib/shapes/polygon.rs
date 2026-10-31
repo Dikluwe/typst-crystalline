@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md
-//! @prompt-hash 0c54c459
+//! @prompt-hash fc0e2211
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -74,7 +74,7 @@ pub fn native_polygon(
     let stroke = if fill.is_none() && parsed_stroke.is_none() {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         })
@@ -92,6 +92,9 @@ pub fn native_polygon(
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+        rect_radius: None,
+        rect_stroke: None,
+        relative_line: None,
         kind: ShapeKind::Path(path_items),
         width,
         height,
@@ -239,7 +242,7 @@ pub fn native_polygon_regular(
     let stroke = if fill.is_none() && parsed_stroke.is_none() {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         })
@@ -255,6 +258,9 @@ pub fn native_polygon_regular(
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+        rect_radius: None,
+        rect_stroke: None,
+        relative_line: None,
         kind: ShapeKind::Path(path_items),
         width,
         height,

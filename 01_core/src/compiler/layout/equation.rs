@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/equation.md
-//! @prompt-hash e5db1252
+//! @prompt-hash 77ab6f7f
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -207,6 +207,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P896** — `Some(largura_da_equação)` quando a centragem teve de
         // ser adiada (`width: auto`, valor ainda infinito neste ponto).
         let mut pending_center_width: Option<f64> = None;
+        let natural_center = block && self.block_auto_width && !is_numbered;
         let mut offset_x = self.regions.current.cursor_x;
 
         if block {
@@ -224,8 +225,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     &self.regions.current.current_line,
                 )
             {
-                // Topo do sub-frame: baseline = ascender / ext.ascent
-                self.regions.current.cursor_y = Pt(ext.ascent);
+                // The active Block owns its inset-adjusted geometric origin.
+                let top = self.block_place_region.as_ref().map_or(0.0, |r| r.y.0);
+                self.regions.current.cursor_y = Pt(top + ext.ascent);
                 self.prev_block_below_pending = 0.0;
                 self.initial_baseline_pending = false;
             } else if was_initial_baseline_pending
@@ -236,9 +238,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     && self.flow_placement_end.is_none()
                     && !self.block_chain_active)
             {
-                // Topo da página: baseline = margin + ext.ascent
-                self.regions.current.cursor_y =
-                    Pt(self.page_config.margin.top + ext.ascent);
+                // A root Block may already have installed an inset-adjusted origin.
+                let top = self
+                    .block_place_region
+                    .as_ref()
+                    .map_or(self.page_config.margin.top, |region| region.y.0);
+                self.regions.current.cursor_y = Pt(top + ext.ascent);
                 self.prev_block_below_pending = 0.0;
                 self.initial_baseline_pending = false;
             } else {
@@ -306,11 +311,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // com `width: auto` (o próprio conteúdo define a largura da
             // página, logo `usable == largura da equação` e a centragem
             // degenera para offset zero de qualquer forma).
-            if self.regions.current.width.is_finite() {
-                let usable =
-                    self.regions.current.width - self.page_config.margin.horizontal();
-                // rationale: P1064 Classe 1A — centragem de equação em bloco ((usable - ext.width) / 2.0)
-                offset_x = Pt(self.page_config.margin.left + (usable - ext.width) / 2.0);
+            let origin = self.regions.current.line_start_x.0;
+            let available =
+                (self.regions.current.width - self.page_config.margin.right - origin)
+                    .max(0.0);
+            if natural_center {
+                // Keep the wrapping constraint; the owning frame settles visual slack.
+                offset_x = Pt(origin);
+            } else if self.regions.current.width.is_finite() {
+                offset_x = Pt(origin + (available - ext.width) / 2.0);
             } else {
                 // **P896** — largura ainda não resolvida: registar para
                 // correcção adiada em `finish()`/`new_page()`, quando a
@@ -568,6 +577,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // estava em `current_line` antes desta equação começar a empurrar
         // os seus próprios items (preserva ordem: `flush_line` drena
         // `current_line` para `current_items` em sequência).
+        if natural_center {
+            self.pending_align_centering.push((
+                vec![
+                    self.regions.current.current_items.len() + current_line_len_before_eq,
+                ],
+                1,
+                Align2D { h: Some(HAlign::Center), v: None },
+                ext.width,
+                self.regions.current.line_start_x.0,
+                offset_x.0,
+            ));
+        }
+        if block && self.block_auto_width {
+            let available = (self.regions.current.width
+                - self.page_config.margin.right
+                - self.regions.current.line_start_x.0)
+                .max(0.0);
+            let width =
+                if is_numbered && available.is_finite() { available } else { ext.width };
+            self.record_flow_width_at(self.regions.current.line_start_x.0, width);
+        }
+
         if let Some(eq_width) = pending_center_width {
             if !self.is_sub_frame {
                 let start_idx =
@@ -595,7 +626,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut equation_baseline_y = self.regions.current.cursor_y;
 
         if block {
+            // The block frame owns its deferred centering, including in RTL prose.
+            let saved_alignment = self.explicit_line_alignment;
+            if natural_center {
+                self.explicit_line_alignment = Some(HAlign::Left);
+            }
             self.flush_line();
+            self.explicit_line_alignment = saved_alignment;
             // Closure may migrate the entire formula. Its settled baseline
             // owns both the following block margin and marginal numbering.
             equation_baseline_y = Pt(self.prev_line_baseline);
@@ -608,6 +645,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.block_chain_active = true;
             self.prev_margin_is_parbreak = false;
             self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
+            // Closed display math prepares a geometric origin, not a text baseline.
+            // Keep its terminal physical bottom independent of this pending gap.
+            let advance = ext.descent + spacing.0;
+            self.regions.current.cursor_y = Pt(equation_baseline_y.0 + advance);
+            self.last_flush_advance = advance;
+            self.record_flow_placement_end(equation_baseline_y.0 + ext.descent);
         }
 
         // Acrescentar número da equação à direita da página (P456).
@@ -1396,5 +1439,274 @@ mod r3_geometry_tests {
                 if placement == 0 || placement == 5 { 7.0 } else { 9.0 }
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod block_math_advance_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        elements::shape::{ShapeElem, ShapeOrigin},
+        geometry::{FillRule, ShapeKind, Stroke},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Length, PageDimension, PageMarginSpec, PageMargins},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn configured<'a, M: FontMetrics>(
+        intr: &'a dyn Introspector,
+        metrics: M,
+        size: f64,
+    ) -> Layouter<'a, M, NullImageSizer> {
+        let mut l = Layouter::new(metrics, NullImageSizer, size, intr.track());
+        l.chain = l.chain.push_styles(
+            &Styles::new().push_custom("text.size", Value::Length(Length::pt(size))),
+        );
+        l.style = TextStyle::from(&l.chain);
+        l.is_sub_frame = true;
+        l.page_config.width = 400.0;
+        l.page_config.height = 400.0;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 400.0;
+        l.regions.current.height = 400.0;
+        l.regions.current.cursor_x = Pt(0.0);
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_y = Pt(0.0);
+        l
+    }
+    fn equation() -> Content {
+        Content::equation(Content::MathIdent("x".into()), true)
+    }
+    fn formula_bottom(items: &[FrameItem]) -> f64 {
+        fn find(items: &[FrameItem]) -> Option<f64> {
+            for item in items {
+                match item {
+                    FrameItem::Semantic {
+                        kind: SemanticKind::Formula, items, ..
+                    } => {
+                        if let Some(FrameItem::Group { pos, inner_height, .. }) =
+                            items.first()
+                        {
+                            return Some(pos.y.0 + inner_height);
+                        }
+                    }
+                    FrameItem::Group { pos, items, .. } => {
+                        if let Some(bottom) = find(items) {
+                            return Some(pos.y.0 + bottom);
+                        }
+                    }
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Link { items, .. } => {
+                        if let Some(bottom) = find(items) {
+                            return Some(bottom);
+                        }
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => continue,
+                }
+            }
+            None
+        }
+        find(items).expect("a displayed formula must have a measured frame")
+    }
+    fn following_line<M: FontMetrics>(l: &mut Layouter<M, NullImageSizer>) -> f64 {
+        l.layout_content(&Content::Shape(Arc::new(ShapeElem {
+            origin: ShapeOrigin::Geometry,
+            kind: ShapeKind::Line { dx: 30.0, dy: 0.0 },
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
+            width: None,
+            height: None,
+            fill: None,
+            stroke: Some(Stroke::default()),
+            fill_rule: FillRule::NonZero,
+        })));
+        l.regions
+            .current
+            .current_items
+            .iter()
+            .rev()
+            .find_map(|item| match item {
+                FrameItem::Shape { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .expect("the following geometric line must paint")
+    }
+    fn near(a: f64, b: f64) {
+        assert!((a - b).abs() < 1e-8, "{a} != {b}");
+    }
+
+    #[test]
+    fn block_math_advance_following_line_uses_frame_bottom_across_sizes_and_leading() {
+        let intr = TagIntrospector::empty();
+        for size in [8.0, 11.0, 20.0] {
+            for leading in [0.0, 20.0] {
+                let mut l = configured(&intr, FixedMetrics, size);
+                l.style.leading = Some(Length::pt(leading));
+                l.layout_content(&equation());
+                let bottom = formula_bottom(&l.regions.current.current_items);
+                near(following_line(&mut l), bottom + size * 1.2);
+            }
+        }
+    }
+
+    #[derive(Clone)]
+    struct BodyEdges(f64);
+    impl FontMetrics for BodyEdges {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if style.math {
+                FixedMetrics.text_edges(size, style)
+            } else {
+                (Pt(self.0), Pt(-self.0 / 2.0))
+            }
+        }
+    }
+    #[test]
+    fn block_math_advance_geometric_follower_is_independent_of_body_text_edges() {
+        let intr = TagIntrospector::empty();
+        let ys: Vec<_> = [4.0, 30.0]
+            .into_iter()
+            .map(|edge| {
+                let mut l = configured(&intr, BodyEdges(edge), 11.0);
+                l.layout_content(&equation());
+                (formula_bottom(&l.regions.current.current_items), following_line(&mut l))
+            })
+            .collect();
+        near(ys[0].0, ys[1].0);
+        near(ys[0].1, ys[1].1);
+    }
+    #[test]
+    fn block_math_advance_empty_paragraph_does_not_reintroduce_text_line_advance() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, FixedMetrics, 11.0);
+        l.layout_content(&equation());
+        let bottom = formula_bottom(&l.regions.current.current_items);
+        l.layout_content(&Content::Parbreak);
+        near(following_line(&mut l), bottom + 13.2);
+    }
+    #[test]
+    fn block_math_advance_numbered_equation_publishes_the_same_geometric_origin() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, FixedMetrics, 11.0);
+        l.layout_content(&Content::styled(
+            Box::new(equation()),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
+        ));
+        let bottom = formula_bottom(&l.regions.current.current_items);
+        near(following_line(&mut l), bottom + 13.2);
+    }
+    #[test]
+    fn block_math_advance_prose_admits_its_own_ascent_after_the_block_gap() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, FixedMetrics, 11.0);
+        l.layout_content(&equation());
+        let bottom = formula_bottom(&l.regions.current.current_items);
+        let ascent = l.metrics.text_edges(l.style.size, &l.style).0 .0;
+        l.layout_content(&Content::text("After"));
+        near(l.regions.current.cursor_y.0, bottom + 13.2 + ascent);
+    }
+    #[test]
+    fn block_math_advance_terminal_auto_page_uses_physical_bottom_without_pending_gap() {
+        let body = Content::sequence(vec![
+            Content::SetPage(Arc::new(crate::entities::content::SetPageDelta {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(PageMarginSpec::uniform(0.0)),
+                ..Default::default()
+            })),
+            equation(),
+        ]);
+        let d = crate::compiler::layout::layout(&body);
+        assert_eq!(d.pages.len(), 1);
+        near(d.pages[0].height, formula_bottom(&d.pages[0].items));
+    }
+    #[test]
+    fn block_math_advance_root_block_inset_owns_the_first_formula_origin() {
+        fn formula_top(items: &[FrameItem], origin: f64) -> Option<f64> {
+            for item in items {
+                match item {
+                    FrameItem::Semantic {
+                        kind: SemanticKind::Formula, items, ..
+                    } => {
+                        if let Some(FrameItem::Group { pos, .. }) = items.first() {
+                            return Some(origin + pos.y.0);
+                        }
+                    }
+                    FrameItem::Group { pos, items, .. } => {
+                        if let Some(y) = formula_top(items, origin + pos.y.0) {
+                            return Some(y);
+                        }
+                    }
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Link { items, .. } => {
+                        if let Some(y) = formula_top(items, origin) {
+                            return Some(y);
+                        }
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => continue,
+                }
+            }
+            None
+        }
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, FixedMetrics, 11.0);
+        l.is_sub_frame = false;
+        l.layout_content(&Content::block(
+            equation(),
+            Some(Length::pt(100.0)),
+            None,
+            crate::entities::sides::Sides::uniform(Length::pt(3.0)),
+            true,
+        ));
+        near(
+            formula_top(&l.regions.current.current_items, 0.0)
+                .expect("root Block must paint its formula"),
+            3.0,
+        );
+    }
+    #[test]
+    fn block_math_advance_root_block_preserves_terminal_formula_height_for_following_flow(
+    ) {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, FixedMetrics, 11.0);
+        l.is_sub_frame = false;
+        l.layout_content(&Content::block(
+            equation(),
+            Some(Length::pt(100.0)),
+            None,
+            crate::entities::sides::Sides::uniform(Length::ZERO),
+            true,
+        ));
+        let bottom = formula_bottom(&l.regions.current.current_items);
+        near(following_line(&mut l), bottom + 13.2);
     }
 }

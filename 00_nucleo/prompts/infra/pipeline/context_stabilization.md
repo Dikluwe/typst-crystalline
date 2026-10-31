@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: e24eee86
+Hash do Código: 65f44341
 
 
 
@@ -9,6 +9,7 @@ Hash do Código: e24eee86
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
@@ -558,3 +559,68 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Approved readiness physical eligibility — plain numbering and heading Outline
+
+### Measurement and human decision before code
+
+readiness-fixes-2026-10-28/{number2-build.json,number2-build-source.json.gz,
+number2-extras/comparison.json,article-route-before/receipt.json,
+outline-route-debugger/receipt.json} bind exact binary/source/fixture hashes,
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat and UTC. Product
+92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The terminal17pt/DejaVu page loses lexical style after restoration; the selected
+Ref source bypasses ordinary Outline realization and paints an incorrectly
+numbered title without fill. Actual debugger function entries/piles distinguish
+both routes and full compiles, rather than inferring them from appearance.
+Readiness review documents exact source anchors and independent remaining debts.
+These are language/style/source observations, not upstream Rust-mechanics parity.
+
+The human directly approved “Aprovar a ampliação proposta” in this chat;
+physical-number-outline-approval.json records authority, UTC and frozen review
+SHA-2569d52d041904a94221cae76e4d9d394afd3a758be31e0e4b8845c6839a0dcdc87
+with its owner/receipt manifest. ADR-0127 phase gate is satisfied ONLY for that
+reviewed extension. This section supersedes earlier preserve-phase/noneligible
+clauses only for its named heading-Outline/plain-number eligibility; prior
+Repeat approval is not used as authorization. Existing APIs and other phases
+remain unchanged. The approval does not certify tests, rendering or readiness.
+
+### Exclusive implementation and acceptance
+
+Initialize the same existing physical-channel latch for the approved reached members, and apply its widened reached predicate through the existing post-discovery/post-replacement hook. Use the current actual Bundle paginated-target partition; retain standalone HTML's target barrier. Keep the existing Session/arena, retained producers, Outline read proof, five/eight budgets, diagnostic/error/source policy and current terminal result. Own source-derived pipeline REDs for terminal17pt/bold, unary/total/top/bottom numbers, actual Outline with/without Ref and one canonical query result; preserve hidden/dormant/None/Content and previous physical tests. No syntax/name/error-text heuristic, public facade or new solver.
+
+Stage real current-API REDs before code. Revalidate the approved exact source
+variants, source words/pages/0.001pt and separate PDF/SVG, actual styles/query/
+Location/effects once, causal errors/warnings, aliases/dormant/hidden producers,
+None/Content, all old marginals/Repeat/rollback/notes/callback/Bundle/HTML gates.
+Retain strict authority, coverage, Location and reflexive/current observation
+proof; no extra attempt, normalization, suppression or weakened expectation.
+V15/V26 before resealing, forward/reverse lineage, twelve technical gates,
+full original historic corpus and JPEG time/RSS preservation remain mandatory.
+Unresolved numbered-fill, justification, explicit-footer/bold-PDF and all other
+readiness debts keep their separate receipts and acceptance; no general claim.
+
+## Readiness: preserve total for a source with no final-map location
+
+Measurement before decision: readiness-fixes-2026-10-28/physical-candidate-source.json.gz,
+physical-candidate-execution.json and physical-candidate-physical-preservation.log
+bind exact frozen source/L0, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty
+stat/UTC and commands. The unchanged p1160 PageRun source now paints X1/0,X2/0,III
+instead of X1/3,X2/3,III. All35 readiness controls passed before the full L3
+suite found this distinct regression. Source counter_updates.rs:249-385 stores
+final values per actual location; a document without a corresponding location
+can therefore have an empty final map while its realized logical page vector
+is present. This parent's logical_final fallback is0, whereas the existing
+ordinary paged coordinator already falls back to the actual last logical page.
+
+Within this existing numbering realization only, when the final-map projection
+is absent use the existing current document's last realized logical page number,
+or0 only if that vector is empty. Preserve a PRESENT zero final exactly, all
+counter actions, Source PageRun restoration, arity, source once, warnings and
+five/eight budgets. No synthetic location, final map entry, source replay or
+public contract/phase. The unchanged p1160 language expectation is a real RED;
+require it GREEN and the full page/zero/update/Bundle/Func/shape suites. This
+continuous internal fallback correction does not close the separate Bundle
+input-view API or OutlineEntry original-source failures.

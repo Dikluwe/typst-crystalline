@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/stroke.md
-//! @prompt-hash 03e89711
+//! @prompt-hash 6f584f49
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -13,7 +13,7 @@ fn p227_value_stroke_type_name_e_eq() {
     use crate::entities::paint::Paint;
     let s = Stroke {
         paint: Paint::Solid(Color::rgb(255, 0, 0)),
-        thickness: 2.5,
+        thickness: crate::entities::layout_types::Length::pt(2.5),
         overhang: false,
         ..Stroke::default()
     };
@@ -29,7 +29,7 @@ fn p227_native_stroke_defaults_aceita() {
     null_ctx!(ctx);
     let r = native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
     if let Value::Stroke(s) = r {
-        assert_eq!(s.thickness, 1.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(1.0));
     } else {
         panic!("esperado Value::Stroke");
     }
@@ -72,7 +72,7 @@ fn p227_native_stroke_thickness_2pt_aceita() {
     args.named.insert("thickness".into(), Value::Length(Length::pt(2.0)));
     let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Stroke(s) = r {
-        assert_eq!(s.thickness, 2.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(2.0));
     } else {
         panic!("esperado Value::Stroke");
     }
@@ -168,7 +168,10 @@ fn p1499_stroke_posicional_length_inclusive_zero_negativo() {
         )
         .unwrap();
         let Value::Stroke(stroke) = &value else { panic!("esperado stroke") };
-        assert_eq!(stroke.thickness, thickness);
+        assert_eq!(
+            stroke.thickness,
+            crate::entities::layout_types::Length::pt(thickness)
+        );
         assert!(stroke.specified.thickness);
         assert!(!stroke.specified.paint);
         assert!(stroke.overhang);
@@ -200,7 +203,7 @@ fn p1499_stroke_posicional_color_gradient_tiling_preenche_so_paint() {
                 .unwrap();
         let Value::Stroke(stroke) = value else { panic!("esperado stroke") };
         assert_eq!(stroke.paint, expected_paint);
-        assert_eq!(stroke.thickness, 1.0);
+        assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(1.0));
         assert!(stroke.specified.paint);
         assert!(!stroke.specified.thickness);
         assert!(stroke.overhang);
@@ -225,7 +228,7 @@ fn p1499_stroke_posicional_dict_auto_e_campos_explicitos() {
     .unwrap();
     let Value::Stroke(stroke) = value else { panic!("esperado stroke") };
     assert_eq!(stroke.paint, Paint::Solid(Color::rgb(0, 0, 0)));
-    assert_eq!(stroke.thickness, 2.0);
+    assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(2.0));
     assert_eq!(stroke.cap, LineCap::Round);
     assert_eq!(
         stroke.specified,
@@ -304,7 +307,7 @@ fn p1499_stroke_posicional_dict_auto_none_solid_e_miter_negativo() {
         )
         .unwrap();
         let Value::Stroke(stroke) = result else { panic!("esperado stroke") };
-        assert_eq!(stroke.thickness, -1.0);
+        assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(-1.0));
         assert_eq!(stroke.miter_limit, -1.0);
         assert!(stroke.specified.thickness);
         assert!(stroke.specified.miter_limit);
@@ -333,7 +336,10 @@ fn p227_native_grid_stroke_length_shorthand() {
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Grid(e)) = r {
         assert!(e.stroke.is_some());
-        assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
+        assert_eq!(
+            e.stroke.clone().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(2.0)
+        );
     } else {
         panic!("esperado Content::Grid");
     }
@@ -350,7 +356,7 @@ fn p227_native_grid_stroke_color_shorthand() {
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Grid(e)) = r {
         let s = e.stroke.clone().expect("stroke presente");
-        assert_eq!(s.thickness, 1.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(1.0));
     } else {
         panic!("esperado Content::Grid");
     }
@@ -365,7 +371,7 @@ fn p227_native_grid_stroke_value_stroke_passa() {
     use crate::entities::paint::Paint;
     let s = Stroke {
         paint: Paint::Solid(Color::rgb(0, 255, 0)),
-        thickness: 3.0,
+        thickness: crate::entities::layout_types::Length::pt(3.0),
         overhang: false,
         ..Stroke::default()
     };
@@ -427,7 +433,7 @@ fn stroke_paint_named_gradient_preserves_paint_and_slots() {
         panic!("stroke")
     };
     assert_eq!(stroke.paint, Paint::Gradient(gradient));
-    assert_eq!(stroke.thickness, 12.0);
+    assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(12.0));
     assert!(stroke.specified.paint && stroke.specified.thickness);
     assert!(!stroke.overhang);
 }

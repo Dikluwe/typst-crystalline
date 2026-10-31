@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bibtex.md
-//! @prompt-hash af7cdf25
+//! @prompt-hash 12149439
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -307,8 +307,29 @@ fn parse_authors(raw: &str) -> String {
                     name: name.to_string(),
                     given: Some(given.to_string()),
                 }
-            } else {
+            } else if s.chars().any(|c| matches!(c, '{' | '}' | '\\')) {
                 Author { name: s.to_string(), given: None }
+            } else {
+                let words: Vec<&str> = s.split_whitespace().collect();
+                if words.len() <= 1 {
+                    Author { name: s.to_string(), given: None }
+                } else {
+                    let last = words.len() - 1;
+                    let boundary = words[..last]
+                        .iter()
+                        .position(|word| {
+                            !word.chars().next().is_some_and(char::is_uppercase)
+                        })
+                        .unwrap_or(last);
+                    if boundary == 0 {
+                        Author { name: s.to_string(), given: None }
+                    } else {
+                        Author {
+                            name: words[boundary..].join(" "),
+                            given: Some(words[..boundary].join(" ")),
+                        }
+                    }
+                }
             };
             author.to_canonical()
         })
@@ -511,5 +532,56 @@ mod tests {
         let src = r#"@article{a, author={A}, title={T}, year=abc}"#;
         let err = parse_bibtex(src).unwrap_err();
         assert!(err.message.contains("valor de campo inválido"), "{}", err.message);
+    }
+}
+
+#[cfg(test)]
+mod readiness_name_tests {
+    use super::*;
+
+    #[test]
+    fn readiness_bibliography_name_natural_authors_have_given_and_family() {
+        assert_eq!(
+            parse_authors("Ana Silva and Bruno Souza"),
+            "Silva, Ana and Souza, Bruno"
+        );
+        assert_eq!(parse_authors("Ada Lovelace"), "Lovelace, Ada");
+    }
+    #[test]
+    fn readiness_bibliography_name_middle_unicode_hyphen_particle_and_initials() {
+        for (raw, canonical) in [
+            ("Alan Mathison Turing", "Turing, Alan Mathison"),
+            ("Émilie Du Châtelet", "Châtelet, Émilie Du"),
+            ("Jean-Luc Picard", "Picard, Jean-Luc"),
+            ("Ludwig van Beethoven", "van Beethoven, Ludwig"),
+            ("A. B. Smith", "Smith, A. B."),
+            ("ACME Corp", "Corp, ACME"),
+        ] {
+            assert_eq!(parse_authors(raw), canonical, "{raw}");
+        }
+    }
+    #[test]
+    fn readiness_bibliography_name_existing_comma_lower_single_and_protected_controls() {
+        for raw in [
+            "Silva, Ana and Souza, Bruno",
+            "van Beethoven, Ludwig",
+            "Anon",
+            "ada lovelace",
+            "{Research and Development Inc.}",
+            r"\Alpha Smith",
+        ] {
+            assert_eq!(parse_authors(raw), raw, "existing name path: {raw}");
+        }
+    }
+    #[test]
+    fn readiness_bibliography_name_entry_retains_other_metadata() {
+        let entries=parse_bibtex(r"@book{a,author={Ana Silva},title={Example},year=2024,pages={10--20},doi={10.123/example}} ").expect("valid entry");
+        assert_eq!(entries.len(), 1);
+        let e = &entries[0];
+        assert_eq!(e.author, "Silva, Ana");
+        assert_eq!(e.title, "Example");
+        assert_eq!(e.year, 2024);
+        assert_eq!(e.pages.as_deref(), Some("10--20"));
+        assert_eq!(e.doi.as_deref(), Some("10.123/example"));
     }
 }

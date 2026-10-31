@@ -82,3 +82,7 @@ codex                = { git = "https://github.com/typst/codex", rev = "2e43ab90
 opt-level = "s"
 lto = "thin"
 codegen-units = 1
+
+# Preserve JPEG validation speed alongside target alignment; owning L0 above.
+[profile.release.package.zune-jpeg]
+opt-level = 3

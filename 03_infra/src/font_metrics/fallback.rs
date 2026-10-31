@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/fallback.md
-//! @prompt-hash efe9f9c2
+//! @prompt-hash ea4739b1
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -43,6 +43,44 @@ fn face_kerning(
 }
 
 impl FontMetrics for FallbackFontMetrics<'_> {
+    fn text_trailing_overhang(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+        ratios: &[(char, f64)],
+    ) -> Option<(Pt, usize)> {
+        if style
+            .dir
+            .is_some_and(|dir| dir != typst_core::entities::dir::Dir::LTR)
+        {
+            return None;
+        }
+        let mut style = TextStyle { size, ..style.clone() };
+        if style.font.is_none() {
+            let primary = self.resolve_primary(&style);
+            let candidate = primary.first()?;
+            let info = self.world.book().infos().get(candidate.slot_idx)?;
+            style.font = Some(typst_core::entities::font_list::FontList::single(
+                info.family.clone().into(),
+            ));
+        }
+        let mut cache = self.shaper_face_cache.lock().unwrap();
+        crate::shaper::shaped_trailing_overhang(
+            self.world, text, &style, ratios, &mut cache,
+        )
+    }
+    fn glyph_overhang(
+        &self,
+        font: &typst_core::entities::world_types::Font,
+        glyph_id: u16,
+        advance: Pt,
+        ratios: &[(char, f64)],
+    ) -> Option<Pt> {
+        let face = Face::parse(font.as_slice(), 0).ok()?;
+        crate::shaper::glyph_overhang_in_face(&face, glyph_id, advance, ratios)
+    }
+
     fn text_superscript_runs(
         &self,
         text: &str,
@@ -1672,6 +1710,103 @@ mod remaining_underline_tests {
                 );
                 assert_eq!(runs[i].1.superscript_native, Some(false));
             }
+        }
+    }
+    #[test]
+    fn readiness_optical_fallback_real_families_sizes_and_variable_weight() {
+        let faces = [
+            include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").as_slice(),
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf").as_slice(),
+            include_bytes!("../../fixtures/fonts/UbuntuSans-Variable.ttf").as_slice(),
+        ];
+        let families = ["DejaVu Sans", "Nimbus Sans", "Ubuntu Sans"];
+        let mut book = FontBook::new();
+        for data in faces {
+            book.push(crate::fonts::font_info_from_bytes(data, 0).unwrap());
+        }
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: faces.into_iter().map(|data| Font::from_data(data.to_vec())).collect(),
+        };
+        let provider = FallbackFontMetrics::new(&world);
+        for (data, family) in faces.into_iter().zip(families) {
+            for weight in [400, 700] {
+                for size in [11.0, 17.0] {
+                    let style = TextStyle {
+                        font: Some(FontList::single(family.into())),
+                        weight: Some(weight),
+                        ..TextStyle::regular(Pt(99.0))
+                    };
+                    let mut face = ttf_parser::Face::parse(data, 0).unwrap();
+                    for axis in
+                        crate::font_variant::axis_variations_for_text_style(&style)
+                    {
+                        face.set_variation(axis.tag, axis.value);
+                    }
+                    let gid = face.glyph_index('.').unwrap();
+                    let expected = f64::from(face.glyph_hor_advance(gid).unwrap()) * size
+                        / f64::from(face.units_per_em())
+                        * 0.8;
+                    let (actual, count) = provider
+                        .text_trailing_overhang("A.", Pt(size), &style, &[('.', 0.8)])
+                        .expect("resolved actual face");
+                    assert!(
+                        (actual.0 - expected).abs() < 1e-8,
+                        "{family} {size} {weight}: {actual:?} vs {expected}"
+                    );
+                    assert_eq!(count, 2);
+                    assert!(provider
+                        .text_trailing_overhang("א.", Pt(size), &style, &[('.', 0.8)])
+                        .is_none());
+                    assert!(provider
+                        .text_trailing_overhang("A.\nB.", Pt(size), &style, &[('.', 0.8)])
+                        .is_none());
+                    assert_eq!(
+                        provider.glyph_overhang(
+                            &Font::from_data(data.to_vec()),
+                            gid.0,
+                            Pt(3.0),
+                            &[('.', 0.8)]
+                        ),
+                        Some(Pt(3.0 * 0.8))
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn readiness_optical_default_face_is_resolved_and_unsupported_dirs_decline() {
+        let data = include_bytes!("../../fixtures/fonts/DejaVuSans.ttf");
+        let face = ttf_parser::Face::parse(data, 0).unwrap();
+        let mut book = FontBook::new();
+        book.push(crate::fonts::font_info_from_bytes(data, 0).unwrap());
+        let world = FontWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Font::from_data(data.to_vec())],
+        };
+        let provider = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::regular(Pt(99.0));
+        let gid = face.glyph_index('.').unwrap();
+        let expected = f64::from(face.glyph_hor_advance(gid).unwrap()) * 11.0
+            / f64::from(face.units_per_em())
+            * 0.8;
+        let (amount, count) = provider
+            .text_trailing_overhang("A.", Pt(11.0), &style, &[('.', 0.8)])
+            .expect("existing default font chain, no authored family");
+        assert!((amount.0 - expected).abs() < 1e-8);
+        assert_eq!(count, 2);
+        assert!(style.font.is_none(), "query preserves the authored style");
+        for dir in [
+            typst_core::entities::dir::Dir::RTL,
+            typst_core::entities::dir::Dir::TTB,
+            typst_core::entities::dir::Dir::BTT,
+        ] {
+            style.dir = Some(dir);
+            assert!(provider
+                .text_trailing_overhang("A.", Pt(11.0), &style, &[('.', 0.8)])
+                .is_none());
         }
     }
 }

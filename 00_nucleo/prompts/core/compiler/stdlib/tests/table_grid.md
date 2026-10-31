@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/table_grid
-Hash do Código: 35c1fb5e
+Hash do Código: e399cc63
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/table_grid.rs`
@@ -53,3 +53,22 @@ contracts. Validate build/workspace/doctests, strict Clippy/Rustdoc, fmt,
 V1/V5/V15/V26 and reverse lineage; no increase in V16. Limits:
 MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; heavy tasks sequentially. Measure consumption
 without inferring global benefit from representation alone.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's original point-only Stroke test values/assignments
+to Length::pt while preserving exact numeric values and all assertions. When
+a prepared scalar is compared to its declarative source, explicitly resolve
+that source with the fixture font; do not relax expected geometry or tolerance.
+This test migration implements only the approved field representation change;
+existing non-stroke obligations and prior approvals remain intact.

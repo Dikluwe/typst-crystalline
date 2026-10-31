@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/mod
-Hash do Código: 52ff166c
+Hash do Código: c43457c2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -198,3 +198,21 @@ assertions and complete suite gates; no tolerance expansion or byte-parity claim
 Measurement before decision: the source-bound `validation-first/tests-domain-infra.log` and state archive under `lab/results/footnote-markers-r1-2026-10-23/` record five failures requiring obsolete `[1]`/`[2]`/`[3]` entry text. The pinned successful note probes in `before/receipt.json` and `after-debug/receipt.json` expose the actual language correction. ADR-0107 does not require retaining those defective bytes.
 
 Update only the existing footnote marker smoke assertions to require each formatted number twice in the decoded verbose content stream (inline call and entry), and reject generated bracket forms for these default-numbering fixtures. Retain every existing body-sentinel, overflow, page and no-note control. The fixture uses the existing Type1 text fallback; this stream assertion is a local exporter smoke test, while actual language acceptance remains the pinned PDF words/pages probe. No production exporter logic, reference PDF or public signature changes are authorized. L0-first resealing and complete validation remain required.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate only the declarative Stroke fixture thickness to Length::pt at its
+original exact point value, preserving all other arguments, existing source
+and expected rendered behavior. Prepared FrameStroke fixtures remain scalar.
+This is the mechanical consumer migration of the approved entity change;
+all substantive assertions and previous approvals remain unchanged.

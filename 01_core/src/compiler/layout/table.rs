@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table.md
-//! @prompt-hash a002946c
+//! @prompt-hash ba7aec95
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -28,28 +28,24 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TableElem,
 ) {
-    if e.resolved.is_some()
-        && e.caption.is_none()
-        && layouter.is_sub_frame
-        && layouter
-            .regions
-            .current
-            .current_line
-            .iter()
-            .any(|item| !super::html_frame::is_context_marker(item))
-    {
-        layouter.flush_line();
-        {
-            let above =
-                layouter.style.size.val() * super::vanilla_defaults::BLOCK_SPACING;
-            let gap = layouter.prev_block_below_pending.max(above);
-            layouter.regions.current.cursor_y = crate::entities::layout_types::Pt(
-                layouter.prev_line_baseline + layouter.prev_block_equation_descent + gap,
-            );
-            layouter.initial_baseline_pending = true;
-            layouter.prev_block_below_pending = 0.0;
-        }
-    }
+    // The prepared source table is a block; Grid itself also serves raw
+    // programmatic callers and does not own this Table margin boundary.
+    let prepared_flow = e.resolved.is_some() && e.caption.is_none();
+    let table_indent = if prepared_flow {
+        super::paragraph_indent::end(layouter);
+        let indent = std::mem::replace(
+            &mut layouter.paragraph_indent,
+            super::paragraph_indent::State::inline(),
+        );
+        let (origin, _) = super::block::admit_prepared_frame(layouter);
+        layouter.regions.current.cursor_y = origin.y;
+        layouter.initial_baseline_pending = true;
+        layouter.block_chain_active = false;
+        layouter.prev_margin_is_parbreak = false;
+        Some(indent)
+    } else {
+        None
+    };
     // P459 — ler `table.numbering` da chain e computar prefixo se houver caption.
     let numbering_pattern =
         layouter.chain.custom("table.numbering").and_then(|v| match v {
@@ -107,6 +103,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P512 — passa hlines/vlines para o motor grid partilhado.
     // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
     // P1050 — passa e.align e e.inset (default 5pt) para layout_grid.
+    if e.items.is_some() && e.resolved.is_none() {
+        layouter.layout_errors.push(
+            crate::entities::source_result::SourceDiagnostic::error(
+                e.source_span,
+                "ordered table items require logical preparation",
+            ),
+        );
+        return;
+    }
     let completed_pages_before = layouter.pages.len();
     let planned = layouter
         .page_running_pass
@@ -136,14 +141,45 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         e.footer.as_ref().map(visual_content)
     };
+    use crate::entities::elements::table::TableAlignment;
+    let inherited_alignment = if e.resolved.is_none() && e.align.is_none() {
+        match layouter
+            .chain
+            .custom("table.align")
+            .map(|value| crate::compiler::stdlib::table_alignment(value, e.source_span))
+            .transpose()
+        {
+            Ok(alignment) => alignment,
+            Err(errors) => {
+                layouter.layout_errors.extend(errors);
+                return;
+            }
+        }
+    } else {
+        None
+    };
+    let declaration = e.align.as_ref().or(inherited_alignment.as_ref());
+    let (align, table_alignment) = if e.resolved.is_some() {
+        (None, None)
+    } else {
+        match declaration {
+            None => (None, None),
+            Some(TableAlignment::Uniform(align)) => (Some(*align), None),
+            Some(TableAlignment::Auto | TableAlignment::Columns(_)) => {
+                (None, declaration)
+            }
+        }
+    };
     layouter.layout_grid(super::grid::GridLayoutInput {
+        header_groups: e.resolved.as_ref().map_or(&[], |r| r.header_groups.as_slice()),
         columns: &e.columns,
         rows: &e.rows,
         cells: &visual_children,
         hlines: &e.hlines,
         vlines: &e.vlines,
         gutter: None,
-        align: e.align,
+        align,
+        table_alignment,
         inset: e.inset,
         header: visual_header.as_ref(),
         footer: visual_footer.as_ref(),
@@ -151,12 +187,36 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         fill: e.fill.as_ref(),
     });
 
+    if let Some(indent) = table_indent {
+        let end = layouter.regions.current.cursor_y.0;
+        layouter.prev_line_baseline = end;
+        layouter.prev_block_equation_descent = 0.0;
+        layouter.last_equation_descent = 0.0;
+        layouter.last_block_descent_y = Some(end);
+        layouter.last_flush_advance = 0.0;
+        layouter.line_assumed_ascent = None;
+        layouter.initial_baseline_pending = false;
+        layouter.prev_block_below_pending =
+            super::paragraph::spacing_for_size(&layouter.chain, layouter.style.size.0);
+        layouter.block_chain_active = true;
+        layouter.prev_margin_is_parbreak = true;
+        layouter.record_flow_placement_end(end);
+        layouter.paragraph_indent = indent;
+    }
+
     // P1288 — a árvore semântica é paralela e visualmente vazia. O grid
     // continua dono do desenho; estes carriers apenas preservam a identidade
     // lógica e os metadados até ao exporter.
     let table_id = e as *const TableElem as usize as u64;
     let header_cells = e.header.as_ref().map(flatten_cells).unwrap_or_default();
-    let body_rows = rows_from_cells(&e.children, e.columns.len().max(1), false);
+    let body_cells = if e.items.is_some() {
+        e.resolved
+            .as_ref()
+            .map_or(e.children.as_slice(), |r| r.cells.as_slice())
+    } else {
+        e.children.as_slice()
+    };
+    let body_rows = rows_from_cells(body_cells, e.columns.len().max(1), false);
     let header_rows = rows_from_cells(&header_cells, e.columns.len().max(1), true);
     let affected_pages = layouter.pages.len() - completed_pages_before + 1;
     let chunks = partition_rows(&body_rows, affected_pages);
@@ -384,5 +444,210 @@ fn row_carrier(table_id: u64, row: &LogicalRow) -> FrameItem {
         placement: SemanticPlacement::Block,
         alt: None,
         items,
+    }
+}
+
+#[cfg(test)]
+mod readiness_flow_tests {
+    use super::*;
+    use crate::entities::{
+        elements::table::TableGridResolved,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::TrackSizing,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn prepared_table() -> Content {
+        let Content::Table(mut table) = Content::table(
+            vec![TrackSizing::Fixed(80.0)],
+            vec![TrackSizing::Fixed(40.0)],
+            vec![Content::text("CELL")],
+        ) else {
+            unreachable!()
+        };
+        Arc::make_mut(&mut table).resolved = Some(Arc::new(TableGridResolved {
+            header_groups: Vec::new(),
+            cells: vec![Content::text("CELL")],
+            num_cols: 1,
+            num_rows: 1,
+            header_rows: 0,
+            footer_start: 1,
+            complete: true,
+        }));
+        Content::Table(table)
+    }
+
+    #[test]
+    fn readiness_table_keeps_following_prose_below_its_rows() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&prepared_table());
+        let bottom = l.regions.current.cursor_y.0;
+        l.layout_content(&Content::text("AFTER"));
+        let top = l.metrics.text_edges(l.style.size, &l.style).0 .0;
+        assert!(
+            (l.regions.current.cursor_y.0 - bottom - 13.2 - top).abs() < 1e-8,
+            "following prose must respect the full row height and below margin"
+        );
+    }
+
+    #[test]
+    fn readiness_table_keeps_following_raw_below_its_rows() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&prepared_table());
+        let bottom = l.regions.current.cursor_y.0;
+        let outer = l.style.clone();
+        let raw = super::super::raw::default_style(&outer, &l.chain);
+        let _ = super::super::raw::begin_block(&mut l, raw.size.0, &outer);
+        l.style = raw;
+        l.layout_content(&Content::text("RAW"));
+        assert!(
+            l.regions.current.cursor_y.0 > bottom,
+            "raw must start after the full preceding table, not its old baseline"
+        );
+    }
+}
+
+#[cfg(test)]
+mod raw_alignment_scope_tests {
+    use super::*;
+    use crate::entities::{
+        elements::table::TableAlignment,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Align2D, FrameItem, FrameVisitor, TrackSizing},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn render(
+        inherited: Option<Value>,
+        explicit: Option<TableAlignment>,
+        sourced: bool,
+    ) -> (Vec<(String, f64, f64)>, Vec<crate::entities::source_result::SourceDiagnostic>)
+    {
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let children = ["AA", "BBBB"]
+            .into_iter()
+            .enumerate()
+            .map(|(index, text)| {
+                let body = Content::text(text);
+                if sourced {
+                    let id = crate::entities::file_id::FileId::from_raw(
+                        std::num::NonZeroU16::new(1).unwrap(),
+                    );
+                    body.with_source_span(crate::entities::span::Span::from_range(
+                        id,
+                        index..index + 1,
+                    ))
+                } else {
+                    body
+                }
+            })
+            .collect();
+        let mut body = Content::table(
+            vec![TrackSizing::Fixed(100.0); 2],
+            vec![TrackSizing::Fixed(40.0)],
+            children,
+        );
+        let Content::Table(table) = &mut body else { unreachable!() };
+        Arc::make_mut(table).align = explicit;
+        if let Some(value) = inherited {
+            body = Content::styled(body, Styles::new().push_custom("table.align", value));
+        }
+        l.layout_content(&body);
+        let errors = l.layout_errors.clone();
+        struct Words(Vec<(String, f64, f64)>);
+        impl FrameVisitor for Words {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, pos, .. } = item {
+                    if !text.trim().is_empty() {
+                        self.0.push((text.to_string(), pos.x.0, pos.y.0));
+                    }
+                }
+            }
+        }
+        let mut words = Words(Vec::new());
+        for page in l.finish().pages {
+            words.visit_items(&page.items);
+        }
+        (words.0, errors)
+    }
+    fn declaration() -> TableAlignment {
+        TableAlignment::Columns(vec![
+            Some(Align2D::from_string("left")),
+            Some(Align2D::from_string("right")),
+        ])
+    }
+    fn value() -> Value {
+        Value::Array(vec![
+            Value::Align(Align2D::from_string("left")),
+            Value::Align(Align2D::from_string("right")),
+        ])
+    }
+    fn same(a: &[(String, f64, f64)], b: &[(String, f64, f64)]) {
+        assert_eq!(a.len(), 2);
+        assert_eq!(a.len(), b.len());
+        for (a, b) in a.iter().zip(b) {
+            assert_eq!(a.0, b.0);
+            assert!(
+                (a.1 - b.1).abs() < 0.001 && (a.2 - b.2).abs() < 0.001,
+                "{a:?} vs {b:?}"
+            );
+        }
+    }
+    #[test]
+    fn table_declarative_raw_omission_inherits_at_insertion() {
+        let expected = render(None, Some(declaration()), false);
+        for sourced in [false, true] {
+            let actual = render(Some(value()), None, sourced);
+            assert!(actual.1.is_empty());
+            same(&actual.0, &expected.0);
+        }
+    }
+    #[test]
+    fn table_declarative_raw_explicit_declaration_wins() {
+        for explicit in
+            [TableAlignment::Auto, TableAlignment::Uniform(Align2D::from_string("left"))]
+        {
+            let expected = render(None, Some(explicit.clone()), false);
+            let actual = render(Some(value()), Some(explicit), true);
+            assert!(actual.1.is_empty());
+            same(&actual.0, &expected.0);
+        }
+    }
+    #[test]
+    fn table_declarative_raw_invalid_style_is_not_silently_ignored() {
+        let actual = render(Some(Value::Array(vec![Value::Bool(true)])), None, false);
+        assert!(
+            actual
+                .1
+                .iter()
+                .any(|e| e.message == "expected alignment or auto, found boolean"),
+            "{:?}",
+            actual.1
+        );
+        assert!(actual.0.is_empty());
     }
 }

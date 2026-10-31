@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/basic.md
-//! @prompt-hash 96dfdeb0
+//! @prompt-hash 2348de80
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -217,6 +217,36 @@ pub(super) fn resolved_superscript_style(
 }
 
 impl FontMetrics for FontBookMetrics<'_> {
+    fn text_trailing_overhang(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+        ratios: &[(char, f64)],
+    ) -> Option<(Pt, usize)> {
+        let mut face = self.face.clone();
+        for variation in crate::font_variant::axis_variations_for_text_style(style) {
+            face.set_variation(variation.tag, variation.value);
+        }
+        let style = TextStyle { size, ..style.clone() };
+        crate::shaper::terminal_in_face(
+            &rustybuzz::Face::from_face(face),
+            text,
+            &style,
+            ratios,
+        )
+    }
+    fn glyph_overhang(
+        &self,
+        font: &typst_core::entities::world_types::Font,
+        glyph_id: u16,
+        advance: Pt,
+        ratios: &[(char, f64)],
+    ) -> Option<Pt> {
+        let face = Face::parse(font.as_slice(), 0).ok()?;
+        crate::shaper::glyph_overhang_in_face(&face, glyph_id, advance, ratios)
+    }
+
     fn text_superscript_runs(
         &self,
         text: &str,
@@ -1004,5 +1034,78 @@ mod r10_resolved_tracking_tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod readiness_optical_tests {
+    use super::*;
+    use typst_core::entities::world_types::Font;
+
+    fn fixture() -> &'static [u8] {
+        typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = Face::parse(data, 0) else { return false };
+                face.weight().to_number() == 400
+                    && face.tables().fvar.is_none()
+                    && face.glyph_index('A').is_some()
+                    && face.glyph_index('.').is_some()
+            })
+            .expect("embedded static Latin/dot face")
+    }
+
+    #[test]
+    fn readiness_optical_actual_face_text_and_glyph_metrics() {
+        let bytes = fixture();
+        let face = Face::parse(bytes, 0).unwrap();
+        let dot = face.glyph_index('.').unwrap();
+        let m = FontBookMetrics::from_bytes(bytes).unwrap();
+        let style = TextStyle::regular(Pt(999.0));
+        for size in [11.0, 17.0] {
+            let expected = f64::from(face.glyph_hor_advance(dot).unwrap()) * size
+                / f64::from(face.units_per_em())
+                * 0.8;
+            let (actual, count) = m
+                .text_trailing_overhang("A.", Pt(size), &style, &[('.', 0.8)])
+                .expect("certified actual terminal glyph");
+            assert!((actual.0 - expected).abs() < 1e-10);
+            assert_eq!(count, 2);
+        }
+        let font = Font::from_data(bytes.to_vec());
+        assert_eq!(
+            m.glyph_overhang(&font, dot.0, Pt(3.0), &[('.', 0.8)]),
+            Some(Pt(3.0 * 0.8))
+        );
+        let a = face.glyph_index('A').unwrap();
+        assert_eq!(m.glyph_overhang(&font, a.0, Pt(3.0), &[('.', 0.8)]), Some(Pt(0.0)));
+        assert!(m
+            .glyph_overhang(&Font::from_data(vec![]), dot.0, Pt(3.0), &[('.', 0.8)])
+            .is_none());
+        assert!(m.glyph_overhang(&font, dot.0, Pt(3.0), &[('.', f64::NAN)]).is_none());
+    }
+
+    #[test]
+    fn readiness_optical_supplied_font_is_not_replaced_by_provider_face() {
+        let own = fixture();
+        let own_face = Face::parse(own, 0).unwrap();
+        let own_dot = own_face.glyph_index('.').unwrap();
+        let other = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = Face::parse(data, 0) else { return false };
+                face.glyph_index('.').is_some_and(|gid| gid != own_dot)
+            })
+            .expect("independent embedded dot GID");
+        let other_face = Face::parse(other, 0).unwrap();
+        let gid = other_face.glyph_index('.').unwrap();
+        let m = FontBookMetrics::from_bytes(own).unwrap();
+        assert_eq!(
+            m.glyph_overhang(
+                &Font::from_data(other.to_vec()),
+                gid.0,
+                Pt(3.0),
+                &[('.', 0.8)]
+            ),
+            Some(Pt(3.0 * 0.8))
+        );
     }
 }

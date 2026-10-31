@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running.md
-//! @prompt-hash d3205745
+//! @prompt-hash 67ade24a
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -9,8 +9,72 @@ use super::sub_frame::SubLayoutRegion;
 use super::Layouter;
 use crate::entities::content::Content;
 use crate::entities::image_sizer::ImageSizer;
-use crate::entities::layout_types::{FrameItem, HAlign, Point, Pt, TransformMatrix};
+use crate::entities::layout_types::{
+    FrameItem, HAlign, PageMargins, Point, Pt, TextStyle, TransformMatrix,
+};
 use crate::entities::page_running::{PageMarginal, PageNumberAlign, PageNumberVAlign};
+
+/// A total-dependent number retains the effective style of its own page.
+pub(in crate::compiler) struct PendingNumber {
+    pub(super) page_idx: usize,
+    pub(super) page_number: usize,
+    pub(super) pattern: ecow::EcoString,
+    pub(super) align: PageNumberAlign,
+    pub(super) margins: PageMargins,
+    pub(super) header_ascent: f64,
+    pub(super) footer_descent: f64,
+    pub(super) style: TextStyle,
+}
+
+pub(super) fn numbering_style<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<'_, M, S>,
+) -> TextStyle {
+    TextStyle::from(
+        layouter
+            .page_running_pass
+            .as_ref()
+            .map_or(&layouter.chain, |pass| &pass.chain),
+    )
+}
+
+pub(super) fn pending_number<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<'_, M, S>,
+    page_number: usize,
+    pattern: ecow::EcoString,
+) -> PendingNumber {
+    let style = numbering_style(layouter);
+    PendingNumber {
+        page_idx: layouter.pages.len(),
+        page_number,
+        pattern,
+        align: layouter.page_config.number_align,
+        margins: layouter.page_config.margin,
+        header_ascent: resolve_offset(
+            layouter.page_config.header_ascent,
+            layouter.page_config.margin.top,
+            style.size.0,
+        ),
+        footer_descent: resolve_offset(
+            layouter.page_config.footer_descent,
+            layouter.page_config.margin.bottom,
+            style.size.0,
+        ),
+        style,
+    }
+}
+
+pub(super) fn number_baseline<M: FontMetrics>(
+    align: PageNumberAlign,
+    mut anchor: Point,
+    style: &TextStyle,
+    metrics: &M,
+) -> Point {
+    if align.vertical == PageNumberVAlign::Bottom {
+        let (top, _) = metrics.text_edges(style.size, style);
+        anchor.y += top;
+    }
+    anchor
+}
 
 pub(super) fn numbering_enabled(marginal: &PageMarginal) -> bool {
     matches!(marginal, PageMarginal::Auto)

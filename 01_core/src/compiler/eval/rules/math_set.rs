@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/math_set.md
-//! @prompt-hash 181e3d79
+//! @prompt-hash 045196dc
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-31
 //!
 //! Comportamento de `eval/rules::math_set`.
 
@@ -104,6 +104,7 @@ pub(crate) fn eval_set_math_rule(
     };
 
     let mut seen = Vec::new();
+    let mut lr_size = None;
     for arg in set.args().items() {
         let Arg::Named(named) = arg else { continue };
         let nome = named.name().as_str();
@@ -162,7 +163,10 @@ pub(crate) fn eval_set_math_rule(
                     }
                 }
             }
-            if matches!((elem, nome), ("accent", "size") | ("stretch", "size")) {
+            if matches!(
+                (elem, nome),
+                ("accent", "size") | ("stretch", "size") | ("lr", "size")
+            ) {
                 match &val {
                     Value::Relative(_) | Value::Ratio(_) | Value::Length(_) => {}
                     other => {
@@ -214,8 +218,12 @@ pub(crate) fn eval_set_math_rule(
                     false,
                 )?;
             }
-            *engine.styles =
-                engine.styles.push_custom(format!("math.{elem}.{nome}"), val);
+            if elem == "lr" {
+                lr_size = Some(val);
+            } else {
+                *engine.styles =
+                    engine.styles.push_custom(format!("math.{elem}.{nome}"), val);
+            }
         } else {
             engine.sink.warn_note(
                 named.name().to_untyped().span(),
@@ -227,5 +235,172 @@ pub(crate) fn eval_set_math_rule(
         }
     }
 
+    if let Some(value) = lr_size {
+        *engine.styles = engine.styles.push_custom("math.lr.size", value);
+    }
     Ok(Value::None)
+}
+
+#[cfg(test)]
+mod issue_8973_tests {
+    use crate::compiler::eval::tests::eval_for_test_keep_sink;
+    use crate::contracts::world::World;
+    use crate::entities::{
+        content::Content,
+        file_id::FileId,
+        font_book::FontBook,
+        layout_types::Length,
+        source::Source,
+        value::Value,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    use std::num::NonZeroU16;
+
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn evaluate(
+        source: &str,
+    ) -> (
+        crate::entities::source_result::SourceResult<crate::entities::module::Module>,
+        Vec<crate::entities::source_result::SourceDiagnostic>,
+    ) {
+        let world = TestWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(
+                FileId::from_raw(NonZeroU16::new(8973).unwrap()),
+                source.into(),
+            )
+            .expect("valid source"),
+        };
+        let (result, sink) = eval_for_test_keep_sink(&world, &world.source);
+        (result, sink.into_diagnostics())
+    }
+    #[test]
+    fn issue_8973_lr_set_transports_relative_lengths_without_warning() {
+        for (source_value, expected) in [
+            ("1em", Value::Length(Length::em(1.0))),
+            ("0pt", Value::Length(Length::pt(0.0))),
+            ("-1em", Value::Length(Length::em(-1.0))),
+            ("150%", Value::Ratio(crate::entities::layout_types::Ratio(1.5))),
+            (
+                "50% + 1em",
+                Value::Relative(crate::entities::rel::Rel {
+                    rel: 0.5,
+                    abs: Length::em(1.0),
+                }),
+            ),
+        ] {
+            let source = format!("#set math.lr(size: {source_value})\n$ lr([a \\ b]) $");
+            let (result, warnings) = evaluate(&source);
+            let module = result.expect("valid relative length");
+            assert!(warnings.is_empty(), "{source_value}: {warnings:?}");
+            let mut transported = Vec::new();
+            let mut lrs = 0;
+            module.content().unwrap().visit_content_static(&mut |node| {
+                if let Content::Styled(styled) = node {
+                    if let Some(value) = styled
+                        .styles
+                        .delta()
+                        .custom
+                        .iter()
+                        .find(|(key, _)| key.as_str() == "math.lr.size")
+                        .map(|(_, value)| value)
+                    {
+                        transported.push(value.clone());
+                    }
+                }
+                if let Content::MathLr(elem) = node {
+                    lrs += 1;
+                    assert!(!elem.size_explicit);
+                    assert_eq!(elem.size.rel, 1.0);
+                    assert!(elem.size.abs.is_zero());
+                }
+                true
+            });
+            assert_eq!(transported, vec![expected]);
+            assert_eq!(lrs, 1);
+        }
+    }
+    #[test]
+    fn issue_8973_lr_set_rejects_wrong_types() {
+        for (value, kind) in [
+            ("auto", "auto"),
+            ("none", "none"),
+            ("true", "boolean"),
+            ("1", "integer"),
+            ("\"bad\"", "string"),
+        ] {
+            let (result, _) = evaluate(&format!("#set math.lr(size: {value})\n$lr(x)$"));
+            let errors = result.expect_err("invalid set value must fail");
+            assert_eq!(
+                errors[0].message,
+                format!("expected relative length, found {kind}")
+            );
+        }
+    }
+    #[test]
+    fn issue_8973_lr_set_preserves_explicit_body_and_single_evaluation() {
+        let (result,warnings)=evaluate("#let n=0\n#set math.lr(size: {n+=1; 1em})\n#set math.lr()\n#assert(n==1)\n$ lr(size: #3em, [a \\ b]) $");
+        let module =
+            result.expect("evaluate size expression once and retain explicit override");
+        assert!(warnings.is_empty(), "{warnings:?}");
+        let mut lrs = 0;
+        module.content().unwrap().visit_content_static(&mut |node| {
+            if let Content::MathLr(elem) = node {
+                lrs += 1;
+                assert!(elem.size_explicit);
+                assert_eq!(elem.size.abs.em, 3.0);
+                assert_eq!(elem.size.rel, 0.0);
+                let mut breaks = 0;
+                elem.body.visit_content_static(&mut |child| {
+                    if matches!(child, Content::Linebreak(_)) {
+                        breaks += 1;
+                    }
+                    true
+                });
+                assert_eq!(breaks, 1);
+            }
+            true
+        });
+        assert_eq!(lrs, 1);
+    }
+    #[test]
+    fn issue_8973_lr_set_rejects_unknown_and_duplicate_names() {
+        for (source, message) in [
+            ("#set math.lr(size:1em,size:2em)\nx", "duplicate argument: size"),
+            ("#set math.lr(size:1em,nope:2em)\nx", "unexpected argument: nope"),
+        ] {
+            assert_eq!(evaluate(source).0.expect_err("invalid rule")[0].message, message);
+        }
+    }
 }

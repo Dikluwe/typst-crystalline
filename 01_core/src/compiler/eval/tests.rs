@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash 9251ce23
+//! @prompt-hash b9704b1f
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -17566,82 +17566,63 @@ mod regressions {
         assert!(body.contains("y"), "body contém 'y'; got: {}", body);
     }
 
-    // ── Passo 303 — bug fix `undef(x)` parens descartados (lookup-miss) ────
-    //
-    // Paralelo arquitectural directo de P302 no ramo lookup-miss:
-    // identifier desconhecido em scope `math` agora preserva args via
-    // MathSequence([MathIdent, MathDelimited]) em vez de descartar
-    // silenciosamente (bug pré-P301).
+    // Current-pin correction of the four historical P303 lookup-miss cases.
+    // The original sources are retained; unresolved heads are errors.
 
     #[test]
-    fn p303_undef_parens_produz_mathsequence_com_delimited() {
-        // $undef(x)$ — identifier desconhecido com args.
-        // Pré-P303: MathIdent("undef") apenas; args descartados.
-        // Pós-P303: MathSequence([MathIdent("undef"), MathDelimited((x))]).
+    fn p303_undef_parens_rejects_unknown_head() {
         let world = MockWorld::new("$undef(x)$");
-        let content = extract_math_content(&world);
-        // MathIdent("undef") preservado.
-        let ident = find_mathident_in(&content);
-        assert!(ident.is_some(), "$undef(x)$ deve conter MathIdent");
-        // Sem MathOp (undef não está em scope math).
-        let mathop = find_mathop_in(&content);
-        assert!(mathop.is_none(), "undef NÃO está em scope math; sem MathOp");
-        // MathDelimited deve preservar args (fix P303).
-        let delim = find_mathdelimited_in(&content);
-        assert!(
-            delim.is_some(),
-            "$undef(x)$ deve produzir MathDelimited preservando (x); content: {:?}",
-            content
-        );
-        let (open, body, close) = delim.unwrap();
-        assert_eq!(open, '(');
-        assert_eq!(close, ')');
-        assert!(body.contains("x"), "MathDelimited body deve conter 'x'; got: {}", body);
+        let src = world.source(world.main()).expect("valid source");
+        let errors =
+            eval_for_test(&world, &src).expect_err("unresolved mathematical head");
+        assert_eq!(errors[0].severity, crate::entities::source_result::Severity::Error);
+        assert_eq!(errors[0].message, "unknown variable `undef`");
+        assert_eq!(src.span_byte_range(errors[0].span), Some(1..6));
+        assert_eq!(errors[0].hints.len(), 2);
+        assert!(errors[0].hints[0].contains("u n d e f"));
+        assert!(errors[0].hints[1].contains("\"undef\""));
     }
 
     #[test]
-    fn p303_undef_args_complexos_preservados() {
-        // $undef(x + y)$ — args complexos.
+    fn p303_undef_complex_args_rejects_unknown_head() {
         let world = MockWorld::new("$undef(x + y)$");
-        let content = extract_math_content(&world);
-        let ident = find_mathident_in(&content);
-        assert!(ident.is_some(), "MathIdent presente");
-        let delim = find_mathdelimited_in(&content);
-        assert!(delim.is_some(), "MathDelimited presente com expressão complexa");
-        let (_, body, _) = delim.unwrap();
-        assert!(body.contains("x"), "body contém 'x'; got: {}", body);
-        assert!(body.contains("y"), "body contém 'y'; got: {}", body);
+        let src = world.source(world.main()).expect("valid source");
+        let errors =
+            eval_for_test(&world, &src).expect_err("unresolved mathematical head");
+        assert_eq!(errors[0].severity, crate::entities::source_result::Severity::Error);
+        assert_eq!(errors[0].message, "unknown variable `undef`");
+        assert_eq!(src.span_byte_range(errors[0].span), Some(1..6));
+        assert_eq!(errors[0].hints.len(), 2);
+        assert!(errors[0].hints[0].contains("u n d e f"));
+        assert!(errors[0].hints[1].contains("\"undef\""));
     }
 
     #[test]
-    fn p303_undef_multiplos_args_separados_por_virgula() {
-        // $undef(x, y)$ — múltiplos args separados por ", ".
+    fn p303_undef_multiple_args_rejects_unknown_head() {
         let world = MockWorld::new("$undef(x, y)$");
-        let content = extract_math_content(&world);
-        let ident = find_mathident_in(&content);
-        assert!(ident.is_some());
-        let delim = find_mathdelimited_in(&content);
-        assert!(delim.is_some(), "MathDelimited com múltiplos args");
-        let (_, body, _) = delim.unwrap();
-        assert!(body.contains("x"), "body contém 'x'; got: {}", body);
-        assert!(body.contains("y"), "body contém 'y'; got: {}", body);
+        let src = world.source(world.main()).expect("valid source");
+        let errors =
+            eval_for_test(&world, &src).expect_err("unresolved mathematical head");
+        assert_eq!(errors[0].severity, crate::entities::source_result::Severity::Error);
+        assert_eq!(errors[0].message, "unknown variable `undef`");
+        assert_eq!(src.span_byte_range(errors[0].span), Some(1..6));
+        assert_eq!(errors[0].hints.len(), 2);
+        assert!(errors[0].hints[0].contains("u n d e f"));
+        assert!(errors[0].hints[1].contains("\"undef\""));
     }
 
     #[test]
-    fn p303_undef_args_vazios_so_mathident_sem_wrapper() {
-        // $undef()$ — args vazios; só MathIdent (sem MathDelimited wrapper).
-        // Paralelo P302: $sin()$ → MathOp sem wrapper.
+    fn p303_undef_empty_args_rejects_unknown_head() {
         let world = MockWorld::new("$undef()$");
-        let content = extract_math_content(&world);
-        let ident = find_mathident_in(&content);
-        assert!(ident.is_some(), "$undef()$ deve produzir MathIdent");
-        // Sem MathDelimited (args vazios = sem wrapper).
-        let delim = find_mathdelimited_in(&content);
-        assert!(
-            delim.is_none(),
-            "$undef()$ (args vazios) NÃO deve ter MathDelimited; content: {:?}",
-            content
-        );
+        let src = world.source(world.main()).expect("valid source");
+        let errors =
+            eval_for_test(&world, &src).expect_err("unresolved mathematical head");
+        assert_eq!(errors[0].severity, crate::entities::source_result::Severity::Error);
+        assert_eq!(errors[0].message, "unknown variable `undef`");
+        assert_eq!(src.span_byte_range(errors[0].span), Some(1..6));
+        assert_eq!(errors[0].hints.len(), 2);
+        assert!(errors[0].hints[0].contains("u n d e f"));
+        assert!(errors[0].hints[1].contains("\"undef\""));
     }
 
     // ── P958 — símbolos gregos com args (`Gamma(z)` → Γ(𝑧)) ────────────
@@ -19616,7 +19597,7 @@ mod regressions {
             let Value::Stroke(stroke) = eval_let(&world, name).expect("binding") else {
                 panic!("{name} deve ser stroke");
             };
-            assert!((stroke.thickness - 4.0).abs() < 1e-6);
+            assert!((stroke.thickness.abs.to_pt() - 4.0).abs() < 1e-6);
             assert!(matches!(stroke.paint, crate::entities::paint::Paint::Gradient(_)));
         }
     }

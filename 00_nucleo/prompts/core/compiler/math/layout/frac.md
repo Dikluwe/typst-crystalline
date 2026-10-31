@@ -1,5 +1,5 @@
 # L0 — math/layout/frac
-Hash do Código: 8c30d0f0
+Hash do Código: f6e87bdd
 
 
 **Layer:** L1
@@ -71,3 +71,42 @@ for existing tests. Productive dispatch uses layout_frac_with_line and style var
 Preserve productive routes, test names/bodies, external APIs, defaults and phase.
 This ADR-0127 internal correction requires all workspace-target build/check,
 core suite, test inventory, Clippy and lineage; remove no expectation to pass.
+
+
+## Measured skewed fraction frame geometry correction
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/frac-skewed-findings-before-decision.json pins the
+source-bound twelve-case frac-skewed-geometry-before/receipt.json against
+physical15 and oracle64c5e8c0, with exact source archive/HEAD/dirty stat/UTC.
+Vertical/horizontal inline/display controls match boxes within0.001pt. Skewed
+inline x/y top-edge separation is1.056pt locally versus4.5287pt upstream;
+denominator x differs5.5pt. Wide/tall operands and7/19pt controls remain in the
+receipt. Local frac.rs:47–99 uses max operand height, +/-vgap/2 and adds slash
+width to operand separation. Pinned typst-layout/math/fraction.rs:126–188 uses
+sum heights+vgap, centers on font axis and compensates slash overflow. Its
+ir/resolve.rs:823 keeps numerator/denominator styles and extensible slash.
+This is font-derived visible geometry, not a requirement to copy frame mechanics.
+
+### Exclusive correction and acceptance
+
+Keep existing operand styles, independent font gaps and slash selection helper.
+Use total operand heights+vgap as slash target. Fraction height is the larger
+of this target and selected slash height. Baseline is half height plus font
+axis. Center slash vertically; put numerator at half positive slash overflow
+and denominator one numerator height+vgap lower. Operand horizontal origins
+differ by numerator width+hgap; slash center is numerator width+hgap/2.
+Compensate a negative slash left edge uniformly, and derive width from the
+rightmost real operand/slash edge. Convert those top origins to existing
+baseline coordinates; preserve every item and immutable input. No fixture
+coordinates, swapped gaps, bar or new public metrics are permitted.
+
+Add physical REDs for independent ink separation, operand horizontal gap,
+axis/height, wide slash left compensation and vertical overflow. Preserve all
+vertical/horizontal/barless-binomial controls. Repeat bilateral original docs
+and isolated inline/display/wide/tall/multisize cases without raster/word
+normalization; slash text extraction remains open unless independently fixed
+and remeasured. This is an internal formula correction under continuous
+ADR-0127; no public signature/field/trait, new default intent or phase move.
+Full twelve gates, history and unchanged JPEG timing/RSS criteria remain required.

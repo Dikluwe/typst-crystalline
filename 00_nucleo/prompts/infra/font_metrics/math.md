@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/math
-Hash do Código: cdc47a90
+Hash do Código: c89e17f5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:283876383094ef7a2af90ad0598b9ca3ca5cbe0f7fc7714546cc8758da40878d
@@ -106,3 +106,81 @@ before two-pair scoped seals; build/fmt/strict all-target Clippy (-D warnings,
 -D unfulfilled_lint_expectations)/strict Rustdoc/V1/V5/V15/V26/reverse lineage/
 full suite/diff --check/integrity. Heavy commands sequential MemoryMax12GiB/
 High10GiB/swap0/jobs1; no commit/push/merge/release. General objective remains open.
+
+
+## Fraction slash reverse mapping — current measured correction
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/
+fraction-slash-map-findings-before-decision.json pins immutable build1/release
+699b6e883f96c33bce88d4cea79fd4be9ec18d20928b5409a497ec84d6f8d480,
+full source archive/HEAD/dirty stat/UTC and math-private-after1/receipt.json.
+PDF extraction loses U+2044 while isolated skewed PDF/SVG paint is identical.
+The pinned NewCMMath-Book fixture has eight fraction slash variants (font SHA
+and actual glyph names/GIDs/advances/cmap coverage retained). math.rs:213 omits
+fraction slash from STRETCHY_BASES. builder/fonts.rs:474,969 consumes that map
+for ToUnicode/subsetting, stream/text.rs:802 also uses it for Glyph face lookup.
+Extraction/mapped character are language observables; no font-name heuristic,
+mechanical byte equality or global extraction-order claim is inferred.
+
+### Exclusive amendment and acceptance
+
+Add U+2044 to the existing vertical stretchy-base mapping table after the old
+bases, preserving every old entry/order, first-wins, real cmap preference,
+variant/assembly fallbacks and absent-MATH early return. Change no algorithm,
+font selection/axes/cache/public signature or frame/paged pipeline. This
+supersedes only the old fixed known-character slice; prior ssty-only limitations
+remain applicable to their historical change, not to this measured mapping.
+
+Before code add real embedded-fixture RED requiring each actual fraction slash
+variant to map to U+2044, with nonempty variants mandatory and no skipped font.
+Then GREEN plus all font_metrics regressions and actual isolated/original frac
+PDF extraction/boxes/PDF/SVG. Old assembly real Unicode and missing-MATH controls
+remain unchanged. Internal table parity correction follows continuous ADR-0127,
+L0 first; no new API/default/phase. All final twelve gates/history/unchanged
+JPEG criteria remain binding. Preserve any residual render/extraction negatives.
+
+
+## Measured missing horizontal accent reverse entries — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/accent-font-map-before7.json`
+SHA256 7e76619278901096a8f9b3749c5bbbbed1fb4a6f3380222a212c806790cac787 retains UTC, HEAD
+212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted exact dirty stat, actual release7 source/archive,
+font SHA 60346e6fc27773d96c3cc9d3ac8a550a85e3ca624437179bd7a88b4ca18f0a18, MATH variants/assemblies/advances/GIDs/cmap coverage,
+actual PDF hashes and mutool/pdftotext argv. The source fixture is
+03_infra/fixtures/fonts/NewCMMath-Book.otf. Product's arrow-variant ToUnicode
+stream is empty and Poppler falls back from CID1 to U+0001, making bbox XML
+invalid; native extracts U+20D7. Original failed replay files are retained in
+accent-angle-post7-extraction-failure.json; extraction-aware7b keeps invalid XML
+negative and independently measures paint, without filtering source characters.
+
+math.rs:239-240 lists braces/hat/tilde only for horizontal constructions.
+The measured fixture has nonempty horizontal variants for the missing U+0305,
+U+0306, U+030C, U+20D6, U+20D7, U+20E1, U+20D0, U+20D1. Builder fonts consumes
+this map for ToUnicode/subset/font lookup. Missing map entries are a bounded
+textual-identity defect. Do not infer all adapters' geometry from this: basic
+metrics exposes glyph_to_char while Fallback does not override it. Native
+geometry/paint residues remain independent and measured.
+
+### Exclusive correction and acceptance
+
+Append exactly these eight codepoints after all existing horizontal bases,
+preserving every prior entry/order and first-wins. Keep real cmap preference,
+vertical/horizontal assembly fallbacks (including the deliberate P946 policy),
+no-MATH early return, extraction algorithms, glyph selection/shortfall/placement,
+font binding, axes and public APIs unchanged. Do not replace source text by a
+CID or fix XML by deleting characters. This extends the existing table only;
+no generic registry, dynamic corpus scan, new cache or phase is introduced.
+
+Before code add a real embedded-fixture RED requiring all eight marks to have
+multiple horizontal variants and every selected variant to map to its actual
+canonical Unicode identity. No skipped font or manufactured mapping. Preserve
+existing fraction slash, real-cmap assembly and missing-MATH tests. Then GREEN,
+full font_metrics/core/workspace and twelve gates/build/lineage; repeat actual
+PDF text/XML and independent PDF/SVG paint, retaining residues without tolerance
+changes. Internal mapping-table parity follows ADR-0127 continuous flow, no
+public/default/compatibility/phase gate. Do not certify full accent rendering or
+JPEG/resource qualification from the mapping test.

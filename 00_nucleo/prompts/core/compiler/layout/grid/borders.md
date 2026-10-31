@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/borders
-Hash do Código: 53d31e74
+Hash do Código: 0060b18c
 
 
 Núcleos Tekt:
@@ -129,3 +129,69 @@ antes de preparar FrameStroke; não varrer/deduplicar FrameItem, não adicionar
 PartialEq ao transporte. Extensão por meia espessura só na emissão final,
 verticais e prioridades distintas preservadas. Célula conhecida None continua
 None. Testes verificam cobertura/alpha de uma fronteira e refutadores.
+
+
+## Issue 8777 — uniform border intersections (2026-10-31)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/issue-8777-fix-2026-10-31/resume-baseline.json`
+preserves exact HEAD, dirty status/diffstat, UTC and source/L0 bytes.
+The official fixture and prior receipts are in
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/`.
+`borders.rs:194-238` paints extended horizontal/vertical segments separately;
+`cell_emission.rs:163-214` emits them on the same physical page. Issue 8777
+describes darker antialiased intersections even with equal strokes. Upstream
+discussion suggests one path, without establishing an intended language
+requirement for darkening. Overlapping operations are mechanics; declared cell
+geometry, paint and continuous border coverage are language/render obligations.
+Inference: a single coverage operation removes repeated edge alpha. Residual
+darkening, corner gaps, changed footprint/alpha/text or page-crossing bands
+refute it. This does not infer global vanilla intent or parity.
+
+### Contract and acceptance
+
+Own a private uniform-lattice proof and page-local compound fill emitter. Eligibility requires complete rectangular occupancy of unspanned cells, contiguous positive finite column tracks, positive finite row heights, identical complete effective Stroke on every cell, solid paint, positive finite thickness, butt cap and no dash. Otherwise retain the original route. Emit same-winding rectangular bands covering the union of old extended horizontal/vertical strokes in one NonZero fill per physical page, retaining outer half-thickness coverage, holes and alpha. No FrameItem scanning, public API, rich-stroke conversion or distinct-stroke priority change.
+
+Internal correction, continuous flow ADR-0127; preserve all prior approvals.
+Supersede old separate-segment/order/FrameStroke requirements only for the
+eligible lattice: its positive solid paint is a single prepared fill after
+cell fills on the same page. All ineligible cases retain their current route.
+L0 and restricted reseal precede independent RED, then GREEN. Require build,
+relevant tests, full crystalline-lint and reverse lineage. Validate original
+fixture visually and PDF raster 72/600dpi plus SVG, compact versus verbose,
+alpha/fills, None/zero, spans/gaps, distinct strokes and physical page breaks.
+No broader rich-stroke, span-pagination or global parity claim follows.
+Build/test artifacts must use the exclusive RAM target; insufficient RAM
+blocks validation, never silently falls back to disk.
+
+The new route requires resolved, nonbreakable TableCell occurrences throughout the lattice.
+Raw internal Table/Grid carriers retain their existing emission; the native
+Table language route already supplies resolved occurrences; the official case sets breakable: false. Breakable cells retain the existing route because cell-body fragmentation can change the physical page during a logical row. This protects the
+approved raw/Grid policy rather than using it to infer Table preparation.
+The regression constructs that prepared boundary and the original native
+fixture validates the complete language route.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+Resolve the existing declarative Length thickness against the restored table
+font size, as the original final segment emitters now do. Require that physical
+thickness to be positive and finite; preserve the concurrently approved Length
+contract rather than reverting it to a scalar.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash fecd59bc
+//! @prompt-hash 33a1dd41
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -95,18 +95,19 @@ pub(super) fn realize_children(
                         );
                     }
                     Content::Sequence(parts) => {
-                        return realize_parts(parts.to_vec(), ctx, engine).map(Some)
+                        return realize_parts(parts.to_vec(), ctx, engine).map(Some);
                     }
                     Content::Styled(styled) => {
-                        return styled_body(styled, ctx, engine).map(Some)
+                        return styled_body(styled, ctx, engine).map(Some);
                     }
                     Content::Ref(_) => {
                         return super::reference_supplements::capture(node, ctx, engine)
-                            .map(Some)
+                            .map(Some);
                     }
                     Content::Figure(figure) => {
+                        ctx.recipe_math_depth = 0;
                         return super::figure::realize_children(figure, ctx, engine)
-                            .map(Some)
+                            .map(Some);
                     }
                     Content::SetPage(_) | Content::PageRun(_) => {
                         let captured = super::page_running::capture(node, ctx, engine);
@@ -115,6 +116,25 @@ pub(super) fn realize_children(
                         });
                     }
                     Content::Equation(_) => ctx.recipe_math_depth += 1,
+                    Content::Par { .. }
+                    | Content::Heading(_)
+                    | Content::Title(_)
+                    | Content::ListItem(_)
+                    | Content::EnumItem(_)
+                    | Content::Boxed(_)
+                    | Content::Block(_)
+                    | Content::Pad(_)
+                    | Content::Footnote(_)
+                    | Content::Columns(_)
+                    | Content::Place(_)
+                    | Content::Grid(_)
+                    | Content::Transform(_)
+                    | Content::Stack(_)
+                    | Content::Repeat(_)
+                    | Content::Terms(_)
+                    | Content::TermItem(_)
+                    | Content::Table(_) => ctx.recipe_math_depth = 0,
+                    Content::Quote(quote) if quote.block => ctx.recipe_math_depth = 0,
                     Content::Source(_)
                     | Content::ShowRecipe(_)
                     | Content::Realized(_)
@@ -125,14 +145,9 @@ pub(super) fn realize_children(
                     | Content::Parbreak
                     | Content::HtmlElem(_)
                     | Content::HtmlFrame(_)
-                    | Content::Par { .. }
-                    | Content::Heading(_)
-                    | Content::Title(_)
                     | Content::Strong(_)
                     | Content::Emph(_)
                     | Content::Raw(_)
-                    | Content::ListItem(_)
-                    | Content::EnumItem(_)
                     | Content::Link(_)
                     | Content::MathSequence(_)
                     | Content::Symbol(_)
@@ -177,17 +192,12 @@ pub(super) fn realize_children(
                     | Content::Image(_)
                     | Content::Shape(_)
                     | Content::Curve(_)
-                    | Content::Transform(_)
-                    | Content::Grid(_)
                     | Content::GridHeader(_)
                     | Content::GridFooter(_)
                     | Content::GridCell(_)
                     | Content::Align(_)
-                    | Content::Place(_)
                     | Content::Flush(_)
                     | Content::Divider(_)
-                    | Content::Terms(_)
-                    | Content::TermItem(_)
                     | Content::Quote(_)
                     | Content::Document { .. }
                     | Content::Asset { .. }
@@ -198,19 +208,14 @@ pub(super) fn realize_children(
                     | Content::Strike(_)
                     | Content::Overline(_)
                     | Content::SmallCaps { .. }
-                    | Content::Pad(_)
                     | Content::Hide(_)
                     | Content::HSpace(_)
                     | Content::VSpace(_)
                     | Content::Pagebreak(_)
                     | Content::Colbreak(_)
-                    | Content::Stack(_)
-                    | Content::Boxed(_)
-                    | Content::Block(_)
                     | Content::TableCell(_)
                     | Content::Bibliography(_)
                     | Content::Cite(_)
-                    | Content::Footnote(_)
                     | Content::FootnoteEntry(_)
                     | Content::TableHeader(_)
                     | Content::TableFooter(_)
@@ -218,9 +223,6 @@ pub(super) fn realize_children(
                     | Content::GridVLine(_)
                     | Content::TableHLine(_)
                     | Content::TableVLine(_)
-                    | Content::Table(_)
-                    | Content::Repeat(_)
-                    | Content::Columns(_)
                     | Content::Metadata(_)
                     | Content::State(_)
                     | Content::StateUpdate(_)
@@ -245,6 +247,11 @@ fn visit(
 ) -> SourceResult<Option<Content>> {
     // Kind-specific normalization precedes native show rules. Mathematical
     // symbols retain identity, and textual regex rules run per element there.
+    if ctx.recipe_math_depth > 0 && equation_root(node) {
+        // A nested equation retains its language carrier but has no own-show
+        // boundary in Math. Its emitted descendants still realize normally.
+        return realize_children(node, ctx, engine).map(Some);
+    }
     if let Content::Symbol(text) = node {
         if ctx.recipe_math_depth == 0 {
             return realize(&Content::Text(text.clone()), ctx, engine).map(Some);
@@ -296,7 +303,7 @@ fn visit(
                     crate::entities::elements::table_cell::TableCellStage::Complete,
                 ) =>
         {
-            return Ok(None)
+            return Ok(None);
         }
         Content::Table(_) | Content::TableCell(_) => {
             return super::realize_table_insertions(node.clone(), ctx, engine)
@@ -447,6 +454,34 @@ fn visit(
     if has_root_effect(node, engine, ctx)? || extract_payload(node).is_some() {
         return realize_root(node, ctx, engine).map(Some);
     }
+    if matches!(
+        node,
+        Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::Pad(_)
+            | Content::Footnote(_)
+            | Content::Columns(_)
+            | Content::Place(_)
+            | Content::Grid(_)
+            | Content::Transform(_)
+            | Content::Stack(_)
+            | Content::Repeat(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Table(_)
+    ) {
+        // Decide the parent replacement first; only an actually emitted
+        // external body establishes a fresh Flow realization scope.
+        return realize_children(node, ctx, engine).map(Some);
+    }
+    if matches!(node, Content::Quote(quote) if quote.block) {
+        return realize_children(node, ctx, engine).map(Some);
+    }
     if matches!(node, Content::Ref(_)) {
         return super::reference_supplements::capture(node, ctx, engine).map(Some);
     }
@@ -456,6 +491,17 @@ fn visit(
         return textual::realize_captured_text(node.clone(), ctx, engine).map(Some);
     }
     Ok(None)
+}
+
+fn equation_root(mut node: &Content) -> bool {
+    loop {
+        node = node.source_body();
+        if let Content::Located(located) = node {
+            node = &located.body;
+        } else {
+            return matches!(node, Content::Equation(_));
+        }
+    }
 }
 
 fn table_root(mut node: &Content) -> bool {
@@ -565,6 +611,8 @@ fn realize_root(
     }
     let (original, product) = if let Content::Realized(done) = &result {
         (done.original.clone(), done.visual.clone())
+    } else if matches!(result.source_body(), Content::Located(_)) {
+        (result.clone(), result)
     } else {
         (node.clone(), result)
     };
@@ -762,5 +810,257 @@ fn symbol_text(content: &Content) -> Option<Content> {
             Some(Content::Text(text.clone()).with_source_span(content.source_span()))
         }
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod readiness_prepared_original_tests {
+    use crate::contracts::world::World;
+    use crate::entities::{
+        element_kind::ElementKind,
+        element_registry::ElementRegistry,
+        file_id::FileId,
+        font_book::FontBook,
+        introspector::Introspector,
+        module::Module,
+        source::Source,
+        source_result::SourceResult,
+        world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library, Route, Routines, Sink,
+            Traced,
+        },
+    };
+    use comemo::Track;
+    use std::num::NonZeroU16;
+
+    struct MemoryWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl World for MemoryWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn evaluate_raw(text: &str) -> SourceResult<Module> {
+        let world = MemoryWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(
+                FileId::from_raw(NonZeroU16::new(1432).unwrap()),
+                text.into(),
+            )
+            .expect("valid fixture"),
+        };
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let registry = ElementRegistry::new();
+        crate::compiler::eval::eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &world.source,
+            &registry,
+        )
+    }
+    fn assert_single(source: &str, kind: ElementKind) {
+        let module = evaluate_raw(source).expect(source);
+        let intr = crate::compiler::introspect::introspect(module.content().unwrap());
+        assert_eq!(intr.query_by_kind(kind).len(), 1, "{source}");
+    }
+    #[test]
+    fn readiness_external_scope_general_bodies_restore_flow() {
+        for body in [
+            "par[$x$]",
+            "heading[$x$]",
+            "title[$x$]",
+            "list([$x$])",
+            "enum([$x$])",
+            "place(center)[$x$]",
+            "grid(columns:1,[$x$])",
+            "rotate(0deg)[$x$]",
+            "scale(x:100%,y:100%)[$x$]",
+            "move(dx:0pt)[$x$]",
+            "skew(ax:0deg)[$x$]",
+            "stack([$x$])",
+            "repeat[$x$]",
+        ] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n#math.equation(block:true,{body})");
+            let module = evaluate_raw(&source).expect(&source);
+            assert!(module.content().unwrap().plain_text().contains("INNER"), "{source}");
+        }
+    }
+    #[test]
+    fn readiness_external_scope_explicit_block_quote_and_term_fields_use_flow() {
+        for (body, expected) in [
+            ("quote(block:true)[$x$]", 1),
+            ("quote(block:true,attribution:[$x$])[$x$]", 2),
+            ("terms.item([$x$],[$x$])", 2),
+        ] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n#math.equation(block:true,{body})");
+            let module = evaluate_raw(&source).expect(&source);
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(text.matches("INNER").count(), expected, "{source}: {text}");
+        }
+    }
+    #[test]
+    fn readiness_external_scope_actual_table_and_replaced_cell_use_flow() {
+        for rule in ["", "#show table.cell:it=>$x$\n"] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n{rule}#math.equation(block:true,table(columns:1,[$x$]))");
+            let module = evaluate_raw(&source).expect(&source);
+            assert!(module.content().unwrap().plain_text().contains("INNER"), "{source}");
+        }
+    }
+    #[test]
+    fn readiness_external_scope_replaced_parents_keep_inherited_math() {
+        for (kind, body) in [
+            ("table", "table(columns:1,[$x$])"),
+            ("heading", "heading[$x$]"),
+            ("grid", "grid(columns:1,[$x$])"),
+        ] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n#show {kind}:it=>$x$\n#math.equation(block:true,{body})");
+            let module = evaluate_raw(&source).expect(&source);
+            let text = module.content().unwrap().plain_text();
+            assert!(!text.contains("INNER"), "{source}");
+            assert!(text.contains('x'), "{source}");
+        }
+    }
+    #[test]
+    fn readiness_external_scope_standalone_cells_and_inline_controls_keep_math() {
+        for body in [
+            "table.cell[$x$]",
+            "grid.cell[$x$]",
+            "smallcaps[$x$]",
+            r#"link("https://example.com")[$x$]"#,
+            "strike[$x$]",
+            "overline[$x$]",
+            "text[$x$]",
+            "text(fill:red)[$x$]",
+            "math.mat(($x$,1))",
+            "pdf.artifact[$x$]",
+        ] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n#math.equation(block:true,{body})");
+            let module = evaluate_raw(&source).expect(&source);
+            assert!(
+                !module.content().unwrap().plain_text().contains("INNER"),
+                "{source}"
+            );
+        }
+    }
+    #[test]
+    fn readiness_external_scope_sibling_math_is_restored_after_flow_body() {
+        for body in ["heading[$x$]", "table(columns:1,[$x$])", "grid(columns:1,[$x$])"] {
+            let source = format!("#show math.equation.where(block:false):it=>[INNER]\n#math.equation(block:true,[#{body} $y$])");
+            let module = evaluate_raw(&source).expect(&source);
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(text.matches("INNER").count(), 1, "{source}: {text}");
+            assert!(text.contains('y'), "{source}: {text}");
+        }
+    }
+    #[test]
+    fn readiness_equation_own_show_nested_math_preserves_raw_body() {
+        let source = "#show math.equation.where(block:false):it=>[BAD]\n#math.equation(block:true,$x$)";
+        let module = evaluate_raw(source).expect(source);
+        let content = module.content().unwrap();
+        assert!(!content.plain_text().contains("BAD"), "{}", content.plain_text());
+        let mut retained = false;
+        content.visit_content_static(&mut |node| match node {
+            crate::entities::content::Content::Equation(outer) if outer.block => {
+                outer.body.visit_content_static(&mut |child| {
+                    if let crate::entities::content::Content::Equation(inner) = child {
+                        retained |= !inner.block;
+                    }
+                    true
+                });
+                false
+            }
+            _ => true,
+        });
+        assert!(retained, "the outer body must retain its raw nested Equation");
+    }
+    #[test]
+    fn readiness_equation_own_show_external_flow_boundaries_keep_inline_rule() {
+        for body in [
+            "#box[$x$]",
+            "#block[$x$]",
+            "#pad[$x$]",
+            "#footnote[$x$]",
+            "#figure[$x$]",
+            "#columns(2)[$x$]",
+        ] {
+            let source = format!(
+                "#show math.equation.where(block:false):it=>[FLOW]\n#math.equation(block:true,[{body}])"
+            );
+            let module = evaluate_raw(&source).expect(&source);
+            assert!(module.content().unwrap().plain_text().contains("FLOW"), "{source}");
+        }
+    }
+    #[test]
+    fn readiness_equation_own_show_inline_wrappers_preserve_math() {
+        for body in [
+            "#strong[$x$]",
+            "#emph[$x$]",
+            "#underline[$x$]",
+            "#quote[$x$]",
+            "#align(center)[$x$]",
+            "#hide[$x$]",
+        ] {
+            let source = format!(
+                "#show math.equation.where(block:false):it=>[BAD]\n#math.equation(block:true,[{body}])"
+            );
+            let module = evaluate_raw(&source).expect(&source);
+            assert!(!module.content().unwrap().plain_text().contains("BAD"), "{source}");
+        }
+    }
+    #[test]
+    fn readiness_equation_own_show_top_level_control() {
+        let source = "#show math.equation.where(block:false):it=>[TOP]\n$x$";
+        let module = evaluate_raw(source).expect(source);
+        assert!(module.content().unwrap().plain_text().contains("TOP"));
+    }
+    #[test]
+    fn readiness_prepared_original_equation_empty_set_is_one_occurrence() {
+        assert_single("#show math.equation:set text()\n$ x $", ElementKind::Equation);
+    }
+    #[test]
+    fn readiness_prepared_original_heading_empty_set_is_one_occurrence() {
+        assert_single("#show heading:set text()\n= H", ElementKind::Heading);
+    }
+    #[test]
+    fn readiness_prepared_original_identity_and_figure_controls() {
+        for (source, kind) in [
+            ("#show math.equation:it=>it\n$ x $", ElementKind::Equation),
+            ("#show heading:it=>it\n= H", ElementKind::Heading),
+            ("#show figure:set text()\n#figure([x],caption:[c])", ElementKind::Figure),
+            ("#show figure:it=>it\n#figure([x],caption:[c])", ElementKind::Figure),
+        ] {
+            assert_single(source, kind);
+        }
     }
 }

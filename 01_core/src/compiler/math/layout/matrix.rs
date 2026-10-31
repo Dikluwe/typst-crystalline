@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/matrix.md
-//! @prompt-hash 3683fb2d
+//! @prompt-hash 8fd33202
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -373,7 +373,9 @@ fn augment_stroke(
     font: f64,
 ) -> (f64, Option<crate::entities::layout_types::Color>, LineCap) {
     match &augment.stroke {
-        Some(stroke) => (stroke.thickness, Some(stroke.paint.to_color()), stroke.cap),
+        Some(stroke) => {
+            (stroke.thickness.resolve_pt(font), Some(stroke.paint.to_color()), stroke.cap)
+        }
         None => (0.05 * font, None, LineCap::Square),
     }
 }

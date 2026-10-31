@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash a7de3bb9
+//! @prompt-hash d3bcc2d6
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -157,6 +157,7 @@ mod hide;
 mod linebreak;
 mod link;
 mod link_capture;
+mod optical_margin;
 mod outline_entry;
 mod paragraph;
 mod paragraph_emit;
@@ -294,6 +295,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// vista achatada (cache) que o layout consulta directamente.
     pub(super) chain: StyleChain,
     text_tracking_state: text_tracking::State,
+    line_optical_overhang: Option<bool>,
     /// Configuração da página activa. Mutável via Content::SetPage (Passo 81).
     pub page_config: PageConfig,
     pub(super) pages: Vec<Page>,
@@ -510,6 +512,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) prev_line_baseline: f64,
     pub(super) terminal_paragraph_line: bool,
     pub(super) empty_paragraph_weak_spacing: f64,
+    pending_horizontal_paragraph: Option<h_space::Paragraph>,
     pub(super) last_flush_advance: f64,
     /// **P952** — `descent_ink` da última equação de bloco layoutada
     /// (0.0 quando o conteúdo anterior não é equação de bloco). Somada à
@@ -574,6 +577,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) pending_footnote_frames: Vec<Option<DeferredFootnoteFrame>>,
     pub(super) footnote_reserved_height: f64,
     pub(super) footnote_capture: Option<FootnoteCapture>,
+    pub(super) footnote_entry_scope: Option<StyleChain>,
     /// **P286 (frente `P-text-deco-multiline`; resolve P284 §5.3)** —
     /// collector opcional de segmentos `(start_x, end_x, baseline_y)`
     /// para decorações textuais wrap-aware (Underline/Strike/Overline).
@@ -668,15 +672,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Cada entrada preserva também a configuração marginal da página.
     /// O FrameItem::Text é adicionado no final de `finish()` quando o total
     /// de páginas é conhecido.
-    pub(super) pending_page_numbering: Vec<(
-        usize,
-        usize,
-        ecow::EcoString,
-        crate::entities::page_running::PageNumberAlign,
-        crate::entities::layout_types::PageMargins,
-        f64,
-        f64,
-    )>,
+    pub(super) pending_page_numbering: Vec<page_running::PendingNumber>,
     /// P1414 — ajuste horizontal adiado dos números de linha da página
     /// corrente. A maior largura só é conhecida quando a região fecha.
     /// Entradas: índice do item, largura, margem e alinhamento pedidos.
@@ -690,6 +686,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// equação, offset x já aplicado nesses items)`. Limpa a cada fecho de
     /// página (`finish()`/`new_page()`).
     pub(super) pending_equation_centering: Vec<(usize, usize, f64, f64)>,
+    /// Exact divider indices and margins in the current emitted-item buffer.
+    pending_dividers: Vec<(usize, f64)>,
     /// **P896** — numeração de equação de bloco adiada quando `width: auto`
     /// (mesma razão do campo acima — a posição à direita depende da largura
     /// final da página). Cada entrada: `(y da baseline, texto formatado,
@@ -827,6 +825,7 @@ type FootnoteRegion = (usize, usize, Option<(usize, usize)>);
 
 #[derive(Debug, Clone)]
 pub(super) struct DeferredFootnoteFrame {
+    entry: footnote::EntrySettings,
     pub(super) source_lines: bool,
     pub(super) line_continuation: bool,
     pub(super) deferred_region: Option<FootnoteRegion>,
@@ -995,6 +994,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             document_language: None,
             chain: StyleChain::default_chain(),
             text_tracking_state: text_tracking::State::default(),
+            line_optical_overhang: None,
             page_config: cfg.clone(),
             pages: Vec::new(),
             // P216A: 5 fields escalares + 2 dimensões agregados em
@@ -1071,6 +1071,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             prev_line_baseline: 0.0,
             terminal_paragraph_line: false,
             empty_paragraph_weak_spacing: 0.0,
+            pending_horizontal_paragraph: None,
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
             last_equation_descent: 0.0,
@@ -1092,6 +1093,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_footnote_frames: Vec::new(),
             footnote_reserved_height: 0.0,
             footnote_capture: None,
+            footnote_entry_scope: None,
             // P537 — modo coluna inactivo por default.
             column_mode: false,
             column_origin_x: 0.0,
@@ -1148,6 +1150,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_page_numbering: Vec::new(),
             pending_par_line_numbering: Vec::new(),
             pending_equation_centering: Vec::new(),
+            pending_dividers: Vec::new(),
             pending_equation_numbering: Vec::new(),
             pending_align_centering: Vec::new(),
             pending_align_v_centering: Vec::new(),
@@ -1295,6 +1298,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        footnote::prepare_entry_scope(self, content);
         let saved = self.page_running_pass.as_mut().and_then(|pass| pass.cursor.take());
         let note_atomic = self.begin_footnote_atomic(content);
         self.layout_content_retaining_plan(content);

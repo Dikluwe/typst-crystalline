@@ -1,7 +1,8 @@
 # L0 — paragraph_emit
-Hash do Código: d3b1deef
+Hash do Código: 4479dcfc
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -74,3 +75,46 @@ This internal parity correction follows ADR-0127 continuous flow: no new public 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
 
 Mixed-face refinement is private continuous-flow ADR-0127 without public/product-flag/default/phase/callback-order change, preserving earlier refused/scalar paths. Regional certification expands only same-size/leading prepared text, zero baseline_offset, finite nonnegative edges, faces with different tops/descents; variable sizes/leading remain outside it. Require RED→GREEN four added regressions/prior controls,30+20 regional PDFs,132+94+21 corpus, broad suite/Clippy/Rustdoc/lineage under 12GiB/High8GiB/swap0/jobs1, recording failed attempts. No full variable-metrics parity claim.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+At accepted-line emission, derive the terminal actual-fragment compensation
+through the new policy helper and current injected metrics. Respect the final
+fragment overhang flag, glyph/exterior guard, direction and existing hyphen
+right_overhang. Add only to emission remainder. Prepared/Line/cost/selection
+algorithms and line choices remain unchanged. Preserve natural text/gaps and
+source/replacement identity; no second layout or callback.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+## Compressed final accepted line
+
+physical10-build.json/source archive binds10d845d19a7b29e158a72073767bf0b04a8ab25fb0d881f7e3090ed75c306dba,
+dirty HEAD212aed0449, full diffstat and UTC. All12 gates pass, but the actual
+article/route comparisons retain completo. at394.52756pt versus396.463558pt.
+The no-family query bug was real but did not suffice to explain this outcome.
+paragraph_emit.rs:56-73 gates the optical amount on continued, although its
+existing negative-delta compression also runs for a final line. Physical line
+words/positions show that final line is compressed. Pinned inline/line.rs:503-526
+adds optical remainder before compression/justification, including final lines.
+Require a real final compressed-line RED and unchanged line choice/natural word
+width before correcting that internal predicate; no new stretch or shrink path.
+
+optical-final-red.json/source.json.gz confirms44pt versus45pt with inputs
+unchanged and the false control still44pt. Compute the original remainder first.
+Request optical compensation when that remainder is negative OR the existing
+continued-justified branch needs it, not only when continued. Add it before the
+existing compression/justification branches. Do not query for short ragged final
+lines whose output cannot change; keep their natural width and existing branch
+conditions. Existing hyphen optical remainder remains authoritative.

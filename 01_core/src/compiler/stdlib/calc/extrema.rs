@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/extrema.md
-//! @prompt-hash 2f987f53
+//! @prompt-hash a059a310
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -23,6 +23,21 @@ pub(crate) fn calc_min(
             (Value::Float(a), Value::Float(b)) => Value::Float(a.min(*b)),
             (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).min(*b)),
             (Value::Float(a), Value::Int(b)) => Value::Float(a.min(*b as f64)),
+            (Value::Length(_), Value::Length(_)) => {
+                let comparison = crate::compiler::eval::operators::eval_binary_op(
+                    crate::entities::ast::expr::BinOp::Lt,
+                    v.clone(),
+                    result.clone(),
+                )
+                .map_err(|message| {
+                    vec![SourceDiagnostic::error(Span::detached(), message)]
+                })?;
+                if comparison == Value::Bool(true) {
+                    v.clone()
+                } else {
+                    result.clone()
+                }
+            }
             (_, other) => {
                 return err(format!(
                     "calc.min() tipos incompatíveis: {} e {}",
@@ -52,6 +67,21 @@ pub(crate) fn calc_max(
             (Value::Float(a), Value::Float(b)) => Value::Float(a.max(*b)),
             (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).max(*b)),
             (Value::Float(a), Value::Int(b)) => Value::Float(a.max(*b as f64)),
+            (Value::Length(_), Value::Length(_)) => {
+                let comparison = crate::compiler::eval::operators::eval_binary_op(
+                    crate::entities::ast::expr::BinOp::Gt,
+                    v.clone(),
+                    result.clone(),
+                )
+                .map_err(|message| {
+                    vec![SourceDiagnostic::error(Span::detached(), message)]
+                })?;
+                if comparison == Value::Bool(true) {
+                    v.clone()
+                } else {
+                    result.clone()
+                }
+            }
             (_, other) => {
                 return err(format!(
                     "calc.max() tipos incompatíveis: {} e {}",
@@ -277,5 +307,39 @@ mod tests {
             assert!(errors[0].hints.is_empty());
             assert!(errors[0].trace.is_empty());
         }
+    }
+    #[test]
+    fn readiness_math_code_extrema_lengths() {
+        use crate::entities::layout_types::Length;
+        for (low, high) in
+            [(Length::em(1.0), Length::em(2.0)), (Length::pt(1.0), Length::pt(2.0))]
+        {
+            let low = Value::Length(low);
+            let high = Value::Length(high);
+            assert_eq!(call(calc_min, vec![high.clone(), low.clone()]).unwrap(), low);
+            assert_eq!(call(calc_max, vec![low.clone(), high.clone()]).unwrap(), high);
+            assert_eq!(call(calc_max, vec![low.clone()]).unwrap(), low);
+            assert_eq!(call(calc_min, vec![low.clone(), low.clone()]).unwrap(), low);
+        }
+    }
+
+    #[test]
+    fn readiness_math_code_extrema_incomparable_controls() {
+        use crate::entities::layout_types::Length;
+        for (a, b) in [
+            (Length::em(1.0), Length::pt(2.0)),
+            (Length::pt(1.0) + Length::em(1.0), Length::pt(1.0) + Length::em(1.0)),
+        ] {
+            assert!(call(calc_min, vec![Value::Length(a), Value::Length(b)]).is_err());
+            assert!(call(calc_max, vec![Value::Length(a), Value::Length(b)]).is_err());
+        }
+        assert_eq!(
+            call(calc_min, vec![Value::Int(1), Value::Float(2.5)]).unwrap(),
+            Value::Float(1.0)
+        );
+        assert_eq!(
+            call(calc_clamp, vec![Value::Int(9), Value::Int(2), Value::Int(5)]).unwrap(),
+            Value::Int(5)
+        );
     }
 }

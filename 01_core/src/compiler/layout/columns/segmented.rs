@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/segmented.md
-//! @prompt-hash 9538ed4b
+//! @prompt-hash d7943369
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -197,6 +197,7 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // Salvaguardar estado actual (os items da página principal ficam
         // intocados enquanto a coluna é renderizada num buffer isolado).
         let saved_items = std::mem::take(&mut layouter.regions.current.current_items);
+        let saved_optical_overhang = layouter.line_optical_overhang.take();
         let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
         layouter.open_link_segments();
         let saved_tracking = layouter.text_tracking_state.clone();
@@ -331,6 +332,7 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.apply_pending_par_line_fixups(&mut column_items);
         layouter.regions.current.current_items = saved_items;
         layouter.regions.current.current_line = saved_line;
+        layouter.line_optical_overhang = saved_optical_overhang;
         layouter.text_tracking_state = saved_tracking;
         layouter.regions.current.cursor_x = saved_cursor_x;
         layouter.regions.current.cursor_y = column_start_y;

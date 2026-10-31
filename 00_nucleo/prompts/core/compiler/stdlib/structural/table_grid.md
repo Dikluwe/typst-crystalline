@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_grid
-Hash do Código: 96868791
+Hash do Código: 52bba44c
 
 
 
@@ -12,6 +12,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
 
 ## Evidence before specification
@@ -121,3 +122,74 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Own the single compiler-private declarative caster from Value/causal span to TableAlignment, and pure column selection. Accept Auto/Align/Array of Auto or Align including empty. Reject None, strings and invalid members, using causal expression span and canonical type vocabulary. Scalar Func returns an explicit unsupported alignment-function error without execution. Constructor omission remains None; present wraps the classified declaration. Preserve all other native casts and raw carriers; no preparation or layout here. Co-located source tests verify effects, typed errors, effective prepared alignment and geometry rather than mirroring fields.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+The original table-align-before receipt, scalar-none native stderr, fixes the
+invalid scalar expected-list text as `expected alignment, auto, array, or function,
+found TYPE`. Retain that canonical diagnostic for invalid scalar values, while
+the separately approved scalar Func branch emits explicit unsupported-function
+error and never runs it. Array invalid members keep `expected alignment or auto,
+found TYPE`. This is diagnostic parity only; it does not claim function support.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Retain ordered source items and each positive header level; do not merge groups or reject repeated levels on the ordered path. Preserve legacy explicit-line path until rich line/group interaction is separately certified. Keep raw source exclusive: ordered items rather than parallel legacy cells/header/footer. Native header marks Auto cells but preserves explicit Header/Data semantic kinds. Existing Grid policy unchanged.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

@@ -1,8 +1,9 @@
 # L0 — decorations
-Hash do Código: 4b7b4467
+Hash do Código: ee02434a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
@@ -167,3 +168,38 @@ and retains both lines. The existing complete measured multiline source must
 retain its full paint criteria; no fill or geometry waiver. Strike/Overline
 remain unchanged. This is within the approved Underline method integration
 and continuous-flow parity scope, without any further public/phase change.
+
+## Completed-frame source sequence regression control
+
+figure-frame-build2/figure-geometry-extra-after2 retain exact source/binary/UTC
+and oracle64c5e8c0. Underline around Figure leaves TAIL at caption baseline
+and x22.75pt instead of the following paragraph x20pt. Direct dispatch tests
+with and without SpaceFromNewline pass; Sequence bookkeeping is absent there.
+Require a joined actual Sequence RED before changing this owner. A committed
+flow body's decoration must not manufacture pending inline text/line material
+that clears its actual Block below margin. Preserve inline and existing actual
+multiline collectors, source count, baseline and stroke policies; a zero paint
+or empty source cannot invent a closed-flow result. Do not infer source
+membership from a Group or rerun the body. Native source paint gates remain.
+
+figure-boundary-red1 confirms joined Underline(Figure)/SpaceFromNewline/TAIL
+failure: CAP and TAIL share119.3661417pt despite the earlier separate controls.
+For Underline only, positively certify a new committed flow body: no material
+exterior prefix, actual closed Block chain/end, new committed items, no causal
+current line and all returned segment associations resolved. Preserve those
+segments' actual start/baseline; the old first-inline-prefix patch is inapplicable.
+Use existing font-backed underline metrics if the actual committed identity
+Groups/transparent carriers yield uniform eligible ASCII Text; discard no text
+or styles, ignore only graphical Shape/Image without text, reject transformed/
+clipped groups, shaped/opaque/mixed/math/tracking/script and already painted
+Line results. This proof authorizes typography only, not source reconstruction.
+
+Completed-flow line paint goes with its already committed frame. When exactly
+one new identity Group plus neutral markers represents that completed output,
+append the line in that Group's local coordinates, preserving pending parent
+transport; otherwise append committed paint at existing coordinates. Do not
+create pending inline material, a new source element or another body dispatch.
+Unresolved-piece, prefix/ordinary inline/multiline and Strike/Overline keep their
+old routes. Add actual CAP stroke geometry assertions (10pt FixedMetrics:
+start CAP x, end x+18, y CAP baseline+1, thickness0.5) as well as following TAIL;
+require real source PDF/SVG and wider Auto-parent with complete paint.

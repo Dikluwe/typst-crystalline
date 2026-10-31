@@ -1,5 +1,5 @@
 # L0 — deferred footnote fragments
-Hash do Código: 40ba4045
+Hash do Código: a69690ce
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/footnote_fragments.rs`
@@ -7,8 +7,80 @@ Hash do Código: 40ba4045
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
+- 00_nucleo/prompts/_nuclei/layout/footnote-source-lines.toml sha256:4827d11d78a5a4d37232d59073cdb5ac5c82e329431f1efeae307bc94c8e0578
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
+
+## Terminal explicit linebreak correction — 2026-10-26
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/terminal-footnote-break-2026-10-26/baseline.json`
+and its received-source archive bind HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+the exact uncommitted R11–R13 state, UTC, diffstat and2165 source/config/L0 hashes.
+`lab/results/construction/diagnostics/trailing-footnote-investigation-2026-10-25/receipt.json`
+retains eight source-bound paired probes against oracle commit
+bd5ebec285505889e8ff1d4f68804ab147a699f3/tree
+cac836c07e4dec2a89219370428292393a3216b5, executable SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+With terminal explicit break, received product emits4 pages versus vanilla3;
+without that final break, page words agree for default/orphan0/widow0/cost0.
+The product with terminal break ignores these cost changes in its page grouping.
+The paired source/binary identities and full oracle sources are in analysis.json.
+
+`footnote_fragments.rs:235-236,177-178,357-372` resets logical ink on a mandatory
+break, appends a pending final false line, then rejects the entire certificate
+on any false line. This also skips protected groups, origin reconciliation and
+source_lines; the latter gates continuation capacity in footnote_flush.rs:334-339.
+Pinned flow/collect.rs:196-228 applies local first/last-line prevention, so a
+terminal boundary must not erase protection for previously witnessed lines.
+These are language geometry/pagination observations; upstream frame mechanics
+and Rust representation are not required parity.
+
+### Exclusive internal obligation and gates
+
+Reconcile only the pending logical line after a terminal mandatory boundary
+when it has no matching committed line witness. Preserve every actual empty
+line, mandatory boundary, item/decor/position carrier and source body exactly
+once. Never trim all trailing false lines, fabricate a witness or delete public
+Content. Keep the certificate's exact correspondence with actual capture cuts;
+leading/internal blanks, unpaired CR and opaque unsupported bodies retain their
+current refusal unless separately measured and specified. Preserve singleton
+origin behavior: a terminal boundary may follow a real committed singleton,
+so measure and account for that distinction before reconciling its origin.
+No source re-execution or callbacks, no exporter or eval change is authorized.
+
+RED measurement refinement: `red.log` and `red-source.json.gz` in the terminal
+correction directory preserve three assertional failures and two passing controls.
+FixedMetrics singleton without terminal has height6.545, while its committed
+terminal form has10.285: the latter includes a post-line advance. Reconciliation
+must use the final actual committed boundary with item_count equal to the whole
+capture, not subtract a guessed line height/leading or inspect rendered glyphs.
+Retain that end witness privately before filtering it out of splittable interior
+cuts. Only a tracked pending mandatory break plus exact source/interior witness
+count may consume it to replace the frame's terminal extent. Validate all source
+and geometric guards before mutation. A terminally committed singleton requires
+the measured origin correction even though an undrained singleton does not.
+
+The correction remains in the existing private layout ownership and uses
+ADR-0127 continuous flow: no public field, trait, signature, default mode,
+phase/order or compatibility change. Pin the existing source-lines Nucleus;
+this refines this consumer's finite reconciliation, not a shared public contract.
+
+Before implementation, require assertional RED for terminal-line certification,
+protected first group and effective geometry relative to the identical body
+without the unmatched pending line. Cover singleton, transparent/style wrappers,
+repeated terminal/internal/leading blanks and opaque refusal as bounded controls;
+broader blank-line parity is not inferred. Require source-bound RED→GREEN, the
+original terminal-note source and cost controls against fixed vanilla, font/size/
+page-height variations and complete PDF words/page sizes plus independent SVG
+origins/rules at0.001pt in debug/release. Keep painting observations separate.
+Revalidate R8–R13, previous A–H/R1–R7 language/render controls, resources/stress,
+full workspace tests/build/all-targets/Clippy/fmt/rustdoc, strict/reverse lineage
+and zero full-lint violations. Preserve received changes and immutable historical
+evidence. Any newly exposed boundary must remain recorded rather than silently
+removed or declared universally fixed.
 
 ## Measurement before decision
 
@@ -332,3 +404,51 @@ Evidence before decision: candidate8-queued/receipt.json and candidate8-queued-o
 Exclusive owning obligation: A fresh causally empty region with a certified initial entry which cannot admit its first protected group reserves the logical whole region for the one empty initial fragment. A current main-flow region which wholly defers its first entry still reserves zero. Existing line continuations and admissible prefixes retain full occupied-region reservation; a fitting whole final entry reserves its actual clearance/gap/height and remains queued, allowing later main flow and notes to share the ordinary collector. Preserve literal/explicit-space causality.
 
 Require the new stacked-entry module RED→GREEN and all75 PDF/SVG controls at unchanged0.001pt, all original R8 and A–H/R1–R7 controls, full workspace/lint/lineage/resource gates. Keep failed eager-placement receipts immutable.
+
+
+## R11 — literal and nested long-note source preservation
+
+Measurement before decision: `lab/results/construction/diagnostics/long-footnotes-r11-2026-10-24/baseline.json`, `received-source.json.gz` and `before/receipt.json` bind clean HEAD212aed0449150dd296ceea13fc2be665cc5db01a, current inputs, UTC and the source-equivalent received binaries against fixed oracle bd5ebec285505889e8ff1d4f68804ab147a699f3. The literal5-line note emits only L1/L2 on one page versus all five on three; the6-line nested note omits L6. text.rs:161 limits mandatory literal splitting to superscripts, while paragraph_plan.rs:62 rejects subframes. footnote_fragments.rs:197 rejects literal CR/LF, and its boundary_role marks Footnote uncertified, clearing original cut witnesses. Pinned inline/collect.rs:156-196 carries actual text and mandatory boundaries, flow/collect.rs:196-239 protects source line groups, and model/footnote.rs:305-339 retains each original note body. These are complete text/geometry/physical membership observations, not serializer bytes or a required upstream algorithm.
+
+Classification: private parity correction under ADR-0127 continuous flow. No public field, trait method, signature, mode/default, phase or compatibility change. The shared source-line obligations are pinned by the owning L0s through the new nucleus; productive ownership remains1:1.
+
+### Exclusive owning obligation
+
+Extend only the inert source-line certificate to LF/CRLF in captured Text, refusing unmatched CR. Count those authored boundaries with the same lexical costs as existing Linebreak nodes and require exact agreement with committed cuts. Keep the existing empty-line/automatic-wrap/opaque-source refusal rules. Treat an original nested Footnote as an inline marker leaf in both the boundary classifier and source scan; its deferred body owns its separate capture and must not be scanned or laid out again by the certificate. Preserve the original generated marker dispatch and nested queue/plan/frame registration exactly once. Do not certify FootnoteEntry or arbitrary opaque children by association. Retain transactional protection/origin validation, authenticated item/deco/alignment partition and bounded progress. This supersedes only R9's literal-newline rejection and Footnote-leaf refusal, not other finite limits. Require source-backed RED tests for literal terminal-line coverage, nested terminal-line coverage, CRLF and source-once guards, original R8/R9/R10 actual PDF/SVG at0.001pt, expanded note matrices, full workspace/lint/lineage/resources and preservation gates.
+
+
+## R11 refinement — actual column capture origin
+
+Measurement before decision: candidate1-evaluation.json, candidate1/source receipts,
+68 GREEN PDF controls and candidate1-svg/receipt.json under the R11 evidence root
+bind exact inputs/UTC/binary. Eight column cases retain separator-only SVG offsets
+0.10285pt (Nimbus) /0.360668945pt (Liberation), while every glyph origin and word
+box qualifies. The first-column split head is too tall by ascender minus cap-height;
+its co-translated paint cancels the error under bottom anchoring, hiding it from
+PDF word bounds. The continuation separator already qualifies. line_commit.rs:563-576
+clamps the negative ascent correction in column mode; sub_frame.rs:232-233 installs
+legacy geometric_text_lines=false during footnote capture. The previous R9 origin
+counter-translation is therefore applicable in an ordinary capture, but not in that
+legacy column capture. This is an internal source-derived geometry correction,
+not a font coefficient, arbitrary Y slicing or new public/default/phase change.
+
+Require an injected nonzero ascender/cap-height provider RED comparing committed
+two-line split-head height in ordinary and column capture, retaining its already
+equal bottom-anchored glyph positions. Apply only the actual negative-reconciliation
+origin correction for the capture's context, keeping base normalization and all
+item/deco/orphan/cut transport unchanged. No line_commit or subframe policy changes,
+no new state/API and no threshold relaxation. All68 PDF+SVG, original R8-R10,
+full workspace/lineage/resource and source-once gates remain mandatory.
+
+Retain validation of the original ascender-to-cap origin before applying a context-zero correction; a nonfinite provider value cannot become a valid certificate by being replaced with zero.
+
+
+## R12 — shared-flow footnote entry settings
+
+Measurement before decision: `lab/results/construction/diagnostics/footnote-entries-r12-2026-10-24/{baseline.json,received-source.json.gz,before/receipt.json,before-expanded/receipt.json,type-probes.json}` binds the received R11 dirty tree at HEAD212aed044, fixed oracle bd5ebec285505889e8ff1d4f68804ab147a699f3/tree cac836c07e4dec2a89219370428292393a3216b5/SHA9b237315..., sources, binaries, UTC and exact changed-file list. Original indent/gap are ignored; explicit separator:none retains a rule. The short clearance control alone is not an admission witness. Expanded54 sources include actual three-font settings, affine units, aliases, text/string/line separators, shared versus local and late scopes, and literal continuation. Clearance30pt at80pt page height yields three vanilla pages (carrier, empty region, complete entry); received yields one. Local block overrides and late settings do not change the shared entry configuration; a global2em indent also applies to an entry called under a local0pt override. Pinned rules.rs:400–410 resolves indent inside the85% entry; flow/mod.rs:275–282 resolves separator/clearance/gap from shared outer styles, and flow/compose.rs:645–677,794–833,977–994 uses actual separator height and gap for admission/placement. Integer lengths including0 are rejected, string separator accepted, positional and unknown settings rejected. These observed geometry/syntax/diagnostics are language; storage and dispatch mechanics need not mirror upstream.
+
+Classification: internal parity correction under ADR-0127 continuous flow. Keep all public entity fields, traits, signatures, modes and pipeline phases unchanged. New state is private layout state only, not a new language setting. Preserve the exact received R11 source and historical evidence outside this declared scope.
+
+Exclusive owning obligation: Capture resolved private entry settings before reducing the entry style and retain them through every split head/tail and region defer. Reservation and future cut capacity use actual clearance, separator footprint and gap rather than hard-coded outer multipliers. Preserve R11 LF/CRLF/nested line certification, actual column origin correction, all paint/deco/orphan transport, once-only body capture and unpaired-CR/opaque refusal. Add no public fields and do not lose the private settings when reusing captured frames.
+
+Require source-bound assertional module RED→GREEN before runtime changes; actual PDF complete per-page words/page sizes and SVG glyph/rule geometry at unchanged0.001pt in debug/release; preserve original R8–R11 corpora and all A–H/R1–R7 language/render controls, full workspace/tests/Clippy/fmt/rustdoc, full lint and both lineage gates, resource/stress gates and received evidence. Configuration warnings and old unrelated limits remain explicit.

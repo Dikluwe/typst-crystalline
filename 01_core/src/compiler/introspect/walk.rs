@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/walk.md
-//! @prompt-hash d7c561c8
+//! @prompt-hash aa700960
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -57,6 +57,10 @@ pub(crate) fn reserve_locations(content: &Content, locator: &mut Locator) {
             if let Some(resolved) = &e.resolved {
                 for cell in &resolved.cells {
                     reserve_locations(cell, locator);
+                }
+            } else if let Some(items) = &e.items {
+                for item in items {
+                    reserve_locations(item, locator);
                 }
             } else {
                 for child in &e.children {
@@ -356,11 +360,275 @@ pub(crate) fn walk(
         label_from_parent,
         None,
         RootVisit::Full,
+        false,
     );
 }
 
+/// Borrowed operational scope; never stored in the semantic introspector.
+#[derive(Clone, Copy)]
+pub(super) struct TraversalEnvironment<'a> {
+    pub(super) lang: Option<&'a crate::entities::lang::Lang>,
+    pub(super) chain: &'a StyleChain,
+    pub(super) math: bool,
+}
+
+/// Scope belongs to the actual typed parent, independently of Locations/paint.
+pub(super) fn child_math_scope(content: &Content, math: bool) -> bool {
+    match content {
+        Content::Equation(_) => true,
+        Content::Block(_)
+        | Content::Boxed(_)
+        | Content::Columns(_)
+        | Content::EnumItem(_)
+        | Content::Figure(_)
+        | Content::Footnote(_)
+        | Content::Grid(_)
+        | Content::Heading(_)
+        | Content::ListItem(_)
+        | Content::Pad(_)
+        | Content::Par { .. }
+        | Content::Place(_)
+        | Content::Repeat(_)
+        | Content::Stack(_)
+        | Content::Table(_)
+        | Content::TermItem(_)
+        | Content::Terms(_)
+        | Content::Title(_)
+        | Content::Transform(_) => false,
+        Content::Quote(quote) => !quote.block && math,
+        Content::Align(_)
+        | Content::Asset { .. }
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Colbreak(_)
+        | Content::ContextBlock(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::CounterUpdate(_)
+        | Content::Curve(_)
+        | Content::Divider(_)
+        | Content::Document { .. }
+        | Content::Dynamic(_)
+        | Content::Emph(_)
+        | Content::Empty
+        | Content::FigureCaption(_)
+        | Content::Flush(_)
+        | Content::FootnoteEntry(_)
+        | Content::GridCell(_)
+        | Content::GridFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridHeader(_)
+        | Content::GridVLine(_)
+        | Content::HSpace(_)
+        | Content::Hide(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Image(_)
+        | Content::Label(_)
+        | Content::Linebreak(_)
+        | Content::Link(_)
+        | Content::Located(_)
+        | Content::MathAccent(_)
+        | Content::MathAlignPoint(_)
+        | Content::MathAttach(_)
+        | Content::MathCancel(_)
+        | Content::MathCases(_)
+        | Content::MathClassOverride(_)
+        | Content::MathDelimited(_)
+        | Content::MathFrac(_)
+        | Content::MathIdent(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathLr(_)
+        | Content::MathMatrix(_)
+        | Content::MathMid(_)
+        | Content::MathOp(_)
+        | Content::MathOverbrace(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverline(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathSequence(_)
+        | Content::MathStretch(_)
+        | Content::MathStyled(_)
+        | Content::MathText(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderline(_)
+        | Content::MathUnderover(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathVec(_)
+        | Content::Metadata(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Overline(_)
+        | Content::PageRun(_)
+        | Content::Pagebreak(_)
+        | Content::Parbreak
+        | Content::PdfArtifact(_)
+        | Content::PdfAttach(_)
+        | Content::Raw(_)
+        | Content::Realized(_)
+        | Content::Ref(_)
+        | Content::Sequence(_)
+        | Content::SetPage(_)
+        | Content::Shape(_)
+        | Content::ShowRecipe(_)
+        | Content::SmallCaps { .. }
+        | Content::SmartQuote(_)
+        | Content::Source(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::State(_)
+        | Content::StateDisplay(_)
+        | Content::StateUpdate(_)
+        | Content::Strike(_)
+        | Content::Strong(_)
+        | Content::Styled(_)
+        | Content::Symbol(_)
+        | Content::TableCell(_)
+        | Content::TableFooter(_)
+        | Content::TableHLine(_)
+        | Content::TableHeader(_)
+        | Content::TableVLine(_)
+        | Content::Text(_)
+        | Content::Underline(_)
+        | Content::VSpace(_) => math,
+    }
+}
+
+pub(super) fn is_equation_root(mut content: &Content) -> bool {
+    loop {
+        content = content.source_body();
+        match content {
+            Content::Located(e) => content = &e.body,
+            Content::Styled(e) => content = &e.body,
+            Content::ShowRecipe(e) => content = &e.body,
+            Content::Realized(e) => content = &e.original,
+            Content::Equation(_) => return true,
+            Content::Align(_)
+            | Content::Asset { .. }
+            | Content::Bibliography(_)
+            | Content::Block(_)
+            | Content::Boxed(_)
+            | Content::Cite(_)
+            | Content::Colbreak(_)
+            | Content::Columns(_)
+            | Content::ContextBlock(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::CounterUpdate(_)
+            | Content::Curve(_)
+            | Content::Divider(_)
+            | Content::Document { .. }
+            | Content::Dynamic(_)
+            | Content::Emph(_)
+            | Content::Empty
+            | Content::EnumItem(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Flush(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::Grid(_)
+            | Content::GridCell(_)
+            | Content::GridFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridHeader(_)
+            | Content::GridVLine(_)
+            | Content::HSpace(_)
+            | Content::Heading(_)
+            | Content::Hide(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Image(_)
+            | Content::Label(_)
+            | Content::Linebreak(_)
+            | Content::Link(_)
+            | Content::ListItem(_)
+            | Content::MathAccent(_)
+            | Content::MathAlignPoint(_)
+            | Content::MathAttach(_)
+            | Content::MathCancel(_)
+            | Content::MathCases(_)
+            | Content::MathClassOverride(_)
+            | Content::MathDelimited(_)
+            | Content::MathFrac(_)
+            | Content::MathIdent(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathLr(_)
+            | Content::MathMatrix(_)
+            | Content::MathMid(_)
+            | Content::MathOp(_)
+            | Content::MathOverbrace(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverline(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathSequence(_)
+            | Content::MathStretch(_)
+            | Content::MathStyled(_)
+            | Content::MathText(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderline(_)
+            | Content::MathUnderover(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathVec(_)
+            | Content::Metadata(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Overline(_)
+            | Content::Pad(_)
+            | Content::PageRun(_)
+            | Content::Pagebreak(_)
+            | Content::Par { .. }
+            | Content::Parbreak
+            | Content::PdfArtifact(_)
+            | Content::PdfAttach(_)
+            | Content::Place(_)
+            | Content::Quote(_)
+            | Content::Raw(_)
+            | Content::Ref(_)
+            | Content::Repeat(_)
+            | Content::Sequence(_)
+            | Content::SetPage(_)
+            | Content::Shape(_)
+            | Content::SmallCaps { .. }
+            | Content::SmartQuote(_)
+            | Content::Source(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Stack(_)
+            | Content::State(_)
+            | Content::StateDisplay(_)
+            | Content::StateUpdate(_)
+            | Content::Strike(_)
+            | Content::Strong(_)
+            | Content::Symbol(_)
+            | Content::Table(_)
+            | Content::TableCell(_)
+            | Content::TableFooter(_)
+            | Content::TableHLine(_)
+            | Content::TableHeader(_)
+            | Content::TableVLine(_)
+            | Content::TermItem(_)
+            | Content::Terms(_)
+            | Content::Text(_)
+            | Content::Title(_)
+            | Content::Transform(_)
+            | Content::Underline(_)
+            | Content::VSpace(_) => return false,
+        }
+    }
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum RootVisit {
+pub(super) enum RootVisit {
     Full,
     OriginalOnly,
     ChildrenOnly,
@@ -371,7 +639,7 @@ enum RootVisit {
     clippy::too_many_arguments,
     reason = "C008: A recursão adiciona forced_location e root traversal à mesma travessia"
 )]
-fn walk_at(
+pub(super) fn walk_at(
     content: &Content,
     locator: &mut Locator,
     tags: &mut Vec<Tag>,
@@ -388,13 +656,47 @@ fn walk_at(
     label_from_parent: Option<&Label>,
     forced_location: Option<Location>,
     root_visit: RootVisit,
+    math: bool,
 ) {
+    if math {
+        if let Content::Equation(eq) = content.source_body() {
+            if root_visit != RootVisit::OriginalOnly {
+                walk_at(
+                    &eq.body,
+                    locator,
+                    tags,
+                    intr,
+                    auto_label_counter,
+                    lang,
+                    chain,
+                    None,
+                    None,
+                    RootVisit::Full,
+                    true,
+                );
+            }
+            return;
+        }
+    }
+
     if let Some(child) =
         crate::compiler::realize::reference_supplements::prepared_reference_supplement(
             content,
         )
     {
-        walk(child, locator, tags, intr, auto_label_counter, lang, chain, None);
+        walk_at(
+            child,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            None,
+            None,
+            RootVisit::Full,
+            math,
+        );
         return;
     }
     if let Content::ContextBlock(block) = content {
@@ -419,8 +721,7 @@ fn walk_at(
             locator.observe(e.location);
             if let Content::ContextBlock(block) = e.body.source_body() {
                 if crate::compiler::realize::reference_supplements::is_reference_supplement_producer(block) {
-                    walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain,
-                        None, Some(e.location), root_visit);
+                    walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, Some(e.location), root_visit, math);
                     return;
                 }
             }
@@ -436,6 +737,7 @@ fn walk_at(
                     label_from_parent,
                     Some(e.location),
                     root_visit,
+                    math,
                 );
             } else if let Content::Table(t) = &e.body {
                 if t.resolved.is_some() && root_visit != RootVisit::OriginalOnly {
@@ -451,6 +753,10 @@ fn walk_at(
                 }
             } else if root_visit != RootVisit::OriginalOnly
                 && (crate::compiler::realize::figure::is_figure(&e.body)
+                    || (matches!(e.body.source_body(), Content::Equation(_))
+                        && intr.element_at(e.location).is_some_and(|original| {
+                            matches!(original.source_body(), Content::Equation(_))
+                        }))
                     || (matches!(e.body.source_body(), Content::Block(_))
                         && intr.element_at(e.location).is_some_and(|original| {
                             matches!(original.source_body(), Content::Block(_))
@@ -467,6 +773,7 @@ fn walk_at(
                     label_from_parent,
                     Some(e.location),
                     RootVisit::ChildrenOnly,
+                    math,
                 );
             }
             return;
@@ -474,7 +781,7 @@ fn walk_at(
         Content::Realized(e) => {
             fn root_only_original(c: &Content) -> bool {
                 match c.source_body() {
-                    Content::Table(_) | Content::Block(_) => true,
+                    Content::Table(_) | Content::Block(_) | Content::Equation(_) => true,
                     Content::Located(c) => root_only_original(&c.body),
                     Content::ShowRecipe(c) => root_only_original(&c.body),
                     Content::Source(_)
@@ -496,7 +803,6 @@ fn walk_at(
                     | Content::ListItem(_)
                     | Content::EnumItem(_)
                     | Content::Link(_)
-                    | Content::Equation(_)
                     | Content::MathSequence(_)
                     | Content::Symbol(_)
                     | Content::MathIdent(_)
@@ -611,9 +917,10 @@ fn walk_at(
                     label_from_parent,
                     None,
                     RootVisit::OriginalOnly,
+                    math,
                 );
             } else {
-                walk(
+                walk_at(
                     &e.original,
                     locator,
                     tags,
@@ -622,10 +929,13 @@ fn walk_at(
                     lang,
                     chain,
                     label_from_parent,
+                    None,
+                    RootVisit::Full,
+                    math,
                 );
             }
             intr.original_walk_depth -= 1;
-            walk(
+            walk_at(
                 &e.visual,
                 locator,
                 tags,
@@ -634,6 +944,9 @@ fn walk_at(
                 lang,
                 chain,
                 label_from_parent,
+                None,
+                RootVisit::Full,
+                math,
             );
             return;
         }
@@ -649,6 +962,7 @@ fn walk_at(
                 label_from_parent,
                 forced_location,
                 root_visit,
+                math,
             );
             return;
         }
@@ -664,6 +978,7 @@ fn walk_at(
                 label_from_parent,
                 forced_location,
                 root_visit,
+                math,
             );
             return;
         }
@@ -1028,87 +1343,68 @@ fn walk_at(
     }
 
     if root_visit == RootVisit::OriginalOnly
-        && matches!(content, Content::Table(_) | Content::Figure(_) | Content::Block(_))
+        && matches!(
+            content,
+            Content::Table(_)
+                | Content::Figure(_)
+                | Content::Block(_)
+                | Content::Equation(_)
+        )
     {
         if let Some(loc) = emitted_loc {
             tags.push(Tag::End(loc, hash_content(content)));
         }
         return;
     }
+    let child_math = child_math_scope(content, math);
     match content {
         Content::Source(_) | Content::Located(_) | Content::Realized(_) | Content::ShowRecipe(_) => unreachable!("carriers dispatched above"),
         Content::Sequence(seq) => {
             for item in seq.iter() {
-                walk(item, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(item, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
 
         // P863: parágrafo é transparente ao walk.
-        Content::Par { body } => walk(
-            body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
-        ),
-        Content::PdfArtifact(e) => walk(
-            &e.body,
-            locator,
-            tags,
-            intr,
-            auto_label_counter,
-            lang,
-            chain,
-            label_from_parent,
-        ),
+        Content::Par { body } => walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math),
+        Content::PdfArtifact(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math),
         Content::PageRun(e) => {
             if let Some(Some(body)) = &e.background {
-                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
             if let Some(crate::entities::page_running::PageMarginal::Content(body)) = &e.header {
-                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent);
+            walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math);
             if let Some(crate::entities::page_running::PageMarginal::Content(body)) = &e.footer {
-                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
             if let Some(Some(body)) = &e.foreground {
-                walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
-        Content::HtmlFrame(e) => walk(
-            &e.body,
-            locator,
-            tags,
-            intr,
-            auto_label_counter,
-            lang,
-            chain,
-            label_from_parent,
-        ),
+        Content::HtmlFrame(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math),
 
         // F-5b fatia 1 (P371): strong/emph são transparentes ao walk (morfologia,
         // sem custom/locatável) — descem no body, como o arm `Styled`.
-        Content::Strong(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::Emph(e)   => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Strong(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::Emph(e)   => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // P408: smallcaps é transparente ao walk (morfologia, não locatável).
-        Content::SmallCaps { body } => walk(
-            body, locator, tags, intr, auto_label_counter, lang, chain, None,
-        ),
+        Content::SmallCaps { body } => walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // P856 — ListItem/EnumItem são transparentes ao walk para que labels
         // anexadas ao conteúdo de um item sejam processadas (paridade vanilla
         // `cannot reference text`).
-        Content::ListItem(e) => walk(
-            &e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
-        ),
-        Content::EnumItem(e) => walk(
-            &e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
-        ),
+        Content::ListItem(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math),
+        Content::EnumItem(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math),
 
         Content::Heading(h) => heading::walk_heading(
             h, emitted_loc, locator, tags, intr, auto_label_counter, lang, chain,
         ),
 
         Content::Title(e) => {
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
         }
 
         Content::Equation(e) => {
@@ -1122,7 +1418,7 @@ fn walk_at(
             // ELIMINADA — populate_intr arm Equation já aplica counter
             // a `intr.counters["equation"]` no momento da emission. Walk
             // arm Equation puro — apenas desce em body.
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
         }
 
         Content::Figure(e) => {
@@ -1146,28 +1442,28 @@ fn walk_at(
             // Layouter consumer C3 consume via `figure_number_at_index`
             // (P184D). Walk arm Figure agora puro — apenas desce em
             // body + caption.
-            walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             if let Some(cap) = caption {
                 if e.resolved_kind.is_some() && matches!(chain.custom("figure.numbering"), None | Some(Value::Str(_))) {
                     if let Some(Some(supplement)) = &e.resolved_supplement {
-                        walk(supplement, locator, tags, intr, auto_label_counter, lang, chain, None);
+                        walk_at(supplement, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
                     }
                 }
-                walk(cap, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(cap, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
 
         // P1473 — figure.caption (escopo reduzido): não-locatável nesta
         // fatia (ver `introspect/locatable.rs`); walk puro em body+separator.
         Content::FigureCaption(e) => {
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             if let Some(sep) = &e.separator {
-                walk(sep, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(sep, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
 
         Content::Label(e) => labelled::walk_label(
-            e, locator, tags, intr, auto_label_counter, lang, chain,
+            e, locator, tags, intr, auto_label_counter, TraversalEnvironment { lang, chain, math },
         ),
 
         // Lote F-2 S5 (P335): arms populate Set*Numbering removidos com as variantes.
@@ -1283,41 +1579,41 @@ fn walk_at(
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
         Content::Terms(e) => {
-            for item in e.items.iter() { walk(item, locator, tags, intr, auto_label_counter, lang, chain, None); }
+            for item in e.items.iter() { walk_at(item, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math); }
         }
         Content::TermItem(e) => {
-            walk(&e.term, locator, tags, intr, auto_label_counter, lang, chain, None);
-            walk(&e.description, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.term, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
+            walk_at(&e.description, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
         }
 
         // Passo 155 — Quote: walk em body + attribution.
         Content::Quote(e) => {
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             if let Some(a) = &e.attribution {
-                walk(a, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(a, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
 
         // Modelo D (Lote 4 P319): decorações — walk no body (não-locatable).
-        Content::Underline(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::Strike(e)    => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::Overline(e)  => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Underline(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::Strike(e)    => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::Overline(e)  => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
-        Content::Transform(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Transform(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         Content::Grid(e) => {
             // P224 — Grid refino: walk em header (se houver) + cells + footer.
-            if let Some(h) = &e.header { walk(h, locator, tags, intr, auto_label_counter, lang, chain, None); }
-            for cell in &e.cells { walk(cell, locator, tags, intr, auto_label_counter, lang, chain, None); }
-            if let Some(f) = &e.footer { walk(f, locator, tags, intr, auto_label_counter, lang, chain, None); }
+            if let Some(h) = &e.header { walk_at(h, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math); }
+            for cell in &e.cells { walk_at(cell, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math); }
+            if let Some(f) = &e.footer { walk_at(f, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math); }
         }
 
         // P224.B — GridHeader / GridFooter (recurse no body; paridade P157C).
-        Content::GridHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::GridFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::GridHeader(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::GridFooter(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
-        Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::GridCell(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 512 — linhas em grid/table não têm body recursivo.
         Content::GridHLine(_) | Content::GridVLine(_) => {}
@@ -1328,12 +1624,12 @@ fn walk_at(
         Content::Table(e) => walk_table_visual(e,locator,tags,intr,auto_label_counter,lang,chain),
 
         // Passo 157B — TableCell (recurse no body).
-        Content::TableCell(e) => walk(e.visual(), locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::TableCell(e) => walk_at(e.visual(), locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).
-        Content::TableHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::TableFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::TableHeader(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::TableFooter(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // P181H: walk arm puro (P163 invariante restaurada para bib).
         // Pré-P181H (P159C/F): walk mutava `state.bib_entries.extend(...)`
@@ -1347,49 +1643,49 @@ fn walk_at(
         // Introspection runtime adiada).
         Content::Bibliography(e) => {
             if let Some(t) = &e.title {
-                walk(t, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(t, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
         Content::Cite(e) => {
-            if let Some(s) = &e.supplement { walk(s, locator, tags, intr, auto_label_counter, lang, chain, None); }
+            if let Some(s) = &e.supplement { walk_at(s, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math); }
         }
 
         // P295 — Footnote walk em body (locatable infrastructure não
         // aplicada em Fase 1; body recurse preserva counters/labels
         // dentro para passes futuros).
-        Content::Footnote(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Footnote(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // P1473 — footnote.entry (escopo reduzido): não-locatável nesta
         // fatia (ver `introspect/locatable.rs`); walk puro em note+separator.
         Content::FootnoteEntry(e) => {
-            walk(&e.note, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk_at(&e.note, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             if let Some(sep) = &e.separator {
-                walk(sep, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(sep, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         }
 
-        Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Align(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
-        Content::Place(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Place(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
         // estruturais; descer no body para que counters/labels dentro sejam
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
-        Content::Pad(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
-        Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Pad(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
+        Content::Hide(e)           => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
-        Content::Block(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Block(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        Content::Boxed(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Boxed(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
         Content::Stack(e) => {
             for c in e.children.iter() {
-                walk(c, locator, tags, intr, auto_label_counter, lang, chain, None);
+                walk_at(c, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math);
             }
         },
 
@@ -1397,12 +1693,12 @@ fn walk_at(
         // Walk no body uma vez (counters/labels dentro de body
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
-        Content::Repeat(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Repeat(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
         // P217 (DEBT-56 sub-fase b) — Columns container.
         // Walk no body (counters/labels dentro contam normalmente);
         // sem Tag::Start/End próprio (columns não é locatable).
         // Consumer multi-region em P219.
-        Content::Columns(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Columns(e) => walk_at(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None, None, RootVisit::Full, child_math),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         // P363 (introspect-chain): empurra os styles na chain ao descer (espelho de
@@ -1432,7 +1728,7 @@ fn walk_at(
                 }
             }
             let pushed = chain.push_styles(styles);
-            walk_at(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent, forced_location, root_visit);
+            walk_at(body, locator, tags, intr, auto_label_counter, lang, &pushed, label_from_parent, forced_location, root_visit, math);
         }
 
         Content::Outline(outline) => {
@@ -1440,16 +1736,7 @@ fn walk_at(
             // pós-introspecção. Descer nele permite recolher `prefix-info`;
             // a store consultável final continua vindo do documento original.
             if let Some(body) = outline.realized_body() {
-                walk(
-                    body,
-                    locator,
-                    tags,
-                    intr,
-                    auto_label_counter,
-                    lang,
-                    chain,
-                    label_from_parent,
-                );
+                walk_at(body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent, None, RootVisit::Full, child_math);
             }
             // P189B (M5): walk puro para Outline.
             // Mutação `state.has_outline = true` removida; flag obtida
@@ -1538,6 +1825,7 @@ pub(super) fn planned_root(
         label,
         location,
         RootVisit::PlannedRootOnly,
+        false,
     );
 }
 
@@ -1564,6 +1852,10 @@ fn walk_table_visual(
             _ => (0, 0),
         });
         for c in cells {
+            walk(c, locator, tags, intr, auto_label_counter, lang, chain, None);
+        }
+    } else if let Some(items) = &e.items {
+        for c in items {
             walk(c, locator, tags, intr, auto_label_counter, lang, chain, None);
         }
     } else {
@@ -1876,6 +2168,7 @@ mod v16_walk_source_context_tests {
             None,
             Some(forced),
             RootVisit::OriginalOnly,
+            false,
         );
         assert_eq!(tags.len(), 2);
         assert!(matches!(&tags[0], Tag::Start(location, _) if *location == forced));
@@ -2005,5 +2298,112 @@ mod v16_eval_math_table_root_tests {
             (observed(&doc), intr.query(&Selector::Kind(ElementKind::Table))),
             ((vec!["shown".to_string()], 1), vec![loc])
         );
+    }
+}
+
+#[cfg(test)]
+mod readiness_equation_membership_tests {
+    use crate::entities::{
+        content::{Content, LocatedContent, RealizedContent},
+        counter::CounterKey,
+        element_kind::ElementKind,
+        introspector::Introspector,
+        label::Label,
+        layout_types::Length,
+        locator::Locator,
+        selector::Selector,
+        sides::Sides,
+        style::Styles,
+        value::Value,
+    };
+    use std::sync::Arc;
+    fn index(body: &Content) -> crate::entities::introspector::TagIntrospector {
+        crate::compiler::introspect::introspect(body)
+    }
+    fn inner() -> Content {
+        Content::equation(Content::MathIdent("x".into()), false)
+    }
+    fn metadata() -> Content {
+        Content::metadata(Value::Str("M".into()))
+    }
+    #[test]
+    fn readiness_equation_membership_legacy_nested_root_and_raw_body() {
+        let intr = index(&Content::equation(inner(), true));
+        let roots = intr.query_by_kind(ElementKind::Equation);
+        assert_eq!(roots.len(), 1);
+        let Content::Equation(outer) = intr.elements[&roots[0]].content().source_body()
+        else {
+            panic!("outer snapshot")
+        };
+        assert!(
+            matches!(outer.body.source_body(), Content::Equation(_)),
+            "raw nested body retained"
+        );
+    }
+    #[test]
+    fn readiness_equation_membership_legacy_numbered_nested_steps_once() {
+        let origin = Content::styled(
+            Content::equation(Content::equation(Content::text("x"), true), true),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
+        );
+        let intr = index(&origin);
+        let key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+        assert_eq!(intr.counter_final_values(&key), Some([1].as_slice()));
+    }
+    #[test]
+    fn readiness_equation_membership_legacy_inline_and_flow_boundaries() {
+        let inline = index(&Content::equation(Content::strong(inner()), true));
+        assert_eq!(inline.query_by_kind(ElementKind::Equation).len(), 1);
+        let flow =
+            Content::block(inner(), None, None, Sides::uniform(Length::pt(0.0)), true);
+        assert_eq!(
+            index(&Content::equation(flow, true))
+                .query_by_kind(ElementKind::Equation)
+                .len(),
+            2
+        );
+    }
+    #[test]
+    fn readiness_equation_membership_legacy_inner_label_is_absent() {
+        let label = Label("inner".into());
+        let intr = index(&Content::equation(Content::label_auto("inner", inner()), true));
+        assert!(intr.labels.lookup(&label).is_none());
+        assert!(!intr.unreferencable_labels.contains_key(&label));
+        let flow = Content::label_auto("outer", Content::equation(inner(), true));
+        assert!(index(&flow).labels.lookup(&Label("outer".into())).is_some());
+    }
+    #[test]
+    fn readiness_equation_membership_legacy_original_snapshot_has_no_hidden_children() {
+        let mut locator = Locator::new();
+        let root = locator.next();
+        let original = Content::Located(Arc::new(LocatedContent {
+            location: root,
+            body: Content::equation(metadata(), true),
+        }));
+        let hidden = Content::Realized(Arc::new(RealizedContent {
+            original: original.clone(),
+            visual: Content::Empty,
+        }));
+        let intr = index(&hidden);
+        assert_eq!(intr.query_by_kind(ElementKind::Equation).len(), 1);
+        assert!(intr.query_by_kind(ElementKind::Metadata).is_empty());
+        let Content::Equation(snapshot) = intr.elements[&root].content().source_body()
+        else {
+            panic!("snapshot")
+        };
+        assert!(matches!(snapshot.body, Content::Metadata(_)));
+        let actual = locator.next();
+        let visual = Content::Located(Arc::new(LocatedContent {
+            location: root,
+            body: Content::equation(
+                Content::Located(Arc::new(LocatedContent {
+                    location: actual,
+                    body: metadata(),
+                })),
+                true,
+            ),
+        }));
+        let shown = Content::Realized(Arc::new(RealizedContent { original, visual }));
+        assert_eq!(index(&shown).query_by_kind(ElementKind::Metadata), vec![actual]);
     }
 }

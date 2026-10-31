@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "bundle-numbering-input"
+title = "Document-local numbering input preserves global source authority"
+[[claims]]
+id = "authority"
+level = "must"
+statement = "A numbering input projection retains the same Content and Arc SourcePlan; it never alters the global semantic index, positions, source identity, callbacks or attempt budgets."
+[[claims]]
+id = "interval"
+level = "must"
+statement = "A declared nonzero interval is accepted only after checked bounds and complete metadata slots; preserve raw patterns, logical zero, spans, None and present empty visible/reference/supplement values without evaluation."
+[[claims]]
+id = "partition"
+level = "must"
+statement = "Bundle discovery uses document counts retained from the candidate that produced its input; replay uses the frozen current step partition. HTML contributes zero pages. Missing or unverifiable partition cannot qualify reuse or final completion."
+[[claims]]
+id = "isolation"
+level = "must-not"
+statement = "Do not replace the global Introspector/PageStore, infer a boundary from the first source element or painted frames, mutate SourcePlan, execute a producer again or publish a provisional numbering view as semantic truth."

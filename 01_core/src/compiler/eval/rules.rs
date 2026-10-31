@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules.md
-//! @prompt-hash 98749f91
+//! @prompt-hash fad9fe69
 //! @layer L1
-//! @updated 2026-10-05
+//! @updated 2026-10-31
 //!
 //! Diagnósticos compartilhados e hub estático de set/show rules.
 //! Os algoritmos residem nos módulos filhos por comportamento.
@@ -63,7 +63,7 @@ pub(crate) use self::pdf::pdf_standards_conflict_diagnostic;
 use self::pdf::validate_pdf_page_range_element;
 pub(crate) use self::realize::{realize_node, realize_paragraphs};
 pub(super) use self::set::eval_set_rule;
-pub(super) use self::show::eval_show_rule;
+pub(super) use self::show::{capture_show_transformation, eval_show_rule};
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
 /// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
@@ -213,6 +213,7 @@ const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("accent", "size"),
     ("accent", "dotless"),
     ("stretch", "size"),
+    ("lr", "size"),
 ];
 
 /// Diagnostic vocabulary differs from the public short names of types.

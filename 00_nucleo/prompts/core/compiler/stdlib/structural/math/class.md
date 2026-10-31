@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/class
-Hash do Código: a465ee23
+Hash do Código: 18f1dd36
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/class.rs`
@@ -57,3 +57,34 @@ No new public Rust field/signature/trait method, default mode or phase change.
 Preserve other semantics and all received changes. Record source-bound builds,
 full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
 A–H and R1–R3 without reclassifying their existing limitations as parity.
+
+
+## Current-pin class cast domain
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/math-class-domain-before/receipt.json retains twenty
+actual source cases, UTC, HEAD/dirty stat, source archive and both immutable
+binaries. The pinned64c5e8c0 oracle accepts diacritic and the prior ten names;
+alphabetic/glyph-part/space/special remain rejected. foundations/cast.rs:528
+explicitly includes Diacritic. Local class.rs:34 has only ten names. The
+class dispatch/domain/style receipts and source identity are pinned in
+math-class-findings-before-decision.json. Domain and error text are language
+observables; no intent is inferred from Rust representation.
+
+### Exclusive correction and acceptance
+
+Extend only the existing cast domain with diacritic and update its exact error
+message to the measured eleven-name order, ending vary, or diacritic. This
+supersedes the historical ten-name/domain-message clauses and the stale local
+message expectation, preserving its alphabetic negative and all other inputs.
+Require an accepted Diacritic carrier test plus all four internal-name negatives
+and the exact eleven-name diagnostic. Existing body conversion/argument order/
+detached fallback/native signature are unchanged. Default/explicit glyph
+recursion belongs exclusively to math/layout/style_transform.md.
+
+This mapping/diagnostic parity correction follows continuous ADR-0127, with L0
+first and functional RED before code. No public Rust contract/default/phase is
+added. Preserve all prior tests except the measured stale message literal, whose
+exact pre-change source is archived in math-private-l0-before.json.gz. Full
+validation/historical/JPEG criteria remain binding; no global class parity claim.

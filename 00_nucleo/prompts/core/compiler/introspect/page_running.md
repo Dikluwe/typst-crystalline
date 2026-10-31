@@ -1,12 +1,15 @@
 # L0 — Source plans and incremental physical-page introspection
-Hash do Código: 6f80b3e2
+Hash do Código: 1479d645
 
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/page_running.rs`.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/math/equation-membership.toml sha256:ca9db29aceb31c748330eb69e474c4e6a6a5c2a2d474d78dc5db52b30380464d
+- 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
 
 
 ## Evidence before decision
@@ -336,3 +339,146 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Approved document-local numbering input (2026-10-28)
+
+Measure before decision: readiness-fixes-2026-10-28/physical-candidate-execution.json,
+its source archive and full preservation log bind dirty HEAD212aed0449, exact
+diffstat, inputs and UTC. p1486 keeps /St20 and /St22 but the last PDF paints10
+instead of20, because run_planned consults global PageStore by local ordinal.
+The review review-bundle-numbering-input.md SHA-256
+d248aa88694a06da945a2036ec33887fcbba0f67adf3e3bd7ccb30757354670d was approved
+in direct human reply, retained in bundle-numbering-input-approval.json.
+This ratifies only the named additive method and its local transport, superseding
+earlier no-new-API clauses only for that method; all other boundaries remain.
+
+The existing source builder initializes the new private numbering input absent.
+SourcePlan fields, document boundary, source parents, root IDs and allocation
+authority remain identical. The input is wrapper-local layout data, never a new
+source packet, source plan field, fabricated position or first-element boundary.
+
+Require functional RED→GREEN, original integrated controls, complete technical
+gates and independent PDF/SVG/word/page/0.001pt validation with source provenance.
+Finite tests do not certify general parity, geometry, performance or JPEG.
+
+## One membership per actual Entry Location
+
+Measured physical4 identity query reports three entries; the source-bound
+outline-entry-alias-before receipt confirms all three carry the SAME Location.
+Construction::apply already records a payload root only when absent from
+intr.elements, but OutlineEntry's post-child special registration appends its
+location unconditionally. Retain every raw phase/admission/completeness check
+and original/visual snapshot; register OutlineEntry kind membership only once
+for the same actual Location. Distinct Locations remain distinct even with
+identical Content. This is a semantic membership correction after complete raw
+validation, never suppression of raw events, content dedup or a fake entry.
+The original source/template and actual-body contracts above remain mandatory.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.
+
+
+## Measured Equation membership and original snapshots (2026-10-29)
+
+### Measurement before decision and diagnosis
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/equation-kind-extra9/receipt.json`
+records native nested block counter(1,) versus product(2,), and native one Equation
+versus three product memberships. Fresh immutable product10, SHA
+681cea51ff5325b36fe1845f822c059ef8971a19b56f70bac4b921d8887937eb,
+is bound to full source/build/UTC/HEAD/dirty stat by math-private-build10.json
+and its source archive. `equation-membership-label-before11/receipt.json`
+measures native missing-label errors for inner references while product compiles;
+Flow Box and outer references succeed in both. Native nested styled/metadata
+cases have one Equation, product two.
+`equation-membership-original-before11/receipt.json` independently measures
+identity/show-set direct Metadata=M once in both; nested variants add an unwanted
+product Equation. Hiding or replacing the outer Equation yields metadata=[]
+natively but [M] in product, proving admission of stored original children.
+Pinned oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17
+and binary SHA22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34
+are checked by these receipts. Source, argv, UTC and exact state are retained.
+
+The existing generic contracts omitted Math-specific root eligibility and did
+not include Equation in the bounded original-only shallow policy. This is an L0
+coverage gap materialized in code, not merely hash drift. General semantic promises
+do not substitute for an explicit productive rule. Amend L0 first. Acceptance
+concerns language queries, counters, fields and errors, not Rust traversal identity.
+Before texts/hashes/HEAD/dirty stat/UTC are archived in membership-before11.json.gz.
+
+### Internal decision and preserved approvals
+
+Consume equation-membership and the measured external-flow-body nucleus. Keep
+all four readiness approvals exactly as ratified: no public surface change or
+phase move. This is ADR-0127 continuous language parity within the existing index
+construction boundary; compatibility there means binary/API. Private inherited
+Math provenance is not Figure-kind inference, evaluation or callback execution.
+No public field, trait/signature, arena, solver, default, retry or budget change.
+
+Preserve canonical raw body fields, original/visual identity and active source
+parents. Exclude only the nested Equation semantic root and its own label/counter;
+retain every actual descendant fact and all raw source phases/authority checks.
+Stored original Equation body is a snapshot, not an actual second child source;
+its fields stay intact. Root-only original and actual visual policies apply only
+to Equation in addition to the already documented Table/Block/Figure cases.
+Do not generalize to arbitrary originals, filter queries after population,
+deduplicate by value/text/hash, clear snapshots or suppress unknown packets.
+
+### Acceptance and remaining scope
+
+Functional RED then GREEN in legacy and typed-plan owners: nested root/counter,
+inline versus actual Flow boundaries, untouched canonical body, ignored inner
+label with no unreferencable fallback, preserved outer/Flow labels, hidden
+original Metadata absent and actual visual Metadata once at its actual Location.
+Retain strict missing/duplicate/foreign raw-source rejection and opaque math.
+Native-label diagnostic remains missing label; do not silently retarget it.
+All old tests/expectations stay. V15/V26 before V5/reverse seals; full warning-
+denying lint, all12 technical gates, actual fresh release, broad PDF/SVG/0.001pt
+and independent paint preservation, historical1720 and both original JPEG
+campaigns remain required for final qualification. No tolerance/flag/recipe hacks.
+Nested glyph painting and deferred Context own-show are separate remaining debts;
+this index correction does not certify full math or product parity.
+
+### Exclusive typed source-plan transport
+
+Retain inherited Math in compiler-private PlanBuildContext/PlanNode data, derived
+from actual typed parent boundaries through the shared exhaustive decision.
+Initialize document/contribution roots in Flow. This is provenance propagation,
+not source evaluation or semantic Figure-kind inference during preparation.
+Keep private root Locations, allocation policy and required actual raw phases
+unchanged. Only semantic payload application, semantic-parent selection and
+label-target lookup exclude a Math-nested Equation. An OriginalOnly Equation
+has no planned body child, while its full raw Content remains stored unchanged;
+its independent visual Equation still owns the actual EquationBody edge.
+Labels of nested canonical Equation roots contribute no association or fallback;
+track the exact typed transparent target, not adjacent flattened tags.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Unprepared items=Some is the exclusive raw Table child stream, routed by existing indexed TableRawChild edges. Resolved tables still select row-major resolved cells only. Do not visit parallel legacy fields or create new Location/source facts. Preserve caption, source parents, guards and all existing aliases.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

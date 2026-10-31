@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/tables
-Hash do Código: 80418d0c
+Hash do Código: d1584545
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
@@ -62,3 +62,29 @@ This slice completes intrinsic isolated defaults and alias-versus-fresh-show dis
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/construction/tables.md` preserves the original evidence and chronology.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Keep all existing constructor signatures; initialize Table.items=None, Header.level=1 and preserve all previous defaults.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

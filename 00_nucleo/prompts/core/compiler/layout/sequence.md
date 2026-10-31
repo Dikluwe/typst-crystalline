@@ -1,5 +1,5 @@
 # L0 — sequence
-Hash do Código: c558095d
+Hash do Código: f98f4973
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -256,3 +256,118 @@ Evidence before decision: candidate4-flow/receipt.json under lab/results/constru
 Exclusive owning obligation: At an actual incremental Parbreak-delimited paragraph frontier, before dispatching its first source child and before carrier preflight, pass the complete original sibling range up to the next Parbreak/SetPage to the finite following-prose admission owner. Do not skip opaque siblings, alter source cursors/routes, release paragraph planning guards, emit children speculatively or repeat source events. All refusal paths retain their existing traversal.
 
 Require new module RED→GREEN for following prose and one-origin capture, all72 actual PDF/SVG controls at unchanged0.001pt, original R8/refusal/effect-once and A–H/R1–R7 preservation, both build profiles, resources and full workspace/lineage validation.
+
+
+## Readiness: boundary between bullet and numbered lists
+
+### Measurement before classification
+
+`readiness-fixes-2026-10-28/followup-baseline/receipt.json` binds exact UTC,
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted diffstat, fixture
+hashes and preserved release/source archive at pin64c5e8c02fe0394d913ead36e42ef8c1334d2107.
+Its layout/eval source equality check excludes only the already-updated test
+module. sentinel-positions.json retains the exact receipt hash. Bullet→Enum
+and Enum→Bullet both place GAMMA at46.180pt versus52.230pt; continuous groups
+coincide. An explicit blank line does not change the required inter-group gap.
+spacing40pt needs+32.85pt; leading20pt/spacing5pt needs−15pt. Thus a clamp to
+nonnegative correction would be refuted by the measured control. The original
+quickstart displacement begins at this same boundary. `sequence.rs:246–255`
+recognizes only an explicit Parbreak within the same item group. Pinned
+flow/collect.rs:253–260 gives default block boundaries par.spacing. These are
+language geometry observations, not a required upstream grouping algorithm.
+Term/List controls also reveal missing Term paint and remain separate negatives;
+do not include Terms in this correction or claim generic list completeness.
+
+### Exclusive responsibility and acceptance
+
+At an actual adjacent Bullet↔Enum boundary, replace the preceding line-leading
+contribution with the effective paragraph spacing: add signed spacing−leading
+once to the existing cursor before dispatch. Resolve lengths in the current
+11pt/default or explicit current style; no forced positive clamp. Space,
+SpaceFromNewline and an intervening Parbreak must not duplicate that boundary.
+Reset only loose-item spacing state for the new group, preserving marker/body
+placement and existing enum lifetime. Same-group continuation and its existing
+explicit-Parbreak behavior stay separate. Existing transparent wrappers/source
+routes, plans, block/fraction/bidi guards and one dispatch per child remain.
+
+Test public layout positions in both directions against continuous controls,
+with and without blank lines, default and custom positive/negative corrections;
+retain same-group spacing controls and enum counter tests. Real RED precedes
+the body change. Revalidate original quickstart words/pages/0.001pt positions
+and independent PDF/SVG paint, prior negatives and all suites/lineage/resource
+gates. This is internal ADR0127 parity flow: no public field/signature, mode,
+phase or compatibility change. No term, nested-list or arbitrary-marker parity
+is certified from these measurements.
+
+
+### Actual item-body scope, not only direct text
+
+The frozen list-build.json/source archive and list-candidate/receipt.json bind
+exact source/binary/UTC/HEAD/diffstat. The two direct-list controls now match,
+including signed leading20/spacing5; original quickstart remains6.05pt early.
+`eval/markup.rs:151–170` constructs item bodies by eval_markup_body, and
+`list_item.rs:77–83`/`enum_item.rs:93–100` dispatch that body through the exact
+existing typed child edge. A body Sequence can clear last_seen_item_group at
+`sequence.rs:280–290`; an inline Equation prevents the pure text fast path.
+The source-level quickstart thus refutes closure from the direct-text tests.
+
+Sequence owns sibling grouping. Around the dispatch of each recognized List or
+Enum item, preserve its already-established outer last_seen_item_group and
+parbreak_since_last_item, clear those two fields for its body traversal, then
+restore them after that child returns. This scopes the metadata, not content,
+execution, marker/numbering, loose-state, plans or page events. Keep one real
+child dispatch and its existing typed edge. Do not infer body text, rewrite
+source, change enum_counter lifetime, or expand Terms/nested numbering parity.
+The internal body must not erase the outer group or inherit it as a preceding
+sibling. Add a real layout RED with a Sequence body containing inline math,
+in both list directions, retaining continuous/signed-spacing controls. Original
+quickstart and independent painting remain mandatory before claiming closure.
+
+The list-group source-shaped integration controls live in the existing test-only
+consumer owned by 00_nucleo/prompts/core/compiler/layout/tests.md. This owner
+retains sibling coordination; do not duplicate their test bodies here.
+
+
+## Template paragraph geometry — measured repair 2026-10-29
+
+### Measurement before decision
+
+The immutable table-alignment-build1/source archive and
+readiness-fixes-2026-10-28/template-isolation1, template-scope-before and
+ template-explicit-before receipts preserve exact inputs/HEAD/dirty stat,
+UTC, source/asset/binary hashes and pinned64c5e8c0 native coordinates.
+Whole show and direct function call have identical defects: title is centered,
+but author stays at the title's left edge. Plain one19pt wrapper before a
+paragraph break places AUTHOR9.6pt too high; two sibling19pt wrappers or mixed
+19/8 keep the correct11pt common paragraph spacing. A shared two-word19pt
+wrapper still needs9.6pt more; custom2em needs16pt, absolute25pt stays unchanged.
+An explicit Par around the19pt run intentionally keeps11pt outer paragraph
+spacing in native; it is a control, not an equivalent replacement. These
+observations support lexical common scope, not maximum/run-value consensus.
+Current sequence.rs:347 closes shared segments only for Block/Align;
+placement.rs:152 refuses Parbreak in an otherwise textual Align body.
+
+### Exclusive amendment
+
+Before an actual Parbreak, close the known full preceding textual segment
+under the existing shared_chain/close_segment protocol; partial descent uses
+its existing exterior owning chain. Then dispatch the original Parbreak once.
+The second boundary sees no causal line and adds no second marker/margin. Do
+not alter explicit Par ownership, infer a scope from equal sibling styles,
+choose a maximum font, execute bodies twice, or move callbacks/phases. Unknown
+segments keep fallback. Keep exact source routes, counters/grouping, default
+planning strategy, bidi/fraction/h-space and restoration. Add pure physical RED
+for shared19pt versus explicit-root-Par/sibling/mixed controls, custom2em and
+absolute25pt, before the implementation.
+
+### Acceptance and limits
+
+ADR-0127 continuous internal language-parity correction: no public field,
+method/signature, dependency, flag, mode or eval/layout phase move. Require
+co-located genuine RED→GREEN, unchanged prior scope/align/Repeat/Figure/Table
+and source/planning/rollback controls, full core and twelve stable-batch gates.
+Rebuild original local-template and all retained controls, compare native
+PDF/SVG/words/pages/0.001pt/paint without normalization. Explicit Linebreak's
+separate mixed-size vertical mismatch remains open; admitting Parbreak does
+not certify it. Keep opaque text-scope refusals, no guessed coordinates, new
+frame scanning or linter suppressions. JPEG/historical gates remain required.

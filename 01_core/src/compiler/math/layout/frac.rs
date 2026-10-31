@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/frac.md
-//! @prompt-hash 3460e9fe
+//! @prompt-hash ba0cc57e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -60,20 +60,26 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             .constants
             .to_pt(self.constants.skewed_fraction_vertical_gap, style.size)
             .val();
-        let slash_target_pt = num_box.height().max(den_box.height()) + vertical_gap;
-        let slash_target_du = slash_target_pt / style.size.val() * self.constants.upem;
+        let operand_height = num_box.height() + den_box.height() + vertical_gap;
+        let slash_target_du = operand_height / style.size.val() * self.constants.upem;
         let slash_box = self.layout_stretchy_delimiter('⁄', slash_target_du, style);
-        let num_y = -vertical_gap / 2.0;
-        let den_y = vertical_gap / 2.0;
-        let slash_x = num_box.width + horizontal_gap / 2.0;
-        let den_x = slash_x + slash_box.width + horizontal_gap / 2.0;
-        let width = den_x + den_box.width;
-        let ascent = (num_box.ascent - num_y)
-            .max(slash_box.ascent)
-            .max(den_box.ascent - den_y);
-        let descent = (num_box.descent + num_y)
-            .max(slash_box.descent)
-            .max(den_box.descent + den_y);
+        let height = operand_height.max(slash_box.height());
+        let axis = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        // ref: lab/typst-original/crates/typst-layout/src/math/fraction.rs:179
+        let baseline = height / 2.0 + axis;
+        // ref: lab/typst-original/crates/typst-layout/src/math/fraction.rs:155
+        let vertical_offset = (slash_box.height() - operand_height).max(0.0) / 2.0;
+        let num_y = vertical_offset + num_box.ascent - baseline;
+        let den_y =
+            vertical_offset + num_box.height() + vertical_gap + den_box.ascent - baseline;
+        // ref: lab/typst-original/crates/typst-layout/src/math/fraction.rs:159
+        let slash_y = (height - slash_box.height()) / 2.0 + slash_box.ascent - baseline;
+        // ref: lab/typst-original/crates/typst-layout/src/math/fraction.rs:159
+        let slash_left = num_box.width + horizontal_gap / 2.0 - slash_box.width / 2.0;
+        let horizontal_offset = (-slash_left).max(0.0);
+        let den_left = num_box.width + horizontal_gap;
+        let width = (den_left + den_box.width).max(slash_left + slash_box.width)
+            + horizontal_offset;
         let mut items = Vec::with_capacity(
             num_box.items.len() + slash_box.items.len() + den_box.items.len(),
         );
@@ -81,21 +87,22 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             num_box
                 .items
                 .into_iter()
-                .map(|item| offset_item(item, Pt(0.0), Pt(num_y))),
+                .map(|item| offset_item(item, Pt(horizontal_offset), Pt(num_y))),
         );
+        items.extend(slash_box.items.into_iter().map(|item| {
+            offset_item(item, Pt(slash_left + horizontal_offset), Pt(slash_y))
+        }));
         items.extend(
-            slash_box
-                .items
-                .into_iter()
-                .map(|item| offset_item(item, Pt(slash_x), Pt(0.0))),
+            den_box.items.into_iter().map(|item| {
+                offset_item(item, Pt(den_left + horizontal_offset), Pt(den_y))
+            }),
         );
-        items.extend(
-            den_box
-                .items
-                .into_iter()
-                .map(|item| offset_item(item, Pt(den_x), Pt(den_y))),
-        );
-        MathBox { width, ascent, descent, items }
+        MathBox {
+            width,
+            ascent: baseline,
+            descent: height - baseline,
+            items,
+        }
     }
 
     #[cfg(test)]
@@ -375,4 +382,121 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 mod smoke {
     #[test]
     fn module_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod readiness_math_tests {
+    use super::super::MathLayouter;
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::math_constants::MathConstants;
+    struct GeometryMetrics {
+        wide: bool,
+    }
+    impl FontMetrics for GeometryMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            if self.wide && text == "⁄" {
+                Pt(40.0)
+            } else {
+                FixedMetrics.advance(text, size, style)
+            }
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if self.wide && text == "⁄" {
+                (Pt(30.0), Pt(10.0))
+            } else {
+                FixedMetrics.text_ink_bounds(text, size, style)
+            }
+        }
+        fn math_constants(&self, _: &TextStyle) -> MathConstants {
+            let mut c = MathConstants::fallback();
+            c.upem = 1000.0;
+            c.axis_height = 250.0;
+            c.skewed_fraction_vertical_gap = 200.0;
+            c.skewed_fraction_horizontal_gap = 400.0;
+            c
+        }
+    }
+    fn position(b: &MathBox, wanted: &str) -> Point {
+        b.items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. }
+                    if text == wanted =>
+                {
+                    Some(*pos)
+                }
+                _ => None,
+            })
+            .expect("painted operand")
+    }
+    fn close(a: f64, b: f64) {
+        assert!((a - b).abs() < 1e-8, "{a} vs {b}");
+    }
+    #[test]
+    fn readiness_math_skewed_ink_separation_uses_vertical_font_gap() {
+        let m = GeometryMetrics { wide: false };
+        let s = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&m, false, &s);
+        let a = Content::MathText("A".into());
+        let b = Content::MathText("B".into());
+        let num = l.layout_node(&a, &l.numerator_style(&s));
+        let den = l.layout_node(&b, &l.denominator_style(&s));
+        let out = l.layout_frac_skewed(&a, &b, &s);
+        let ap = position(&out, "A");
+        let bp = position(&out, "B");
+        close((bp.y.val() - den.ascent) - (ap.y.val() + num.descent), 2.0);
+    }
+    #[test]
+    fn readiness_math_skewed_operand_horizontal_gap_excludes_slash_width() {
+        let m = GeometryMetrics { wide: false };
+        let s = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&m, false, &s);
+        let a = Content::MathText("A".into());
+        let b = Content::MathText("B".into());
+        let num = l.layout_node(&a, &l.numerator_style(&s));
+        let out = l.layout_frac_skewed(&a, &b, &s);
+        close(position(&out, "B").x.val() - position(&out, "A").x.val() - num.width, 4.0);
+    }
+    #[test]
+    fn readiness_math_skewed_axis_and_total_operand_height() {
+        let m = GeometryMetrics { wide: false };
+        let s = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&m, false, &s);
+        let a = Content::MathText("A".into());
+        let b = Content::MathText("B".into());
+        let num = l.layout_node(&a, &l.numerator_style(&s));
+        let den = l.layout_node(&b, &l.denominator_style(&s));
+        let out = l.layout_frac_skewed(&a, &b, &s);
+        close(out.height(), num.height() + den.height() + 2.0);
+        close(out.ascent - out.descent, 5.0);
+    }
+    #[test]
+    fn readiness_math_skewed_large_slash_compensates_horizontal_and_vertical_overflow() {
+        let m = GeometryMetrics { wide: true };
+        let s = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&m, false, &s);
+        let out = l.layout_frac_skewed(
+            &Content::MathText("A".into()),
+            &Content::MathText("B".into()),
+            &s,
+        );
+        close(out.width, 40.0);
+        close(out.height(), 40.0);
+        close(out.ascent, 22.5);
+        close(out.descent, 17.5);
+        close(position(&out, "⁄").x.val(), 0.0);
+        close(position(&out, "⁄").y.val() - 10.0, -2.5);
+        assert!(position(&out, "A").x.val() > 0.0);
+    }
 }

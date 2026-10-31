@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 8b48e9ff
+//! @prompt-hash 65a87a9a
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -20,6 +20,34 @@ use super::{FontMetrics, ImageSizer, Layouter};
 pub(super) struct InlineRegion {
     offset: f64,
     width: f64,
+    unbreakable: bool,
+    stack_bottom: Option<StackBoundary>,
+}
+
+#[derive(Clone, Copy)]
+struct StackBoundary {
+    page: usize,
+    column: usize,
+    bottom: f64,
+}
+
+/// Nearest declared Block bottom, inherited through Auto Blocks in this region.
+pub(super) fn stack_region_bottom<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+) -> Option<f64> {
+    let boundary = layouter.block_inline_region?.stack_bottom?;
+    (boundary.page == layouter.pages.len()
+        && boundary.column == layouter.current_column
+        && boundary.bottom.is_finite())
+    .then_some(boundary.bottom)
+}
+
+/// Whether ordinary flow may fragment in the current Block context.
+pub(super) fn allows_fragmentation<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+) -> bool {
+    !layouter.is_sub_frame
+        && !layouter.block_inline_region.is_some_and(|region| region.unbreakable)
 }
 
 /// Reinstall the active body's horizontal geometry in the current region.
@@ -168,7 +196,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // página inteira, emit normal (paridade vanilla
     // "overlong atómico"). Default `breakable: true` preserva
     // comportamento P156G literal.
-    if !*breakable {
+    if !*breakable && allows_fragmentation(layouter) {
         let avail_w =
             (resolved_width.unwrap_or(outer_width) - inset_left - inset_right).max(0.0);
         let (_, body_h) = layouter.measure_content_constrained(body, avail_w);
@@ -224,7 +252,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         crate::entities::layout_types::HAlign::Left
     });
-    let block_origin_x = if let Some(w_pt) = resolved_width {
+    let captured_parent = layouter.piece_alignment.is_some();
+    let block_origin_x = if captured_parent {
+        saved_line_start
+    } else if let Some(w_pt) = resolved_width {
         let outer_width = w_pt;
         match container_alignment {
             crate::entities::layout_types::HAlign::Right => {
@@ -313,19 +344,37 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         inner_w,
         (resolved_height.unwrap_or(outer_height) - inset_top - inset_bottom).max(0.0),
     ));
+    let inherited_unbreakable =
+        layouter.block_inline_region.is_some_and(|region| region.unbreakable);
+    let stack_bottom = resolved_height
+        .map(|height| inner_origin_y + (height - inset_top - inset_bottom).max(0.0))
+        .or_else(|| stack_region_bottom(layouter))
+        .map(|bottom| StackBoundary {
+            page: layouter.pages.len(),
+            column: layouter.current_column,
+            bottom,
+        });
     let previous_inline_region = layouter.block_inline_region.replace(InlineRegion {
         offset: layouter.regions.current.line_start_x.0
             - layouter.page_config.margin.left,
         width: inner_w,
+        unbreakable: inherited_unbreakable || !*breakable,
+        stack_bottom,
     });
     let previous_indent = super::paragraph_indent::enter_fragment(layouter, body);
     let previous_planning =
         std::mem::replace(&mut layouter.paragraph_planning_suppressed, false);
+    let saved_piece_alignment = layouter.piece_alignment.take();
+    if captured_parent && resolved_width.is_none() {
+        layouter.piece_alignment = Some(super::repeat::PieceAlignment::new(inner_w));
+    }
     layouter.layout_planned_child(
         crate::compiler::introspect::page_running::PlanEdge::BlockBody,
         body,
     );
     layouter.flush_line();
+    let body_piece_alignment = layouter.piece_alignment.take();
+    layouter.piece_alignment = saved_piece_alignment;
     layouter.paragraph_planning_suppressed = previous_planning;
     layouter.paragraph_indent = previous_indent;
     layouter.block_inline_region = previous_inline_region;
@@ -345,6 +394,26 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             outer_w
         }
     });
+    if same_region {
+        super::divider::resolve_from(
+            layouter,
+            items_before,
+            block_origin_x.0 + allocated_w - inset_right
+                + layouter.page_config.margin.right,
+        );
+    }
+    if let Some(scope) = body_piece_alignment {
+        let inner_width = (allocated_w - inset_left - inset_right).max(0.0);
+        let decorations = layouter
+            .decoration_lines_collector
+            .as_mut()
+            .map_or(&mut [][..], |segments| &mut segments[deco_before..]);
+        scope.settle(
+            &mut layouter.regions.current.current_items,
+            decorations,
+            inner_width,
+        );
+    }
     let root_height = same_region.then(|| {
         let causal_h = (layouter.flow_placement_y().unwrap_or(inner_origin_y)
             - inner_origin_y)
@@ -549,7 +618,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if let Some(ref s) = stroke {
             if s.overhang {
                 // rationale: P1064 Classe 1B — semi-espessura de traço (thickness / 2.0)
-                let ov = s.thickness / 2.0;
+                let ov = s.thickness.resolve_pt(layouter.style.size.val()) / 2.0;
                 pos.x = pos.x - Pt(ov);
                 pos.y = pos.y - Pt(ov);
                 outer_w += 2.0 * ov;
@@ -647,6 +716,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.record_flow_baseline(baseline);
     }
     layouter.record_flow_width_at(block_origin_x.0, allocated_w);
+    if root_height.is_some() {
+        if let Some(scope) = layouter.piece_alignment.as_mut() {
+            let count = layouter.regions.current.current_items.len() - items_before;
+            let free = saved_width
+                - layouter.page_config.margin.right
+                - saved_line_start.0
+                - allocated_w;
+            let operation =
+                scope.register_frame(items_before, count, container_alignment, free);
+            if let Some(segments) = layouter.decoration_lines_collector.as_mut() {
+                for segment in &mut segments[deco_before..] {
+                    segment.piece_line = Some(operation);
+                }
+            }
+        }
+    }
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
@@ -1165,4 +1250,208 @@ pub(super) fn commit_prepared_frame<M: FontMetrics, S: ImageSizer>(
     }
     layouter.record_flow_width_at(origin.x.0, width);
     origin
+}
+
+#[cfg(test)]
+mod issue_8790_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Color, PageMarginSpec, PageMargins, PagedDocument, Rect},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn block(body: Content, height: f64, breakable: bool, clip: bool) -> Content {
+        let Content::Block(mut e) = Content::block(
+            body,
+            Some(Length::pt(140.0)),
+            Some(Length::pt(height)),
+            Sides::uniform(Length::ZERO),
+            breakable,
+        ) else {
+            unreachable!()
+        };
+        let e_mut = Arc::make_mut(&mut e);
+        e_mut.clip = clip;
+        e_mut.above = Some(Length::ZERO);
+        e_mut.below = Some(Length::ZERO);
+        Content::Block(e)
+    }
+    fn children() -> Vec<Content> {
+        (1..=5)
+            .map(|i| {
+                let Content::Block(mut e) =
+                    block(Content::text(format!("item{i}")), 22.0, true, false)
+                else {
+                    unreachable!()
+                };
+                Arc::make_mut(&mut e).fill = Some(Color::rgb(i, 0, 0));
+                Content::Block(e)
+            })
+            .collect()
+    }
+    fn setup<'a>(
+        intr: &'a dyn Introspector,
+    ) -> Layouter<'a, super::super::FixedMetrics, NullImageSizer> {
+        let mut l =
+            Layouter::new(super::super::FixedMetrics, NullImageSizer, 9.0, intr.track());
+        l.page_config.width = 160.0;
+        l.page_config.height = 90.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 160.0;
+        l.regions.current.height = 90.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l
+    }
+    fn bars(doc: &PagedDocument) -> Vec<(usize, f64)> {
+        doc.pages
+            .iter()
+            .enumerate()
+            .flat_map(|(page, frame)| {
+                super::super::tests::frame_items_recursive(&frame.items)
+                    .into_iter()
+                    .filter_map(move |item| match item {
+                        FrameItem::Shape { pos, height, fill: Some(_), .. }
+                            if (*height - 22.0).abs() < 1e-8 =>
+                        {
+                            Some((page, pos.y.0))
+                        }
+                        _ => None,
+                    })
+            })
+            .collect()
+    }
+    #[test]
+    fn issue_8790_unbreakable_stack_retains_five_sequential_children() {
+        let intr = TagIntrospector::empty();
+        for dir in [Dir::TTB, Dir::BTT] {
+            for clip in [false, true] {
+                let mut l = setup(&intr);
+                l.layout_content(&block(
+                    Content::stack(children(), dir, None),
+                    70.0,
+                    false,
+                    clip,
+                ));
+                let doc = l.finish();
+                assert_eq!(doc.pages.len(), 1, "dir={dir:?} clip={clip}");
+                let expected = if dir == Dir::BTT {
+                    vec![58.0, 36.0, 14.0, -8.0, -30.0]
+                } else {
+                    vec![10.0, 32.0, 54.0, 76.0, 98.0]
+                };
+                assert_eq!(
+                    bars(&doc),
+                    expected.into_iter().map(|y| (0, y)).collect::<Vec<_>>()
+                );
+            }
+        }
+    }
+    #[test]
+    fn issue_8790_btt_single_region_uses_finite_anchor_without_capping_children() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        l.is_sub_frame = true;
+        l.block_place_region = Some(Rect {
+            x: Pt(10.0),
+            y: Pt(10.0),
+            w: Pt(140.0),
+            h: Pt(70.0),
+        });
+        l.layout_content(&Content::stack(children(), Dir::BTT, None));
+        l.is_sub_frame = false;
+        let doc = l.finish();
+        assert_eq!(
+            bars(&doc),
+            vec![(0, 58.0), (0, 36.0), (0, 14.0), (0, -8.0), (0, -30.0)]
+        );
+    }
+    #[test]
+    fn issue_8790_breakable_stack_retains_existing_fragmentation() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        l.layout_content(&block(
+            Content::stack(children(), Dir::BTT, None),
+            70.0,
+            true,
+            false,
+        ));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 2);
+        assert_eq!(bars(&doc).len(), 5);
+    }
+    #[test]
+    fn issue_8790_nested_breakable_block_inherits_outer_atomic_region() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        let inner = block(Content::stack(children(), Dir::BTT, None), 70.0, true, false);
+        l.layout_content(&block(inner, 70.0, false, true));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(
+            bars(&doc),
+            vec![(0, 58.0), (0, 36.0), (0, 14.0), (0, -8.0), (0, -30.0)]
+        );
+    }
+    #[test]
+    fn issue_8790_parent_fragmentation_context_restores_after_block() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        l.layout_content(&block(
+            Content::stack(children(), Dir::TTB, None),
+            70.0,
+            false,
+            true,
+        ));
+        assert!(l.block_inline_region.is_none());
+        assert!(!l.is_sub_frame);
+        l.layout_content(&Content::text("TAIL"));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 2);
+        assert_eq!(bars(&doc).len(), 5);
+        assert!(super::super::tests::frame_items_recursive(&doc.pages[1].items)
+            .iter()
+            .any(
+                |item| matches!(item,FrameItem::Text {text,..} if text.as_str()=="TAIL")
+            ));
+    }
+    #[test]
+    fn issue_8790_auto_nested_stack_inherits_nearest_declared_bottom() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        let Content::Block(mut inner) =
+            block(Content::stack(children(), Dir::BTT, None), 70.0, false, false)
+        else {
+            unreachable!()
+        };
+        Arc::make_mut(&mut inner).height = None;
+        l.layout_content(&block(Content::Block(inner), 70.0, false, true));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(
+            bars(&doc),
+            vec![(0, 58.0), (0, 36.0), (0, 14.0), (0, -8.0), (0, -30.0)]
+        );
+    }
+    #[test]
+    fn issue_8790_explicit_inner_height_wins_over_outer_height() {
+        let intr = TagIntrospector::empty();
+        let mut l = setup(&intr);
+        let inner =
+            block(Content::stack(children(), Dir::BTT, None), 120.0, false, false);
+        l.layout_content(&block(inner, 70.0, false, true));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(
+            bars(&doc),
+            vec![(0, 98.0), (0, 76.0), (0, 54.0), (0, 32.0), (0, 10.0)]
+        );
+    }
 }

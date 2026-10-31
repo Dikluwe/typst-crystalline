@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/line_cap_tests.md
-//! @prompt-hash ec1ad2d6
+//! @prompt-hash de7230ce
 //! @layer L3
 
 use super::*;
@@ -75,7 +75,9 @@ fn matrix_document(cap: Option<LineCap>) -> PagedDocument {
     augment.insert("vline".into(), Value::Int(1));
     if let Some(cap) = cap {
         let mut stroke = Stroke {
-            thickness: AUTO_STROKE_EM * DEFAULT_TEXT_SIZE_PT,
+            thickness: typst_core::entities::layout_types::Length::pt(
+                AUTO_STROKE_EM * DEFAULT_TEXT_SIZE_PT,
+            ),
             cap,
             ..Stroke::default()
         };

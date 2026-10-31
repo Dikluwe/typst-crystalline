@@ -1,5 +1,5 @@
 # L0 — introspect/walk
-Hash do Código: 4e146285
+Hash do Código: 02e3157d
 
 
 
@@ -7,6 +7,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/math/equation-membership.toml sha256:ca9db29aceb31c748330eb69e474c4e6a6a5c2a2d474d78dc5db52b30380464d
+- 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
 - 00_nucleo/prompts/_nuclei/realization-order.toml sha256:958649ea9ebdd471f101874ff8cf94feb995ee037c43eb6e2f1d1ad19a151ef3
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
@@ -715,3 +717,89 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Measured Equation membership and original snapshots (2026-10-29)
+
+### Measurement before decision and diagnosis
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/equation-kind-extra9/receipt.json`
+records native nested block counter(1,) versus product(2,), and native one Equation
+versus three product memberships. Fresh immutable product10, SHA
+681cea51ff5325b36fe1845f822c059ef8971a19b56f70bac4b921d8887937eb,
+is bound to full source/build/UTC/HEAD/dirty stat by math-private-build10.json
+and its source archive. `equation-membership-label-before11/receipt.json`
+measures native missing-label errors for inner references while product compiles;
+Flow Box and outer references succeed in both. Native nested styled/metadata
+cases have one Equation, product two.
+`equation-membership-original-before11/receipt.json` independently measures
+identity/show-set direct Metadata=M once in both; nested variants add an unwanted
+product Equation. Hiding or replacing the outer Equation yields metadata=[]
+natively but [M] in product, proving admission of stored original children.
+Pinned oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17
+and binary SHA22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34
+are checked by these receipts. Source, argv, UTC and exact state are retained.
+
+The existing generic contracts omitted Math-specific root eligibility and did
+not include Equation in the bounded original-only shallow policy. This is an L0
+coverage gap materialized in code, not merely hash drift. General semantic promises
+do not substitute for an explicit productive rule. Amend L0 first. Acceptance
+concerns language queries, counters, fields and errors, not Rust traversal identity.
+Before texts/hashes/HEAD/dirty stat/UTC are archived in membership-before11.json.gz.
+
+### Internal decision and preserved approvals
+
+Consume equation-membership and the measured external-flow-body nucleus. Keep
+all four readiness approvals exactly as ratified: no public surface change or
+phase move. This is ADR-0127 continuous language parity within the existing index
+construction boundary; compatibility there means binary/API. Private inherited
+Math provenance is not Figure-kind inference, evaluation or callback execution.
+No public field, trait/signature, arena, solver, default, retry or budget change.
+
+Preserve canonical raw body fields, original/visual identity and active source
+parents. Exclude only the nested Equation semantic root and its own label/counter;
+retain every actual descendant fact and all raw source phases/authority checks.
+Stored original Equation body is a snapshot, not an actual second child source;
+its fields stay intact. Root-only original and actual visual policies apply only
+to Equation in addition to the already documented Table/Block/Figure cases.
+Do not generalize to arbitrary originals, filter queries after population,
+deduplicate by value/text/hash, clear snapshots or suppress unknown packets.
+
+### Acceptance and remaining scope
+
+Functional RED then GREEN in legacy and typed-plan owners: nested root/counter,
+inline versus actual Flow boundaries, untouched canonical body, ignored inner
+label with no unreferencable fallback, preserved outer/Flow labels, hidden
+original Metadata absent and actual visual Metadata once at its actual Location.
+Retain strict missing/duplicate/foreign raw-source rejection and opaque math.
+Native-label diagnostic remains missing label; do not silently retarget it.
+All old tests/expectations stay. V15/V26 before V5/reverse seals; full warning-
+denying lint, all12 technical gates, actual fresh release, broad PDF/SVG/0.001pt
+and independent paint preservation, historical1720 and both original JPEG
+campaigns remain required for final qualification. No tolerance/flag/recipe hacks.
+Nested glyph painting and deferred Context own-show are separate remaining debts;
+this index correction does not certify full math or product parity.
+
+### Exclusive legacy traversal
+
+Carry inherited scope as private borrowed traversal data; keep the public walk
+signature and existing C007/C008 expectations, with no added arity suppression.
+Use an exhaustive private child-scope decision shared with the typed planner.
+Source/Located/Styled/ShowRecipe preserve incoming scope; Equation body is Math.
+At nested Equation skip own semantic root, drop its inherited root label and
+visit actual body. OriginalOnly Equation remains shallow; an actual visual
+Equation at its already registered canonical Location visits children only.
+Do not alter canonical snapshot, callbacks, language chain or allocator rules.
+
+## Approved issue 8954 — exclusive carrier reader migration
+
+The human-approved schema is recorded in approval.json, patch SHA
+18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20
+under lab/results/construction/diagnostics/issue-8954-2026-10-31/.
+carrier-audit-before.json.gz retains exact owner/source/UTC/dirty state. Manual
+Table readers currently inspect only legacy children/header/footer: with the
+new ordered stream this incorrectly certifies empty/context-free raw subtrees.
+In this owner's existing traversal/certificate use Complete visual cells, else
+authoritative Some(items), else legacy children/header/footer, and caption once.
+No parallel visitation, new allocation, context evaluation, phase or public API.
+Retain existing policies and negative certificates for all other carriers.

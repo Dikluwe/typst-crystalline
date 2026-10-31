@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 18dd7def
+//! @prompt-hash 7007af54
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -1286,7 +1286,7 @@ impl<'a> Session<'a> {
 
     // Eligibility is latched only from a reached source contribution and the
     // actual paginated target. It never executes a dormant producer.
-    fn select_repeat_physical_channel(&mut self, content: &Content, paged_module: bool) {
+    fn select_physical_channel(&mut self, content: &Content, paged_module: bool) {
         if self.running_enabled || self.target != EvalTarget::Paged {
             return;
         }
@@ -1295,15 +1295,14 @@ impl<'a> Session<'a> {
                 if parts.len() != targets.len() {
                     return;
                 }
-                parts
-                    .iter()
-                    .zip(targets)
-                    .any(|(part, html)| !html && page_running::has_reached_repeat(part))
+                parts.iter().zip(targets).any(|(part, html)| {
+                    !html && page_running::has_reached_physical_content(part)
+                })
             } else {
                 false
             }
         } else {
-            paged_module && page_running::has_reached_repeat(content)
+            paged_module && page_running::has_reached_physical_content(content)
         };
     }
 
@@ -1337,7 +1336,7 @@ impl<'a> Session<'a> {
                 }
             }
             let content = self.content();
-            self.select_repeat_physical_channel(&content, module.is_some());
+            self.select_physical_channel(&content, module.is_some());
             let physical = if self.running_enabled {
                 match self.physical_candidate(&content, input) {
                     Ok(candidate) => Some(candidate),
@@ -1500,7 +1499,7 @@ impl<'a> Session<'a> {
                         .next()
                         .and_then(|v| v.first())
                         .copied()
-                        .unwrap_or(0);
+                        .unwrap_or_else(|| logical_numbers.last().copied().unwrap_or(0));
                     let references = page_reference_pages(&content, &doc);
                     let (pages, numbering_warnings) = match realize_page_numberings(
                         self.world,
@@ -1669,7 +1668,7 @@ pub(super) fn prepare<'a>(
     session.running_enabled =
         module.is_some() && page_running::has_potential(&session.origin);
     let selected = session.discover();
-    session.select_repeat_physical_channel(&session.content(), module.is_some());
+    session.select_physical_channel(&session.content(), module.is_some());
     if selected || session.running_enabled {
         if session.impossible {
             (terminal(source, session.errors()), session.warnings())
@@ -1852,7 +1851,7 @@ pub(super) fn prepare_bundle(
         return (terminal(source, session.errors()), session.warnings());
     }
     session.discover();
-    session.select_repeat_physical_channel(&session.content(), false);
+    session.select_physical_channel(&session.content(), false);
     if session.impossible {
         return (terminal(source, session.errors()), session.warnings());
     }
@@ -3480,7 +3479,7 @@ BEFORE#box(width:80pt,height:16pt)[#repeat([#s.update(n=>n+1)#c.step()X#metadata
             );
             session.running_enabled = page_running::has_potential(&session.origin);
             session.discover();
-            session.select_repeat_physical_channel(&session.content(), true);
+            session.select_physical_channel(&session.content(), true);
             let (prepared, warnings) = session.stabilize(Some(&module));
             assert!(warnings.is_empty(), "header={header}: {warnings:?}");
             let prepared = prepared.expect("actual source physical candidate completes");
@@ -3569,5 +3568,219 @@ BEFORE#box(width:1fr,height:16pt)[#repeat([#s.update(n=>n+1)#c.step()X#metadata(
         assert!(compact.contains("STATE1COUNTER1LABELS1"), "{compact}");
         assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
         assert_eq!(doc.pages.len(), 1);
+    }
+}
+
+#[cfg(test)]
+mod readiness_physical_number_outline_tests {
+    use super::*;
+    use typst_core::entities::{
+        content::{RealizedContent, SetPageDelta},
+        elements::outline::OutlineTarget,
+        func::Func,
+        introspector::Introspector,
+        label::Label,
+        layout_types::{FrameItem, FrameVisitor, Point, TextStyle},
+        numbering::Numbering,
+    };
+
+    #[derive(Default)]
+    struct Texts(Vec<(String, Point, TextStyle)>);
+    impl Texts {
+        fn record(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { text, pos, style, .. }
+            | FrameItem::TextShaped { text, pos, style, .. } = item
+            {
+                self.0.push((text.to_string(), *pos, style.clone()));
+            }
+        }
+    }
+    impl FrameVisitor for Texts {
+        fn visit_text(&mut self, item: &FrameItem) {
+            self.record(item);
+        }
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            self.record(item);
+        }
+    }
+    fn compile(program: String) -> super::super::paged::PagedCompilation {
+        let world = crate::world::SystemWorld::for_stdin(std::env::temp_dir(), program)
+            .with_fonts(vec![crate::fonts::FontSlot::new_embedded(
+                "<DejaVu Sans physical number/outline source proof>".into(),
+                include_bytes!("../../fixtures/fonts/DejaVuSans.ttf").to_vec(),
+            )]);
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = super::super::paged::compile_to_paged_document_full_error_and_features_with_introspector(
+            &world, &source, false, Features::default(), &mut Timings::default(),
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+        result.unwrap_or_else(|errors| panic!("actual source must compile: {errors:?}"))
+    }
+
+    #[test]
+    fn readiness_physical_page_number_keeps_terminal_source_style() {
+        for pattern in ["1", "1 / 1"] {
+            for top in [false, true] {
+                for bold in [false, true] {
+                    let align = if top { ",number-align:top" } else { "" };
+                    let weight = if bold { ",weight:\"bold\"" } else { "" };
+                    let compiled = compile(format!("#set page(width:300pt,height:300pt,margin:20pt,numbering:\"{pattern}\"{align})\n#set text(font:\"DejaVu Sans\",size:17pt{weight})\nAlpha\n#pagebreak()\nBeta\n"));
+                    assert_eq!(compiled.document.pages.len(), 2);
+                    for (index, page) in compiled.document.pages.iter().enumerate() {
+                        let mut text = Texts::default();
+                        text.visit_items(&page.foreground);
+                        let actual = text
+                            .0
+                            .iter()
+                            .map(|row| row.0.as_str())
+                            .collect::<String>()
+                            .chars()
+                            .filter(|c| !c.is_whitespace())
+                            .collect::<String>();
+                        let expected = if pattern == "1" {
+                            (index + 1).to_string()
+                        } else {
+                            format!("{}/2", index + 1)
+                        };
+                        assert_eq!(
+                            actual, expected,
+                            "one original formatted number per source page"
+                        );
+                        assert!(!text.0.is_empty());
+                        for row in &text.0 {
+                            assert_eq!(row.2.size.0,17.0,"page={index},pattern={pattern},top={top}: numbering lost its lexical style");
+                            assert!(
+                                row.2.font.is_some(),
+                                "explicit page font must survive restoration"
+                            );
+                            if bold {
+                                assert!(
+                                    row.2.bold || row.2.weight == Some(700),
+                                    "bold page style must survive restoration"
+                                );
+                            }
+                        }
+                    }
+                    let body = compiled.document.plain_text();
+                    assert_eq!(body.matches("Alpha").count(), 1);
+                    assert_eq!(body.matches("Beta").count(), 1);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_physical_outline_ref_preserves_title_and_actual_query() {
+        for reference in [false, true] {
+            let suffix = if reference { "See @target." } else { "Text." };
+            let compiled=compile(format!("#set page(width:300pt,height:300pt,margin:20pt)\n#set text(font:\"DejaVu Sans\",size:11pt)\n#set heading(numbering:\"1.\")\n= Alpha <target>\n#outline(title:[CONTENTS])\n== Beta\n{suffix}\n#context [#metadata(query(<target>).len())<proof>]\n"));
+            let mut text = Texts::default();
+            for page in &compiled.document.pages {
+                text.visit_items(&page.items);
+            }
+            let titles: Vec<_> =
+                text.0.iter().filter(|row| row.0 == "CONTENTS").collect();
+            assert_eq!(titles.len(), 1, "one original Outline title");
+            let title = titles[0];
+            assert!(
+                !text.0.iter().any(|row| (row.1.y.0 - title.1.y.0).abs() < 1e-8
+                    && row.1.x.0 < title.1.x.0
+                    && !row.0.trim().is_empty()),
+                "Outline title inherited heading numbering, reference={reference}"
+            );
+            assert!(
+                text.0.iter().filter(|row| row.0 == ".").count() > 1,
+                "actual default fill must remain visible"
+            );
+            let location = compiled
+                .introspector
+                .query_by_label(&Label("proof".into()))
+                .expect("actual source metadata label");
+            let Some(Content::Metadata(metadata)) =
+                compiled.introspector.element_at(location)
+            else {
+                panic!("actual source query metadata");
+            };
+            assert_eq!(
+                metadata.value.as_ref(),
+                &Value::Int(1),
+                "one canonical source label after repeated outline display"
+            );
+        }
+    }
+
+    #[test]
+    fn readiness_physical_number_marginal_authority_and_dormant_template() {
+        for (extra, expected) in [
+            (",footer:none", ""),
+            (",footer:[CUSTOM]", "CUSTOM"),
+            (",number-align:top,header:none", ""),
+            (",number-align:top,header:[CUSTOM]", "CUSTOM"),
+        ] {
+            let compiled=compile(format!("#set page(width:300pt,height:300pt,margin:20pt,numbering:\"1\"{extra})\n#set text(font:\"DejaVu Sans\",size:17pt)\nAlpha\n#pagebreak()\nBeta\n"));
+            assert_eq!(compiled.document.pages.len(), 2);
+            for page in &compiled.document.pages {
+                let mut text = Texts::default();
+                text.visit_items(&page.foreground);
+                let actual = text.0.iter().map(|row| row.0.as_str()).collect::<String>();
+                assert_eq!(actual, expected, "explicit marginal remains authoritative");
+            }
+        }
+        let compiled=compile("#set page(width:300pt,height:300pt,margin:20pt,header:[#context panic(\"DORMANT\")])\n#set page(header:none,numbering:\"1\")\n#set text(font:\"DejaVu Sans\",size:17pt)\nAlpha\n#pagebreak()\nBeta\n".to_owned());
+        assert_eq!(
+            compiled.document.pages.len(),
+            2,
+            "overwritten template remains inert"
+        );
+    }
+
+    #[test]
+    fn readiness_physical_eligibility_is_reached_nominal_content() {
+        let heading_outline = Content::outline();
+        assert!(
+            page_running::has_potential(&heading_outline),
+            "reached heading Outline selects the approved protocol"
+        );
+        let pattern = Some(Some(Numbering::Pattern("1".into())));
+        let set = Content::SetPage(Arc::new(SetPageDelta {
+            numbering: pattern.clone(),
+            ..Default::default()
+        }));
+        assert!(page_running::has_potential(&set));
+        assert!(page_running::has_potential(&Content::page_run(
+            None,
+            None,
+            None,
+            pattern,
+            None,
+            Content::text("A")
+        )));
+        let Content::Outline(original) = heading_outline else { unreachable!() };
+        let mut other = original.as_ref().clone();
+        other.target = OutlineTarget::Figures;
+        let opaque = Func::native("inert-eligibility-function", |_, _, _, _| {
+            panic!("eligibility must not execute opaque functions")
+        });
+        for content in [
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::Outline(original),
+                visual: Content::Empty,
+            })),
+            Content::Outline(Arc::new(other)),
+            Content::SetPage(Arc::new(SetPageDelta {
+                numbering: Some(None),
+                ..Default::default()
+            })),
+            Content::SetPage(Arc::new(SetPageDelta {
+                numbering: Some(Some(Numbering::Func(opaque))),
+                ..Default::default()
+            })),
+            Content::Empty,
+        ] {
+            assert!(
+                !page_running::has_potential(&content),
+                "unreached, other-target or opaque work is not eligibility proof"
+            );
+        }
     }
 }

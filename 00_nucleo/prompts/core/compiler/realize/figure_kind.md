@@ -1,5 +1,5 @@
 # L0 — compiler/realize/figure_kind
-Hash do Código: 7595737d
+Hash do Código: c06f6d4d
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/realize/figure_kind.rs`.
 
@@ -40,3 +40,16 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Approved issue 8954 — exclusive carrier reader migration
+
+The human-approved schema is recorded in approval.json, patch SHA
+18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20
+under lab/results/construction/diagnostics/issue-8954-2026-10-31/.
+carrier-audit-before.json.gz retains exact owner/source/UTC/dirty state. Manual
+Table readers currently inspect only legacy children/header/footer: with the
+new ordered stream this incorrectly certifies empty/context-free raw subtrees.
+In this owner's existing traversal/certificate use Complete visual cells, else
+authoritative Some(items), else legacy children/header/footer, and caption once.
+No parallel visitation, new allocation, context evaluation, phase or public API.
+Retain existing policies and negative certificates for all other carriers.

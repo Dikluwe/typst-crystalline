@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "stack-frame-composition"
+title = "Stack child frames retain logical geometric extent"
+
+[[claims]]
+id = "logical-frame"
+level = "must"
+statement = "A Stack child is composed from its completed logical frame in geometric coordinates. For a positively certified non-text frame, its height is the causal placement end, including invisible flow extent and explicit allocation, not a font fallback, ink-only bounding box or prepared lower margin. Text and uncertified subframe routes retain their own text-edge/cursor policy; drawing width outside a clip is never logical child width."
+
+[[claims]]
+id = "scope"
+level = "must"
+statement = "The private Stack-specific subframe route isolates and restores the caller exactly as ordinary subframes do. It reports its own completed causal extent without changing the geometry/height policy of existing Ordinary, Footnote or Repeat routes. It does not re-evaluate content or introduce public fields, methods or phase changes."
+
+[[claims]]
+id = "source"
+level = "must"
+statement = "Actual child realization retains StackChild(source_index), source order and one layout per child. Preliminary measurement remains unplanned and effect-inert; coordinate composition is not a source address. Physical page transport and deferred effects require bilateral language tests, not an assumption that geometry alone proves source behavior."

@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "nonexpanding-math-frame"
+title = "Natural mathematical frames retain a finite wrapping constraint"
+
+[[claims]]
+id = "constraint"
+level = "must"
+statement = "A finite available width is a wrapping and relative-length constraint, not permission to include horizontal centering slack in an automatic frame's logical width. Keep actual source layout once; never use an infinite-width rerender or paint-only glyph bounds to discover intrinsic mathematical width."
+
+[[claims]]
+id = "allocation"
+level = "must"
+statement = "Unnumbered block mathematics in a nonexpanding horizontal frame contributes its measured logical equation extent before visual alignment. Centering resolves against that owning frame's completed width. Numbered block mathematics retains its finite region allocation; explicit-width descendants retain their allocation. Root, vertical Stack and inline equation policies remain independently owned."
+
+[[claims]]
+id = "transport"
+level = "must"
+statement = "Private automatic-width intent and deferred placement are isolated and restored through existing subframe and Block/Box boundaries. Source identities, callback counts, natural height, clipping, relative lengths, inherited styles and exterior pending entries are preserved; no public field, trait method, compiler phase, or product mode is added."

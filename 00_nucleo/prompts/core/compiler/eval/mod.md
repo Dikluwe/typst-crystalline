@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: c89ae1ed
+Hash do Código: f61a52ca
 
 
 **Layer:** L1
@@ -11,6 +11,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/selectorless-lexical-tail.toml sha256:71ad860813663f018ea800aa8b0da87299a4b48e5b91ff70238a1cfc5769c471
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
@@ -426,3 +427,42 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+## Selectorless lexical-tail completion (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/` preserves
+`selectorless-owner-audit-2026-10-29.json`, `selectorless-tail-before/`,
+`selectorless-flow-before/` and `selectorless-error-before/`. Their receipts bind
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a, exact uncommitted diffstat,
+qualified physical12 binary/source, source programs, UTC and pinned vanilla
+64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17.
+Current eval owners are unchanged from that measurement; layout14 changes do not
+explain the selectorless rejection. Native markup.rs:39–56 and code.rs:31–55
+apply the transformation to the remaining lexical tail; styles.rs:497–526
+displays its result. Current rules/show.rs:95–106 rejects absent selectors.
+The measured styles are declaration/body10/20 and nested12/14/18pt. Hidden
+selected child callbacks do not run; ordinary BODY errors precede APPLY. Open
+tails still call APPLY before Return/Break, returning RESULT or retaining WRAP LOST.
+Native function/arity diagnostics retain actual transformation/parameter spans.
+These are language semantics, morphology, effects and diagnostics, not Rust
+identity, upstream recursion or PDF-byte requirements. Each unchanged rejection,
+repeated effect, lost rich body/style, incorrect flow or origin refutes closure.
+
+### Classification and boundaries
+
+This completes the already named selectorless/general-tail pending scope in
+expression_dispatch. It is a private lexical evaluation operator through existing
+function calls. No existing selected recipe moves out of deferred realization,
+no eval/layout phase moves, and no public/default/compatibility contract changes.
+ADR-0127 continuous parity flow applies: owning L0 first, true functional RED,
+GREEN, valid shared graph, resealing and revalidation. Earlier broad language
+about deferring show recipes refers to selected recipes; this bounded lexical
+operator is specified here without authorizing eager selected-child application.
+
+### Exclusive responsibility
+
+Declare only the private child whole_recipe. Its own owner defines capture/application and tests. Preserve all EvalContext fields/public facades/defaults, selected-recipe capture, single source execution and realization selection. No helper algorithm migrates into this hub.
+
+Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.

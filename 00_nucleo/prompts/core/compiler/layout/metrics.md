@@ -1,7 +1,8 @@
 # L0 — metrics
-Hash do Código: 1c26d835
+Hash do Código: ddeb191e
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 
@@ -298,3 +299,27 @@ approved method, not another public contract/default/phase change.
 The provided resolved-run method converts requested tracking at outer size into an absolute paint tracking scaled by resolved paint_size/outer_size, preserving its sign. A zero/nonfinite outer size avoids division; existing capability and ordinary methods stay intact.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+Add exactly the approved default methods text_trailing_overhang(&self,
+text:&str,size:Pt,style:&TextStyle,ratios:&[(char,f64)])->Option<(Pt,usize)> and
+glyph_overhang(&self,font:&Font,glyph_id:u16,advance:Pt,ratios:&[(char,f64)])
+->Option<Pt>, both default None. Forward both explicitly through &dyn FontMetrics.
+The tuple is certified terminal optical advance in points and total actual glyph
+count. Preserve supplied size separately from style.size. None is absent proof.
+Font is the existing pure data type; no other public declaration is authorized.
+Tests cover default, direct and borrowed override and actual consumer dispatch.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.

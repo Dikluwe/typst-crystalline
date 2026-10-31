@@ -1,11 +1,12 @@
 # L0 — footnote
-Hash do Código: 3d4bfcc6
+Hash do Código: 70c67f9f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/footnote.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 ## Evidence before specification
@@ -215,3 +216,23 @@ Evidence before decision: candidate8-queued/receipt.json and candidate8-queued-o
 Exclusive owning obligation: The queued-note preservation refuter demonstrates that early painting is too broad. Following-prose preflight must perform baseline/group admission and genuine region transitions only, leaving fitting entries queued so later notes are stacked by the existing close-region collector. Do not flush a fitting whole entry in anticipation of prose. If first group does not fit the reserved region, advance normally; retain pending-work rank, and request the existing warning escape only after repeated no-progress in a genuinely empty region. Preserve a fitting final tail alongside main prose through its existing reservation, rather than painting it and forgetting its area.
 
 Require the new stacked-entry module RED→GREEN and all75 PDF/SVG controls at unchanged0.001pt, all original R8 and A–H/R1–R7 controls, full workspace/lint/lineage/resource gates. Keep failed eager-placement receipts immutable.
+
+
+## R12 — shared-flow footnote entry settings
+
+Measurement before decision: `lab/results/construction/diagnostics/footnote-entries-r12-2026-10-24/{baseline.json,received-source.json.gz,before/receipt.json,before-expanded/receipt.json,type-probes.json}` binds the received R11 dirty tree at HEAD212aed044, fixed oracle bd5ebec285505889e8ff1d4f68804ab147a699f3/tree cac836c07e4dec2a89219370428292393a3216b5/SHA9b237315..., sources, binaries, UTC and exact changed-file list. Original indent/gap are ignored; explicit separator:none retains a rule. The short clearance control alone is not an admission witness. Expanded54 sources include actual three-font settings, affine units, aliases, text/string/line separators, shared versus local and late scopes, and literal continuation. Clearance30pt at80pt page height yields three vanilla pages (carrier, empty region, complete entry); received yields one. Local block overrides and late settings do not change the shared entry configuration; a global2em indent also applies to an entry called under a local0pt override. Pinned rules.rs:400–410 resolves indent inside the85% entry; flow/mod.rs:275–282 resolves separator/clearance/gap from shared outer styles, and flow/compose.rs:645–677,794–833,977–994 uses actual separator height and gap for admission/placement. Integer lengths including0 are rejected, string separator accepted, positional and unknown settings rejected. These observed geometry/syntax/diagnostics are language; storage and dispatch mechanics need not mirror upstream.
+
+Classification: internal parity correction under ADR-0127 continuous flow. Keep all public entity fields, traits, signatures, modes and pipeline phases unchanged. New state is private layout state only, not a new language setting. Preserve the exact received R11 source and historical evidence outside this declared scope.
+
+Exclusive owning obligation: Own private entry settings resolution from the shared flow snapshot (falling back to the current chain only for existing direct internal calls). Preserve default indent1em at entry85% size and weak0.05em number gap; honor actual absolute/em indent. Resolve gap0.5em and clearance1em at outer size, and preserve explicit separator none versus default. Own the source-prefix snapshot helper, no Content reconstruction or speculative effects. Source carrier admission must use actual resolved overhead, with a finite positive effect-free separator probe; refuse opaque speculative capture. Keep ordinary body dispatch, numbering, original planned body cursor and effects exactly once. Literal/split and column admission retain received R9/R11 rules except for the actual configured footprint.
+
+Require source-bound assertional module RED→GREEN before runtime changes; actual PDF complete per-page words/page sizes and SVG glyph/rule geometry at unchanged0.001pt in debug/release; preserve original R8–R11 corpora and all A–H/R1–R7 language/render controls, full workspace/tests/Clippy/fmt/rustdoc, full lint and both lineage gates, resource/stress gates and received evidence. Configuration warnings and old unrelated limits remain explicit.
+
+### R12 measured separator probe refinement
+
+Candidate1/before receipts above measure the two unequal-font separator deltas while default and original entry controls pass. The finite pure separator probe must use the same existing geometric-origin subframe as the actual separator owner; otherwise admission and painting disagree on the source box. The new direct actual-separator-frame module test is RED before the change; keep opacity/effect refusal and the note-body capture path unchanged. Relative line(length:50%) is a measured pre-existing constructor limit, not certified by this owner; preserve the failing sources and test already-accepted absolute custom lines without changing the constructor or moving geometry between eval and layout.
+
+R12 separator-origin falsification: red-origin.log is a passing height control, not the promised failure. Candidate1 PDF rows show SEP alone displaced while FIRST/SECOND agree. Require the stronger actual baseline witness in the separator owner before changing either probe or paint use-site. Preserve the positive full-height assertion and do not count the first passing attempt as RED.
+
+
+R12 additional source boundary: further-scope/receipt.json under the R12 diagnostic group refutes retaining this private shared snapshot across the already-existing SetPage new_page transition after material. The set_page owner now exclusively invalidates it after flushing the old flow; this owner keeps its existing prefix/resolution logic and captured settings. Initial configuration and automatic pagination remain as received. Two new module REDs precede the hook, and final acceptance expands to58 positive PDF/SVG sources per build with fresh complete validation; first-scope-attempt retains the earlier valid source state.

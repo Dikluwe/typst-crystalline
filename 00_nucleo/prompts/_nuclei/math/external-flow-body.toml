@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "external-flow-body"
+title = "Measured external bodies within mathematical realization"
+[[claims]]
+id = "actual-parent-first"
+level = "must"
+statement = "Decide the actual parent's own replacement before changing its emitted child realization scope. An external parent replaced by an Equation leaves that replacement in its inherited Math scope; do not prepare hidden children."
+[[claims]]
+id = "measured-flow-bodies"
+level = "must"
+statement = "The emitted bodies of Paragraph, Heading, Title, ListItem, EnumItem, Box, Block, Pad, Footnote, Figure, Columns, Place, Grid, Transform, Stack, Repeat, Terms and TermItem use Flow realization. Quote with its existing explicit block field true also uses Flow; inline Quote preserves Math. Actually selected Table cells, including Cell replacement products, use Flow after the Table's own replacement and placement decisions."
+[[claims]]
+id = "preserved-math"
+level = "must"
+statement = "Preserve inherited Math through actual inline SmallCaps, Strong, Emph, Link, Align, Quote, Underline, Strike, Overline, Hide and Text style carriers. A standalone TableCell or GridCell also preserves inherited Math; it is not evidence for a Flow boundary without its actual selected parent. Preserve opaque structured math and all existing lexical provenance."
+[[claims]]
+id = "restore-and-once"
+level = "must"
+statement = "Save and restore the prior realization scope on success and error at the existing body or accepted-cell boundary. Keep own-show selection, callbacks, fields, placement, guards, source spans and once-only effects in their existing order; do not replay a completed visual or evaluate a hidden child to repair scope."
+[[claims]]
+id = "internal-and-bounded"
+level = "must-not"
+statement = "Add a public API, entity field, trait method, registry, mode, solver, allocation domain, context retry, pipeline phase or semantic snapshot flag for this correction. These measured body rules do not certify general contextual kind transport, query membership, nested rendering or every unmeasured element."

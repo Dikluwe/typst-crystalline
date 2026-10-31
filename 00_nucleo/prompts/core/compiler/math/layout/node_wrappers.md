@@ -1,5 +1,5 @@
 # L0 — Mathematical node wrapper layout
-Hash do Código: 62f1a84d
+Hash do Código: 4d2d2f89
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/node_wrappers.rs`
@@ -83,3 +83,84 @@ Other violations remain pending. Freeze sources during gates; MemoryMax 12 GiB,
 zero swap, one Cargo job, heavy commands sequentially. No commit/push/release or
 CI pin change. Lint closure does not prove RAM gain, AI-reading benefit or
 complete parity.
+
+
+## Explicit Large single-glyph axis and correction
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/
+math-class-large-before/receipt.json retains twelve actual sources, UTC,
+HEAD/dirty stat, immutable699b6e88 build/source and current oracle64c5e8c0.
+class-large-findings-before-decision.json records original docs-class's single
+remaining union y delta0.46201pt, also present in inline/direct/scripting controls.
+Large x inline differs0.37952pt; display and multiglyph controls coincide; quoted
+Large x display differs0.088pt in x. node_wrappers.rs:14 never centers class
+Large and still adds nonextended italic correction. Pinned ir/item.rs:243–260
+assigns explicit class to a Glyph; typst-layout/math/text.rs:115–120 centers
+Large on the font axis; glyph.rs:328 defines centering. Visible single-glyph
+class behavior is language/render meaning; internal frame structures are free.
+
+### Exclusive correction and limits
+
+For the existing recognized single-math-leaf body of class Large, use the
+existing apply_axis_offset helper at the same layout phase and retain body
+height/paint/Source. Preserve all existing italic correction/width and extended
+checks for every class, including Large.
+Multi-glyph/unrecognized framed bodies keep their prior path. Preserve all
+other style-axis/size/Source/width behavior. This bounded clause supersedes only historical no-class-geometry wording;
+all-class IC preservation and prior axis rules remain intact.
+No new public field/method/signature, stretch helper, font selection, default
+mode or phase is introduced. In particular general Large Display stretching
+and Equation-wrapper recognition remain open; do not broaden leaf eligibility.
+
+Require physical RED for axis/paint baseline; keep Large and ordinary class IC
+advance and multiglyph frames as independent unchanged controls. GREEN, real bilateral inline/display/
+script/original-doc and glyph/style controls precede final qualification.
+Keep quoted-bold, other framed cases and other existing negatives explicit.
+Continuous ADR-0127 L0-first; full twelve gates/history/JPEG original criteria.
+
+
+### Extra source check refutes the initial IC hypothesis
+
+Before any residual RED or implementation, pinned glyph.rs:210–218 was checked:
+italic correction is added whenever the glyph is not extended, independent of
+Large. The initial inference to suppress Large IC was therefore wrong, and its
+unexecuted L0/test draft is archived in class-large-unrun-draft-refuted.json.gz.
+Retain the already observed quoted-Large string x difference as an open negative;
+its cause is not established. No productive implementation ever adopted that
+hypothesis. The correction is limited to existing-leaf axis centering.
+
+
+## Prose counterexample narrows Large glyph eligibility
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/
+math-private-visual-delta2.json compares934 prior criteria after actual375-case
+build2/releasefeffd641/source. One case (#math.class("large", [x])) regresses
+three previously passing criteria:0.3795pt,262PDF/244SVG pixels. Its unchanged
+fixture was exact in build1. In contrast original docs-class now passes boxes/
+PDF after Symbol centering (SVG16pixels remains negative). Pinned ir/item.rs:
+243–260 updates the explicit class on MathKind::Glyph; text kind retains its own
+class in typst-layout/math/text.rs:104–120. Treating every existing single-leaf
+carrier as a mathematical Symbol was too broad. class-large-prose-regression-
+before.json.gz retains the exact failed source/L0 and measured delta authority.
+
+### Exclusive repair and acceptance
+
+Narrow the newly added centering to an existing native Content::Symbol with one
+recognized scalar, transparently under Source. Preserve all prior IC/extended
+logic and every prior Text/MathText/MathIdent/multiglyph/framed baseline. No
+string/font-name/glyph-id/fixture test is allowed. The representation expresses
+mathematical Symbol versus prose Text, not a Rust equality acceptance criterion.
+This replaces only the overly broad new centering predicate. Do not broaden
+legacy leaf eligibility or general Display stretching in this repair.
+
+Add a meaningful prose Text baseline control and require it to fail against
+build2 implementation before narrowing. Retain the already green Symbol axis,
+IC and multiglyph tests. Then full core, source-bound bilateral unchanged
+#math.class("large",[x]) plus original docs and all prior375 criteria with no
+lost positive. Keep extraction grouping/raster residues explicitly negative.
+Internal parity repair remains continuous ADR-0127 without new public/default/
+phase/compatibility API. L0 first and all final original gates remain binding.

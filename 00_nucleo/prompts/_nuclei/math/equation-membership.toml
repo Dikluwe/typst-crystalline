@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "equation-membership"
+title = "Actual equation membership in inherited Math scope"
+[[claims]]
+id = "nested-root"
+level = "must"
+statement = "An Equation entered in existing Math scope retains its canonical carrier and raw fields but contributes no independent equation query member, counter action or label association. Its actually emitted descendants remain eligible. Equation body enters Math; measured external bodies reset to Flow, while inline carriers and standalone cells preserve scope."
+[[claims]]
+id = "snapshot-versus-emission"
+level = "must"
+statement = "A Realized original Equation is a root-only immutable language snapshot. Never admit its stored body as a second actual emission. Visit actual visual descendants exactly once, including a visual Equation sharing the canonical root Location; retain the original raw body unchanged."
+[[claims]]
+id = "label"
+level = "must"
+statement = "A label attached to a transparent nested Equation is ignored with that unprepared root, not transferred to its parent or descendants and not registered as an unreferencable label. Flow-body equations and outer labels keep existing identity and reference behavior."
+[[claims]]
+id = "protocol"
+level = "must"
+statement = "Keep existing allocation and complete raw Root/PostChildren validation for every actual planned source packet, including a nested Equation whose semantic root is excluded. Original-only stored Equation bodies are not actual source children. Do not open opaque MathSequence descendants, execute callbacks, weaken read/position/authority validation, change retries or create a second identity domain."
+[[claims]]
+id = "internal"
+level = "must-not"
+statement = "Change public entity fields, trait methods, public signatures, product modes, pipeline phases or semantic snapshot schemas. Inherited scope is compiler-private traversal and source-plan provenance; public legacy entrypoints and the approved physical protocol remain intact."

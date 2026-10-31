@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/casting.md
-//! @prompt-hash 574bdc8a
+//! @prompt-hash e2a9af37
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -227,8 +227,8 @@ pub(crate) fn extract_sides_from_value(
 /// vanilla (Opção β); **P252** — defaults `overhang: true` (paridade
 /// vanilla user-facing; construtor Rust low-level usa `false` per
 /// ADR-0054 divergência consciente):
-/// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt(), overhang: true }`.
-/// - `Value::Color(c)` → `Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: true }` (default 1pt).
+/// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: crate::entities::layout_types::Length::pt(l.to_pt()), overhang: true }`.
+/// - `Value::Color(c)` → `Stroke { paint: Paint::Solid(c), thickness: crate::entities::layout_types::Length::pt(1.0), overhang: true }` (default 1pt).
 /// - `Value::from(s)` → `s.clone()` (preserva overhang do user).
 /// - Outros tipos: erro hard.
 ///
@@ -243,7 +243,7 @@ pub(crate) fn extract_stroke(
     use crate::entities::paint::Paint;
     let stroke = match val {
         Value::Length(l) => {
-            let thickness = l.abs.to_pt();
+            let thickness = *l;
             // P252 — vanilla default overhang=true para inputs stdlib
             // (cobertura Length atalho).
             Stroke {
@@ -255,7 +255,7 @@ pub(crate) fn extract_stroke(
         }
         Value::Color(c) => Stroke {
             paint: Paint::Solid(c.clone()),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: true,
             ..Stroke::default()
         },
@@ -272,12 +272,14 @@ pub(crate) fn extract_stroke(
             )])
         }
     };
-    if stroke.thickness <= 0.0 {
+    if stroke.thickness.abs.to_pt() <= 0.0 && stroke.thickness.em <= 0.0 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!(
                 "{}({}): thickness deve ser > 0 (recebeu {})",
-                fn_name, field, stroke.thickness
+                fn_name,
+                field,
+                stroke.thickness.abs.to_pt()
             ),
         )]);
     }

@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/ellipse
-Hash do Código: 123fd5b4
+Hash do Código: 95ae11dc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml sha256:016cad80570d8133fcb275e6e0f693e088dc921e4d6d907a51888898ae8b00ce
@@ -117,3 +117,41 @@ claim no descendant coverage for those carriers. Exact local dimensions/paint
 presence/stroke observations remain unchanged. The separate frozen paint corpus
 owns physical output bounds and cannot be replaced by this helper or its internal
 representation. Do not broaden productive geometry or weaken expected results.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

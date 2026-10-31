@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_flush.md
-//! @prompt-hash bf90ec1b
+//! @prompt-hash 1e4f74ab
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -17,7 +17,86 @@ use crate::entities::{
 use super::helpers::{item_pos, translate_frame_item};
 use super::metrics::FontMetrics;
 
+type EntryFrame = (
+    f64,
+    Vec<FrameItem>,
+    Vec<super::DecoSegment>,
+    Vec<super::PendingAlignXEntry>,
+    Vec<super::PendingAlignYEntry>,
+);
+
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    fn layout_entry_separator(
+        &mut self,
+        entry: &super::footnote::EntrySettings,
+        left_x: f64,
+        width: f64,
+    ) -> EntryFrame {
+        let Some(content) = &entry.separator else {
+            return (
+                0.0,
+                vec![FrameItem::Line {
+                    start: Point { x: Pt(left_x), y: Pt(0.0) },
+                    end: Point { x: Pt(left_x + width * 0.3), y: Pt(0.0) },
+                    thickness: entry.style.size.0 * 0.05,
+                    color: Some(crate::entities::color::Color::rgb(0, 0, 0)),
+                    cap: crate::entities::geometry::LineCap::Butt,
+                }],
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+            );
+        };
+        let style = std::mem::replace(&mut self.style, entry.style.clone());
+        let chain = std::mem::replace(&mut self.chain, entry.chain.clone());
+        let frame = self.layout_sub_frame_at_geometric_origin(
+            content,
+            super::sub_frame::SubLayoutRegion {
+                origin_x: left_x,
+                width,
+                height: None,
+                align_rtl: true,
+                unconstrained_height: true,
+            },
+        );
+        self.style = style;
+        self.chain = chain;
+        frame
+    }
+
+    fn place_entry_separator(&mut self, frame: EntryFrame, y: f64) -> f64 {
+        let (height, items, deco, orphaned_x, orphaned_y) = frame;
+        let base = self.regions.current.current_items.len();
+        for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_x {
+            path[0] += base;
+            self.pending_align_centering
+                .push((path, count, align, content_w, origin_x, applied_x));
+        }
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_y {
+            path[0] += base;
+            self.pending_align_v_centering.push((
+                path,
+                count,
+                align,
+                content_h,
+                origin_y + y,
+                dy,
+                applied_y + y,
+            ));
+        }
+        for mut item in items {
+            super::helpers::offset_frame_item(&mut item, 0.0, y);
+            self.regions.current.current_items.push(item);
+        }
+        if let Some(collector) = &mut self.decoration_lines_collector {
+            for mut segment in deco {
+                segment.baseline_y += Pt(y);
+                collector.push(segment);
+            }
+        }
+        height
+    }
+
     pub(super) fn drain_pending_footnotes(
         &mut self,
         bottom_y: Option<f64>,
@@ -196,6 +275,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         )> = Vec::new();
         let mut acc_h = 0.0_f64;
         let mut separator_size = None;
+        let mut rendered_separator: Option<EntryFrame> = None;
         let mut continuation_anchor = false;
         let mut entry_gaps = Vec::new();
         let mut remainder: Vec<(u32, Box<Content>, Content)> = Vec::new();
@@ -231,12 +311,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // todos os itens (como acontecia antes), a origem seria somada
             // duas vezes para o `Place` aninhado.
             let already_captured = captured.is_some();
-            let frame = captured.unwrap_or_else(|| {
+            let mut frame = captured.unwrap_or_else(|| {
                 self.capture_footnote_frame(&prefix, &body, planned.clone())
             });
-            let clearance = if measured.is_empty() { frame.outer_size.0 } else { 0.0 };
-            // ref: lab/typst-original/crates/typst-library/src/model/footnote.rs:288
-            let gap = frame.outer_size.0 * 0.5;
+            let separator_height = match frame.entry.separator_height {
+                Some(height) => height,
+                None => {
+                    let separator = rendered_separator.get_or_insert_with(|| {
+                        self.layout_entry_separator(&frame.entry, left_x, avail_w)
+                    });
+                    frame.entry.separator_height = Some(separator.0);
+                    separator.0
+                }
+            };
+            let clearance = if measured.is_empty() {
+                frame.entry.clearance + separator_height
+            } else {
+                0.0
+            };
+            let gap = frame.entry.gap;
             let overhead = clearance + gap;
             let continuation =
                 frame.source_lines && frame.line_continuation && unused_physical_baseline;
@@ -248,7 +341,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if frame.height <= remaining {
                 continuation_anchor |= continuation;
                 if measured.is_empty() {
-                    separator_size = Some(frame.outer_size);
+                    separator_size = Some(frame.entry.clone());
                 }
                 entry_gaps.push(gap);
                 acc_h += overhead + frame.height;
@@ -268,7 +361,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         continuation_anchor |= continuation;
                         tail.deferred_region = Some(region);
                         if measured.is_empty() {
-                            separator_size = Some(head.outer_size);
+                            separator_size = Some(head.entry.clone());
                         }
                         entry_gaps.push(gap);
                         acc_h += overhead + head.height;
@@ -310,7 +403,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
                 frame.line_continuation = true;
                 frame.deferred_region = Some(region);
-                separator_size = Some(frame.outer_size);
+                separator_size = Some(frame.entry.clone());
                 acc_h += overhead;
                 overflow = true;
                 remainder.push((n, body, prefix));
@@ -326,7 +419,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     n
                 ));
                 if measured.is_empty() {
-                    separator_size = Some(frame.outer_size);
+                    separator_size = Some(frame.entry.clone());
                 }
                 entry_gaps.push(gap);
                 acc_h += overhead + frame.height;
@@ -368,17 +461,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else {
             (area_bot - acc_h).max(top_safe)
         };
-        if let Some(size) = separator_size {
-            y_cursor += size.0;
-            // ref: lab/typst-original/crates/typst-library/src/model/footnote.rs:259
-            let thickness = size.0 * 0.05;
-            self.regions.current.current_items.push(FrameItem::Line {
-                start: Point { x: Pt(left_x), y: Pt(y_cursor) },
-                end: Point { x: Pt(left_x + avail_w * 0.3), y: Pt(y_cursor) },
-                thickness,
-                color: Some(crate::entities::color::Color::rgb(0, 0, 0)),
-                cap: crate::entities::geometry::LineCap::Butt,
-            });
+        if let Some(entry) = separator_size {
+            y_cursor += entry.clearance;
+            let frame = rendered_separator
+                .unwrap_or_else(|| self.layout_entry_separator(&entry, left_x, avail_w));
+            y_cursor += self.place_entry_separator(frame, y_cursor);
         }
         for ((h, items, deco, orphaned_x, orphaned_y), gap) in
             measured.into_iter().zip(entry_gaps)
@@ -632,5 +719,74 @@ mod smoke {
         // ficheiro, um prompt: `compiler/footnote_overflow_columns.md`).
         // A cobertura funcional de footnote vive nos testes de layout e
         // nos goldens de colunas (P595+).
+    }
+}
+
+#[cfg(test)]
+mod r12_separator_origin_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::TextStyle,
+        value::Value,
+    };
+    use comemo::Track;
+    struct Edges;
+    impl FontMetrics for Edges {
+        fn advance(&self, text: &str, size: Pt, _: &TextStyle) -> Pt {
+            Pt(text.chars().count() as f64 * size.0 * 0.5)
+        }
+        fn vertical_metrics(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(size.0 * 0.9), Pt(size.0 * 1.2))
+        }
+        fn cap_height(&self, size: Pt, _: &TextStyle) -> Pt {
+            Pt(size.0 * 0.7)
+        }
+        fn text_edges(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(size.0 * 0.7), Pt(-size.0 * 0.2))
+        }
+    }
+    #[test]
+    fn r12_text_separator_owns_its_full_geometric_source_box() {
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            Edges,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push_custom(
+            "footnote.entry.separator",
+            Value::Content(Content::text("SEP")),
+        );
+        let entry = super::super::footnote::entry_settings(&l);
+        let (height, items, ..) = l.layout_entry_separator(&entry, 20.0, 260.0);
+        assert!(
+            (height - 9.9).abs() < 1e-8,
+            "height={height}; source edges are7.7+2.2pt"
+        );
+        let baseline = items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                    Some(pos.y.0)
+                }
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::TextReplacement { .. } => None,
+            })
+            .expect("the original separator text must be present");
+        assert!(
+            (baseline - 7.7).abs() < 1e-8,
+            "baseline={baseline}; geometric cap edge7.7pt"
+        );
     }
 }

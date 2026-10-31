@@ -1,9 +1,10 @@
 # L0 — page commit
-Hash do Código: fbc75fec
+Hash do Código: 2d6f08a9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/page-number-baseline.toml sha256:0c492a09d2660de765df65c22e703cc8c3e63cc663ee4d9ac2dd612afc80dfa3
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
@@ -28,7 +29,7 @@ This prompt owns only the named consumer. State storage and general coordination
 
 Own intermediate Page assembly only, receiving dimensions already chosen by its caller. Drain emitted items; apply par.line, equation, horizontal-align and vertical-align fixups in their current order. Obtain explicit marginal layers from `00_nucleo/prompts/core/compiler/layout/page_running.md`, and background/foreground canvas layers from `00_nucleo/prompts/core/compiler/layout/page_canvas.md`; append marginal items to foreground. Preserve fill, resolved supplement and binding/parity-dependent bleed. Initialize logical_number to the physical page index; the later pipeline logical overlay is not this owner's work.
 
-When the selected marginal is Auto, format a unary pattern using the known logical current number if available, otherwise the physical index. Defer compound patterns with the current marginal geometry to the hub's terminal total-number coordinator. Function numbering uses the already-realized visible PageStore Content, never Func execution. Append the completed Page without draining floats/footnotes, advancing a region or resetting the next cursor. Final-page composition remains in `00_nucleo/prompts/core/compiler/layout/mod.md`; its terminal lifetime is not a second consumer of this prompt.
+When the selected marginal is Auto, format a unary pattern using the known logical current number if available, otherwise the physical index. Defer compound patterns with the current marginal geometry to the hub's terminal total-number coordinator. Function numbering uses the already-realized visible PageStore Content, never Func execution. Append the completed Page without draining floats/footnotes, advancing a region or resetting the next cursor. Final-page composition remains in `00_nucleo/prompts/core/compiler/layout/finish.md`; its terminal lifetime is not a second consumer of this prompt.
 
 For the ratified bidi-carrier migration, use None in uncertified constructors and `..` in read patterns, preserving existing language observables. Transformations follow the pinned origin nucleus, with no broader phase/API.
 
@@ -54,3 +55,70 @@ Own intermediate physical-page assembly with source-owned slot and body contribu
 ### Acceptance and preserved boundaries
 
 Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+
+## Readiness: automatic number baseline and per-page style (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/{article-fields-before,article-fields-extra-before,
+page-number-total-before}/receipt.json preserve exact source/font/compiler/oracle
+hashes, current source-bound wj2 build/archive, HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+dirty stat, UTC, commands and frozen productive/L0/fixture inputs. Oracle commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The default bottom number is7.238pt too high at11pt; at17pt its first-page
+offset is11.186pt. Bold/DejaVu produce different measured top edges, refuting
+a universal constant. The top unary/compound control already matches. A final
+page loses the17pt/bold/DejaVu style, and compound patterns borrow11pt even for
+the first17pt page. Explicit CUSTOM footer is a DIFFERENT measured negative;
+it is not fixed or waived here. Body text and None-number controls are retained.
+
+Source page_commit.rs:62-111 and finish.rs:123-174 emit Text directly at the
+number-position anchor. finish.rs:247-275 later builds compound text using the
+then-current chain. The retained page-effective chain already exists and is
+used for running content; this correction consumes it rather than introducing
+another source/style authority. Positions, styles, words and pages are language
+observables; tuple/record representation and queue mechanics are not parity.
+
+### Exclusive correction and acceptance
+
+At the existing automatic-number point, obtain the effective page style from the owning page-running helper. Use that style for width, em offsets, Text and baseline conversion. For compound patterns, queue the private complete pending record at the SAME point; no extra page/counter/slot work. Preserve all intermediate fixups, eligibility, layers, source packets, foreground and next-region policy. The final-page/total coordinator is exclusively 00_nucleo/prompts/core/compiler/layout/finish.md, not a second consumer of this prompt.
+
+ADR-0127 continuous internal parity correction. L0/pins first, actual RED before
+code, V15/V26 before resealing, exact source words/pages/0.001pt and independent
+PDF/SVG paint. Preserve all previous running/source/callback/rollback/notes,
+Unicode, layout, technical/lineage and historical/JPEG resource gates without
+new tolerances, ignored tests or suppression. No overall readiness claim.
+
+
+## Automatic page width and divider — issue 8525 (2026-10-31)
+
+### Measurement before decision
+
+The independent agent-layout and agent-svg-math reports/receipts under
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/` reproduce
+infinite SVG viewport/divider geometry and PDF Letter fallback/lost second text.
+`01_core/src/compiler/layout/divider.rs:35` multiplies the unbounded-region
+mechanism into visible geometry; `page_geometry.rs:62-69` then includes that
+shape in intrinsic page extent. `finish.rs:44-48` and intermediate page assembly
+consume the contaminated result. Exact received HEAD, dirty stat, UTC and
+source/owner bytes are frozen in
+`lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31/before.json.gz`.
+This is observed geometry/content semantics; it does not establish upstream
+intent. The pinned vanilla zero-width divider is a separate defect and is not
+an acceptance requirement. A later wider sibling, stale index, lost content,
+changed fixed-page line or queue leakage on replay refutes the repair.
+
+### Exclusive correction
+
+Resolve certified pending dividers against the supplied finite page width before closing link groups and draining page items. Consume only this physical region queue, preserving intermediate page geometry and other composition operations.
+
+Internal correctness correction under ADR-0127 continuous flow: L0 first,
+restricted reseal, functional RED then GREEN, build and unfiltered lineage.
+Keep public contracts, modes/defaults, compatibility and pipeline phases.
+Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
+divider when body width is positive, and complete text before/after the rule.
+Do not copy vanilla zero width or force a paper size. This does not certify
+other relative-size shapes, asymmetric margins or general auto-page parity.

@@ -1,5 +1,5 @@
 # L0 — tiling
-Hash do Código: e62c303d
+Hash do Código: e11fbfaa
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -65,3 +65,23 @@ Apply the pinned nucleus.Ratification supersedes older clauses awaiting approval
 ## Planned replay fixture compatibility
 
 The actual core cfg compilation in `lab/results/set-page-header-implementation-2026-10-21/domain-red/receipt.json` fails before executing semantic assertions: the private flow replay list now retains `(Content, Option<source cursor>)`, while the existing tiling isolation fixture supplies bare Content and reads plain_text directly. This is a harness migration, not semantic RED. The approved opaque physical-page protocol changes no tiling behavior or public API. Migrate only that existing cfg fixture to `(original Content, None)` and project tuple Content when asserting the unchanged exact `outer replay` value. Preserve every count, expectation and productive algorithm, including transaction isolation.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Preserve full Length thickness through eval construction, field access and repr.
+Resolve thickness with the effective occurrence font at existing layout consumers
+and prepared FrameStroke boundary before scalar geometry/overhang is calculated.
+Keep all other values, field-presence, validation/error priority, behavior and
+previous approvals. Point-only fixtures retain exactly their numeric values.
+The approved public/phase contract is bound in approval.json. RED→GREEN and
+full proportional validation plus forward/reverse lineage remain required.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 77e1f81d
+//! @prompt-hash 3ea4489a
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -325,6 +325,56 @@ fn p1406_query_nao_duplica_e_contexto_nao_pula_realizacao() {
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
     let text = result.expect("query deve manter uma entry").plain_text();
     assert_eq!(text.matches("ENTRY").count(), 1, "{text:?}");
+}
+
+fn readiness_outline_query_fixture(rule: &str, outlines: usize, hidden: bool) {
+    let source = format!(
+        "{rule}{}= Alpha\n#context assert.eq(query(outline.entry).len(), {outlines})\n",
+        "#outline(title: none)\n".repeat(outlines),
+    );
+    let world = mock_world(&source);
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("actual Entry query membership");
+    let text = doc.plain_text();
+    assert_eq!(
+        text.matches("Alpha").count(),
+        if hidden { 1 } else { outlines + 1 },
+        "{text:?}"
+    );
+    if !hidden {
+        assert!(text.contains('.') && text.contains('1'), "default fill/page: {text:?}");
+    }
+}
+
+#[test]
+fn readiness_outline_query_default_entry() {
+    readiness_outline_query_fixture("", 1, false);
+}
+
+#[test]
+fn readiness_outline_query_style_entry() {
+    readiness_outline_query_fixture(
+        "#show outline.entry: set text(fill: red)\n",
+        1,
+        false,
+    );
+}
+
+#[test]
+fn readiness_outline_query_identity_entry() {
+    readiness_outline_query_fixture("#show outline.entry: it => it\n", 1, false);
+}
+
+#[test]
+fn readiness_outline_query_hidden_entry() {
+    readiness_outline_query_fixture("#show outline.entry: none\n", 1, true);
+}
+
+#[test]
+fn readiness_outline_query_distinct_entries_are_preserved() {
+    readiness_outline_query_fixture("", 2, false);
 }
 
 #[test]
@@ -2963,8 +3013,15 @@ fn numbered_table_keeps_second_layout() {
     let (result, _) =
         compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
     let doc = result.expect("numbered table must compile");
+    assert_eq!(doc.pages.len(), 1);
     assert_eq!(frame_items_text(&doc.pages[0].foreground), "1 / 1");
-    INITIAL_LAYOUT_CALLS.with(|count| assert_eq!(count.get(), 2));
+    let body = frame_items_text(&doc.pages[0].items);
+    for cell in ["A", "B", "C", "D"] {
+        assert_eq!(body.matches(cell).count(), 1, "{body:?}");
+    }
+    // The historical name refers to the ordinary route, superseded here by
+    // the approved physical protocol. Keep language acceptance above intact.
+    INITIAL_LAYOUT_CALLS.with(|count| assert_eq!(count.get(), 0));
 }
 
 #[test]
@@ -4376,8 +4433,25 @@ fn physical_page_assert_deferred_crosspage(
         ("deferred", Value::Array(vec![snapshot(2, 3)])),
     ];
     assert_eq!(fields.len(), expected.len(), "{fields:?}");
+    let visible_pages: Vec<_> = compiled
+        .document
+        .pages
+        .iter()
+        .map(|page| {
+            [
+                frame_items_text(&page.background),
+                frame_items_text(&page.items),
+                frame_items_text(&page.foreground),
+            ]
+            .concat()
+        })
+        .collect();
     for (key, value) in expected {
-        assert_eq!(fields.get(key), Some(&value), "{key}: {fields:?}");
+        assert_eq!(
+            fields.get(key),
+            Some(&value),
+            "{key}: {fields:?}; visible_pages: {visible_pages:?}"
+        );
     }
     if let Some(expected_note_text) = expected_first_note_text {
         let page_text = |index: usize| {
@@ -4869,5 +4943,183 @@ fn remaining_html_page_only_body_is_empty_with_original_warning() {
                 .count(),
             count
         );
+    }
+}
+
+#[test]
+fn stack_context_origins_follow_physical_child_pages() {
+    let world = mock_world(
+        r#"#set page(width:400pt,height:400pt,margin:5pt)
+#stack(spacing:0pt,..range(20).map(i=>context [#metadata((i,here().page(),here()))<stack-item>#rect(width:30pt,height:20pt)]))"#,
+    );
+    let (result, warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            &world,
+            &world.source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            &mut Timings::default(),
+        );
+    assert!(warnings.is_empty(), "{warnings:?}");
+    let compiled = result.unwrap();
+    assert_eq!(compiled.document.pages.len(), 2);
+    let intr = compiled.introspector;
+    let values = intr.query_metadata();
+    eprintln!("contexts={:?} metadata={:?}", intr.context_block_locations, values);
+    for location in intr.context_block_locations.values() {
+        eprintln!("context {location:?}: {:?}", intr.positions.position_of(*location));
+    }
+    assert_eq!(values.len(), 20);
+    for (index, value) in values.iter().enumerate() {
+        let Value::Array(fields) = value else { panic!("{value:?}") };
+        assert_eq!(fields[0], Value::Int(index as i64));
+        let expected = if index < 19 { 1 } else { 2 };
+        let Value::Location(location) = fields[2] else { panic!("{fields:?}") };
+        assert_eq!(
+            intr.positions.position_of(location).unwrap().page.get(),
+            expected,
+            "index{index} location{location:?}"
+        );
+        assert_eq!(fields[1], Value::Int(expected as i64), "index{index}");
+    }
+}
+
+#[test]
+fn issue8894_stroke_thickness_resolves_at_each_font_occurrence() {
+    use typst_core::entities::{geometry::LineCap, layout_types::FrameItem};
+    fn collect(items: &[FrameItem], strokes: &mut Vec<(f64, LineCap)>) {
+        for item in items {
+            match item {
+                FrameItem::Shape { stroke: Some(stroke), .. } => {
+                    strokes.push((stroke.thickness, stroke.cap))
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. } => collect(items, strokes),
+                FrameItem::Shape { stroke: None, .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. } => {}
+            }
+        }
+    }
+    for (thickness, expected) in
+        [("10em", [110.0, 200.0]), ("3pt + 2em", [25.0, 43.0]), ("110pt", [110.0, 110.0])]
+    {
+        for dictionary in [true, false] {
+            let stroke = if dictionary {
+                format!("(paint: red, thickness: {thickness}, cap: \"round\")")
+            } else {
+                thickness.into()
+            };
+            let source = format!("#let s = {stroke}\n#text(size: 11pt)[#curve(stroke: s, curve.move((20pt,20pt)), curve.line((20pt,20pt)))]\n#text(size: 20pt)[#curve(stroke: s, curve.move((20pt,20pt)), curve.line((40pt,20pt)))]");
+            let world = mock_world(&source);
+            let mut timings = Timings::default();
+            let (result, _) = compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            );
+            let doc = result.expect("valid stroke fixture");
+            let mut observed = Vec::new();
+            for page in &doc.pages {
+                collect(&page.items, &mut observed);
+            }
+            assert_eq!(observed.len(), 2, "{source}");
+            for ((width, cap), expected) in observed.into_iter().zip(expected) {
+                assert!(
+                    (width - expected).abs() < 1e-9,
+                    "thickness {width} != {expected}: {source}"
+                );
+                assert_eq!(cap, if dictionary { LineCap::Round } else { LineCap::Butt });
+            }
+        }
+    }
+}
+
+#[test]
+fn issue8583_rectangle_keeps_relative_corners_and_side_strokes() {
+    use typst_core::entities::{
+        frame_paint::FramePaint,
+        geometry::ShapeKind,
+        layout_types::{Color, FrameItem},
+    };
+    fn color_is(c: &Color, wanted: [u8; 3]) -> bool {
+        let (r, g, b, a) = c.to_rgba_f32();
+        a > 0.0
+            && [
+                (r * 255.0).round() as u8,
+                (g * 255.0).round() as u8,
+                (b * 255.0).round() as u8,
+            ] == wanted
+    }
+    fn shapes(items: &[FrameItem], out: &mut Vec<FrameItem>) {
+        for item in items {
+            match item {
+                FrameItem::Shape { .. } => out.push(item.clone()),
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. } => shapes(items, out),
+                FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Line { .. } => {}
+            }
+        }
+    }
+    for (radius, stroke, rounded, red) in [
+        ("(bottom: 100%)", "none", true, false),
+        ("0pt", "(bottom: 2em + red, x: .25pt + red)", false, true),
+        ("(bottom: 100%)", "(bottom: 2em + red, x: .25pt + red)", true, true),
+        ("10pt", "2pt + red", true, true),
+    ] {
+        let source = format!(
+            "#rect(width:60pt,height:60pt,fill:blue,radius:{radius},stroke:{stroke})"
+        );
+        let world = mock_world(&source);
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let doc = result.expect("valid rectangle source");
+        let mut all = Vec::new();
+        for page in &doc.pages {
+            shapes(&page.items, &mut all);
+        }
+        let has_round = all.iter().any(|item| matches!(item, FrameItem::Shape { kind: ShapeKind::RoundedRect { .. }, fill: Some(FramePaint::Solid(c)), .. } if color_is(c,[0,116,217])));
+        let has_red = all.iter().any(|item| match item {
+            FrameItem::Shape { fill: Some(FramePaint::Solid(c)), .. }
+                if color_is(c, [255, 65, 54]) =>
+            {
+                true
+            }
+            FrameItem::Shape { stroke: Some(s), .. } => {
+                matches!(&s.paint, FramePaint::Solid(c) if color_is(c,[255,65,54]))
+            }
+            FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::TextReplacement { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Line { .. } => false,
+        });
+        assert_eq!(has_round, rounded, "relative corner lost: {source}");
+        assert_eq!(has_red, red, "side stroke lost: {source}");
     }
 }

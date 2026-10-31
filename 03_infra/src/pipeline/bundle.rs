@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash c8ebb6ae
+//! @prompt-hash ad92ac14
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -562,6 +562,17 @@ fn bundle_html_visual_content(
                     })
                     .collect();
                 table.resolved = Some(Arc::new(resolved));
+            } else if let Some(items) = &table.items {
+                table.items = Some(
+                    items
+                        .iter()
+                        .map(|item| {
+                            bundle_html_visual_content(
+                                item, warnings, true, emitted, context, errors,
+                            )
+                        })
+                        .collect(),
+                );
             } else {
                 table.header = table.header.as_ref().map(|header| {
                     bundle_html_visual_content(

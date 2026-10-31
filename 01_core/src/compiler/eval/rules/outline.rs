@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/outline.md
-//! @prompt-hash 8291c365
+//! @prompt-hash 95192164
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -22,12 +22,14 @@ fn contains_heading_outline(content: &Content) -> bool {
             let children = if let Some(resolved) = &e.resolved {
                 &resolved.cells
             } else {
-                &e.children
+                e.items.as_ref().unwrap_or(&e.children)
             };
             children.iter().any(contains_heading_outline)
                 || (e.resolved.is_none()
+                    && e.items.is_none()
                     && e.header.as_ref().is_some_and(contains_heading_outline))
                 || (e.resolved.is_none()
+                    && e.items.is_none()
                     && e.footer.as_ref().is_some_and(contains_heading_outline))
                 || e.caption.as_ref().is_some_and(contains_heading_outline)
         }
@@ -104,6 +106,73 @@ pub fn realize_outlines(
     Ok(if changed { transformed } else { content })
 }
 
+fn direct_entry_alias(
+    done: &crate::entities::content::RealizedContent,
+) -> Option<&Content> {
+    let Content::Located(original) = done.original.source_body() else { return None };
+    let Content::Located(visual) = done.visual.source_body() else { return None };
+    if original.location != visual.location {
+        return None;
+    }
+    let Content::OutlineEntry(_) = original.body.source_body() else { return None };
+    let Content::OutlineEntry(_) = visual.body.source_body() else { return None };
+    Some(visual.body.source_body())
+}
+
+fn default_entry_visual(
+    entry: &Content,
+    relevant: &[ShowRule],
+    label: &crate::entities::label::Label,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let Content::OutlineEntry(entry_elem) = entry else { unreachable!() };
+    let mut scopes = Scopes::new(None);
+    let receiver = Value::Content(entry.clone());
+    let args = Args::positional(vec![receiver.clone()]);
+    let inner = match crate::compiler::stdlib::native_outline_entry_inner(
+        ctx,
+        &args,
+        engine.world,
+        engine.current_file,
+        &mut scopes,
+        engine,
+    )? {
+        Value::Content(content) => content,
+        _ => unreachable!("outline.entry.inner always returns content"),
+    };
+    let prefix = entry_elem.prefix().map(Value::Content).unwrap_or(Value::None);
+    let args = Args::positional(vec![receiver, prefix, Value::Content(inner)]);
+    let body = match crate::compiler::stdlib::native_outline_entry_indented(
+        ctx,
+        &args,
+        engine.world,
+        engine.current_file,
+        &mut scopes,
+        engine,
+    )? {
+        Value::Content(content) => content,
+        _ => unreachable!("outline.entry.indented always returns content"),
+    };
+    let linked = Content::styled(
+        Box::new(body),
+        Styles::new()
+            .push_custom("outline.link.destination", Value::Str(label.0.clone().into())),
+    );
+    let mut set_chain = StyleChain::empty();
+    for rule in relevant {
+        if let Transformation::Style(styles) = &rule.transform {
+            set_chain = set_chain.push(styles.delta().clone());
+        }
+    }
+    let delta = set_chain.collapse();
+    Ok(if delta.is_empty() {
+        linked
+    } else {
+        Content::styled(Box::new(linked), Styles::from_delta(delta))
+    })
+}
+
 pub(crate) fn realize_heading_outline(
     outline: &crate::entities::elements::outline::OutlineElem,
     introspector: &crate::entities::introspector::TagIntrospector,
@@ -134,7 +203,8 @@ pub(crate) fn realize_heading_outline(
             },
         )
         .push_custom("outline.parent.key", Value::Int(outline.parent_key()))
-        .push_custom("heading.numbering", Value::Bool(false));
+        .push_custom("heading.numbering", Value::Bool(false))
+        .push_custom("par.justify", Value::Bool(false));
     *engine.styles = StyleChain::default_chain()
         .push_styles(outline.captured_styles())
         .push_styles(&parent_styles);
@@ -224,57 +294,37 @@ pub(crate) fn realize_heading_outline(
                 .iter()
                 .any(|rule| !matches!(rule.transform, Transformation::Style(_)));
             let realized = if has_transform {
-                apply_show_rules(entry, &relevant, ctx, engine)?
-            } else {
-                let Content::OutlineEntry(entry_elem) = &entry else { unreachable!() };
-                let mut scopes = Scopes::new(None);
-                let receiver = Value::Content(entry.clone());
-                let args = Args::positional(vec![receiver.clone()]);
-                let inner = match crate::compiler::stdlib::native_outline_entry_inner(
-                    ctx,
-                    &args,
-                    engine.world,
-                    engine.current_file,
-                    &mut scopes,
-                    engine,
-                )? {
-                    Value::Content(content) => content,
-                    _ => unreachable!("outline.entry.inner always returns content"),
-                };
-                let prefix =
-                    entry_elem.prefix().map(Value::Content).unwrap_or(Value::None);
-                let args =
-                    Args::positional(vec![receiver, prefix, Value::Content(inner)]);
-                let body = match crate::compiler::stdlib::native_outline_entry_indented(
-                    ctx,
-                    &args,
-                    engine.world,
-                    engine.current_file,
-                    &mut scopes,
-                    engine,
-                )? {
-                    Value::Content(content) => content,
-                    _ => unreachable!("outline.entry.indented always returns content"),
-                };
-                let linked = Content::styled(
-                    Box::new(body),
-                    Styles::new().push_custom(
-                        "outline.link.destination",
-                        Value::Str(label.0.clone().into()),
-                    ),
-                );
-                let mut set_chain = StyleChain::empty();
-                for rule in &relevant {
-                    if let Transformation::Style(styles) = &rule.transform {
-                        set_chain = set_chain.push(styles.delta().clone());
-                    }
-                }
-                let delta = set_chain.collapse();
-                if delta.is_empty() {
-                    linked
+                let previous_realizing = ctx.realizing_show_rules;
+                ctx.realizing_show_rules = true;
+                let realized = apply_show_rules(entry, &relevant, ctx, engine);
+                ctx.realizing_show_rules = previous_realizing;
+                let realized = realized?;
+                // Only a direct same-occurrence Entry alias needs its native
+                // default visual; do not classify arbitrary recipe products.
+                let alias = if let Content::Realized(done) = &realized {
+                    direct_entry_alias(done)
+                        .map(|entry| (done.original.clone(), entry.clone()))
                 } else {
-                    Content::styled(Box::new(linked), Styles::from_delta(delta))
+                    None
+                };
+                if let Some((original, entry)) = alias {
+                    Content::Realized(Arc::new(
+                        crate::entities::content::RealizedContent {
+                            original,
+                            visual: default_entry_visual(
+                                &entry, &relevant, label, ctx, engine,
+                            )?,
+                        },
+                    ))
+                } else {
+                    realized
                 }
+            } else {
+                let visual = default_entry_visual(&entry, &relevant, label, ctx, engine)?;
+                Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+                    original: crate::compiler::realize::locate(entry, ctx),
+                    visual,
+                }))
             };
             parts.push(Content::styled(Box::new(realized), parent_styles.clone()));
         }
@@ -623,6 +673,110 @@ mod scan_tests {
                 engine.styles.raw_deltas().next().unwrap(),
                 original_styles.raw_deltas().next().unwrap()
             ));
+        });
+    }
+
+    #[test]
+    fn readiness_outline_justification_parent_is_nonjustified_and_restores_caller() {
+        use crate::entities::elements::outline::{OutlineElem, OutlineIndent};
+        with_outline_engine(|ctx, engine| {
+            for justified in [true, false] {
+                let captured =
+                    Styles::new().push_custom("par.justify", Value::Bool(justified));
+                *engine.styles = engine.styles.push_styles(&captured);
+                let previous = engine.styles.clone();
+                let intr = crate::compiler::introspect::introspect(&Content::heading(
+                    1,
+                    Content::text("Entry"),
+                ));
+                assert_eq!(intr.headings_for_toc.len(), 1);
+                let outline = OutlineElem::new(None, 3, OutlineIndent::Auto)
+                    .with_realization_context(Arc::from([]), captured);
+                let realized = realize_heading_outline(&outline, &intr, ctx, engine)
+                    .expect("the actual synthesized title and entry");
+                let Content::Sequence(parts) = actual_outline_body(&realized) else {
+                    panic!("title plus actual source entry must remain a sequence");
+                };
+                assert_eq!(parts.len(), 2, "one title and one original source entry");
+                for part in parts.iter() {
+                    let Content::Styled(styled) = part else {
+                        panic!("each actual part carries the parent defaults");
+                    };
+                    let effective = previous.push_styles(&styled.styles);
+                    assert_eq!(effective.custom("par.justify"), Some(&Value::Bool(false)),
+                        "an Outline part inherited the surrounding paragraph justification");
+                }
+                assert_eq!(
+                    engine.styles.custom("par.justify"),
+                    Some(&Value::Bool(justified))
+                );
+                assert!(std::ptr::eq(
+                    engine.styles.raw_deltas().next().unwrap(),
+                    previous.raw_deltas().next().unwrap(),
+                ));
+            }
+        });
+    }
+
+    #[test]
+    fn readiness_outline_own_show_keeps_original_entry_source() {
+        use crate::entities::elements::outline::{OutlineElem, OutlineIndent};
+        with_outline_engine(|ctx, engine| {
+            for previous_realizing in [false, true] {
+                ctx.realizing_show_rules = previous_realizing;
+                let rule = ShowRule {
+                    id: 0,
+                    selector: Selector::NativeElement(
+                        crate::entities::func::Func::native(
+                            "outline.entry",
+                            crate::compiler::stdlib::native_outline_entry,
+                        ),
+                    ),
+                    transform: Transformation::Func(crate::entities::func::Func::native(
+                        "entry-source-proof",
+                        |_, _, _, _| Ok(Value::Content(Content::text("ENTRY"))),
+                    )),
+                };
+                let outline = OutlineElem::with_target_and_title_presence(
+                    None,
+                    true,
+                    3,
+                    OutlineIndent::Auto,
+                    OutlineTarget::Headings,
+                )
+                .with_realization_context(Arc::from([rule]), Styles::new());
+                let input = crate::compiler::introspect::introspect(&Content::heading(
+                    1,
+                    Content::text("Alpha"),
+                ));
+                let realized = realize_heading_outline(&outline, &input, ctx, engine)
+                    .expect("actual Entry own show");
+                let body = actual_outline_body(&realized);
+                assert_eq!(body.plain_text(), "ENTRY");
+                let mut originals = 0;
+                body.map_content(&mut |node| {
+                    if let Content::Realized(done) = node {
+                        let mut original = done.original.source_body();
+                        while let Content::Located(located) = original {
+                            original = located.body.source_body();
+                        }
+                        if let Content::OutlineEntry(entry) = original {
+                            originals += 1;
+                            assert_eq!(entry.body().unwrap().plain_text(), "Alpha");
+                        }
+                    }
+                    Ok(None)
+                })
+                .expect("inspect retained carrier originals");
+                assert_eq!(
+                    originals, 1,
+                    "actual original Entry must reach source planning"
+                );
+                assert_eq!(
+                    ctx.realizing_show_rules, previous_realizing,
+                    "restore caller realization state"
+                );
+            }
         });
     }
 

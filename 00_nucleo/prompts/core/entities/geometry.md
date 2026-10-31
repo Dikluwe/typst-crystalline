@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: bae8920a
+Hash do Código: 87e5566a
 
 **Layer:** L1, pure geometry; no I/O or font metrics. **Exclusive consumer:** `01_core/src/entities/geometry.rs`. Use existing domain Color/Paint dependencies;no additional external dependency or separate RgbaColor.
 
@@ -39,7 +39,7 @@ pub struct StrokeFields {
 }
 pub struct Stroke {
     pub paint: Paint,
-    pub thickness: f64,
+    pub thickness: Length,
     pub cap: LineCap,
     pub join: LineJoin,
     pub dash: Option<DashPattern>,
@@ -108,3 +108,67 @@ Use exhaustive Length→Pt conversion:nonlength variants unchanged,RoundedRect a
 All-zero radii is geometrically Rect-equivalent but entity retains structural RoundedRect distinction;layout's existing zero-radius choice is preserved. Historical PDF corner path m+4l+Nc+h and four-control-quarter kappa0.552_284_749_831 are emitter mechanics,not geometry-owned byte parity. Block clip with nonzero radius emits Group rounded clip mask in resolved inner geometry;radius does not enlarge bbox,clamp prevents overflow,measurement treats rectangle equivalently.
 
 Verify1em at20pt→20pt,mixed2pt+0.5em→12pt,four distinct corners survive PDF,zero degeneration,zero V23 resolve_pt(0)/abs radius erasure. No new external/public/default/phase in internal numeric repairs;L0 precedes RED/code,unchanged fixtures/tolerances/build/suites/lint/lineage. Expose pub mod geometry;consumers use explicit paths. Historical chronology/coverage/pending candidates remain archived at `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/geometry.md` without becoming current execution-step structure.
+
+
+## Issue 8894 — approved font-relative thickness
+
+### Measurement before proposal
+
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/before.json`
+binds HEAD, UTC, branch and the exact uncommitted diffstat/status. The official
+fixture and original receipt are preserved in
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/`.
+`01_core/src/compiler/stdlib/layout/stroke.rs:430–434` discards the em component
+of dictionary thickness; `01_core/src/entities/geometry.rs:80–81` has only a
+point-valued scalar; `01_core/src/compiler/layout/tiling.rs:45` forwards that
+scalar. Thus an exporter-only fix cannot recover the requested 10em. The
+existing-release controls in `probe-existing.json` are binary observations,
+not certification that the binary was built from the current working tree.
+
+Thickness and cap are language semantics. Carrier representation is mechanics.
+Do not infer that vanilla intended disappearance from its observed output.
+The hypothesis is refuted if the effective occurrence's font size is already
+available in a lossless existing stroke carrier; no such carrier was found.
+
+### Approved exclusive entity change
+
+Owner explicitly approved the saved proposal in this chat; receipt:
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/approval.json`.
+Change public
+`Stroke.thickness: f64` to `Stroke.thickness: Length`, defaulting to
+`Length::pt(1.0)`. Retain absolute and em components through evaluation and
+reuse. Keep the prepared `FrameStroke.thickness` scalar in points; resolve
+the declarative length against the effective font at each layout occurrence.
+This approved public entity and resolution-boundary change supersedes the
+scalar thickness contract above. No fixed 11pt/12pt font or exporter reconstruction.
+
+### Acceptance
+
+Update every affected owning L0 before its consumer; preserve existing literal
+strokes using Length::pt and all field-presence, cap/join/dash/paint behavior.
+Test RED then GREEN: dictionary and shorthand 10em; reused strokes under
+different effective font sizes; mixed absolute/em; absolute round-cap zero
+length versus nondegenerate controls, butt/square controls and PDF/SVG visible
+output. Keep dash-length em debt distinct; no blanket closure of that debt.
+Preserve full source path and geometry of nondegenerate curves and existing
+PDF mode defaults. Build, run proportional suites and require zero crystalline
+violations with scoped forward/reverse resealing after approval.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

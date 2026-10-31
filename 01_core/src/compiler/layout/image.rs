@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/image.md
-//! @prompt-hash ac269d02
+//! @prompt-hash 49df88d1
 //! @layer L1
 //! @updated 2026-09-27
 
@@ -8,7 +8,9 @@ use std::sync::Arc;
 
 use crate::entities::elements::image::ImageElem;
 use crate::entities::image_sizer::ImageSizer;
-use crate::entities::layout_types::{FrameItem, Length, Point, Pt, Rect};
+#[cfg(test)]
+use crate::entities::layout_types::Length;
+use crate::entities::layout_types::{FrameItem, Point, Pt, Rect};
 use crate::entities::value::Value;
 
 use super::{FontMetrics, Layouter};
@@ -171,6 +173,25 @@ fn extract_pt(val: &Value) -> Option<f64> {
     }
 }
 
+fn block_margin<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+    edge: &str,
+) -> (f64, bool) {
+    let font = layouter.style.size.val();
+    for key in [edge, "block.spacing"] {
+        if let Some(Value::Length(length)) = layouter.chain.custom(key) {
+            return (length.resolve_pt(font), true);
+        }
+        if layouter.chain.custom(key) == Some(&Value::Auto) {
+            break;
+        }
+    }
+    if let Some(Value::Length(length)) = layouter.chain.custom("par.spacing") {
+        return (length.resolve_pt(font), false);
+    }
+    (font * IMAGE_BLOCK_SPACING_EM, false)
+}
+
 /// Layout de `image(...)` (atomização ADR-0109 P378): resolve dimensões via
 /// `calculate_dimensions`, garante linha/página, emite o `FrameItem::Image` e
 /// avança o cursor vertical. Content-preserving — era inline no `layout_content`.
@@ -183,6 +204,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &ImageElem,
 ) {
+    super::h_space::close_paragraph(layouter);
     // A fresh block starts at a geometric top, including root Place.
     // Legacy baseline-origin subframes arrive with the pending flag cleared.
     let fresh_block = layouter.initial_baseline_pending
@@ -194,8 +216,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .all(super::html_frame::is_context_marker);
     if fresh_block {
         layouter.initial_baseline_pending = false;
-    } else {
-        layouter.ensure_initial_baseline();
+    } else if layouter.initial_baseline_pending {
+        let (top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+        layouter.regions.current.cursor_y += top;
+        layouter.initial_baseline_pending = false;
     }
     let dims = calculate_dimensions(
         &e.data.0, // &[u8] via PtrEqArc → Arc → deref
@@ -221,58 +245,49 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // **P769** — protocolo de bloco no fluxo principal.
     let in_main_flow = !layouter.is_sub_frame;
-    let font = layouter.style.size.val();
-    let above_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
-    let below_pt = Length::em(IMAGE_BLOCK_SPACING_EM).resolve_pt(font);
-    let cap_height = if fresh_block || !in_main_flow {
-        Pt(0.0)
-    } else {
-        layouter.metrics.cap_height(layouter.style.size, &layouter.style)
-    };
+    let (above_pt, above_explicit) = block_margin(layouter, "block.above");
+    let (below_pt, below_explicit) = block_margin(layouter, "block.below");
+    let cap_height =
+        if fresh_block || !in_main_flow || layouter.block_chain_active || had_text_line {
+            Pt(0.0)
+        } else {
+            layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+        };
 
     if in_main_flow {
-        // Colapso de margem com o bloco anterior (P250):
-        // `max(prev.below, curr.above)`; o primeiro bloco de uma Sequence
-        // não leva above (`block_chain_active == false`).
-        let gap = if layouter.block_chain_active {
-            layouter.prev_block_below_pending.max(above_pt)
-        } else {
-            0.0
-        };
-        let advance = (gap - layouter.prev_block_below_pending).max(0.0);
-        layouter.regions.current.cursor_y += Pt(advance);
-        layouter.prev_block_below_pending = 0.0;
-
         // A imagem de bloco alinha-se à margem esquerda do contentor.
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
     }
 
-    // Verificar se a imagem cabe na página actual.
-    if layouter.regions.current.cursor_y.0 + used_height
-        > layouter.regions.current.height - layouter.page_config.margin.bottom
-    {
-        layouter.new_page();
-    }
-
-    // P748/P750 — no fluxo principal o cursor_y representa a baseline do
-    // texto. Quando existe target (ambos width e height fornecidos), o
-    // ancoramento e o avanço do cursor usam o rectângulo target; a imagem
-    // transformada é centralizada dentro desse target. Quando não existe
-    // target, usam-se as dimensões da transformação.
-    //
-    // **P769** — quando a imagem é a primeira depois de texto não-bloco,
-    // o vanilla ancora a *base do target* em `baseline + above`; o topo do
-    // target fica em `baseline + above + target_height`. Quando a imagem
-    // sucede outro bloco, ou quando é a primeira de uma Sequence sem texto
-    // antes, mantém-se o modelo de bloco: base do target em `cursor_y − cap_height`.
-    let image_base = if !in_main_flow {
+    // The previous frame publishes its physical end; below is still pending.
+    let candidate_base = if !in_main_flow {
         layouter.regions.current.cursor_y
-    } else if layouter.block_chain_active {
-        layouter.regions.current.cursor_y - cap_height
     } else if had_text_line {
         baseline_before_flush + Pt(above_pt)
+    } else if layouter.block_chain_active {
+        let gap = if above_explicit && layouter.prev_margin_is_parbreak {
+            above_pt
+        } else if !above_explicit && !layouter.prev_margin_is_parbreak {
+            layouter.prev_block_below_pending
+        } else {
+            layouter.prev_block_below_pending.max(above_pt)
+        };
+        Pt(layouter.prev_line_baseline + layouter.prev_block_equation_descent + gap)
     } else {
         layouter.regions.current.cursor_y - cap_height
+    };
+    let page_bottom =
+        layouter.regions.current.height - layouter.page_config.margin.bottom;
+    let image_base = if in_main_flow && candidate_base.0 + used_height > page_bottom {
+        layouter.new_page();
+        let top = if layouter.initial_baseline_pending {
+            Pt(0.0)
+        } else {
+            layouter.metrics.text_edges(layouter.style.size, &layouter.style).0
+        };
+        layouter.regions.current.cursor_y - top
+    } else {
+        candidate_base
     };
 
     // Centralização da transformação da imagem dentro do target (P771).
@@ -317,31 +332,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         orientation: dims.orientation,
     });
 
-    // **P769/P771** — avanço do cursor conforme o tipo de ancoragem, usando
-    // a altura do target quando existe. Após imagem-a-seguir-a-texto, a
-    // próxima baseline fica no topo do target + `below + cap_height`; após
-    // imagem-a-seguir-a-bloco, ou imagem isolada, mantém-se o comportamento
-    // de bloco (base do target + `below`).
+    // Publish the settled target end, excluding the prepared lower margin.
+    let end = image_base.0 + used_height;
     if in_main_flow {
-        if layouter.block_chain_active {
-            layouter.regions.current.cursor_y = image_base + Pt(used_height + below_pt);
-        } else if had_text_line {
-            layouter.regions.current.cursor_y =
-                image_base + Pt(used_height + below_pt + cap_height.0);
-        } else {
-            layouter.regions.current.cursor_y = image_base + Pt(used_height + below_pt);
-        }
+        layouter.regions.current.cursor_y = Pt(end + below_pt);
+        layouter.prev_line_baseline = end;
+        layouter.last_block_descent_y = Some(end);
+        layouter.prev_block_equation_descent = 0.0;
         layouter.prev_block_below_pending = below_pt;
+        layouter.prev_margin_is_parbreak = !below_explicit;
         layouter.block_chain_active = true;
     } else {
         layouter.regions.current.cursor_y += Pt(used_height);
     }
-
-    if layouter.regions.current.cursor_y.0
-        > layouter.regions.current.height - layouter.page_config.margin.bottom
-    {
-        layouter.new_page();
-    }
+    layouter.record_flow_baseline(None);
+    layouter.record_flow_placement_end(end);
 }
 
 #[cfg(test)]
@@ -663,5 +668,349 @@ mod v16_d_tests {
         );
         assert_eq!((dims.target_width, dims.target_height), (Some(40.0), Some(20.0)));
         assert_eq!((dims.width_pt, dims.height_pt), (40.0, 40.0));
+    }
+}
+
+#[cfg(test)]
+mod image_flow_regressions {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        content::Content,
+        elements::h_space::{HSpaceElem, Spacing},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, PagedDocument},
+    };
+    use comemo::Track;
+
+    pub(super) fn make(
+        intr: &dyn Introspector,
+        margin: f64,
+        height: f64,
+    ) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, 11.0, intr.track());
+        l.page_config.width = 400.0;
+        l.page_config.height = height;
+        l.page_config.margin = PageMargins::uniform(margin);
+        l.page_config.margin_spec = PageMarginSpec::uniform(margin);
+        l.regions.current.width = 400.0;
+        l.regions.current.height = height;
+        l.regions.current.cursor_x = Pt(margin);
+        l.regions.current.line_start_x = Pt(margin);
+        l.regions.current.cursor_y = Pt(margin);
+        l
+    }
+    pub(super) fn photo(height: f64) -> Content {
+        Content::Image(Arc::new(ImageElem {
+            path: String::new(),
+            alt: None,
+            data: crate::entities::ptr_eq_arc::PtrEqArc(Arc::new(vec![])),
+            width: Some(Box::new(Value::Float(30.0))),
+            height: Some(Box::new(Value::Float(height))),
+            fit: "stretch".into(),
+        }))
+    }
+    pub(super) fn horizontal(amount: f64) -> Content {
+        Content::HSpace(Arc::new(HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(amount)),
+            weak: false,
+            weak_explicit: false,
+        }))
+    }
+    pub(super) fn positions(doc: &PagedDocument) -> Vec<Vec<f64>> {
+        doc.pages
+            .iter()
+            .map(|page| {
+                page.items
+                    .iter()
+                    .filter_map(|item| {
+                        if let FrameItem::Image { pos, .. } = item {
+                            Some(pos.y.0)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect()
+            })
+            .collect()
+    }
+    pub(super) fn assert_ys(actual: &[f64], expected: &[f64]) {
+        assert_eq!(actual.len(), expected.len());
+        for (a, b) in actual.iter().zip(expected) {
+            assert!((a - b).abs() < 0.001, "image top {a} != {b}");
+        }
+    }
+    #[test]
+    fn image_flow_repeated_blocks_publish_physical_progress() {
+        let intr = TagIntrospector::empty();
+        for (margin, h) in [(5.0, 20.0), (30.0, 20.0), (5.0, 40.0)] {
+            let mut l = make(&intr, margin, 400.0);
+            for _ in 0..3 {
+                l.layout_content(&photo(h));
+            }
+            let doc = l.finish();
+            assert_eq!(doc.pages.len(), 1);
+            assert_ys(
+                &positions(&doc)[0],
+                &[margin, margin + h + 13.2, margin + 2.0 * (h + 13.2)],
+            );
+        }
+    }
+    #[test]
+    fn image_flow_horizontal_only_paragraph_keeps_zero_presence() {
+        let intr = TagIntrospector::empty();
+        for amount in [0.0, 1.0, -1.0] {
+            let mut l = make(&intr, 5.0, 400.0);
+            for _ in 0..3 {
+                l.layout_content(&photo(20.0));
+                l.layout_content(&horizontal(amount));
+            }
+            let doc = l.finish();
+            assert_ys(&positions(&doc)[0], &[5.0, 51.4, 97.8]);
+            assert_eq!(doc.plain_text(), "");
+        }
+    }
+    #[test]
+    fn image_flow_sixteen_horizontal_paragraphs_break_eight_per_page() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        for _ in 0..16 {
+            l.layout_content(&photo(20.0));
+            l.layout_content(&horizontal(1.0));
+        }
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 2);
+        for page in positions(&doc) {
+            let expected: Vec<_> = (0..8).map(|i| 5.0 + f64::from(i) * 46.4).collect();
+            assert_ys(&page, &expected);
+        }
+    }
+    #[test]
+    fn image_flow_exact_fit_does_not_page_for_pending_margin() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 30.0);
+        l.layout_content(&photo(20.0));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_ys(&positions(&doc)[0], &[5.0]);
+    }
+    #[test]
+    fn image_flow_consecutive_horizontal_producers_are_one_paragraph() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        l.layout_content(&photo(20.0));
+        for _ in 0..3 {
+            l.layout_content(&horizontal(1.0));
+        }
+        l.layout_content(&photo(20.0));
+        assert_ys(&positions(&l.finish())[0], &[5.0, 51.4]);
+    }
+    #[test]
+    fn image_flow_pending_horizontal_paragraph_survives_rollback_once() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        l.layout_content(&photo(20.0));
+        l.layout_content(&horizontal(1.0));
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        l.flush_line();
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        l.layout_content(&photo(20.0));
+        assert_ys(&positions(&l.finish())[0], &[5.0, 51.4]);
+    }
+    #[test]
+    fn image_flow_horizontal_custom_paragraph_spacing_is_used_once() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(30.0)));
+        l.layout_content(&photo(20.0));
+        l.layout_content(&horizontal(1.0));
+        l.layout_content(&photo(20.0));
+        assert_ys(&positions(&l.finish())[0], &[5.0, 85.0]);
+    }
+}
+
+#[cfg(test)]
+mod image_flow_isolation_controls {
+    use super::image_flow_regressions::{assert_ys, horizontal, make, photo, positions};
+    use crate::compiler::layout::sub_frame::SubLayoutRegion;
+    use crate::entities::{content::Content, introspector::TagIntrospector};
+
+    #[test]
+    fn image_flow_horizontal_cause_isolated_from_both_subframe_paths() {
+        let intr = TagIntrospector::empty();
+        for inline in [false, true] {
+            let mut l = make(&intr, 5.0, 400.0);
+            l.layout_content(&photo(20.0));
+            l.layout_content(&horizontal(1.0));
+            // Inline capture may legitimately prepare the parent's text baseline.
+            // A horizontal-only child tests pending-cause isolation independently.
+            let body = horizontal(2.0);
+            let chain = l.chain.clone();
+            l.chain = l.chain.push_custom(
+                "par.spacing",
+                crate::entities::value::Value::Length(
+                    crate::entities::layout_types::Length::pt(30.0),
+                ),
+            );
+            let region = SubLayoutRegion {
+                origin_x: 0.0,
+                width: if inline { 0.0 } else { 100.0 },
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            };
+            if inline {
+                l.layout_sub_frame_inline_planned(&body, region, None);
+            } else {
+                l.layout_sub_frame(&body, region);
+            }
+            l.chain = chain;
+            l.layout_content(&photo(20.0));
+            assert_ys(&positions(&l.finish())[0], &[5.0, 51.4]);
+        }
+    }
+    #[test]
+    fn image_flow_real_text_absorbs_horizontal_paragraph_cause() {
+        let intr = TagIntrospector::empty();
+        let mut images = Vec::new();
+        for with_h in [false, true] {
+            let mut l = make(&intr, 5.0, 400.0);
+            l.layout_content(&photo(20.0));
+            if with_h {
+                l.layout_content(&horizontal(1.0));
+            }
+            l.layout_content(&Content::text("X"));
+            l.layout_content(&photo(20.0));
+            let doc = l.finish();
+            assert_eq!(doc.plain_text(), "X");
+            images.push(positions(&doc));
+        }
+        assert_eq!(images[0], images[1]);
+    }
+    #[test]
+    fn image_flow_block_margin_zero_auto_and_precedence() {
+        use crate::entities::{layout_types::Length, value::Value};
+        let intr = TagIntrospector::empty();
+        for (par, block, above, below, with_h, expected) in [
+            (Some(0.0), None, None, None, false, [5.0, 25.0, 45.0]),
+            (Some(30.0), Some(0.0), None, None, true, [5.0, 25.0, 45.0]),
+            (None, None, Some(8.0), Some(3.0), false, [5.0, 33.0, 61.0]),
+            (None, None, Some(8.0), Some(3.0), true, [5.0, 36.0, 67.0]),
+        ] {
+            let mut l = make(&intr, 5.0, 400.0);
+            for (key, value) in [
+                ("par.spacing", par),
+                ("block.spacing", block),
+                ("block.above", above),
+                ("block.below", below),
+            ] {
+                if let Some(v) = value {
+                    l.chain = l.chain.push_custom(key, Value::Length(Length::pt(v)));
+                }
+            }
+            for _ in 0..3 {
+                l.layout_content(&photo(20.0));
+                if with_h {
+                    l.layout_content(&horizontal(1.0));
+                }
+            }
+            assert_ys(&positions(&l.finish())[0], &expected);
+        }
+    }
+    #[test]
+    fn image_flow_horizontal_parbreak_does_not_duplicate_boundary() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        l.layout_content(&photo(20.0));
+        l.layout_content(&horizontal(0.0));
+        l.layout_content(&Content::Parbreak);
+        l.layout_content(&photo(20.0));
+        assert_ys(&positions(&l.finish())[0], &[5.0, 51.4]);
+    }
+}
+
+#[cfg(test)]
+mod image_flow_lexical_controls {
+    use super::image_flow_regressions::{assert_ys, horizontal, make, photo, positions};
+    use crate::entities::{
+        introspector::TagIntrospector, layout_types::Length, style_chain::StyleDelta,
+    };
+
+    #[test]
+    fn image_flow_horizontal_paragraph_uses_common_lexical_scope() {
+        let intr = TagIntrospector::empty();
+        for mode in 0..4 {
+            let mut l = make(&intr, 5.0, 400.0);
+            let outer = l.chain.clone();
+            for _ in 0..3 {
+                l.layout_content(&photo(20.0));
+                let styled = outer.push(StyleDelta {
+                    size: Some(Length::pt(20.0)),
+                    ..StyleDelta::empty()
+                });
+                l.chain = styled.clone();
+                l.layout_content(&horizontal(1.0));
+                if mode > 0 {
+                    l.chain = match mode {
+                        1 => outer.clone(),
+                        2 => outer.push(StyleDelta {
+                            size: Some(Length::pt(20.0)),
+                            ..StyleDelta::empty()
+                        }),
+                        _ => styled,
+                    };
+                    l.layout_content(&horizontal(1.0));
+                }
+                l.chain = outer.clone();
+            }
+            let expected = if mode == 1 || mode == 2 {
+                [5.0, 51.4, 97.8]
+            } else {
+                [5.0, 73.0, 141.0]
+            };
+            assert_ys(&positions(&l.finish())[0], &expected);
+        }
+    }
+}
+
+#[cfg(test)]
+mod image_flow_terminal_controls {
+    use super::image_flow_regressions::{assert_ys, horizontal, make, photo, positions};
+    use crate::entities::introspector::TagIntrospector;
+
+    #[test]
+    fn image_flow_terminal_horizontal_paragraph_keeps_required_successor() {
+        let intr = TagIntrospector::empty();
+        for height in [370.0, 380.0, 385.0, 390.0] {
+            for with_h in [false, true] {
+                let mut l = make(&intr, 5.0, 400.0);
+                l.layout_content(&photo(height));
+                if with_h {
+                    l.layout_content(&horizontal(1.0));
+                }
+                let doc = l.finish();
+                let expected = if with_h && height > 370.0 { 2 } else { 1 };
+                assert_eq!(doc.pages.len(), expected, "height={height}, h={with_h}");
+                assert_eq!(doc.plain_text(), if expected == 2 { "\n" } else { "" });
+                assert_ys(&positions(&doc)[0], &[5.0]);
+                if expected == 2 {
+                    assert!(positions(&doc)[1].is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn image_flow_moved_horizontal_paragraph_keeps_gap_before_next_image() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr, 5.0, 400.0);
+        l.layout_content(&photo(380.0));
+        l.layout_content(&horizontal(1.0));
+        l.layout_content(&photo(20.0));
+        let ys = positions(&l.finish());
+        assert_eq!(ys.len(), 2);
+        assert_ys(&ys[0], &[5.0]);
+        assert_ys(&ys[1], &[18.2]);
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/helpers.md
-//! @prompt-hash ce00f864
+//! @prompt-hash f4b99348
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -674,6 +674,7 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
 }
 
 /// Extrai o limite inferior (bottom Y) de um FrameItem.
+#[cfg(test)]
 pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
     if super::html_frame::is_context_marker(item) {
         return 0.0;
@@ -878,6 +879,9 @@ mod realization_measurement_tests {
         use std::sync::Arc;
         let shape = Content::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
             width: None,
             height: None,
@@ -929,6 +933,9 @@ mod v16_d_tests {
     fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {
         let shape = Content::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
             width: None,
             height: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/parbreak.md
-//! @prompt-hash fe25bb58
+//! @prompt-hash b0853f68
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -40,6 +40,7 @@ pub(super) fn mark_boundary<M: FontMetrics, S: ImageSizer>(
 
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
     layouter.smartquote_context.reset_paragraph();
+    super::h_space::close_paragraph(layouter);
     let had_items =
         html_frame::items_have_causal_line(&layouter.regions.current.current_line);
     if had_items {

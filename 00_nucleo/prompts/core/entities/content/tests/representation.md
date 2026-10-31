@@ -1,5 +1,5 @@
 # L0 — entities/content/tests/representation
-Hash do Código: faf4b690
+Hash do Código: 559b189d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -79,3 +79,48 @@ Migrate direct Grid fixtures with source_order:None (legacy synthetic order), pr
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Migrate only the approved literal additions: raw Table items=None, legacy plans header_groups empty, Header level 1 unless cloning an existing header (preserve its level). Preserve every old semantic assertion and all other data; no new APIs/default/phase. Representation-only test assertions that freeze the superseded duplicate-header rejection must be replaced by positive source-order/range safety acceptance, without weakening unrelated controls.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

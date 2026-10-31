@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr.md
-//! @prompt-hash 5c7d703b
+//! @prompt-hash d5834061
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -460,7 +460,7 @@ mod tests {
         // `stroke(paint: red, thickness: 2pt)` — red Typst = #ff4136.
         let s = Stroke {
             paint: Paint::Solid(Color::rgb(255, 65, 54)),
-            thickness: 2.0,
+            thickness: crate::entities::layout_types::Length::pt(2.0),
             specified: StrokeFields {
                 paint: true,
                 thickness: true,

@@ -1,5 +1,5 @@
 # L0 — svg
-Hash do Código: 066b77c6
+Hash do Código: 2431d6e6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:199640afc0a7243ca509288840d9c9e0c431f850f67919148fc8dac3b1cb33a0
@@ -164,3 +164,50 @@ All maintenance uses continuous flow with unchanged external contracts/defaults/
 ## Owned test module declarations
 
 This consumer declares separately owned `pretty_serialization_tests`; its name describes its responsibility. Delegate test bodies without absorbing their L0 ownership.
+
+## Variable outline geometry — evidence before decision
+
+physical11-build.json/source.json.gz binds exact source/dirty HEAD212aed0449,
+UTC/diffstat and binary. physical11-optical-visual/receipt.json records original
+font assets and source; comparison.json keeps variable17 SVG20575/5709 pixels
+negative despite PDF/word boxes matching. For its A at17pt, native first quadratic
+control delta is0.8925pt while product is0.901pt; subsequent coordinates also
+differ. This differs from the tiny serif11 case, whose110 ordered outlines and
+origins match within2.842170943040401e-14pt (source-geometry inspection only).
+
+font_binding.rs:159-175 materializes each complete FontKey into parallel prepared
+bytes. glyphs.rs:106 then outlines those prepared bytes. Thus the earlier
+missing-axis inference was incomplete: axes are already applied at preparation.
+Hypothesis: static-program materialization quantizes variable outline geometry
+before SVG extraction. An actual exported contour equal to an independently
+configured original face at its effective coordinates would refute this cause.
+Require module REDs using original UbuntuSans-Variable.ttf,400/700 and explicit
+wght override, both shaped and mapped direct Glyph plus static/raster controls.
+The reference configures the font directly; it must not call the resource
+instancer or the proposed original-view accessor. Compare actual referenced
+contour geometry, not defs ids/order/XML spelling as a vanilla oracle.
+
+Bounded correction, only after RED: expose a private original FontKey view through
+the same complete-request/original-face lookup. SVG outlines read that original
+face and apply the key's effective variant plus explicit axes in RAM before
+outline extraction; the per-export index still denotes the complete instance.
+Keep legacy prepared resource view/instancing for its existing consumers; no
+World lookup, reshaping, cursor/position/advance/fill mutation or source effects.
+This supersedes only SVG outline readers' requirement to return materialized
+bytes. Preserve original/prepared association/order and missing/ambiguous None.
+No public API, flag/default mode, compiler phase/order or dependency changes.
+Under ADR-0127 this is an internal render parity correction with L0 first and
+scoped resealing. Require RED→GREEN, actual PDF/SVG/PNG and all historical
+controls,12 warning-strict gates with a fresh documentation output directory
+if necessary, resources and benchmark gates unchanged. No small-AA closure or
+normalization follows from fixing the variable contours.
+
+svg-variable-red.json/source.json.gz confirms three actual exported-contour
+failures (shaped700, mixed400/700/explicit700 and direct Glyph700) with unchanged
+inputs; static inapplicable-axis control passes. Font asset hashes are retained
+in svg-variable-red-assets.json. Implement the bounded original-face view and
+effective-coordinate extraction now. Retain the materialized get/fonts view for
+the PNG renderer and existing users; SVG's separate original view changes no
+public signature, compiler phase or font selection. The original table index
+remains complete variant/axes identity, so the existing per-export GID/scale
+cache key remains valid. Preserve missing/ambiguous behavior and raster fallback.

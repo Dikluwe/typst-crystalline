@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: cefc49bf
+Hash do Código: 5c6d4c6e
 
 
 
@@ -497,3 +497,23 @@ Extend the existing private strict field classifier is_matrix_or_cell_content to
 This supersedes only conflicting lookup/name clauses above; continuous
 ADR-0127 parity correction without public Rust signature/entity/trait, phase
 or default changes. Tests first, RED→GREEN, existing suites and full lineage/lint.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Preserve full Length thickness through eval construction, field access and repr.
+Resolve thickness with the effective occurrence font at existing layout consumers
+and prepared FrameStroke boundary before scalar geometry/overhang is calculated.
+Keep all other values, field-presence, validation/error priority, behavior and
+previous approvals. Point-only fixtures retain exactly their numeric values.
+The approved public/phase contract is bound in approval.json. RED→GREEN and
+full proportional validation plus forward/reverse lineage remain required.

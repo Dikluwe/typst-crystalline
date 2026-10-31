@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/grid_vline.md
-//! @prompt-hash 08300eff
+//! @prompt-hash b8c4ebae
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -74,7 +74,7 @@ mod tests {
             col: 1,
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                thickness: 1.0,
+                thickness: crate::entities::layout_types::Length::pt(1.0),
                 overhang: false,
                 ..Stroke::default()
             }),

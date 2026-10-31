@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/arithmetic
-Hash do Código: d6a9123b
+Hash do Código: 257abbae
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -55,8 +55,8 @@ Preserve the supported binary domains and result types:
   Length/Length succeeds only on compatible pure axes, otherwise
   `cannot divide these two lengths`.
 - Length+Color or Length+Gradient in either order constructs Stroke using the
-  absolute thickness and the corresponding paint. Relative+Color in either
-  order retains its current absolute-thickness stroke construction.
+  full abs/em Length and corresponding paint. Relative+Color in either
+  order retains its r.abs Length, while percentage stroke remains outside this carrier.
 - Relative addition/subtraction with Relative/Length and scalar scaling/division
   preserve both components. Relative/Relative returns a Float only for compatible
   pure absolute or relative axes; otherwise
@@ -191,3 +191,66 @@ strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARI
 without new errors or warnings outside the selected repairs. Heavy checks are
 serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
 parity claims and unresolved scope exclusions above remain bounded.
+
+
+## Measured Angle addition — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/angle-add-before6/receipt.json`
+SHA256 57b3ba6ae41702a381dfd92b552b9cd343d8bbe2d1f85b1128dbfb74944e572a
+records actual release6, HEAD 212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted exact dirty-file stat,
+source/archive/oracle identities, argv and UTC 2026-10-29T18:20:15.353573+00:00 through 2026-10-29T18:20:16.729109+00:00.
+Finite degree/mixed/negative/zero additions and cancel's angle callback fail
+with cannot add angle and angle; pinned64c5e8c0 succeeds. Existing Sub/Div and
+Angle+Int rejection are controls. Local arithmetic.rs:370 supports Sub but omits
+Add; pinned typst-library/src/foundations/ops.rs:113 explicitly supports Add.
+This is language arithmetic, not a requirement to copy upstream mechanics.
+
+### Exclusive correction and acceptance
+
+Add Angle+Angle returning Angle from the sum of retained radians, following the
+existing Angle subtraction conversion. Preserve all other pairs, zero precedence,
+IEEE policy, scaling/division, diagnostics and old tests; do not enable Angle+Int
+or add a new domain trait/API. This narrowly extends the earlier supported Angle
+list only for homogeneous addition. Co-located functional RED→GREEN checks finite
+degree/radian/negative/zero results and invalid mixed operands; retain existing
+Sub/Div tests. Repeat source-bound cancel callback and full docs comparison.
+Internal ADR-0127 continuous flow: no public contract/default/phase change.
+Require full core/workspace/build/strict lint/fmt/Clippy/rustdoc/lineage gates.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Measured green-corrected-observer.log now passes corner geometry but the
+official 2em+red stroke is rejected as zero. arithmetic.rs:386,402,484 still
+projects full Length to abs points. Length+Color/Gradient in both orders must
+retain the entire Length in the approved Stroke carrier; Relative+Color keeps
+its existing r.abs projection but retains that Length em component. Percentage
+stroke debt is unchanged. Preserve paint/presence/overhang, all other domains
+and error priority. Internal ADR-0127 correction, no new API/phase/default.

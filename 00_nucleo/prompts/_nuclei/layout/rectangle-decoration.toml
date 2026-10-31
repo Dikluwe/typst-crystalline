@@ -1,0 +1,12 @@
+tekt = 1
+kind = "nucleus"
+id = "rectangle-decoration"
+title = "Lossless rectangle decoration and coupled contours"
+[[claims]]
+id = "transport"
+level = "must"
+statement = "ShapeElem rect_radius retains all four Rel<Length> corners; rect_stroke retains Sides<Option<Stroke>>. None preserves the legacy path; Some side absence never activates a fallback. Eval preserves data and layout resolves actual size/font."
+[[claims]]
+id = "contour"
+level = "must"
+statement = "Rectangle fill and asymmetric borders derive from one contour with shared corner centers; decoration does not change logical frame or flow. Preserve paints, alpha and stroke style. Exporters consume only prepared paint and resolved geometry."

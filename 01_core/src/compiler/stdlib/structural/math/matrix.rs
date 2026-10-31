@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/matrix.md
-//! @prompt-hash fc3e066a
+//! @prompt-hash f91aee31
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -444,7 +444,7 @@ mod tests {
         let stroke = augment.stroke.unwrap();
         assert!(stroke.specified.thickness);
         assert!(!stroke.specified.paint);
-        assert_eq!(stroke.thickness, 2.0);
+        assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(2.0));
     }
 
     #[test]
@@ -487,14 +487,14 @@ mod v16_math_value_tests {
             .unwrap();
         assert!(stroke.specified.paint);
         assert!(!stroke.specified.thickness);
-        assert_eq!(stroke.thickness, 1.0);
+        assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(1.0));
         assert_eq!(stroke.paint, Paint::Solid(color));
     }
 
     #[test]
     fn v16_math_value_matrix_existing_stroke_preserves_payload_and_presence() {
         let original = Arc::new(Stroke {
-            thickness: 3.0,
+            thickness: crate::entities::layout_types::Length::pt(3.0),
             cap: LineCap::Round,
             join: LineJoin::Bevel,
             overhang: true,

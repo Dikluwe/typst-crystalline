@@ -1,12 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/glyphs.md
-//! @prompt-hash 19845705
+//! @prompt-hash 348940e6
 //! @layer L3
 //! @updated 2026-10-24
 
 use super::serialization::{color_to_css, fmt_num};
 use super::{FontKey, GlyphFontIdentity};
-use crate::font_variant::text_style_to_font_variant;
+use crate::font_variant::{
+    axis_variations_for_font_variant, merge_explicit_variations,
+    text_style_to_font_variant,
+};
 use std::collections::HashMap;
 use ttf_parser::{Face, GlyphId, OutlineBuilder};
 use typst_core::entities::font_book::FontVariant;
@@ -95,7 +98,7 @@ impl GlyphDefs {
         &mut self,
         font_idx: usize,
         glyph_id: u16,
-        font_data: &[u8],
+        font: &FontKey,
         scale: f64,
     ) -> Option<String> {
         let key = (font_idx, glyph_id, scale.to_bits());
@@ -103,7 +106,14 @@ impl GlyphDefs {
             return Some(id.clone());
         }
 
-        let face = Face::parse(font_data, 0).ok()?;
+        let (font_key, font_data) = font;
+        let mut face = Face::parse(font_data, 0).ok()?;
+        for axis in merge_explicit_variations(
+            axis_variations_for_font_variant(&font_key.1),
+            &font_key.2,
+        ) {
+            face.set_variation(axis.tag, axis.value);
+        }
         let mut builder = SvgGlyphPathBuilder::new(scale);
         let path = if face.outline_glyph(GlyphId(glyph_id), &mut builder).is_some() {
             GlyphDefinition::Outline(builder.finish())
@@ -288,7 +298,7 @@ pub(super) fn render_direct_glyph(
         write_glyph_fallback(xml, pos, "font-identity-unknown");
         return;
     };
-    let Some((font_idx, (_, bytes))) = fonts
+    let Some((font_idx, font_key)) = fonts
         .iter()
         .enumerate()
         .find(|(_, (candidate, _))| candidate == identity)
@@ -296,7 +306,7 @@ pub(super) fn render_direct_glyph(
         write_glyph_fallback(xml, pos, "mapped-font-missing");
         return;
     };
-    let Ok(face) = Face::parse(bytes, 0) else {
+    let Ok(face) = Face::parse(&font_key.1, 0) else {
         write_glyph_fallback(xml, pos, "invalid-font");
         return;
     };
@@ -306,7 +316,7 @@ pub(super) fn render_direct_glyph(
         return;
     }
     let scale = size.0 / f64::from(units_per_em);
-    let Some(id) = glyph_defs.get_or_insert(font_idx, glyph_id, bytes, scale) else {
+    let Some(id) = glyph_defs.get_or_insert(font_idx, glyph_id, font_key, scale) else {
         write_glyph_fallback(xml, pos, "outline-unavailable");
         return;
     };
@@ -341,7 +351,7 @@ pub(super) fn render_text_shaped(
     glyph_defs: &mut GlyphDefs,
     font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let Some((font_idx, font_bytes)) = fonts.get(style, font) else { return };
+    let Some((font_idx, font_key)) = fonts.get_original(style, font) else { return };
 
     if units_per_em == 0 {
         return;
@@ -368,7 +378,7 @@ pub(super) fn render_text_shaped(
         let x_offset = f64::from(glyph.x_offset) * scale;
         let y_offset = f64::from(glyph.y_offset) * scale;
         let Some(id) =
-            glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_bytes, scale)
+            glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_key, scale)
         else {
             x += f64::from(glyph.x_advance) * scale
                 + crate::shaper::tracking::residual(
@@ -429,11 +439,21 @@ mod r10_bitmap_tests {
         let face = Face::parse(bytes, 0).unwrap();
         let gid = face.glyph_index('☃').unwrap();
         assert!(face.glyph_raster_image(gid, u16::MAX).is_some());
+        let key = (
+            (
+                FontList::single(
+                    crate::fonts::font_info_from_bytes(bytes, 0).unwrap().family.into(),
+                ),
+                FontVariant::default(),
+                FontVariations::default(),
+            ),
+            bytes.to_vec(),
+        );
         let mut defs = GlyphDefs::default();
         let first = defs
-            .get_or_insert(0, gid.0, bytes, 0.01)
+            .get_or_insert(0, gid.0, &key, 0.01)
             .expect("a supplied PNG raster glyph must remain visible");
-        assert_eq!(Some(first), defs.get_or_insert(0, gid.0, bytes, 0.01));
+        assert_eq!(Some(first), defs.get_or_insert(0, gid.0, &key, 0.01));
         let mut xml = XmlWriter::new(xmlwriter::Options::default());
         defs.write(&mut xml);
         let svg = xml.end_document();

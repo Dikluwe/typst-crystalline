@@ -1,5 +1,5 @@
 # L0 — helpers
-Hash do Código: 253a261d
+Hash do Código: 8eced012
 
 
 
@@ -177,3 +177,28 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+## Stack physical-frame correction: obsolete ink helper (2026-10-27)
+
+Measurement before decision: `lab/results/construction/diagnostics/stack-image-flow-fix-2026-10-27/obsolete-ink-helper.json` records every workspace Rust callsite at the frozen candidate state. Removing Stack's obsolete painted-ink sizing leaves `item_bottom_y` referenced only by its recursion and the existing separator-exclusion test; release emits dead_code in `release-candidate2.log`.
+
+Decision: compile this internal helper only under `#[cfg(test)]`, retaining its exact signature, approximation, recursion and existing assertions. This follows the already specified test-only treatment of `line_content_bottom`; no warning allowance, test removal, public contract or alternative productive ink-sizing path. Production Stack uses the logical child-frame contract under its owner. Require warning-free build/Clippy and unchanged tests plus the full geometry/resource gates.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

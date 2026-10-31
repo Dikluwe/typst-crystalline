@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash 0ec9dcfe
+//! @prompt-hash edffb318
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -18,6 +18,14 @@ pub(super) fn invoke_resolved_call(
     let callee = match resolved_callee {
         Some(value) => value,
         None => eval_expr(call.callee(), scopes, ctx, engine)?,
+    };
+
+    let callee = if let Value::Symbol(symbol) = &callee {
+        crate::compiler::stdlib::symbol_accent_func(symbol.value.as_str(), call.span())
+            .map(Value::Func)
+            .unwrap_or(callee)
+    } else {
+        callee
     };
 
     match callee {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/math_frac_tests.md
-//! @prompt-hash 222394aa
+//! @prompt-hash 3eb16b23
 //! @layer L1
 #![cfg(test)]
 //!
@@ -191,8 +191,14 @@ fn p1427_binding_assinatura_casts_e_diagnosticos() {
             value_span: Span::detached(),
         },
     ];
-    assert!(diagnostic(Args::from_occurrences(Span::detached(), occurrences))
-        .contains("duplicate"));
+    assert_eq!(
+        frac(Args::from_occurrences(Span::detached(), occurrences.clone())).style,
+        Some(MathFracStyle::Skewed)
+    );
+    let mut invalid_first = occurrences;
+    invalid_first[2].value = Value::Bool(true);
+    assert!(diagnostic(Args::from_occurrences(Span::detached(), invalid_first))
+        .contains("boolean"));
 
     let style_first = Args::from_occurrences(
         Span::detached(),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/mod.md
-//! @prompt-hash 3e27b702
+//! @prompt-hash 806bf615
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -87,6 +87,7 @@ pub use lists::{
 pub use markup::{native_emph, native_link, native_raw, native_strong};
 pub(crate) use math::abs::math_abs_from_args;
 pub use math::accent::native_accent;
+pub(in crate::compiler) use math::accent::symbol_accent_func;
 pub(crate) use math::accent::{is_known_math_accent, math_accent_content};
 pub(crate) use math::annotations::{
     math_overbrace_from_args, math_overbracket_from_args, math_overparen_from_args,
@@ -122,6 +123,8 @@ pub use outline::{
 };
 pub use par::{native_par, native_par_line, native_parbreak};
 pub use quote::native_quote;
+pub(in crate::compiler) use table_grid::{table_alignment, table_alignment_at};
+
 pub use table_grid::{
     native_grid_cell, native_grid_footer, native_grid_header, native_table,
     native_table_cell, native_table_footer, native_table_header,
@@ -994,7 +997,10 @@ mod tests {
             assert_eq!(e.end, None);
             assert_eq!(e.row, 0);
             assert_eq!(e.position.as_str(), "auto");
-            assert_eq!(e.stroke.as_ref().expect("stroke default").thickness, 1.0);
+            assert_eq!(
+                e.stroke.as_ref().expect("stroke default").thickness,
+                crate::entities::layout_types::Length::pt(1.0)
+            );
         } else {
             panic!("esperado GridHLine");
         }
@@ -1074,18 +1080,12 @@ mod tests {
         );
     }
 
-    // ── P825 (sub-achado A de P810 §12) — domínio do cast de MathClass ────
-    //
-    // O vanilla (`foundations/cast.rs:502-520`) aceita apenas 10 strings em
-    // `math.class(str, body)`; `alphabetic`, `diacritic`, `glyph-part`,
-    // `space` e `special` são variantes INTERNAS (atribuídas automaticamente
-    // a símbolos), rejeitadas no cast com a mensagem verbatim
-    // `expected "normal", ..., or "vary"`. Medido em P825 (sonda
-    // `temp/p825/cls-*.typ`): o cristalino compilava as 15.
+    // Current-pin cast: eleven public names including diacritic.
+    // Four other internal names remain rejected; historical tests archived.
 
     const CAST_MSG: &str = "expected \"normal\", \"punctuation\", \"opening\", \
          \"closing\", \"fence\", \"large\", \"relation\", \"unary\", \"binary\", \
-         or \"vary\"";
+         \"vary\", or \"diacritic\"";
 
     fn call_class(args: Args) -> SourceResult<Value> {
         native_math_class(
@@ -1106,7 +1106,7 @@ mod tests {
     }
 
     #[test]
-    fn p825a_aceita_as_10_classes_do_cast_vanilla() {
+    fn p825a_accepts_current_eleven_class_domain() {
         for name in [
             "normal",
             "punctuation",
@@ -1118,6 +1118,7 @@ mod tests {
             "unary",
             "binary",
             "vary",
+            "diacritic",
         ] {
             assert!(
                 call_class(class_args(Value::Str(name.into()))).is_ok(),
@@ -1128,7 +1129,7 @@ mod tests {
 
     #[test]
     fn p825a_rejeita_variantes_internas_fora_do_cast() {
-        for name in ["alphabetic", "diacritic", "glyph-part", "space", "special"] {
+        for name in ["alphabetic", "glyph-part", "space", "special"] {
             let err = call_class(class_args(Value::Str(name.into())))
                 .expect_err(&format!("{name} deve ser rejeitado (cast vanilla)"));
             assert!(
@@ -1152,7 +1153,7 @@ mod tests {
 
     #[test]
     fn p825a_arg_nao_string_reporta_tipo_vanilla() {
-        // Vanilla: `expected "normal", ..., or "vary", found integer`.
+        // Current native cast retains the integer type suffix.
         let err = call_class(class_args(Value::Int(3))).unwrap_err();
         assert!(err[0].message.contains(CAST_MSG), "obteve: {}", err[0].message);
         assert!(

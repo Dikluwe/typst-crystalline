@@ -1,10 +1,56 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup_stream.md
-//! @prompt-hash 95b69efd
+//! @prompt-hash 66ec5763
 //! @layer L1
 //! @updated 2026-10-07
 
 use super::*;
+
+enum TailAction {
+    Style(Box<crate::entities::style::Styles>),
+    Sequence(crate::compiler::realize::sequences::Snapshot),
+    Whole(Box<super::whole_recipe::WholeRecipe>),
+}
+
+fn close_style_tail(
+    index: usize,
+    delta: crate::entities::style::Styles,
+    parts: &mut Vec<Content>,
+    consumed: &mut Vec<bool>,
+) {
+    let tail = parts
+        .split_off(index)
+        .into_iter()
+        .zip(consumed.split_off(index))
+        .filter_map(|(part, consumed)| (!consumed).then_some(part))
+        .collect();
+    let delta = delta.push_custom("eval.flow.scope", Value::Bool(true));
+    parts.push(Content::styled(Box::new(Content::sequence(tail)), delta));
+    consumed.push(false);
+}
+
+fn close_sequence_tail(
+    index: usize,
+    scope: crate::compiler::realize::sequences::Snapshot,
+    origin: Span,
+    parts: &mut Vec<Content>,
+    consumed: &mut Vec<bool>,
+    ctx: &mut EvalContext,
+) {
+    let tail = Content::sequence(
+        parts
+            .split_off(index)
+            .into_iter()
+            .zip(consumed.split_off(index))
+            .filter_map(|(part, consumed)| (!consumed).then_some(part))
+            .filter(|part| !matches!(part, Content::Empty))
+            .collect(),
+    );
+    parts.push(crate::compiler::realize::sequences::capture_scope(
+        tail, scope, origin, ctx,
+    ));
+    consumed.push(false);
+}
 
 pub(crate) fn eval_markup(
     node: &SyntaxNode,
@@ -25,7 +71,9 @@ pub(super) fn eval_markup_impl(
     normalize_spaces: bool,
 ) -> SourceResult<Value> {
     let frame = rules::textual::enter_scope(ctx, engine);
+    let previous_defer = ctx.defer_show_rules;
     let result = eval_markup_in_scope(node, scopes, ctx, engine, normalize_spaces);
+    ctx.defer_show_rules = previous_defer;
     rules::textual::leave_scope(ctx, frame);
     result
 }
@@ -39,6 +87,10 @@ fn eval_markup_in_scope(
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
     let mut sequence_scopes = Vec::new();
+    let mut whole_scopes = Vec::new();
+    let mut whole_generation = 0;
+    let mut style_generations = Vec::new();
+    let mut sequence_generations = Vec::new();
     if ctx.apply_show_rules {
         if let Some(scope) = crate::compiler::realize::sequences::snapshot(engine) {
             sequence_scopes.push((0, scope));
@@ -138,7 +190,25 @@ fn eval_markup_in_scope(
             }
             _ => {
                 if let Some(expr) = Expr::from_untyped(child) {
-                    let value = eval_expr(expr, scopes, ctx, engine)?;
+                    let value = match expr {
+                        Expr::ShowRule(rule) if rule.selector().is_none() => {
+                            let whole = super::whole_recipe::WholeRecipe::capture(
+                                rule, scopes, ctx, engine,
+                            )?;
+                            if ctx.flow.is_some() {
+                                break;
+                            }
+                            if whole_scopes.is_empty() {
+                                style_generations.resize(boundaries.len(), 0);
+                                sequence_generations.resize(sequence_scopes.len(), 0);
+                            }
+                            whole_scopes.push((parts.len(), whole_generation, whole));
+                            whole_generation += 1;
+                            ctx.defer_show_rules = true;
+                            Value::None
+                        }
+                        _ => eval_expr(expr, scopes, ctx, engine)?,
+                    };
                     if let Value::Label(label) = value {
                         attach_label(
                             &mut parts[label_scope_start..],
@@ -260,6 +330,9 @@ fn eval_markup_in_scope(
                 if let Some(scope) = crate::compiler::realize::sequences::snapshot(engine)
                 {
                     sequence_scopes.push((parts.len(), scope));
+                    if !whole_scopes.is_empty() {
+                        sequence_generations.push(whole_generation);
+                    }
                 }
             }
         }
@@ -274,6 +347,9 @@ fn eval_markup_in_scope(
         if cur != running_delta {
             let styles = cur.diff_styles(&running_delta);
             boundaries.push((parts.len(), styles));
+            if !whole_scopes.is_empty() {
+                style_generations.push(whole_generation);
+            }
             running_delta = cur;
         }
     }
@@ -290,41 +366,86 @@ fn eval_markup_in_scope(
         engine,
         normalize_spaces,
     )?;
-    let mut styles = boundaries.into_iter().rev().peekable();
-    let mut sequences = sequence_scopes.into_iter().rev().peekable();
-    while styles.peek().is_some() || sequences.peek().is_some() {
-        let take_sequence = sequences.peek().is_some_and(|(index, _)| {
-            styles.peek().is_none_or(|(style_index, _)| index >= style_index)
-        });
-        if take_sequence {
-            let (index, scope) = sequences.next().unwrap();
-            let tail = Content::sequence(
-                parts
-                    .split_off(index)
-                    .into_iter()
-                    .zip(consumed.split_off(index))
-                    .filter_map(|(part, consumed)| (!consumed).then_some(part))
-                    .filter(|part| !matches!(part, Content::Empty))
-                    .collect(),
-            );
-            parts.push(crate::compiler::realize::sequences::capture_scope(
-                tail,
-                scope,
-                sequence_origin,
-                ctx,
+    if whole_scopes.is_empty() {
+        let mut styles = boundaries.into_iter().rev().peekable();
+        let mut sequences = sequence_scopes.into_iter().rev().peekable();
+        while styles.peek().is_some() || sequences.peek().is_some() {
+            let take_sequence = sequences.peek().is_some_and(|(index, _)| {
+                styles.peek().is_none_or(|(style_index, _)| index >= style_index)
+            });
+            if take_sequence {
+                let (index, scope) = sequences.next().unwrap();
+                close_sequence_tail(
+                    index,
+                    scope,
+                    sequence_origin,
+                    &mut parts,
+                    &mut consumed,
+                    ctx,
+                );
+            } else {
+                let (index, delta) = styles.next().unwrap();
+                close_style_tail(index, delta, &mut parts, &mut consumed);
+            }
+        }
+    } else {
+        let mut events = Vec::new();
+        for (serial, ((index, delta), generation)) in
+            boundaries.into_iter().zip(style_generations).enumerate()
+        {
+            events.push((
+                index,
+                generation,
+                0,
+                serial,
+                TailAction::Style(Box::new(delta)),
             ));
-            consumed.push(false);
-        } else {
-            let (index, delta) = styles.next().unwrap();
-            let tail = parts
-                .split_off(index)
-                .into_iter()
-                .zip(consumed.split_off(index))
-                .filter_map(|(part, consumed)| (!consumed).then_some(part))
-                .collect();
-            let delta = delta.push_custom("eval.flow.scope", Value::Bool(true));
-            parts.push(Content::styled(Box::new(Content::sequence(tail)), delta));
-            consumed.push(false);
+        }
+        for (serial, ((index, scope), generation)) in
+            sequence_scopes.into_iter().zip(sequence_generations).enumerate()
+        {
+            events.push((index, generation, 1, serial, TailAction::Sequence(scope)));
+        }
+        for (serial, (index, generation, recipe)) in whole_scopes.into_iter().enumerate()
+        {
+            events.push((
+                index,
+                generation,
+                2,
+                serial,
+                TailAction::Whole(Box::new(recipe)),
+            ));
+        }
+        events.sort_by_key(|(index, generation, rank, serial, _)| {
+            (*index, *generation, *rank, *serial)
+        });
+        for (index, _, _, _, action) in events.into_iter().rev() {
+            match action {
+                TailAction::Style(delta) => {
+                    close_style_tail(index, *delta, &mut parts, &mut consumed)
+                }
+                TailAction::Sequence(scope) => close_sequence_tail(
+                    index,
+                    scope,
+                    sequence_origin,
+                    &mut parts,
+                    &mut consumed,
+                    ctx,
+                ),
+                TailAction::Whole(recipe) => {
+                    let tail = Content::sequence(
+                        parts
+                            .split_off(index)
+                            .into_iter()
+                            .zip(consumed.split_off(index))
+                            .filter_map(|(part, consumed)| (!consumed).then_some(part))
+                            .collect(),
+                    );
+                    let product = recipe.apply(tail, ctx, engine)?;
+                    append_markup_sequence(&mut parts, product, capture_origin);
+                    consumed.resize(parts.len(), false);
+                }
+            }
         }
     }
 

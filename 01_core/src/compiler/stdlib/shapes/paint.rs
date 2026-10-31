@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/paint.md
-//! @prompt-hash 30279b87
+//! @prompt-hash e0dcbec7
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -48,7 +48,7 @@ pub(super) fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Str
     if let Some(color) = parse_color(val) {
         return Ok(Stroke {
             paint: Paint::Solid(color),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: true,
             ..Stroke::default()
         });

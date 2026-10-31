@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization/page_running.md
-//! @prompt-hash 039e1da8
+//! @prompt-hash 75d52aeb
 //! @layer L3
 //! @updated 2026-10-21
 
 use super::*;
+use std::num::NonZeroUsize;
 use typst_core::compiler::introspect::page_running::{
     introspect_with_page_running, prepare_page_running_body, PageRunningIndexInput,
 };
@@ -87,6 +88,59 @@ pub(super) struct RunningState {
     allocation_frames: HashMap<PageRunningKey, AllocationFrames>,
     failed_warnings: Vec<SourceDiagnostic>,
     bundle: Vec<RunningState>,
+    numbering_partition: Option<Vec<usize>>,
+}
+
+/// Counts come only from these actual document steps, never request/paint inference.
+fn document_page_counts(steps: &[PhysicalStep], targets: &[bool]) -> Option<Vec<usize>> {
+    if steps.len() != targets.len() {
+        return None;
+    }
+    steps
+        .iter()
+        .zip(targets)
+        .map(|(step, &html)| {
+            if html {
+                (step.target == EvalTarget::Html && step.document.is_none()).then_some(0)
+            } else if step.target == EvalTarget::Paged {
+                let count = step.document.as_ref()?.pages.len();
+                (count > 0).then_some(count)
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+fn document_numbering_ranges(
+    input: &TagIntrospector,
+    counts: Option<&[usize]>,
+    targets: &[bool],
+) -> Option<Vec<Option<(NonZeroUsize, NonZeroUsize)>>> {
+    let counts = counts?;
+    let total = input.page_store.total_pages()?.get();
+    if counts.len() != targets.len() {
+        return None;
+    }
+    let mut offset = 0usize;
+    let mut ranges = Vec::with_capacity(counts.len());
+    for (&count, &html) in counts.iter().zip(targets) {
+        if html {
+            if count != 0 {
+                return None;
+            }
+            ranges.push(None);
+        } else {
+            let size = NonZeroUsize::new(count)?;
+            let first = NonZeroUsize::new(offset.checked_add(1)?)?;
+            offset = offset.checked_add(count)?;
+            if offset > total {
+                return None;
+            }
+            ranges.push(Some((first, size)));
+        }
+    }
+    (offset == total).then_some(ranges)
 }
 
 /// Only the exact immutable outer capture proves unchanged execution inputs.
@@ -254,277 +308,294 @@ fn same_running_capture(left: &Content, right: &Content) -> bool {
 }
 
 /// Inspect reached static visual members through the existing public surface.
-/// Operational page templates and Realized originals do not select body layout.
-pub(super) fn has_reached_repeat(content: &Content) -> bool {
+/// Operational templates and Realized originals are not reached body work.
+/// Plain numbering declarations and heading Outlines join the approved channel.
+pub(super) fn has_reached_physical_content(content: &Content) -> bool {
     let mut found = false;
     match content {
         Content::Source(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
         }
         Content::ShowRecipe(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
         }
         Content::Located(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
         }
         Content::Realized(e) => {
-            found |= has_reached_repeat(&e.visual);
+            found |= has_reached_physical_content(&e.visual);
         }
         Content::Sequence(parts) | Content::MathSequence(parts) => {
             for child in parts.iter() {
-                found |= has_reached_repeat(child);
+                found |= has_reached_physical_content(child);
             }
         }
         Content::Par { body } | Content::SmallCaps { body } => {
-            found |= has_reached_repeat(body)
+            found |= has_reached_physical_content(body)
         }
         Content::HtmlElem(e) => {
             if let typst_core::entities::html::HtmlBody::Content(body) = &e.body {
-                found |= has_reached_repeat(body);
+                found |= has_reached_physical_content(body);
             }
         }
         Content::PageRun(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= matches!(
+                &e.numbering,
+                Some(Some(typst_core::entities::numbering::Numbering::Pattern(_)))
+            );
+            found |= has_reached_physical_content(&e.body);
         }
-        Content::HtmlFrame(e) => found |= has_reached_repeat(&e.body),
-        Content::Heading(e) => found |= has_reached_repeat(&e.body),
-        Content::Title(e) => found |= has_reached_repeat(&e.body),
-        Content::Strong(e) => found |= has_reached_repeat(&e.body),
-        Content::Emph(e) => found |= has_reached_repeat(&e.body),
-        Content::ListItem(e) => found |= has_reached_repeat(&e.body),
-        Content::EnumItem(e) => found |= has_reached_repeat(&e.body),
-        Content::Link(e) => found |= has_reached_repeat(&e.body),
-        Content::Label(e) => found |= has_reached_repeat(&e.body),
-        Content::Equation(e) => found |= has_reached_repeat(&e.body),
-        Content::MathStretch(e) => found |= has_reached_repeat(&e.body),
-        Content::MathDelimited(e) => found |= has_reached_repeat(&e.body),
-        Content::MathLr(e) => found |= has_reached_repeat(&e.body),
-        Content::MathMid(e) => found |= has_reached_repeat(&e.body),
-        Content::MathCancel(e) => found |= has_reached_repeat(&e.body),
-        Content::MathUnderline(e) => found |= has_reached_repeat(&e.body),
-        Content::MathOverline(e) => found |= has_reached_repeat(&e.body),
-        Content::MathClassOverride(e) => found |= has_reached_repeat(&e.body),
-        Content::MathLimitsOverride(e) => found |= has_reached_repeat(&e.body),
-        Content::MathStyled(e) => found |= has_reached_repeat(&e.body),
-        Content::PdfArtifact(e) => found |= has_reached_repeat(&e.body),
-        Content::Underline(e) => found |= has_reached_repeat(&e.body),
-        Content::Strike(e) => found |= has_reached_repeat(&e.body),
-        Content::Overline(e) => found |= has_reached_repeat(&e.body),
-        Content::Pad(e) => found |= has_reached_repeat(&e.body),
-        Content::Hide(e) => found |= has_reached_repeat(&e.body),
-        Content::Block(e) => found |= has_reached_repeat(&e.body),
-        Content::Boxed(e) => found |= has_reached_repeat(&e.body),
+        Content::SetPage(e) => {
+            found |= matches!(
+                &e.numbering,
+                Some(Some(typst_core::entities::numbering::Numbering::Pattern(_)))
+            );
+        }
+        Content::HtmlFrame(e) => found |= has_reached_physical_content(&e.body),
+        Content::Heading(e) => found |= has_reached_physical_content(&e.body),
+        Content::Title(e) => found |= has_reached_physical_content(&e.body),
+        Content::Strong(e) => found |= has_reached_physical_content(&e.body),
+        Content::Emph(e) => found |= has_reached_physical_content(&e.body),
+        Content::ListItem(e) => found |= has_reached_physical_content(&e.body),
+        Content::EnumItem(e) => found |= has_reached_physical_content(&e.body),
+        Content::Link(e) => found |= has_reached_physical_content(&e.body),
+        Content::Label(e) => found |= has_reached_physical_content(&e.body),
+        Content::Equation(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathStretch(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathDelimited(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathLr(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathMid(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathCancel(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathUnderline(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathOverline(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathClassOverride(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathLimitsOverride(e) => found |= has_reached_physical_content(&e.body),
+        Content::MathStyled(e) => found |= has_reached_physical_content(&e.body),
+        Content::PdfArtifact(e) => found |= has_reached_physical_content(&e.body),
+        Content::Underline(e) => found |= has_reached_physical_content(&e.body),
+        Content::Strike(e) => found |= has_reached_physical_content(&e.body),
+        Content::Overline(e) => found |= has_reached_physical_content(&e.body),
+        Content::Pad(e) => found |= has_reached_physical_content(&e.body),
+        Content::Hide(e) => found |= has_reached_physical_content(&e.body),
+        Content::Block(e) => found |= has_reached_physical_content(&e.body),
+        Content::Boxed(e) => found |= has_reached_physical_content(&e.body),
         Content::Repeat(_) => {
             found = true;
         }
-        Content::Columns(e) => found |= has_reached_repeat(&e.body),
-        Content::Transform(e) => found |= has_reached_repeat(&e.body),
-        Content::GridHeader(e) => found |= has_reached_repeat(&e.body),
-        Content::GridFooter(e) => found |= has_reached_repeat(&e.body),
-        Content::GridCell(e) => found |= has_reached_repeat(&e.body),
-        Content::TableHeader(e) => found |= has_reached_repeat(&e.body),
-        Content::TableFooter(e) => found |= has_reached_repeat(&e.body),
-        Content::Footnote(e) => found |= has_reached_repeat(&e.body),
-        Content::Align(e) => found |= has_reached_repeat(&e.body),
-        Content::Place(e) => found |= has_reached_repeat(&e.body),
-        Content::Styled(e) => found |= has_reached_repeat(&e.body),
+        Content::Columns(e) => found |= has_reached_physical_content(&e.body),
+        Content::Transform(e) => found |= has_reached_physical_content(&e.body),
+        Content::GridHeader(e) => found |= has_reached_physical_content(&e.body),
+        Content::GridFooter(e) => found |= has_reached_physical_content(&e.body),
+        Content::GridCell(e) => found |= has_reached_physical_content(&e.body),
+        Content::TableHeader(e) => found |= has_reached_physical_content(&e.body),
+        Content::TableFooter(e) => found |= has_reached_physical_content(&e.body),
+        Content::Footnote(e) => found |= has_reached_physical_content(&e.body),
+        Content::Align(e) => found |= has_reached_physical_content(&e.body),
+        Content::Place(e) => found |= has_reached_physical_content(&e.body),
+        Content::Styled(e) => found |= has_reached_physical_content(&e.body),
         Content::Figure(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.caption {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::FigureCaption(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.separator {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathFrac(e) => {
-            found |= has_reached_repeat(&e.num);
-            found |= has_reached_repeat(&e.den);
+            found |= has_reached_physical_content(&e.num);
+            found |= has_reached_physical_content(&e.den);
         }
         Content::MathAttach(e) => {
-            found |= has_reached_repeat(&e.base);
+            found |= has_reached_physical_content(&e.base);
             for slot in [&e.t, &e.b, &e.tl, &e.bl, &e.tr, &e.br] {
                 if let typst_core::entities::elements::math_attach::MathAttachSlot::Present(
                     c,
                 ) = slot
                 {
-                    found |= has_reached_repeat(c);
+                    found |= has_reached_physical_content(c);
                 }
             }
         }
         Content::MathRoot(e) => {
             if let Some(c) = &e.index {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
-            found |= has_reached_repeat(&e.radicand);
+            found |= has_reached_physical_content(&e.radicand);
         }
         Content::MathOverbrace(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathUnderbrace(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathUnderbracket(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathUnderparen(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathUndershell(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathOverbracket(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathOverparen(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathOvershell(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.annotation {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathMatrix(e) => {
             for row in &e.rows {
                 for c in row {
-                    found |= has_reached_repeat(c);
+                    found |= has_reached_physical_content(c);
                 }
             }
         }
         Content::MathCases(e) => {
             for c in &e.children {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::MathVec(e) => {
             for c in &e.children {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
-        Content::MathAccent(e) => found |= has_reached_repeat(&e.base),
+        Content::MathAccent(e) => found |= has_reached_physical_content(&e.base),
         Content::MathUnderover(e) => {
-            found |= has_reached_repeat(&e.base);
+            found |= has_reached_physical_content(&e.base);
             for c in [&e.under, &e.over].into_iter().flatten() {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
-        Content::MathOp(e) => found |= has_reached_repeat(&e.text),
+        Content::MathOp(e) => found |= has_reached_physical_content(&e.text),
         Content::Terms(e) => {
             for c in &e.items {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::TermItem(e) => {
-            found |= has_reached_repeat(&e.term);
-            found |= has_reached_repeat(&e.description);
+            found |= has_reached_physical_content(&e.term);
+            found |= has_reached_physical_content(&e.description);
         }
         Content::Quote(e) => {
-            found |= has_reached_repeat(&e.body);
+            found |= has_reached_physical_content(&e.body);
             if let Some(c) = &e.attribution {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Stack(e) => {
             for c in e.children.iter() {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Outline(e) => {
+            found |= e.target
+                == typst_core::entities::elements::outline::OutlineTarget::Headings;
             if let Some(c) = &e.title {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
             if let Some(c) = e.realized_body() {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::OutlineEntry(e) => {
-            found |= has_reached_repeat(&e.element);
+            found |= has_reached_physical_content(&e.element);
             if let Some(c) = &e.fill {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
             if let Some(c) = e.prefix() {
-                found |= has_reached_repeat(&c);
+                found |= has_reached_physical_content(&c);
             }
         }
         Content::Grid(e) => {
             for c in &e.cells {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
             for c in [&e.header, &e.footer].into_iter().flatten() {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Table(e) => {
             if let Some(plan) = &e.resolved {
                 for c in &plan.cells {
-                    found |= has_reached_repeat(c);
+                    found |= has_reached_physical_content(c);
+                }
+            } else if let Some(items) = &e.items {
+                for c in items {
+                    found |= has_reached_physical_content(c);
                 }
             } else {
                 for c in &e.children {
-                    found |= has_reached_repeat(c);
+                    found |= has_reached_physical_content(c);
                 }
                 for c in [&e.header, &e.footer].into_iter().flatten() {
-                    found |= has_reached_repeat(c);
+                    found |= has_reached_physical_content(c);
                 }
             }
             if let Some(c) = &e.caption {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::TableCell(e) => {
             if let Some(resolved) = &e.resolved {
-                found |= has_reached_repeat(&resolved.visual);
+                found |= has_reached_physical_content(&resolved.visual);
             } else if let Some(standalone) = &e.standalone {
-                found |= has_reached_repeat(&standalone.visual);
+                found |= has_reached_physical_content(&standalone.visual);
             } else {
-                found |= has_reached_repeat(&e.body);
+                found |= has_reached_physical_content(&e.body);
             }
         }
         Content::Bibliography(e) => {
             if let Some(c) = &e.title {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Cite(e) => {
             if let Some(c) = &e.supplement {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::FootnoteEntry(e) => {
-            found |= has_reached_repeat(&e.note);
+            found |= has_reached_physical_content(&e.note);
             if let Some(c) = &e.separator {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Document { body, title, .. } => {
-            found |= has_reached_repeat(body);
+            found |= has_reached_physical_content(body);
             if let Some(c) = title {
-                found |= has_reached_repeat(c);
+                found |= has_reached_physical_content(c);
             }
         }
         Content::Empty
@@ -545,7 +616,6 @@ pub(super) fn has_reached_repeat(content: &Content) -> bool {
         | Content::Image(..)
         | Content::Shape(..)
         | Content::Curve(..)
-        | Content::SetPage(..)
         | Content::Flush(..)
         | Content::Divider(..)
         | Content::Asset { .. }
@@ -598,11 +668,10 @@ pub(super) fn has_potential(content: &Content) -> bool {
         }
         Ok(None)
     });
-    found || has_reached_repeat(content)
+    found || has_reached_physical_content(content)
 }
 
 fn retain_input_numbering_views(index: &mut TagIntrospector, input: &TagIntrospector) {
-    use std::num::NonZeroUsize;
     use typst_core::entities::page_store::PageStore;
 
     let current = &index.page_store;
@@ -1328,11 +1397,13 @@ impl Session<'_> {
         }
         self.prepare_outline_candidate(content, input)?;
         let mut callbacks = LayoutCallbacks::default();
-        let discovery = self.physical_step(content, input, &mut callbacks, false)?;
+        let discovery =
+            self.physical_step(content, input, &mut callbacks, false, None)?;
         let (index, _, _) =
             self.index_physical_steps(std::slice::from_ref(&discovery), input)?;
         let replay_input = Arc::new(index);
-        let step = self.physical_step(content, &replay_input, &mut callbacks, true)?;
+        let step =
+            self.physical_step(content, &replay_input, &mut callbacks, true, None)?;
         let (index, _, mut warnings) =
             self.index_physical_steps(std::slice::from_ref(&step), input)?;
         warnings.extend(step.warnings);
@@ -1356,6 +1427,13 @@ impl Session<'_> {
         if parts.len() != targets.len() {
             return terminal(self.source, Vec::new());
         }
+        let discovery_ranges = document_numbering_ranges(
+            input,
+            self.running.numbering_partition.as_deref(),
+            targets,
+        );
+        let mut partition_qualified =
+            input.page_store.is_empty() || discovery_ranges.is_some();
         let mut states = std::mem::take(&mut self.running.bundle);
         states.resize_with(parts.len(), RunningState::default);
         let mut callbacks: Vec<_> =
@@ -1374,7 +1452,13 @@ impl Session<'_> {
                 })
             } else {
                 self.prepare_outline_candidate(body, input).and_then(|()| {
-                    self.physical_step(body, input, &mut callbacks[index], false)
+                    self.physical_step(
+                        body,
+                        input,
+                        &mut callbacks[index],
+                        false,
+                        discovery_ranges.as_ref().and_then(|ranges| ranges[index]),
+                    )
                 })
             };
             std::mem::swap(&mut self.running, &mut states[index]);
@@ -1391,14 +1475,27 @@ impl Session<'_> {
             self.index_physical_steps(&steps, input)?;
         if steps.iter().any(|step| step.target == EvalTarget::Paged) {
             let replay_input = Arc::new(index);
+            let replay_counts = document_page_counts(&steps, targets);
+            let replay_ranges = document_numbering_ranges(
+                &replay_input,
+                replay_counts.as_deref(),
+                targets,
+            );
+            partition_qualified &=
+                replay_input.page_store.is_empty() || replay_ranges.is_some();
             let mut states = std::mem::take(&mut self.running.bundle);
             for (i, (body, &html)) in parts.iter().zip(targets).enumerate() {
                 if html {
                     continue;
                 }
                 std::mem::swap(&mut self.running, &mut states[i]);
-                let replay =
-                    self.physical_step(body, &replay_input, &mut callbacks[i], true);
+                let replay = self.physical_step(
+                    body,
+                    &replay_input,
+                    &mut callbacks[i],
+                    true,
+                    replay_ranges.as_ref().and_then(|ranges| ranges[i]),
+                );
                 std::mem::swap(&mut self.running, &mut states[i]);
                 match replay {
                     Ok(step) => steps[i] = step,
@@ -1414,9 +1511,14 @@ impl Session<'_> {
             starts = rebuilt.1;
             warnings = rebuilt.2;
         }
-        let complete = steps
-            .iter()
-            .all(|step| step.target == EvalTarget::Html || step.document.is_some());
+        let final_counts = document_page_counts(&steps, targets);
+        self.running.numbering_partition = final_counts.filter(|counts| {
+            document_numbering_ranges(&index, Some(counts), targets).is_some()
+        });
+        let complete = partition_qualified
+            && steps
+                .iter()
+                .all(|step| step.target == EvalTarget::Html || step.document.is_some());
         for step in &steps {
             warnings.extend(step.warnings.iter().cloned());
         }
@@ -1467,6 +1569,7 @@ impl Session<'_> {
         input: &Arc<TagIntrospector>,
         callbacks: &mut LayoutCallbacks,
         replay: bool,
+        numbering_range: Option<(NonZeroUsize, NonZeroUsize)>,
     ) -> SourceResult<PhysicalStep> {
         self.running.failed_warnings.clear();
         let content = self.outline_candidate_content(content);
@@ -1486,6 +1589,12 @@ impl Session<'_> {
             }
             let sealed = self.current_running_store()?;
             let body = self.running.body.as_ref().unwrap();
+            let projected = numbering_range
+                .map(|(first, total)| {
+                    body.with_numbering_input(&input.page_store, first, total)
+                })
+                .transpose()?;
+            let body = projected.as_ref().unwrap_or(body);
             let outcome = layout_with_page_running(
                 body,
                 input.as_ref().clone(),

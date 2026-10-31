@@ -3,6 +3,48 @@
 Diagnostics record evidence, limitations, and unresolved questions. They do not
 own productive consumers and are not L0 specifications.
 
+- [Nested-equation index and JPEG recovery](readiness-fixes-2026-10-28.md): index semantics preserved, compiler alignment8 recovery and complete technical/language/visual/JPEG/resource qualification; four approvals intact and known parity debts explicit.
+
+- [Readiness for Typst users](vanilla-readiness-2026-10-28.md): fresh representative documents, fixed-package probes and PDF/SVG review; guided experimental demo recommended, general replacement blocked by basic layout and template incompatibilities.
+
+- [Grayscale JPEG noise](jpeg-gray-noise-2026-10-28.md): direct borrowed reader, measured noise/gradient gains, preserved memory and full validation.
+
+- [Block math vertical continuation](block-math-vertical-advance-fix-2026-10-27.md): geometric post-equation origins, active Block inset, RED→GREEN, full validation, JPEG compatibility/memory and resource validation.
+
+- [Math width in horizontal stacks](math-stack-width-fix-2026-10-27.md): natural display-math extents, finite wrapping, Auto/fixed containers and RTL; RED→GREEN, full validation and preserved JPEG/resource gains.
+
+- [Stack image frames](stack-image-flow-fix-2026-10-27.md): logical image extents, directions and page breaks; transported origins, RED→GREEN, full validation and preserved JPEG/resource gains.
+
+- [Image vertical flow and horizontal paragraphs](image-flow-fix-2026-10-27.md): fixed image progress and h-only paragraph spacing; two-page oracle match, lexical scope controls, RED→GREEN, full validation and preserved JPEG/resource gains.
+
+- [Pinned vanilla comparison after JPEG](vanilla-comparison-after-jpeg-2026-10-27.md): fresh general debug/release comparison against 64c5e8c0, JPEG and PDF resources, preserved notes/relative lines, tracking gaps and retained paint/refuter limits.
+
+- [Residual gradient JPEG](jpeg-gradient-residual-2026-10-27.md): batched marker framing with full decode preserved; differential RED→GREEN, four-version confidence/RSS measurements, rejected recipe experiments and complete validation.
+
+- [Gradient grayscale JPEG](jpeg-gradient-2026-10-26.md): native reconstructed stripes with preserved Luma fallback; allocation RED→GREEN, frozen latency/RSS gates, three-version measurements, corruption replay and full validation.
+
+- [Grayscale JPEG validation](jpeg-grayscale-2026-10-26.md): native Luma stripes avoid discarded RGB expansion; fresh three-version time/RSS measurements, allocation RED→GREEN, corruption replay and full validation.
+
+- [JPEG scanline validation](jpeg-scanline-2026-10-26.md): conservative baseline zune-jpeg fast path with complete legacy fallback; RGB-large RSS −85.5%, time −62.6%, grayscale latency +7.0%, binary +0.47%, 14,604 compatibility cases and full gates.
+
+- [Shared image validation](image-validation-dedup-2026-10-26.md): invocation-local Arc identity deduplication, seven shared decodes reduced to one, measured release performance, preserved outputs and full validation.
+
+- [JPEG validation buffer](jpeg-validation-buffer-2026-10-26.md): complete decoding with one RGB destination instead of two; measured RGB-large RSS −22.4% and time −23.8%, preserved outputs/errors, RED→GREEN and full validation.
+
+- [Typst upstream and Tekt opportunities](typst-upstream-2026-10-26.md): reference updated to `64c5e8c0` with preserved oracle/source provenance, full validation and measured issue triage; JPEG validation is the first performance candidate.
+
+- [Leading empty footnote line](leading-footnote-line-2026-10-26.md): initial marker-only line now uses note paragraph leading while preserving glyph geometry; 21 positive PDF/SVG sources per build, four new tests and full validation. Terminal correction and received changes preserved; three repeated-break refuters retained separately, with 15 of the original 32 still open.
+
+- [Terminal footnote break](terminal-footnote-break-2026-10-26.md): unmatched pending terminal line reconciled against the final committed witness; original four-page note now matches vanilla's three pages. Four new tests, 48 PDF/SVG sources per build, complete validation and preservation; 16 of the prior 32 refuters remain open.
+
+- [Pinned vanilla comparison after R11–R13](vanilla-comparison-after-r11-r13-2026-10-25.md): fresh debug/release PDF/SVG, full validation and resources; R11–R13 reconfirmed, 17 of the 32 prior refuters remain, with isolated public-super arguments and separate paint/latency observations. All received productive inputs are preserved.
+
+- [Relative line lengths — R13](relative-lines-r13-2026-10-25.md): percent/mixed/em geometry resolved in the local region with the approved carrier; 25 PDF/SVG sources per build, RED→GREEN and complete validation. The three R12 relative-line samples now qualify; 17 older refuters remain open.
+
+- [Footnote entry settings — R12](footnote-entries-r12-2026-10-25.md): indent, gap, clearance and separator corrected; 58 PDF/SVG controls per build, complete gates and R8–R11 preserved. Seventeen old refuters and three relative-line constructor samples remain open.
+
+- [Long literal and nested notes — R11](long-footnotes-r11-2026-10-24.md): both text omissions corrected; 68 PDF/SVG cases per build, R8–R10 and earlier gates preserved, 20 of the 32 additional cases remain unqualified.
+
 - [Pinned vanilla comparison after R8–R10](vanilla-comparison-after-r8-r10-2026-10-24.md): original scopes revalidated in debug/release; 32 added refuters, 22 unqualified cases, source-preserving diagnostics and fresh resources.
 
 - [General superscript limits — R10](superscript-r10-2026-10-24.md): six remaining controls closed, 69 PDF/SVG cases in debug/release, approved resolved-run metrics, source-preserving bitmap export and complete validation.

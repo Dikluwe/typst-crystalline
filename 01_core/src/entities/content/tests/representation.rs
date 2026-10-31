@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/representation.md
-//! @prompt-hash 8b92da04
+//! @prompt-hash b2b4916c
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -731,7 +731,7 @@ fn p227_grid_variant_aceita_stroke() {
             footer: None,
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(255, 0, 0)),
-                thickness: 2.0,
+                thickness: crate::entities::layout_types::Length::pt(2.0),
                 overhang: false,
                 ..Stroke::default()
             }),
@@ -740,7 +740,7 @@ fn p227_grid_variant_aceita_stroke() {
     if let Content::Grid(e) = &g {
         assert!(e.stroke.is_some());
         let s = e.stroke.as_ref().unwrap();
-        assert_eq!(s.thickness, 2.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(2.0));
     } else {
         panic!("esperado Content::Grid");
     }
@@ -753,6 +753,7 @@ fn p227_table_variant_aceita_stroke() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
             rows_explicit: false,
@@ -765,7 +766,7 @@ fn p227_table_variant_aceita_stroke() {
             footer: None,
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(0, 0, 255)),
-                thickness: 1.5,
+                thickness: crate::entities::layout_types::Length::pt(1.5),
                 overhang: false,
                 ..Stroke::default()
             }),
@@ -811,7 +812,7 @@ fn p227_grid_partial_eq_inclui_stroke() {
     assert_eq!(mk(None), mk(None));
     let s = Stroke {
         paint: Paint::Solid(Color::rgb(0, 0, 0)),
-        thickness: 1.0,
+        thickness: crate::entities::layout_types::Length::pt(1.0),
         overhang: false,
         ..Stroke::default()
     };
@@ -853,6 +854,7 @@ fn p228_table_variant_aceita_fill() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
             rows_explicit: false,
@@ -918,7 +920,7 @@ fn p230_gridcell_variant_aceita_stroke_fill() {
             rowspan: None,
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                thickness: 1.0,
+                thickness: crate::entities::layout_types::Length::pt(1.0),
                 overhang: false,
                 ..Stroke::default()
             }),
@@ -1188,7 +1190,7 @@ fn p247_block_variant_aceita_fill_stroke() {
             fill: Some(Color::rgb(200, 0, 0)),
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                thickness: 2.0,
+                thickness: crate::entities::layout_types::Length::pt(2.0),
                 overhang: false,
                 ..Stroke::default()
             }),
@@ -1200,7 +1202,10 @@ fn p247_block_variant_aceita_fill_stroke() {
     ));
     if let Content::Block(e) = &b {
         assert_eq!(e.fill, Some(Color::rgb(200, 0, 0)));
-        assert_eq!(e.stroke.as_ref().unwrap().thickness, 2.0);
+        assert_eq!(
+            e.stroke.as_ref().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(2.0)
+        );
     } else {
         panic!("esperado Block");
     }
@@ -1226,7 +1231,7 @@ fn p247_boxed_variant_aceita_fill_stroke() {
             fill: Some(Color::rgb(0, 200, 0)),
             stroke: Some(Stroke {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                thickness: 1.5,
+                thickness: crate::entities::layout_types::Length::pt(1.5),
                 overhang: false,
                 ..Stroke::default()
             }),
@@ -1234,7 +1239,10 @@ fn p247_boxed_variant_aceita_fill_stroke() {
     ));
     if let Content::Boxed(e) = &b {
         assert_eq!(e.fill, Some(Color::rgb(0, 200, 0)));
-        assert_eq!(e.stroke.as_ref().unwrap().thickness, 1.5);
+        assert_eq!(
+            e.stroke.as_ref().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(1.5)
+        );
     } else {
         panic!("esperado Boxed");
     }

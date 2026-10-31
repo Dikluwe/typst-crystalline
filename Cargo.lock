@@ -2477,6 +2477,8 @@ dependencies = [
  "wasmi",
  "webpki-roots 0.26.11",
  "xmlwriter",
+ "zune-core",
+ "zune-jpeg",
 ]
 
 [[package]]
@@ -3196,3 +3198,16 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[package]]
+name = "zune-core"
+version = "0.5.3"
+source = "git+https://github.com/etemesi254/zune-image?rev=2f9086b07cdf5a36621ce18f79d310f99b751de9#2f9086b07cdf5a36621ce18f79d310f99b751de9"
+
+[[package]]
+name = "zune-jpeg"
+version = "0.5.16-rc3"
+source = "git+https://github.com/etemesi254/zune-image?rev=2f9086b07cdf5a36621ce18f79d310f99b751de9#2f9086b07cdf5a36621ce18f79d310f99b751de9"
+dependencies = [
+ "zune-core",
+]

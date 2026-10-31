@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid.md
-//! @prompt-hash 881ad70a
+//! @prompt-hash 555f9554
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -130,6 +130,7 @@ impl LayoutVLine for TableVLineElem {
 }
 
 pub(super) struct GridLayoutInput<'b, H: LayoutHLine, V: LayoutVLine> {
+    pub(super) header_groups: &'b [crate::entities::elements::table::TableHeaderRange],
     pub(super) columns: &'b [TrackSizing],
     pub(super) rows: &'b [TrackSizing],
     pub(super) cells: &'b [Content],
@@ -137,11 +138,40 @@ pub(super) struct GridLayoutInput<'b, H: LayoutHLine, V: LayoutVLine> {
     pub(super) vlines: &'b [V],
     pub(super) gutter: Option<Length>,
     pub(super) align: Option<Align2D>,
+    pub(super) table_alignment:
+        Option<&'b crate::entities::elements::table::TableAlignment>,
     pub(super) inset: Sides<Length>,
     pub(super) header: Option<&'b Content>,
     pub(super) footer: Option<&'b Content>,
     pub(super) stroke: Option<&'b Stroke>,
     pub(super) fill: Option<&'b Color>,
+}
+
+#[derive(Clone, Copy)]
+struct GridCellPosition {
+    row: usize,
+    column: usize,
+    colspan: usize,
+    rowspan: usize,
+}
+
+#[derive(Clone, Copy)]
+struct GridMeasurementInput<'b> {
+    inset: Sides<Length>,
+    table_alignment: Option<&'b crate::entities::elements::table::TableAlignment>,
+    positions: &'b [Option<GridCellPosition>],
+}
+
+impl GridMeasurementInput<'_> {
+    #[cfg(test)]
+    fn uniform(inset: Sides<Length>) -> Self {
+        Self { inset, table_alignment: None, positions: &[] }
+    }
+    fn alignment_at(&self, column: usize, fallback: Option<Align2D>) -> Option<Align2D> {
+        self.table_alignment.map_or(fallback, |alignment| {
+            crate::compiler::stdlib::table_alignment_at(alignment, column)
+        })
+    }
 }
 
 /// Layout de `grid(...)` (atomização ADR-0109 P380): delega ao motor
@@ -152,6 +182,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     e: &GridElem,
 ) {
     layouter.layout_grid(GridLayoutInput {
+        header_groups: &[],
         columns: &e.columns,
         rows: &e.rows,
         cells: &e.cells,
@@ -159,6 +190,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         vlines: &e.vlines,
         gutter: e.gutter,
         align: e.align,
+        table_alignment: None,
         inset: e.inset,
         header: e.header.as_ref(),
         footer: e.footer.as_ref(),
@@ -181,6 +213,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         input: GridLayoutInput<'_, H, V>,
     ) {
         let GridLayoutInput {
+            header_groups,
             columns,
             rows,
             cells,
@@ -188,6 +221,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             vlines,
             gutter,
             align,
+            table_alignment,
             inset,
             header,
             footer,
@@ -259,10 +293,44 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let row_tracks: Vec<TrackSizing> =
             if rows.is_empty() { vec![TrackSizing::Auto] } else { rows.to_vec() };
 
+        let prepared = cells
+            .iter()
+            .all(|c| matches!(c,Content::TableCell(c) if c.resolved.is_some()));
+        let mut raw_table_placed = if table_alignment.is_some() && !prepared {
+            match super::grid_placement::place_table_cells_indexed(cells, num_cols, 0) {
+                Ok(placed) => Some(placed),
+                Err(errors) => {
+                    self.layout_errors.extend(errors);
+                    self.cell_align = saved_cell_align;
+                    return;
+                }
+            }
+        } else {
+            None
+        };
+        let mut measurement_positions = Vec::new();
+        if let Some(placed) = &raw_table_placed {
+            measurement_positions.resize(cells.len(), None);
+            for (index, cell) in placed {
+                if let Some(index) = index {
+                    measurement_positions[*index] = Some(GridCellPosition {
+                        row: cell.row,
+                        column: cell.col,
+                        colspan: cell.colspan,
+                        rowspan: cell.rowspan,
+                    });
+                }
+            }
+        }
+        let measurement = GridMeasurementInput {
+            inset,
+            table_alignment,
+            positions: &measurement_positions,
+        };
         let gap = gutter.map_or(0.0, |value| value.resolve_pt(self.style.size.0));
         let tracks_available = (available_width - (num_cols - 1) as f64 * gap).max(0.0);
         let (resolved_widths, mut col_starts) =
-            self.resolve_grid_columns(&cols, cells, inset, tracks_available);
+            self.resolve_grid_columns(&cols, cells, measurement, tracks_available);
         for (index, start) in col_starts.iter_mut().enumerate() {
             *start += index as f64 * gap;
         }
@@ -273,7 +341,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 num_cols,
                 &resolved_widths,
                 &col_starts,
-                inset,
+                measurement,
             );
 
         // ── P234 — Placement algorítmico via place_cells (B.2). ───
@@ -288,9 +356,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // explicit, colspan a exceder as colunas disponíveis ou coluna
         // inválida (mensagens vanilla, P822). P647: propagar como erro
         // de layout em vez de renderizar grid vazia em silêncio.
-        let prepared = cells
-            .iter()
-            .all(|c| matches!(c,Content::TableCell(c) if c.resolved.is_some()));
         let indexed_placed: Vec<(Option<usize>, PlacedCell)> = if prepared {
             cells
                 .iter()
@@ -310,6 +375,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     )
                 })
                 .collect()
+        } else if let Some(placed) = raw_table_placed.take() {
+            placed
         } else {
             match super::grid_placement::place_cells_indexed(cells, num_cols) {
                 Ok(placed) => placed,
@@ -378,8 +445,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        let emitted_row_starts = if let Some(routes) = &placed_routes {
+        let emitted_row_starts =
             self.emit_grid_cells_planned(cell_emission::GridEmissionInput {
+                paint_borders: true,
+                header_groups,
                 measured_cells: &mut measured_cells,
                 placed_cells: &placed_cells,
                 cells_per_row: &cells_per_row,
@@ -392,24 +461,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 inset,
                 stroke,
                 fill,
-                routes: Some(routes),
-            })
-        } else {
-            self.emit_grid_cells(
-                &mut measured_cells,
-                &placed_cells,
-                &cells_per_row,
-                num_rows_produced_final,
-                num_cols,
-                &row_heights,
-                &col_starts,
-                &resolved_widths,
-                &row_tracks,
-                inset,
-                stroke,
-                fill,
-            )
-        };
+                table_alignment,
+                routes: placed_routes.as_deref(),
+            });
 
         rules::emit_explicit_rules(
             hlines,
@@ -448,7 +502,7 @@ mod smoke {
         // C1=T, C2=T: rs == s && contiguous -> top_run funde as células
         let stroke = Stroke {
             paint: Color::luma(0.0).into(),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
@@ -506,7 +560,7 @@ mod smoke {
         // C1=T, C2=F: rs == s && !contiguous (gap) -> flushes run e inicia novo
         let stroke = Stroke {
             paint: Color::luma(0.0).into(),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
@@ -565,13 +619,13 @@ mod smoke {
         // C1=F, C2=_: rs != s -> flushes run e inicia novo
         let stroke1 = Stroke {
             paint: Color::luma(0.0).into(),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
         let stroke2 = Stroke {
             paint: Color::luma(0.0).into(),
-            thickness: 2.0,
+            thickness: crate::entities::layout_types::Length::pt(2.0),
             overhang: false,
             ..Stroke::default()
         };

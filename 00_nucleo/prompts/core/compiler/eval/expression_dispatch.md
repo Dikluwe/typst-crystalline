@@ -1,5 +1,5 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: 886be229
+Hash do Código: 52cc0f29
 
 
 
@@ -9,6 +9,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/eval/selectorless-lexical-tail.toml sha256:71ad860813663f018ea800aa8b0da87299a4b48e5b91ff70238a1cfc5769c471
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
@@ -578,3 +579,79 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Selectorless lexical-tail completion (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/` preserves
+`selectorless-owner-audit-2026-10-29.json`, `selectorless-tail-before/`,
+`selectorless-flow-before/` and `selectorless-error-before/`. Their receipts bind
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a, exact uncommitted diffstat,
+qualified physical12 binary/source, source programs, UTC and pinned vanilla
+64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17.
+Current eval owners are unchanged from that measurement; layout14 changes do not
+explain the selectorless rejection. Native markup.rs:39–56 and code.rs:31–55
+apply the transformation to the remaining lexical tail; styles.rs:497–526
+displays its result. Current rules/show.rs:95–106 rejects absent selectors.
+The measured styles are declaration/body10/20 and nested12/14/18pt. Hidden
+selected child callbacks do not run; ordinary BODY errors precede APPLY. Open
+tails still call APPLY before Return/Break, returning RESULT or retaining WRAP LOST.
+Native function/arity diagnostics retain actual transformation/parameter spans.
+These are language semantics, morphology, effects and diagnostics, not Rust
+identity, upstream recursion or PDF-byte requirements. Each unchanged rejection,
+repeated effect, lost rich body/style, incorrect flow or origin refutes closure.
+
+### Classification and boundaries
+
+This completes the already named selectorless/general-tail pending scope in
+expression_dispatch. It is a private lexical evaluation operator through existing
+function calls. No existing selected recipe moves out of deferred realization,
+no eval/layout phase moves, and no public/default/compatibility contract changes.
+ADR-0127 continuous parity flow applies: owning L0 first, true functional RED,
+GREEN, valid shared graph, resealing and revalidation. Earlier broad language
+about deferring show recipes refers to selected recipes; this bounded lexical
+operator is specified here without authorizing eager selected-child application.
+
+### Exclusive responsibility
+
+Extend the private CodeSetTail stack to distinguish existing Set tails from selectorless Whole tails. Evaluate each whole transformation once at declaration, retain the current prefix and actual span, then collect the ordinary joined tail. Close opened boundaries inside out through the whole owner and existing operators::join. Preserve Set/Page carriers/styles/table-math captures and no-show behavior. Whole callbacks isolate pending caller FlowEvent; apply opened whole tails before normal return/break consumption and preserve existing discarded-content warnings, error/span precedence, local scopes and restoration. Ordinary selected show follows its existing route; this work does not certify its independent scalar-tail presentation debts. No public data/signature, source replay or pipeline phase move.
+
+Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.
+
+
+## Typed mathematical inputs — measured 2026-10-29
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/
+math-input-findings-before-decision.json binds actual build3/source, pinned
+oracle64c5e8c0, UTC, HEAD/dirty stat, exact sources and binary hashes. The fifteen
+math-input-values-before cases isolate Ratio, Code local/loop/Func and escaped
+accent failures with Length/Relative/literal/Math local/Content and Bool controls.
+math-escape-callback-values-before uses a CONTENT-returning callback: an escaped
+argument has type content versus native symbol; String stays str. Its markup
+escape function is text versus symbol, while literal A stays text. The earlier
+raw-Type-return callback has an independent return-display failure and does not
+authorize changing callback return policy. All affected owners remain identical
+to the archived actual build3.
+
+### Exclusive correction and acceptance
+
+Expr::Escape returns the existing Value::Symbol with the decoded character and
+unnamed runtime identity, using the existing Symbol constructor. Pinned upstream
+crates/typst-eval/src/markup.rs126-132 explicitly returns a raw Symbol;
+foundations/value.rs191-199 displays it as native Symbol content. Preserve all
+source spans and the already approved content-symbol-identity transport. Keep
+literal/quoted Text unchanged; do not introduce a separate math Escape
+implementation or widen the accent caster to accept prose Text.
+
+A co-located source test checks escaped A's native symbol function and ordinary
+literal A's text function. The mathematical argument owner's callback/accent
+controls verify raw type and subsequent display. This changes no entity,
+public signature/trait, recipe order or eval/layout phase.
+
+Internal measured parity correction follows ADR-0127 continuous flow: L0 before
+actual functional RED, implementation only after RED, GREEN and source-bound
+full tests/build/fmt/Clippy/Rustdoc/lint/lineage. Preserve all earlier positive
+visual/history and JPEG criteria; no normalization, suppression or limit change.

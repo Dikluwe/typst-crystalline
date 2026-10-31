@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_fragments.md
-//! @prompt-hash ca19af50
+//! @prompt-hash 252d8d1a
 //! @layer L1
-//! @updated 2026-10-24
+//! @updated 2026-10-26
 
 use super::{DeferredFootnoteFrame, FontMetrics, FootnoteBreak, ImageSizer, Layouter};
 use crate::entities::content::Content;
@@ -53,6 +53,7 @@ fn boundary_role(content: &Content) -> BoundaryRole {
         | Content::StateUpdate(_)
         | Content::CounterUpdate(_)
         | Content::HSpace(_)
+        | Content::Footnote(_)
         | Content::Linebreak(_) => BoundaryRole::Transparent,
         Content::HtmlElem(_)
         | Content::HtmlFrame(_)
@@ -137,7 +138,6 @@ fn boundary_role(content: &Content) -> BoundaryRole {
         | Content::TableCell(_)
         | Content::Bibliography(_)
         | Content::Cite(_)
-        | Content::Footnote(_)
         | Content::FootnoteEntry(_)
         | Content::TableHeader(_)
         | Content::TableFooter(_)
@@ -162,6 +162,7 @@ struct SourceLines {
     current: Vec<bool>,
     ink: bool,
     cost: Option<(bool, bool)>,
+    pending_break: bool,
 }
 
 impl SourceLines {
@@ -181,6 +182,35 @@ impl SourceLines {
         self.ink = false;
     }
 
+    fn text(
+        &mut self,
+        text: &str,
+        chain: &crate::entities::style_chain::StyleChain,
+    ) -> bool {
+        if !self.observe(chain) {
+            return false;
+        }
+        for raw in text.split_inclusive('\n') {
+            let has_break = raw.ends_with('\n');
+            let line = raw
+                .strip_suffix('\n')
+                .map_or(raw, |line| line.strip_suffix('\r').unwrap_or(line));
+            if line.contains('\r') {
+                return false;
+            }
+            self.ink |= line.chars().any(|c| !c.is_whitespace());
+            if self.ink {
+                self.pending_break = false;
+            }
+            if has_break {
+                self.current.push(self.ink);
+                self.ink = false;
+                self.pending_break = true;
+            }
+        }
+        true
+    }
+
     fn scan(
         &mut self,
         content: &Content,
@@ -193,11 +223,15 @@ impl SourceLines {
             Content::Strong(e) => self.scan(&e.body, chain),
             Content::Emph(e) => self.scan(&e.body, chain),
             Content::Sequence(parts) => parts.iter().all(|part| self.scan(part, chain)),
-            Content::Text(text) => {
-                if text.contains(['\n', '\r']) || !self.observe(chain) {
+            Content::Text(text) => self.text(text, chain),
+            Content::Footnote(_) => {
+                if !self.observe(chain) {
                     return false;
                 }
-                self.ink |= text.chars().any(|c| !c.is_whitespace());
+                // Only the inline marker belongs to this paragraph. The body
+                // retains its independent original deferred capture.
+                self.ink = true;
+                self.pending_break = false;
                 true
             }
             Content::Linebreak(_) => {
@@ -206,10 +240,12 @@ impl SourceLines {
                 }
                 self.current.push(self.ink);
                 self.ink = false;
+                self.pending_break = true;
                 true
             }
             Content::Parbreak => {
                 self.paragraph();
+                self.pending_break = false;
                 true
             }
             Content::Empty
@@ -309,7 +345,6 @@ impl SourceLines {
             | Content::TableCell(_)
             | Content::Bibliography(_)
             | Content::Cite(_)
-            | Content::Footnote(_)
             | Content::FootnoteEntry(_)
             | Content::TableHeader(_)
             | Content::TableFooter(_)
@@ -327,15 +362,30 @@ impl SourceLines {
         }
     }
 
-    fn certify(mut self, frame: &mut DeferredFootnoteFrame, origin: f64) {
+    fn certify(
+        mut self,
+        frame: &mut DeferredFootnoteFrame,
+        origin: f64,
+        terminal_end: Option<f64>,
+    ) {
         self.paragraph();
+        let terminal = self.pending_break
+            && self.paragraphs.last().and_then(|lines| lines.last()) == Some(&false)
+            && terminal_end.is_some();
+        if terminal {
+            // Only the pending logical line lacks a committed source witness.
+            self.paragraphs.last_mut().unwrap().pop();
+        }
         let count: usize = self.paragraphs.iter().map(Vec::len).sum();
-        let origin = if count > 1 { origin } else { 0.0 };
+        let origin = if count > 1 || terminal { origin } else { 0.0 };
+        let height = if terminal { terminal_end.unwrap() } else { frame.height };
         if self.paragraphs.iter().flatten().any(|ink| !ink)
             || count != frame.breaks.len() + 1
             || !frame.height.is_finite()
+            || !height.is_finite()
+            || height > frame.height
             || !origin.is_finite()
-            || frame.height + origin <= 0.0
+            || height + origin <= 0.0
             || frame.breaks.iter().any(|b| {
                 !b.height.is_finite()
                     || b.height + origin <= 0.0
@@ -368,11 +418,8 @@ impl SourceLines {
                 } else {
                     frame.breaks[start - 1].tail_start.unwrap()
                 };
-                let bottom = if end == count {
-                    frame.height
-                } else {
-                    frame.breaks[end - 1].height
-                };
+                let bottom =
+                    if end == count { height } else { frame.breaks[end - 1].height };
                 let height = bottom - top + if start == 0 { origin } else { 0.0 };
                 if !height.is_finite() || height < 0.0 {
                     return;
@@ -385,7 +432,7 @@ impl SourceLines {
         for (cut, height) in frame.breaks.iter_mut().zip(protected) {
             cut.protected_group_height = height;
         }
-        frame.height += origin;
+        frame.height = height + origin;
         for item in &mut frame.items {
             super::helpers::offset_frame_item(item, 0.0, origin);
         }
@@ -610,6 +657,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         body: &Content,
         planned: Option<super::page_running_requests::Cursor>,
     ) -> DeferredFootnoteFrame {
+        let entry = super::footnote::entry_settings(self);
         let saved_style = self.style.clone();
         let saved_chain = self.chain.clone();
         let outer_size = self
@@ -678,13 +726,22 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         self.chain = saved_chain;
         let capture = self.footnote_capture.take();
         self.footnote_capture = saved_capture;
-        let breaks = capture.filter(|c| c.enabled).map_or_else(Vec::new, |c| {
+        let capture = capture.filter(|c| c.enabled);
+        let terminal_end = capture.as_ref().and_then(|capture| {
+            capture
+                .breaks
+                .last()
+                .filter(|cut| cut.item_count == items.len())
+                .map(|cut| cut.height)
+        });
+        let breaks = capture.map_or_else(Vec::new, |c| {
             c.breaks
                 .into_iter()
                 .filter(|b| b.height < height && b.item_count < items.len())
                 .collect()
         });
         let mut frame = DeferredFootnoteFrame {
+            entry,
             source_lines: false,
             line_continuation: false,
             deferred_region: None,
@@ -696,8 +753,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
             orphaned_y,
             breaks,
         };
-        if certified {
-            profile.certify(&mut frame, origin);
+        if certified && origin.is_finite() {
+            // Legacy column lines clamp negative ascent reconciliation. Their
+            // capture is already normalized; only ordinary lines need the
+            // compensating origin used for their committed line witnesses.
+            let correction = if self.column_mode { 0.0 } else { origin };
+            profile.certify(&mut frame, correction, terminal_end);
         }
         frame
     }
@@ -719,16 +780,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
             margin.top
         };
         let available = (bottom - flow_bottom).max(0.0);
-        let mut reserved = self
-            .pending_footnote_frames
-            .iter()
-            .flatten()
-            .next()
-            .map_or(0.0, |f| f.outer_size.0);
+        let mut reserved =
+            self.pending_footnote_frames.iter().flatten().next().map_or(0.0, |f| {
+                f.entry.clearance + f.entry.separator_height.unwrap_or(0.0)
+            });
         let future_capacity = self.regions.current.height - margin.vertical();
         for (index, frame) in self.pending_footnote_frames.iter().flatten().enumerate() {
             let previous = reserved;
-            reserved += frame.outer_size.0 * 0.5;
+            reserved += frame.entry.gap;
             let remaining = (available - reserved).max(0.0);
             if frame.height <= remaining {
                 reserved += frame.height;
@@ -811,6 +870,7 @@ pub(super) fn split_frame(
         })
         .collect();
     let tail = DeferredFootnoteFrame {
+        entry: frame.entry.clone(),
         source_lines: frame.source_lines,
         line_continuation: frame.source_lines || frame.line_continuation,
         deferred_region: frame.deferred_region,
@@ -823,6 +883,7 @@ pub(super) fn split_frame(
         breaks: tail_breaks,
     };
     let head = DeferredFootnoteFrame {
+        entry: frame.entry,
         source_lines: frame.source_lines,
         line_continuation: frame.line_continuation,
         deferred_region: frame.deferred_region,
@@ -846,6 +907,100 @@ mod tests {
         layout_types::{FrameItem, Pt},
     };
     use comemo::Track;
+
+    fn terminal_note_capture(
+        lines: usize,
+        trailing: bool,
+        orphan: bool,
+    ) -> DeferredFootnoteFrame {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        if !orphan {
+            l.chain = l.chain.push_custom(
+                "text.costs.orphan",
+                crate::entities::value::Value::Ratio(
+                    crate::entities::layout_types::Ratio(0.0),
+                ),
+            );
+        }
+        let mut body = Vec::new();
+        for index in 1..=lines {
+            body.push(Content::text(format!("LINE{index}")));
+            if index < lines || trailing {
+                body.push(Content::linebreak());
+            }
+        }
+        l.capture_footnote_frame(&Content::Empty, &Content::sequence(body), None)
+    }
+
+    #[test]
+    fn terminal_note_boundary_retains_certificate() {
+        for lines in [1, 2, 5] {
+            let frame = terminal_note_capture(lines, true, true);
+            assert!(frame.source_lines, "{lines}: {frame:?}");
+        }
+    }
+
+    #[test]
+    fn terminal_note_boundary_preserves_line_geometry() {
+        for lines in [1, 2, 5] {
+            let plain = terminal_note_capture(lines, false, true);
+            let terminal = terminal_note_capture(lines, true, true);
+            assert!(
+                (plain.height - terminal.height).abs() < 1e-9,
+                "{lines}: {plain:?} / {terminal:?}"
+            );
+            for index in 1..=lines {
+                let word = format!("LINE{index}");
+                assert_eq!(
+                    text_baseline(&plain.items, &word),
+                    text_baseline(&terminal.items, &word),
+                    "{lines}: {word}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn terminal_note_boundary_preserves_orphan_protection() {
+        let frame = terminal_note_capture(5, true, true);
+        assert!(frame.breaks[0].protected_group_height.is_some(), "{frame:?}");
+        let unprotected = terminal_note_capture(5, true, false);
+        assert!(unprotected.source_lines, "{unprotected:?}");
+        assert!(unprotected.breaks[0].protected_group_height.is_none());
+    }
+
+    #[test]
+    fn terminal_note_actual_empty_line_remains_uncertified() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        for body in [
+            Content::sequence(vec![
+                Content::text("LINE1"),
+                Content::linebreak(),
+                Content::linebreak(),
+            ]),
+            Content::sequence(vec![
+                Content::text("LINE1"),
+                Content::linebreak(),
+                Content::linebreak(),
+                Content::text("LINE2"),
+            ]),
+        ] {
+            let frame = l.capture_footnote_frame(&Content::Empty, &body, None);
+            assert!(!frame.source_lines, "{frame:?}");
+        }
+    }
 
     fn text_baseline(items: &[FrameItem], needle: &str) -> Option<Pt> {
         items.iter().find_map(|item| match item {
@@ -1250,5 +1405,190 @@ mod tests {
         let first = text_baseline(&doc.pages[0].items, "FIRST").unwrap();
         let second = text_baseline(&doc.pages[0].items, "SECOND").unwrap();
         assert!(second > first, "{doc:?}");
+    }
+
+    fn r11_render(
+        body: Content,
+        height: f64,
+    ) -> crate::entities::layout_types::PagedDocument {
+        use crate::entities::layout_types::{PageMarginSpec, PageMargins};
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.regions.current.width = 300.0;
+        l.page_config.height = height;
+        l.regions.current.height = height;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.regions.current.line_start_x = Pt(20.0);
+        l.regions.current.cursor_y = Pt(20.0);
+        l.initial_baseline_pending = true;
+        l.line_assumed_ascent = None;
+        l.layout_content(&Content::sequence(vec![
+            Content::text("ALPHA"),
+            Content::Footnote(std::sync::Arc::new(
+                crate::entities::elements::footnote::FootnoteElem {
+                    body,
+                    numbering: None,
+                },
+            )),
+        ]));
+        l.finish()
+    }
+
+    fn r11_authored_lines(count: usize, nested: bool) -> Content {
+        let mut parts = Vec::new();
+        for n in 1..=count {
+            if n > 1 {
+                parts.push(Content::linebreak());
+            }
+            parts.push(Content::text(format!("LINE{n}")));
+            if nested && n == 2 {
+                parts.push(Content::Footnote(std::sync::Arc::new(
+                    crate::entities::elements::footnote::FootnoteElem {
+                        body: Content::text("INNER"),
+                        numbering: None,
+                    },
+                )));
+            }
+        }
+        Content::sequence(parts)
+    }
+
+    fn r11_delivered(
+        doc: &crate::entities::layout_types::PagedDocument,
+        word: &str,
+    ) -> (usize, Pt) {
+        let found: Vec<_> = doc
+            .pages
+            .iter()
+            .enumerate()
+            .filter_map(|(page, p)| text_baseline(&p.items, word).map(|y| (page, y)))
+            .collect();
+        assert_eq!(found.len(), 1, "{word} must survive exactly once in emitted pages");
+        let (page, y) = found[0];
+        assert!(
+            y.0 >= 20.0 && y.0 <= doc.pages[page].height - 20.0,
+            "{word} baseline {} outside physical body on page {}",
+            y.0,
+            page + 1
+        );
+        (page, y)
+    }
+
+    #[test]
+    fn r11_literal_note_preserves_all_lines_inside_physical_pages() {
+        for count in [5, 9, 20] {
+            let text =
+                (1..=count).map(|n| format!("LINE{n}")).collect::<Vec<_>>().join("\n");
+            let actual = r11_render(Content::text(text), 80.0);
+            let authored = r11_render(r11_authored_lines(count, false), 80.0);
+            assert_eq!(actual.pages.len(), authored.pages.len(), "{count} source lines");
+            for n in 1..=count {
+                let word = format!("LINE{n}");
+                assert_eq!(
+                    r11_delivered(&actual, &word),
+                    r11_delivered(&authored, &word)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn r11_crlf_note_matches_original_mandatory_boundaries() {
+        let actual =
+            r11_render(Content::text("LINE1\r\nLINE2\r\nLINE3\r\nLINE4\r\nLINE5"), 80.0);
+        let authored = r11_render(r11_authored_lines(5, false), 80.0);
+        for n in 1..=5 {
+            let word = format!("LINE{n}");
+            assert_eq!(r11_delivered(&actual, &word), r11_delivered(&authored, &word));
+        }
+    }
+
+    #[test]
+    fn r11_nested_note_preserves_parent_tail_and_single_child_body() {
+        for count in [6, 12, 20] {
+            let doc = r11_render(r11_authored_lines(count, true), 100.0);
+            for n in 1..=count {
+                r11_delivered(&doc, &format!("LINE{n}"));
+            }
+            r11_delivered(&doc, "INNER");
+        }
+    }
+
+    #[test]
+    fn r11_literal_certificate_keeps_unpaired_cr_refused() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let frame =
+            l.capture_footnote_frame(&Content::Empty, &Content::text("A\rB"), None);
+        assert!(!frame.source_lines, "unpaired CR is outside the LF/CRLF certificate");
+    }
+
+    #[test]
+    fn r11_column_split_head_has_the_same_source_box_as_ordinary_capture() {
+        use crate::entities::layout_types::TextStyle;
+        struct Edges;
+        impl FontMetrics for Edges {
+            fn advance(&self, t: &str, s: Pt, style: &TextStyle) -> Pt {
+                super::super::FixedMetrics.advance(t, s, style)
+            }
+            fn vertical_metrics(&self, s: Pt, _: &TextStyle) -> (Pt, Pt) {
+                (s * 0.9, s * 1.2)
+            }
+            fn cap_height(&self, s: Pt, _: &TextStyle) -> Pt {
+                s * 0.7
+            }
+            fn text_edges(&self, s: Pt, _: &TextStyle) -> (Pt, Pt) {
+                (s * 0.7, s * -0.2)
+            }
+        }
+        let intr = TagIntrospector::empty();
+        let mut heads = Vec::new();
+        for column in [false, true] {
+            let mut l = Layouter::new(
+                Edges,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.column_mode = column;
+            let frame = l.capture_footnote_frame(
+                &Content::Empty,
+                &r11_authored_lines(4, false),
+                None,
+            );
+            assert!(frame.source_lines);
+            let capacity = frame.breaks[1].height;
+            let (head, tail) = split_frame(frame, capacity, 1000.0)
+                .expect("the actual boundary after source line2 is unprotected");
+            assert!(text_baseline(&tail.items, "LINE3").is_some());
+            heads.push(head);
+        }
+        for word in ["LINE1", "LINE2"] {
+            let a = text_baseline(&heads[0].items, word).unwrap().0 - heads[0].height;
+            let b = text_baseline(&heads[1].items, word).unwrap().0 - heads[1].height;
+            assert!(
+                (a - b).abs() < 1e-10,
+                "bottom-anchored source glyph must be preserved"
+            );
+        }
+        assert!(
+            (heads[0].height - heads[1].height).abs() < 1e-10,
+            "source line box includes an extra column origin: ordinary={},column={}",
+            heads[0].height,
+            heads[1].height
+        );
     }
 }

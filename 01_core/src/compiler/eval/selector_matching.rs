@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash 26cf1d16
+//! @prompt-hash d25d1c7b
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -921,6 +921,7 @@ mod tests {
     fn p1339_equal_native_names_do_not_confuse_table_and_grid_occurrences() {
         let table = Content::TableHeader(std::sync::Arc::new(
             crate::entities::elements::table_header::TableHeaderElem {
+                level: 1,
                 body: Content::text("body"),
                 repeat: true,
             },

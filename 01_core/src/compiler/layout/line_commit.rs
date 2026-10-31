@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 581dd10a
+//! @prompt-hash 4977471f
 //! @layer L1
-//! @updated 2026-10-17
+//! @updated 2026-10-26
 //!
 //! Fechamento de linha: expansão horizontal, justificação, baseline e commit.
 #![allow(deprecated)] // FrameItem::Text fallback path legítimo
@@ -75,7 +75,7 @@ fn justify_frame_item<M: super::FontMetrics>(
     }
 }
 
-fn literal_line_right(items: &[FrameItem]) -> f64 {
+pub(super) fn literal_line_right(items: &[FrameItem]) -> f64 {
     items
         .iter()
         .map(|item| match item {
@@ -357,7 +357,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let remaining = if is_rtl {
             (right_margin - self.regions.current.cursor_x.0).max(0.0)
         } else {
-            (right_margin - content_right).max(0.0)
+            let optical = if self.line_optical_overhang == Some(true) {
+                super::optical_margin::line_amount(
+                    &self.metrics,
+                    &self.regions.current.current_line,
+                )
+            } else {
+                0.0
+            };
+            (right_margin + optical - content_right).max(0.0)
         };
         if opportunities.is_empty() || remaining == 0.0 {
             return;
@@ -410,6 +418,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         force_outer_singleton: bool,
         continued: bool,
     ) {
+        let accepted_optical_policy = self.line_optical_overhang.take();
+        super::h_space::close_paragraph(self);
         self.terminal_paragraph_line = false;
         // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
         // medição da linha (collector de decorações, leading, RTL align).
@@ -439,6 +449,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut first_text_size = None::<f64>;
         let mut mixed_text_sizes = false;
         let mut text_count = 0usize;
+        let mut all_superscript = true;
         let mut actual_text_top = 0.0_f64;
         let mut actual_text_bottom = 0.0_f64;
         visit_text_styles(
@@ -453,6 +464,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     max_text = Some((size, style.clone()));
                 }
                 text_count += 1;
+                all_superscript &= style.superscript && !style.subscript;
                 let (top, bottom) = self.metrics.text_edges(size, style);
                 actual_text_top = actual_text_top.max(top.0);
                 actual_text_bottom = actual_text_bottom.min(bottom.0);
@@ -486,12 +498,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let common_style = self.geometric_text_lines.then(|| {
             TextStyle::from(self.text_segment_chain.as_ref().unwrap_or(&self.chain))
         });
+        let first_footnote_line = self.footnote_capture.as_ref().is_some_and(|capture| {
+            if !capture.enabled || capture.atomic_depth != 0 {
+                return false;
+            }
+            capture.breaks.is_empty()
+        });
+        let note_paragraph_leading =
+            first_footnote_line && text_count > 0 && all_superscript;
         let line_leading_pt = if let Some(style) = &common_style {
             style
                 .leading
                 .map(|l| l.resolve_pt(style.size.0))
                 .unwrap_or(style.size.0 * super::vanilla_defaults::PAR_LEADING)
-        } else if mixed_text_sizes || forced_smaller_singleton {
+        } else if mixed_text_sizes || forced_smaller_singleton || note_paragraph_leading {
             self.style
                 .leading
                 .map(|l| l.resolve_pt(self.style.size.val()))
@@ -710,7 +730,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         // P576 — alinhamento de parágrafo RTL.
+        self.line_optical_overhang = accepted_optical_policy;
         self.align_current_line_rtl_with_continuation(continued);
+        self.line_optical_overhang = None;
 
         // P1414/P1415 — a ocorrência nasce somente depois de estabilizar
         // wrap, paginação e baseline. Flushes vazios e subframes não consomem
@@ -1014,6 +1036,100 @@ mod tests {
     use super::super::FixedMetrics;
     use super::*;
     use crate::entities::geometry::LineCap;
+
+    fn leading_note_commit(
+        marker_size: f64,
+        capture: bool,
+        fragments: usize,
+    ) -> (f64, f64) {
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::Length,
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            9.35,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.is_sub_frame = true;
+        l.style.size = Pt(9.35);
+        l.style.leading = Some(Length::em(0.5));
+        l.initial_baseline_pending = false;
+        l.line_assumed_ascent = Some(9.35 * 0.7);
+        l.regions.current.cursor_y = Pt(9.35 * 0.7);
+        if capture {
+            l.footnote_capture = Some(super::super::FootnoteCapture {
+                outer_size: Pt(11.0),
+                breaks: Vec::new(),
+                atomic_depth: 0,
+                origin_y: 0.0,
+                enabled: true,
+            });
+        }
+        let mut marker = l.style.clone();
+        marker.size = Pt(marker_size);
+        marker.superscript = true;
+        for index in 0..fragments {
+            l.regions.current.current_line.push(FrameItem::Text {
+                pos: Point {
+                    x: Pt(index as f64 * marker_size),
+                    y: l.regions.current.cursor_y,
+                },
+                text: "1".into(),
+                style: marker.clone(),
+                bidi: None,
+            });
+        }
+        l.flush_line();
+        let y = l
+            .regions
+            .current
+            .current_items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .expect("actual committed marker");
+        (
+            l.last_flush_advance
+                - l.line_assumed_ascent.expect("recorded next-line ascent"),
+            y,
+        )
+    }
+
+    #[test]
+    fn leading_note_marker_uses_paragraph_leading() {
+        for size in [4.5, 6.54226, 9.35] {
+            let (leading, _) = leading_note_commit(size, true, 1);
+            assert!(
+                (leading - 9.35 * 0.5).abs() < 1e-9,
+                "marker {size}: leading {leading}"
+            );
+        }
+    }
+
+    #[test]
+    fn leading_note_marker_geometry_remains_script_sized() {
+        let (_, y) = leading_note_commit(6.54226, true, 1);
+        assert!((y - 6.54226 * 0.7).abs() < 1e-9, "{y}");
+    }
+
+    #[test]
+    fn leading_note_multiple_marker_fragments_keep_paragraph_leading() {
+        let (leading, _) = leading_note_commit(6.54226, true, 2);
+        assert!((leading - 9.35 * 0.5).abs() < 1e-9, "{leading}");
+    }
+
+    #[test]
+    fn leading_note_ordinary_superscript_keeps_legacy_leading() {
+        let (leading, _) = leading_note_commit(6.54226, false, 1);
+        assert!((leading - 6.54226 * 0.5).abs() < 1e-9, "{leading}");
+    }
 
     #[test]
     fn two_smaller_fragments_do_not_take_outer_ascent_for_current_line() {

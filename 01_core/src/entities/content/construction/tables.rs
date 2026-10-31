@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction/tables.md
-//! @prompt-hash 9946d1bc
+//! @prompt-hash 1a285334
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -17,6 +17,7 @@ impl Content {
         children: Vec<Content>,
     ) -> Self {
         Self::Table(Arc::new(TableElem {
+            items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
             rows_explicit: !rows.is_empty(),
@@ -47,6 +48,7 @@ impl Content {
         caption: Option<Content>,
     ) -> Self {
         Self::Table(Arc::new(TableElem {
+            items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
             rows_explicit: !rows.is_empty(),
@@ -118,7 +120,7 @@ impl Content {
     /// aplicação Caso D em Model). Algoritmo de repetição diferido
     /// em DEBT-56.
     pub fn table_header(body: Content, repeat: bool) -> Self {
-        Self::TableHeader(Arc::new(TableHeaderElem { body, repeat }))
+        Self::TableHeader(Arc::new(TableHeaderElem { level: 1, body, repeat }))
     }
 
     /// `table_footer(body, repeat)` — par simétrico de `table_header`

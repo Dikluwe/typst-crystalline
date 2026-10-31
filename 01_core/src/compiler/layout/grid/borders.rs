@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/borders.md
-//! @prompt-hash cec7c5d3
+//! @prompt-hash e09c5d63
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -187,6 +187,115 @@ pub(super) fn vline_x(
     }
 }
 
+/// Prove a complete, uniform, nonfragmenting Table lattice before changing
+/// its coverage operation. Raw/Grid and rich/heterogeneous strokes stay legacy.
+pub(super) fn uniform_table_stroke(
+    cells: &[PlacedCell],
+    owners: &[Vec<Option<usize>>],
+    starts: &[f64],
+    widths: &[f64],
+    heights: &[f64],
+    grid_stroke: Option<&Stroke>,
+    font_size: f64,
+) -> Option<Stroke> {
+    use crate::entities::{geometry::LineCap, paint::Paint};
+    if widths.is_empty()
+        || heights.is_empty()
+        || starts.len() != widths.len()
+        || owners.len() != heights.len()
+        || cells.len() != widths.len().checked_mul(heights.len())?
+        || starts.iter().any(|x| !x.is_finite())
+        || widths.iter().chain(heights).any(|v| !v.is_finite() || *v <= 0.0)
+        || (1..starts.len()).any(|i| starts[i] != starts[i - 1] + widths[i - 1])
+    {
+        return None;
+    }
+    let mut uniform = None;
+    for (row, slots) in owners.iter().enumerate() {
+        if slots.len() != widths.len() {
+            return None;
+        }
+        for (col, owner) in slots.iter().enumerate() {
+            let placed = cells.get((*owner)?)?;
+            if placed.row != row
+                || placed.col != col
+                || placed.rowspan != 1
+                || placed.colspan != 1
+            {
+                return None;
+            }
+            let Content::TableCell(cell) = &placed.body else {
+                return None;
+            };
+            if cell.resolved.as_ref()?.breakable {
+                return None;
+            }
+            let stroke = cell_effective_stroke(&placed.body, grid_stroke)?;
+            let thickness = stroke.thickness.resolve_pt(font_size);
+            if !matches!(stroke.paint, Paint::Solid(_))
+                || stroke.cap != LineCap::Butt
+                || stroke.dash.is_some()
+                || !thickness.is_finite()
+                || thickness <= 0.0
+                || uniform.as_ref().is_some_and(|s| *s != stroke)
+            {
+                return None;
+            }
+            uniform = Some(stroke);
+        }
+    }
+    uniform
+}
+
+/// Same-winding bands form a union under NonZero filling. Overlapping bands
+/// have one coverage/alpha operation, including fractional outer-edge pixels.
+pub(super) fn emit_uniform_table_borders<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::super::Layouter<M, S>,
+    boundaries: &mut Vec<f64>,
+    starts: &[f64],
+    widths: &[f64],
+    stroke: &Stroke,
+) {
+    use crate::entities::geometry::PathItem;
+    let Some(&top) = boundaries.first() else {
+        return;
+    };
+    let bottom = *boundaries.last().unwrap();
+    let thickness = stroke.thickness.resolve_pt(layouter.style.size.0);
+    let half = thickness / 2.0;
+    let left = starts[0] - half;
+    let right = starts[starts.len() - 1] + widths[widths.len() - 1] + half;
+    let mut path = Vec::new();
+    let mut band = |x0: f64, y0: f64, x1: f64, y1: f64| {
+        let point = |x, y| Point { x: Pt(x - left), y: Pt(y - top + half) };
+        path.extend([
+            PathItem::MoveTo(point(x0, y0)),
+            PathItem::LineTo(point(x1, y0)),
+            PathItem::LineTo(point(x1, y1)),
+            PathItem::LineTo(point(x0, y1)),
+            PathItem::ClosePath,
+        ]);
+    };
+    for &y in boundaries.iter() {
+        band(left, y - half, right, y + half);
+    }
+    for x in starts.iter().copied().chain(std::iter::once(right - half)) {
+        band(x - half, top - half, x + half, bottom + half);
+    }
+    let fill = super::super::tiling::resolve_paint(layouter, Some(&stroke.paint));
+    layouter.regions.current.current_items.push(FrameItem::Shape {
+        pos: Point { x: Pt(left), y: Pt(top - half) },
+        kind: ShapeKind::Path(path),
+        width: right - left,
+        height: bottom - top + thickness,
+        fill,
+        stroke: None,
+        fill_rule: Default::default(),
+        parent_bbox_at_emit: None,
+    });
+    boundaries.clear();
+}
+
 /// P888 — emite um segmento horizontal (borda de topo/fundo de uma
 /// célula, ou run fundido de várias) se tiver comprimento > 0.
 pub(super) fn emit_hsegment<M: FontMetrics, S: ImageSizer>(
@@ -200,9 +309,16 @@ pub(super) fn emit_hsegment<M: FontMetrics, S: ImageSizer>(
         let prepared_stroke =
             super::super::tiling::resolve_stroke(layouter, Some(&stroke));
         layouter.regions.current.current_items.push(FrameItem::Shape {
-            pos: Point { x: Pt(x0 - stroke.thickness / 2.0), y: Pt(y) },
-            kind: ShapeKind::Line { dx: x1 - x0 + stroke.thickness, dy: 0.0 },
-            width: x1 - x0 + stroke.thickness,
+            pos: Point {
+                // rationale: centered borders extend half the resolved width at each end.
+                x: Pt(x0 - stroke.thickness.resolve_pt(layouter.style.size.val()) / 2.0),
+                y: Pt(y),
+            },
+            kind: ShapeKind::Line {
+                dx: x1 - x0 + stroke.thickness.resolve_pt(layouter.style.size.val()),
+                dy: 0.0,
+            },
+            width: x1 - x0 + stroke.thickness.resolve_pt(layouter.style.size.val()),
             height: 0.0,
             fill: None,
             stroke: prepared_stroke,
@@ -225,10 +341,17 @@ pub(super) fn emit_vsegment<M: FontMetrics, S: ImageSizer>(
         let prepared_stroke =
             super::super::tiling::resolve_stroke(layouter, Some(&stroke));
         layouter.regions.current.current_items.push(FrameItem::Shape {
-            pos: Point { x: Pt(x), y: Pt(y0 - stroke.thickness / 2.0) },
-            kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 + stroke.thickness },
+            pos: Point {
+                x: Pt(x),
+                // rationale: centered borders extend half the resolved width at each end.
+                y: Pt(y0 - stroke.thickness.resolve_pt(layouter.style.size.val()) / 2.0),
+            },
+            kind: ShapeKind::Line {
+                dx: 0.0,
+                dy: y1 - y0 + stroke.thickness.resolve_pt(layouter.style.size.val()),
+            },
             width: 0.0,
-            height: y1 - y0 + stroke.thickness,
+            height: y1 - y0 + stroke.thickness.resolve_pt(layouter.style.size.val()),
             fill: None,
             stroke: prepared_stroke,
             fill_rule: Default::default(),
@@ -510,7 +633,10 @@ mod corner_regression {
     #[test]
     fn border_segments_cover_half_thickness_at_both_ends() {
         for thickness in [0.5, 1.0, 3.0] {
-            let stroke = Stroke { thickness, ..Stroke::default() };
+            let stroke = Stroke {
+                thickness: crate::entities::layout_types::Length::pt(thickness),
+                ..Stroke::default()
+            };
             let intr = TagIntrospector::empty();
             let intr: &dyn Introspector = &intr;
             let mut layouter =
@@ -535,7 +661,7 @@ mod corner_regression {
                 assert_eq!(*width, 40.0 + thickness);
                 assert_eq!(*height, 0.0);
                 let emitted = emitted.as_ref().unwrap();
-                assert_eq!(emitted.thickness, stroke.thickness);
+                assert_eq!(emitted.thickness, stroke.thickness.resolve_pt(12.0));
                 assert_eq!(emitted.cap, stroke.cap);
                 assert_eq!(emitted.join, stroke.join);
                 assert_eq!(emitted.dash, stroke.dash);
@@ -567,7 +693,7 @@ mod corner_regression {
                 assert_eq!(*width, 0.0);
                 assert_eq!(*height, 40.0 + thickness);
                 let emitted = emitted.as_ref().unwrap();
-                assert_eq!(emitted.thickness, stroke.thickness);
+                assert_eq!(emitted.thickness, stroke.thickness.resolve_pt(12.0));
                 assert_eq!(emitted.cap, stroke.cap);
                 assert_eq!(emitted.join, stroke.join);
                 assert_eq!(emitted.dash, stroke.dash);
@@ -608,7 +734,7 @@ mod d08b3c_tests {
         for stroke in [
             Some(Stroke {
                 paint: Color::rgb(255, 0, 0).into(),
-                thickness: 2.0,
+                thickness: crate::entities::layout_types::Length::pt(2.0),
                 ..Stroke::default()
             }),
             None,
@@ -652,21 +778,33 @@ mod v16_d_boundaries {
     use super::*;
     #[test]
     fn v16_d_raw_wrappers_inherit_without_borrowing_nested_cell_stroke() {
-        let grid = Stroke { thickness: 7.0, ..Stroke::default() };
+        let grid = Stroke {
+            thickness: crate::entities::layout_types::Length::pt(7.0),
+            ..Stroke::default()
+        };
         let mut nested =
             match Content::table_cell(Content::text("body"), None, None, None, None) {
                 Content::TableCell(cell) => cell.as_ref().clone(),
                 _ => unreachable!("table_cell constructor"),
             };
-        nested.stroke = Some(Stroke { thickness: 2.0, ..Stroke::default() });
+        nested.stroke = Some(Stroke {
+            thickness: crate::entities::layout_types::Length::pt(2.0),
+            ..Stroke::default()
+        });
         let nested = Content::TableCell(std::sync::Arc::new(nested));
-        assert_eq!(cell_effective_stroke(&nested, Some(&grid)).unwrap().thickness, 2.0);
+        assert_eq!(
+            cell_effective_stroke(&nested, Some(&grid)).unwrap().thickness,
+            crate::entities::layout_types::Length::pt(2.0)
+        );
         for body in [
             Content::Empty,
             Content::text("body"),
             Content::styled(nested, Default::default()),
         ] {
-            assert_eq!(cell_effective_stroke(&body, Some(&grid)).unwrap().thickness, 7.0);
+            assert_eq!(
+                cell_effective_stroke(&body, Some(&grid)).unwrap().thickness,
+                crate::entities::layout_types::Length::pt(7.0)
+            );
             assert!(cell_effective_stroke(&body, None).is_none());
         }
     }

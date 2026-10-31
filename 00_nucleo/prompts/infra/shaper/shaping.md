@@ -1,11 +1,12 @@
 # L0 — infra/shaper/shaping
-Hash do Código: 37f8280b
+Hash do Código: 8e919a9a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:283876383094ef7a2af90ad0598b9ca3ca5cbe0f7fc7714546cc8758da40878d
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
@@ -315,3 +316,50 @@ before emitted-cache lookup and key that actual decision. Preserve original
 text, glyph/source-font identity, offsets, counters and all unrelated features.
 
 Require new field/default/forced-false RED→GREEN, all twelve numbering refuters at0.001pt PDF/SVG, original ten notes, six font controls, warm/cold cache and full preservation/workspace/lineage gates.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+Add only private/crate-visible terminal-measurement helpers using the same
+font candidates, buffer configuration, axes, feature rules and language as current
+width measurement. Return actual terminal font/GID/advance and glyph count or
+None for unsupported/invalid/multiline/RTL evidence; use caller-supplied ratio data.
+Do not alter existing shaped_width/try_shape/emission behavior, caching policy
+or source glyphs. Share preparation privately where safe, without speculative
+harmonization of the existing measurement/emission feature distinction.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+## Default-face and refusal revalidation
+
+physical9-build.json/source.json.gz fixes release2fc7b30db7477edaae837669bd4f4b347495afcf65661a550d99c5e3ef850a99,
+dirty HEAD212aed0449, UTC/diffstat/inputs. physical9-optical-visual records explicit
+families matching PDF/boxes while physical9-article-route still ends completo.
+at394.52756pt instead of396.463558pt. Source article sets size/lang with no family.
+Fallback text port delegates to shaped_trailing_overhang, whose required
+style.font.as_ref()? rejects that existing default-face route. Existing
+resolution.rs:31-108 already selects the default actual face and fallback chain.
+This is an indication for a real no-family RED, not permission for a new font
+policy. Query must use that actual existing selected face, retain input style,
+provided size, glyph/count and existing fallback/effects/order. No width or
+selection-cost change. Also test approved LTR refusal for RTL/TTB/BTT; absence
+may be inferred only from actual text shaping, never turn an explicit vertical
+direction into horizontal certification. Existing API/public/phase remain.
+
+optical-default-red.json/source.json.gz now records actual failure with unchanged
+inputs: the no-family real-font query returns None and injected vertical policy
+returns3pt rather than0pt. On the missing-family route resolve the existing
+provider primary chain, use its actual selected font metadata in a local style
+copy, then query the existing shaping candidates. Preserve the input font=None,
+size, variant/axes and all widths/costs. Decline explicit non-LTR directions
+before loading a default face. No new public/pipeline/default font policy.

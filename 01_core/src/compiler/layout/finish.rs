@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/finish.md
-//! @prompt-hash b3ff989b
+//! @prompt-hash 9cc36c54
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -79,6 +79,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             || html_frame::items_have_material(&self.regions.current.current_items)
             || (!self.page_run_boundary_empty && !self.weak_page_successor)
         {
+            super::divider::resolve(&mut self, page_width);
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
             let page = std::num::NonZeroUsize::new(page_number).unwrap();
@@ -120,53 +121,45 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     &page_numbering
                 {
                     if count_numbering_tokens(pattern) >= 2 {
-                        let ha = page_running::resolve_offset(
-                            self.page_config.header_ascent,
-                            self.page_config.margin.top,
-                            self.style.size.0,
-                        );
-                        let fd = page_running::resolve_offset(
-                            self.page_config.footer_descent,
-                            self.page_config.margin.bottom,
-                            self.style.size.0,
-                        );
-                        self.pending_page_numbering.push((
-                            self.pages.len(),
+                        let pending = page_running::pending_number(
+                            &self,
                             margin_number,
                             pattern.clone(),
-                            self.page_config.number_align,
-                            self.page_config.margin,
-                            ha,
-                            fd,
-                        ));
+                        );
+                        self.pending_page_numbering.push(pending);
                     } else if let Some(text) =
                         crate::entities::counter_format::format_counter(
                             &[margin_number],
                             pattern.as_str(),
                         )
                     {
-                        let style = TextStyle::from(&self.chain);
+                        let style = page_running::numbering_style(&self);
                         let text_width =
                             self.metrics.advance(&text, style.size, &style).0;
                         let ha = page_running::resolve_offset(
                             self.page_config.header_ascent,
                             self.page_config.margin.top,
-                            self.style.size.0,
+                            style.size.0,
                         );
                         let fd = page_running::resolve_offset(
                             self.page_config.footer_descent,
                             self.page_config.margin.bottom,
-                            self.style.size.0,
+                            style.size.0,
                         );
                         marginal_items.push(FrameItem::Text {
-                            pos: page_running::number_position(
+                            pos: page_running::number_baseline(
                                 self.page_config.number_align,
-                                page_width,
-                                page_height,
-                                self.page_config.margin,
-                                text_width,
-                                ha,
-                                fd,
+                                page_running::number_position(
+                                    self.page_config.number_align,
+                                    page_width,
+                                    page_height,
+                                    self.page_config.margin,
+                                    text_width,
+                                    ha,
+                                    fd,
+                                ),
+                                &style,
+                                &self.metrics,
                             ),
                             text: text.into(),
                             style,
@@ -243,25 +236,37 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let logical_total = std::num::NonZeroUsize::new(total_pages)
             .and_then(|page| self.runtime.known_page_store.logical_number_for_page(page))
             .unwrap_or(total_pages);
-        for (page_idx, page_number, pattern, align, margins, ha, fd) in
-            std::mem::take(&mut self.pending_page_numbering)
+        for page_running::PendingNumber {
+            page_idx,
+            page_number,
+            pattern,
+            align,
+            margins,
+            header_ascent: ha,
+            footer_descent: fd,
+            style,
+        } in std::mem::take(&mut self.pending_page_numbering)
         {
             if let Some(text) = crate::entities::counter_format::format_counter(
                 &[page_number, logical_total],
                 pattern.as_str(),
             ) {
                 if let Some(page) = self.pages.get_mut(page_idx) {
-                    let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
                     page.foreground.push(FrameItem::Text {
-                        pos: page_running::number_position(
+                        pos: page_running::number_baseline(
                             align,
-                            page.width,
-                            page.height,
-                            margins,
-                            text_width,
-                            ha,
-                            fd,
+                            page_running::number_position(
+                                align,
+                                page.width,
+                                page.height,
+                                margins,
+                                text_width,
+                                ha,
+                                fd,
+                            ),
+                            &style,
+                            &self.metrics,
                         ),
                         text: text.into(),
                         style,

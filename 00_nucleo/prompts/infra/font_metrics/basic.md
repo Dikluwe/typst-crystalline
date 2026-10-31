@@ -1,8 +1,11 @@
 # L0 — infra/font_metrics/basic
-Hash do Código: 611ccf16
+Hash do Código: 93ebe699
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/basic.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 
 ## Current evidence
 
@@ -247,3 +250,26 @@ approved method, not another public contract/default/phase change.
 The actual-face resolved style carries signed absolute tracking = original tracking at supplied outer size times actual paint_size/outer_size. Native scale1 preserves tracking; synthetic and explicit size use their actual scale. Keep original semantic morphology and outer line-edge contract.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+Implement the two approved ports on FontBookMetrics. Shape text in this actual
+face with existing language/axes/features/size rules; return the actual terminal
+metric and total glyph count for certified single-line LTR input. A shared private
+helper maps supplied policy chars through actual cmap/GID and multiplies the
+provided actual advance. glyph_overhang always uses the Font argument, even when
+different from this provider's face. Validate ratios/font/advance without panic;
+no matching GID yields Some(0), unprovable data None. No family-name rules.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.

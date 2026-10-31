@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "relative-line"
+title = "Source lines preserve unresolved affine endpoints until their local region"
+
+[[claims]]
+id = "transport"
+level = "must"
+statement = "RelativeLine preserves x/y start and end as Rel<Length>, including percent, absolute and em coefficients. ShapeElem.relative_line None preserves legacy geometry. Some is authoritative unresolved line intent, accompanied by an empty Path and absent width/height, retained by cloning, terminal maps and observation."
+
+[[claims]]
+id = "resolve"
+level = "must"
+statement = "Eval validates arguments and constructs affine endpoints with end precedence; polar projection scales coefficients before resolution. Layout resolves x against local width, y against local height and em against effective font size, emitting resolved open path geometry and causal max(0,start,end) dimensions. Exporters receive resolved geometry only."

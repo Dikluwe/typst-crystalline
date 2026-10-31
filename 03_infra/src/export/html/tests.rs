@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/tests.md
-//! @prompt-hash 4df81a89
+//! @prompt-hash bb7fc5b6
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -430,6 +430,7 @@ fn semantic_table_preserves_header_spans_and_cell_escaping() {
         kind: TableCellKind::Auto,
     }));
     let table = Content::Table(Arc::new(TableElem {
+        items: None,
         source_span: typst_core::entities::span::Span::detached(),
         resolved: None,
         rows_explicit: false,

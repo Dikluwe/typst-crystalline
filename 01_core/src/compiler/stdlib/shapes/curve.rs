@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md
-//! @prompt-hash 7afb23a9
+//! @prompt-hash 06a19a8c
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -326,7 +326,7 @@ pub fn native_curve(
     let stroke = if fill.is_none() && parsed_stroke.is_none() {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         })
@@ -343,6 +343,9 @@ pub fn native_curve(
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+        rect_radius: None,
+        rect_stroke: None,
+        relative_line: None,
         kind: ShapeKind::Path(path_items),
         width,
         height,

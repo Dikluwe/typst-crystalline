@@ -155,8 +155,8 @@ def validate_manifest(data: dict) -> list[str]:
 
     if data.get("schema_version") != 1:
         errors.append("schema_version must be 1")
-    if data.get("vanilla_revision") != "bd5ebec2":
-        errors.append("vanilla_revision must be bd5ebec2")
+    if data.get("vanilla_revision") != "64c5e8c0":
+        errors.append("vanilla_revision must be 64c5e8c0")
     profiles = data.get("profiles")
     if profiles != REQUIRED_PROFILES:
         errors.append("profiles must freeze default/html/a11y/bundle combinations exactly")
@@ -805,7 +805,7 @@ def make_payload(
     vanilla_binary: str,
     crystalline_binary: str,
     *,
-    vanilla_revision: str = "bd5ebec2",
+    vanilla_revision: str = "64c5e8c0",
     vanilla_sha256: str | None = None,
     crystalline_sha256: str | None = None,
     order_check: dict | None = None,

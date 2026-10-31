@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: typst/typst
-          ref: bd5ebec285505889e8ff1d4f68804ab147a699f3
+          ref: 64c5e8c02fe0394d913ead36e42ef8c1334d2107
           path: lab/ci-oracle
           persist-credentials: false
       - name: Build and record pinned oracle

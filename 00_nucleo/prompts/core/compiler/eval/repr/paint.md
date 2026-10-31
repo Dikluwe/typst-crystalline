@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr/paint
-Hash do Código: ebc10146
+Hash do Código: b23a69d4
 
 ## Ownership and evidence
 
@@ -14,3 +14,23 @@ The detailed contract and historical parity evidence remain in `00_nucleo/prompt
 ## Acceptance
 
 Preserve language morphology tests, build, and pass `crystalline-lint .` with a valid owner and hash.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Preserve full Length thickness through eval construction, field access and repr.
+Resolve thickness with the effective occurrence font at existing layout consumers
+and prepared FrameStroke boundary before scalar geometry/overhang is calculated.
+Keep all other values, field-presence, validation/error priority, behavior and
+previous approvals. Point-only fixtures retain exactly their numeric values.
+The approved public/phase contract is bound in approval.json. RED→GREEN and
+full proportional validation plus forward/reverse lineage remain required.

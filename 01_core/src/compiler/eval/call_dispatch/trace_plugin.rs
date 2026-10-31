@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/trace_plugin.md
-//! @prompt-hash 0205d18b
+//! @prompt-hash cc9871d4
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -21,7 +21,7 @@ use crate::entities::content::Content;
 ///   chamada → ganham um nível por chamada, innermost primeiro.
 /// - `func.name()` → `while calling \`name\``; `None` (closure anónima) →
 ///   `while calling function` (Display espelhado no renderer L2).
-pub(super) fn trace_call(
+pub(in crate::compiler::eval) fn trace_call(
     result: SourceResult<Value>,
     name: Option<&str>,
     call_span: Span,

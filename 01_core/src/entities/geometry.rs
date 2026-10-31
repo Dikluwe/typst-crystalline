@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/geometry.md
-//! @prompt-hash 2034ebaf
+//! @prompt-hash 204a1d06
 //! @layer L1
 //! @updated 2026-04-20
 
@@ -77,8 +77,8 @@ pub struct Stroke {
     /// `Color` directo per ADR-0086. Abre caminho para Gradient
     /// real consumer em P262+.
     pub paint: Paint,
-    /// Espessura do contorno em pontos tipográficos.
-    pub thickness: f64,
+    /// Espessura declarativa; resolve abs/em na ocorrência de layout.
+    pub thickness: Length,
     pub cap: LineCap,
     pub join: LineJoin,
     pub dash: Option<DashPattern>,
@@ -96,7 +96,7 @@ impl Default for Stroke {
     fn default() -> Self {
         Self {
             paint: Paint::Solid(crate::entities::layout_types::Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: Length::pt(1.0),
             cap: LineCap::Butt,
             join: LineJoin::Miter,
             dash: None,
@@ -343,7 +343,7 @@ mod tests {
     fn stroke_clone_e_partialeq() {
         let s = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };

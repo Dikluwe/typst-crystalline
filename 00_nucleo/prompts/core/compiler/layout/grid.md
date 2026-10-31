@@ -1,10 +1,11 @@
 # L0 — grid
-Hash do Código: 14a74d0a
+Hash do Código: a3988333
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
@@ -124,3 +125,116 @@ comparadores é autorizada para aparentar MATCH.
 Manter delegação de paginação/emissão/bordas nos owners existentes. Migrar
 apenas chamadas privadas de testes para fornecer ausência de próxima linha
 quando o fixture tem uma única linha. Não adicionar algoritmo no hub.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Extend only the private Grid request to distinguish Table declarative alignment from legacy uniform Grid. Use actual placed column for raw Table alignment, retain known prepared plan alignment, and keep measurement/emission region/alignment consistent. Preserve original Grid ordering and actual source edges; no new public API or callbacks. Unproved cache eligibility misses without weakening existing refusals.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+### Legacy raw placement preservation after full-core refutation
+
+The frozen table-alignment-core-before-repair log records a regression in the
+unchanged layout_table_cell_dentro_de_table_renderiza_como_cell: legacy synthetic
+None alignment intentionally ignores TableCell x=2 in two columns and retains
+all four texts. Applying TableDocumentOrder to every raw Table instead rejects
+that existing fixture. Preserve this old None/Uniform raw path and its original
+Grid placement; only newly represented raw Auto/Columns declarations use the
+Table indexed adapter before measurement. Complete prepared source Tables keep
+their authoritative alignment/placement and do not reinstall lexical root axes.
+This bounded correction preserves the original test rather than changing its
+invalid-coordinate fixture/expectations. Legacy synthetic placement remains a
+separate compatibility limitation, not global Table parity.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Borrow optional prepared header groups in the private Grid request and forward them to cell emission; Grid and legacy callers pass an empty slice. Preserve placement, measurement/cache, explicit rules and source routes. No new public signature or pipeline phase.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.
+
+### Native visual refutation: retain complete uniform borders with headers
+
+The final-native/contact.png raster and after.json.gz at the exclusive RAM
+target/diagnostic retain binary/source/UTC/dirty state. The ordered header path
+shows missing horizontal borders although row text/page order passes. Excluding
+all header ranges from the #8777 uniform complete-cell path is refuted.
+Preserve that certificate for uniform solid nonbreakable rectangles. Flush its
+physical boundaries before every actual page break, including a header-next-row
+reservation break. A private emission-request boolean may suppress only border
+painting of recursively replayed headers when the enclosing request owns the
+uniform compound path; collect their actual physical row boundaries into that
+owner's page path. Keep cell body/fill/selected-source layout unchanged. Other
+borders keep the existing fallback. No product flag, new geometry owner, public
+contract or phase change. Require local border-coverage RED→GREEN, original
+#8777 coverage controls, native raster review and unchanged language acceptance.

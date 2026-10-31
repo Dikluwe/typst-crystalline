@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tiling.md
-//! @prompt-hash 307088b0
+//! @prompt-hash e367e6ca
 //! @layer L1
 
 use std::sync::Arc;
@@ -42,7 +42,7 @@ pub(super) fn prepare_stroke<M: FontMetrics, S: ImageSizer>(
 ) -> SourceResult<FrameStroke> {
     Ok(FrameStroke {
         paint: prepare_paint(layouter, &stroke.paint)?,
-        thickness: stroke.thickness,
+        thickness: stroke.thickness.resolve_pt(layouter.style.size.val()),
         cap: stroke.cap,
         join: stroke.join,
         dash: stroke.dash.clone(),

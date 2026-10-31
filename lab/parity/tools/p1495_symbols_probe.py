@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sondas do catálogo P1495, sem alterar fontes nem artefatos.
 
-O oráculo é o binário vanilla bd5ebec2 ratificado no re-sync 2026-10-17. Um exit 1 indica falha de paridade ou do contrato das extensões;
+O oráculo é o binário vanilla 64c5e8c0 ratificado no re-sync 2026-10-26. Um exit 1 indica falha de paridade ou do contrato das extensões;
 exit 2 denuncia defeito do oráculo/harness. Extensões legadas são reportadas,
 mas não contam como violação contra o novo vanilla.
 """
@@ -15,7 +15,7 @@ import sys
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-VANILLA_SHA256 = "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+VANILLA_SHA256 = "22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34"
 
 CHILDREN = {
     "chess": ("king", "queen", "rook", "bishop", "knight", "pawn"),
@@ -219,7 +219,7 @@ def main():
     args = parser.parse_args()
     vanilla, crystal = args.vanilla.resolve(), args.crystalline.resolve()
     if sha256(vanilla) != VANILLA_SHA256:
-        parser.error("binário vanilla não é o build bd5ebec2 ratificado em 2026-10-17")
+        parser.error("binário vanilla não é o build 64c5e8c0 ratificado em 2026-10-26")
     crystal_hash = sha256(crystal)
 
     results = []

@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 141f30e9
+Hash do Código: 33ca17c3
 
 
 
@@ -19,8 +19,12 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
+- 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
+- 00_nucleo/prompts/_nuclei/layout/page-number-baseline.toml sha256:0c492a09d2660de765df65c22e703cc8c3e63cc663ee4d9ac2dd612afc80dfa3
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
@@ -34,6 +38,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
 
 ## Evidence before specification
@@ -578,3 +583,167 @@ approved method, not another public contract/default/phase change.
 Store an additional private literal_script_break_pending boolean, initially false, and delegate its source-boundary observation to the text owner at existing dispatch entry. No predicate/formula/selection in the hub and no new phase or source dispatch.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+
+## R12 — shared-flow footnote entry settings
+
+Measurement before decision: `lab/results/construction/diagnostics/footnote-entries-r12-2026-10-24/{baseline.json,received-source.json.gz,before/receipt.json,before-expanded/receipt.json,type-probes.json}` binds the received R11 dirty tree at HEAD212aed044, fixed oracle bd5ebec285505889e8ff1d4f68804ab147a699f3/tree cac836c07e4dec2a89219370428292393a3216b5/SHA9b237315..., sources, binaries, UTC and exact changed-file list. Original indent/gap are ignored; explicit separator:none retains a rule. The short clearance control alone is not an admission witness. Expanded54 sources include actual three-font settings, affine units, aliases, text/string/line separators, shared versus local and late scopes, and literal continuation. Clearance30pt at80pt page height yields three vanilla pages (carrier, empty region, complete entry); received yields one. Local block overrides and late settings do not change the shared entry configuration; a global2em indent also applies to an entry called under a local0pt override. Pinned rules.rs:400–410 resolves indent inside the85% entry; flow/mod.rs:275–282 resolves separator/clearance/gap from shared outer styles, and flow/compose.rs:645–677,794–833,977–994 uses actual separator height and gap for admission/placement. Integer lengths including0 are rejected, string separator accepted, positional and unknown settings rejected. These observed geometry/syntax/diagnostics are language; storage and dispatch mechanics need not mirror upstream.
+
+Classification: internal parity correction under ADR-0127 continuous flow. Keep all public entity fields, traits, signatures, modes and pipeline phases unchanged. New state is private layout state only, not a new language setting. Preserve the exact received R11 source and historical evidence outside this declared scope.
+
+Exclusive owning obligation: Own only the private shared entry-scope snapshot and captured-frame configuration fields with their initialization. Delegate source-prefix/settings decisions to footnote.rs, keeping the core dispatch lean. Snapshot the first genuine source flow before child/callback dispatch: transparent Source/Located/Styled/Sequence wrappers may expose the common leading style prefix; Empty, weak whitespace and SetPage transport are not material siblings. Stop at genuine siblings, blocks and explicit page boundaries rather than borrowing a local or late style. Ignore leading nonmaterial calls until a real flow snapshot can be established. No global mutable state, extra public contract, source rewriting, or layer reversal. Captured frames own resolved settings so ordinary style restoration cannot discard them.
+
+Require source-bound assertional module RED→GREEN before runtime changes; actual PDF complete per-page words/page sizes and SVG glyph/rule geometry at unchanged0.001pt in debug/release; preserve original R8–R11 corpora and all A–H/R1–R7 language/render controls, full workspace/tests/Clippy/fmt/rustdoc, full lint and both lineage gates, resource/stress gates and received evidence. Configuration warnings and old unrelated limits remain explicit.
+
+### R12 private visibility hygiene
+
+candidate1-tests.log/build.log report private_interfaces for the new captured entry field: its parent-module pub(super) visibility extends to compiler, while its layout-only settings type is intentionally narrower. Keep the field private in its owning layout module; descendants can access it under ordinary Rust module privacy. No public contract is exposed or changed and no lint is suppressed.
+
+
+R12 additional source boundary: further-scope/receipt.json under the R12 diagnostic group refutes retaining this private shared snapshot across the already-existing SetPage new_page transition after material. The set_page owner now exclusively invalidates it after flushing the old flow; this owner keeps its existing prefix/resolution logic and captured settings. Initial configuration and automatic pagination remain as received. Two new module REDs precede the hook, and final acceptance expands to58 positive PDF/SVG sources per build with fresh complete validation; first-scope-attempt retains the earlier valid source state.
+
+## Image flow and horizontal paragraph correction — 2026-10-27
+
+Measurement precedes this correction: `lab/results/construction/diagnostics/image-flow-cause-2026-10-27/{baseline.json,results.json,refuters.json,completion.json}` binds HEAD212aed044, uncommitted inputs/diffstat/UTC, pinned64c5e8c0/tree483bd6f1/SHA22897f93 and received Tekt SHA2941a5ba. Direct PDF streams show image1 at y5 and images2–16 at y13.2; vanilla has eight30x20pt images per page at step46.4. Removing h gives vanilla step33.2 but retains Tekt overlap. Margin30 still resets later images to13.2; a60x40pt image does too. Source `image.rs:198,325–335` advances cursor without publishing the physical end consumed by `cursor.rs:128–169`. Vanilla `rules.rs:771`, realization `lib.rs:1061–1087` and flow `collect.rs:162–188,240–285` distinguish image blocks and h-only paragraph gaps. These are language/geometry observations, not a requirement to copy buffers, PDF bytes or upstream execution structure. No upstream intent is inferred.
+
+Classification: private parity repair, continuous flow ADR-0127. No public fields/signatures/trait methods, new product mode, phase change, dependency or compatibility break. Keep all received footnote/R11–R13/JPEG work. New shared obligations are pinned in the horizontal-space-paragraph Nucleus; this owner authorizes only its exclusive consumer.
+
+### Exclusive correction
+
+Own only an optional private pending horizontal-paragraph spacing value, initially None, and its storage declaration/initialization. All formula/selection/closure logic belongs to h_space.rs. No extra dispatch algorithm or business logic in the hub. The existing source/plan traversal and identity remain unchanged.
+
+Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete image counts, all source-margin/size/spacing refuters, prior R8–R13/notes and A–H/R1–R7, full build/tests/Clippy/fmt/Rustdoc and full lint without warning/error. Preserve known tracking/paint limits; remeasure JPEG latency/RSS against received/legacy/oracle and retain R6 resource bounds. Snapshot provenance and preserve unrelated inputs/historical receipts. Validate V15/V26 before restricted resealing; no commit/push.
+
+### Measured lexical horizontal scope refinement
+
+The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+The horizontal paragraph state field is private to layout and its descendants. It must not advertise compiler-parent visibility wider than its h_space-owned private state type. No public contract change.
+
+
+## Readiness: automatic number baseline and per-page style (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/{article-fields-before,article-fields-extra-before,
+page-number-total-before}/receipt.json preserve exact source/font/compiler/oracle
+hashes, current source-bound wj2 build/archive, HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+dirty stat, UTC, commands and frozen productive/L0/fixture inputs. Oracle commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The default bottom number is7.238pt too high at11pt; at17pt its first-page
+offset is11.186pt. Bold/DejaVu produce different measured top edges, refuting
+a universal constant. The top unary/compound control already matches. A final
+page loses the17pt/bold/DejaVu style, and compound patterns borrow11pt even for
+the first17pt page. Explicit CUSTOM footer is a DIFFERENT measured negative;
+it is not fixed or waived here. Body text and None-number controls are retained.
+
+Source page_commit.rs:62-111 and finish.rs:123-174 emit Text directly at the
+number-position anchor. finish.rs:247-275 later builds compound text using the
+then-current chain. The retained page-effective chain already exists and is
+used for running content; this correction consumes it rather than introducing
+another source/style authority. Positions, styles, words and pages are language
+observables; tuple/record representation and queue mechanics are not parity.
+
+### Exclusive correction and acceptance
+
+Replace only the existing private pending_page_numbering tuple element with the feature-owned private record type. Keep the same Vec, initialization, lifetime and checkpoint length/truncate protocol. Do not add a public entity field, PageConfig field, Layouter field, new facade or business logic to this hub. The record owner captures style and geometry; terminal/intermediate consumers keep their actual existing phase.
+
+ADR-0127 continuous internal parity correction. L0/pins first, actual RED before
+code, V15/V26 before resealing, exact source words/pages/0.001pt and independent
+PDF/SVG paint. Preserve all previous running/source/callback/rollback/notes,
+Unicode, layout, technical/lineage and historical/JPEG resource gates without
+new tolerances, ignored tests or suppression. No overall readiness claim.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+Declare only the private optical_margin descendant; keep its constants/helpers
+private to layout. No Layouter field, public facade, mode or dispatch changes.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+Keep a private optional final lexical text-overhang decision, recorded by
+word_layout::push_text and reset by actual line flush. It certifies only a
+terminal text occurrence admitted by the optical policy; missing evidence does
+not fabricate an enabled policy. This prevents style restoration from changing
+the already emitted terminal occurrence. No public carrier field is added.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Only if required by the concrete private fallback, hold and initialize scoped private alignment transport; preserve public signatures and all subframe/nested-grid restore boundaries. Do not add this state unless necessary; no new cache or render logic in this hub.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+## Automatic page width and divider — issue 8525 (2026-10-31)
+
+### Measurement before decision
+
+The independent agent-layout and agent-svg-math reports/receipts under
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/` reproduce
+infinite SVG viewport/divider geometry and PDF Letter fallback/lost second text.
+`01_core/src/compiler/layout/divider.rs:35` multiplies the unbounded-region
+mechanism into visible geometry; `page_geometry.rs:62-69` then includes that
+shape in intrinsic page extent. `finish.rs:44-48` and intermediate page assembly
+consume the contaminated result. Exact received HEAD, dirty stat, UTC and
+source/owner bytes are frozen in
+`lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31/before.json.gz`.
+This is observed geometry/content semantics; it does not establish upstream
+intent. The pinned vanilla zero-width divider is a separate defect and is not
+an acceptance requirement. A later wider sibling, stale index, lost content,
+changed fixed-page line or queue leakage on replay refutes the repair.
+
+### Exclusive correction
+
+Store and initialize only a private region-local pending divider queue containing exact emitted item indices and their original symmetric margin. Delegate geometry and queue consumption to the divider descendant. No new public fields or facade, source replay, eval/layout move, or exporter fallback.
+
+Internal correctness correction under ADR-0127 continuous flow: L0 first,
+restricted reseal, functional RED then GREEN, build and unfiltered lineage.
+Keep public contracts, modes/defaults, compatibility and pipeline phases.
+Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
+divider when body width is positive, and complete text before/after the rule.
+Do not copy vanilla zero width or force a paper size. This does not certify
+other relative-size shapes, asymmetric margins or general auto-page parity.

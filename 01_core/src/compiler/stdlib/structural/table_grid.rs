@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash 6cdb4ba9
+//! @prompt-hash f4806ba6
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -95,6 +95,60 @@ pub fn native_table(
     // posicionais), não incrementam row/col, e só um de cada é suportado
     // (mesmo scope-out de P772i — múltiplos headers por `level` e
     // repeat-across-páginas não implementados).
+    let has_headers = args.items.iter().any(|value|
+        matches!(value, Value::Content(c) if matches!(c.source_body(), Content::TableHeader(_))));
+    let has_lines = args.items.iter().any(|value|
+        matches!(value, Value::Content(c) if matches!(c.source_body(), Content::TableHLine(_) | Content::TableVLine(_))));
+    let ordered_items = if has_headers && !has_lines {
+        Some(
+            args.items
+                .iter()
+                .filter_map(|value| match value {
+                    Value::Content(c) => Some(c.clone()),
+                    Value::Str(text) => Some(Content::text(text.as_str())),
+                    Value::Length(_)
+                    | Value::Color(_)
+                    | Value::None
+                    | Value::Bool(_)
+                    | Value::Int(_)
+                    | Value::Float(_)
+                    | Value::Array(_)
+                    | Value::Dict(_)
+                    | Value::Module(_)
+                    | Value::Datetime(_)
+                    | Value::Func(_)
+                    | Value::LocatedContent(_, _)
+                    | Value::Auto
+                    | Value::Relative(_)
+                    | Value::Ratio(_)
+                    | Value::Angle(_)
+                    | Value::Stroke(_)
+                    | Value::Fraction(_)
+                    | Value::Align(_)
+                    | Value::Location(_)
+                    | Value::Gradient(_)
+                    | Value::Regex(_)
+                    | Value::Tiling(_)
+                    | Value::Bytes(_)
+                    | Value::Decimal(_)
+                    | Value::Duration(_)
+                    | Value::Version(_)
+                    | Value::Selector(_)
+                    | Value::Symbol(_)
+                    | Value::Args(_)
+                    | Value::State(_)
+                    | Value::Counter(_)
+                    | Value::Label(_)
+                    | Value::Dir(_)
+                    | Value::Path(_)
+                    | Value::Type(_)
+                    | Value::SpotColorant(_) => None, // Existing classifier reports the invalid member.
+                })
+                .collect::<Vec<_>>(),
+        )
+    } else {
+        None
+    };
     let mut header: Option<Content> = None;
     let mut footer: Option<Content> = None;
     let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
@@ -132,6 +186,9 @@ pub fn native_table(
                 vlines.push(vline);
             }
             Value::Content(c @ Content::TableHeader(_)) => {
+                if ordered_items.is_some() {
+                    continue;
+                }
                 if let Some(previous) = header.take() {
                     let previous_levels = table_header_levels(&previous);
                     let current_levels = table_header_levels(c);
@@ -292,17 +349,21 @@ pub fn native_table(
             )])
         }
     };
-    // P1050 — extract align (Value::Align; default None).
-    let align = match args.named.get("align") {
-        Some(Value::Align(a)) => Some(*a),
-        Some(Value::None) | None => None,
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("table(align): espera alignment, recebeu {}", other.type_name()),
-            )])
-        }
-    };
+    let align = args
+        .named
+        .get("align")
+        .map(|value| {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|items| {
+                    items.iter().find(|item| item.name.as_deref() == Some("align"))
+                })
+                .map(|item| item.value_span)
+                .unwrap_or(args.span);
+            table_alignment(value, span)
+        })
+        .transpose()?;
     // P1050 — extract inset (default: Sides::uniform(5pt) paridade vanilla table).
     let inset: crate::entities::sides::Sides<crate::entities::layout_types::Length> =
         match args.named.get("inset") {
@@ -335,18 +396,20 @@ pub fn native_table(
             )])
         }
     };
+    let ordered = ordered_items.is_some();
     Ok(Value::Content(Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            items: ordered_items,
             source_span: args.span,
             resolved: None,
             rows_explicit: args.named.contains_key("rows"),
             columns,
             rows,
-            children,
-            hlines,
-            vlines,
-            header,
-            footer,
+            children: if ordered { Vec::new() } else { children },
+            hlines: if ordered { Vec::new() } else { hlines },
+            vlines: if ordered { Vec::new() } else { vlines },
+            header: if ordered { None } else { header },
+            footer: if ordered { None } else { footer },
             stroke,
             fill,
             caption,
@@ -884,7 +947,10 @@ pub fn native_table_header(
 
     let repeat = extract_bool_with_default(args, "table_header", "repeat", true)?;
 
-    Ok(Value::Content(Content::table_header(body, repeat)))
+    let mut content = Content::table_header(body, repeat);
+    let Content::TableHeader(header) = &mut content else { unreachable!() };
+    std::sync::Arc::make_mut(header).level = level;
+    Ok(Value::Content(content))
 }
 
 fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
@@ -1319,6 +1385,139 @@ pub fn native_grid_footer(
 
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
 
+/// One declarative cast shared by Table construction and native Table set.
+pub(in crate::compiler) fn table_alignment(
+    value: &Value,
+    span: Span,
+) -> SourceResult<crate::entities::elements::table::TableAlignment> {
+    use crate::entities::elements::table::TableAlignment;
+    fn member(
+        value: &Value,
+        span: Span,
+    ) -> SourceResult<Option<crate::entities::layout_types::Align2D>> {
+        match value {
+            Value::Auto => Ok(None),
+            Value::Align(align) => Ok(Some(*align)),
+            other @ (Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..)) => Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "expected alignment or auto, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+            )]),
+        }
+    }
+    match value {
+        Value::Auto => Ok(TableAlignment::Auto),
+        Value::Align(align) => Ok(TableAlignment::Uniform(*align)),
+        Value::Array(items) => items
+            .iter()
+            .map(|item| member(item, span))
+            .collect::<SourceResult<Vec<_>>>()
+            .map(TableAlignment::Columns),
+        Value::Func(_) => Err(vec![SourceDiagnostic::error(
+            span,
+            "table alignment functions are not supported",
+        )]),
+        other @ (Value::None
+        | Value::Bool(..)
+        | Value::Int(..)
+        | Value::Float(..)
+        | Value::Str(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..)) => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected alignment, auto, array, or function, found {}",
+                crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                    other
+                )
+            ),
+        )]),
+    }
+}
+
+/// Select the declaration at a placed column; no language callbacks or layout.
+pub(in crate::compiler) fn table_alignment_at(
+    declaration: &crate::entities::elements::table::TableAlignment,
+    column: usize,
+) -> Option<crate::entities::layout_types::Align2D> {
+    use crate::entities::elements::table::TableAlignment;
+    match declaration {
+        TableAlignment::Auto => None,
+        TableAlignment::Uniform(align) => Some(*align),
+        TableAlignment::Columns(columns) => {
+            column.checked_rem(columns.len()).and_then(|index| columns[index])
+        }
+    }
+}
+
 #[cfg(test)]
 mod cell_presence_tests {
     use super::*;
@@ -1655,15 +1854,38 @@ mod v16_table_tests {
             assert!(e.stage().is_none());
         }
     }
+    #[test]
+    fn issue_8954_repeated_header_levels_keep_original_order() {
+        let world = TestWorld::new("");
+        let items = vec![
+            Content::text("0"),
+            Content::table_header(Content::text("A"), true),
+            Content::table_header(Content::text("B"), true),
+            Content::table_header(Content::text("C"), true),
+            Content::text("1"),
+        ];
+        let value = native_table(
+            &mut EvalContext::new(),
+            &Args::positional(items.into_iter().map(Value::Content).collect()),
+            &world,
+            world.main(),
+        )
+        .expect("valid replacement headers must not be rejected");
+        let Value::Content(table) = value else { panic!("table") };
+        assert_eq!(table.plain_text(), "0 A B C 1");
+    }
     fn headers(a: u32, b: u32) -> SourceResult<Value> {
         let h = |level| {
-            Content::table_header(
+            let mut header = Content::table_header(
                 sourced(raw(TableCellKind::Header {
                     level,
                     scope: TableHeaderScope::Column,
                 })),
                 true,
-            )
+            );
+            let Content::TableHeader(group) = &mut header else { unreachable!() };
+            Arc::make_mut(group).level = level;
+            header
         };
         let world = TestWorld::new("");
         native_table(
@@ -1678,9 +1900,11 @@ mod v16_table_tests {
         assert!(headers(2, 3).is_ok());
     }
     #[test]
-    fn v16_table_header_source_duplicate_level_still_errors() {
-        let e = headers(2, 2).unwrap_err();
-        assert!(e[0].message.contains("mais do que um header"));
+    fn v16_table_header_source_duplicate_level_keeps_both_groups() {
+        let Value::Content(Content::Table(table)) = headers(2, 2).unwrap() else {
+            panic!("table")
+        };
+        assert_eq!(table.items.as_ref().unwrap().len(), 2);
     }
 
     #[test]
@@ -1743,5 +1967,222 @@ mod v16_table_tests {
         );
         assert_eq!(table.rows, vec![TrackSizing::Auto]);
         assert!(table.rows_explicit);
+    }
+}
+
+#[cfg(test)]
+mod declarative_alignment_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::layout_types::{FrameItem, FrameVisitor};
+    use crate::entities::module::Module;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                )
+                .expect("valid table alignment source fixture"),
+            }
+        }
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn run(text: &str) -> SourceResult<Module> {
+        let world = TestWorld::new(text);
+        crate::compiler::eval::eval_for_test(&world, &world.source)
+    }
+    fn positions(text: &str) -> Vec<(String, f64, f64)> {
+        let source = format!("#set page(width:320pt,height:320pt,margin:20pt)\n{text}");
+        let module =
+            run(&source).unwrap_or_else(|e| panic!("source must evaluate: {e:?}"));
+        let doc = crate::compiler::layout::layout(module.content().unwrap());
+        struct Words(Vec<(String, f64, f64)>);
+        impl FrameVisitor for Words {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, pos, .. } = item {
+                    if !text.trim().is_empty() {
+                        self.0.push((text.to_string(), pos.x.0, pos.y.0));
+                    }
+                }
+            }
+        }
+        let mut words = Words(Vec::new());
+        for page in &doc.pages {
+            words.visit_items(&page.items);
+        }
+        assert!(!words.0.is_empty(), "source must retain visible words");
+        words.0
+    }
+    fn same_geometry(actual: &str, expected: &str) {
+        let a = positions(actual);
+        let b = positions(expected);
+        assert_eq!(a.len(), b.len(), "{a:?} vs {b:?}");
+        for (a, b) in a.iter().zip(&b) {
+            assert_eq!(a.0, b.0);
+            assert!(
+                (a.1 - b.1).abs() < 0.001 && (a.2 - b.2).abs() < 0.001,
+                "{a:?} vs {b:?}"
+            );
+        }
+    }
+    #[test]
+    fn table_declarative_array() {
+        same_geometry("#table(columns:(1fr,1fr),align:(left,right),[AA],[BBBB],[CCC],[D])","#table(columns:(1fr,1fr),table.cell(align:left)[AA],table.cell(align:right)[BBBB],table.cell(align:left)[CCC],table.cell(align:right)[D])");
+    }
+    #[test]
+    fn table_declarative_cycle() {
+        same_geometry("#table(columns:(1fr,1fr,1fr),align:(left,right),[AA],[BBBB],[CCC],[D],[EE],[FFFF])","#table(columns:(1fr,1fr,1fr),table.cell(align:left)[AA],table.cell(align:right)[BBBB],table.cell(align:left)[CCC],table.cell(align:left)[D],table.cell(align:right)[EE],table.cell(align:left)[FFFF])");
+    }
+    #[test]
+    fn table_declarative_empty() {
+        same_geometry(
+            "#table(columns:2,align:(),[AA],[BBBB])",
+            "#table(columns:2,[AA],[BBBB])",
+        );
+    }
+    #[test]
+    fn table_declarative_auto() {
+        same_geometry(
+            "#table(columns:2,align:auto,[AA],[BBBB])",
+            "#table(columns:2,[AA],[BBBB])",
+        );
+    }
+    #[test]
+    fn table_declarative_set_array() {
+        same_geometry("#set table(align:(left,right))\n#table(columns:(1fr,1fr),[AA],[BBBB])","#table(columns:(1fr,1fr),table.cell(align:left)[AA],table.cell(align:right)[BBBB])");
+    }
+    #[test]
+    fn table_declarative_alias_set() {
+        same_geometry("#let tab=table\n#set tab(align:(left,right))\n#tab(columns:(1fr,1fr),[AA],[BBBB])","#table(columns:(1fr,1fr),table.cell(align:left)[AA],table.cell(align:right)[BBBB])");
+    }
+    #[test]
+    fn table_declarative_late_insertion() {
+        same_geometry(
+            "#let t=table(columns:(1fr,1fr),[AA],[BBBB])\n#set table(align:right)\n#t",
+            "#table(columns:(1fr,1fr),align:right,[AA],[BBBB])",
+        );
+    }
+    #[test]
+    fn table_declarative_explicit_auto_stops_inheritance() {
+        same_geometry(
+            "#set table(align:right)\n#table(columns:(1fr,1fr),align:auto,[AA],[BBBB])",
+            "#table(columns:(1fr,1fr),[AA],[BBBB])",
+        );
+    }
+    #[test]
+    fn table_declarative_explicit_scalar_overrides() {
+        same_geometry("#set table(align:(left,right))\n#table(columns:(1fr,1fr),align:left,[AA],[BBBB])","#table(columns:(1fr,1fr),align:left,[AA],[BBBB])");
+    }
+    #[test]
+    fn table_declarative_cell_partial_axes() {
+        same_geometry("#table(columns:(1fr,1fr),rows:40pt,align:(right,left),table.cell(align:bottom)[AA],[BBBB])","#table(columns:(1fr,1fr),rows:40pt,table.cell(align:right+bottom)[AA],table.cell(align:left)[BBBB])");
+    }
+    #[test]
+    fn table_declarative_span_origin() {
+        same_geometry("#table(columns:(1fr,1fr,1fr),align:(left,center,right),table.cell(x:1,y:0,colspan:2)[SPAN],[AA],[B])","#table(columns:(1fr,1fr,1fr),table.cell(x:1,y:0,colspan:2,align:center)[SPAN],table.cell(align:left)[AA],table.cell(align:left)[B])");
+    }
+    #[test]
+    fn table_declarative_header_footer() {
+        same_geometry("#table(columns:(1fr,1fr),align:(left,right),table.header[HA][HB],[AA],[BBBB],table.footer[FA][FB])","#table(columns:(1fr,1fr),table.header(table.cell(align:left)[HA],table.cell(align:right)[HB]),table.cell(align:left)[AA],table.cell(align:right)[BBBB],table.footer(table.cell(align:left)[FA],table.cell(align:right)[FB]))");
+    }
+    #[test]
+    fn table_declarative_local_style_restores() {
+        same_geometry("#{set table(align:right);table(columns:(1fr,1fr),[AA],[BBBB])}\n#table(columns:(1fr,1fr),[CCC],[D])","#table(columns:(1fr,1fr),align:right,[AA],[BBBB])\n#table(columns:(1fr,1fr),[CCC],[D])");
+    }
+    #[test]
+    fn table_declarative_false_condition() {
+        same_geometry(
+            "#set table(align:panic(\"BAD\")) if false\n#table(columns:2,[AA],[BBBB])",
+            "#table(columns:2,[AA],[BBBB])",
+        );
+    }
+
+    #[test]
+    fn table_declarative_none_is_rejected() {
+        let errors = run("#table(align:none,[A])").expect_err("runtime none must reject");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("expected") && e.message.contains("none")),
+            "{errors:?}"
+        );
+    }
+    #[test]
+    fn table_declarative_invalid_set_is_validated_when_unused() {
+        let text = "#set table(align:(left,true))\nNONE";
+        let world = TestWorld::new(text);
+        let errors = crate::compiler::eval::eval_for_test(&world, &world.source)
+            .expect_err("unused invalid style must reject");
+        let error = errors
+            .iter()
+            .find(|e| e.message.contains("expected alignment or auto, found boolean"))
+            .unwrap_or_else(|| panic!("{errors:?}"));
+        let start = text.find("(left,true)").unwrap();
+        assert_eq!(
+            world.source.span_byte_range(error.span),
+            Some(start..start + "(left,true)".len())
+        );
+    }
+    #[test]
+    fn table_declarative_function_set_is_explicitly_unsupported() {
+        let errors = run("#set table(align:(x,y)=>panic(\"MUST_NOT_EXECUTE\"))\nNONE")
+            .expect_err("function styles must not be silently ignored");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("alignment functions are not supported")),
+            "{errors:?}"
+        );
+        assert!(!errors.iter().any(|e| e.message.contains("MUST_NOT_EXECUTE")));
+    }
+    #[test]
+    fn table_declarative_set_evaluates_argument_once() {
+        run("#let n=0\n#set table(align:{n+=1;right})\n#assert.eq(n,1)\n#table(columns:2,[A],[B])").expect("style expression once");
+    }
+    #[test]
+    fn table_declarative_hidden_table_does_not_visit_cells() {
+        let module=run("#show table: it=>[HIDDEN]\n#show table.cell: it=>panic(\"CELL\")\n#table(columns:2,align:(left,right),[A],[B])").expect("hidden cells must not run");
+        assert_eq!(module.content().unwrap().plain_text().trim(), "HIDDEN");
     }
 }

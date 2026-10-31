@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/draw.md
-//! @prompt-hash ce4c7cac
+//! @prompt-hash 16c84440
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -18,6 +18,205 @@ use typst_core::entities::elements::pdf_artifact::ArtifactKind;
 use typst_core::entities::frame_paint::{FramePaint, FrameStroke};
 use typst_core::entities::geometry::PathItem;
 use typst_core::entities::layout_types::{FrameItem, Point, Pt, Rect, TransformMatrix};
+
+pub(super) struct JoinerPair<'a> {
+    separator: String,
+    shaped: &'a str,
+}
+
+/// Only original adjacent leaves with a proved empty leading joiner qualify.
+pub(super) fn joiner_pair<'a>(
+    first: &FrameItem,
+    second: &'a FrameItem,
+    ctx: &PageContext,
+) -> Option<JoinerPair<'a>> {
+    use typst_core::entities::dir::Dir;
+    let FrameItem::TextSeparator {
+        pos: start,
+        advance,
+        style: first_style,
+        bidi: None,
+        ..
+    } = first
+    else {
+        return None;
+    };
+    let FrameItem::TextShaped { pos, glyphs, text, style, font, bidi: None, .. } = second
+    else {
+        return None;
+    };
+    if first_style != style
+        || !matches!(style.dir, None | Some(Dir::LTR))
+        || !advance.0.is_finite()
+        || advance.0 <= 0.0
+        || ![start.x.0, start.y.0, pos.x.0, pos.y.0].iter().all(|v| v.is_finite())
+        || start.y != pos.y
+        || start.x.0 + advance.0 != pos.x.0
+    {
+        return None;
+    }
+    let end = text.len() - text.trim_start_matches('\u{2060}').len();
+    if end == 0 {
+        return None;
+    }
+    let count = glyphs.iter().take_while(|g| (g.cluster as usize) < end).count();
+    if count == 0
+        || (end < text.len() && count == glyphs.len())
+        || glyphs[count..].iter().any(|g| (g.cluster as usize) < end)
+        || !super::text::zero_width_space_alias(
+            &text[..end],
+            &glyphs[..count],
+            style,
+            &ctx.font_scenario,
+            font.as_ref(),
+        )
+    {
+        return None;
+    }
+    match &ctx.font_scenario {
+        super::FontScenario::Type1 => return None,
+        super::FontScenario::Cidfont { .. } => {}
+        super::FontScenario::Multifont { fonts, bindings, .. } => {
+            let first = crate::export::font_binding::lookup(
+                bindings.as_ref(),
+                fonts,
+                first_style,
+                None,
+            )?;
+            let second = crate::export::font_binding::lookup(
+                bindings.as_ref(),
+                fonts,
+                style,
+                font.as_ref(),
+            )?;
+            if first != second {
+                return None;
+            }
+        }
+    }
+    let mut separator = String::from(" ");
+    separator.push_str(&text[..end]);
+    Some(JoinerPair { separator, shaped: &text[end..] })
+}
+
+pub(super) fn draw_joiner_pair_top(
+    ops: String,
+    first: &FrameItem,
+    second: &FrameItem,
+    height: f64,
+    ctx: &PageContext,
+    pair: JoinerPair<'_>,
+) -> String {
+    draw_joiner_pair_top_inner(ops, first, second, height, ctx, pair, false).0
+}
+
+fn draw_joiner_pair_top_inner(
+    ops: String,
+    first: &FrameItem,
+    second: &FrameItem,
+    height: f64,
+    ctx: &PageContext,
+    pair: JoinerPair<'_>,
+    defer_restore: bool,
+) -> (String, usize) {
+    let ops =
+        draw_item_top_inner(ops, first, height, ctx, false, false, Some(&pair.separator))
+            .0;
+    draw_item_top_inner(ops, second, height, ctx, defer_restore, false, Some(pair.shaped))
+}
+
+fn draw_children_top(
+    mut ops: String,
+    items: &[FrameItem],
+    height: f64,
+    ctx: &PageContext,
+    inside_replacement: bool,
+    defer_restore: bool,
+) -> (String, usize) {
+    let mut i = 0;
+    let mut tails = 0;
+    while i < items.len() {
+        if !inside_replacement {
+            if let Some(second) = items.get(i + 1) {
+                if let Some(pair) = joiner_pair(&items[i], second, ctx) {
+                    (ops, tails) = draw_joiner_pair_top_inner(
+                        ops,
+                        &items[i],
+                        second,
+                        height,
+                        ctx,
+                        pair,
+                        defer_restore && i + 2 == items.len(),
+                    );
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        (ops, tails) = draw_item_top_inner(
+            ops,
+            &items[i],
+            height,
+            ctx,
+            defer_restore && i + 1 == items.len(),
+            inside_replacement,
+            None,
+        );
+        i += 1;
+    }
+    (ops, tails)
+}
+
+fn draw_children_local(
+    ops: &mut String,
+    items: &[FrameItem],
+    bbox: Option<Rect>,
+    ctx: &PageContext,
+    inside_replacement: bool,
+    defer_restore: bool,
+) -> usize {
+    let mut i = 0;
+    let mut tails = 0;
+    while i < items.len() {
+        if !inside_replacement {
+            if let Some(second) = items.get(i + 1) {
+                if let Some(pair) = joiner_pair(&items[i], second, ctx) {
+                    let _ = draw_item_local_inner(
+                        ops,
+                        &items[i],
+                        bbox,
+                        ctx,
+                        false,
+                        false,
+                        Some(&pair.separator),
+                    );
+                    tails = draw_item_local_inner(
+                        ops,
+                        second,
+                        bbox,
+                        ctx,
+                        defer_restore && i + 2 == items.len(),
+                        false,
+                        Some(pair.shaped),
+                    );
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        tails = draw_item_local_inner(
+            ops,
+            &items[i],
+            bbox,
+            ctx,
+            defer_restore && i + 1 == items.len(),
+            inside_replacement,
+            None,
+        );
+        i += 1;
+    }
+    tails
+}
 
 fn image_clip_needed(clip: &Rect, pos: &Point, width: Pt, height: Pt) -> bool {
     clip.x.0 > pos.x.0
@@ -148,7 +347,7 @@ pub(super) fn draw_item_top(
     page_height: f64,
     ctx: &PageContext,
 ) -> String {
-    draw_item_top_inner(ops, item, page_height, ctx, false).0
+    draw_item_top_inner(ops, item, page_height, ctx, false, false, None).0
 }
 
 fn draw_item_top_inner(
@@ -157,8 +356,28 @@ fn draw_item_top_inner(
     page_height: f64,
     ctx: &PageContext,
     defer_restore: bool,
+    inside_replacement: bool,
+    occurrence: Option<&str>,
 ) -> (String, usize) {
+    if inside_replacement {
+        if let FrameItem::TextReplacement { items, .. } = item {
+            let mut tail = 0;
+            for (index, child) in items.iter().enumerate() {
+                (ops, tail) = draw_item_top_inner(
+                    ops,
+                    child,
+                    page_height,
+                    ctx,
+                    defer_restore && index + 1 == items.len(),
+                    true,
+                    None,
+                );
+            }
+            return (ops, tail);
+        }
+    }
     let mut deferred = false;
+    let mut container_restores = 0;
     use typst_core::entities::geometry::ShapeKind;
     let ua1_opening = ua1_leaf_opening(item, ctx);
     let ua1_decoration =
@@ -199,8 +418,21 @@ fn draw_item_top_inner(
         FrameItem::TextShaped {
             pos, glyphs, style, text, units_per_em, font, ..
         } if defer_restore => {
-            deferred = match ctx.mode {
-                StreamMode::Compact => emit_shaped_pdf_deferred(
+            deferred = if let Some(actual) = occurrence {
+                super::text::emit_shaped_occurrence(
+                    &mut ops,
+                    (pos.x.0, page_height - pos.y.0),
+                    item,
+                    ctx,
+                    actual,
+                    false,
+                )
+            } else if inside_replacement {
+                let emit = match ctx.mode {
+                    StreamMode::Compact => super::text::emit_shaped_pdf_inner,
+                    StreamMode::Verbose => super::text::emit_shaped_pdf_verbose_inner,
+                };
+                emit(
                     &mut ops,
                     pos.x.0,
                     page_height - pos.y.0,
@@ -209,31 +441,58 @@ fn draw_item_top_inner(
                     style,
                     &ctx.font_scenario,
                     *units_per_em,
+                    false,
                     font.as_ref(),
-                ),
-                StreamMode::Verbose => emit_shaped_pdf_verbose_deferred(
-                    &mut ops,
-                    pos.x.0,
-                    page_height - pos.y.0,
-                    glyphs,
-                    text,
-                    style,
-                    &ctx.font_scenario,
-                    *units_per_em,
-                    font.as_ref(),
-                ),
+                    false,
+                )
+            } else {
+                match ctx.mode {
+                    StreamMode::Compact => emit_shaped_pdf_deferred(
+                        &mut ops,
+                        pos.x.0,
+                        page_height - pos.y.0,
+                        glyphs,
+                        text,
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                    StreamMode::Verbose => emit_shaped_pdf_verbose_deferred(
+                        &mut ops,
+                        pos.x.0,
+                        page_height - pos.y.0,
+                        glyphs,
+                        text,
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                }
             };
         }
         FrameItem::TextSeparator { pos, style, origin, bidi, .. } => {
-            super::separator::emit(
-                &mut ops,
-                pos.x.val(),
-                page_height - pos.y.val(),
-                style,
-                *origin,
-                bidi.as_ref(),
-                ctx,
-            )
+            if let Some(actual) = occurrence {
+                super::separator::emit_marked(
+                    &mut ops,
+                    pos.x.0,
+                    page_height - pos.y.0,
+                    style,
+                    actual,
+                    ctx,
+                );
+            } else {
+                super::separator::emit(
+                    &mut ops,
+                    pos.x.val(),
+                    page_height - pos.y.val(),
+                    style,
+                    *origin,
+                    bidi.as_ref(),
+                    ctx,
+                );
+            }
         }
         // P483 — path primário: glifos com shaping real.
         // **P956** — dispatch por modo: Compact = formato Passo 20
@@ -243,29 +502,60 @@ fn draw_item_top_inner(
             pos, glyphs, style, text, units_per_em, font, ..
         } => {
             let pdf_y = page_height - pos.y.val();
-            match ctx.mode {
-                StreamMode::Compact => emit_shaped_pdf(
+            if let Some(actual) = occurrence {
+                let _ = super::text::emit_shaped_occurrence(
                     &mut ops,
-                    pos.x.val(),
-                    pdf_y,
-                    glyphs,
-                    text.as_str(),
-                    style,
-                    &ctx.font_scenario,
-                    *units_per_em,
-                    font.as_ref(),
-                ),
-                StreamMode::Verbose => emit_shaped_pdf_verbose(
-                    &mut ops,
-                    pos.x.val(),
-                    pdf_y,
-                    glyphs,
-                    text.as_str(),
-                    style,
-                    &ctx.font_scenario,
-                    *units_per_em,
-                    font.as_ref(),
-                ),
+                    (pos.x.0, pdf_y),
+                    item,
+                    ctx,
+                    actual,
+                    true,
+                );
+            } else if inside_replacement {
+                let _ = {
+                    let emit = match ctx.mode {
+                        StreamMode::Compact => super::text::emit_shaped_pdf_inner,
+                        StreamMode::Verbose => super::text::emit_shaped_pdf_verbose_inner,
+                    };
+                    emit(
+                        &mut ops,
+                        pos.x.val(),
+                        pdf_y,
+                        glyphs,
+                        text,
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        true,
+                        font.as_ref(),
+                        false,
+                    )
+                };
+            } else {
+                match ctx.mode {
+                    StreamMode::Compact => emit_shaped_pdf(
+                        &mut ops,
+                        pos.x.val(),
+                        pdf_y,
+                        glyphs,
+                        text.as_str(),
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                    StreamMode::Verbose => emit_shaped_pdf_verbose(
+                        &mut ops,
+                        pos.x.val(),
+                        pdf_y,
+                        glyphs,
+                        text.as_str(),
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                }
             }
         }
         // P483 — fallback: fonte não carregada, Type1, ou shaping indisponível.
@@ -400,6 +690,7 @@ fn draw_item_top_inner(
 
             // Cor e espessura do contorno (RG + w).
             if let Some(s) = stroke {
+                emit_shape_stroke_style(&mut ops, s);
                 emit_stroke_paint(
                     &mut ops,
                     item,
@@ -570,12 +861,19 @@ fn draw_item_top_inner(
 
             // P273.13 / P278 — Group bbox via helper consolidado.
             let group_bbox = group_bbox_from_fields(*pos, *inner_width, *inner_height);
-            for child in items {
-                // P281 — recurse com mesmo ctx (substitui cascade
-                // de 6 params P279).
-                draw_item_local(&mut ops, child, Some(group_bbox), ctx);
+            let child_restores = draw_children_local(
+                &mut ops,
+                items,
+                Some(group_bbox),
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
+            if defer_restore {
+                container_restores = child_restores + 1;
+            } else {
+                ops.push_str("Q\n");
             }
-            ops.push_str("Q\n");
         }
         // **P425-A7**: FrameItem::Link transportado como Group sem annotation
         // URI por enquanto. Emissão de /Annot requer decisão arquitetural sobre
@@ -583,9 +881,14 @@ fn draw_item_top_inner(
         // **P788** — filhos seguem o caminho top-level COM flip Y (eram
         // `draw_item_local`, sem flip — apareciam no fundo da página).
         FrameItem::Link { items, .. } => {
-            for child in items {
-                ops = draw_item_top(ops, child, page_height, ctx);
-            }
+            (ops, container_restores) = draw_children_top(
+                ops,
+                items,
+                page_height,
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
         }
         FrameItem::TextReplacement { text, items } => {
             if glyph_replacement_can_mark(items, ctx) {
@@ -640,6 +943,8 @@ fn draw_item_top_inner(
                         page_height,
                         ctx,
                         index + 1 == items.len(),
+                        true,
+                        None,
                     );
                     ops = result.0;
                     tail = result.1;
@@ -659,9 +964,14 @@ fn draw_item_top_inner(
             if let Some(ref opening) = opening {
                 ops.push_str(opening);
             }
-            for child in items {
-                ops = draw_item_top(ops, child, page_height, ctx);
-            }
+            (ops, container_restores) = draw_children_top(
+                ops,
+                items,
+                page_height,
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
             if opening.is_some() {
                 ops.push_str("EMC\n");
             }
@@ -670,7 +980,7 @@ fn draw_item_top_inner(
     if ua1_opening.is_some() || ua1_decoration {
         ops.push_str("EMC\n");
     }
-    let mut restores = usize::from(deferred);
+    let mut restores = usize::from(deferred) + container_restores;
     if !opacity.is_empty() {
         if defer_restore {
             restores += 1;
@@ -723,7 +1033,8 @@ pub(in crate::export) fn draw_item_local(
     // dispatch via `ctx.font_scenario`.
     ctx: &PageContext,
 ) {
-    let _ = draw_item_local_inner(ops, item, parent_bbox_override, ctx, false);
+    let _ =
+        draw_item_local_inner(ops, item, parent_bbox_override, ctx, false, false, None);
 }
 
 fn draw_item_local_inner(
@@ -732,7 +1043,26 @@ fn draw_item_local_inner(
     parent_bbox_override: Option<typst_core::entities::layout_types::Rect>,
     ctx: &PageContext,
     defer_restore: bool,
+    inside_replacement: bool,
+    occurrence: Option<&str>,
 ) -> usize {
+    if inside_replacement {
+        if let FrameItem::TextReplacement { items, .. } = item {
+            let mut tails = 0;
+            for (index, child) in items.iter().enumerate() {
+                tails = draw_item_local_inner(
+                    ops,
+                    child,
+                    parent_bbox_override,
+                    ctx,
+                    defer_restore && index + 1 == items.len(),
+                    true,
+                    None,
+                );
+            }
+            return tails;
+        }
+    }
     let mut restores = 0usize;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::FrameItem;
@@ -788,9 +1118,22 @@ fn draw_item_local_inner(
             pos, glyphs, style, text, units_per_em, font, ..
         } if defer_restore => {
             ops.push_str("q\n1 0 0 -1 0 0 cm\n");
-            match ctx.mode {
-                StreamMode::Compact => {
-                    let tail = emit_shaped_pdf_deferred(
+            if let Some(actual) = occurrence {
+                restores += usize::from(super::text::emit_shaped_occurrence(
+                    ops,
+                    (pos.x.0, -pos.y.0),
+                    item,
+                    ctx,
+                    actual,
+                    false,
+                ));
+            } else if inside_replacement {
+                let tail = {
+                    let emit = match ctx.mode {
+                        StreamMode::Compact => super::text::emit_shaped_pdf_inner,
+                        StreamMode::Verbose => super::text::emit_shaped_pdf_verbose_inner,
+                    };
+                    emit(
                         ops,
                         pos.x.0,
                         -pos.y.0,
@@ -799,26 +1142,45 @@ fn draw_item_local_inner(
                         style,
                         &ctx.font_scenario,
                         *units_per_em,
+                        false,
                         font.as_ref(),
-                    );
-                    if tail {
-                        restores += 1;
+                        false,
+                    )
+                };
+                restores += usize::from(tail);
+            } else {
+                match ctx.mode {
+                    StreamMode::Compact => {
+                        let tail = emit_shaped_pdf_deferred(
+                            ops,
+                            pos.x.0,
+                            -pos.y.0,
+                            glyphs,
+                            text,
+                            style,
+                            &ctx.font_scenario,
+                            *units_per_em,
+                            font.as_ref(),
+                        );
+                        if tail {
+                            restores += 1;
+                        }
                     }
-                }
-                StreamMode::Verbose => {
-                    let tail = emit_shaped_pdf_verbose_deferred(
-                        ops,
-                        pos.x.0,
-                        -pos.y.0,
-                        glyphs,
-                        text,
-                        style,
-                        &ctx.font_scenario,
-                        *units_per_em,
-                        font.as_ref(),
-                    );
-                    if tail {
-                        restores += 1;
+                    StreamMode::Verbose => {
+                        let tail = emit_shaped_pdf_verbose_deferred(
+                            ops,
+                            pos.x.0,
+                            -pos.y.0,
+                            glyphs,
+                            text,
+                            style,
+                            &ctx.font_scenario,
+                            *units_per_em,
+                            font.as_ref(),
+                        );
+                        if tail {
+                            restores += 1;
+                        }
                     }
                 }
             }
@@ -826,15 +1188,19 @@ fn draw_item_local_inner(
         }
         FrameItem::TextSeparator { pos, style, origin, bidi, .. } => {
             let y_eff = group_text_flip_open(ops, pos.y.0);
-            super::separator::emit(
-                ops,
-                pos.x.0,
-                y_eff,
-                style,
-                *origin,
-                bidi.as_ref(),
-                ctx,
-            );
+            if let Some(actual) = occurrence {
+                super::separator::emit_marked(ops, pos.x.0, y_eff, style, actual, ctx);
+            } else {
+                super::separator::emit(
+                    ops,
+                    pos.x.0,
+                    y_eff,
+                    style,
+                    *origin,
+                    bidi.as_ref(),
+                    ctx,
+                );
+            }
             group_text_flip_close(ops);
         }
         FrameItem::Shape {
@@ -859,6 +1225,7 @@ fn draw_item_local_inner(
                 let parent = parent_bbox_at_emit.or(parent_bbox_override);
                 let effective_bbox =
                     paint_effective_bbox(&s.paint, *pos, *width, *height, parent);
+                emit_shape_stroke_style(ops, s);
                 emit_stroke_paint(ops, item, &s.paint, s.thickness, effective_bbox, ctx);
             }
             match kind {
@@ -995,10 +1362,19 @@ fn draw_item_local_inner(
                 ops.push_str("W n\n");
             }
             let group_bbox = group_bbox_from_fields(*pos, *inner_width, *inner_height);
-            for child in items {
-                draw_item_local(ops, child, Some(group_bbox), ctx);
+            let child_restores = draw_children_local(
+                ops,
+                items,
+                Some(group_bbox),
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
+            if defer_restore {
+                restores += child_restores + 1;
+            } else {
+                ops.push_str("Q\n");
             }
-            ops.push_str("Q\n");
         }
         // P279 — Image em Group emit local.
         FrameItem::Image {
@@ -1047,29 +1423,60 @@ fn draw_item_local_inner(
             pos, glyphs, style, text, units_per_em, font, ..
         } => {
             let y_eff = group_text_flip_open(ops, pos.y.0);
-            match ctx.mode {
-                StreamMode::Compact => emit_shaped_pdf(
+            if let Some(actual) = occurrence {
+                let _ = super::text::emit_shaped_occurrence(
                     ops,
-                    pos.x.0,
-                    y_eff,
-                    glyphs,
-                    text.as_str(),
-                    style,
-                    &ctx.font_scenario,
-                    *units_per_em,
-                    font.as_ref(),
-                ),
-                StreamMode::Verbose => emit_shaped_pdf_verbose(
-                    ops,
-                    pos.x.0,
-                    y_eff,
-                    glyphs,
-                    text.as_str(),
-                    style,
-                    &ctx.font_scenario,
-                    *units_per_em,
-                    font.as_ref(),
-                ),
+                    (pos.x.0, y_eff),
+                    item,
+                    ctx,
+                    actual,
+                    true,
+                );
+            } else if inside_replacement {
+                let _ = {
+                    let emit = match ctx.mode {
+                        StreamMode::Compact => super::text::emit_shaped_pdf_inner,
+                        StreamMode::Verbose => super::text::emit_shaped_pdf_verbose_inner,
+                    };
+                    emit(
+                        ops,
+                        pos.x.0,
+                        y_eff,
+                        glyphs,
+                        text,
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        true,
+                        font.as_ref(),
+                        false,
+                    )
+                };
+            } else {
+                match ctx.mode {
+                    StreamMode::Compact => emit_shaped_pdf(
+                        ops,
+                        pos.x.0,
+                        y_eff,
+                        glyphs,
+                        text.as_str(),
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                    StreamMode::Verbose => emit_shaped_pdf_verbose(
+                        ops,
+                        pos.x.0,
+                        y_eff,
+                        glyphs,
+                        text.as_str(),
+                        style,
+                        &ctx.font_scenario,
+                        *units_per_em,
+                        font.as_ref(),
+                    ),
+                }
             }
             group_text_flip_close(ops);
         }
@@ -1136,9 +1543,14 @@ fn draw_item_local_inner(
         }
         // **P425-A7**: transporte recursivo de Link no espaço local do Group.
         FrameItem::Link { items, .. } => {
-            for child in items {
-                draw_item_local(ops, child, parent_bbox_override, ctx);
-            }
+            restores += draw_children_local(
+                ops,
+                items,
+                parent_bbox_override,
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
         }
         FrameItem::TextReplacement { text, items } => {
             if glyph_replacement_can_mark(items, ctx) {
@@ -1195,6 +1607,8 @@ fn draw_item_local_inner(
                         parent_bbox_override,
                         ctx,
                         index + 1 == items.len(),
+                        true,
+                        None,
                     );
                 }
                 super::text_replacement::closing(ops);
@@ -1212,9 +1626,14 @@ fn draw_item_local_inner(
             if let Some(ref opening) = opening {
                 ops.push_str(opening);
             }
-            for child in items {
-                draw_item_local(ops, child, parent_bbox_override, ctx);
-            }
+            restores += draw_children_local(
+                ops,
+                items,
+                parent_bbox_override,
+                ctx,
+                inside_replacement,
+                defer_restore,
+            );
             if opening.is_some() {
                 ops.push_str("EMC\n");
             }
@@ -1296,6 +1715,212 @@ fn emit_straight_path(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn readiness_unicode_joiner_prefix_requires_original_causal_leaves() {
+        use std::collections::HashMap;
+        use typst_core::entities::{
+            bidi_context::{BidiSpan, ParagraphBidiInput, ParagraphBidiSegment},
+            dir::Dir,
+            layout_types::{ShapedGlyph, TextSeparatorOrigin, TextStyle},
+            world_types::Font,
+        };
+        let bytes = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let face = ttf_parser::Face::parse(bytes, 0).unwrap();
+        let space_gid = face.glyph_index(' ').unwrap();
+        assert!(face.glyph_bounding_box(space_gid).is_none());
+        let gap = f64::from(face.glyph_hor_advance(space_gid).unwrap()) * 12.0
+            / f64::from(face.units_per_em());
+        let style = TextStyle::regular(Pt(12.0));
+        let separator = FrameItem::TextSeparator {
+            pos: Point { x: Pt(10.0), y: Pt(20.0) },
+            advance: Pt(gap),
+            style: style.clone(),
+            origin: TextSeparatorOrigin::Literal,
+            bidi: None,
+        };
+        let word = FrameItem::TextShaped {
+            pos: Point { x: Pt(10.0 + gap), y: Pt(20.0) },
+            text: "\u{2060}1".into(),
+            style,
+            glyphs: vec![
+                ShapedGlyph {
+                    glyph_id: space_gid.0,
+                    x_advance: 0,
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: '\u{2060}',
+                },
+                ShapedGlyph {
+                    glyph_id: face.glyph_index('1').unwrap().0,
+                    x_advance: i32::from(
+                        face.glyph_hor_advance(face.glyph_index('1').unwrap()).unwrap(),
+                    ),
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 3,
+                    char_code: '1',
+                },
+            ],
+            units_per_em: face.units_per_em(),
+            bidi: None,
+            font: Some(Font::from_data(bytes.to_vec())),
+        };
+        let images = HashMap::new();
+        let patterns = HashMap::new();
+        let chars = HashMap::new();
+        let mapping = HashMap::new();
+        let nominal = HashMap::new();
+        let scenario = || super::super::FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &mapping,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let mut ctx =
+            PageContext::type1(&images, &[], &patterns, &[], StreamMode::Compact);
+        ctx.font_scenario = scenario();
+        let pair =
+            joiner_pair(&separator, &word, &ctx).expect("original adjacent prefix");
+        assert_eq!(pair.separator, " \u{2060}");
+        assert_eq!(pair.shaped, "1");
+        drop(pair);
+        for case in [
+            "zero-space",
+            "infinite-space",
+            "advance",
+            "x-offset",
+            "y-offset",
+            "ink",
+            "no-face",
+            "invalid-face",
+            "x",
+            "y",
+            "text",
+            "style",
+            "rtl",
+            "bidi",
+        ] {
+            let mut first = separator.clone();
+            let mut second = word.clone();
+            let FrameItem::TextSeparator { advance, style: first_style, .. } = &mut first
+            else {
+                unreachable!()
+            };
+            let FrameItem::TextShaped { pos, glyphs, font, text, style, bidi, .. } =
+                &mut second
+            else {
+                unreachable!()
+            };
+            match case {
+                "zero-space" => *advance = Pt(0.0),
+                "infinite-space" => *advance = Pt(f64::INFINITY),
+                "advance" => glyphs[0].x_advance = 1,
+                "x-offset" => glyphs[0].x_offset = 1,
+                "y-offset" => glyphs[0].y_offset = 1,
+                "ink" => glyphs[0].glyph_id = face.glyph_index('A').unwrap().0,
+                "no-face" => *font = None,
+                "invalid-face" => *font = Some(Font::from_data(vec![0])),
+                "x" => pos.x += Pt(1.0),
+                "y" => pos.y += Pt(1.0),
+                "text" => *text = "1\u{2060}".into(),
+                "style" => style.bold = !first_style.bold,
+                "rtl" => {
+                    style.dir = Some(Dir::RTL);
+                    first_style.dir = Some(Dir::RTL);
+                }
+                "bidi" => {
+                    let input = Arc::new(
+                        ParagraphBidiInput::new(
+                            Dir::LTR,
+                            vec![ParagraphBidiSegment::Text {
+                                text: "\u{2060}1".into(),
+                                dir: Dir::LTR,
+                            }],
+                        )
+                        .unwrap(),
+                    );
+                    *bidi = Some(BidiSpan::new(input, 0, 0..4).unwrap());
+                }
+                _ => unreachable!("closed eligibility cases"),
+            }
+            assert!(joiner_pair(&first, &second, &ctx).is_none(), "unproved {case}");
+        }
+        let items = [separator, word];
+        ctx.ua1 = true;
+        ctx.tags = PdfTags::Enabled;
+        ctx.semantic_mcids.insert(&items[0] as *const FrameItem as usize, 7);
+        ctx.semantic_mcids.insert(&items[1] as *const FrameItem as usize, 8);
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            ctx.mode = mode;
+            let top =
+                draw_children_top(String::new(), &items, 100.0, &ctx, false, false).0;
+            let mut local = String::new();
+            let _ = draw_children_local(&mut local, &items, None, &ctx, false, false);
+            for ops in [top, local] {
+                assert_eq!(ops.matches("/MCID 7 ").count(), 1, "{ops}");
+                assert_eq!(ops.matches("/MCID 8 ").count(), 1, "{ops}");
+                assert_eq!(ops.matches("/ActualText").count(), 2, "{ops}");
+                assert_eq!(
+                    ops.lines().filter(|l| *l == "q").count(),
+                    ops.lines().filter(|l| *l == "Q").count(),
+                    "{ops}"
+                );
+            }
+        }
+        let bitmap = HashMap::new();
+        ctx.font_scenario = super::super::FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &mapping,
+            glyph_to_nominal: &nominal,
+            bitmap: Some(&bitmap),
+        };
+        assert!(joiner_pair(&items[0], &items[1], &ctx).is_none());
+        ctx.font_scenario = super::super::FontScenario::Type1;
+        assert!(joiner_pair(&items[0], &items[1], &ctx).is_none());
+        ctx.font_scenario = super::super::FontScenario::Multifont {
+            fonts: &[],
+            per_font_char_to_gid: &[],
+            per_font_glyph_mapping: &[],
+            per_font_glyph_to_nominal: &[],
+            per_font_glyph_reverse: &[],
+            per_font_bitmap: &[],
+            bindings: None,
+        };
+        assert!(joiner_pair(&items[0], &items[1], &ctx).is_none());
+    }
+
+    #[test]
+    fn readiness_unicode_outer_replacement_owns_nested_text() {
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let images = std::collections::HashMap::new();
+            let patterns = std::collections::HashMap::new();
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            let inner = FrameItem::TextReplacement {
+                text: "INNER".into(),
+                items: vec![FrameItem::Text {
+                    pos: Point { x: Pt(10.0), y: Pt(20.0) },
+                    text: "paint".into(),
+                    style: Default::default(),
+                    bidi: None,
+                }],
+            };
+            let outer =
+                FrameItem::TextReplacement { text: "OUTER".into(), items: vec![inner] };
+            for local in [false, true] {
+                let stream = if local {
+                    let mut ops = String::new();
+                    draw_item_local(&mut ops, &outer, None, &ctx);
+                    ops
+                } else {
+                    draw_item_top(String::new(), &outer, 100.0, &ctx)
+                };
+                assert_eq!(stream.matches("/ActualText").count(), 1, "{stream}");
+                assert!(stream.contains("(paint)"), "{stream}");
+            }
+        }
+    }
 
     #[test]
     fn r5_shape_line_endpoints_keep_fractional_geometry_and_local_direction() {
@@ -1877,5 +2502,143 @@ mod tests {
                 assert!(stream.rfind("EMC").unwrap() < stream.rfind("Q").unwrap());
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod issue8894_cap_regressions {
+    use super::*;
+    use typst_core::entities::geometry::{LineCap, ShapeKind};
+
+    #[test]
+    fn issue8894_shape_keeps_cap_in_top_and_local_pdf() {
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let images = std::collections::HashMap::new();
+            let patterns = std::collections::HashMap::new();
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            for (cap, expected) in
+                [(LineCap::Round, 1), (LineCap::Square, 2), (LineCap::Butt, 0)]
+            {
+                for end in [20.0, 40.0] {
+                    let shape = FrameItem::Shape {
+                        pos: Point { x: Pt(60.0), y: Pt(60.0) },
+                        kind: ShapeKind::Path(vec![
+                            PathItem::MoveTo(Point { x: Pt(20.0), y: Pt(20.0) }),
+                            PathItem::LineTo(Point { x: Pt(end), y: Pt(20.0) }),
+                        ]),
+                        width: end - 20.0,
+                        height: 0.0,
+                        fill: None,
+                        stroke: Some(FrameStroke {
+                            thickness: 110.0,
+                            cap,
+                            ..Default::default()
+                        }),
+                        fill_rule: Default::default(),
+                        parent_bbox_at_emit: None,
+                    };
+                    for local in [false, true] {
+                        let mut stream = String::new();
+                        if local {
+                            draw_item_local(&mut stream, &shape, None, &ctx);
+                        } else {
+                            stream = draw_item_top(stream, &shape, 200.0, &ctx);
+                        }
+                        // PDF defaults to Butt. Interpret the explicit J state used by S.
+                        let tokens: Vec<_> = stream.split_whitespace().collect();
+                        let observed = tokens
+                            .windows(2)
+                            .filter(|pair| pair[1] == "J")
+                            .map(|pair| pair[0].parse::<i32>().unwrap())
+                            .next_back()
+                            .unwrap_or(0);
+                        assert_eq!(
+                            observed, expected,
+                            "cap lost; local={local}: {stream}"
+                        );
+                        assert!(tokens.contains(&"S"), "stroke must be painted");
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod issue8583_style_tests {
+    use super::*;
+    #[test]
+    fn issue8583_pdf_preserves_prepared_side_stroke_styles() {
+        use typst_core::entities::geometry::{
+            DashLength, DashPattern, LineJoin, ShapeKind,
+        };
+        let images = std::collections::HashMap::new();
+        let patterns = std::collections::HashMap::new();
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+            let shape = FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(10.0) },
+                kind: ShapeKind::Line { dx: 20.0, dy: 0.0 },
+                width: 20.0,
+                height: 0.0,
+                fill: None,
+                stroke: Some(FrameStroke {
+                    thickness: 4.0,
+                    join: LineJoin::Bevel,
+                    miter_limit: 2.5,
+                    dash: Some(DashPattern {
+                        array: vec![DashLength::Length(3.0), DashLength::LineWidth],
+                        phase: 2.0,
+                    }),
+                    ..Default::default()
+                }),
+                fill_rule: Default::default(),
+                parent_bbox_at_emit: None,
+            };
+            for local in [false, true] {
+                let mut ops = String::new();
+                if local {
+                    draw_item_local(&mut ops, &shape, None, &ctx);
+                } else {
+                    ops = draw_item_top(ops, &shape, 100.0, &ctx);
+                }
+                let tokens: Vec<_> = ops.split_whitespace().collect();
+                let field = |op: &str| {
+                    tokens
+                        .windows(2)
+                        .find(|p| p[1] == op)
+                        .map(|p| p[0].parse::<f64>().unwrap())
+                };
+                assert_eq!(field("j"), Some(2.0), "bevel join lost: {ops}");
+                assert_eq!(field("M"), Some(2.5), "miter limit lost: {ops}");
+                assert_eq!(field("d"), Some(2.0), "dash phase lost: {ops}");
+            }
+        }
+    }
+}
+
+fn emit_shape_stroke_style(ops: &mut String, stroke: &FrameStroke) {
+    use typst_core::entities::geometry::{DashLength, LineJoin};
+    ops.push_str(line_cap_prefix(stroke.cap));
+    match stroke.join {
+        LineJoin::Miter => {}
+        LineJoin::Round => ops.push_str("1 j\n"),
+        LineJoin::Bevel => ops.push_str("2 j\n"),
+    }
+    if stroke.miter_limit != 4.0 {
+        ops.push_str(&format!("{:.5} M\n", stroke.miter_limit));
+    }
+    if let Some(dash) = &stroke.dash {
+        let lengths = dash
+            .array
+            .iter()
+            .map(|v| match v {
+                DashLength::Length(v) => *v,
+                DashLength::LineWidth => stroke.thickness,
+            })
+            .map(|v| format!("{v:.5}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        ops.push_str(&format!("[{lengths}] {:.5} d\n", dash.phase));
     }
 }

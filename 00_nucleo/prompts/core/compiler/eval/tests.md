@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: c8e8048c
+Hash do Código: 974996a9
 
 
 
@@ -725,3 +725,54 @@ Test public Symbol identity and full text across insertion paths, callable funct
 Preserve all pre-existing working-tree changes, effects and other variants.
 
 Realization integration tests use raw evaluated modules and realize_document to test actual effects: Symbol receives non-math text filters and spanning regex, ignores native Symbol show after conversion, and receives math regex while retaining immunity to native text filters in math. These are measured outcomes, not inferred upstream intent.
+
+
+## Current-pin unknown mathematical call regressions
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/math-private-core-all1.log
+records8180 passes/seven failures/five existing ignored with exact frozen source
+receipt. math-legacy-expectations-before/receipt.json under that same diagnostic
+directory repeats the exact four undef call sources, the old class error cases
+and all five formerly internal names against immutable physical15 and pinned
+64c5e8c0 oracle (binary22897f93), retaining source/archive/HEAD/dirty stat/UTC.
+Native rejects all four undef heads before arguments, includes diacritic in the
+class cast message, accepts diacritic and rejects the other four internal names.
+These are language name-resolution/diagnostic/cast observations, not mechanical
+Rust equality or inferred intent. The exact old tests/owners are archived in
+math-legacy-tests-before.json.gz; the earlier functional RED13 (eleven failures,
+two controls) preceded the productive correction. No test is removed or ignored.
+
+### Exclusive test correction
+
+The four P303 tests historically expected an unresolved undef call to become
+literal MathIdent/MathDelimited. Supersede only those invalid-name success
+expectations. Keep each exact source and one-to-one test case, requiring the
+measured unknown variable `undef` error, Error severity, actual callee byte
+range1..6 and the existing mathematical-name hints. Rename each test to describe
+its current rejection. Preserve all resolved operator/symbol/single-letter/
+lexical-call argument-morphology tests and all other inputs/assertions/helpers.
+Do not reintroduce a name-specific escape or change product logic to satisfy
+stale tests. This is a test-only L0-first continuous ADR-0127 amendment; no
+productive public/default/phase/compatibility change, suppression or relaxation.
+Full core and all final existing gates remain required.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's original point-only Stroke test values/assignments
+to Length::pt while preserving exact numeric values and all assertions. When
+a prepared scalar is compared to its declarative source, explicitly resolve
+that source with the fixture font; do not relax expected geometry or tolerance.
+This test migration implements only the approved field representation change;
+existing non-stroke obligations and prior approvals remain intact.

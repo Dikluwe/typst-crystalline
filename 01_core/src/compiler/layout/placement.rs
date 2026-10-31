@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash be608ee7
+//! @prompt-hash 2b7a2ccc
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -17,15 +17,144 @@ use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
 use crate::entities::value::Value;
 
+fn independent_block(content: &Content) -> bool {
+    match content {
+        Content::Block(_) => true,
+        Content::Source(e) => independent_block(&e.body),
+        Content::Styled(e) => independent_block(&e.body),
+        Content::Located(e) => independent_block(&e.body),
+        Content::Realized(e) => independent_block(&e.visual),
+        Content::Sequence(parts) => parts.len() == 1 && independent_block(&parts[0]),
+        Content::ShowRecipe(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Symbol(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..)
+        | Content::Align(..) => false,
+    }
+}
+
 /// Closed certificate for textual line alignment; geometric consumers keep
 /// the established envelope path and its deferred coordinate protocol.
 pub(super) fn text_alignment_body(content: &Content) -> bool {
     text_alignment_body_in(content, false)
 }
 
-fn text_alignment_body_in(content: &Content, source_transparent: bool) -> bool {
+fn text_alignment_body_in(content: &Content, actual_align_scope: bool) -> bool {
     if let Content::Source(source) = content {
-        return source_transparent && text_alignment_body_in(&source.body, true);
+        return actual_align_scope && text_alignment_body_in(&source.body, true);
+    }
+    if matches!(content, Content::Parbreak) {
+        return actual_align_scope;
     }
     if matches!(content, Content::Empty) {
         return true;
@@ -45,22 +174,22 @@ fn text_alignment_body_in(content: &Content, source_transparent: bool) -> bool {
     if let Content::Sequence(parts) = content {
         return parts
             .iter()
-            .all(|part| text_alignment_body_in(part, source_transparent));
+            .all(|part| text_alignment_body_in(part, actual_align_scope));
     }
     if let Content::Styled(e) = content {
-        return text_alignment_body_in(&e.body, source_transparent);
+        return text_alignment_body_in(&e.body, actual_align_scope);
     }
     if let Content::Strong(e) = content {
-        return text_alignment_body_in(&e.body, source_transparent);
+        return text_alignment_body_in(&e.body, actual_align_scope);
     }
     if let Content::Emph(e) = content {
-        return text_alignment_body_in(&e.body, source_transparent);
+        return text_alignment_body_in(&e.body, actual_align_scope);
     }
     if let Content::Par { body } = content {
-        return text_alignment_body_in(body, source_transparent);
+        return text_alignment_body_in(body, actual_align_scope);
     }
     if let Content::Align(e) = content {
-        return text_alignment_body_in(&e.body, source_transparent);
+        return text_alignment_body_in(&e.body, actual_align_scope);
     }
     if let Content::Block(e) = content {
         return !e.clip
@@ -74,7 +203,7 @@ fn text_alignment_body_in(content: &Content, source_transparent: bool) -> bool {
                 == crate::entities::sides::Sides::uniform(
                     crate::entities::layout_types::Length::ZERO,
                 )
-            && text_alignment_body_in(&e.body, source_transparent);
+            && text_alignment_body_in(&e.body, actual_align_scope);
     }
     // Absence of positive proof keeps this carrier on its existing layout path.
     false
@@ -134,8 +263,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             && matches!(alignment.v, None | Some(VAlign::Top))
             && flow_frame_alignment_body(body);
         let flow_aligned = textual || frame_aligned;
+        let intrinsic_piece = avail_w.is_finite()
+            && matches!(alignment.v, None | Some(VAlign::Top))
+            && self.block_auto_width
+            && self.piece_alignment.is_some()
+            && (textual || independent_block(body));
         let saved_alignment = self.explicit_line_alignment;
-        if flow_aligned {
+        if flow_aligned || intrinsic_piece {
             let rtl = self.chain.custom("text.dir")
                 == Some(&crate::entities::value::Value::Dir(
                     crate::entities::dir::Dir::RTL,
@@ -172,7 +306,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             crate::compiler::introspect::page_running::PlanEdge::AlignBody,
         );
         let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
-            self.layout_sub_frame_planned(body, region, true, planned);
+            if intrinsic_piece {
+                let mut piece = self.layout_intrinsic_piece(
+                    std::slice::from_ref(body),
+                    &[planned],
+                    region,
+                );
+                let width = piece.width;
+                self.settle_intrinsic_piece(&mut piece, width);
+                (
+                    piece.height,
+                    piece.items,
+                    piece.decorations,
+                    piece.align_x,
+                    piece.align_y,
+                )
+            } else {
+                self.layout_sub_frame_planned(body, region, true, planned)
+            };
         let flow_width = self.last_sub_frame_flow_width;
         self.explicit_line_alignment = saved_alignment;
         let sub_origin_y = 0.0;
@@ -217,7 +368,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
             sub_items.iter().collect();
         let content_right_abs = self.metrics.line_content_right(&sub_item_refs);
-        let content_w = if flow_aligned {
+        let content_w = if intrinsic_piece {
+            flow_width
+        } else if flow_aligned {
             avail_w
         } else {
             (content_right_abs - origin_x_abs).max(0.0)
@@ -264,7 +417,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (`apply_pending_align_fixups`, chamado de `finish()`/`new_page()`).
         let defer_block_x = self.block_auto_width && !flow_aligned;
         let avail_w_is_finite = avail_w.is_finite() && !defer_block_x;
-        let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
+        let avail_w_for_resolve = if intrinsic_piece {
+            content_w
+        } else if avail_w_is_finite {
+            avail_w
+        } else {
+            content_w
+        };
 
         // **P898** — mesma vulnerabilidade no eixo Y: sob `height: auto` e
         // fora de uma célula/sub-frame de altura conhecida, `remaining_h`
@@ -1335,6 +1494,96 @@ mod repeat_alignment_regressions {
             assert!(
                 (*x - (left + residual + index as f64 * (piece + gap))).abs() < 1e-9,
                 "actual={x} index={index}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod template_paragraph_tests {
+    use super::*;
+
+    fn large(text: &str) -> Content {
+        Content::styled(
+            Content::text(text),
+            crate::entities::style::Styles::from_iter([
+                crate::entities::style::Style::Size(
+                    crate::entities::layout_types::Length::pt(19.0),
+                ),
+            ]),
+        )
+    }
+    fn render(
+        body: Content,
+        spacing: Option<crate::entities::layout_types::Length>,
+    ) -> Vec<(String, f64, f64, f64)> {
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::{FrameItem, FrameVisitor},
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        if let Some(spacing) = spacing {
+            l.chain = l.chain.push_custom(
+                "par.spacing",
+                crate::entities::value::Value::Length(spacing),
+            );
+        }
+        l.page_config.width = 320.0;
+        l.page_config.height = 300.0;
+        l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(20.0);
+        l.page_config.margin_spec =
+            crate::entities::layout_types::PageMarginSpec::uniform(20.0);
+        l.regions.current.width = 320.0;
+        l.regions.current.height = 300.0;
+        l.regions.current.cursor_x = crate::entities::layout_types::Pt(20.0);
+        l.regions.current.line_start_x = crate::entities::layout_types::Pt(20.0);
+        l.regions.current.cursor_y = crate::entities::layout_types::Pt(20.0);
+        l.initial_baseline_pending = true;
+        l.line_assumed_ascent = None;
+        l.layout_content(&body);
+        struct Words(Vec<(String, f64, f64, f64)>);
+        impl FrameVisitor for Words {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, pos, style, .. } = item {
+                    if !text.trim().is_empty() {
+                        self.0.push((text.to_string(), pos.x.0, pos.y.0, style.size.0));
+                    }
+                }
+            }
+        }
+        let mut words = Words(Vec::new());
+        for p in l.finish().pages {
+            words.visit_items(&p.items);
+        }
+        words.0
+    }
+
+    #[test]
+    fn template_paragraph_align_centers_each_paragraph() {
+        let body = Content::sequence(vec![
+            large("TITLE"),
+            Content::Parbreak,
+            Content::text("AUTHOR"),
+        ]);
+        let plain = render(body.clone(), None);
+        let words = render(Content::align(Align2D::from_string("center"), body), None);
+        assert_eq!(words.len(), 2);
+        let region_width = 280.0;
+        for (word, plain) in words.iter().zip(&plain) {
+            let expected = 20.0
+                + (region_width - word.0.chars().count() as f64 * word.3 * 0.6) / 2.0;
+            assert!((word.1 - expected).abs() < 0.001, "{word:?} expected x{expected}");
+            assert!(
+                (word.2 - plain.2).abs() < 0.001,
+                "alignment moved baseline: {word:?} vs {plain:?}"
             );
         }
     }

@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/row_groups
-Hash do Código: cfd66fcd
+Hash do Código: 11a24651
 
 
 Núcleos Tekt:
@@ -98,3 +98,19 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Issue 8954 — ratified ordered group normalization
+
+Evidence/approval: before.json.gz, measurements.json.gz and approval.json in
+lab/results/construction/diagnostics/issue-8954-2026-10-31 retain exact state,
+source, UTC, diagnostics, order and the approved entity package. Own the pure
+ordered-items projection to cells and typed source group boundaries, preserving
+Header.level/repeat independently of Cell kind and distinct adjacent groups.
+Do not compute occupancy or physical heights from vector length; pass boundary
+ordinals to the existing placement owner, which returns real row ranges. Preserve
+legacy table_groups/Grid unchanged. Ordered explicit-line integration remains
+on its old constructor path until separately measured; do not silently drop lines.
+Footer remains unique/final under current controls. Reject malformed groups
+through SourceDiagnostic, never panic. No callback/Engine/layout here.
+L0/reseal precede RED/code; preserve all prior approvals and source origins.

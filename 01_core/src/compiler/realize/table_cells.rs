@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/table_cells.md
-//! @prompt-hash ef2d5b3a
+//! @prompt-hash a2fac0a0
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -1275,44 +1275,72 @@ fn prepare_table(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    let inherited_alignment = if e.align.is_none() {
+        engine
+            .styles
+            .custom("table.align")
+            .map(|value| crate::compiler::stdlib::table_alignment(value, e.source_span))
+            .transpose()?
+    } else {
+        None
+    };
+    let table_alignment = e.align.as_ref().or(inherited_alignment.as_ref());
     let cols = e.columns.len().max(1);
-    let mut logical = e.clone();
-    logical.children = e
-        .children
-        .iter()
-        .map(|c| argument_defaults(c, ctx, engine))
-        .collect::<SourceResult<Vec<_>>>()?;
-    logical.header = e
-        .header
-        .as_ref()
-        .map(|c| argument_defaults(c, ctx, engine))
-        .transpose()?;
-    logical.footer = e
-        .footer
-        .as_ref()
-        .map(|c| argument_defaults(c, ctx, engine))
-        .transpose()?;
     let plan = (|| {
+        let min_rows = if e.rows_explicit { e.rows.len() } else { 0 };
+        if let Some(items) = &e.items {
+            let items = items
+                .iter()
+                .map(|c| argument_defaults(c, ctx, engine))
+                .collect::<SourceResult<Vec<_>>>()?;
+            let (placed, groups, footer) =
+                crate::compiler::layout::grid_placement::place_table_items(
+                    &items, cols, min_rows,
+                )?;
+            let mut prefix = 0;
+            for group in &groups {
+                if group.start == prefix {
+                    prefix = group.end;
+                } else {
+                    break;
+                }
+            }
+            return Ok::<_, Vec<crate::entities::source_result::SourceDiagnostic>>((
+                placed, prefix, groups, footer,
+            ));
+        }
+        let mut logical = e.clone();
+        logical.children = e
+            .children
+            .iter()
+            .map(|c| argument_defaults(c, ctx, engine))
+            .collect::<SourceResult<Vec<_>>>()?;
+        logical.header = e
+            .header
+            .as_ref()
+            .map(|c| argument_defaults(c, ctx, engine))
+            .transpose()?;
+        logical.footer = e
+            .footer
+            .as_ref()
+            .map(|c| argument_defaults(c, ctx, engine))
+            .transpose()?;
         let (cells, header_rows, footer_cells) =
             crate::compiler::layout::grid_placement::table_groups(&logical, cols)?;
-        let min_rows = if e.rows_explicit { e.rows.len() } else { 0 };
         let placed = crate::compiler::layout::grid_placement::place_table_cells(
             &cells, cols, min_rows,
         )?;
-        Ok::<_, Vec<crate::entities::source_result::SourceDiagnostic>>((
-            placed,
-            header_rows,
-            footer_cells,
-        ))
+        let rows = placed.iter().map(|p| p.row + p.rowspan).max().unwrap_or(0);
+        let footer = rows.saturating_sub(footer_cells.div_ceil(cols));
+        Ok((placed, header_rows, Vec::new(), footer))
     })();
-    let (mut placed, header_rows, footer_cells) = match plan {
+    let (mut placed, header_rows, header_groups, footer_start) = match plan {
         Ok(plan) => plan,
         Err(errors) => {
             return crate::compiler::eval::call_dispatch::trace_plugin::trace_table_realization(Err(errors), e.source_span, engine);
         }
     };
     let num_rows = placed.iter().map(|p| p.row + p.rowspan).max().unwrap_or(0);
-    let footer_start = num_rows.saturating_sub(footer_cells.div_ceil(cols));
     let mut output = Vec::with_capacity(placed.len());
     for p in placed.drain(..) {
         let mut cell = match &p.body {
@@ -1333,6 +1361,15 @@ fn prepare_table(
                 c
             }
         };
+        if matches!(cell.kind, crate::entities::elements::table_cell::TableCellKind::Auto)
+        {
+            if let Some(group) =
+                header_groups.iter().find(|g| g.start <= p.row && p.row < g.end)
+            {
+                cell.kind = crate::entities::elements::table_cell::TableCellKind::Header {
+                    level: group.level, scope: crate::entities::elements::table_cell::TableHeaderScope::Column };
+            }
+        }
         cell = with_defaults(&cell, ctx, engine, matches!(p.body, Content::Empty))?;
         let properties = cell.properties();
         let fill = if properties.presence.fill == CellFieldPresence::Explicit {
@@ -1366,7 +1403,12 @@ fn prepare_table(
             rowspan: p.rowspan,
             fill,
             stroke,
-            align: fold_align(properties.align, e.align),
+            align: fold_align(
+                properties.align,
+                table_alignment.and_then(|align| {
+                    crate::compiler::stdlib::table_alignment_at(align, p.col)
+                }),
+            ),
             inset: properties
                 .inset
                 .map(|s| {
@@ -1383,8 +1425,12 @@ fn prepare_table(
             stage: TableCellStage::Prepared,
             guards,
         }));
-        let result = realize_cell(&cell, ctx, engine)?;
-        let visual = result;
+        // Table own-show and placement have selected this actual cell.
+        // Its own replacement and emitted body realize in Flow.
+        let previous_math = std::mem::replace(&mut ctx.recipe_math_depth, 0);
+        let result = realize_cell(&cell, ctx, engine);
+        ctx.recipe_math_depth = previous_math;
+        let visual = result?;
         let mut r = cell.resolved.as_ref().unwrap().as_ref().clone();
         r.visual = visual;
         r.stage = TableCellStage::Complete;
@@ -1393,6 +1439,7 @@ fn prepare_table(
     }
     let mut t = e.clone();
     t.resolved = Some(Arc::new(TableGridResolved {
+        header_groups,
         cells: output,
         num_cols: cols,
         num_rows,
@@ -1608,6 +1655,75 @@ mod v16_table_tests {
             assert_eq!(engine.show_rules[0].id, 71);
         }
         (ctx.next_context_id, error)
+    }
+    fn readiness_external_scope_body_error(
+        ctx: &mut EvalContext,
+        _: &crate::entities::args::Args,
+        _: &dyn World,
+        _: FileId,
+    ) -> SourceResult<Value> {
+        assert_eq!(ctx.recipe_math_depth, 0, "the accepted Table cell uses Flow");
+        Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+            Span::detached(),
+            "readiness body error",
+        )])
+    }
+    #[test]
+    fn readiness_external_scope_table_restores_math_on_success_and_body_error() {
+        for fail in [false, true] {
+            let world = TestWorld::new("");
+            let mut styles = StyleChain::default_chain();
+            let route = Route::root().with_id(world.main());
+            let metrics = FixedMetrics;
+            let mut sink = Sink::new();
+            let transform = if fail {
+                Transformation::Func(crate::entities::func::Func::native(
+                    "readiness-body-error",
+                    readiness_external_scope_body_error,
+                ))
+            } else {
+                Transformation::Content(Content::text("BODY"))
+            };
+            let mut rules: Arc<[ShowRule]> = Arc::from([ShowRule {
+                id: 1832,
+                selector: Selector::NodeKind(crate::entities::show::NodeKind::Equation),
+                transform,
+            }]);
+            let recipe = Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body: Content::equation(Content::MathIdent("x".into()), false),
+                textual: false,
+                context_id_floor: 0,
+                rules: rules.clone(),
+                styles: styles.clone(),
+                guards: vec![],
+                file: world.main(),
+            }));
+            let table = Content::table(vec![TrackSizing::Auto], vec![], vec![recipe]);
+            let mut guards = vec![];
+            let mut ctx = EvalContext::new();
+            ctx.recipe_math_depth = 3;
+            let mut tracked = sink.track_mut();
+            let mut engine = Engine {
+                world: &world,
+                font_metrics: &metrics,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut rules,
+                active_guards: &mut guards,
+                current_file: world.main(),
+                sink: &mut tracked,
+            };
+            let result = realize_table_insertions(table, &mut ctx, &mut engine);
+            assert_eq!(ctx.recipe_math_depth, 3, "restore the exact incoming scope");
+            if fail {
+                assert!(result
+                    .unwrap_err()
+                    .iter()
+                    .any(|e| e.message.contains("readiness body error")));
+            } else {
+                assert!(result.unwrap().plain_text().contains("BODY"));
+            }
+        }
     }
     #[test]
     fn v16_table_snapshot_source_at_root() {

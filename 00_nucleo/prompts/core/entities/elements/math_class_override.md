@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_class_override` — `MathClassOverrideElem`
-Hash do Código: 4fcb6915
+Hash do Código: 6e1e4f06
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -111,3 +111,24 @@ No new public Rust field/signature/trait method, default mode or phase change.
 Preserve other semantics and all received changes. Record source-bound builds,
 full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
 A–H and R1–R3 without reclassifying their existing limitations as parity.
+
+
+## Current measured class-render ownership clarification
+
+Measurement precedes this clarification: lab/results/construction/diagnostics/
+readiness-fixes-2026-10-28/class-large-findings-before-decision.json and
+math-class-large-before/receipt.json bind actual source/binaries/HEAD/diffstat/
+UTC. Pinned math/ir/item.rs:243–260 and typst-layout/math/text.rs:115–120 apply
+Large semantics to recognized glyphs, refuting the historical unqualified
+claim that class can affect spacing only. This is an existing language class
+meaning, not a new field/type or entity-side render operation.
+
+Keep this exact entity declaration, fields, constructors, maps, Eq/Hash,
+getters, spans and locatability unchanged. Replace only its misleading doc
+comment: mathematical layout behavior, including measured Large glyph handling,
+is owned exclusively by compiler/math/layout/node_wrappers.md. This owner
+implements no rendering or glyph decision. Earlier spacing-only/body-layout-
+transparency wording is bounded by that canonical layout owner's current
+specification; all pure data operations remain as before. Documentation-only
+continuous ADR-0127 clarification adds no public signature/default/phase or
+new render dependency. All existing data tests and final lineage gates remain.

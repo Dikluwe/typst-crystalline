@@ -1,9 +1,10 @@
 # L0 — text
-Hash do Código: 8cb95f0b
+Hash do Código: 3a162698
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/footnote-source-lines.toml sha256:4827d11d78a5a4d37232d59073cdb5ac5c82e329431f1efeae307bc94c8e0578
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -173,3 +174,14 @@ approved method, not another public contract/default/phase change.
 For adjacent authenticated provider ranges on the same material line, delegate any generated style-change tracking interval to text_tracking once, before normal word admission; do not charge it across a source CR/LF. Preserve ordinary equal-style boundaries. Own a private one-boundary pending literal-script-break cause: generated LF sets it; actual following text consumes it; a static before-content observer retains it only through transparent Sequence/Styled/Strong/Emph/Source/Located/Realized/ShowRecipe/Empty and Space carriers, clearing it at every other original constructor. The hub only delegates this observer. Do not create an empty painted/semantic strut merely to retain a following space.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+
+## R11 — literal and nested long-note source preservation
+
+Measurement before decision: `lab/results/construction/diagnostics/long-footnotes-r11-2026-10-24/baseline.json`, `received-source.json.gz` and `before/receipt.json` bind clean HEAD212aed0449150dd296ceea13fc2be665cc5db01a, current inputs, UTC and the source-equivalent received binaries against fixed oracle bd5ebec285505889e8ff1d4f68804ab147a699f3. The literal5-line note emits only L1/L2 on one page versus all five on three; the6-line nested note omits L6. text.rs:161 limits mandatory literal splitting to superscripts, while paragraph_plan.rs:62 rejects subframes. footnote_fragments.rs:197 rejects literal CR/LF, and its boundary_role marks Footnote uncertified, clearing original cut witnesses. Pinned inline/collect.rs:156-196 carries actual text and mandatory boundaries, flow/collect.rs:196-239 protects source line groups, and model/footnote.rs:305-339 retains each original note body. These are complete text/geometry/physical membership observations, not serializer bytes or a required upstream algorithm.
+
+Classification: private parity correction under ADR-0127 continuous flow. No public field, trait method, signature, mode/default, phase or compatibility change. The shared source-line obligations are pinned by the owning L0s through the new nucleus; productive ownership remains1:1.
+
+### Exclusive owning obligation
+
+Within an active existing footnote capture, admit literal LF/CRLF through the existing ordinary linebreak owner while retaining original UTF-8/Bidi spans and source siblings, rather than submitting a whole multiline word. Keep the original outer line style for the flush and restore scoped style/offset/Bidi state. Only actual superscript breaks publish the existing literal_script_break_pending cause; note-body ordinary text must not acquire it. Preserve all ordinary noncapture and superscript behavior, no new generic newline mode or source Content rewriting. Require actual multiline-note source-preservation and sibling-boundary RED before implementation, and all prior script/R8/R9 controls.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/cursor.md
-//! @prompt-hash 758a8dcb
+//! @prompt-hash 19bc93ec
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -228,6 +228,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             return;
         }
         let content_right = self.metrics.line_content_right(&line_refs);
+        let content_right = if !is_rtl && !continued {
+            content_right.max(super::line_commit::literal_line_right(
+                &self.regions.current.current_line,
+            ))
+        } else {
+            content_right
+        };
         // O prefixo literal de um run RTL ocupa a borda visual direita.
         // O seu span já contém os avanços e os intervalos de tracking.
         let mut prefix_end = 0usize;
@@ -268,7 +275,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else {
             0.0
         };
-        let free = right_margin - content_right - interval - prefix_span;
+        let optical = if !is_rtl && self.line_optical_overhang == Some(true) {
+            super::optical_margin::aligned_line_amount(
+                &self.metrics,
+                &self.regions.current.current_line,
+                !continued,
+            )
+        } else {
+            0.0
+        };
+        let free = right_margin + optical - content_right - interval - prefix_span;
         let offset = if explicit == Some(HAlign::Center) { free / 2.0 } else { free };
         let deferred = super::repeat::defer_piece_line(
             self,

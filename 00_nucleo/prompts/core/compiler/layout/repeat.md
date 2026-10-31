@@ -1,8 +1,9 @@
 # L0 — repeat
-Hash do Código: d03bc3db
+Hash do Código: f934c8b7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
@@ -303,3 +304,43 @@ adding a lint suppression.
 ### Explicit source-owned child alignment refuter
 
 `lab/results/remaining-parity-2026-10-22/agents/repeat/source-align-regression-before.json` records the current candidate-2 and original-control evidence before new tests. The immutable explicit-child-left refuter regressed by8.732177734pt while the other seven Repeat controls are GREEN. Add actual bare-versus-Source textual Left contrasts inside a25pt child under inherited Center, with independently declared10pt glyph metrics. Both must receive only Repeat's outer residual, at x37.5pt in the80pt region with origin10pt; do not recenter the explicitly left child. This owner retains inherited alignment and the existing piece protocol unchanged. Classification and the narrow Source transparency correction belong solely to `00_nucleo/prompts/core/compiler/layout/placement.md`; no Repeat geometry compensation or source replay is authorized.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+## Typed independent Block frame operation — 2026-10-29
+
+figure-optical-second1's painted Block functional RED and exact source/UTC
+record expose child line indices invalidated by a later Block root/backing.
+Own a private PieceAlignment registration operation for a completed typed
+Block: append its actual item range and resolved alignment/free-width fact
+and return its unique operation association for actual decoration segments.
+Reuse existing final displacement and settlement, with no source execution.
+This extends capture only for the actual Block producer after its own child
+domain settles; direct Shape/markers retain their previous refusal. Ordinary
+Repeat arithmetic, widths, copies, source count and all old controls remain.
+
+## Rustfmt gate repair (2026-10-29)
+
+The frozen `physical13-validation2/fmt.log` under
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/`
+records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
+without changing executable tokens, fixtures, expectations or assertions.
+Preserve all behavioral obligations above; reseal both directions and rerun
+the unchanged gates against the final frozen source. Internal ADR-0127 flow.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

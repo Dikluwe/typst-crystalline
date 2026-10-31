@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "horizontal-space-paragraph"
+title = "Causal nonpainting horizontal-space paragraph in main flow"
+
+[[claims]]
+id = "presence"
+level = "must"
+statement = "An actual main-flow horizontal spacing producer, including explicit zero, can establish a paragraph without painted line items. Retain that causal presence and source lexical ancestry privately (the common ancestor of all h producers, not equal resolved styles) until a real line absorbs it or a paragraph/block/terminal boundary closes it. Repeated h in one paragraph is one presence, not multiple vertical units."
+
+[[claims]]
+id = "closure"
+level = "must"
+statement = "Closing a horizontal-spacing-only paragraph preserves its zero physical height, one preceding collapsed gap and one pending below gap. Admit its physical end against the finite active region limit before publishing below: if it does not fit a nonempty region, preserve the real paragraph as unpainted material in the next region at its geometric top. A prepared below gap alone must not trigger transition. Speculative suffix overflow rejects without committing a region. Do not invent text, glyphs, public Content, Locations or callbacks. A real causal line consumes the pending cause through normal line closure instead. No extra typographic line height or line numbering is introduced."
+
+[[claims]]
+id = "scope"
+level = "must"
+statement = "Private pending paragraph state participates in source suffix checkpoint capture/restore, independent and inline subframe save-clear-restore, and completed region reset. A child flush cannot consume its caller's cause; rollback neither loses nor duplicates it."

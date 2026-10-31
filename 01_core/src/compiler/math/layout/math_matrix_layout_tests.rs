@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/math_matrix_layout_tests.md
-//! @prompt-hash e1e9abba
+//! @prompt-hash e9f74f41
 //! @layer L1
 #![cfg(test)]
 
@@ -509,7 +509,7 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
         .all(|item| { matches!(item, FrameItem::Line { color: Some(_), .. }) }));
 
     let resolved = Stroke {
-        thickness: 3.0,
+        thickness: crate::entities::layout_types::Length::pt(3.0),
         paint: Paint::Solid(Color::rgb(255, 0, 0)),
         cap: LineCap::Round,
         ..Stroke::default()
@@ -536,7 +536,7 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
     assert!(debug.contains("Round"), "P29/P34 custom cap: {debug}");
 
     let butt_stroke = Stroke {
-        thickness: 3.0,
+        thickness: crate::entities::layout_types::Length::pt(3.0),
         cap: LineCap::Butt,
         ..Stroke::default()
     };
@@ -558,7 +558,7 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
 #[test]
 fn p1431_augment_cascata_dobra_stroke_sem_substituir_offsets_e_none_limpa() {
     let mut outer_stroke = Stroke {
-        thickness: 2.0,
+        thickness: crate::entities::layout_types::Length::pt(2.0),
         paint: Paint::Solid(Color::rgb(255, 0, 0)),
         cap: LineCap::Round,
         ..Stroke::default()

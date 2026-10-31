@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash 737b0da2
+//! @prompt-hash 3614d9c1
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -12,18 +12,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         &mut self,
         cols: &[TrackSizing],
         cells: &[Content],
-        inset: Sides<Length>,
+        measurement: GridMeasurementInput<'_>,
         available_width: f64,
     ) -> (Vec<f64>, Vec<f64>) {
+        let inset = measurement.inset;
         let num_cols = cols.len();
         // ── Resolução de larguras (Passo 80, inalterado) ──────
         let mut cols_cells: Vec<Vec<usize>> = vec![vec![]; num_cols];
         for (idx, cell) in cells.iter().enumerate() {
-            let col = match cell {
-                Content::TableCell(e) if e.resolved.is_some() => {
-                    e.resolved.as_ref().unwrap().x
+            let col = if let Some(position) =
+                measurement.positions.get(idx).and_then(|position| *position)
+            {
+                position.column
+            } else {
+                match cell {
+                    Content::TableCell(e) if e.resolved.is_some() => {
+                        e.resolved.as_ref().unwrap().x
+                    }
+                    _ => idx % num_cols,
                 }
-                _ => idx % num_cols,
             };
             cols_cells[col].push(idx);
         }
@@ -74,6 +81,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     };
                     let mut max_w = 0.0_f64;
                     for &ci in &cols_cells[i] {
+                        let saved_alignment = self.cell_align;
+                        self.cell_align = measurement.alignment_at(i, saved_alignment);
                         let cell_inset = match &cells[ci] {
                             Content::TableCell(e) => {
                                 if e.resolved.is_some() {
@@ -242,6 +251,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         } else {
                             self.measure_content_constrained(&visual, safe)
                         };
+                        self.cell_align = saved_alignment;
                         max_w = max_w.max(w + inset_l + inset_r);
                     }
                     if max_w.is_finite()
@@ -325,18 +335,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         num_cols: usize,
         resolved_widths: &[f64],
         col_starts: &[f64],
-        inset: Sides<Length>,
+        measurement: GridMeasurementInput<'_>,
     ) -> (Vec<f64>, usize, measurement_cache::MeasuredCells) {
+        let inset = measurement.inset;
         // ── Particionar items em linhas ──────────────────────
         let num_rows_produced = cells
             .iter()
             .enumerate()
-            .map(|(i, c)| match c {
-                Content::TableCell(e) if e.resolved.is_some() => {
-                    let r = e.resolved.as_ref().unwrap();
-                    r.y + r.rowspan
+            .map(|(i, c)| {
+                if let Some(position) =
+                    measurement.positions.get(i).and_then(|position| *position)
+                {
+                    position.row + position.rowspan
+                } else {
+                    match c {
+                        Content::TableCell(e) if e.resolved.is_some() => {
+                            let r = e.resolved.as_ref().unwrap();
+                            r.y + r.rowspan
+                        }
+                        _ => i / num_cols + 1,
+                    }
                 }
-                _ => i / num_cols + 1,
             })
             .max()
             .unwrap_or(0);
@@ -350,12 +369,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         }
         let mut rows_of_items: Vec<Vec<RowCell<'_>>> = vec![vec![]; num_rows_produced];
         for (index, c) in cells.iter().enumerate() {
-            let (row, col, cs, rs) = match c {
-                Content::TableCell(e) if e.resolved.is_some() => {
-                    let r = e.resolved.as_ref().unwrap();
-                    (r.y, r.x, r.colspan, r.rowspan)
+            let (row, col, cs, rs) = if let Some(position) =
+                measurement.positions.get(index).and_then(|position| *position)
+            {
+                (position.row, position.column, position.colspan, position.rowspan)
+            } else {
+                match c {
+                    Content::TableCell(e) if e.resolved.is_some() => {
+                        let r = e.resolved.as_ref().unwrap();
+                        (r.y, r.x, r.colspan, r.rowspan)
+                    }
+                    _ => (index / num_cols, index % num_cols, 1, 1),
                 }
-                _ => (index / num_cols, index % num_cols, 1, 1),
             };
             rows_of_items[row].push(RowCell {
                 cell_index: index,
@@ -542,6 +567,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         let inset_b = eff_inset.bottom.abs.to_pt();
                         let body_w = (cell_w - inset_l - inset_r).max(0.0);
 
+                        let saved_alignment = self.cell_align;
+                        self.cell_align =
+                            measurement.alignment_at(col_idx, saved_alignment);
                         let product = self.layout_sub_frame(
                             item,
                             super::super::sub_frame::SubLayoutRegion {
@@ -561,6 +589,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                             body_w,
                             product,
                         );
+                        self.cell_align = saved_alignment;
                         if cell_eff_h > max_h {
                             max_h = cell_eff_h;
                         }
@@ -684,7 +713,7 @@ mod rtl_anchor_regression {
         let (widths, starts) = l.resolve_grid_columns(
             &[TrackSizing::Fixed(50.0)],
             &[Content::text("ABC")],
-            Sides::uniform(Length::ZERO),
+            GridMeasurementInput::uniform(Sides::uniform(Length::ZERO)),
             available,
         );
         assert!(
@@ -895,7 +924,7 @@ mod v16_d_boundaries {
             let (widths, _) = l.resolve_grid_columns(
                 &[TrackSizing::Auto],
                 std::slice::from_ref(&body),
-                inset,
+                GridMeasurementInput::uniform(inset),
                 300.0,
             );
             let (heights, rows, _) = l.resolve_grid_rows(
@@ -904,7 +933,7 @@ mod v16_d_boundaries {
                 1,
                 &[200.0],
                 &[10.0],
-                inset,
+                GridMeasurementInput::uniform(inset),
             );
             assert_eq!(rows, 1);
             (widths[0], heights[0])
@@ -947,9 +976,11 @@ mod v16_d_boundaries {
         use crate::entities::elements::table::{TableElem, TableGridResolved};
         let child = prepared(Content::text("Visible"));
         let table = Arc::new(TableElem {
+            items: None,
             source_span: crate::entities::span::Span::detached(),
             rows_explicit: false,
             resolved: Some(Arc::new(TableGridResolved {
+                header_groups: Vec::new(),
                 cells: vec![child.clone()],
                 num_cols: 1,
                 num_rows: 1,

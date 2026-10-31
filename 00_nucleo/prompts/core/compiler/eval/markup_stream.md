@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: 73424ce0
+Hash do Código: 36ddb05b
 
 
 
@@ -10,6 +10,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:66cf98676c3f6ddd3641e4e67eaed2ed2b71a06d5fd9a0be93dbc3059e506074
+- 00_nucleo/prompts/_nuclei/eval/selectorless-lexical-tail.toml sha256:71ad860813663f018ea800aa8b0da87299a4b48e5b91ff70238a1cfc5769c471
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:2213a4793474159cfae64b699263b16621a492ad2056fbaf5d28ac7950593c6b
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/layout/page-rule-container-boundary.toml sha256:54dec4a08272a6ddbb91b63d388af8c25aaaa8afc7864b72226e1d125026682e
@@ -762,3 +763,42 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Selectorless lexical-tail completion (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/` preserves
+`selectorless-owner-audit-2026-10-29.json`, `selectorless-tail-before/`,
+`selectorless-flow-before/` and `selectorless-error-before/`. Their receipts bind
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a, exact uncommitted diffstat,
+qualified physical12 binary/source, source programs, UTC and pinned vanilla
+64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17.
+Current eval owners are unchanged from that measurement; layout14 changes do not
+explain the selectorless rejection. Native markup.rs:39–56 and code.rs:31–55
+apply the transformation to the remaining lexical tail; styles.rs:497–526
+displays its result. Current rules/show.rs:95–106 rejects absent selectors.
+The measured styles are declaration/body10/20 and nested12/14/18pt. Hidden
+selected child callbacks do not run; ordinary BODY errors precede APPLY. Open
+tails still call APPLY before Return/Break, returning RESULT or retaining WRAP LOST.
+Native function/arity diagnostics retain actual transformation/parameter spans.
+These are language semantics, morphology, effects and diagnostics, not Rust
+identity, upstream recursion or PDF-byte requirements. Each unchanged rejection,
+repeated effect, lost rich body/style, incorrect flow or origin refutes closure.
+
+### Classification and boundaries
+
+This completes the already named selectorless/general-tail pending scope in
+expression_dispatch. It is a private lexical evaluation operator through existing
+function calls. No existing selected recipe moves out of deferred realization,
+no eval/layout phase moves, and no public/default/compatibility contract changes.
+ADR-0127 continuous parity flow applies: owning L0 first, true functional RED,
+GREEN, valid shared graph, resealing and revalidation. Earlier broad language
+about deferring show recipes refers to selected recipes; this bounded lexical
+operator is specified here without authorizing eager selected-child application.
+
+### Exclusive responsibility
+
+Capture each direct selectorless ShowRule at its actual part index and declaration environment, evaluating no second body. Keep selected rules on the current path. Compose whole/style/Sequence boundaries in an iterative inside-out fold. A private whole-generation orders boundaries at equal original index; within one generation Whole closes before Sequence before Style, preserving reverse family serial order. Advancing a whole generation makes later styles/selected-Sequence captures stay inside it. With no Whole, preserve the original Sequence-before-Style fold exactly. Carry consumed masks with every split; remove no authored Empty/Source and keep label-tail boundaries/snapshots and once-only normalization. During a whole tail and callback, capture selected-child recipes rather than realizing hidden children; restore prior deferral even on error. No recursive evaluation per whole and no new depth limit. Reuse existing Table insertion, Sequence capture and textual local-output capture at the actual emitted product, never a second realization/callback.
+
+Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.

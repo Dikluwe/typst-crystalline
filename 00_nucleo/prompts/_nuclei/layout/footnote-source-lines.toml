@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "footnote-source-lines"
+title = "Source-preserving literal line boundaries inside footnote capture"
+
+[[claims]]
+id = "literal-boundaries"
+level = "must"
+statement = "Within the existing footnote capture, source LF and CRLF text boundaries retain their original source identity and are admitted as ordinary mandatory flow boundaries. A CRLF pair is one boundary. Unpaired CR and uncertified source forms do not acquire a source-line certificate."
+
+[[claims]]
+id = "complete-authenticated-lines"
+level = "must"
+statement = "Footnote line certification agrees with actual committed source-line witnesses before any widow/orphan protection or frame-origin correction. Complete source text, captured paint and deferred note bodies are preserved exactly once through partition, rollback and continuation."
+
+[[claims]]
+id = "no-source-reexecution"
+level = "must-not"
+statement = "Line handling must not rewrite public Content morphology, reconstruct semantic source from paint, execute callbacks, invent Locations or repeat deferred body dispatch. Existing effect and source ownership remains authoritative."

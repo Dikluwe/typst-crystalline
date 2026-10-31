@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape.md
-//! @prompt-hash 8504cb61
+//! @prompt-hash 9cdf037c
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -12,6 +12,8 @@
 //! replicando `BlockElem::single_layouter` do vanilla.
 //! P767c — ancoramento vertical corrigido quando a forma sucede texto não-bloco.
 
+mod rectangle;
+
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
@@ -19,14 +21,59 @@ use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
 #[cfg(test)]
 use crate::entities::paint::Paint;
 
-use super::helpers::resolve_pt;
-use super::{resolve_shape_kind, FontMetrics, ImageSizer, Layouter};
+use super::{resolve_pt, resolve_shape_kind, FontMetrics, ImageSizer, Layouter};
+
+pub(super) fn resolve_relative_line(
+    line: crate::entities::elements::shape::RelativeLine,
+    width: f64,
+    height: f64,
+    font: f64,
+) -> (ShapeKind, f64, f64) {
+    let resolve = |point: [crate::entities::rel::Rel<Length>; 2]| Point {
+        x: Pt(point[0].abs.resolve_pt(font)
+            + if point[0].rel == 0.0 { 0.0 } else { point[0].rel * width }),
+        y: Pt(point[1].abs.resolve_pt(font)
+            + if point[1].rel == 0.0 { 0.0 } else { point[1].rel * height }),
+    };
+    let start = resolve(line.start);
+    let end = resolve(line.end);
+    (
+        ShapeKind::Path(vec![
+            crate::entities::geometry::PathItem::MoveTo(start),
+            crate::entities::geometry::PathItem::LineTo(end),
+        ]),
+        0.0_f64.max(start.x.0).max(end.x.0),
+        0.0_f64.max(start.y.0).max(end.y.0),
+    )
+}
 
 /// **P767a** — espaçamento por defeito de um bloco de forma, equivalente ao
 /// `BlockElem::spacing` por defeito do vanilla (`BLOCK_SPACING`).
 const SHAPE_BLOCK_SPACING_EM: f64 = super::vanilla_defaults::BLOCK_SPACING;
 
-fn resolve_dimension(
+/// Intrinsic defaults belong to the empty rectangle, independently of its paint.
+pub(super) fn intrinsic_defaults(
+    kind: &ShapeKind,
+    width: Option<&crate::entities::value::Value>,
+    height: Option<&crate::entities::value::Value>,
+    available_w: f64,
+    available_h: f64,
+) -> (Option<f64>, Option<f64>) {
+    let automatic = |value: Option<&crate::entities::value::Value>| {
+        value.is_none() || matches!(value, Some(crate::entities::value::Value::Auto))
+    };
+    match kind {
+        ShapeKind::Rect | ShapeKind::RoundedRect { .. } => {
+            // ref: lab/typst-original/crates/typst-layout/src/shapes.rs:542-558
+            let width = automatic(width).then(|| 45.0_f64.min(available_w).max(0.0));
+            let height = automatic(height).then(|| 30.0_f64.min(available_h).max(0.0));
+            (width, height)
+        }
+        ShapeKind::Ellipse | ShapeKind::Path(_) | ShapeKind::Line { .. } => (None, None),
+    }
+}
+
+pub(super) fn resolve_dimension(
     value: Option<&crate::entities::value::Value>,
     reference: f64,
     font: f64,
@@ -105,11 +152,18 @@ mod prepared_paint_regressions {
             let paint = Paint::Tiling(tile);
             let elem = ShapeElem {
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+                rect_radius: None,
+                rect_stroke: None,
+                relative_line: None,
                 kind: ShapeKind::Rect,
                 width: Some(Box::new(Value::Length(Length::pt(width)))),
                 height: Some(Box::new(Value::Length(Length::pt(20.0)))),
                 fill: Some(paint.clone()),
-                stroke: Some(Stroke { paint, thickness: 3.0, ..Default::default() }),
+                stroke: Some(Stroke {
+                    paint,
+                    thickness: crate::entities::layout_types::Length::pt(3.0),
+                    ..Default::default()
+                }),
                 fill_rule: crate::entities::geometry::FillRule::EvenOdd,
             };
             layout(&mut layouter, &elem);
@@ -178,18 +232,42 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .map(|r| r.h.0)
         .or(layouter.relative_region_size.map(|size| size.1))
         .unwrap_or_else(|| layouter.available_height());
-    let (resolved_w, resolved_h) = match kind {
-        // P242 — RoundedRect partilha dimensões com Rect.
-        ShapeKind::Rect
-        | ShapeKind::RoundedRect { .. }
-        | ShapeKind::Ellipse
-        | ShapeKind::Path(_) => {
-            let w =
-                resolve_dimension(width.as_deref(), relative_width, font, available_w);
-            let h = resolve_dimension(height.as_deref(), relative_height, font, 0.0);
-            (w, h)
+    let relative_geometry = e
+        .relative_line
+        .map(|line| resolve_relative_line(line, relative_width, relative_height, font));
+    let kind = relative_geometry.as_ref().map_or(kind, |geometry| &geometry.0);
+    let (resolved_w, resolved_h) = if let Some((_, width, height)) = &relative_geometry {
+        (*width, *height)
+    } else {
+        match kind {
+            // P242 — RoundedRect partilha dimensões com Rect.
+            ShapeKind::Rect
+            | ShapeKind::RoundedRect { .. }
+            | ShapeKind::Ellipse
+            | ShapeKind::Path(_) => {
+                let (default_w, default_h) = intrinsic_defaults(
+                    kind,
+                    width.as_deref(),
+                    height.as_deref(),
+                    relative_width,
+                    relative_height,
+                );
+                let w = resolve_dimension(
+                    width.as_deref(),
+                    relative_width,
+                    font,
+                    default_w.unwrap_or(available_w),
+                );
+                let h = resolve_dimension(
+                    height.as_deref(),
+                    relative_height,
+                    font,
+                    default_h.unwrap_or(0.0),
+                );
+                (w, h)
+            }
+            ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
         }
-        ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
     };
 
     // **P767c** — guardar a baseline da linha que vai ser descarregada.
@@ -252,18 +330,29 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         y: shape_base,
     };
     let resolved_kind = resolve_shape_kind(kind, layouter.style.size);
-    let fill = super::tiling::resolve_paint(layouter, fill.as_ref());
-    let stroke = super::tiling::resolve_stroke(layouter, stroke.as_ref());
-    layouter.regions.current.current_items.push(FrameItem::Shape {
-        pos,
-        kind: resolved_kind,
-        width: resolved_w,
-        height: resolved_h,
-        fill,
-        stroke,
-        fill_rule: e.fill_rule,
-        parent_bbox_at_emit: layouter.parent_bbox,
-    });
+    if !((e.rect_radius.is_some() || e.rect_stroke.is_some())
+        && rectangle::emit(
+            layouter,
+            e,
+            pos,
+            resolved_w,
+            resolved_h,
+            resolved_kind.clone(),
+        ))
+    {
+        let fill = super::tiling::resolve_paint(layouter, fill.as_ref());
+        let stroke = super::tiling::resolve_stroke(layouter, stroke.as_ref());
+        layouter.regions.current.current_items.push(FrameItem::Shape {
+            pos,
+            kind: resolved_kind,
+            width: resolved_w,
+            height: resolved_h,
+            fill,
+            stroke,
+            fill_rule: e.fill_rule,
+            parent_bbox_at_emit: layouter.parent_bbox,
+        });
+    }
 
     // The frame end is causal; below remains pending for the next block.
     if in_main_flow {
@@ -317,6 +406,9 @@ mod initial_nontext_block_regressions {
         let origin = layouter.regions.current.cursor_y.0;
         let elem = crate::entities::elements::shape::ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: crate::entities::geometry::ShapeKind::Rect,
             width: Some(Box::new(crate::entities::value::Value::Float(80.0))),
             height: Some(Box::new(crate::entities::value::Value::Float(40.0))),
@@ -352,5 +444,229 @@ mod initial_nontext_block_regressions {
     #[test]
     fn ordinary_subframe_block_does_not_query_unused_typography() {
         check(NoTypography, None, true);
+    }
+}
+
+#[cfg(test)]
+mod r13_tests {
+    use super::*;
+    use crate::entities::elements::shape::RelativeLine;
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::rel::Rel;
+    use comemo::Track;
+    fn check(start: [Rel<Length>; 2], end: [Rel<Length>; 2], expected: [f64; 6]) {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            intr_dyn.track(),
+        );
+        l.block_place_region = Some(crate::entities::layout_types::Rect {
+            x: Pt::ZERO,
+            y: Pt::ZERO,
+            w: Pt(260.0),
+            h: Pt(140.0),
+        });
+        let crate::entities::content::Content::Shape(mut e) =
+            crate::entities::content::Content::shape(
+                ShapeKind::Path(vec![]),
+                None,
+                None,
+                None,
+                None,
+            )
+        else {
+            panic!("shape")
+        };
+        std::sync::Arc::make_mut(&mut e).relative_line =
+            Some(RelativeLine { start, end });
+        layout(&mut l, &e);
+        let FrameItem::Shape { kind: ShapeKind::Path(path), width, height, .. } =
+            &l.regions.current.current_items[0]
+        else {
+            panic!("path")
+        };
+        assert_eq!(path.len(), 2);
+        let [crate::entities::geometry::PathItem::MoveTo(a), crate::entities::geometry::PathItem::LineTo(b)] =
+            path.as_slice()
+        else {
+            panic!("endpoints")
+        };
+        for (a, b) in [a.x.0, a.y.0, b.x.0, b.y.0, *width, *height]
+            .into_iter()
+            .zip(expected)
+        {
+            assert!((a - b).abs() < 1e-9, "{a} != {b}");
+        }
+    }
+    #[test]
+    fn r13_layout_resolves_projected_axes_independently() {
+        let c = libm::cos(std::f64::consts::PI / 6.0);
+        check(
+            [Rel::zero(); 2],
+            [
+                Rel { rel: 0.5 * c, abs: Length::ZERO },
+                Rel { rel: 0.25, abs: Length::ZERO },
+            ],
+            [0.0, 0.0, 130.0 * c, 35.0, 130.0 * c, 35.0],
+        );
+    }
+    #[test]
+    fn r13_layout_resolves_mixed_and_em_at_effective_size() {
+        check(
+            [Rel::zero(); 2],
+            [Rel { rel: 0.5, abs: Length::em(2.0) }, Rel::zero()],
+            [0.0, 0.0, 152.0, 0.0, 152.0, 0.0],
+        );
+    }
+    #[test]
+    fn r13_layout_preserves_origin_and_causal_negative_bounds() {
+        check(
+            [Rel { rel: 0.0, abs: Length::pt(10.0) }, Rel::zero()],
+            [Rel { rel: -0.5, abs: Length::ZERO }, Rel::zero()],
+            [10.0, 0.0, -130.0, 0.0, 10.0, 0.0],
+        );
+    }
+}
+
+#[cfg(test)]
+mod issue8976_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::PageMargins,
+        value::Value,
+    };
+    use comemo::Track;
+
+    fn rect(width: Option<Value>, height: Option<Value>, rounded: bool) -> Content {
+        Content::shape(
+            if rounded {
+                ShapeKind::RoundedRect {
+                    radii: crate::entities::corners::Corners::uniform(Length::pt(3.0)),
+                }
+            } else {
+                ShapeKind::Rect
+            },
+            width.map(Box::new),
+            height.map(Box::new),
+            None,
+            None,
+        )
+    }
+
+    fn observe(
+        body: &Content,
+        width: f64,
+        height: f64,
+        font: f64,
+    ) -> ((f64, f64), (f64, f64)) {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            font,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = width;
+        l.page_config.height = height;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.regions.current.width = width;
+        l.regions.current.height = height;
+        l.regions.current.cursor_x = Pt(0.0);
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_y = Pt(0.0);
+        l.initial_baseline_pending = true;
+        let measured = l.measure_content_constrained(body, width);
+        l.layout_content(body);
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        let emitted = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Shape { width, height, .. } => Some((*width, *height)),
+                _ => None,
+            })
+            .expect("rectangle must be emitted");
+        (measured, emitted)
+    }
+
+    #[test]
+    fn issue8976_omitted_and_auto_axes_have_intrinsic_frame() {
+        for rounded in [false, true] {
+            for auto in [false, true] {
+                for font in [11.0, 24.0] {
+                    let v = auto.then_some(Value::Auto);
+                    let body = rect(v.clone(), v, rounded);
+                    assert_eq!(
+                        observe(&body, 200.0, 100.0, font),
+                        ((45.0, 30.0), (45.0, 30.0))
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn issue8976_default_axes_respect_small_and_infinite_regions() {
+        for (w, h, expected) in [
+            (20.0, 100.0, (20.0, 30.0)),
+            (100.0, 15.0, (45.0, 15.0)),
+            (f64::INFINITY, f64::INFINITY, (45.0, 30.0)),
+        ] {
+            assert_eq!(
+                observe(&rect(None, None, false), w, h, 11.0),
+                (expected, expected)
+            );
+        }
+    }
+
+    #[test]
+    fn issue8976_each_explicit_axis_replaces_only_itself() {
+        for (w, h, expected) in [
+            (Some(Value::Length(Length::pt(70.0))), None, (70.0, 30.0)),
+            (None, Some(Value::Length(Length::pt(18.0))), (45.0, 18.0)),
+            (
+                Some(Value::Length(Length::ZERO)),
+                Some(Value::Length(Length::ZERO)),
+                (0.0, 0.0),
+            ),
+        ] {
+            assert_eq!(
+                observe(&rect(w, h, false), 200.0, 100.0, 11.0),
+                (expected, expected)
+            );
+        }
+    }
+
+    #[test]
+    fn issue8976_explicit_and_relative_geometry_remain_unchanged() {
+        for (w, h, expected) in [
+            (
+                Value::Length(Length::pt(45.0)),
+                Value::Length(Length::pt(30.0)),
+                (45.0, 30.0),
+            ),
+            (
+                Value::Ratio(crate::entities::layout_types::Ratio(0.5)),
+                Value::Ratio(crate::entities::layout_types::Ratio(0.25)),
+                (100.0, 25.0),
+            ),
+            (
+                Value::Length(Length::em(2.0)),
+                Value::Length(Length::em(3.0)),
+                (22.0, 33.0),
+            ),
+        ] {
+            assert_eq!(
+                observe(&rect(Some(w), Some(h), false), 200.0, 100.0, 11.0),
+                (expected, expected)
+            );
+        }
     }
 }

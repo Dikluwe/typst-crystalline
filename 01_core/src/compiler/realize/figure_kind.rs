@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure_kind.md
-//! @prompt-hash 740e13a1
+//! @prompt-hash 45f32807
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -529,9 +529,15 @@ fn semantic_children(content: &Content, span: Span) -> SourceResult<Vec<Content>
         Content::Stack(e) => children.extend(e.children.iter().cloned()),
         Content::TableCell(e) => children.push(e.body.clone()),
         Content::Table(e) => {
-            children.extend(e.children.iter().cloned());
-            children.extend(e.header.iter().cloned());
-            children.extend(e.footer.iter().cloned());
+            if let Some(plan) = &e.resolved {
+                children.extend(plan.cells.iter().cloned());
+            } else if let Some(items) = &e.items {
+                children.extend(items.iter().cloned());
+            } else {
+                children.extend(e.children.iter().cloned());
+                children.extend(e.header.iter().cloned());
+                children.extend(e.footer.iter().cloned());
+            }
             children.extend(e.caption.iter().cloned());
         }
         Content::Bibliography(e) => children.extend(e.title.iter().cloned()),

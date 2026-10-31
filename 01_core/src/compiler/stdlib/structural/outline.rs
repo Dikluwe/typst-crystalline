@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/outline.md
-//! @prompt-hash 9eedec67
+//! @prompt-hash 3124ba72
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -532,7 +532,7 @@ pub fn native_outline_entry_indented(
         engine.styles.custom("text.dir"),
         Some(Value::Dir(crate::entities::dir::Dir::RTL))
     );
-    let result = Value::Content(compose_outline_entry_indented(
+    let content = compose_outline_entry_indented(
         prefix,
         inner,
         OutlineIndentPlan {
@@ -544,7 +544,16 @@ pub fn native_outline_entry_indented(
             level: entry.level,
             rtl,
         },
-    ));
+    );
+    let Content::Block(mut block) = content else {
+        unreachable!("indented entry is a block")
+    };
+    let leading = match engine.styles.custom("par.leading") {
+        Some(Value::Length(length)) => *length,
+        _ => Length::em(crate::compiler::layout::vanilla_defaults::PAR_LEADING),
+    };
+    std::sync::Arc::make_mut(&mut block).above = Some(leading);
+    let result = Value::Content(Content::Block(block));
     ctx.observe_context_read(
         crate::compiler::eval::ContextReadRequest::outline_entry_indented(
             Content::OutlineEntry(std::sync::Arc::new(entry)),
@@ -952,6 +961,56 @@ mod batch_f_tests {
             )
         })
     }
+    #[test]
+    fn readiness_flow_tests_outline_entries_use_leading_above() {
+        let Value::Content(entry) =
+            invoke_indent(Some(Value::Auto), Some(Value::Int(1)), true).unwrap()
+        else {
+            panic!("content result")
+        };
+        let doc = crate::compiler::layout::layout(&Content::sequence(vec![
+            entry.clone(),
+            entry,
+        ]));
+        fn collect(
+            items: &[crate::entities::layout_types::FrameItem],
+            y: f64,
+            out: &mut Vec<(f64, crate::entities::layout_types::TextStyle)>,
+        ) {
+            use crate::entities::layout_types::FrameItem;
+            for item in items {
+                match item {
+                    FrameItem::Text { text, pos, style, .. } if text == "inner" => {
+                        out.push((y + pos.y.0, style.clone()))
+                    }
+                    FrameItem::Group { pos, items, .. } => {
+                        collect(items, y + pos.y.0, out)
+                    }
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Link { items, .. } => collect(items, y, out),
+                    FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let mut lines = Vec::new();
+        for page in &doc.pages {
+            collect(&page.items, 0.0, &mut lines);
+        }
+        assert_eq!(lines.len(), 2);
+        let expected = (0.7 + 0.65) * lines[0].1.size.0;
+        assert!(
+            (lines[1].0 - lines[0].0 - expected).abs() < 1e-8,
+            "outline entries use leading rather than automatic paragraph spacing"
+        );
+    }
+
     #[test]
     fn batch_f_outline_invalid_parent_schema_preserves_context_error() {
         for indent in [

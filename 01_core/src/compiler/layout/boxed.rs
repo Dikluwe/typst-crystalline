@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/boxed.md
-//! @prompt-hash 37ca0007
+//! @prompt-hash 8890d227
 //! @layer L1
 //! @updated 2026-10-21
 //!
@@ -68,6 +68,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         layout_sized(layouter, e, None);
     }
+    // The exterior inline Box is an opaque terminal allocation.
+    layouter.line_optical_overhang = None;
 }
 
 // A new root region may have a predicted font baseline from the preceding
@@ -493,7 +495,7 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     let planned = layouter.planned_child_cursor(
         crate::compiler::introspect::page_running::PlanEdge::BoxedBody,
     );
-    let (body_h, mut body, deco, align_x, align_y) = layouter.layout_sub_frame_planned(
+    let (body_h, mut body, deco, align_x, align_y) = layouter.layout_box_child(
         &e.body,
         super::sub_frame::SubLayoutRegion {
             origin_x: 0.0,
@@ -502,8 +504,8 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
             align_rtl: true,
             unconstrained_height: inner_h.is_none(),
         },
-        true,
         planned,
+        explicit_w.is_none(),
     );
     // Capture this completed body's witness before any later child can
     // publish another subframe result. None remains a legacy fallback.
@@ -551,7 +553,10 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     let pos = Point { x: start.x, y: start.y - Pt(baseline) };
     let paint_w = (box_w + outset.left + outset.right).max(0.0);
     let paint_h = (box_h + outset.top + outset.bottom).max(0.0);
-    let half_stroke = e.stroke.as_ref().map_or(0.0, |s| s.thickness.max(0.0) / 2.0);
+    let half_stroke = e
+        .stroke
+        .as_ref()
+        .map_or(0.0, |s| s.thickness.resolve_pt(font).max(0.0) / 2.0);
     let kind = if e.radius == crate::entities::corners::Corners::uniform(Length::ZERO) {
         ShapeKind::Rect
     } else {
@@ -940,6 +945,9 @@ mod composition_regressions {
     fn shape(width: f64, height: f64) -> Content {
         Content::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(width)))),
             height: Some(Box::new(Value::Length(Length::pt(height)))),
@@ -1134,7 +1142,7 @@ mod composition_regressions {
                 e.outset = Sides::uniform(Length::pt(outset));
                 e.radius = Corners::uniform(Length::pt(radius));
                 e.stroke = Some(crate::entities::geometry::Stroke {
-                    thickness: 2.0,
+                    thickness: crate::entities::layout_types::Length::pt(2.0),
                     ..Default::default()
                 });
                 let g = render(e);

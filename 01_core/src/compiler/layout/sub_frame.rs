@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash dae6ef64
+//! @prompt-hash 91e7359b
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -39,13 +39,165 @@ pub(crate) struct SubLayoutRegion {
     pub unconstrained_height: bool,
 }
 
-enum Purpose {
+enum Purpose<'a> {
     Ordinary,
+    Stack { natural_width: bool },
+    AutoWidth,
     Footnote,
     Repeat,
+    Figure(&'a mut IntrinsicFacts),
+}
+
+#[derive(Default)]
+struct IntrinsicFacts {
+    flow_present: bool,
+    line_alignment: Option<super::repeat::PieceAlignment>,
+}
+
+pub(super) struct IntrinsicPiece {
+    pub(super) line_alignment: Option<super::repeat::PieceAlignment>,
+    pub(super) width: f64,
+    pub(super) height: f64,
+    pub(super) baseline: Option<Option<f64>>,
+    pub(super) flow_present: bool,
+    pub(super) items: Vec<FrameItem>,
+    pub(super) decorations: Vec<DecoSegment>,
+    pub(super) align_x: Vec<PendingAlignXEntry>,
+    pub(super) align_y: Vec<PendingAlignYEntry>,
+}
+
+enum Routes<'a> {
+    Unplanned,
+    Planned(super::page_running_requests::Cursor),
+    Prefixed {
+        prefix: &'a Content,
+        cursor: super::page_running_requests::Cursor,
+    },
+    Mixed {
+        parts: &'a [Content],
+        cursors: &'a [Option<super::page_running_requests::Cursor>],
+    },
+}
+impl Routes<'_> {
+    fn has_source(&self) -> bool {
+        match self {
+            Self::Unplanned => false,
+            Self::Planned(_) | Self::Prefixed { .. } => true,
+            Self::Mixed { cursors, .. } => cursors.iter().any(Option::is_some),
+        }
+    }
+    fn planned(&self) -> Option<&super::page_running_requests::Cursor> {
+        match self {
+            Self::Planned(cursor) => Some(cursor),
+            Self::Unplanned | Self::Prefixed { .. } | Self::Mixed { .. } => None,
+        }
+    }
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    pub(super) fn settle_intrinsic_piece(
+        &mut self,
+        piece: &mut IntrinsicPiece,
+        width: f64,
+    ) {
+        if let Some(scope) = piece.line_alignment.take() {
+            scope.settle(&mut piece.items, &mut piece.decorations, width);
+        }
+        let saved_x = std::mem::replace(
+            &mut self.pending_align_centering,
+            std::mem::take(&mut piece.align_x),
+        );
+        let saved_y = std::mem::replace(
+            &mut self.pending_align_v_centering,
+            std::mem::take(&mut piece.align_y),
+        );
+        self.apply_pending_align_fixups(
+            &mut piece.items,
+            width + self.page_config.margin.horizontal(),
+        );
+        self.apply_pending_align_v_fixups(
+            &mut piece.items,
+            piece.height + self.page_config.margin.bottom,
+        );
+        self.pending_align_centering = saved_x;
+        self.pending_align_v_centering = saved_y;
+    }
+
+    pub(super) fn layout_intrinsic_piece(
+        &mut self,
+        parts: &[Content],
+        cursors: &[Option<super::page_running_requests::Cursor>],
+        region: SubLayoutRegion,
+    ) -> IntrinsicPiece {
+        let content = Content::Sequence(parts.to_vec().into());
+        let mut facts = IntrinsicFacts::default();
+        let (height, items, decorations, align_x, align_y) = self
+            .layout_sub_frame_with_origin(
+                &content,
+                region,
+                true,
+                Routes::Mixed { parts, cursors },
+                Purpose::Figure(&mut facts),
+            );
+        IntrinsicPiece {
+            line_alignment: facts.line_alignment,
+            width: self.last_sub_frame_flow_width,
+            height,
+            baseline: self.last_sub_frame_baseline,
+            flow_present: facts.flow_present,
+            items,
+            decorations,
+            align_x,
+            align_y,
+        }
+    }
+
+    /// A Stack composes completed logical child frames at geometric zero.
+    pub(super) fn layout_stack_child(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+        planned: Option<super::page_running_requests::Cursor>,
+        natural_width: bool,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            true,
+            planned.map_or(Routes::Unplanned, Routes::Planned),
+            Purpose::Stack { natural_width },
+        )
+    }
+
+    /// Compose an Auto or fixed Box body through the existing isolated region.
+    pub(super) fn layout_box_child(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+        planned: Option<super::page_running_requests::Cursor>,
+        natural_width: bool,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        self.layout_sub_frame_with_origin(
+            content,
+            region,
+            true,
+            planned.map_or(Routes::Unplanned, Routes::Planned),
+            if natural_width { Purpose::AutoWidth } else { Purpose::Ordinary },
+        )
+    }
+
     pub(super) fn layout_sub_frame_planned(
         &mut self,
         content: &Content,
@@ -63,8 +215,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             content,
             region,
             geometric,
-            planned,
-            None,
+            planned.map_or(Routes::Unplanned, Routes::Planned),
             Purpose::Ordinary,
         )
     }
@@ -85,8 +236,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             content,
             region,
             true,
-            planned,
-            None,
+            planned.map_or(Routes::Unplanned, Routes::Planned),
             Purpose::Repeat,
         )
     }
@@ -104,13 +254,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Vec<PendingAlignXEntry>,
         Vec<PendingAlignYEntry>,
     ) {
-        let prefix = cursor.map(|cursor| (prefix, cursor));
+        let route = cursor
+            .map_or(Routes::Unplanned, |cursor| Routes::Prefixed { prefix, cursor });
         self.layout_sub_frame_with_origin(
             combined,
             region,
             false,
-            None,
-            prefix,
+            route,
             Purpose::Footnote,
         )
     }
@@ -152,8 +302,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             content,
             region,
             false,
-            None,
-            None,
+            Routes::Unplanned,
             Purpose::Ordinary,
         )
     }
@@ -173,8 +322,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             content,
             region,
             true,
-            None,
-            None,
+            Routes::Unplanned,
             Purpose::Ordinary,
         )
     }
@@ -184,9 +332,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         content: &Content,
         region: SubLayoutRegion,
         geometric_origin: bool,
-        planned: Option<super::page_running_requests::Cursor>,
-        generated_prefix: Option<(&Content, super::page_running_requests::Cursor)>,
-        purpose: Purpose,
+        routes: Routes<'_>,
+        purpose: Purpose<'_>,
     ) -> (
         f64,
         Vec<FrameItem>,
@@ -196,20 +343,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ) {
         #[cfg(test)]
         super::tests::record_cell_sub_frame();
-        let (preserve_footnote_capture, nonexpanding_piece) = match purpose {
-            Purpose::Ordinary => (false, false),
-            Purpose::Footnote => (true, false),
-            Purpose::Repeat => (false, true),
+        let stack_frame = matches!(&purpose, Purpose::Stack { .. });
+        let intrinsic_frame = matches!(&purpose, Purpose::Figure(_));
+        let closed_frame = matches!(&purpose, Purpose::Stack { .. } | Purpose::Figure(_));
+        let mut figure_facts = None;
+        let (preserve_footnote_capture, nonexpanding_piece, natural_width) = match purpose
+        {
+            Purpose::Ordinary => (false, false, false),
+            Purpose::Stack { natural_width } => (false, false, natural_width),
+            Purpose::AutoWidth => (false, false, true),
+            Purpose::Footnote => (true, false, false),
+            Purpose::Repeat => (false, true, false),
+            Purpose::Figure(facts) => {
+                figure_facts = Some(facts);
+                (false, false, true)
+            }
         };
+        let saved_horizontal_paragraph = self.pending_horizontal_paragraph.take();
         let saved_literal_script_break =
             std::mem::take(&mut self.literal_script_break_pending);
         let saved_horizontal_offset =
             std::mem::replace(&mut self.text_horizontal_offset, Pt(0.0));
         let saved_piece_alignment = self.piece_alignment.take();
-        self.piece_alignment =
-            nonexpanding_piece.then(|| super::repeat::PieceAlignment::new(region.width));
-        let saved_running = (planned.is_none() && generated_prefix.is_none())
-            .then(|| self.page_running_pass.take());
+        self.piece_alignment = (nonexpanding_piece || intrinsic_frame)
+            .then(|| super::repeat::PieceAlignment::new(region.width));
+        let saved_running = (!routes.has_source()).then(|| self.page_running_pass.take());
         let saved_footnote_capture =
             (!preserve_footnote_capture).then(|| self.footnote_capture.take());
         let saved_footnote_reserve =
@@ -217,6 +375,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
+        let saved_dividers = std::mem::take(&mut self.pending_dividers);
+        let saved_optical_overhang = self.line_optical_overhang.take();
         let saved_line = std::mem::take(&mut self.regions.current.current_line);
         self.open_link_segments();
         // Pending indices belong to this line, not to the shared layouter.
@@ -260,7 +420,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_flow_frame_extent =
             std::mem::replace(&mut self.flow_frame_extent, (region.origin_x, 0.0));
         let saved_block_place_region = self.block_place_region.take();
-        let saved_block_auto_width = std::mem::take(&mut self.block_auto_width);
+        let saved_block_auto_width =
+            std::mem::replace(&mut self.block_auto_width, natural_width);
         let saved_pending_bib_prefix = self.pending_bib_prefix.take();
         let saved_pending_bib_escape = self.pending_bib_escape.take();
         let saved_paragraph_indent = std::mem::replace(
@@ -372,17 +533,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let pending_x_before = self.pending_align_centering.len();
         let pending_y_before = self.pending_align_v_centering.len();
 
-        if let Some((prefix, cursor)) = generated_prefix {
-            self.layout_content(prefix);
-            if let Some(body) =
-                cursor.plan.node(cursor.packet).map(|node| node.content.clone())
-            {
-                self.layout_planned_cursor(cursor, &body, false);
+        if stack_frame {
+            if let Some(cursor) = routes.planned() {
+                self.reanchor_stack_cursor(cursor);
+            } else {
+                super::realized::reanchor_stack_origins(self, content);
             }
-        } else if let Some(cursor) = planned {
-            self.layout_planned_cursor(cursor, content, false);
-        } else {
-            self.layout_content(content);
+        }
+
+        match routes {
+            Routes::Unplanned => self.layout_content(content),
+            Routes::Planned(cursor) => self.layout_planned_cursor(cursor, content, false),
+            Routes::Prefixed { prefix, cursor } => {
+                self.layout_content(prefix);
+                if let Some(body) =
+                    cursor.plan.node(cursor.packet).map(|node| node.content.clone())
+                {
+                    self.layout_planned_cursor(cursor, &body, false);
+                }
+            }
+            Routes::Mixed { parts, cursors } => {
+                super::sequence::layout_mixed_source_parts(self, parts, cursors)
+            }
         }
 
         let orphaned_align_x = self.pending_align_centering.split_off(pending_x_before);
@@ -395,9 +567,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         // **P625** — alinhar linha RTL antes de a drenar, do mesmo modo
         // que `flush_line` e `finish` fazem no fluxo principal.
-        if region.align_rtl
-            || self.explicit_line_alignment.is_some()
-            || self.piece_alignment.is_some()
+        if (!natural_width
+            || super::html_frame::items_have_causal_line(
+                &self.regions.current.current_line,
+            ))
+            && (region.align_rtl
+                || self.explicit_line_alignment.is_some()
+                || self.piece_alignment.is_some())
         {
             self.align_current_line_rtl();
         }
@@ -493,35 +669,50 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.regions.current.current_items.push(item);
         }
 
-        let cell_height = if !had_items && super::transform::terminal_native(content) {
-            self.flow_placement_end
-                .map_or(0.0, |(end, _)| (end - start_y).max(0.0))
-        } else if !had_items
-            && super::raw::terminal_block(content)
-            && self.last_block_descent_y.is_some()
-        {
-            let top = if geometric_origin {
-                start_y
+        let cell_height =
+            if closed_frame && !had_items && self.last_block_descent_y.is_some() {
+                (self.last_block_descent_y.unwrap() - start_y).max(0.0)
+            } else if closed_frame
+                && !had_items
+                && matches!(self.flow_baseline, Some(Option::None))
+            {
+                self.flow_placement_end
+                    .map_or(0.0, |(end, _)| (end - start_y).max(0.0))
+            } else if !had_items && super::transform::terminal_native(content) {
+                self.flow_placement_end
+                    .map_or(0.0, |(end, _)| (end - start_y).max(0.0))
+            } else if !had_items
+                && super::raw::terminal_block(content)
+                && self.last_block_descent_y.is_some()
+            {
+                let top = if geometric_origin {
+                    start_y
+                } else {
+                    start_y - self.metrics.text_edges(self.style.size, &self.style).0 .0
+                };
+                (self.last_block_descent_y.unwrap() - top).max(0.0)
+            } else if had_items {
+                // P1050 — Altura real do conteúdo no sub-frame: da borda superior da primeira
+                // linha ao fundo da última linha (sem adicionar leading espúrio após a última linha).
+                let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
+                let content_top =
+                    if geometric_origin { start_y } else { start_y - top.0 };
+                let text_descent = if direct_text { -bottom.0 } else { 0.0 };
+                let content_bottom = self.regions.current.cursor_y.0
+                    + text_descent.max(self.line_inline_descent);
+                (content_bottom - content_top).max(0.0)
             } else {
-                start_y - self.metrics.text_edges(self.style.size, &self.style).0 .0
+                (self.regions.current.cursor_y.0 - start_y).max(0.0)
             };
-            (self.last_block_descent_y.unwrap() - top).max(0.0)
-        } else if had_items {
-            // P1050 — Altura real do conteúdo no sub-frame: da borda superior da primeira
-            // linha ao fundo da última linha (sem adicionar leading espúrio após a última linha).
-            let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            let content_top = if geometric_origin { start_y } else { start_y - top.0 };
-            let text_descent = if direct_text { -bottom.0 } else { 0.0 };
-            let content_bottom = self.regions.current.cursor_y.0
-                + text_descent.max(self.line_inline_descent);
-            (content_bottom - content_top).max(0.0)
-        } else {
-            (self.regions.current.cursor_y.0 - start_y).max(0.0)
-        };
 
         // **P1120** — fundo real do sub-frame (`baseline + descent` da última
         // equação de bloco, quando existe) antes de o estado ser restaurado.
         // O chamador (`transform.rs`) usa-o para derivar o descent do frame.
+        if let Some(facts) = figure_facts.as_deref_mut() {
+            facts.flow_present = had_items
+                || self.flow_placement_end.is_some()
+                || self.flow_baseline.is_some();
+        }
         self.last_sub_frame_flow_width = self.flow_frame_extent.1;
         self.last_sub_frame_baseline = self.flow_baseline;
         self.last_sub_frame_width = (self.regions.current.cursor_x.0
@@ -532,6 +723,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             (self.line_inline_ascent, self.line_inline_descent);
         self.last_block_descent_y = saved_last_block_descent_y;
 
+        // Settle this isolated region before its indices leave their item buffer.
+        if !self.pending_dividers.is_empty() {
+            let width = if self.regions.current.width.is_finite() {
+                self.regions.current.width
+            } else {
+                (super::helpers::line_content_right(
+                    self.regions.current.current_items.iter(),
+                    &self.metrics,
+                ) + self.page_config.margin.right)
+                    .max(self.page_config.margin.horizontal())
+            };
+            super::divider::resolve(self, width);
+        }
+        self.pending_dividers = saved_dividers;
+
         // Recuperar items do sub-frame e restaurar estado.
         let mut cell_items =
             std::mem::replace(&mut self.regions.current.current_items, saved_items);
@@ -539,12 +745,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.piece_alignment = saved_piece_alignment;
         self.text_horizontal_offset = saved_horizontal_offset;
         self.literal_script_break_pending = saved_literal_script_break;
+        self.pending_horizontal_paragraph = saved_horizontal_paragraph;
         self.regions.current.cursor_x = saved_x;
         self.regions.current.cursor_y = saved_y;
         self.regions.current.line_start_x = saved_line_start_x;
         self.regions.current.width = saved_width;
         self.regions.current.height = saved_height;
         self.regions.current.current_line = saved_line;
+        self.line_optical_overhang = saved_optical_overhang;
         self.regions.current.pending_fr = saved_fr;
         self.pending_fr_natural_widths = saved_fr_widths;
         self.pending_repeats = saved_repeats;
@@ -588,7 +796,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // ambiente (LIFO — ver comentário no início da função).
         let mut deco_segments =
             self.decoration_lines_collector.take().unwrap_or_default();
-        if let Some(scope) = completed_piece_alignment {
+        if let Some(facts) = figure_facts {
+            facts.line_alignment = completed_piece_alignment;
+        } else if let Some(scope) = completed_piece_alignment {
             scope.settle(
                 &mut cell_items,
                 &mut deco_segments,
@@ -623,6 +833,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         region: SubLayoutRegion,
         planned: Option<super::page_running_requests::Cursor>,
     ) -> (f64, Vec<FrameItem>) {
+        let saved_horizontal_paragraph = self.pending_horizontal_paragraph.take();
         let saved_literal_script_break =
             std::mem::take(&mut self.literal_script_break_pending);
         let saved_horizontal_offset =
@@ -716,6 +927,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.piece_alignment = saved_piece_alignment;
         self.text_horizontal_offset = saved_horizontal_offset;
         self.literal_script_break_pending = saved_literal_script_break;
+        self.pending_horizontal_paragraph = saved_horizontal_paragraph;
         (height, aligned_body_tail)
     }
 }
@@ -819,6 +1031,9 @@ mod overflow_isolation {
         check_isolation(
             Content::Shape(Arc::new(ShapeElem {
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+                rect_radius: None,
+                rect_stroke: None,
+                relative_line: None,
                 kind: ShapeKind::Rect,
                 width: Some(Box::new(Value::Length(Length::pt(14.0)))),
                 height: Some(Box::new(Value::Length(Length::pt(10.0)))),

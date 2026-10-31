@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/tests
-Hash do Código: a9822394
+Hash do Código: 7789b388
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
@@ -736,3 +736,95 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+## Stack origins across physical fragments (2026-10-27)
+
+Measure first: the finite image bindings in `lab/results/construction/diagnostics/stack-image-flow-fix-2026-10-27/effects-candidate3/binding.json` and shape-context/receipt.json disagree with vanilla after correct image/shape frame geometry. The stored Here Location and captured integer do not consistently match the child's final page. Add an integrated regression through the existing MockWorld and paged compilation: twenty source-ordered contextual children, each with metadata `(index, here().page(), here())` and a 30×20pt fixed rectangle, on a400×400pt page with5pt margins. Require two pages, source indices0..19, and both captured and final Here pages1 for first19 and2 for last; expose exact observed IDs/positions on failure. This specification owns only tests, authorizes no production fix or new phase, and retains all prior assertions. Image CLI variants remain independent acceptance.
+
+## Approved physical eligibility: migrate only the obsolete wrapper counter
+
+Measurement before decision: physical-candidate-execution.json and
+physical-candidate-source.json.gz under
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/ preserve exact
+HEAD, dirty file list, UTC and sources. Its physical-preservation log reports
+numbered_table_keeps_second_layout with correct margin 1 / 1 but zero ordinary
+wrapper calls instead of two. The physical eligibility review SHA-256
+9d52d041904a94221cae76e4d9d394afd3a758be31e0e4b8845c6839a0dcdc87 was approved
+by the human, as retained in physical-number-outline-approval.json. This
+explicitly supersedes the old ordinary-wrapper call requirement only for this
+newly eligible source. That counter measures mechanics, not language parity.
+
+Keep its historical name and exact source. Require successful compilation, one
+page, unchanged exact margin 1 / 1, and A/B/C/D each once in body text. Require
+zero ordinary-wrapper calls for the approved physical route. Do not claim a
+performance improvement from this counter. Preserve all other table controls.
+The failures p1160_page_run_restaura_numbering_externo, p1406 query-one and
+p1486 mixed Bundle remain substantive regressions: keep all their expected
+values and sources unchanged. No test adaptation authorizes production code.
+
+## Actual Outline entry query preservation
+
+readiness-fixes-2026-10-28/outline-entry-before/receipt.json binds physical4
+4f4144d8… and pinned64c5e8c0 with source/build/UTC/dirty state. Exact default,
+show-set and identity sources fail query-one as0/0/3; hidden passes one in both.
+The alias receipt separately proves repeated Locations, not distinct sources.
+Add independent actual-pipeline tests for all four exact modes, requiring one
+query entry and Alpha twice when visible, once when hidden. Require two genuinely
+separate outlines to retain two Entries. Keep all prior source/expected values.
+This authorizes tests only; production fixes remain in their exclusive owners.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.
+
+## Figure geometry integrated note regression diagnostics — 2026-10-29
+
+readiness-fixes-2026-10-28/physical13-validation1 retains2179 frozen inputs,
+source archive/UTC/diffstat, six passing gates and two existing integrated
+failures at the domain/infra gate. physical_page_deferred_note_causes_next_body_page
+and physical_page_deferred_note_child_on_later_page observe pages1,2,2,2,2 rather
+than their unchanged1,1,2,2,2, with all states/identities retained. Keep both
+programs, expected vectors and every assertion unchanged. Add only actual
+per-page visible text to the failing metadata assertion's diagnostic context
+through the existing frame_items_text observer. This distinguishes displaced
+paint from wrong source attachment without authorizing a production fix,
+rewriting observations or promoting a failed gate. Use the exact fontless
+MockWorld, existing facade/features and source archive for reproduction.
+
+## Rustfmt gate repair (2026-10-29)
+
+The frozen `physical13-validation2/fmt.log` under
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/`
+records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
+without changing executable tokens, fixtures, expectations or assertions.
+Preserve all behavioral obligations above; reseal both directions and rerun
+the unchanged gates against the final frozen source. Internal ADR-0127 flow.
+
+
+## Issue 8894 — occurrence-relative stroke integration
+
+The official fixture and probe-existing.json in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` expose lost em
+thickness independently of PDF cap omission. Under the approved entity contract
+in `00_nucleo/prompts/core/entities/geometry.md`, add real-source regression
+controls through MockWorld/paged compilation: dictionary 10em round stroke at
+11pt and 20pt effective font, shorthand, mixed pt+em and reused aliases. Inspect
+prepared shape width/cap and preserve coincident/nondegenerate path endpoints.
+Use absolute 110pt controls; test expectations precede implementation and must
+fail on lost em. No test-only font-size approximation or broad parity claim.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Add source-level RED tests for the official rectangle, independent relative
+radius and side stroke controls, aliases/fonts, None/default and mixed lengths.
+Observe prepared geometry/paint, not XML tag choice. Keep all prior tests.

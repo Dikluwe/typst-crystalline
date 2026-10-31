@@ -1,9 +1,10 @@
 # L0 — compiler/layout/columns/segmented
-Hash do Código: 450c961e
+Hash do Código: b4a9aefd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 ## Evidence before specification
@@ -118,3 +119,17 @@ already use the full outer available width. Refresh the feature-owned reservatio
 after restoring the outer geometry; preserve nested-column/exterior notes.
 
 Tests first: default and explicit gutter, container/page columns, note text/position and exterior queue preservation; bilateral0.001pt and full validation.
+
+## Terminal optical policy and existing line ownership
+
+optical-isolation-red.json/source.json.gz binds exact dirty HEAD212aed0449, UTC,
+diffstat and source inputs. The actual parent-line test emits bb. at45pt rather
+than48pt after an isolated child with overhang:false returns. This refutes
+restoration of the new private policy; no break/cost/default/public/phase change
+is authorized. Source swaps are documented in optical_margin.md.
+
+Save/take the optional terminal optical policy when isolating the corresponding
+parent line; begin the local line without outer policy, then restore it with the
+original line at the existing LIFO exit. Preserve all cursor, source, fraction,
+alignment, hidden paint and regional formulas. Do not extend all-state isolation
+to the separate inline-tail helper, which contributes its actual terminal text.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote.md
-//! @prompt-hash da5b4d8c
+//! @prompt-hash 7d0175d4
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -24,6 +24,153 @@ use crate::entities::introspector::Introspector;
 use crate::entities::selector::Selector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+#[derive(Debug, Clone)]
+pub(super) struct EntrySettings {
+    pub(super) indent: f64,
+    pub(super) clearance: f64,
+    pub(super) gap: f64,
+    pub(super) separator: Option<Content>,
+    pub(super) separator_height: Option<f64>,
+    pub(super) chain: crate::entities::style_chain::StyleChain,
+    pub(super) style: crate::entities::layout_types::TextStyle,
+}
+
+// Only the common source prefix establishes flow settings. Local note/call
+// wrappers retain their ordinary styles without replacing this shared scope.
+pub(super) fn prepare_entry_scope<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    content: &Content,
+) {
+    if l.footnote_entry_scope.is_some() || l.footnote_capture.is_some() {
+        return;
+    }
+    fn weak(c: &Content) -> bool {
+        matches!(
+            c.source_body(),
+            Content::Empty
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::SetPage(_)
+        )
+    }
+    let mut source = content;
+    let mut chain = l.chain.clone();
+    loop {
+        if let Content::Source(e) = source {
+            source = &e.body;
+            continue;
+        }
+        if let Content::Located(e) = source {
+            source = &e.body;
+            continue;
+        }
+        if let Content::Styled(e) = source {
+            chain = chain.push_styles(&e.styles);
+            source = &e.body;
+            continue;
+        }
+        if let Content::Sequence(parts) = source {
+            let mut material = parts
+                .iter()
+                .take_while(|c| !matches!(c.source_body(), Content::Pagebreak(_)))
+                .filter(|c| !weak(c));
+            if let Some(first) = material.next() {
+                if material.next().is_none() {
+                    source = first;
+                    continue;
+                }
+            } else {
+                return;
+            }
+        }
+        if weak(source) {
+            return;
+        }
+        break;
+    }
+    l.footnote_entry_scope = Some(chain);
+}
+
+fn pure_separator(content: &Content) -> bool {
+    if admission_text(content) || matches!(content, Content::Shape(_)) {
+        return true;
+    }
+    if let Content::Styled(e) = content {
+        return pure_separator(&e.body);
+    }
+    if let Content::Source(e) = content {
+        return pure_separator(&e.body);
+    }
+    if let Content::Located(e) = content {
+        return pure_separator(&e.body);
+    }
+    if let Content::Sequence(parts) = content {
+        return parts.iter().all(pure_separator);
+    }
+    false
+}
+
+pub(super) fn entry_settings<M: FontMetrics, S: ImageSizer>(
+    l: &Layouter<M, S>,
+) -> EntrySettings {
+    use crate::entities::{layout_types::TextStyle, value::Value};
+    let chain = l.footnote_entry_scope.as_ref().unwrap_or(&l.chain).clone();
+    let mut style = TextStyle::from(&chain);
+    let outer = l.footnote_capture.as_ref().map_or(style.size.0, |c| c.outer_size.0);
+    style.size = crate::entities::layout_types::Pt(outer);
+    let length = |key, default, size| match chain.custom(key) {
+        Some(Value::Length(length)) => length.resolve_pt(size),
+        _ => default,
+    };
+    let separator = match chain.custom("footnote.entry.separator") {
+        Some(Value::None) => Some(Content::Empty),
+        Some(Value::Content(content)) => Some(content.clone()),
+        Some(Value::Str(text)) => Some(Content::text(text.as_str())),
+        _ => None,
+    };
+    let separator_height = if let Some(content) = &separator {
+        if pure_separator(content) {
+            let metrics: &dyn FontMetrics = &l.metrics;
+            let mut probe = Layouter::new(
+                metrics,
+                crate::entities::image_sizer::NullImageSizer,
+                outer,
+                l.introspector,
+            );
+            probe.chain = chain.clone();
+            probe.style = style.clone();
+            probe.footnote_entry_scope = Some(chain.clone());
+            probe.page_config = l.page_config.clone();
+            let width = l.regions.current.width - l.page_config.margin.horizontal();
+            let (height, ..) = probe.layout_sub_frame_at_geometric_origin(
+                content,
+                super::sub_frame::SubLayoutRegion {
+                    origin_x: l.page_config.margin.left,
+                    width,
+                    height: None,
+                    align_rtl: true,
+                    unconstrained_height: true,
+                },
+            );
+            Some(height)
+        } else {
+            None
+        }
+    } else {
+        Some(0.0)
+    };
+    EntrySettings {
+        indent: length("footnote.entry.indent", outer * 0.85, outer * 0.85),
+        clearance: length("footnote.entry.clearance", outer, outer),
+        gap: length("footnote.entry.gap", outer * 0.5, outer),
+        separator,
+        separator_height,
+        chain,
+        style,
+    }
+}
 
 /// Layout de `footnote(...)`: emite o marcador `N` em superscript inline e
 /// difere o body para o rodapé via `pending_footnote_bodies`
@@ -50,7 +197,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         || super::text::effective_style(layouter).size.0,
         |capture| capture.outer_size.0,
     );
-    let prefix = entry_prefix(marker, outer);
+    let prefix = entry_prefix(marker, outer, entry_settings(layouter).indent);
     let planned = layouter.planned_child_cursor(
         crate::compiler::introspect::page_running::PlanEdge::FootnoteBody,
     );
@@ -71,7 +218,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.refresh_footnote_reservation();
 }
 
-fn entry_prefix(marker: Content, outer: f64) -> Content {
+fn entry_prefix(marker: Content, outer: f64, indent: f64) -> Content {
     let entry_size = outer * 0.85;
     let spacing = |amount| {
         Content::HSpace(std::sync::Arc::new(
@@ -84,7 +231,7 @@ fn entry_prefix(marker: Content, outer: f64) -> Content {
             },
         ))
     };
-    Content::sequence(vec![spacing(entry_size), marker, spacing(entry_size * 0.05)])
+    Content::sequence(vec![spacing(indent), marker, spacing(entry_size * 0.05)])
 }
 
 /// A deliberately finite, effect-free note body certificate for admission.
@@ -455,7 +602,9 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
             return;
         }
         let marker = Content::superscript(Content::text(marker_text));
-        let prefix = entry_prefix(marker, style.size.0);
+        let entry = entry_settings(l);
+        let Some(separator_height) = entry.separator_height else { return };
+        let prefix = entry_prefix(marker, style.size.0, entry.indent);
         let height = {
             let metrics: &dyn FontMetrics = &l.metrics;
             let mut probe = Layouter::new(
@@ -465,6 +614,7 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
                 l.introspector,
             );
             probe.chain = l.chain.clone();
+            probe.footnote_entry_scope = l.footnote_entry_scope.clone();
             probe.style = style.clone();
             probe.page_config = l.page_config.clone();
             probe.regions.current.width = l.regions.current.width;
@@ -478,7 +628,7 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
                 frame.height
             }
         };
-        let overhead = style.size.0 * 1.5;
+        let overhead = entry.clearance + entry.gap + separator_height;
         let top = l.metrics.text_edges(style.size, &style).0 .0;
         let initial = if l.initial_baseline_pending { top } else { 0.0 };
         let mut required = initial + overhead + height;
@@ -803,5 +953,174 @@ mod r8_empty_admission_tests {
         ];
         preflight_carrier(&mut l, &parts);
         assert_eq!(l.pages.len(), 1, "Empty must not consume a separating space");
+    }
+}
+
+#[cfg(test)]
+mod r12_entry_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::TagIntrospector,
+        layout_types::{FrameItem, Length, PageMarginSpec, PageMargins, PagedDocument},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+
+    fn settings(values: &[(&str, Value)], body: Content) -> Content {
+        let styles = values.iter().fold(Styles::new(), |styles, (name, value)| {
+            styles.push_custom(format!("footnote.entry.{name}"), value.clone())
+        });
+        Content::styled(body, styles)
+    }
+
+    fn notes() -> Content {
+        Content::sequence(vec![
+            Content::text("Alpha"),
+            Content::footnote(Content::text("FIRST")),
+            Content::text(" Beta"),
+            Content::footnote(Content::text("SECOND")),
+        ])
+    }
+
+    fn render(content: &Content, height: f64) -> PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.page_config.height = height;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.regions.current.width = 300.0;
+        l.regions.current.height = height;
+        l.layout_content(content);
+        l.finish()
+    }
+
+    fn rows(doc: &PagedDocument) -> Vec<(String, f64, f64)> {
+        fn walk(items: &[FrameItem], out: &mut Vec<(String, f64, f64)>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, pos, .. }
+                    | FrameItem::TextShaped { text, pos, .. } => {
+                        out.push((text.to_string(), pos.x.0, pos.y.0));
+                    }
+                    FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => walk(items, out),
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        for page in &doc.pages {
+            walk(&page.items, &mut out);
+        }
+        out
+    }
+
+    fn position(doc: &PagedDocument, word: &str) -> (f64, f64) {
+        let found = rows(doc).into_iter().filter(|r| r.0 == word).collect::<Vec<_>>();
+        assert_eq!(found.len(), 1, "{word}: {found:?}");
+        (found[0].1, found[0].2)
+    }
+
+    #[test]
+    fn r12_indent_resolves_em_at_reduced_entry_size() {
+        let before = render(&notes(), 180.0);
+        let after = render(
+            &settings(&[("indent", Value::Length(Length::em(2.0)))], notes()),
+            180.0,
+        );
+        for word in ["FIRST", "SECOND"] {
+            assert!(
+                (position(&after, word).0 - position(&before, word).0 - 9.35).abs()
+                    < 1e-8
+            );
+        }
+    }
+
+    #[test]
+    fn r12_gap_changes_entry_separation_by_the_declared_outer_length() {
+        let before = render(&notes(), 180.0);
+        let after = render(
+            &settings(&[("gap", Value::Length(Length::pt(12.0)))], notes()),
+            180.0,
+        );
+        let distance =
+            |doc: &PagedDocument| position(doc, "SECOND").1 - position(doc, "FIRST").1;
+        assert!((distance(&after) - distance(&before) - 6.5).abs() < 1e-8);
+        assert_eq!(position(&after, "SECOND"), position(&before, "SECOND"));
+    }
+
+    #[test]
+    fn r12_none_separator_removes_only_the_default_rule() {
+        let before = render(&notes(), 180.0);
+        let after = render(&settings(&[("separator", Value::None)], notes()), 180.0);
+        let lines = |doc: &PagedDocument| {
+            doc.pages
+                .iter()
+                .flat_map(|p| &p.items)
+                .filter(|i| matches!(i, FrameItem::Line { .. }))
+                .count()
+        };
+        assert_eq!(lines(&before), 1);
+        assert_eq!(lines(&after), 0);
+        assert_eq!(rows(&after), rows(&before));
+    }
+
+    #[test]
+    fn r12_original_text_separator_is_emitted_once_in_outer_style() {
+        let doc = render(
+            &settings(&[("separator", Value::Content(Content::text("SEP")))], notes()),
+            180.0,
+        );
+        let sep = position(&doc, "SEP");
+        assert!(sep.1 < position(&doc, "FIRST").1);
+        assert_eq!(sep.0, 20.0);
+    }
+
+    #[test]
+    fn r12_local_override_does_not_replace_shared_entry_scope() {
+        let body = Content::sequence(vec![
+            Content::text("Alpha"),
+            Content::footnote(Content::text("FIRST")),
+            settings(
+                &[("indent", Value::Length(Length::pt(0.0)))],
+                Content::footnote(Content::text("SECOND")),
+            ),
+        ]);
+        let before = render(&notes(), 180.0);
+        let doc =
+            render(&settings(&[("indent", Value::Length(Length::em(2.0)))], body), 180.0);
+        assert!(
+            (position(&doc, "FIRST").0 - position(&before, "FIRST").0 - 9.35).abs()
+                < 1e-8
+        );
+        assert_eq!(position(&doc, "FIRST").0, position(&doc, "SECOND").0);
+    }
+
+    #[test]
+    fn r12_impossible_clearance_preserves_progress_and_complete_entry() {
+        let body = Content::sequence(vec![
+            Content::text("Alpha"),
+            Content::footnote(Content::text("FIRST")),
+        ]);
+        let doc = render(
+            &settings(&[("clearance", Value::Length(Length::pt(30.0)))], body),
+            80.0,
+        );
+        assert_eq!(doc.pages.len(), 3, "{doc:?}");
+        position(&doc, "FIRST");
     }
 }

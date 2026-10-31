@@ -1,5 +1,5 @@
 # L0 — compiler/layout/checkpoint
-Hash do Código: c755ab36
+Hash do Código: 763bbc9e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -8,6 +8,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:4a93d5c55bf975b506b6f02ae484a91fdf7449716f9248dea2fcaa6b7b0738b6
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:029c2929c9e294efceb796a5358a6f425f02ae91c519314080f413374f4f4403
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -358,3 +359,50 @@ approved method, not another public contract/default/phase change.
 Capture/restore the additional private literal_script_break_pending flag as part of current-flow state; preserve the existing script-break and offset state.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+## Image flow and horizontal paragraph correction — 2026-10-27
+
+Measurement precedes this correction: `lab/results/construction/diagnostics/image-flow-cause-2026-10-27/{baseline.json,results.json,refuters.json,completion.json}` binds HEAD212aed044, uncommitted inputs/diffstat/UTC, pinned64c5e8c0/tree483bd6f1/SHA22897f93 and received Tekt SHA2941a5ba. Direct PDF streams show image1 at y5 and images2–16 at y13.2; vanilla has eight30x20pt images per page at step46.4. Removing h gives vanilla step33.2 but retains Tekt overlap. Margin30 still resets later images to13.2; a60x40pt image does too. Source `image.rs:198,325–335` advances cursor without publishing the physical end consumed by `cursor.rs:128–169`. Vanilla `rules.rs:771`, realization `lib.rs:1061–1087` and flow `collect.rs:162–188,240–285` distinguish image blocks and h-only paragraph gaps. These are language/geometry observations, not a requirement to copy buffers, PDF bytes or upstream execution structure. No upstream intent is inferred.
+
+Classification: private parity repair, continuous flow ADR-0127. No public fields/signatures/trait methods, new product mode, phase change, dependency or compatibility break. Keep all received footnote/R11–R13/JPEG work. New shared obligations are pinned in the horizontal-space-paragraph Nucleus; this owner authorizes only its exclusive consumer.
+
+### Exclusive correction
+
+Capture and restore the optional private pending horizontal-paragraph spacing with existing line/cursor state. Speculative flush followed by restoration must preserve exactly one later paragraph gap and unchanged committed prefix. No new public checkpoint API.
+
+Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete image counts, all source-margin/size/spacing refuters, prior R8–R13/notes and A–H/R1–R7, full build/tests/Clippy/fmt/Rustdoc and full lint without warning/error. Preserve known tracking/paint limits; remeasure JPEG latency/RSS against received/legacy/oracle and retain R6 resource bounds. Snapshot provenance and preserve unrelated inputs/historical receipts. Validate V15/V26 before restricted resealing; no commit/push.
+
+### Measured lexical horizontal scope refinement
+
+The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+
+## Automatic page width and divider — issue 8525 (2026-10-31)
+
+### Measurement before decision
+
+The independent agent-layout and agent-svg-math reports/receipts under
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/` reproduce
+infinite SVG viewport/divider geometry and PDF Letter fallback/lost second text.
+`01_core/src/compiler/layout/divider.rs:35` multiplies the unbounded-region
+mechanism into visible geometry; `page_geometry.rs:62-69` then includes that
+shape in intrinsic page extent. `finish.rs:44-48` and intermediate page assembly
+consume the contaminated result. Exact received HEAD, dirty stat, UTC and
+source/owner bytes are frozen in
+`lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31/before.json.gz`.
+This is observed geometry/content semantics; it does not establish upstream
+intent. The pinned vanilla zero-width divider is a separate defect and is not
+an acceptance requirement. A later wider sibling, stale index, lost content,
+changed fixed-page line or queue leakage on replay refutes the repair.
+
+### Exclusive correction
+
+Clone and restore the complete pending divider queue with its owning region items. Length-only rollback is insufficient if an intermediate operation consumed the queue. Preserve all other checkpoint semantics.
+
+Internal correctness correction under ADR-0127 continuous flow: L0 first,
+restricted reseal, functional RED then GREEN, build and unfiltered lineage.
+Keep public contracts, modes/defaults, compatibility and pipeline phases.
+Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
+divider when body width is positive, and complete text before/after the rule.
+Do not copy vanilla zero width or force a paper size. This does not certify
+other relative-size shapes, asymmetric margins or general auto-page parity.

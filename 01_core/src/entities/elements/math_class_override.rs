@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/math_class_override.md
-//! @prompt-hash 75df96e0
+//! @prompt-hash 27655eaa
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -18,10 +18,9 @@ use crate::entities::source_result::SourceResult;
 
 /// Classe forçada + conteúdo — `math.class("relation", sym.suit.heart)`.
 ///
-/// `class` afecta apenas decisões de espaçamento automático
-/// (`rules/math/layout/spacing.rs`) e o `lclass`/`rclass` efectivo do nó
-/// — não afecta layout/renderização do `body` (que é layoutado
-/// normalmente via `layout_node`).
+/// A classe explícita participa das decisões matemáticas de espaçamento e
+/// layout, cuja implementação pertence a `compiler/math/layout/node_wrappers`.
+/// Esta entidade conserva somente a classe e o corpo, sem lógica de render.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathClassOverrideElem {
     pub class: MathClass,

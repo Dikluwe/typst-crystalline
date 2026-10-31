@@ -1,9 +1,10 @@
 # L0 — h space
-Hash do Código: 7733ad2c
+Hash do Código: 2797a759
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/h_space.rs`
@@ -97,3 +98,33 @@ share nor snaps a suffix. Unknown or absent assignments retain current queues.
 Record actual explicit horizontal-spacing admission as unpainted page material outside isolated subframes, including zero and fractional spacing. Preserve all existing geometry/weak limitations; do not synthesize a frame item or emit paint.
 
 L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.
+
+## Image flow and horizontal paragraph correction — 2026-10-27
+
+Measurement precedes this correction: `lab/results/construction/diagnostics/image-flow-cause-2026-10-27/{baseline.json,results.json,refuters.json,completion.json}` binds HEAD212aed044, uncommitted inputs/diffstat/UTC, pinned64c5e8c0/tree483bd6f1/SHA22897f93 and received Tekt SHA2941a5ba. Direct PDF streams show image1 at y5 and images2–16 at y13.2; vanilla has eight30x20pt images per page at step46.4. Removing h gives vanilla step33.2 but retains Tekt overlap. Margin30 still resets later images to13.2; a60x40pt image does too. Source `image.rs:198,325–335` advances cursor without publishing the physical end consumed by `cursor.rs:128–169`. Vanilla `rules.rs:771`, realization `lib.rs:1061–1087` and flow `collect.rs:162–188,240–285` distinguish image blocks and h-only paragraph gaps. These are language/geometry observations, not a requirement to copy buffers, PDF bytes or upstream execution structure. No upstream intent is inferred.
+
+Classification: private parity repair, continuous flow ADR-0127. No public fields/signatures/trait methods, new product mode, phase change, dependency or compatibility break. Keep all received footnote/R11–R13/JPEG work. New shared obligations are pinned in the horizontal-space-paragraph Nucleus; this owner authorizes only its exclusive consumer.
+
+### Exclusive correction
+
+Own the finite main-flow horizontal-paragraph producer and private closure helper. Resolve and retain the current source paragraph spacing (custom par.spacing or default1.2em) when h begins an otherwise causally empty paragraph, including zero and weak h. Repeated contributions do not add multiple paragraph gaps. Existing horizontal absolute/fractional allocation stays authoritative. A normal causal line absorbs the pending cause on flush; no fabricated space/text or change to width allocation. Closure of a cause without a causal line takes its preceding physical block end plus max(pending below, paragraph spacing), or the fresh physical top, and publishes a zero-height paragraph end with pending below spacing. Reset horizontal cursor at closure. Below remains trim-able at document/region end. Capture/reset/restore state follows the Nucleus; plain subframe h stays on its received inline route. Do not claim arbitrary mixed lexical h scopes without measuring them.
+
+The old no-emission rule for this helper remains: no new FrameItem, public Content or entity API. Layout-only causal bookkeeping is authorized. Tests must distinguish h(0) from absence, several h from several paragraphs, actual text absorption, explicit paragraph boundaries and source spacing overrides.
+
+Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete image counts, all source-margin/size/spacing refuters, prior R8–R13/notes and A–H/R1–R7, full build/tests/Clippy/fmt/Rustdoc and full lint without warning/error. Preserve known tracking/paint limits; remeasure JPEG latency/RSS against received/legacy/oracle and retain R6 resource bounds. Snapshot provenance and preserve unrelated inputs/historical receipts. Validate V15/V26 before restricted resealing; no commit/push.
+
+### Existing margin priority refinement
+
+The image owner's measured zero-spacing refuters and pinned flow/collect priorities also govern closure here. A preceding explicit block below overrides the h-only paragraph's weak above; Auto/paragraph neighbors collapse to max. Use existing prev_margin_is_parbreak to retain that distinction. This refines the earlier max-only wording; private pending source spacing and all lifecycle/width/no-paint obligations remain.
+
+### Measured lexical horizontal scope refinement
+
+The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+### Measured terminal horizontal paragraph region admission
+
+terminal-image-boundary/receipt.json and next-geometry-before.json bind the prior frozen state and executables: images370/380/385/390pt without h fit one page in both; with terminal h,370pt fits one, but380/385/390pt require a second page in vanilla and were omitted in Tekt. Following380pt image+h with another20pt image places that image at18.2pt in vanilla, but5pt in Tekt. The zero-height paragraph itself, not its pending lower gap, requires admission once its preceding gap puts its physical end past the region.
+
+Before publishing closure, compare that end with page_bottom_limit for a finite nonempty main region. An active speculative suffix must be rejected without committing a page; rollback owns restoration. Otherwise use the existing next-region route once, recover geometric top by removing any assumed text ascent, clear the prior region's last-block descent, and explicitly preserve unpainted materiality on the successor. Publish the same zero-height paragraph there, with its lower margin still pending. Preserve exact-fit images without h and the370pt terminal-h control. No synthetic glyph/line, public API, source reevaluation or phase change. New tests must fail on missing successor/incorrect y5 before the implementation; repeat all final gates and bilateral observations afterward.
+
+Additional hidden-before.json shows the same missing successor for a hidden380pt image. Nonempty region here means physical progress, not painted-item presence: require end beyond geometric page top, so invisible material participates and a fresh zero-height paragraph cannot loop. Recover the successor top with the existing initial-baseline flag and current text-edge metrics, as image admission does, including column transitions.

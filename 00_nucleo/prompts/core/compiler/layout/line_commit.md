@@ -1,11 +1,14 @@
 # L0 — line commit
-Hash do Código: 5b970137
+Hash do Código: 835dbb45
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -184,3 +187,137 @@ Require genuine declared-metric RED→GREEN for nested center/right, unequal-wid
 For a pending line containing an actual inline Formula, include the retained interior weak-space text style and the actual ExplicitLinebreakBoundary text style in the existing text-style maximum. Only interior weak spaces with later material qualify; trailing/suppressed weak separators and Parbreak scaffolding do not. Preserve the existing behavior on lines without Formula. TextSeparator remains neutral ink/transport: this is paragraph text-strut resolution from actual authored retained text occurrences, not an invented glyph, export change, new line, new state or independent placement algorithm. Keep all typed edges/leading, region admission and rollback under existing owners. Actual RED→GREEN must require isolated math=math top, interior space and explicit break=outer maximum, terminal weak=math top, mixed text=maximum. Revalidate original R3, all prior line/continuation controls and full gates under continuous ADR-0127.
 
 The final-candidate preflight in `lab/results/math-geometry-r3-2026-10-23/preflight-attempt1/preflight-lint-complete.log:1–8` rejects the compound weak-separator guard at line 143 with V17, after the six focused geometry tests pass. Split only that Boolean conjunction into the existing math-text guard and a nested later-material check. Preserve the false/terminal no-op, style observation and every semantic branch. This is private Rust decision form, not a new geometry rule. Do not suppress V17 or change tests; final full source-frozen suite must reconfirm all six named R3 tests and full lint zero.
+
+
+## Leading empty footnote line — 2026-10-26
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/leading-footnote-line-2026-10-26/baseline.json`
+and received-source.json.gz preserve HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+UTC, dirty stat/status and2165 inputs received after the terminal-note correction.
+The18 paired sources in before/receipt.json bind the received release to oracle
+commit bd5ebec285505889e8ff1d4f68804ab147a699f3/tree
+cac836c07e4dec2a89219370428292393a3216b5, SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+In the original DejaVu Sans11pt case, per-page words/page count agree but the
+entry marker starts1.403865pt below vanilla. leading-study.json preserves Tf
+sizes: note9.35pt, entry marker6.54226pt. Half their difference is1.40387pt.
+Nimbus Sans native-sized marker is a zero-shift control. Other font/size cases
+also expose different region admission; a local y difference is not a global
+geometry qualification when marker pages differ. Repeated leading breaks are
+retained refuters, not silently certified by the single-leading-line sample.
+
+`line_commit.rs:489-533` resolves uniform-line leading from the last textual
+fragment. visit_text_styles excludes ExplicitLinebreakBoundary outside Formula;
+a marker-only first note line therefore supplies the reduced script size.
+Pinned flow/collect.rs:176-188 resolves paragraph leading before collecting its
+line frames. Marker glyph size and note paragraph leading are distinct language
+observables. No upstream implementation structure or Rust equality is required.
+
+### Exclusive bounded obligation and gates
+
+Keep actual script glyph geometry/ascent/baseline, next-line ascent, source
+Linebreak identity and all captures/positions intact. For the first source-owned
+footnote line whose actual textual styles are all superscript, resolve leading
+from the active outer note paragraph style, not the reduced marker fragments.
+The existing private capture must be enabled, at atomic depth zero, with no
+previous committed cuts; require actual text. Observe all retained text styles
+through the existing transparent visitor, including multi-run markers. No empty
+fake body glyph/strut may be injected to force mixed-text classification.
+Normal mixed-text lines already use their existing outer-leading path. Preserve
+all other uniform-line/ordinary-subframe/column/scalar-wrap/Formula rules and
+later script lines. No changes to certification of actual blank lines, terminal
+witness reconciliation, public contracts, modes, defaults or phase ownership.
+This is an internal parity correction under ADR-0127 continuous flow, not an
+ADR-0127 public addition. Keep the current owning Nuclei and their pins intact.
+
+Add assertional RED tests using actual line commit for a captured marker-only
+first line, multiple superscript fragments, and ordinary/no-capture controls;
+check emitted marker positions remain unaltered while following-line advance
+uses paragraph leading. Require GREEN and source-equivalent bilateral PDF/SVG
+at0.001pt on the original leading-note source, three fonts/sizes and terminal/
+no-leading controls. Retain repeated-leading-line refuters separately if they
+still fail; broader blank-line certification is not authorized by this fix.
+Revalidate the terminal48-case corpus, original R8-R13,32 remaining refuters,
+A-H/R1-R7 language/render replays, resources/stress, complete workspace/test/
+Clippy/fmt/rustdoc/build-all-targets, strict/reverse lineage and zero full lint.
+Preserve the received terminal implementation and every unrelated input/history.
+
+Measured candidate refinement: leading-footnote-line-2026-10-26/{red3.json,
+candidate-tests.json,candidate-exploration-evaluation.json,cohort-classification.json}
+retains the valid RED(three controls pass,one leading assertion fails), four GREEN
+tests and all24 paired exploratory sources.21 sources with one initial marker-only
+line qualify in PDF/SVG; the3 repeated-leading-break sources still fail and remain
+explicit refuters with unchanged source hashes. Final acceptance must rerun both
+cohorts separately, preserve all characters/paint and report their different gates.
+The earlier cancelled/misconfigured test fixtures remain archived and are not the
+assertional RED used to certify this correction.
+
+## Image flow and horizontal paragraph correction — 2026-10-27
+
+Measurement precedes this correction: `lab/results/construction/diagnostics/image-flow-cause-2026-10-27/{baseline.json,results.json,refuters.json,completion.json}` binds HEAD212aed044, uncommitted inputs/diffstat/UTC, pinned64c5e8c0/tree483bd6f1/SHA22897f93 and received Tekt SHA2941a5ba. Direct PDF streams show image1 at y5 and images2–16 at y13.2; vanilla has eight30x20pt images per page at step46.4. Removing h gives vanilla step33.2 but retains Tekt overlap. Margin30 still resets later images to13.2; a60x40pt image does too. Source `image.rs:198,325–335` advances cursor without publishing the physical end consumed by `cursor.rs:128–169`. Vanilla `rules.rs:771`, realization `lib.rs:1061–1087` and flow `collect.rs:162–188,240–285` distinguish image blocks and h-only paragraph gaps. These are language/geometry observations, not a requirement to copy buffers, PDF bytes or upstream execution structure. No upstream intent is inferred.
+
+Classification: private parity repair, continuous flow ADR-0127. No public fields/signatures/trait methods, new product mode, phase change, dependency or compatibility break. Keep all received footnote/R11–R13/JPEG work. New shared obligations are pinned in the horizontal-space-paragraph Nucleus; this owner authorizes only its exclusive consumer.
+
+### Exclusive correction
+
+At real line closure ask the h-space owner to consume or close a pending horizontal-only paragraph before normal line measurement. Actual causal line presence discards only the pending cause and follows the unchanged normal flush; no extra strut, numbering, text or advance. A closed h-only paragraph has zero physical height and no current_line items. Image placement closes it before deriving its own origin; normal empty flush without a producer remains neutral. Preserve all literal/footnote/superscript/line metric protocols.
+
+Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete image counts, all source-margin/size/spacing refuters, prior R8–R13/notes and A–H/R1–R7, full build/tests/Clippy/fmt/Rustdoc and full lint without warning/error. Preserve known tracking/paint limits; remeasure JPEG latency/RSS against received/legacy/oracle and retain R6 resource bounds. Snapshot provenance and preserve unrelated inputs/historical receipts. Validate V15/V26 before restricted resealing; no commit/push.
+
+### Measured lexical horizontal scope refinement
+
+The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+## Approved actual-glyph optical margin ports
+
+Measure first: physical5-candidate/receipt.json and comparison provenance under
+readiness-fixes-2026-10-28 bind bed9a095… source/build/UTC/dirty state and exact
+article. Accepted justified lines are1.935998pt short at terminal period. Pinned
+inline/line.rs:493-526 adds optical remainder only after line selection; :676-716
+uses actual GID/face and advance. Do not modify candidate choices or costs.
+The direct human approval in optical-overhang-metrics-approval.json binds review
+SHA-25629d7f6fcd280ecfe5abd27b54c50b8326822504ea397ab978e62771de9c10ecb.
+It supersedes no-new-API clauses ONLY for the two exact methods in that review.
+All earlier APIs, phases, source/effect and validation boundaries remain.
+
+Only at actual LTR justified-line emission, add certified terminal optical
+advance to the already computed remaining distance. Use actual Font/GID/advance
+for TextShaped; unshaped text uses its provider. Keep true terminal opaque
+objects, overhang:false, single-glyph-only and unknown cases on the old path.
+Do not change break_selection, line fitting, source queues or relative gap
+translation; preserve all regions, counters, source phases and width recordings.
+
+Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
+PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+Keep a private optional final lexical text-overhang decision, recorded by
+word_layout::push_text and reset by actual line flush. It certifies only a
+terminal text occurrence admitted by the optical policy; missing evidence does
+not fabricate an enabled policy. This prevents style restoration from changing
+the already emitted terminal occurrence. No public carrier field is added.
+
+## Preserve accepted optical policy through final alignment
+
+figure-optical-second1 preserves the two injected Center/Right failures after
+the Cursor formula correction. Source :421 clears line_optical_overhang before
+:733 calls alignment, refuting that the formula alone suffices. The existing
+false controls pass. Retain the accepted policy in a local variable while
+clearing the hub slot at the original closure point. Supply that exact local
+policy only around final Cursor alignment and clear afterward. Preserve early
+empty returns, justification, selection, regional geometry and next-line state;
+no additional field/public/phase or late style-chain inference is authorized.
+
+figure-boundary-red1 confirms final Literal width loss; expose only the
+existing literal_line_right projector privately to Cursor, with unchanged
+recursion/excluded variants. No new algorithm, cursor advance or metrics API.
+
+## Rustfmt gate repair (2026-10-29)
+
+The frozen `physical13-validation2/fmt.log` under
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/`
+records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
+without changing executable tokens, fixtures, expectations or assertions.
+Preserve all behavioral obligations above; reseal both directions and rerun
+the unchanged gates against the final frozen source. Internal ADR-0127 flow.

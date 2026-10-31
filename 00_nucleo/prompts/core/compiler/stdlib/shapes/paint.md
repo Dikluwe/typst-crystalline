@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/paint
-Hash do Código: 3c4ed4ca
+Hash do Código: 7c1c0ff8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:b92ae8f26e4ebe8d5b7d0f1ee0e346e97210a9afb4c00ed1c9c184f690a263a8
@@ -43,3 +43,22 @@ Do not change the generic layout caster or add render logic. ADR-0127 internal
 parity flow requires L0 first, RED→GREEN, restricted resealing, build/suite/
 lineage. Preserve paint meaning and available form; vanilla byte equality is not
 a requirement. Collect PDF/raster/errors and retain unfixed discrepancies.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

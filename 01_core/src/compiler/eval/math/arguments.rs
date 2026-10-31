@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math/arguments.md
-//! @prompt-hash 2a07db77
+//! @prompt-hash a2b8e7cf
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -41,7 +41,11 @@ pub(super) fn eval_math_arg_value(
             }
             let mut children = math.exprs();
             let first = children.next();
-            if matches!(first, Some(Expr::MathIdent(_))) && children.next().is_none() {
+            if matches!(
+                first,
+                Some(Expr::MathIdent(_) | Expr::Ident(_) | Expr::Escape(_))
+            ) && children.next().is_none()
+            {
                 return eval_math_arg_value(scopes, ctx, engine, first.unwrap());
             }
             let text = math.to_untyped().clone().into_text();
@@ -92,7 +96,9 @@ pub(super) fn eval_math_arg_value(
         | Expr::Array(_)
         | Expr::Dict(_)
         | Expr::Closure(_)
-        | Expr::Contextual(_) => eval_expr(expr, scopes, ctx, engine),
+        | Expr::Contextual(_)
+        | Expr::Ident(_)
+        | Expr::Escape(_) => eval_expr(expr, scopes, ctx, engine),
         other => {
             // Lexical math arguments retain their actual Value until the
             // constructor cast. Only Code Ident may consult global values;
@@ -100,19 +106,6 @@ pub(super) fn eval_math_arg_value(
             if let Expr::MathIdent(ident) = &other {
                 if let Some(value) = scopes.get_local(ident.as_str()) {
                     return Ok(value.clone());
-                }
-            }
-            let ident_name = match &other {
-                Expr::Ident(i) => Some(i.as_str()),
-                _ => None,
-            };
-            if let Some(name) = ident_name {
-                let desvia = scopes.get_local(name).is_none()
-                    && matches!(scopes.get(name),
-                        Some(v) if !matches!(v,
-                            Value::Content(_) | Value::Func(_) | Value::Module(_)));
-                if desvia {
-                    return eval_math_callee(scopes, ctx, engine, other);
                 }
             }
             Ok(Value::Content(eval_math_expr(scopes, ctx, engine, other)?))
@@ -427,5 +420,154 @@ $mat(delim:aa,a)$",
 $mat(left)$"
         )
         .is_ok());
+    }
+}
+
+#[cfg(test)]
+mod readiness_math_input_tests {
+    use crate::compiler::eval::tests::eval_for_test;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source_result::SourceResult;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, module::Module, source::Source};
+    use std::num::NonZeroU16;
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(id(), text.into())
+                    .expect("valid Source test fixture"),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1431).unwrap())
+    }
+    fn evaluate(text: &str) -> SourceResult<Module> {
+        let world = TestWorld::new(text);
+        eval_for_test(&world, &world.source)
+    }
+
+    #[test]
+    fn readiness_math_input_code_identifier_retains_ratio_and_function() {
+        let module = evaluate("#let size=150%\n#let angle=a=>a+45deg\n$stretch(integral,size:#size) cancel(x,angle:#angle)$").expect("typed Code bindings");
+        let mut stretches = 0;
+        let mut callbacks = 0;
+        module.content().unwrap().visit_content_static(&mut |node| {
+            if let crate::entities::content::Content::MathStretch(elem) = node {
+                assert_eq!(elem.size.rel, 1.5);
+                assert!(elem.size.abs.is_zero());
+                assert!(elem.size_explicit);
+                stretches += 1;
+            }
+            if let crate::entities::content::Content::MathCancel(elem) = node {
+                assert!(matches!(
+                    elem.angle,
+                    crate::entities::elements::math_cancel::MathCancelAngle::Func(_)
+                ));
+                assert!(elem.explicit.angle);
+                callbacks += 1;
+            }
+
+            true
+        });
+        assert_eq!((stretches, callbacks), (1, 1));
+    }
+
+    #[test]
+    fn readiness_math_input_loop_binding_keeps_each_ratio() {
+        let module =
+            evaluate("#for size in (100%,200%) { $stretch(integral,size:#size)$ }")
+                .expect("loop Code binding");
+        let mut ratios = Vec::new();
+        module.content().unwrap().visit_content_static(&mut |node| {
+            if let crate::entities::content::Content::MathStretch(elem) = node {
+                ratios.push(elem.size.rel);
+            }
+            true
+        });
+        assert_eq!(ratios, vec![1.0, 2.0]);
+    }
+
+    #[test]
+    fn readiness_math_input_controls_preserve_math_and_content_types() {
+        for source in [
+            "#let size=150%\n$stretch(integral,size:size)$",
+            "$stretch(integral,size:#150%)$",
+            "#let value=[x]\n$bold(#value)$",
+        ] {
+            evaluate(source).expect(source);
+        }
+        let errors = evaluate("#let size=[x]\n$stretch(integral,size:#size)$")
+            .expect_err("content is not a relative length");
+        assert!(errors
+            .iter()
+            .any(|e| e.message.contains("expected relative length, found content")));
+    }
+
+    #[test]
+    fn readiness_math_input_unicode_escape_is_symbol() {
+        let module = evaluate(r"$accent(a,\u{0303})$").expect("escaped combining symbol");
+        let mut accents = 0;
+        module.content().unwrap().visit_content_static(&mut |node| {
+            if let crate::entities::content::Content::MathAccent(elem) = node {
+                assert_eq!(elem.accent, '\u{0303}');
+                assert_eq!(elem.base.plain_text(), "a");
+                accents += 1;
+            }
+            true
+        });
+        assert_eq!(accents, 1);
+        for source in ["$accent(a,̃)$", r#"$accent(a,"\u{0303}")$"#] {
+            evaluate(source).expect("existing literal/string accent");
+        }
+        let errors = evaluate("#math.accent($a$,[̃])").expect_err("prose is not a Symbol");
+        assert!(errors
+            .iter()
+            .any(|e| e.message.contains("expected a single-codepoint symbol")));
+    }
+    #[test]
+    fn readiness_math_input_escape_callback_observes_symbol_value() {
+        let module = evaluate(
+            r"#let inspect(value)=[#type(value)]
+$inspect(\u{0303})$",
+        )
+        .expect("callback returning content");
+        assert_eq!(module.content().unwrap().plain_text().trim(), "symbol");
     }
 }

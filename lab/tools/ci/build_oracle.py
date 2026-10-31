@@ -9,8 +9,8 @@ from pathlib import Path
 import subprocess
 import tomllib
 
-PIN = 'bd5ebec285505889e8ff1d4f68804ab147a699f3'
-TREE = 'cac836c07e4dec2a89219370428292393a3216b5'
+PIN = '64c5e8c02fe0394d913ead36e42ef8c1334d2107'
+TREE = '483bd6f1d8ac8810db47b65336d402647955fd17'
 
 
 def verify_source(source: Path, pin: str = PIN, tree: str = TREE) -> None:

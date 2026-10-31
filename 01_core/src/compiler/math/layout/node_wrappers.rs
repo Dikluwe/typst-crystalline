@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/node_wrappers.md
-//! @prompt-hash ed80c8e1
+//! @prompt-hash c888d0f7
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -38,6 +38,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             if !extended {
                 box_.width +=
                     self.metrics.char_italics_correction(c, style.size, style).val();
+            }
+            if e.class == crate::entities::math_class::MathClass::Large
+                && matches!(e.body.source_body(), Content::Symbol(_))
+            {
+                box_ = self.apply_axis_offset(box_, style.size);
             }
         }
         box_
@@ -139,4 +144,113 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod readiness_large_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::math_class::MathClass;
+    use crate::entities::math_constants::MathConstants;
+    struct AxisMetrics;
+    impl FontMetrics for AxisMetrics {
+        fn advance(&self, t: &str, s: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(t, s, style)
+        }
+        fn vertical_metrics(&self, s: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(s, style)
+        }
+        fn cap_height(&self, s: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(s, style)
+        }
+        fn text_edges(&self, s: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(s, style)
+        }
+        fn text_ink_bounds(&self, _: &str, s: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (s * 0.8, s * 0.2)
+        }
+        fn char_italics_correction(&self, _: char, _: Pt, _: &TextStyle) -> Pt {
+            Pt(2.0)
+        }
+        fn math_constants(&self, _: &TextStyle) -> MathConstants {
+            let mut c = MathConstants::fallback();
+            c.upem = 1000.0;
+            c.axis_height = 250.0;
+            c
+        }
+    }
+    fn wrapper(class: MathClass, body: Content) -> MathClassOverrideElem {
+        MathClassOverrideElem { class, body }
+    }
+    fn close(a: f64, b: f64) {
+        assert!((a - b).abs() < 1e-8, "{a} vs {b}");
+    }
+    #[test]
+    fn readiness_math_large_class_centers_single_glyph_on_axis() {
+        let style = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&AxisMetrics, false, &style);
+        let out = l.layout_class_override(
+            &wrapper(MathClass::Large, Content::Symbol("x".into())),
+            &style,
+        );
+        close(out.ascent - out.descent, 5.0);
+        close(out.height(), 10.0);
+        let y = out
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .expect("real painted glyph");
+        close(y, 0.5);
+    }
+    #[test]
+    fn readiness_math_large_class_advance_preserves_ordinary_italic_correction() {
+        let style = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&AxisMetrics, false, &style);
+        let body = Content::text("x");
+        let normal =
+            l.layout_class_override(&wrapper(MathClass::Relation, body.clone()), &style);
+        let large = l.layout_class_override(&wrapper(MathClass::Large, body), &style);
+        close(normal.width, 8.0);
+        close(large.width, 8.0);
+    }
+    #[test]
+    fn readiness_math_large_class_keeps_multiglyph_frame() {
+        let style = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&AxisMetrics, false, &style);
+        let body = Content::MathSequence(
+            vec![Content::Symbol("x".into()), Content::Symbol("y".into())].into(),
+        );
+        let plain = l.layout_node(&body, &style);
+        let out = l.layout_class_override(&wrapper(MathClass::Large, body), &style);
+        close(out.width, plain.width);
+        close(out.ascent, plain.ascent);
+        close(out.descent, plain.descent);
+    }
+    #[test]
+    fn readiness_math_large_class_prose_text_keeps_prior_baseline() {
+        let style = TextStyle::regular(Pt(10.0));
+        let l = MathLayouter::new(&AxisMetrics, false, &style);
+        let out = l.layout_class_override(
+            &wrapper(MathClass::Large, Content::text("x")),
+            &style,
+        );
+        close(out.ascent, 8.0);
+        close(out.descent, 2.0);
+        let y = out
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .expect("prose paint");
+        close(y, 0.0);
+    }
 }

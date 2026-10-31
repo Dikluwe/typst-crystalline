@@ -1,5 +1,9 @@
 # Comparação com o vanilla fixado após R8–R10 — 2026-10-24
 
+> Snapshot histórico: a [comparação após R11–R13](vanilla-comparison-after-r11-r13-2026-10-25.md) reconfirma as correções, qualifica 15 dos 32 casos adicionais e mantém 17 abertos. As três fontes percentuais de R12 também qualificam. Os números abaixo conservam a rodada anterior.
+
+> Atualização R11: as omissões das notas literal e aninhada foram corrigidas; restam 20 dos 32 casos adicionais. Consulte o [diagnóstico R11](long-footnotes-r11-2026-10-24.md). Os resultados abaixo conservam o snapshot anterior.
+
 **Os resultados declarados de R8–R10 foram reconfirmados nos corpora originais, em debug e release.** Os dez casos originais de notas, os controles de numeração/fontes, as 75 notas longas e os 69 controles de `super` continuam qualificados a **0,001 pt**, com palavras completas por página e origens independentes no SVG. Os seis limites de `super` fechados por R10 e a nota longa fechada por R9 continuam fechados nos seus reprodutores.
 
 A expansão independente contém **32 fontes aceitas pelo vanilla**: **dez qualificam em geometria PDF/SVG e 22 não qualificam**, com observações idênticas em debug e release. São 22 casos, não 22 defeitos independentes. Há novas omissões de texto extraído em notas, configurações de entrada não respeitadas, argumentos públicos de `super` rejeitados e limites de composição de scripts. A pintura foi medida separadamente; dois dos dez controles geometricamente qualificados ainda têm resíduos mínimos no SVG.

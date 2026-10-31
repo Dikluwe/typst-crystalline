@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: ab7d9aef
+Hash do Código: b075edae
 
 
 
@@ -7,6 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
 
 ## Evidence before specification
@@ -161,3 +162,66 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Keep declared Table selection and per-cell axes consistent in measurement with emission using actual Table placement, without reexecuting recipes, repeating placement for Complete plans, or changing Grid legacy behavior. Preserve dimensions, region/environment restoration and existing cache controls.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Migrate only the approved literal additions: raw Table items=None, legacy plans header_groups empty, Header level 1 unless cloning an existing header (preserve its level). Preserve every old semantic assertion and all other data; no new APIs/default/phase. Representation-only test assertions that freeze the superseded duplicate-header rejection must be replaced by positive source-order/range safety acceptance, without weakening unrelated controls.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

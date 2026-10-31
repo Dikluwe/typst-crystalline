@@ -1,5 +1,8 @@
 # L0 — Sealed page metadata store
-Hash do Código: 2f81dfd9
+Hash do Código: 0506aac4
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/page_store.rs`
@@ -47,3 +50,33 @@ The earlier explicit no-PartialEq restriction conflicts with the current derive
 and is unresolved; sanitation does not approve a public trait change.
 No I/O or mutable global state is allowed. Verify sentinel/minimal/full stores,
 aligned slots, distinct raw/realized views and nonpanicking range queries.
+
+## Approved document-local numbering input (2026-10-28)
+
+Measure before decision: readiness-fixes-2026-10-28/physical-candidate-execution.json,
+its source archive and full preservation log bind dirty HEAD212aed0449, exact
+diffstat, inputs and UTC. p1486 keeps /St20 and /St22 but the last PDF paints10
+instead of20, because run_planned consults global PageStore by local ordinal.
+The review review-bundle-numbering-input.md SHA-256
+d248aa88694a06da945a2036ec33887fcbba0f67adf3e3bd7ccb30757354670d was approved
+in direct human reply, retained in bundle-numbering-input-approval.json.
+This ratifies only the named additive method and its local transport, superseding
+earlier no-new-API clauses only for that method; all other boundaries remain.
+
+Own only an internal crate-visible interval completeness certificate, inspecting
+existing private vector lengths and checked bounds. This is pure data validation
+for the approved facade, not an additional externally public API. Require every
+raw/realized/logical/span/supplement slot even when its stored Option is None.
+Leave all existing constructors, fields, query methods and defaults unchanged.
+Never use Content/Func equality as completeness proof or execute any content.
+
+Require functional RED→GREEN, original integrated controls, complete technical
+gates and independent PDF/SVG/word/page/0.001pt validation with source provenance.
+Finite tests do not certify general parity, geometry, performance or JPEG.
+
+Functional RED before implementation: numbering-input-red.json/log and source
+archive retain the approved API skeleton returning its unchanged clone. The
+valid non-first interval has no local view, and an invalid4/1 interval is accepted;
+both tests fail. outline-original3-green separately passes its corrected carrier
+observer under the same frozen inputs. The p1486 original integrated RED remains
+the independent transport acceptance gate; no expected values may be relaxed.

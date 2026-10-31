@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md
-//! @prompt-hash c09d3f29
+//! @prompt-hash 6458e909
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -46,7 +46,7 @@ pub fn native_ellipse(
     {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         })
@@ -167,7 +167,7 @@ pub fn native_circle(
     {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         })
@@ -177,6 +177,9 @@ pub fn native_circle(
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Circle,
+        rect_radius: None,
+        rect_stroke: None,
+        relative_line: None,
         kind: ShapeKind::Ellipse,
         width,
         height,
@@ -632,7 +635,10 @@ mod circle_origin_tests {
                 assert_eq!(shape.fill, fill.clone().map(Paint::Solid));
                 assert_eq!(shape.stroke.is_some(), fill.is_none() && !explicit_none);
                 if let Some(stroke) = &shape.stroke {
-                    assert_eq!(stroke.thickness, 1.0);
+                    assert_eq!(
+                        stroke.thickness,
+                        crate::entities::layout_types::Length::pt(1.0)
+                    );
                 }
             }
         }

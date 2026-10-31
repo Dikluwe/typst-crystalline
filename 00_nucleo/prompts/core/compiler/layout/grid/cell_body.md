@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_body
-Hash do Código: 2a700a10
+Hash do Código: e2fcc5f8
 
 
 
@@ -9,6 +9,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/cell-bidi-scope.toml sha256:5c733e4756935ef5e4841991852a5f60f0f00e2b76c988c6af340b52cc0ce977
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -145,3 +146,76 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Consume prepared Complete alignment as authoritative. Raw Table fallback folds cell axes over declaration selected at placed.col; legacy Grid keeps uniform fold. Preserve source routes, body admission once, exact region, cache refusal without same-alignment proof, and restoration of parent state.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+## Aligned cell geometric origin — measured correction 2026-10-29
+
+### Measurement before decision
+
+The original immutable table-align-before receipt and fresh table-selectorless-after1
+receipt show the same scalar-left yMin32.051 against native24.769, at11pt Nimbus
+Roman:7.282pt extra. This is a pre-existing aligned-cell defect, not a regression
+of the approved declaration. The new financial source now compiles but remains
+negative in words/0.001pt and independent paint; do not certify it. Exact binaries,
+source hashes, HEAD/dirty stat, inputs and UTC are in those immutable receipts.
+cell_body.rs:394 installs a legacy ascender outer frame around generated Align;
+placement.rs:313 lays its body geometrically then adds the caller cursor_y;
+cell_body.rs:475 adds a text top after subtracting only the legacy ascender.
+That repeats the top edge for an aligned text leaf. This is a refutable causal
+hypothesis, not upstream intent or a requirement to copy frame mechanics.
+
+### Exclusive internal correction and acceptance
+
+For an actual effective alignment only, give the existing generated Align outer
+subframe geometric zero, and translate its completed items with body_y+local_y
+uniformly. Do not add a second top edge, infer types from glyphs/paint, change
+alignment choice, rebuild the body, move eval/layout phases, or add public APIs.
+No-alignment keeps the old measured-product/legacy translation path unchanged.
+The cache owner already refuses aligned products because cell_align is Some;
+retain that proof, all eligibility/refusals and original subframe-call tests.
+Preserve source cursor/generated AlignBody edge, decorations, logical orphan
+fixups, clipping, finite vertical alignment, region restoration, page anchors,
+paint/insets and row-height measurement. Add co-located actual physical RED
+showing horizontal alignment cannot add a baseline offset versus the same
+unaligned body, before implementation. Test raw/prepared, scalar/columns, Top,
+Bottom/Horizon and mixed text/shape/Box/decorated bodies; compare original
+financial/native PDF/SVG/0.001pt, unchanged controls, full core and final gates.
+Vertical explicit movement remains meaningful and is not normalized away.
+This is ADR-0127 continuous formula/coordinate parity repair inside layout.

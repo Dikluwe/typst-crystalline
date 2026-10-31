@@ -1,8 +1,11 @@
 # L0 — compiler/stdlib/structural/outline — outline constructors and Entry surface
-Hash do Código: f88e91b8
+Hash do Código: 553b9a74
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/outline.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/outline-inline-budget.toml sha256:7995dc5e028bf26ac3bd89a9dd751f8522530af98c627211825f9b55e551a9c1
 
 ## Evidence before specification
 
@@ -59,3 +62,72 @@ RTL/logical inset, hanging composition, observation/replay and lexical restorati
 Test valid schema forms, absent/malformed indent/key, context-error order and
 callback result/error. An added Value must force a local exhaustiveness decision.
 This nominal internal correction follows ADR-0127 continuous flow.
+
+
+## Readiness: explicit entry leading (2026-10-28)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/before.json`
+and table-number-build-source.json.gz bind HEAD 212aed0449150dd296ceea13fc2be665cc5db01a,
+uncommitted diffstat/UTC and sources. Current oracle is pinned to
+64c5e8c02fe0394d913ead36e42ef8c1334d2107 (binary
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34).
+control-outline still shifts second actual Heading123.6332 vs117.5832: 6.05pt.
+Current-pin typst-library/src/model/outline.rs:397-404 explicitly supplies
+Block above=Par leading to descendants; :624 constructs the indented Block.
+This consumer:386,535 leaves above None, selecting automatic par.spacing.
+extras-before/receipt.json tests default and20pt leading: do not fit an offset.
+Geometry is language, style machinery and storage are mechanics.
+
+### Exclusive correction and acceptance
+
+The contextual native indented() result remains its existing generated Block,
+with identical inset/prefix/body/markers, but above carries effective par.leading
+Length (default0.65em) retaining relative representation. Below stays automatic;
+existing priority-before-magnitude collapse selects the next explicit above.
+Preserve parent schema, context observation, parsing/error order, callback once,
+RTL/source routing and public fields/signatures/phases/default modes.
+ADR-0127 continuous parity repair; no new public contract. Test the spacing
+between actual native products RED→GREEN. Revalidate custom/default leading,
+original outline/article, text/glyph geometry and paint, source/query/callback
+controls, earlier math/image/JPEG and full gates. Rich inherited block show-set,
+depth/targets and unrelated outline extraction remain uncertified.
+
+The readiness test's recursive frame collector must enumerate ignored leaves
+explicitly, preserving its existing inner-text assertion and recursive Group,
+Link, Semantic and TextReplacement behavior. A wildcard empty arm is a V16
+structural failure, not an accepted exception for tests.
+
+## Readiness: bounded numbered Outline inline budget
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/outline-prefix-source-evidence.json binds exact
+source/owner hashes, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat/UTC,
+number2 build/source archive and actual paired numbered-outline cases. The
+executable is92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The non-Ref numbered controls retain different fill/word positions. Source
+stdlib structural outline.rs:319-391 emits Empty prefix-info, a nonweak negative
+hanging compensation, the original marked textual prefix and gap inside an inset
+Block. style_scope.rs:133-167 preserves Label semantics through the parent-line
+inline subframe; sub_frame.rs:724-748 retains its actual horizontal advance.
+inline_allocation.rs:283-294,488-530 rejects the two known custom markers;
+:61-64,341-346 refuses every negative absolute H. These explicit refusals are
+source evidence, not proof of every causal/rendering obligation. Actual local
+certificate and composed-line REDs must fail before productive implementation.
+Source counts/styles/positions and preserved semantic envelopes are language
+obligations; the certificate's representation and fallback route are mechanics.
+No upstream intent is inferred or old floating-point hypothesis resurrected.
+
+### Exclusive correction and acceptance
+
+Keep this producer's existing body, argument/context validation, callbacks and metadata exactly. Its standard plain-Text prefix/Empty prefix-info are the positively recognized subset of the shared budget contract; rich prefixes and all other forms keep their current representation and semantics. No productive algorithm or public API changes belong here; do not replace compensation with spaces, resolved offsets, different source children or a special compiled string. This owner pins the existing producer shape consumed by the certifier, not ownership of its algorithm.
+
+ADR-0127 continuous internal parity/certificate correction, separate from the
+pending physical-phase approval. L0/pins first, meaningful RED→GREEN, V15/V26
+before resealing, full source-language/PDF/SVG and technical gates. Keep all
+historical/JPEG controls and remaining readiness negatives; do not relax any
+metric, suppress diagnostics or claim general rich-prefix/RTL/wrapping parity.

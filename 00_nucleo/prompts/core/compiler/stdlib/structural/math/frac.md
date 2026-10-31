@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/frac
-Hash do Código: ca87213b
+Hash do Código: 5b1e95ff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/frac.rs`
@@ -48,3 +48,49 @@ No new public Rust field/signature/trait method, default mode or phase change.
 Preserve other semantics and all received changes. Record source-bound builds,
 full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
 A–H and R1–R3 without reclassifying their existing limitations as parity.
+
+
+## Causal named style consumption — measured parity repair 2026-10-29
+
+### Measurement before decision
+
+math-frac-arguments-before2/receipt.json under readiness-fixes-2026-10-28 binds
+immutable table-alignment-build1/source archive, HEAD/dirty inputs/UTC, sources
+and pinned64c5e8c0 oracle. A real multi-letter frac alias with a bound vertical
+style and call-site horizontal is accepted by native, rejected as duplicate by
+Tekt; two successive with bindings have the same split. Literal duplicate style
+is rejected by both. A bound boolean followed by a valid override must still
+fail the boolean cast at its original expression: removing bound occurrences
+would be wrong. The initial before probe's one-letter alias/named-math fixtures
+fail with unknown-variable style in both and are not semantic evidence.
+
+Source frac.rs:64 counts all causal style occurrences as literal duplicates.
+Current parser math.rs:480 and patterns.rs:279 already reject duplicate literal
+names inside each actual source argument list. call_dispatch/trace_plugin.rs:99
+correctly appends With occurrences; entities/args.md requires keeping every value
+and native foundations/args.rs:222 casts every named occurrence before retaining
+the last. Language casting/order/morphology/errors govern this decision, not
+copying Rust Args mechanics. No change to Args, Func, dispatch or parser is needed.
+
+### Exclusive bounded correction
+
+Keep current named-positionals/unknown/arity/operand validation. Remove only the
+constructor-level duplicate style count: source syntax still rejects literal
+duplicates before execution. Consume each style occurrence in its retained order,
+cast it once through math_frac_style, fail the first invalid cast, and retain the
+last valid style. Real value_span owns a failure; absent occurrence origin falls
+back to the existing aggregate args.span, without inventing Source or offsets.
+For legacy synthetic Args without occurrences use the existing occurrence_sequence
+projection and same fallback; do not mutate Args or discard losing values.
+Absent style remains None; explicit vertical stays explicit; default styling,
+fields/morphology, operand conversion and native signatures remain unchanged.
+
+This supersedes only the old constructor duplicate-count and style-value-origin
+clauses. ADR-0127 continuous internal parity correction: no new public fields,
+trait methods, signatures, dependency, mode/default or pipeline phase. L0 first,
+co-located actual-source RED→GREEN for bound/chained overrides, invalid bound
+origin, literal duplicate rejection and once-only argument evaluation. Preserve
+all previous tests and general merge_with_args behavior. Rebuild the original
+public frac document and retain any later geometry/other negative after removing
+this rejection; full core, twelve gates, historical/JPEG and strict lineage/lint
+are required on final stable sources. Other math constructors remain separate.

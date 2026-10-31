@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash 613c32c4
+//! @prompt-hash f1709c97
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -262,6 +262,10 @@ impl Content {
             Content::Table(e) => {
                 if let Some(plan) = &e.resolved {
                     for c in &plan.cells {
+                        c.visit_content_static(visit);
+                    }
+                } else if let Some(items) = &e.items {
+                    for c in items {
                         c.visit_content_static(visit);
                     }
                 } else {
@@ -1365,9 +1369,17 @@ impl Content {
                 let mut c=e.as_ref().clone();let mut r=c.resolved.as_ref().unwrap().as_ref().clone();
                 r.visual=r.visual.map_content_pre_with_origin_inner(transform, origin)?;c.resolved=Some(Arc::new(r));Content::TableCell(Arc::new(c))
             })),
+            Content::Table(e) if e.items.is_some() => rebuild_pre_node(|| Ok({
+                let mut t = e.as_ref().clone();
+                t.items = Some(e.items.as_ref().unwrap().iter()
+                    .map(|c| c.map_content_pre_with_origin_inner(transform, origin))
+                    .collect::<SourceResult<Vec<_>>>()?);
+                t.caption = e.caption.as_ref().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).transpose()?;
+                Content::Table(Arc::new(t))
+            })),
             Content::Table(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem {
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem { items: None,
             source_span: e.source_span,
             resolved: e.resolved.clone(),
             rows_explicit: e.rows_explicit,
@@ -1387,7 +1399,7 @@ impl Content {
                 .transpose()?,
             summary: e.summary.clone(),
             inset: e.inset,
-            align: e.align,
+            align: e.align.clone(),
         })))? })),
             // Modelo D (Lote 12 P327): TableCell container delega ao elemento.
             Content::TableCell(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableCell(Arc::new(TableCellElem {
@@ -1408,7 +1420,7 @@ impl Content {
             kind: e.kind,
         })))),
             // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
-            Content::TableHeader(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableHeader(Arc::new(TableHeaderElem {
+            Content::TableHeader(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableHeader(Arc::new(TableHeaderElem { level: e.level,
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             repeat: e.repeat,
         })))),
@@ -1887,6 +1899,7 @@ mod change_aware_tests {
         let Content::Table(raw) = table() else { panic!("table") };
         let mut prepared = raw.as_ref().clone();
         prepared.resolved = Some(Arc::new(TableGridResolved {
+            header_groups: Vec::new(),
             cells: vec![Content::table_cell(
                 Content::text("visual"),
                 None,

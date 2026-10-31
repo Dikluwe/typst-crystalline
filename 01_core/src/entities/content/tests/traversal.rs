@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/traversal.md
-//! @prompt-hash bba54cc5
+//! @prompt-hash 4c40a54f
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -545,7 +545,7 @@ fn p227_grid_map_content_preserva_stroke() {
     use crate::entities::sides::Sides;
     let stroke_orig = Stroke {
         paint: Paint::Solid(Color::rgb(100, 100, 100)),
-        thickness: 3.0,
+        thickness: crate::entities::layout_types::Length::pt(3.0),
         overhang: false,
         ..Stroke::default()
     };
@@ -581,7 +581,7 @@ fn p230_gridcell_map_content_preserva_stroke_fill() {
     use crate::entities::layout_types::Color;
     let stroke_orig = Stroke {
         paint: Paint::Solid(Color::rgb(50, 50, 50)),
-        thickness: 2.0,
+        thickness: crate::entities::layout_types::Length::pt(2.0),
         overhang: false,
         ..Stroke::default()
     };
@@ -690,7 +690,7 @@ fn p247_block_map_content_preserva_fill_stroke() {
     let fill_orig = Some(Color::rgb(50, 100, 150));
     let stroke_orig = Some(Stroke {
         paint: Paint::Solid(Color::rgb(0, 0, 0)),
-        thickness: 3.0,
+        thickness: crate::entities::layout_types::Length::pt(3.0),
         overhang: false,
         ..Stroke::default()
     });

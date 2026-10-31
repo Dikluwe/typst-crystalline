@@ -1,8 +1,9 @@
 # L0 — image
-Hash do Código: 26ee757d
+Hash do Código: 3a050e23
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 
 
@@ -109,3 +110,27 @@ font/region-relative resolution remain open debts; a caller resolving them into
 supported values would refute the claimed loss. Preserve target-vs-image bounds,
 clip behavior and fit/aspect/DPI/orientation. Future Value variants must force a
 new decision at this exact match. ADR-0127 continuous internal flow applies.
+
+## Image flow and horizontal paragraph correction — 2026-10-27
+
+Measurement precedes this correction: `lab/results/construction/diagnostics/image-flow-cause-2026-10-27/{baseline.json,results.json,refuters.json,completion.json}` binds HEAD212aed044, uncommitted inputs/diffstat/UTC, pinned64c5e8c0/tree483bd6f1/SHA22897f93 and received Tekt SHA2941a5ba. Direct PDF streams show image1 at y5 and images2–16 at y13.2; vanilla has eight30x20pt images per page at step46.4. Removing h gives vanilla step33.2 but retains Tekt overlap. Margin30 still resets later images to13.2; a60x40pt image does too. Source `image.rs:198,325–335` advances cursor without publishing the physical end consumed by `cursor.rs:128–169`. Vanilla `rules.rs:771`, realization `lib.rs:1061–1087` and flow `collect.rs:162–188,240–285` distinguish image blocks and h-only paragraph gaps. These are language/geometry observations, not a requirement to copy buffers, PDF bytes or upstream execution structure. No upstream intent is inferred.
+
+Classification: private parity repair, continuous flow ADR-0127. No public fields/signatures/trait methods, new product mode, phase change, dependency or compatibility break. Keep all received footnote/R11–R13/JPEG work. New shared obligations are pinned in the horizontal-space-paragraph Nucleus; this owner authorizes only its exclusive consumer.
+
+### Exclusive correction
+
+Place each main-flow image from the physical preceding frame end plus one collapsed above/below gap, not from a stale text baseline. Do not invoke generic block-to-text admission just to place another image. Before placement close pending h-only paragraph through its owner; distinguish actual causal line from zero-paint paragraph closure. Publish image target end to existing baseline/descent/flow-end witnesses; keep below pending, not physical height. Use target bounds for fitting, natural bounds without target; preserve cover/contain clip, intrinsic/DPI/orientation/alt/original bytes. Fit actual candidate top+height against the region and recover geometric top after transition; pending below alone must not create terminal pages. Keep first-block no-typography and ordinary subframe contracts. Existing after-text behavior and inline containers need independent controls, not a universal certificate.
+
+Add assertional module RED before implementation: repeated plain images, changed margin/height, sixteen images separated by h(1pt)/h(0pt), exact image-fit without terminal blank, first fresh block metrics, and checkpoint/subframe isolation of the h cause. Require the original sixteen images at all distinct correct rectangles and8+8 pages; no acceptance by page count alone.
+
+Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete image counts, all source-margin/size/spacing refuters, prior R8–R13/notes and A–H/R1–R7, full build/tests/Clippy/fmt/Rustdoc and full lint without warning/error. Preserve known tracking/paint limits; remeasure JPEG latency/RSS against received/legacy/oracle and retain R6 resource bounds. Snapshot provenance and preserve unrelated inputs/historical receipts. Validate V15/V26 before restricted resealing; no commit/push.
+
+### Margin refuters and precedence refinement
+
+The same before-fix `image-flow-cause-2026-10-27/results.json` records par-spacing0 and block-spacing0 reducing vanilla image steps to20pt while received Tekt remains at13.2 positions. Pinned Block margin collection distinguishes explicit block values from Auto's paragraph fallback; `layout/raw.rs:168–190,200–225` already implements this existing style-chain priority. Measure before deciding: these data supersede the older unconditional1.2em image-margin clause only for this correction. Resolve each edge from block.above/below, then block.spacing, with Auto stopping lookup and falling back to par.spacing/default1.2em. Preserve explicit zero and negative values. Explicit block margins outrank adjacent weak paragraph margins; equal-priority neighbors collapse to max. Store existing prev_margin_is_parbreak according to Auto versus explicit below, not a new public state. Add a RED assertion covering zero/Auto/asymmetric style margins before changing this formula. No new public setting or signature.
+
+### Measured lexical horizontal scope refinement
+
+The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+Terminal h test projection: PagedDocument::plain_text joins physical pages with a newline even when each page has no text items. Assert exactly that structural separator for the required second empty page, while retaining strict page counts, image y5/y18.2 and no synthetic painted text. A page separator in this utility is not a fabricated glyph or Content. The first terminal GREEN attempt failed only this incorrectly empty projection after the required page began to exist; retain that attempt.

@@ -1,11 +1,12 @@
 # L0 — compiler/eval/call_dispatch/invoke
-Hash do Código: 3dbf7d90
+Hash do Código: 1ec60315
 
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/math/selected-symbol-accent-call.toml sha256:c6ef1be7fbad9f9513c172b144b3dbe314ba24a6d4c8c09a26a9bca6c6f8b48b
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 ## Ownership and extraction evidence
@@ -334,3 +335,35 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+
+## Selected-symbol accent callability — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/accent-callability-findings6.json`
+binds actual release6 source/archive, HEAD 212aed0449150dd296ceea13fc2be665cc5db01a,
+uncommitted exact dirty-file stat, UTC and pinned oracle64c5e8c0. The original
+14-case receipt's single-letter a is notation in BOTH engines; only the corrected
+long-name before6b cohort proves local alias callability. Bare grave/arrow render
+symbol+parentheses in Tekt, native accents; qualified and Code Symbol calls reject
+Func in Tekt. Long local symbols lose accents/options/arity; beta/string notation
+and noncallable Code rejection remain controls. accent-effects-before6/receipt.json
+measures one seen.push effect in valid math/native Code controls, with Code Tekt
+blocked at callee. No source/font/PDF-byte equality is language acceptance.
+
+Pinned typst-library/src/foundations/symbol.rs:133-137 dispatches selected Symbol
+through its accent function; math/accent.rs:212-290 owns strict aliases and the
+single-base wrapper. Existing Func::native/with and call_dispatch's With merger
+already transport bound arguments, final call span and occurrence order.
+This is an internal semantic/morphological parity repair under ADR-0127 continuous
+flow, not a public API/default/phase change.
+
+### Exclusive amendment and acceptance
+
+Before the existing closed Func/Type/noncallable match, normalize only a recognized raw Value::Symbol callee through the accent helper with actual call.span. Existing Func branch owns Args preparation once, apply/With, tracing, source retention and interception. Unknown/nonaccent Symbols retain pre-argument rejection; all other Value variants remain unchanged. This supersedes the earlier all-Symbol noncallable clause only for strictly recognized accent Symbols. The existing every-Value control's nonaccent Symbol remains rejected. Add no new argument evaluator, result interception or function-name heuristic.
+
+L0 precedes actual functional RED, then implementation/GREEN; preserve old tests,
+source-bound bilateral PDF/SVG/error/effect controls, full core/workspace, build,
+strict lint/Clippy/rustdoc/fmt and both lineage directions. Validate V15/V26 before
+resealing. No completion/performance/JPEG qualification from a finite call fix.

@@ -1,10 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 6a2d6b4e
+//! @prompt-hash 03b9a41d
 //! @layer L3
 //! @updated 2026-10-24
 
-#[cfg(test)]
 use super::PageContext;
 use super::{
     escape_pdf_string, fill_rg_prefix, pdf_defaults, remap_glyph_id, spot_fill_operator,
@@ -16,6 +15,130 @@ use std::collections::HashMap;
 mod runs;
 
 pub(super) use runs::{emit_verbose_text_run, verbose_run_end};
+
+pub(super) fn zero_width_space_alias(
+    text: &str,
+    glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
+    style: &typst_core::entities::layout_types::TextStyle,
+    scenario: &FontScenario,
+    font: Option<&typst_core::entities::world_types::Font>,
+) -> bool {
+    if !text.starts_with('\u{2060}')
+        || text.chars().any(|ch| ch != '\u{2060}')
+        || glyphs.is_empty()
+    {
+        return false;
+    }
+    let outline = match scenario {
+        FontScenario::Cidfont { bitmap, .. } => bitmap.is_none(),
+        FontScenario::Multifont { fonts, bindings, per_font_bitmap, .. } => {
+            crate::export::font_binding::lookup(bindings.as_ref(), fonts, style, font)
+                .and_then(|index| per_font_bitmap.get(index))
+                .is_some_and(Option::is_none)
+        }
+        FontScenario::Type1 => false,
+    };
+    if !outline {
+        return false;
+    }
+    let Some(font) = font else { return false };
+    let Ok(face) = ttf_parser::Face::parse(font.as_slice(), 0) else { return false };
+    let Some(space) = face.glyph_index(' ') else { return false };
+    face.glyph_bounding_box(space).is_none()
+        && glyphs.iter().all(|glyph| {
+            glyph.glyph_id == space.0
+                && glyph.x_advance == 0
+                && glyph.x_offset == 0
+                && glyph.y_offset == 0
+        })
+}
+
+fn with_word_joiner_actual_text(
+    ops: &mut String,
+    text: &str,
+    restore: bool,
+    zero_alias: bool,
+    emit: impl FnOnce(&mut String, bool) -> bool,
+) -> bool {
+    with_actual_text(
+        ops,
+        text.contains('\u{2060}').then_some(text),
+        restore,
+        zero_alias,
+        emit,
+    )
+}
+
+fn with_actual_text(
+    ops: &mut String,
+    actual: Option<&str>,
+    restore: bool,
+    zero_alias: bool,
+    emit: impl FnOnce(&mut String, bool) -> bool,
+) -> bool {
+    let Some(text) = actual else {
+        return emit(ops, restore);
+    };
+    if zero_alias {
+        ops.push_str("q\n");
+    }
+    super::text_replacement::opening(ops, text);
+    let deferred = emit(ops, false);
+    super::text_replacement::closing(ops);
+    if zero_alias {
+        if deferred {
+            ops.push_str("Q\n");
+        }
+        if restore {
+            ops.push_str("Q\n");
+            return false;
+        }
+        return true;
+    }
+    if restore && deferred {
+        ops.push_str("Q\n");
+        return false;
+    }
+    deferred
+}
+
+/// A certified original shaped leaf retains its paint and receives only an
+/// occurrence replacement. An empty remainder still suppresses glyph aliases.
+pub(super) fn emit_shaped_occurrence(
+    ops: &mut String,
+    origin: (f64, f64),
+    item: &typst_core::entities::layout_types::FrameItem,
+    ctx: &PageContext,
+    actual: &str,
+    restore: bool,
+) -> bool {
+    use typst_core::entities::layout_types::FrameItem;
+    let FrameItem::TextShaped { glyphs, text, style, units_per_em, font, .. } = item
+    else {
+        unreachable!("a certified occurrence retains its original shaped leaf")
+    };
+    let zero_alias =
+        zero_width_space_alias(text, glyphs, style, &ctx.font_scenario, font.as_ref());
+    with_actual_text(ops, Some(actual), restore, zero_alias, |ops, restore| {
+        let emit = match ctx.mode {
+            super::StreamMode::Compact => emit_shaped_pdf_inner,
+            super::StreamMode::Verbose => emit_shaped_pdf_verbose_inner,
+        };
+        emit(
+            ops,
+            origin.0,
+            origin.1,
+            glyphs,
+            text,
+            style,
+            &ctx.font_scenario,
+            *units_per_em,
+            restore,
+            font.as_ref(),
+            zero_alias,
+        )
+    })
+}
 
 /// Preserve existing integral/decimal spelling without quantizing fractional sizes.
 fn font_size(size: f64) -> String {
@@ -329,7 +452,7 @@ pub(super) fn verbose_tr_ops(
     }
 }
 
-/// A certified variable face realizes weight through its actual wght axis.
+/// A supplied face can realize the requested static weight or a real wght axis.
 /// Keep semantic weight intact without painting an additional synthetic stroke.
 pub(super) fn shaped_tr_ops(
     style: &typst_core::entities::layout_types::TextStyle,
@@ -338,11 +461,14 @@ pub(super) fn shaped_tr_ops(
     if style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K) > f64::EPSILON {
         let realized_weight = font
             .and_then(|font| ttf_parser::Face::parse(font.as_slice(), 0).ok())
-            .and_then(|face| face.tables().fvar)
-            .is_some_and(|fvar| {
-                fvar.axes
-                    .into_iter()
-                    .any(|axis| axis.tag == ttf_parser::Tag::from_bytes(b"wght"))
+            .is_some_and(|face| {
+                (face.tables().fvar.is_none()
+                    && style.weight == Some(face.weight().to_number()))
+                    || face.tables().fvar.is_some_and(|fvar| {
+                        fvar.axes
+                            .into_iter()
+                            .any(|axis| axis.tag == ttf_parser::Tag::from_bytes(b"wght"))
+                    })
             });
         if realized_weight {
             return "0 Tr\n".to_string();
@@ -384,18 +510,22 @@ pub(in crate::export) fn emit_shaped_pdf(
     units_per_em: u16,
     font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let _ = emit_shaped_pdf_inner(
-        ops,
-        pos_x,
-        base_y,
-        glyphs,
-        text,
-        style,
-        scenario,
-        units_per_em,
-        true,
-        font,
-    );
+    let zero_alias = zero_width_space_alias(text, glyphs, style, scenario, font);
+    let _ = with_word_joiner_actual_text(ops, text, true, zero_alias, |ops, restore| {
+        emit_shaped_pdf_inner(
+            ops,
+            pos_x,
+            base_y,
+            glyphs,
+            text,
+            style,
+            scenario,
+            units_per_em,
+            restore,
+            font,
+            zero_alias,
+        )
+    });
 }
 
 #[expect(
@@ -413,25 +543,29 @@ pub(in crate::export) fn emit_shaped_pdf_deferred(
     units_per_em: u16,
     font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
-    emit_shaped_pdf_inner(
-        ops,
-        pos_x,
-        base_y,
-        glyphs,
-        text,
-        style,
-        scenario,
-        units_per_em,
-        false,
-        font,
-    )
+    let zero_alias = zero_width_space_alias(text, glyphs, style, scenario, font);
+    with_word_joiner_actual_text(ops, text, false, zero_alias, |ops, restore| {
+        emit_shaped_pdf_inner(
+            ops,
+            pos_x,
+            base_y,
+            glyphs,
+            text,
+            style,
+            scenario,
+            units_per_em,
+            restore,
+            font,
+            zero_alias,
+        )
+    })
 }
 
 #[expect(
     clippy::too_many_arguments,
     reason = "C053: Núcleo Compact acrescenta restore à operação shaped; o controle distingue tail normal de diferido sem duplicar emissão"
 )]
-fn emit_shaped_pdf_inner(
+pub(super) fn emit_shaped_pdf_inner(
     ops: &mut String,
     pos_x: f64,
     base_y: f64,
@@ -442,6 +576,7 @@ fn emit_shaped_pdf_inner(
     units_per_em: u16,
     restore: bool,
     font: Option<&typst_core::entities::world_types::Font>,
+    zero_alias: bool,
 ) -> bool {
     let mut deferred = false;
     if glyphs.is_empty() {
@@ -482,6 +617,9 @@ fn emit_shaped_pdf_inner(
             }
             let rg = fill_rg_prefix(&style.fill);
             ops.push_str(&format!("{rg}BT\n/F1 {} Tf\n", font_size(style.size.val())));
+            if zero_alias {
+                ops.push_str("0 Tz\n");
+            }
             push_shaped_spacing(ops);
             ops.push_str(&format!("{pos_x:.5} {base_y:.5} Td\n[ "));
             push_tj_glyph_entries(
@@ -544,6 +682,9 @@ fn emit_shaped_pdf_inner(
                 fi + 1,
                 font_size(style.size.val())
             ));
+            if zero_alias {
+                ops.push_str("0 Tz\n");
+            }
             push_shaped_spacing(ops);
             ops.push_str(&format!("{pos_x:.5} {base_y:.5} Td\n[ "));
             push_tj_glyph_entries(
@@ -809,18 +950,22 @@ pub(in crate::export) fn emit_shaped_pdf_verbose(
     units_per_em: u16,
     font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let _ = emit_shaped_pdf_verbose_inner(
-        ops,
-        pos_x,
-        base_y,
-        glyphs,
-        text,
-        style,
-        scenario,
-        units_per_em,
-        true,
-        font,
-    );
+    let zero_alias = zero_width_space_alias(text, glyphs, style, scenario, font);
+    let _ = with_word_joiner_actual_text(ops, text, true, zero_alias, |ops, restore| {
+        emit_shaped_pdf_verbose_inner(
+            ops,
+            pos_x,
+            base_y,
+            glyphs,
+            text,
+            style,
+            scenario,
+            units_per_em,
+            restore,
+            font,
+            zero_alias,
+        )
+    });
 }
 
 #[expect(
@@ -838,25 +983,29 @@ pub(in crate::export) fn emit_shaped_pdf_verbose_deferred(
     units_per_em: u16,
     font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
-    emit_shaped_pdf_verbose_inner(
-        ops,
-        pos_x,
-        base_y,
-        glyphs,
-        text,
-        style,
-        scenario,
-        units_per_em,
-        false,
-        font,
-    )
+    let zero_alias = zero_width_space_alias(text, glyphs, style, scenario, font);
+    with_word_joiner_actual_text(ops, text, false, zero_alias, |ops, restore| {
+        emit_shaped_pdf_verbose_inner(
+            ops,
+            pos_x,
+            base_y,
+            glyphs,
+            text,
+            style,
+            scenario,
+            units_per_em,
+            restore,
+            font,
+            zero_alias,
+        )
+    })
 }
 
 #[expect(
     clippy::too_many_arguments,
     reason = "C057: Núcleo Verbose recebe restore explicitamente para compartilhar a implementação normal/diferida; os demais inputs são os operandos reais do texto e seu cenário de fontes"
 )]
-fn emit_shaped_pdf_verbose_inner(
+pub(super) fn emit_shaped_pdf_verbose_inner(
     ops: &mut String,
     pos_x: f64,
     base_y: f64,
@@ -867,6 +1016,7 @@ fn emit_shaped_pdf_verbose_inner(
     units_per_em: u16,
     restore: bool,
     font: Option<&typst_core::entities::world_types::Font>,
+    zero_alias: bool,
 ) -> bool {
     let mut deferred = false;
     if glyphs.is_empty() {
@@ -909,6 +1059,9 @@ fn emit_shaped_pdf_verbose_inner(
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&shaped_tr_ops(style, font));
             ops.push_str(&format!("/F1 {} Tf\n", font_size(style.size.val())));
+            if zero_alias {
+                ops.push_str("0 Tz\n");
+            }
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
             push_tj_glyph_entries(
@@ -971,6 +1124,9 @@ fn emit_shaped_pdf_verbose_inner(
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str(&shaped_tr_ops(style, font));
             ops.push_str(&format!("/F{} {} Tf\n", fi + 1, font_size(style.size.val())));
+            if zero_alias {
+                ops.push_str("0 Tz\n");
+            }
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
             push_tj_glyph_entries(
@@ -1081,6 +1237,112 @@ pub(in crate::export) fn emit_glyph_pdf_verbose_marked(
 mod tests {
     use super::*;
     use typst_core::entities::layout_types::ShapedGlyph;
+
+    #[test]
+    fn readiness_static_face_realized_weight_is_not_stroked_again() {
+        use typst_core::entities::layout_types::{
+            FrameItem, Point, Pt, ShapedGlyph, TextStyle,
+        };
+        use typst_core::entities::world_types::Font;
+        let font = typst_assets::fonts()
+            .find_map(|data| {
+                let face = ttf_parser::Face::parse(data, 0).ok()?;
+                (face.weight().to_number() == 700 && face.tables().fvar.is_none())
+                    .then(|| Font::from_data(data.to_vec()))
+            })
+            .expect("bundled actual static 700 face");
+        let style = TextStyle {
+            size: Pt(20.0),
+            weight: Some(700),
+            ..Default::default()
+        };
+        let glyphs = vec![ShapedGlyph {
+            glyph_id: 1,
+            x_advance: 689,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'H',
+        }];
+        let map = HashMap::new();
+        let chars = HashMap::new();
+        let nominal = HashMap::from([(1, 689)]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &map,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let mut ops = String::new();
+        emit_shaped_pdf_verbose(
+            &mut ops,
+            10.0,
+            20.0,
+            &glyphs,
+            "H",
+            &style,
+            &scenario,
+            1000,
+            Some(&font),
+        );
+        assert!(
+            !ops.contains("2 Tr"),
+            "actual static weight must not acquire a synthetic stroke: {ops}"
+        );
+        ops.clear();
+        emit_shaped_pdf_verbose(
+            &mut ops, 10.0, 20.0, &glyphs, "H", &style, &scenario, 1000, None,
+        );
+        assert!(ops.contains("2 Tr"), "legacy None preserves its policy");
+        let regular = typst_assets::fonts()
+            .find_map(|data| {
+                let face = ttf_parser::Face::parse(data, 0).ok()?;
+                (face.weight().to_number() == 400 && face.tables().fvar.is_none())
+                    .then(|| Font::from_data(data.to_vec()))
+            })
+            .expect("bundled actual static regular face");
+        ops.clear();
+        emit_shaped_pdf_verbose(
+            &mut ops,
+            10.0,
+            20.0,
+            &glyphs,
+            "H",
+            &style,
+            &scenario,
+            1000,
+            Some(&regular),
+        );
+        assert!(ops.contains("2 Tr"), "unmatched actual face preserves its old policy");
+        let ptrs = HashMap::new();
+        let pats = HashMap::new();
+        let mut ctx = PageContext::type1(
+            &ptrs,
+            &[],
+            &pats,
+            &[],
+            crate::export::StreamMode::Verbose,
+        );
+        ctx.font_scenario = scenario;
+        let run: Vec<_> = [10.0, 20.0]
+            .into_iter()
+            .map(|x| FrameItem::TextShaped {
+                pos: Point { x: Pt(x), y: Pt(20.0) },
+                glyphs: glyphs.clone(),
+                style: style.clone(),
+                text: "H".into(),
+                units_per_em: 1000,
+                bidi: None,
+                font: Some(font.clone()),
+            })
+            .collect();
+        ops.clear();
+        super::runs::emit_verbose_text_run(&mut ops, &run, 200.0, &ctx);
+        assert!(
+            !ops.contains("2 Tr"),
+            "coalesced static runs must not acquire a synthetic stroke: {ops}"
+        );
+    }
 
     #[test]
     fn certified_variable_weight_is_not_synthetically_stroked() {
@@ -1373,12 +1635,12 @@ mod tests {
                     if verbose {
                         emit_shaped_pdf_verbose_inner(
                             &mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000,
-                            !defer, None,
+                            !defer, None, false,
                         );
                     } else {
                         emit_shaped_pdf_inner(
                             &mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000,
-                            !defer, None,
+                            !defer, None, false,
                         );
                     }
                     let positions = rendered_positions(&ops, style.size.0);
@@ -1604,6 +1866,129 @@ mod r8_font_size_tests {
             assert!((actual - size).abs() <= 0.000005, "{size}: {ops}");
             if size == 11.0 {
                 assert!(ops.contains("/F1 11.0 Tf"));
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod readiness_unicode_tests {
+    use super::*;
+    use typst_core::entities::layout_types::{Pt, ShapedGlyph, TextStyle};
+
+    #[test]
+    fn readiness_unicode_zero_width_scaling_requires_empty_space_face() {
+        let bytes = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let font = typst_core::entities::world_types::Font::from_data(bytes.to_vec());
+        let face = ttf_parser::Face::parse(bytes, 0).unwrap();
+        let space = face.glyph_index(' ').unwrap();
+        let ink = face.glyph_index('A').unwrap();
+        assert!(face.glyph_bounding_box(space).is_none());
+        let chars = HashMap::new();
+        let mapping = HashMap::new();
+        let nominal = HashMap::from([
+            (space.0, i32::from(face.glyph_hor_advance(space).unwrap())),
+            (ink.0, i32::from(face.glyph_hor_advance(ink).unwrap())),
+        ]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &mapping,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let style = TextStyle::regular(Pt(12.0));
+        for (gid, advance, supplied, expected) in [
+            (space.0, 0, true, true),
+            (ink.0, 0, true, false),
+            (space.0, 10, true, false),
+            (space.0, 0, false, false),
+        ] {
+            let glyphs = [ShapedGlyph {
+                glyph_id: gid,
+                x_advance: advance,
+                x_offset: 0,
+                y_offset: 0,
+                cluster: 0,
+                char_code: '\u{2060}',
+            }];
+            let mut ops = String::new();
+            emit_shaped_pdf_verbose(
+                &mut ops,
+                10.0,
+                20.0,
+                &glyphs,
+                "\u{2060}",
+                &style,
+                &scenario,
+                face.units_per_em(),
+                supplied.then_some(&font),
+            );
+            assert_eq!(
+                ops.contains("0 Tz\n"),
+                expected,
+                "only a certified zero-advance empty space alias is scaled: {ops}"
+            );
+        }
+    }
+
+    #[test]
+    fn readiness_unicode_joiner_occurrence_has_balanced_actualtext() {
+        let chars = HashMap::new();
+        let mapping = HashMap::new();
+        let nominal = HashMap::from([(3, 250)]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &mapping,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let glyphs = vec![ShapedGlyph {
+            glyph_id: 3,
+            x_advance: 0,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: '\u{2060}',
+        }];
+        let style = TextStyle::regular(Pt(11.0));
+        for verbose in [false, true] {
+            for deferred in [false, true] {
+                let mut ops = String::new();
+                let pending = match (verbose, deferred) {
+                    (false, true) => emit_shaped_pdf_deferred(
+                        &mut ops, 10.0, 20.0, &glyphs, "\u{2060}", &style, &scenario,
+                        1000, None,
+                    ),
+                    (true, true) => emit_shaped_pdf_verbose_deferred(
+                        &mut ops, 10.0, 20.0, &glyphs, "\u{2060}", &style, &scenario,
+                        1000, None,
+                    ),
+                    (false, false) => {
+                        emit_shaped_pdf(
+                            &mut ops, 10.0, 20.0, &glyphs, "\u{2060}", &style, &scenario,
+                            1000, None,
+                        );
+                        false
+                    }
+                    (true, false) => {
+                        emit_shaped_pdf_verbose(
+                            &mut ops, 10.0, 20.0, &glyphs, "\u{2060}", &style, &scenario,
+                            1000, None,
+                        );
+                        false
+                    }
+                };
+                if pending {
+                    ops.push_str("Q\n");
+                }
+                assert_eq!(ops.matches("/ActualText <FEFF2060>").count(), 1, "{ops}");
+                if let Some(restore) = ops.rfind("Q\n") {
+                    assert!(ops.find("EMC\n").unwrap() < restore, "{ops}");
+                }
+                assert_eq!(
+                    ops.lines().filter(|line| *line == "q").count(),
+                    ops.lines().filter(|line| *line == "Q").count()
+                );
             }
         }
     }

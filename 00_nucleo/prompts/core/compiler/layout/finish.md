@@ -1,8 +1,9 @@
 # L0 — compiler/layout/finish
-Hash do Código: f214afbc
+Hash do Código: 5287e062
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/page-number-baseline.toml sha256:0c492a09d2660de765df65c22e703cc8c3e63cc663ee4d9ac2dd612afc80dfa3
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -145,3 +146,70 @@ Classification: private parity/correctness, ADR-0127 continuous flow; no public 
 Exclusive owning obligation: Delegate the terminal pending-work loop to the feature shared private drain with no finite-certificate restriction. Retain the causal cursor restoration and final page sealing. The refuted queued column-context proposal is withdrawn; certified source page-column spill is drained by its still-active flow owner.
 
 Require actual carrier-column RED→GREEN before implementation, the wider68-case PDF/SVG contract at unchanged0.001pt, original R8 and A–H/R1–R7 controls, unchanged effects, resources, full workspace validation, both lineage gates and preservation audits.
+
+
+## Readiness: automatic number baseline and per-page style (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/{article-fields-before,article-fields-extra-before,
+page-number-total-before}/receipt.json preserve exact source/font/compiler/oracle
+hashes, current source-bound wj2 build/archive, HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+dirty stat, UTC, commands and frozen productive/L0/fixture inputs. Oracle commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The default bottom number is7.238pt too high at11pt; at17pt its first-page
+offset is11.186pt. Bold/DejaVu produce different measured top edges, refuting
+a universal constant. The top unary/compound control already matches. A final
+page loses the17pt/bold/DejaVu style, and compound patterns borrow11pt even for
+the first17pt page. Explicit CUSTOM footer is a DIFFERENT measured negative;
+it is not fixed or waived here. Body text and None-number controls are retained.
+
+Source page_commit.rs:62-111 and finish.rs:123-174 emit Text directly at the
+number-position anchor. finish.rs:247-275 later builds compound text using the
+then-current chain. The retained page-effective chain already exists and is
+used for running content; this correction consumes it rather than introducing
+another source/style authority. Positions, styles, words and pages are language
+observables; tuple/record representation and queue mechanics are not parity.
+
+### Exclusive correction and acceptance
+
+Apply the same feature-owned effective page style and baseline conversion to the terminal unary number. Queue a compound terminal number through the same record factory. When total is known, consume each record's original owned style, geometry and logical number; do not read the final chain for an earlier page. Preserve formatter calls/counts/order, page membership/indices, link/position sealing, note draining, eligibility and body/paint composition. No rich/function/explicit-marginal path or source/template solver is changed.
+
+ADR-0127 continuous internal parity correction. L0/pins first, actual RED before
+code, V15/V26 before resealing, exact source words/pages/0.001pt and independent
+PDF/SVG paint. Preserve all previous running/source/callback/rollback/notes,
+Unicode, layout, technical/lineage and historical/JPEG resource gates without
+new tolerances, ignored tests or suppression. No overall readiness claim.
+
+
+## Automatic page width and divider — issue 8525 (2026-10-31)
+
+### Measurement before decision
+
+The independent agent-layout and agent-svg-math reports/receipts under
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/` reproduce
+infinite SVG viewport/divider geometry and PDF Letter fallback/lost second text.
+`01_core/src/compiler/layout/divider.rs:35` multiplies the unbounded-region
+mechanism into visible geometry; `page_geometry.rs:62-69` then includes that
+shape in intrinsic page extent. `finish.rs:44-48` and intermediate page assembly
+consume the contaminated result. Exact received HEAD, dirty stat, UTC and
+source/owner bytes are frozen in
+`lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31/before.json.gz`.
+This is observed geometry/content semantics; it does not establish upstream
+intent. The pinned vanilla zero-width divider is a separate defect and is not
+an acceptance requirement. A later wider sibling, stale index, lost content,
+changed fixed-page line or queue leakage on replay refutes the repair.
+
+### Exclusive correction
+
+After final body/float/note admission and before taking final page items, delegate pending divider resolution to the divider owner using the finite page width. Preserve existing equation/alignment/running layer ordering and all body content. No exporter normalization.
+
+Internal correctness correction under ADR-0127 continuous flow: L0 first,
+restricted reseal, functional RED then GREEN, build and unfiltered lineage.
+Keep public contracts, modes/defaults, compatibility and pipeline phases.
+Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
+divider when body width is positive, and complete text before/after the rule.
+Do not copy vanilla zero width or force a paper size. This does not certify
+other relative-size shapes, asymmetric margins or general auto-page parity.

@@ -1,11 +1,12 @@
 # L0 — compiler/layout/grid/cell_emission
-Hash do Código: 1a3aa394
+Hash do Código: d3f9337f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 ## Evidence before specification
@@ -112,3 +113,178 @@ Após emissão de corpos da linha, consultar alturas já resolvidas e predicado
 do owner row_pagination com row_start_y+row_h e altura seguinte. Informar ao
 owner borders se existe próxima linha na mesma página. Não antecipar layout
 de corpos/efeitos nem alterar paginação, cursor, tracks, rotas ou tails.
+
+
+## Approved declarative Table alignment transport — 2026-10-29
+
+Measurement precedes decision in readiness-fixes-2026-10-28/table-align-before
+and table-align-extra-before receipts; approval is table-column-alignment-approval.json,
+review SHA256 1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e.
+The private GridEmissionInput may borrow TableAlignment. Before each actual raw
+cell paint select the declaration at placed.col through the shared compiler
+helper, install the existing cell_align only for that cell and restore afterward.
+Prepared Complete cells retain their own result. Legacy wrappers pass no Table
+declaration. Do not add Layouter/global state, public signatures, callbacks or
+recipes; preserve source cursors, cache refusals, region, paint and pagination.
+Together with the amended Grid/tracks owners require RED→GREEN and unchanged
+final batch gates, including native financial PDF/SVG and original JPEG limits.
+Reflection, alignment functions, Grid column arrays, rich paint/insets, multipage
+spans and PDF/UA remain explicitly outside certification.
+
+The borrowed aggregate becomes the sole production entry. A current source search
+finds no remaining caller of the old private positional emit_grid_cells wrapper;
+remove that unused wrapper rather than add dead-code suppression. Preserve the
+aggregate body and every actual caller's values/routes. This is private Rust
+maintenance, not another public contract.
+
+
+## Issue 8777 — uniform border intersections (2026-10-31)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/issue-8777-fix-2026-10-31/resume-baseline.json`
+preserves exact HEAD, dirty status/diffstat, UTC and source/L0 bytes.
+The official fixture and prior receipts are in
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/`.
+`borders.rs:194-238` paints extended horizontal/vertical segments separately;
+`cell_emission.rs:163-214` emits them on the same physical page. Issue 8777
+describes darker antialiased intersections even with equal strokes. Upstream
+discussion suggests one path, without establishing an intended language
+requirement for darkening. Overlapping operations are mechanics; declared cell
+geometry, paint and continuous border coverage are language/render obligations.
+Inference: a single coverage operation removes repeated edge alpha. Residual
+darkening, corner gaps, changed footprint/alpha/text or page-crossing bands
+refute it. This does not infer global vanilla intent or parity.
+
+### Contract and acceptance
+
+Ask borders for a uniform-lattice proof after occupancy is known. Only for eligible lattices, record physical row boundaries and replace the row-border route with page-local compound fill, after cell bodies/fills. Flush before the existing predicted row page break and at completion. Keep original pagination, source routes, cell effects, tracks, tails, vertical flush and flow state. Explicit hline/vline rules retain their owner/order; no cross-page band.
+
+Internal correction, continuous flow ADR-0127; preserve all prior approvals.
+Supersede old separate-segment/order/FrameStroke requirements only for the
+eligible lattice: its positive solid paint is a single prepared fill after
+cell fills on the same page. All ineligible cases retain their current route.
+L0 and restricted reseal precede independent RED, then GREEN. Require build,
+relevant tests, full crystalline-lint and reverse lineage. Validate original
+fixture visually and PDF raster 72/600dpi plus SVG, compact versus verbose,
+alpha/fills, None/zero, spans/gaps, distinct strokes and physical page breaks.
+No broader rich-stroke, span-pagination or global parity claim follows.
+Build/test artifacts must use the exclusive RAM target; insufficient RAM
+blocks validation, never silently falls back to disk.
+
+The new route requires resolved, nonbreakable TableCell occurrences throughout the lattice.
+Raw internal Table/Grid carriers retain their existing emission; the native
+Table language route already supplies resolved occurrences; the official case sets breakable: false. Breakable cells retain the existing route because cell-body fragmentation can change the physical page during a logical row. This protects the
+approved raw/Grid policy rather than using it to infer Table preparation.
+The regression constructs that prepared boundary and the original native
+fixture validates the complete language route.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+Resolve the existing declarative Length thickness against the restored table
+font size, as the original final segment emitters now do. Require that physical
+thickness to be positive and finite; preserve the concurrently approved Length
+contract rather than reverting it to a scalar.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Consume prepared header ranges in physical emission. Treat a header group atomically against the region. Cache its actually emitted frames once and replay translated frames on later pages; do not rerun body layout, recipes or source admission for replay. Maintain active groups by explicit level, removing equal/higher on an original occurrence even when repeat=false; activate only after original completion. Page starts paint active lower groups once before the incoming original group/body. Flush vertical borders at group/cache/page boundaries; preserve page-local 8777 lattice painting for tables without groups. Detect region nonprogress or unexpected group fragmentation through the existing diagnostic channel, never loop or panic.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.
+
+
+### Page-context refutation of fixed-frame replay
+
+The pinned oracle probe header-context-oracle.json in the exclusive RAM target
+observes header here().page() values 1,2,3 over the three physical pages. Closed
+FrameItem text copied from the first paint cannot change this value. Therefore
+fixed-frame caching is not a valid general replay mechanism and the earlier
+cache-frames prescription above is superseded. Repeat the already Complete
+prepared visual through the same cell-emission/source-cursor interfaces, with
+logical fields/guards intact and the measurement owner's existing cache refusals.
+Do not call preparation/recipes again or manufacture Location. A bounded internal
+recursive emission of only the prepared header slice, with empty group metadata,
+may reuse the same row/border engine. Rebase only physical row indices for that
+request; retain canonical source cursors and Cell declaration positions.
+Keep one logical metadata member on native replays. Per-page context was a
+hypothesis requiring native verification, not an additional phase authorization.
+
+### Native pagination refutation before correction
+
+The fresh RAM probes/tekt-long/receipt.json and probes/vanilla-long/receipt.json
+retain exact dirty state, UTC and binaries: Tekt orphaned B/C at the end of the
+preceding page. Reserve the next row together with each starting header, while
+checking the header's own capacity separately. Repeated lower levels plus that
+reservation must fit or return a controlled diagnostic. No loop or hidden loss.
+
+### Bounded contextual and auto-rowspan debt after native refutation
+
+Fresh extra/{tekt,vanilla}/receipt.json records absent here().page() output
+in Tekt's first header as well as repeats. A separate ordinary Table-cell probe
+also produces empty text, whereas context outside Table prints 1. Thus replay
+through existing interfaces alone does not establish contextual header support.
+Do not claim this acceptance or add a context-evaluation phase/Location merely
+to close it. Contexts remain a recorded Table limitation; page-local execution
+needs its own measured contract. Similarly, auto-height rowspan text is missing
+in both ordinary and header Table cells; fixed row heights render the header.
+The placement ranges/spans do not close that separate measurement/emission debt.
+Explicit row-gutter remains the prior controlled unsupported argument.
+
+Replay track indexing: cell_body.rs reads row_tracks[placed.row % len] when
+deciding overflow clipping. A physical rebase to zero must therefore also
+project the original group's cyclic track declarations into its local slice;
+passing the original unsliced declarations would change Fixed/Auto behavior.
+No domain declaration coordinate changes and no new cache certificate.
+
+### Native visual refutation: retain complete uniform borders with headers
+
+The final-native/contact.png raster and after.json.gz at the exclusive RAM
+target/diagnostic retain binary/source/UTC/dirty state. The ordered header path
+shows missing horizontal borders although row text/page order passes. Excluding
+all header ranges from the #8777 uniform complete-cell path is refuted.
+Preserve that certificate for uniform solid nonbreakable rectangles. Flush its
+physical boundaries before every actual page break, including a header-next-row
+reservation break. A private emission-request boolean may suppress only border
+painting of recursively replayed headers when the enclosing request owns the
+uniform compound path; collect their actual physical row boundaries into that
+owner's page path. Keep cell body/fill/selected-source layout unchanged. Other
+borders keep the existing fallback. No product flag, new geometry owner, public
+contract or phase change. Require local border-coverage RED→GREEN, original
+#8777 coverage controls, native raster review and unchanged language acceptance.

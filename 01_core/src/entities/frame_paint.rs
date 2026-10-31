@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/frame_paint.md
-//! @prompt-hash c69e9647
+//! @prompt-hash 4b56e442
 //! @layer L1
 //! @updated 2026-10-14
 
@@ -149,7 +149,7 @@ mod tests {
             panic!("default stroke paint must remain solid");
         };
         assert_eq!(actual, expected);
-        assert_eq!(new.thickness, old.thickness);
+        assert_eq!(new.thickness, old.thickness.resolve_pt(12.0));
         assert_eq!(new.cap, old.cap);
         assert_eq!(new.join, old.join);
         assert_eq!(new.dash, old.dash);

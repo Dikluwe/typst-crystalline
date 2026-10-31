@@ -1,5 +1,5 @@
 # L0 — compiler/math/layout/sequence_composition
-Hash do Código: 71e4bcb0
+Hash do Código: 08e2438d
 
 
 Núcleos Tekt:
@@ -102,3 +102,49 @@ Preserve the existing unit responsibility and all other variants/effects; no pub
 ## R3 native Symbol grapheme composition
 
 Evidence precedes this decision in `00_nucleo/prompts/core/compiler/math/layout/mod.md` and `lab/results/math-geometry-r3-2026-10-23/before/receipt.json`; actual RED in `red-tests/receipt.json` proves omitted independent advances and unsplit payload. Pinned `math/ir/resolve.rs:326–358` creates one glyph per grapheme. Compose the native Symbol's transient glyph nodes through existing sequence spacing and hconcat; keep selectors/combining marks attached with Unicode grapheme segmentation, preserve the authored public Symbol, and measure each cluster once. The owning dispatch/flatten projection delegates here, retaining source spans and neighboring boundary classes. No entity/public API, phase, callback or exporter change. Existing MathIdent/Text lexical runs remain unchanged. RED→GREEN and complete PDF/SVG comparisons at 0.001 pt are required under continuous ADR-0127.
+
+
+## Issue 8973 — measured lr sizing and linebreak correction (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8973-2026-10-31/before-state.json`,
+before-sources.json, before/receipt.json and before-relative/receipt.json
+bind dirty HEAD, exact diffstat, UTC, sources and freshly built product bytes.
+The oracle bytes are verified against SHA-256
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34,
+commit 64c5e8c02fe0394d913ead36e42ef8c1334d2107. The Tekt baseline warns
+that set lr.size is ignored; even without set, its two fences enclose the
+whole two-row stack rather than their own first/last segments. The pinned
+oracle itself wrongly uses inherited size over explicit size in multiline;
+that defect is not an acceptance oracle. Unset explicit-size controls,
+unequal-height rows and percentage/mixed probes distinguish the healthy
+sizing contract from that defect. Source: rules.rs:200-216 omits lr.size;
+math_set.rs:170-195 drops it; delimited.rs:193-205 pairs across Linebreak.
+Pinned math/lr.rs:25-28 defines size relative to wrapped content;
+math/ir/multiline.rs:58-111 splits rows/cells; fenced.rs:63-100 takes the
+maximum natural fragment extent, not the complete stacked height. Explicit
+precedence is already ratified in the owning delimited L0 and MathLrElem
+approval of 2026-09-17. Geometry, row semantics, casts, diagnostics and
+morphological presence are language obligations; upstream IR/cache/storage
+and output bytes are not. New measurements that lose a row, leak size,
+resize non-boundary delimiters or change authored content refute closure.
+
+### Classification
+
+This is an internal parity correction under ADR-0127 continuous flow. Keep
+all existing public entities, fields, signatures, defaults, phases and
+compatibility. In particular preserve MathLrElem's original body, size and
+size_explicit; no eval-to-layout migration or new public contract is needed.
+L0 and seals precede code; preserve meaningful RED→GREEN and valid V15/V26.
+
+### Exclusive correction
+
+Before the existing block sequence/grid decision, consume only the private
+optional lr multiline-node view delegated to
+`00_nucleo/prompts/core/compiler/math/layout/delimited.md`. Once expanded,
+use the existing grid/spacing/concatenation paths and preserve markers and
+neighbor order. Unchanged sequences and inline composition keep their
+previous route. Do not implement fence geometry or sizing in this owner.
+This bounded lr expansion supersedes only the earlier unchanged grid-choice
+clause for hidden lr markers; all other source/class/spacing rules remain.

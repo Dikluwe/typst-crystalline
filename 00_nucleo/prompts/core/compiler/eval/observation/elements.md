@@ -1,8 +1,14 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 42e78abb
+Hash do Código: 8d5014d6
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/observation/elements.rs`
+**Governance:** ADR-0107, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:6f6d86b0ee72d314a84d86b12f9524b2959e075b29f99fcf6d2de9f30a4b338a
+- 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
@@ -10,10 +16,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/eval/observation/elements.rs`
-**Governance:** ADR-0107, ADR-0129, ADR-0130.
 
 ## Source evidence
 
@@ -399,3 +401,70 @@ outer Span even though it is outside the shared Arc; changed origins remain
 Different. If representation Arcs differ, retain the existing generic Func
 observation, including independent raw.line capabilities remaining Unproven.
 Global Func/Element/Plugin observers and strict query membership remain unchanged.
+
+
+
+## R13 — approved materialization
+
+Owner approved the saved proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00, including the public carrier and eval-to-layout boundary. Approval and measured baseline are retained in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/. The previously pending section is now ratified within that exact scope. Apply the pinned nucleus before code; RED→GREEN and complete validation remain mandatory.
+Exhaustively destructure the new optional field. Observe RelativeLine start/end coefficients through existing ObservationEq implementations, never through rendered geometry or Debug equality.
+
+
+## Approved TableAlignment consumer migration — 2026-10-29
+
+The table-column-alignment-approval.json receipt ratifies review SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e.
+Actual table-alignment-green1 compilation identifies this owner as a productive
+consumer of the field type changed by that gate; the failed attempt is retained.
+This migration adds no other public field, trait, signature or phase. L0 first:
+Own private ObservationEq for the newly approved TableAlignment. Compare nominal
+Auto/Uniform/Columns and every declared axis/member in order through the existing
+relation; different variants are Different, never text/render equivalence. This
+is the existing causal reuse certificate, not a new language equality, Rust
+PartialEq change, callback or public trait. Table's existing align observation
+continues to distinguish omission from explicit Auto. Add local controls for
+nominal/axis/column differences and unmodified Table fields.
+Require original tests plus focused RED→GREEN, valid graph/reseal, full gates
+and unchanged native geometry/JPEG criteria. Function alignment, general Table
+reflection, Grid column arrays, rich paint/inset, multipage spans and PDF/UA
+remain outside certification.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Migrate only the approved literal additions: raw Table items=None, legacy plans header_groups empty, Header level 1 unless cloning an existing header (preserve its level). Preserve every old semantic assertion and all other data; no new APIs/default/phase. Representation-only test assertions that freeze the superseded duplicate-header rejection must be replaced by positive source-order/range safety acceptance, without weakening unrelated controls.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

@@ -1,5 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: bc0ad3a5
+Hash do Código: afe8baea
 
 
 
@@ -591,3 +591,47 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved TableAlignment consumer migration — 2026-10-29
+
+The table-column-alignment-approval.json receipt ratifies review SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e.
+Actual table-alignment-green1 compilation identifies this owner as a productive
+consumer of the field type changed by that gate; the failed attempt is retained.
+This migration adds no other public field, trait, signature or phase. L0 first:
+The existing raw Table reconstruction must clone the approved non-Copy
+Option<TableAlignment> unchanged. Preserve every declaration including omitted,
+Auto, Uniform partial axes and complete ordered Columns; do not resolve style,
+compare text or choose columns during traversal. All other branches/order stay
+unchanged.
+Require original tests plus focused RED→GREEN, valid graph/reseal, full gates
+and unchanged native geometry/JPEG criteria. Function alignment, general Table
+reflection, Grid column arrays, rich paint/inset, multipage spans and PDF/UA
+remain outside certification.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Raw Table traversal selects items=Some exclusively, otherwise legacy children/header/footer. Complete plans still select only cells and caption. Preserve origin/mapping order and new group data; never traverse lexical and visual streams as siblings.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

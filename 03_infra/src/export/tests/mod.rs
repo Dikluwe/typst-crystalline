@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash 8a866e99
+//! @prompt-hash 0728ceb2
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -9156,7 +9156,7 @@ fn p427_pdf_rect_stroke_emite_rg_e_s() {
         None,
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 255)),
-            thickness: 2.0,
+            thickness: typst_core::entities::layout_types::Length::pt(2.0),
             overhang: false,
             ..Stroke::default()
         }),
@@ -9183,7 +9183,7 @@ fn p427_pdf_rect_fill_stroke_emite_b() {
         Some(Paint::Solid(Color::rgb(0, 255, 0))),
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: typst_core::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         }),
@@ -9237,7 +9237,7 @@ fn p427_pdf_line_emite_m_l_s() {
         None,
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: typst_core::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         }),
@@ -9274,7 +9274,7 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
         Some(Paint::Solid(Color::rgb(128, 0, 128))),
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: typst_core::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         }),

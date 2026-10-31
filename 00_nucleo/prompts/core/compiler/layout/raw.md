@@ -1,5 +1,5 @@
 # L0 — raw highlight
-Hash do Código: 4685f020
+Hash do Código: c9fbb837
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -19,7 +19,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/raw.rs:103`, `01_core/src/compiler/layout/raw.rs:117`, `01_core/src/compiler/layout/raw.rs:20`, `01_core/src/compiler/layout/raw.rs:41`, `01_core/src/compiler/layout/raw.rs:47`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify current ratified `bd5ebec285505889e8ff1d4f68804ab147a699f3` without new measurement.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify current ratified `64c5e8c02fe0394d913ead36e42ef8c1334d2107` without new measurement.
 
 Full historical observations/provenance/failed candidates remain in `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/layout/raw.md`. `raw-defaults-2026-10-07/{before,before-state}.json.gz` preserves HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted tree/diffstat/UTC/sources/commands, Tekt `58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea`, historical vanilla `9f2b6e8715237cb086899a42873660fe744622e8` binary `7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`. Sixteen controls refute old 100%-size/Serif defaults: Mono 0.8, absolute/show-font/relative overrides, substituted ABC retaining Raw defaults and inherited red fill. Pinned text/raw.rs:658–670 installs defaults before overrides; Raw:103–123 retained wrong font/size/discarded fill, apply.rs:207–253 lost defaults in replacement, style_scope.rs:41–44 projected abs-only size. green.log/tested-state refutes first fill fix: chain.fill:422 reads typed only while set/text.rs:57 stores custom text.fill, already consumed by Text. Styles/geometry are language, not bytes/buffer requirements.
 
@@ -164,3 +164,134 @@ face classes. Keep all previous paint/style/baseline assertions and tolerances.
 The two complete source-bound real-font comparisons must pass unchanged for
 closure. This is ADR-0127 continuous-flow parity work, with no new public field,
 method, dependency, default mode, compatibility break or phase.
+
+
+## Readiness: literal U+0020 in Raw (2026-10-28)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/before.json`,
+source-before.json.gz and table-number-build-source.json.gz preserve exact HEAD
+212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted diffstat, UTC and all inputs.
+Oracle: 64c5e8c02fe0394d913ead36e42ef8c1334d2107, binary SHA-256
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+Table correction aligns code-data vertically, but table-number-candidate/
+comparison.json retains 2083 differing PDF pixels and collapsed code words.
+`raw.rs:439-459` discards whitespace in highlighted/error/unknown syntax paths.
+Actual SVG glyph origins confirm lost indent/gaps, not merely extraction.
+extras-before/receipt.json preserves explicit leading/doubled spaces in plain,
+Rust, unknown-syntax and inline Raw. Current-pin typst-layout/src/rules.rs:
+658-670 retains whole line text with Linebreak separators. Space positions are
+language observables; the syntax token container is implementation mechanics.
+
+### Exclusive correction and acceptance
+
+Emit every actual U+0020 through the existing Literal TextSeparator path,
+including leading, repeated, trailing and inter-token spaces. Retain existing
+nonspace shaping/wrapping/highlighting in highlighted, fallback and unknown
+syntax routes. Keep the special bounded numeric typc tokenizer, defaults,
+colors, source routes, newline/begin/end/margin protocol and exterior restore.
+This supersedes earlier no-whitespace-change clauses only for U+0020 in these
+three paths. Tabs, other Unicode whitespace, blank-line struts, rich themes
+and long-line wrapping remain uncertified; no tab-size entity field is added.
+ADR-0127 continuous internal parity repair: no public signature/field/default
+mode/phase/compatibility change. Tests must fail on actual alpha/beta origins
+and literal separator multiplicity, not plain_text's fabricated spaces.
+Revalidate extras/code-data text/pages/0.001pt/independent paint, previous typc,
+math/image/JPEG controls and full gates, with V15/V26 before resealing.
+
+
+## Python explicit line continuation — issue 9015 (2026-10-31)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/issue-9015-2026-10-31/before-state.json`
+preserves UTC, HEAD and the exact uncommitted diffstat/status. raw-before.rs.txt
+and raw-before.md.txt preserve the prechange owner and consumer. The official
+reproduction and audit are in
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/agent-text-svg/issue-9015.typ`
+and report.md. Current oracle remains commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, not a moving upstream target.
+`raw.rs:90-94` loads two-face's no-newlines syntax set, and `raw.rs:426-434`
+feeds str::lines() without terminators. The isolated probe.log compares both
+syntax modes on the same Python input: without terminators world loses string
+paint and code after its closing quote gains it; preserving terminators with
+extra_newlines corrects both. Syntect 5.3.0 easy.rs:129-157 documents this mode
+as more robust. This localizes the defect to the raw highlighting adapter's
+lexical input, not Typst's lexer, shaping, or the string color table.
+
+The first candidate's green-ram.log refutes raw CRLF transport: the newline
+syntax still loses continuation with CRLF. refuters-probe.log isolates this
+for single/double quotes and ordinary/raw/f strings; normalized-probe.log
+shows that lexical CRLF→LF transport repairs it. The same probe measures
+triple-quoted docstring paint as #74747c under both old and new grammars,
+refuting the initial test's unsupported green expectation. Preserve that
+existing theme classification. refuters-state.json pins this measurement.
+
+### Exclusive correction and acceptance
+
+Use the newline-aware embedded syntax set only when the resolved syntax is
+Python (including py/python and case-normalized aliases). Preserve LF in
+input delivered to HighlightLines and normalize a physical CRLF to lexical
+LF only within this Python adapter, retaining one state across all physical
+lines. Remove only the terminator from painted ranges/fallback; do not
+normalize visible text, spaces or layout breaks.
+Never invent a visible separator or extra terminal line. Keep every other
+language on its existing no-newlines grammar/input route. No grammar patch,
+manual quote/backslash state machine, new dependency, public API, flag or
+pipeline change. This is an explicitly requested internal defect correction
+under ADR-0127 continuous flow and ADR-0107, not a requirement to copy the
+ratified vanilla defect.
+
+RED→GREEN must inspect actual laid-out text paint for continued single and
+double quotes, aliases/case, CRLF, repeated continuations, raw/f strings and
+ordinary code/comment/string paint after closure. Include unescaped newline,
+escaped backslash, triple-quoted string and plain Python controls; preserve
+block line positions, literal spaces, exterior style restoration and inline
+Raw. Controls for Rust, JavaScript, JSON and unknown syntax retain existing
+styles and geometry. Preserve all prior limits on tabs, blank-line struts,
+wrapping and HTML. Reseal only this owner/consumer after V15/V26 preflight;
+run raw tests, proportional layout tests, cargo build and full crystalline-lint.
+
+
+## Other-language regression coverage refinement (2026-10-31)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/issue-9015-2026-10-31/coverage/before-state.json`
+and before.rs.txt/before.md.txt preserve UTC, HEAD, exact dirty diffstat and
+this owner pair before the refinement. `raw.rs:684-700` observes only Text;
+`raw.rs:776-794` drops whitespace and projects away geometry and font flags.
+Thus the old observer cannot certify all obligations above. FixedMetrics at
+`metrics.rs:424-432` gives an independent monospace advance; unknown-syntax
+Raw retains an independent plain layout route. style-probe.log refutes an
+indented Markdown positive control; style-probe-additional.log establishes
+actual bold and italic spans with unindented Markdown/reStructuredText.
+The obsolete current-pin wording at this prompt's line 22 is corrected to
+the ratified 64c5e8c02fe0394d913ead36e42ef8c1334d2107; dated historical
+measurements keep their historical pins and qualifications.
+
+### Test-only correction and acceptance
+
+Extend observations to literal TextSeparator occurrences and per-character
+text positions/advances/full TextStyle. Compare Rust, JavaScript, JSON,
+unknown syntax and genuine Markdown/reStructuredText bold/italic controls
+in inline and block Raw, using LF and CRLF. Preserve leading, repeated,
+inter-token and trailing U+0020; require exact source text minus physical
+terminators, literal provenance/count, monospace horizontal advances, line
+origins and per-line baseline geometry. The independent unknown-syntax
+route with the same source provides geometry and default font/size; the
+legacy no-newlines highlighter provides token color and bold/italic flags.
+Require positive and negative font-flag observations and restoration of
+exterior nondefault paint/size/bold/italic.
+
+First demonstrate RED for the old test observer dropping source spaces,
+then extend that test-only observer to actual separator fields for GREEN.
+Additionally require the comparator to reject missing/extra literal spaces,
+x/y/advance changes and flipped bold/italic, including real positive spans;
+these mutations operate on observations, never on productive code. This
+strengthens certification without inventing a functional product defect.
+No productive behavior/API/phase/dependency changes; ADR-0127 continuous
+flow. L0 and its forward seal precede tests; reseal only this owner pair,
+then run Raw tests, build, full lint and reverse lineage with Cargo artifacts
+and temporary files confined to the existing exclusive #9015 tmpfs target.

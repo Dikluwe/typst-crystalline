@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/set_page.md
-//! @prompt-hash 8b7a4115
+//! @prompt-hash 03574bea
 //! @layer L1
-//! @updated 2026-07-14
+//! @updated 2026-10-25
 //!
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
@@ -114,6 +114,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if !layouter.current_page_is_empty() {
             layouter.flush_line();
             layouter.new_page();
+            if !layouter.is_sub_frame {
+                layouter.footnote_entry_scope = None;
+            }
         }
         use super::PageRunningSlot;
         use crate::compiler::introspect::page_running::PlanEdge;
@@ -165,5 +168,108 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             Pt(layouter.page_config.margin.top) + top
         };
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
+    }
+}
+
+#[cfg(test)]
+mod r12_scope_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageDimension, PageMarginSpec, PageMargins},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+
+    fn configured(indent: f64, body: Content) -> Content {
+        Content::styled(
+            body,
+            Styles::new()
+                .push_custom("footnote.entry.indent", Value::Length(Length::em(indent))),
+        )
+    }
+
+    fn positions(initial: Option<f64>, next: f64) -> (f64, f64) {
+        fn words(items: &[FrameItem], out: &mut Vec<(String, f64)>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, pos, .. }
+                    | FrameItem::TextShaped { text, pos, .. } => {
+                        out.push((text.to_string(), pos.x.0))
+                    }
+                    FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => words(items, out),
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.page_config.height = 180.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.regions.current.width = 300.0;
+        l.regions.current.height = 180.0;
+        let body = Content::sequence(vec![
+            Content::text("Alpha"),
+            Content::footnote(Content::text("FIRST")),
+            Content::SetPage(std::sync::Arc::new(SetPageDelta {
+                height: Some(PageDimension::Length(200.0)),
+                ..SetPageDelta::default()
+            })),
+            configured(
+                next,
+                Content::sequence(vec![
+                    Content::text("Beta"),
+                    Content::footnote(Content::text("SECOND")),
+                ]),
+            ),
+        ]);
+        let body = initial
+            .map_or_else(|| body.clone(), |indent| configured(indent, body.clone()));
+        l.layout_content(&body);
+        let doc = l.finish();
+        assert_eq!(
+            doc.pages.len(),
+            2,
+            "the existing material SetPage transition must remain"
+        );
+        let mut rows = Vec::new();
+        for page in &doc.pages {
+            words(&page.items, &mut rows);
+        }
+        let find = |name: &str| {
+            let found = rows.iter().filter(|r| r.0 == name).collect::<Vec<_>>();
+            assert_eq!(found.len(), 1, "{name}: {rows:?}");
+            found[0].1
+        };
+        (find("FIRST"), find("SECOND"))
+    }
+
+    #[test]
+    fn r12_set_page_starts_a_new_shared_entry_scope() {
+        let (first, second) = positions(None, 2.0);
+        assert!((second - first - 9.35).abs() < 1e-8, "FIRST={first}, SECOND={second}");
+    }
+
+    #[test]
+    fn r12_set_page_can_replace_an_inherited_entry_scope() {
+        let (first, second) = positions(Some(2.0), 0.0);
+        assert!((first - second - 18.7).abs() < 1e-8, "FIRST={first}, SECOND={second}");
     }
 }

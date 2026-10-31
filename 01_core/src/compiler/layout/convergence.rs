@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/convergence.md
-//! @prompt-hash 02c252c8
+//! @prompt-hash a4cb9132
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -211,8 +211,12 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     // local (owned por valor desde signature) e outlive todos os
     // Layouters criados abaixo (single-pass ou fixpoint loop).
     use comemo::Track;
-    let has_injected_page_store = !introspector.page_store.is_empty();
-    let mut known_page_store = introspector.page_store.clone();
+    let mut known_page_store = body
+        .numbering_input
+        .as_ref()
+        .unwrap_or(&introspector.page_store)
+        .clone();
+    let has_injected_page_store = !known_page_store.is_empty();
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
     let intr_tracked = intr_dyn.track();
 

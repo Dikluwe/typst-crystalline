@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr
-Hash do Código: bb5cb05e
+Hash do Código: 48d4f6b5
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/repr.rs`
@@ -217,3 +217,22 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash 87c15f04
+//! @prompt-hash 78301f9b
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -248,6 +248,7 @@ mod context_reads;
 mod expression_dispatch;
 mod markup_stream;
 mod observation;
+mod whole_recipe;
 pub(crate) use self::context_reads::ContextReadRequest;
 use self::context_reads::ContextReads;
 pub(crate) use self::expression_dispatch::eval_expr;

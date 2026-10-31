@@ -22,7 +22,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[3]
-VANILLA_SHA256 = "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+VANILLA_SHA256 = "22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34"
 MATH_FIXTURE = ROOT / "lab/parity/matrix/fixtures/math-match.typ"
 PLAIN_FIXTURE = ROOT / "lab/parity/matrix/fixtures/plain.typ"
 SVG_XML = (
@@ -303,7 +303,7 @@ def main(argv: list[str] | None = None) -> int:
         before = git_state()
         hashes = {"vanilla": sha256_file(vanilla_bin), "crystalline": sha256_file(crystal_bin)}
         if hashes["vanilla"] != VANILLA_SHA256:
-            raise ProbeError("vanilla binary is not the ratified bd5ebec2 build (2026-10-17)")
+            raise ProbeError("vanilla binary is not the ratified 64c5e8c0 build (2026-10-26)")
         env = stable_environment()
         with probe_scratch_dir() as directory:
             cases = [run_case(spec, vanilla_bin, crystal_bin, Path(directory), env) for spec in CASES]

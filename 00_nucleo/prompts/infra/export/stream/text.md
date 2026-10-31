@@ -1,7 +1,8 @@
 # L0 — stream/text
-Hash do Código: 3c6d349b
+Hash do Código: ac4d28b7
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d286c7b15a39f05d3792706ade43933abbab24ec298e92998fe3151f41c7c340
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -258,3 +259,149 @@ text, glyph positions, bytes of prepared PNGs, advances, offsets and bitmap
 font selection. No new signature, mode, phase or invisible text. The expanded
 plain/replacement test must pass in both modes and single/multifont, together
 with SVG fractional tracking and all previous gates.
+
+
+## Readiness: Word Joiner and space CID collision (2026-10-28)
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/before.json`,
+raw-outline-build.json and raw-outline-build-source.json.gz bind exact HEAD
+212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted diffstat/UTC, source hashes
+and release. Oracle remains64c5e8c02fe0394d913ead36e42ef8c1334d2107, binary
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+raw-outline-candidate/comparison.json records identical outline PDF/SVG paint,
+but failed words. Its control-outline-tekt.qdf:5568 maps space CID0001 to2060.
+unicode-before/receipt.json reproduces ALPHA/U+2060/BETA/U+2060/GAMMA without
+outline, before and after the joiner and inside Box; ligatures are a control.
+`builder/fonts.rs:534-549,1040-1054` prioritizes shaped cluster strings before
+used U+0020. The shaper can reuse the space glyph with zero advance for2060.
+This proves a font-global extraction collision, not a need to remove an
+invisible language character. Font resource order/GID machinery is mechanical;
+source words and occurrence Unicode are observable. Altered paint, lost joiner,
+changed ligatures or an overridden authored replacement refute the correction.
+
+### Exclusive responsibility and acceptance
+
+Use existing UTF-16 ActualText opening/closing for a shaped source run that
+contains U+2060. Preserve the full original run text and glyph painting. Share
+one private small wrapper across normal/deferred Compact/Verbose entry points;
+close marked content before its corresponding graphical restoration, returning
+any original deferred tail. No new public parameter, resource, shaping or
+carrier. Runs without2060 retain their exact route. Test actual logical PDF
+operators and balanced normal/deferred restores; enclosing replacement wins.
+
+This is ADR-0127 continuous internal parity work: no public field/signature,
+mode/default/phase/compatibility change. Existing no-repair/boundary clauses
+are superseded only for this collision. V15/V26 must precede resealing; require
+runtime RED→GREEN, original outline/code-data and Unicode-first/last/Box and
+ligature controls, geometry0.001pt/independent PDF/SVG paint, prior corpus,
+full suites/build/Clippy/Rustdoc/fmt/forward-reverse lineage, and preserved JPEG
+resource gates. Do not infer global Unicode/PDF-UA or readiness completion.
+
+
+### Zero-width alias refutes first candidate
+
+unicode-green.json/log in the readiness-fixes evidence root records two scope
+passes but the real-font extraction still returns A SPACE2060 newline B SPACE C.
+Its exact source is unicode-candidate1-source.json.gz. The prior wrong global
+space alias is repaired; ActualText alone does not eliminate the false break.
+The injected run has x_advance0 and the actual DejaVu space glyph; its font has
+a positive nominal space advance and no outline for that glyph. Inference:
+reader word bounds still see the nominal blank glyph despite TJ cancellation.
+A zero horizontal scale for only this provably empty, zero-advance alias run
+must be tested; unchanged extraction or altered paint refutes that inference.
+
+Before the body correction, test actual empty-space face versus ink glyph,
+nonzero advance and absent face. Only a pure2060 run whose every glyph is the
+actual supplied face's empty space glyph, zero advance/offset, and whose font
+scenario is not bitmap, qualifies. Under its own saved graphical state insert
+0 Tz inside the emitted BT; preserve source ActualText and exact source advance.
+Restore graphics state, including deferred Compact/Verbose tails, without leaking
+text scale to following prose. No shaping/resource lookup/field or global font
+policy; absent/invalid face and other runs retain the previous route. This
+supersedes the old no-new-text-operator clause only for this measured alias.
+Keep the original strict extraction expectation, enclosing replacement and paint
+gates. Legacy None-face scope is not newly certified. Continuous ADR-0127.
+
+The draw owner may call the existing private shaped kernels within an authored
+TextReplacement to suppress automatic nested ActualText, preserving original
+Type1 fallback text and all painting/restoration operands. Kernels are visible
+only to sibling stream modules; exported interfaces remain unchanged.
+
+Write the zero-alias text-scale operand directly at the shaped kernel's BT
+emission point, supplied by a private explicit flag from the occurrence wrapper.
+Do not locate operators in serialized stream text or rewrite the emitted stream.
+Draw's authored-replacement delegation supplies false: it preserves original
+paint and leaves the outer occurrence scope authoritative. Keep exported
+entry-point signatures and the existing extraction tests unchanged.
+
+
+## Readiness: source joiner prefix beside a causal separator (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/fraction-{candidate,extras}/comparison.json retain
+identical original outline PDF/SVG paint after the allocation correction but
+failed exact word strings. The immutable list-body-extras zero-inset PDF and
+its source-bound build are retained independently. outline-scope-experiment/
+receipt.json binds exact QDF/PDF/source/tool/worker hashes, HEAD/dirty stat,
+UTC, commands, frozen compiler inputs and independent rasters. Repacked control
+and a single wide ActualText remain negative. Two separate scopes pass exact
+words and0.001pt boxes (maximum0.00001pt), with identical paint: the existing
+space carries space+U+2060 and the original shaped run carries only its suffix.
+Both inside-BT and deferred-restoration variants pass; copying a vanilla BT
+arrangement is not required. This is observable text identity/bounds, not byte
+or operator parity.
+
+wj-before/receipt.json separately binds the new joined/split DejaVu dot/suffix
+sources, compiler/oracle bytes and all source hashes. Tekt extracts separate
+"." and "U+2060+1" words; pinned oracle extracts ". SPACE U+2060+1" as one word,
+then TAIL. Bundled/system DejaVuSans.ttf bytes both hash
+ ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280.
+Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, binary
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The earlier glyph-global collision and pure-joiner scale corrections remain
+intact. No original source or expected word is normalized to grant a pass.
+
+### Exclusive responsibility and acceptance
+
+Preserve public entry signatures and all glyph kernels. Factor the existing marked wrapper so a private occurrence emitter may receive an explicit replacement separately from the ORIGINAL painted run text. Normal paths retain their previous conditional U+2060 replacement; only a draw-certified pair supplies the exact suffix, including an empty suffix. Force that explicit ActualText even without a remaining joiner so the original blank glyph cannot leak a space. Compute zero-alias qualification from the ORIGINAL glyphs/text/real face, keeping its existing0Tz state and normal/deferred restore protocol. Emit original glyphs/advances/font/style once, and close the replacement before its corresponding Q. Do not split/re-shape/rebase glyphs, inspect serialized BT/Q text, rewrite the output stream or place a wide replacement over the pair. Authored outer replacements retain their old raw-kernel route.
+
+ADR-0127 continuous internal parity work: no public field/signature/trait,
+phase/default/mode/compatibility change. L0 and meaningful real-font PDF RED
+precede implementation. Preserve actual source concatenation, all earlier
+Unicode/ALT/ligature/space/bidi/UA1 controls and independent PDF/SVG painting.
+Require V15/V26 before resealing, forward/reverse lineage, full technical gates
+and final historical/JPEG resource validation. This does not certify general
+Unicode extraction, PDF-UA, HTML, bibliography or overall product readiness.
+
+## Actual static face already realizing the requested weight
+
+number-bold-stream-before.json/provenance bind number2 release/source archive,
+full streams, actual font descriptors and raster bands at dirty212aed0449/UTC.
+The real LibertinusSerif-Bold face receives2 Tr/0.440w; body differs1344 pixels
+on first page although SVG matches. physical4-extras independently retains
+PDF1514/1255 disagreement with matching geometry/SVG on both pages. The pinned
+typst-pdf/src/text.rs:37-49 supplies only authored text stroke. This supports a
+redundant-stroke hypothesis, requiring a real static-font renderer RED before
+repair, rather than font-name or appearance classification.
+
+Supersede the old keep-static-fonts clause ONLY when a supplied actual Font
+parses and its static OS/2 weight equals the requested style.weight. In the
+existing shaped_tr_ops helper, such a face uses fill-only0 Tr when faux stroke
+would otherwise be requested. Preserve semantic style, actual font/glyphs, all
+metrics and the existing variable wght certificate. Missing/invalid/nonmatching
+static face, None, Text/Type1/Compact and authored graphical styles retain their
+previous policy. Do not generalize to unmatched weight or choose by font name.
+Require actual static face single/coalesced emitter RED→GREEN, real regular-face
+and None preservation, existing variable tests and fresh paired PDF/SVG. This
+is an internal export parity correction, with no new API/phase/default/flags.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.

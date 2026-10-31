@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_binding.md
-//! @prompt-hash 49007449
+//! @prompt-hash b9f983f2
 //! @layer L3
 //! @updated 2026-10-08
 
@@ -174,25 +174,36 @@ impl PreparedFonts {
             .collect();
         Self { original, prepared, cache: LookupCache::default() }
     }
-    pub(super) fn fonts(&self) -> &[FontKey] {
-        &self.prepared
-    }
-    pub(super) fn get(
-        &self,
-        style: &TextStyle,
-        font: Option<&Font>,
-    ) -> Option<(usize, &[u8])> {
-        let i = if font.is_some() {
-            self.cache.index(&self.original, style, font)?
+    fn original_index(&self, style: &TextStyle, font: Option<&Font>) -> Option<usize> {
+        if font.is_some() {
+            self.cache.index(&self.original, style, font)
         } else {
             let family = style.font.as_ref()?;
             let variant = text_style_to_font_variant(style);
             let vars = style.variations.clone().unwrap_or_default();
             self.original.iter().position(|((fl, v, axes), _)| {
                 fl == family && *v == variant && *axes == vars
-            })?
-        };
+            })
+        }
+    }
+    pub(super) fn get(
+        &self,
+        style: &TextStyle,
+        font: Option<&Font>,
+    ) -> Option<(usize, &[u8])> {
+        let i = self.original_index(style, font)?;
         self.prepared.get(i).map(|(_, data)| (i, data.as_slice()))
+    }
+    pub(super) fn get_original(
+        &self,
+        style: &TextStyle,
+        font: Option<&Font>,
+    ) -> Option<(usize, &FontKey)> {
+        let i = self.original_index(style, font)?;
+        self.original.get(i).map(|key| (i, key))
+    }
+    pub(super) fn original_fonts(&self) -> &[FontKey] {
+        &self.original
     }
 }
 

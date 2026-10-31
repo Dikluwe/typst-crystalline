@@ -1,5 +1,5 @@
 # L0 — stdlib/assert
-Hash do Código: b5c2633a
+Hash do Código: 4c3d7289
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/assert.rs`
@@ -41,3 +41,35 @@ relation or alter Rust PartialEq. Preserve validation, repr and messages. Use
 the frozen RED cases above and an inequality control. This restricted dependency
 does not correct the separate supplement/std-identity equality issue. ADR-0127
 flow adds no API/phase; L0 before code, then suite and gates.
+
+## Invalid-condition diagnostic parity (2026-10-29)
+
+### Measurement before decision
+
+The immutable qualified physical12/pinned64c5e8c0 bilateral receipt in
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/assert-condition-before/`
+records exact source/input/build/binary hashes, HEAD/uncommitted diffstat, UTC,
+argv and stderr. Content/int/string and alias conditions reject in both products,
+but current assert.rs:43–53 emits Portuguese type text at the whole argument
+list; the pinned native emits `expected boolean, found content/integer/string`
+at the actual condition expression. The selectorless-green1 source regressions
+likewise expose this pre-existing diagnostic mismatch through direct/alias assert.
+This is observable language diagnostics, not a new function contract or phase.
+
+### Narrow correction and retained limits
+
+For an existing present non-Bool condition only, use the canonical vanilla type
+vocabulary and message `expected boolean, found <type>`. Prefer the first
+positional ArgOccurrence.value_span when real; otherwise retain Args.span,
+including selectorless calls with a genuine function origin and no occurrence
+list. Never infer a byte offset, inspect error strings for origins, or add public
+Args/World fields or signatures. This clause supersedes only the earlier legacy
+invalid-condition message/span preservation. Missing/unknown-named/message
+handling, successful true, false failure and eq/ne remain unchanged. The measured
+standalone false-condition call-span difference stays a separate debt.
+
+Add co-located actual-source RED tests for content/int/string/alias conditions
+and precise condition spans before code, preserving the positive control. Existing
+selectorless direct/alias source tests must become GREEN without relaxing their
+expected message, definition origin or call trace. L0 first, valid graph/reseal,
+focused GREEN and unchanged final batch gates; ADR-0127 continuous parity flow.

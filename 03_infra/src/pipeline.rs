@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 363e520b
+//! @prompt-hash 955ed2ec
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -550,6 +550,10 @@ fn collect_context_blocks_into(
             if let Some(resolved) = &table.resolved {
                 for cell in &resolved.cells {
                     collect_context_blocks_into(cell, chain, map);
+                }
+            } else if let Some(items) = &table.items {
+                for child in items {
+                    collect_context_blocks_into(child, chain, map);
                 }
             } else {
                 for child in &table.children {

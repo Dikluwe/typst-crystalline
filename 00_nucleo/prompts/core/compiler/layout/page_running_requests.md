@@ -1,5 +1,5 @@
 # L0 — Physical page running-content request protocol
-Hash do Código: 003fc1c9
+Hash do Código: f14b94e1
 
 
 **Layer:** L1
@@ -8,6 +8,7 @@ Hash do Código: 003fc1c9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 
@@ -301,3 +302,61 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Stack child origin transport (2026-10-27)
+
+Measurement before decision: `lab/results/construction/diagnostics/stack-image-flow-fix-2026-10-27/effects-candidate/context-binding.json` records the twentieth child with metadata location page 2, but both captured `here().page()` and the retained Here Location page 1; vanilla reports page 2 for all three. `page_running_requests.rs:990-1003` and `realized.rs:285-307` register descendant original identities only when absent. Ancestor registration can therefore prevent a local child carrier from being captured. This is observable location semantics, not a requirement to imitate vanilla mechanics.
+
+Decision (ADR-0127 continuous flow): while entering the existing private Stack subframe, recapture the child's already-authorized original identities at the local origin, before dispatch. Reuse the selected source-plan traversal, operational/pruned/ref predicates and existing marker protocol; this anchoring mode must not admit source events a second time or execute callbacks. Without a plan, reuse the existing original-location collection, without introducing a new allocator/identity rule. Ordinary original registration remains only-if-absent. Later explicit placements remain authoritative and nested Stack frames repeat the same local transport. Geometry and semantic event ordering remain separate. No public contract, phase, global dispatcher or Context solver changes.
+
+Acceptance: an ancestor-pre-registered realized child origin must follow that child's transported frame onto page 2; source-level stored Here Location, captured page integer and metadata Location must all match vanilla. Counter/footer source ordering and all current context stability gates remain mandatory.
+
+The second candidate refutes eager observation of every descendant: `effects-candidate2/binding.json` in the same diagnostic records rotated Metadata/Here positions after the preliminary reanchor advanced the Locator for unvisited visual nodes. Local recapture must neither observe/allocate locations nor create an absent runtime position. It only attaches a local carrier to identities already admitted by an ancestor. Existing normal traversal remains the sole first admission/allocator authority. Preserve the failing candidate and add a RED test asserting that recapture leaves the Locator seed and unvisited membership unchanged.
+
+## Approved document-local numbering input (2026-10-28)
+
+Measure before decision: readiness-fixes-2026-10-28/physical-candidate-execution.json,
+its source archive and full preservation log bind dirty HEAD212aed0449, exact
+diffstat, inputs and UTC. p1486 keeps /St20 and /St22 but the last PDF paints10
+instead of20, because run_planned consults global PageStore by local ordinal.
+The review review-bundle-numbering-input.md SHA-256
+d248aa88694a06da945a2036ec33887fcbba0f67adf3e3bd7ccb30757354670d was approved
+in direct human reply, retained in bundle-numbering-input-approval.json.
+This ratifies only the named additive method and its local transport, superseding
+earlier no-new-API clauses only for that method; all other boundaries remain.
+
+Own the approved public method on opaque PageRunningBody:
+`pub fn with_numbering_input(&self, pages: &PageStore, first: NonZeroUsize,
+total: NonZeroUsize) -> SourceResult<Self>`. Keep a compiler-private optional
+PageStore input on the wrapper; cloning a projected body preserves its exact
+Content and SAME Arc SourcePlan. Validate checked interval bounds and complete
+slots before projecting through existing from_realized. Preserve all raw and
+realized values including logical zero, absent values and present Empty Content.
+An internal store certificate may inspect private vector coverage in its owning
+entity module; no extra externally public method/field/trait is authorized.
+Invalid/overflow/minimal/incomplete input returns SourceResult diagnostics with
+no panic, truncation, callback or fabricated value. Old wrappers default to None.
+Tests before implementation require correct non-first interval values, plan
+identity, unchanged original wrapper and rejection of invalid/incomplete ranges.
+
+Require functional RED→GREEN, original integrated controls, complete technical
+gates and independent PDF/SVG/word/page/0.001pt validation with source provenance.
+Finite tests do not certify general parity, geometry, performance or JPEG.
+
+Functional RED before implementation: numbering-input-red.json/log and source
+archive retain the approved API skeleton returning its unchanged clone. The
+valid non-first interval has no local view, and an invalid4/1 interval is accepted;
+both tests fail. outline-original3-green separately passes its corrected carrier
+observer under the same frozen inputs. The p1486 original integrated RED remains
+the independent transport acceptance gate; no expected values may be relaxed.
+
+
+## Private source-plan Math provenance fixture integration
+
+The owning source-plan contract now retains inherited Math as private PlanNode
+provenance for nested Equation semantic membership. This consumer's two manually
+constructed cfg(test) PlanNodes describe ordinary Flow document/template roots;
+initialize that private field false. Keep every existing test expectation,
+source authority, raw phase and layout/runtime field unchanged. No productive
+trace/renderer/public contract change is authorized here. Actual data ownership
+and measured parity remain in introspect/page_running.md and its pinned nuclei.

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules
-Hash do Código: 5571fe65
+Hash do Código: 2fc71a92
 
 
 **Layer:** L1
@@ -10,6 +10,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/selectorless-lexical-tail.toml sha256:71ad860813663f018ea800aa8b0da87299a4b48e5b91ff70238a1cfc5769c471
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
@@ -478,3 +479,86 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Selectorless lexical-tail completion (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/` preserves
+`selectorless-owner-audit-2026-10-29.json`, `selectorless-tail-before/`,
+`selectorless-flow-before/` and `selectorless-error-before/`. Their receipts bind
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a, exact uncommitted diffstat,
+qualified physical12 binary/source, source programs, UTC and pinned vanilla
+64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17.
+Current eval owners are unchanged from that measurement; layout14 changes do not
+explain the selectorless rejection. Native markup.rs:39–56 and code.rs:31–55
+apply the transformation to the remaining lexical tail; styles.rs:497–526
+displays its result. Current rules/show.rs:95–106 rejects absent selectors.
+The measured styles are declaration/body10/20 and nested12/14/18pt. Hidden
+selected child callbacks do not run; ordinary BODY errors precede APPLY. Open
+tails still call APPLY before Return/Break, returning RESULT or retaining WRAP LOST.
+Native function/arity diagnostics retain actual transformation/parameter spans.
+These are language semantics, morphology, effects and diagnostics, not Rust
+identity, upstream recursion or PDF-byte requirements. Each unchanged rejection,
+repeated effect, lost rich body/style, incorrect flow or origin refutes closure.
+
+### Classification and boundaries
+
+This completes the already named selectorless/general-tail pending scope in
+expression_dispatch. It is a private lexical evaluation operator through existing
+function calls. No existing selected recipe moves out of deferred realization,
+no eval/layout phase moves, and no public/default/compatibility contract changes.
+ADR-0127 continuous parity flow applies: owning L0 first, true functional RED,
+GREEN, valid shared graph, resealing and revalidation. Earlier broad language
+about deferring show recipes refers to selected recipes; this bounded lexical
+operator is specified here without authorizing eager selected-child application.
+
+### Exclusive responsibility
+
+Reexport the show owner's internal shared transformation-capture helper only to compiler/eval. Preserve public APIs and all existing diagnostics/static dispatch. New visibility is restricted to the eval ancestry; do not add pub(crate) surface or a duplicate cast/application algorithm.
+
+Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.
+
+
+## Issue 8973 — measured lr sizing and linebreak correction (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8973-2026-10-31/before-state.json`,
+before-sources.json, before/receipt.json and before-relative/receipt.json
+bind dirty HEAD, exact diffstat, UTC, sources and freshly built product bytes.
+The oracle bytes are verified against SHA-256
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34,
+commit 64c5e8c02fe0394d913ead36e42ef8c1334d2107. The Tekt baseline warns
+that set lr.size is ignored; even without set, its two fences enclose the
+whole two-row stack rather than their own first/last segments. The pinned
+oracle itself wrongly uses inherited size over explicit size in multiline;
+that defect is not an acceptance oracle. Unset explicit-size controls,
+unequal-height rows and percentage/mixed probes distinguish the healthy
+sizing contract from that defect. Source: rules.rs:200-216 omits lr.size;
+math_set.rs:170-195 drops it; delimited.rs:193-205 pairs across Linebreak.
+Pinned math/lr.rs:25-28 defines size relative to wrapped content;
+math/ir/multiline.rs:58-111 splits rows/cells; fenced.rs:63-100 takes the
+maximum natural fragment extent, not the complete stacked height. Explicit
+precedence is already ratified in the owning delimited L0 and MathLrElem
+approval of 2026-09-17. Geometry, row semantics, casts, diagnostics and
+morphological presence are language obligations; upstream IR/cache/storage
+and output bytes are not. New measurements that lose a row, leak size,
+resize non-boundary delimiters or change authored content refute closure.
+
+### Classification
+
+This is an internal parity correction under ADR-0127 continuous flow. Keep
+all existing public entities, fields, signatures, defaults, phases and
+compatibility. In particular preserve MathLrElem's original body, size and
+size_explicit; no eval-to-layout migration or new public contract is needed.
+L0 and seals precede code; preserve meaningful RED→GREEN and valid V15/V26.
+
+### Exclusive correction
+
+Add only ("lr", "size") to this owner's static MATH_SET_LIGADOS table.
+Relative-length validation/staging belongs to
+`00_nucleo/prompts/core/compiler/eval/rules/math_set.md`; layout and
+transient row views remain with their math owners. No unrelated table entry
+or warning/default/schema changes. Revalidate source-level math set tests,
+full core/math controls, build and lint after restricted resealing.

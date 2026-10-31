@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/extrema
-Hash do Código: e08e2b19
+Hash do Código: b606c86d
 
 ## Ownership and evidence
 
@@ -81,3 +81,42 @@ SourceResult, no public signature/field/trait/default mode or phase change.
 Reseal this exclusive owner, pass meaningful RED→GREEN tests, the core suite,
 workspace build, Clippy and Tekt/path/reverse-lineage gates. A finite clamp
 qualification does not certify the entire project free of panic.
+
+
+## Comparable length extrema — readiness correction 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/calc-length-before/receipt.json`
+(SHA-256 `2f26ffdc8233096b9a010a380b75f23edeaeca30120a7a6f0e661f396fab1571`)
+records HEAD `212aed0449150dd296ceea13fc2be665cc5db01a`, uncommitted working tree with exact dirty-file stat,
+source and executable identities, argv and UTC interval 2026-10-29T17:59:08.175573+00:00 through
+2026-10-29T17:59:09.483121+00:00. Affected owners were byte-identical to actual release build5.
+The oracle is commit `64c5e8c02fe0394d913ead36e42ef8c1334d2107`.
+`max(1em,2em)`, `min(2em,1em)` and `max(1pt,2pt)` fail in Tekt and succeed
+with 2em, 1em and 2pt in the oracle. Mixed em/pt and composite lengths are
+incomparable in both. Single-length and clamp controls succeed in both;
+the existing mixed numeric result-type difference remains a separate debt.
+
+Pinned `lab/typst-original/crates/typst-library/src/foundations/calc.rs:1020-1043`
+compares each incoming value to the retained extremum, replacing only on a
+strict improvement. Existing `01_core/src/compiler/eval/operators/ordering.rs:221-232`
+already implements the language's partial length ordering. The missing
+Length arms in this owner's min/max selection are a semantic parity defect.
+
+### Required behavior and acceptance
+
+For two Length values only, reuse the existing eval binary comparison (Lt for
+min, Gt for max), incoming against retained. Select the incoming value only on
+true, retaining the first on equality. Propagate comparison failure as an
+ordinary SourceDiagnostic. Do not resolve em against fonts, impose an arbitrary
+order, or add a public comparison contract. Preserve existing numeric arms,
+promotion, validation, all clamp behavior and old tests. This bounded correction
+supersedes the earlier clamp repair's min/max scope exclusion only for Length.
+Other comparable types and diagnostic origin improvements remain outside scope.
+
+Add module RED→GREEN controls for em and pt minima/maxima, singleton and equal
+lengths, incomparable mixed/composite lengths, numeric promotion and clamp.
+Keep the existing nested math Code box test requiring calc.max(1em,2em).
+Classify as ADR-0127 continuous flow: private algorithm correction, same API,
+phase and modes. Reseal owner and pass focused/core/build and strict lint gates.

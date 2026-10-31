@@ -1,7 +1,8 @@
 # L0 — Page configuration adapter
-Hash do Código: 08e87eb6
+Hash do Código: 52d99a23
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
@@ -64,3 +65,12 @@ Update private selected-slot source bindings in parallel with actual supplied He
 ### Acceptance and preserved boundaries
 
 Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+
+## R12 — genuine SetPage flow boundary
+
+Measurement before decision: `lab/results/construction/diagnostics/footnote-entries-r12-2026-10-24/further-scope/receipt.json` records exact final-first-source inputs, current debug binary, HEAD212 dirty stat and UTC against pinned bd5ebec2 oracle. After a material FIRST note, changing height180→200pt and then entry indent to2em leaves SECOND atx33.97989 in Tekt versus43.329887pt in vanilla. With an inherited2em indent reset to0pt after SetPage, SECOND stays43.32989 rather than24.629885pt. The earlier56 positive controls and complete first workspace validation do not certify this actual boundary. They were preserved under first-scope-attempt before any source mutation. The current consumer:113–117 already owns the genuine new_page transition after material when configuration changes. This is observable shared-flow style scope, not permission to copy upstream mechanics.
+
+Classification: private parity correction under ADR-0127 continuous flow; no public entity/trait/signature/default mode or phase changes. Own only invalidating the existing private shared footnote-entry snapshot after that genuine source-triggered page transition, outside subframes. Initial page configuration transport must retain the already measured common root prefix; automatic pagination and unchanged page configuration do not acquire new behavior. Pending frames keep their original captured settings while the old page is flushed. Never reset counters, source cursors, original note bodies or page-running plans.
+
+Require two new source-bound assertional module RED witnesses for new and inherited entry configurations across this SetPage transition before implementation. Then58 positive PDF/SVG documents per build at unchanged0.001pt, original32 refuters with unrelated outcomes preserved, all R8–R11 and A–H/R1–R7 controls, a new complete workspace/lint/lineage validation on final inputs, resource/stress gates and received evidence preservation. Retain the earlier passing first validation as historical evidence of its own input state only.

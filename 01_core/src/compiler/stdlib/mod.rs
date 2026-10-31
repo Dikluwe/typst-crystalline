@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/mod.md
-//! @prompt-hash b12c60d5
+//! @prompt-hash 259f3279
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -34,6 +34,7 @@ mod shapes;
 mod structural;
 
 // Internal cast bridges preserve the single structural classifier owner.
+pub(in crate::compiler) use structural::symbol_accent_func;
 pub(crate) use structural::{is_callable_lr_symbol, is_known_math_accent};
 mod text;
 mod transforms;
@@ -131,6 +132,8 @@ pub(crate) use crate::compiler::stdlib::structural::{
     math_underparen_from_args, math_undershell_from_args, realize_outline_entry_page,
     sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
+pub(in crate::compiler) use structural::{table_alignment, table_alignment_at};
+
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum,

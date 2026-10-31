@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md
-//! @prompt-hash a25e4e70
+//! @prompt-hash 339c085f
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -366,6 +366,10 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Add, Value::Length(a), Value::Length(b)) => Ok(Value::Length(a + b)),
         // P841 (#31) — paridade vanilla `foundations/ops.rs:196`.
         (BinOp::Sub, Value::Length(a), Value::Length(b)) => Ok(Value::Length(a - b)),
+        // Pinned 64c5e8c0, foundations/ops.rs:113: homogeneous Angle addition.
+        (BinOp::Add, Value::Angle(a), Value::Angle(b)) => Ok(Value::Angle(
+            crate::entities::layout_types::Angle::rad(a.to_rad() + b.to_rad()),
+        )),
         // P841 (#36) — paridade vanilla `foundations/ops.rs:194`.
         (BinOp::Sub, Value::Angle(a), Value::Angle(b)) => Ok(Value::Angle(
             crate::entities::layout_types::Angle::rad(a.to_rad() - b.to_rad()),
@@ -379,7 +383,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         | (BinOp::Add, Value::Color(c), Value::Length(l)) => {
             Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Solid(c),
-                thickness: l.abs.to_pt(),
+                thickness: l,
                 overhang: false,
                 specified: crate::entities::geometry::StrokeFields {
                     paint: true,
@@ -395,7 +399,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         | (BinOp::Add, Value::Gradient(g), Value::Length(l)) => {
             Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Gradient(g),
-                thickness: l.abs.to_pt(),
+                thickness: l,
                 overhang: false,
                 ..crate::entities::geometry::Stroke::default()
             }))
@@ -477,7 +481,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         | (BinOp::Add, Value::Color(c), Value::Relative(r)) => {
             Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Solid(c),
-                thickness: r.abs.abs.to_pt(),
+                thickness: r.abs,
                 overhang: false,
                 ..crate::entities::geometry::Stroke::default()
             }))
@@ -962,5 +966,62 @@ mod v16_c_structural_tests {
             apply_binary(BinOp::Div, Value::Int(6), Value::Int(2)).unwrap(),
             Value::Float(3.0)
         );
+    }
+
+    #[test]
+    fn readiness_math_code_angle_addition() {
+        use crate::compiler::eval::operators::eval_binary_op;
+        use crate::entities::layout_types::Angle;
+        for (a, b, expected_degrees) in
+            [(90.0, 45.0, 135.0), (-90.0, 45.0, -45.0), (0.0, 0.0, 0.0)]
+        {
+            let Value::Angle(result) = eval_binary_op(
+                BinOp::Add,
+                Value::Angle(Angle::deg(a)),
+                Value::Angle(Angle::deg(b)),
+            )
+            .unwrap() else {
+                panic!("angle result")
+            };
+            assert!((result.to_deg() - expected_degrees).abs() < 1e-9);
+        }
+        let Value::Angle(result) = eval_binary_op(
+            BinOp::Add,
+            Value::Angle(Angle::rad(1.0)),
+            Value::Angle(Angle::rad(2.0)),
+        )
+        .unwrap() else {
+            panic!("radian result")
+        };
+        assert_eq!(result.to_rad(), 3.0);
+        assert!(eval_binary_op(
+            BinOp::Add,
+            Value::Angle(Angle::deg(90.0)),
+            Value::Int(1)
+        )
+        .is_err());
+    }
+}
+
+#[cfg(test)]
+mod issue8583_stroke_addition_tests {
+    use super::*;
+    #[test]
+    fn issue8583_stroke_addition_keeps_em_in_both_orders() {
+        let length = crate::entities::layout_types::Length {
+            abs: crate::entities::layout_types::Abs(3.0),
+            em: 2.0,
+        };
+        let color = Value::Color(crate::entities::layout_types::Color::rgb(255, 65, 54));
+        for (a, b) in [
+            (Value::Length(length), color.clone()),
+            (color.clone(), Value::Length(length)),
+            (Value::Relative(crate::entities::rel::Rel { rel: 0.0, abs: length }), color),
+        ] {
+            let Value::Stroke(s) = apply_binary(BinOp::Add, a, b).unwrap() else {
+                panic!("stroke");
+            };
+            assert_eq!(s.thickness, length, "stroke addition must retain full Length");
+        }
     }
 }

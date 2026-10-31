@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/shape.md
-//! @prompt-hash 94fd05d7
+//! @prompt-hash 168c84fb
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -23,12 +23,26 @@ pub enum ShapeOrigin {
     Circle,
 }
 
+/// Unresolved affine endpoints for a source line. Layout resolves each axis.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RelativeLine {
+    pub start: [crate::entities::rel::Rel<crate::entities::layout_types::Length>; 2],
+    pub end: [crate::entities::rel::Rel<crate::entities::layout_types::Length>; 2],
+}
+
 /// Forma geométrica. `width`/`height` em `Value` (resolvidos em layout);
 /// `fill`/`stroke` cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShapeElem {
     pub origin: ShapeOrigin,
     pub kind: ShapeKind,
+    pub relative_line: Option<RelativeLine>,
+    pub rect_radius: Option<
+        crate::entities::corners::Corners<
+            crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+        >,
+    >,
+    pub rect_stroke: Option<crate::entities::sides::Sides<Option<Stroke>>>,
     pub width: Option<Box<Value>>,
     pub height: Option<Box<Value>>,
     pub fill: Option<Paint>,
@@ -75,6 +89,9 @@ mod tests {
     fn ex() -> ShapeElem {
         ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: None,
             height: None,
@@ -107,6 +124,9 @@ mod tests {
             ex(),
             ShapeElem {
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+                rect_radius: None,
+                rect_stroke: None,
+                relative_line: None,
                 kind: ShapeKind::Ellipse,
                 width: None,
                 height: None,
@@ -127,6 +147,9 @@ mod tests {
     fn payload_diferente_produz_hash_diferente() {
         let outro = ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Int(5))),
             height: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_emit.md
-//! @prompt-hash 26ccabae
+//! @prompt-hash 1e637e74
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -53,7 +53,30 @@ fn emit_line<M: FontMetrics, S: ImageSizer>(
 ) {
     let width = super::paragraph_indent::current_width(l, width);
     let m = measure(p, line);
-    let delta = width + p.right_overhang - m.width;
+    let original_delta = width + p.right_overhang - m.width;
+    let optical =
+        if p.right_overhang == 0.0 && (original_delta < 0.0 || (justify && continued)) {
+            p.words
+                .get(line.end.saturating_sub(1))
+                .and_then(|word| {
+                    word.fragments.last().map(|fragment| {
+                        if fragment.overhang {
+                            super::optical_margin::text_amount(
+                                &l.metrics,
+                                &fragment.text,
+                                &fragment.style,
+                                line.end - line.start > 1 || word.fragments.len() > 1,
+                            )
+                        } else {
+                            0.0
+                        }
+                    })
+                })
+                .unwrap_or(0.0)
+        } else {
+            0.0
+        };
+    let delta = original_delta + optical;
     let (proportional, extra) = if delta < 0.0 && m.spaces > 0.0 {
         ((delta / m.spaces).max(-1.0 / 3.0), 0.0)
     } else if justify && continued && m.count > 0 {

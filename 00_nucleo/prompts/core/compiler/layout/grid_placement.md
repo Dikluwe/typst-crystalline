@@ -1,5 +1,5 @@
 # L0 — grid placement
-Hash do Código: 7150c74a
+Hash do Código: 4d8a672d
 
 
 **Layer:** L1
@@ -127,3 +127,70 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Raw Table indexed adapter for approved declarative alignment
+
+Current raw fallback in grid.rs places with the Grid-only adapter and measures
+by argument index. The approved review-table-column-alignment.md (SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e;
+table-column-alignment-approval.json) requires effective Table columns including
+spans/holes. Before productive code expose only a pub(super) indexed Table
+adapter delegating unchanged place_indexed with TableDocumentOrder. Preserve
+public signatures, engine, policy, errors, indices and generated-hole None.
+Raw physical Table may obtain this existing placement once before measurement;
+Complete plans never rerun it. Grid retains legacy order. No callback, second
+occupancy engine or eval/layout phase move. Require genuine source RED→GREEN,
+raw/prepared geometry/source controls and the unchanged final batch gates.
+
+
+### Legacy raw placement preservation after full-core refutation
+
+The frozen table-alignment-core-before-repair log records a regression in the
+unchanged layout_table_cell_dentro_de_table_renderiza_como_cell: legacy synthetic
+None alignment intentionally ignores TableCell x=2 in two columns and retains
+all four texts. Applying TableDocumentOrder to every raw Table instead rejects
+that existing fixture. Preserve this old None/Uniform raw path and its original
+Grid placement; only newly represented raw Auto/Columns declarations use the
+Table indexed adapter before measurement. Complete prepared source Tables keep
+their authoritative alignment/placement and do not reinstall lexical root axes.
+This bounded correction preserves the original test rather than changing its
+invalid-coordinate fixture/expectations. Legacy synthetic placement remains a
+separate compatibility limitation, not global Table parity.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Extend the existing Table occupied-slot engine with typed group boundaries. Start groups at a wholly free row, use actual placement and spans to derive ranges, reserve/pad whole header rows, forbid later body cells from intruding, and maintain document order. Return ordered ranges independently of Cell kind. Keep Grid/legacy placement unchanged. New pure crate-private facade may accept ordered items and return cells/ranges/footer boundary; no second occupancy algorithm, Engine or layout in this owner.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.
+
+### Explicit group coordinate correction
+
+Fresh extra/{tekt,vanilla}/receipt.json in the exclusive RAM target records
+explicit y=2 header: vanilla B,C precede A, whereas initial integration moved B,C
+below A. Pinned resolve.rs:1393,1442–1448,1598–1602 derives the actual group
+range and advances the enclosing auto cursor only when a fully automatic cell
+occurs. Keep a local group cursor, derive min/max occupied rows, preserve the
+outer cursor for wholly positioned groups, and reject overlap with foreign
+occupied rows or unordered header ranges. This refines the prior whole-free-row
+rule for automatic admission without inventing another placement engine.

@@ -1,7 +1,8 @@
 # L0 — stream/draw
-Hash do Código: bec5ba29
+Hash do Código: 233fafca
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
@@ -354,3 +355,131 @@ Esta cláusula supersede a restrição anterior contra qualquer mudança em
 Path top somente para esse segmento reto medido. Exigir RED de endpoints
 fracionários, sinais/start nãozero/top/local/ambos modos e pixel600bilateral
 do controle medido, seguido de GREEN e validação completa da nova fonte.
+
+## Readiness: authored replacement dominates automatic Unicode scopes
+
+The real-font RED `readiness-fixes-2026-10-28/unicode-alias-green.log`
+restores ordinary U+0020/U+2060 extraction but an explicit ALT replacement
+extracts the inner joiner and following text instead of ALT. This is an observed
+PDF language extraction defect, not a required upstream algorithm.
+
+Carry a private replacement-scope flag through top/local recursion, including
+Group, Link and Semantic. An outer authored TextReplacement owns its complete
+replacement; nested replacements paint children without another ActualText.
+Inside that scope delegate shaped glyph painting to the existing text kernels
+without automatic Unicode ActualText. Preserve original text for Type1 fallback,
+glyphs, face, coordinates, local reflection, opacity, tags and deferred Q ordering.
+Ordinary runs retain their existing path. No public carrier/signature/mode/phase
+changes. Require real-font ALT and literal-joiner extraction in both modes/font
+paths plus top/local nested replacement controls and independent painting.
+
+
+## Readiness: source joiner prefix beside a causal separator (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/fraction-{candidate,extras}/comparison.json retain
+identical original outline PDF/SVG paint after the allocation correction but
+failed exact word strings. The immutable list-body-extras zero-inset PDF and
+its source-bound build are retained independently. outline-scope-experiment/
+receipt.json binds exact QDF/PDF/source/tool/worker hashes, HEAD/dirty stat,
+UTC, commands, frozen compiler inputs and independent rasters. Repacked control
+and a single wide ActualText remain negative. Two separate scopes pass exact
+words and0.001pt boxes (maximum0.00001pt), with identical paint: the existing
+space carries space+U+2060 and the original shaped run carries only its suffix.
+Both inside-BT and deferred-restoration variants pass; copying a vanilla BT
+arrangement is not required. This is observable text identity/bounds, not byte
+or operator parity.
+
+wj-before/receipt.json separately binds the new joined/split DejaVu dot/suffix
+sources, compiler/oracle bytes and all source hashes. Tekt extracts separate
+"." and "U+2060+1" words; pinned oracle extracts ". SPACE U+2060+1" as one word,
+then TAIL. Bundled/system DejaVuSans.ttf bytes both hash
+ ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280.
+Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, binary
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The earlier glyph-global collision and pure-joiner scale corrections remain
+intact. No original source or expected word is normalized to grant a pass.
+
+### Exclusive responsibility and acceptance
+
+Own a private typed certificate for two adjacent original leaves in the SAME parent: causal TextSeparator with positive finite advance, followed by TextShaped starting with one or more U+2060. Require identical style, no BidiSpan, LTR/default direction, finite positions, same baseline and exact separator.x+advance==run.x. Require the actual supplied face's empty-space glyphs for the complete leading prefix, each with zero advance/offset, and the same selected font-resource identity for separator and shaped run; bitmap/Type1/missing-face or unproved cases refuse. Do not create a separator from distance, cross Group/Link/Semantic boundaries or pair inside any authored TextReplacement. Preserve original item references and MCIDs, parent bbox, opacity/clip/transforms/paint order and deferred restores.
+
+For a certified pair, delegate separate scopes: separator paints its original U+0020 with ActualText original-space+leading-prefix; shaped item paints its ORIGINAL complete glyph/text payload with explicit ActualText exact-remainder. Their concatenation is exactly original space+run text. A private pair helper serves page assembly and the existing recursive child loops; ordinary paths/coalescing stay unchanged. Never clone a leaf or build a synthetic FrameItem replacement. Add eligibility refuters (style/resource/direction/bidi/position/advance/ink/face/bitmap and authored replacement), and root/local real-font roundtrip guards. This refines only the occurrence association; source shape, resources and all other replacements remain intact.
+
+ADR-0127 continuous internal parity work: no public field/signature/trait,
+phase/default/mode/compatibility change. L0 and meaningful real-font PDF RED
+precede implementation. Preserve actual source concatenation, all earlier
+Unicode/ALT/ligature/space/bidi/UA1 controls and independent PDF/SVG painting.
+Require V15/V26 before resealing, forward/reverse lineage, full technical gates
+and final historical/JPEG resource validation. This does not certify general
+Unicode extraction, PDF-UA, HTML, bibliography or overall product readiness.
+
+### Measured authored Group-tail refinement
+
+wj-readiness-green.json/log and wj-candidate1-source.json.gz freeze the first
+candidate at HEAD212aed0449150dd296ceea13fc2be665cc5db01a with full dirty stat,
+UTC and exact source/L0/configuration hashes. All18 earlier readiness controls
+and the new eligibility/MCID test pass. The new real-font roundtrip passes its
+unreplaced root/Group cases and root ALT, but Group inside ALT yields no bbox
+word instead of ALT in Compact. The failed run stops before release/probes.
+This is the measured current candidate; an unchanged old Group-tail cause is
+an inference from the old/new unconditional Q and false child-defer paths,
+not a claimed fresh old-binary measurement. A positive bbox with those same
+closures or an unchanged failure after correct tail propagation would refute
+that causal inference.
+
+The already-specified transparent Group must preserve the author's logical
+replacement under its translation. Carry the EXISTING deferred-restoration
+request to the original last child through Group, Link and Semantic. Return
+its pending graphic tails, with Group's own Q added, so the enclosing authored
+ActualText closes before those restorations. Preserve all original transforms,
+clip/bbox, opacity, leaf MCIDs, semantic marks, glyph payloads and paint order;
+normal nondeferred traversal closes at the identical old points. Do not emit
+invisible text, flatten/rebuild frames, manufacture bbox/source data, search
+serialized Q text or relax the ALT/word/bbox test. Keep pairs disabled inside
+an authored replacement; this is tail transport, not new prefix eligibility.
+Private helper arguments/return values may carry the pending count, with no
+public contract or phase change. Preserve empty-container behavior and every
+existing replacement/glyph/bidi/UA1 guard. The measured Group ALT must pass
+alongside all original prefix, geometry, Unicode and independent paint gates.
+
+
+## Issue 8894 — prepared Shape cap in PDF
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/before.json`
+binds HEAD/UTC/dirty diffstat. `probe-existing.json` records binary hashes and
+PDF/SVG observations; it is not current-source build certification. The
+absolute 110pt control is visible in SVG but absent in PDF. Source
+`draw.rs:691–707,1223–1227` passes width/paint but omits cap;
+`stream/shape.rs:213–264` likewise does not serialize cap. Cap geometry is
+observable language behavior. The independent em-loss cause remains separate.
+
+### Exclusive correction and acceptance
+
+Top/local Shape dispatch serializes its prepared stroke cap inside existing
+q/Q scope, reusing line_cap_prefix. Preserve Butt legacy behavior, paths,
+coordinates, fill, stroke paint/width, Compact/Verbose and public contracts.
+This internal omission correction uses ADR-0127 continuous flow. Require
+RED→GREEN for Round/Square/Butt, coincident/ordinary paths, top/local and both
+modes; render absolute-cap PDF/SVG controls. Font-relative thickness follows
+the approved entity/phase contract in
+`00_nucleo/prompts/core/entities/geometry.md`; this exporter consumes prepared
+scalar thickness and must not perform font-relative resolution itself.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Preserve prepared Shape stroke join, miter limit, dash array/phase and cap
+in both top/local painting scopes, including original LineWidth scaling.
+Serialize existing FrameStroke values only; keep defaults/modes/coordinates.
+New style tests must be RED before the internal serialization correction.

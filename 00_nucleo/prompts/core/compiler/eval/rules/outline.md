@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/outline — Synthesized outlines
-Hash do Código: 3442f78b
+Hash do Código: 2a089500
 
 
 Layer: L1
@@ -162,3 +162,143 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Readiness: preserve nonjustified Outline parent defaults
+
+Measurement before decision: readiness-fixes-2026-10-28/number2-build.json and
+its frozen source archive bind HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+exact dirty-file stat, UTC and binary92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7.
+article-fields-before/, article-fields-extra-before/ and article-route-before/
+retain unchanged paired sources/output and oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107,
+tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The inherited-justify source remains negative; removing Ref independently
+restores the realized route but does not repair numbered fill. Pinned
+lab/typst-original/crates/typst-library/src/model/outline.rs:397–405 explicitly
+sets ParElem::justify=false in Outline ShowSet. Current local outline.rs:122–139
+installs numbering-none and parent metadata but omits that paragraph default.
+This source evidence establishes a missing semantic default; it does not
+attribute the entire article/fill failure to that omission or infer upstream
+intent from the output alone. The debugger proves a separate selected-Ref
+route omission; the pending physical-phase proposal is not authorized here.
+
+Own precisely the existing par.justify=false mapping in the captured Outline
+parent environment, shared by its synthesized title and entries, using the
+existing custom style channel. Supersede the earlier prohibition on broader
+Outline styling only for this declared default. Preserve authored inner show-set
+overrides, entry/title morphology and count, captured lexical scope, numbering,
+read environments, source locations, original snapshots and restoration on
+success/error. No facade, entity field, pipeline phase, additional callback,
+query or source replay. ADR-0127 continuous internal mapping/parity correction.
+
+Before implementation add a functional RED through realize_heading_outline with
+an actual source heading and inherited captured justification true/false. The
+real synthesized title and entry must each inherit the explicit nonjustified
+parent default, while the caller's true/false environment and identity restore.
+Keep existing title/numbering/none/input-read and no-outline controls. Then
+revalidate real source variants against the same pinned oracle with original
+words/pages/0.001pt and independent PDF/SVG; unresolved numbered-fill, selected-Ref,
+explicit-footer/last-page-font and other readiness/JPEG negatives remain open.
+
+## Readiness: own Entry show retains the actual original source
+
+Measurement before decision: readiness-fixes-2026-10-28/physical-candidate-source.json.gz,
+physical-candidate-execution.json and physical-candidate-physical-preservation.log
+bind frozen inputs, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat/UTC.
+The unchanged p1406 source with an own Entry show and query(entry).len()==1
+now observes0 under the approved physical route. No assertion is weakened.
+Source apply.rs:351-362 retains Realized.original only while realizing_show_rules;
+this owner applies the existing Entry transformation before finish_outline_insertion
+installs that flag for the completed product. The later finisher cannot recover
+an already discarded original. The source-index owner already distinguishes
+an original Entry/root from its unexecuted borrowed-body template. This is a
+source-supported loss hypothesis, requiring an actual source-shape RED before
+repair, not permission to synthesize a query entry or replay the source.
+
+Around the existing actual Entry apply_show_rules call only, temporarily install
+the current realization flag and restore the previous value on success/error
+before propagation. Use the SAME existing call, rules, scopes, arena, guards,
+source and read transaction; no new invocation, phase, location or entry copy.
+The transformed visual and actual original Entry must both survive into the
+existing inserted-product finisher and source planner. Preserve the original
+borrowed template as reflected data without emitting its children a second time.
+Retain both false and true incoming realization states and restore them; source
+error/warning precedence is unchanged.
+
+Stage a functional producer-shape RED with a real source Heading, an actual
+Entry own-show returning a replacement, preserved original Entry/body and one
+visible replacement. The existing actual pipeline query-one failure remains
+an independent acceptance gate. Revalidate ordinary/physical Entry source/query/
+show/template controls and full technical/source/paint/resource gates. This is
+continuous internal preservation inside the already approved Outline realization,
+not another API or phase extension. Bundle input transport remains separately gated.
+
+Producer RED confirmed: outline-original-red.json/log and its source archive
+retain HEAD, dirty file list, exact source hashes and UTC for the actual run.
+The test emits ENTRY once but observes zero original Entry carriers rather than
+one, failing before repair; this supports the loss hypothesis above.
+
+Observer correction before acceptance: physical2 readiness still reported zero
+using visit_content_static, but traversal.rs:22-29 intentionally skips both
+Located and Realized carriers before calling the visitor. Therefore the initial
+producer RED and physical2 count are invalid evidence of carrier loss; retain
+them as failed observer attempts. The independent physical pipeline query-one
+RED remains valid. Replace only the producer observer with map_content (which
+exposes Realized callbacks while preserving its original) and unwrap actual
+Located/Source in the retained original. Stage this corrected observer against
+the prior producer implementation before reapplying the proposed flag repair.
+Do not fabricate original Entries or relax the expected count of one.
+
+Corrected source-shape RED: outline-original2-red.json/log and source archive
+retain the map_content observer, prior producer and exact frozen state/UTC.
+It observes zero actual originals rather than one. Reapply the same scoped
+realization-flag repair; preserve caller state on Result success and failure.
+
+## Actual default Entry and direct identity default visual
+
+Measurement before decision: readiness-fixes-2026-10-28/outline-entry-before/
+receipt.json binds exact sources and physical4 release/build/source archive
+4f4144d8… plus pinned64c5e8c0 oracle. Default and show-set query zero instead
+of one; direct identity queries three instead of one; hidden queries one in both.
+outline-entry-alias-before/receipt.json observes true/true for equality of all
+three Locations in the identity case. Native identity also retains fill/page,
+while physical4 paints only Alpha. These are source-query/render observations,
+not permission to merge distinct source Entries or compare their content.
+
+Retain the actual Entry root in Realized.original for default/style-only output
+as well as transforming output; locate only this actual original using the
+existing arena. Factor the existing native inner/indented/link/style composition
+into one private helper, preserving its calls/order/Result behavior. For a DIRECT
+identity result only, whose Realized original and visual are actual Located
+OutlineEntry roots with the SAME Location, compose that visual through the same
+native default helper before insertion finishing. Preserve its actual original.
+No Content/Func equality, generic flattening, second recipe invocation, new
+phase/arena or invented source entry is authorized. Other transformed products
+retain the current behavior; styled/nested identity variants require independent
+measurement rather than being implicitly certified by this narrow correction.
+Require actual source default, show-set, identity and hidden query-one controls,
+independent fill/page/render checks and preserved genuinely distinct entries.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.
+
+Preflight source-bound SARIF entry-text-weight-prelint.sarif/state/archive
+identifies V17 on the new compound match guard. Split the same positive alias
+certificate into private typed let-else filters and a single Location comparison;
+keep the complement unchanged, without suppression or broader admission.
+
+## Approved issue 8954 — exclusive carrier reader migration
+
+The human-approved schema is recorded in approval.json, patch SHA
+18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20
+under lab/results/construction/diagnostics/issue-8954-2026-10-31/.
+carrier-audit-before.json.gz retains exact owner/source/UTC/dirty state. Manual
+Table readers currently inspect only legacy children/header/footer: with the
+new ordered stream this incorrectly certifies empty/context-free raw subtrees.
+In this owner's existing traversal/certificate use Complete visual cells, else
+authoritative Some(items), else legacy children/header/footer, and caption once.
+No parallel visitation, new allocation, context evaluation, phase or public API.
+Retain existing policies and negative certificates for all other carriers.

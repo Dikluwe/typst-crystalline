@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 22c6a9f6
+//! @prompt-hash 8f7b73df
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -348,9 +348,7 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         // P785b — Field access em Value::Stroke
         Value::Stroke(stroke) => match field {
             "paint" => Ok(Value::Color(stroke.paint.to_color())),
-            "thickness" => Ok(Value::Length(crate::entities::layout_types::Length::pt(
-                stroke.thickness,
-            ))),
+            "thickness" => Ok(Value::Length(stroke.thickness)),
             _ => Err(vec![SourceDiagnostic::error(
                 span,
                 format!("stroke does not contain field \"{field}\""),

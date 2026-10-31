@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_commit.md
-//! @prompt-hash 1f8b0ed8
+//! @prompt-hash 44e70c5b
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -11,7 +11,7 @@ use super::metrics::FontMetrics;
 use crate::entities::{
     counter_format::{count_numbering_tokens, format_counter},
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Page, TextStyle},
+    layout_types::{FrameItem, Page},
 };
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
@@ -27,6 +27,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             .logical_number_for_page(page)
             .unwrap_or(page_number);
 
+        super::divider::resolve(self, page_width);
         self.close_link_items();
         let mut items = std::mem::take(&mut self.regions.current.current_items);
         self.open_link_items();
@@ -59,50 +60,42 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 &page_numbering
             {
                 if count_numbering_tokens(pattern) >= 2 {
-                    let ha = super::page_running::resolve_offset(
-                        self.page_config.header_ascent,
-                        self.page_config.margin.top,
-                        self.style.size.0,
-                    );
-                    let fd = super::page_running::resolve_offset(
-                        self.page_config.footer_descent,
-                        self.page_config.margin.bottom,
-                        self.style.size.0,
-                    );
-                    self.pending_page_numbering.push((
-                        self.pages.len(),
+                    let pending = super::page_running::pending_number(
+                        self,
                         margin_number,
                         pattern.clone(),
-                        self.page_config.number_align,
-                        self.page_config.margin,
-                        ha,
-                        fd,
-                    ));
+                    );
+                    self.pending_page_numbering.push(pending);
                 } else if let Some(text) =
                     format_counter(&[margin_number], pattern.as_str())
                 {
-                    let style = TextStyle::from(&self.chain);
+                    let style = super::page_running::numbering_style(self);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
                     // rationale: P1064 Classe 1A — centragem horizontal de página ((page_width - text_width) / 2.0)
                     let ha = super::page_running::resolve_offset(
                         self.page_config.header_ascent,
                         self.page_config.margin.top,
-                        self.style.size.0,
+                        style.size.0,
                     );
                     let fd = super::page_running::resolve_offset(
                         self.page_config.footer_descent,
                         self.page_config.margin.bottom,
-                        self.style.size.0,
+                        style.size.0,
                     );
                     marginal_items.push(FrameItem::Text {
-                        pos: super::page_running::number_position(
+                        pos: super::page_running::number_baseline(
                             self.page_config.number_align,
-                            page_width,
-                            page_height,
-                            self.page_config.margin,
-                            text_width,
-                            ha,
-                            fd,
+                            super::page_running::number_position(
+                                self.page_config.number_align,
+                                page_width,
+                                page_height,
+                                self.page_config.margin,
+                                text_width,
+                                ha,
+                                fd,
+                            ),
+                            &style,
+                            &self.metrics,
                         ),
                         text: text.into(),
                         style,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running_requests.md
-//! @prompt-hash 5d6f085e
+//! @prompt-hash 74426301
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -15,6 +15,7 @@ use crate::compiler::math::layout::callbacks::SealedMathCallbacks;
 use crate::entities::content::Content;
 use crate::entities::introspector::Introspector;
 use crate::entities::layout_types::{PagedDocument, Rect};
+use crate::entities::page_store::PageStore;
 use crate::entities::sealed_positions::SealedPositions;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -38,11 +39,56 @@ pub struct PageRunningKey {
 pub struct PageRunningBody {
     pub(in crate::compiler) content: Content,
     pub(in crate::compiler) plan: Arc<SourcePlan>,
+    pub(in crate::compiler) numbering_input: Option<PageStore>,
 }
 
 impl PageRunningBody {
     pub fn content(&self) -> &Content {
         &self.content
+    }
+
+    pub fn with_numbering_input(
+        &self,
+        pages: &PageStore,
+        first: NonZeroUsize,
+        total: NonZeroUsize,
+    ) -> SourceResult<Self> {
+        let invalid = || {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                "invalid or incomplete document numbering input",
+            )]
+        };
+        if !pages.contains_complete_interval(first, total) {
+            return Err(invalid());
+        }
+        let mut numberings = Vec::with_capacity(total.get());
+        let mut logical = Vec::with_capacity(total.get());
+        let mut spans = Vec::with_capacity(total.get());
+        let mut visible = Vec::with_capacity(total.get());
+        let mut reference = Vec::with_capacity(total.get());
+        let mut supplements = Vec::with_capacity(total.get());
+        for offset in 0..total.get() {
+            let page = first.checked_add(offset).ok_or_else(invalid)?;
+            numberings.push(pages.numbering_for_page(page).cloned());
+            logical.push(pages.logical_number_for_page(page).ok_or_else(invalid)?);
+            spans.push(pages.numbering_span_for_page(page).ok_or_else(invalid)?);
+            visible.push(pages.visible_numbering_for_page(page).cloned());
+            reference.push(pages.reference_numbering_for_page(page).cloned());
+            supplements
+                .push(pages.supplement_for_page(page).ok_or_else(invalid)?.clone());
+        }
+        let mut projected = self.clone();
+        projected.numbering_input = Some(PageStore::from_realized(
+            total,
+            numberings,
+            logical,
+            spans,
+            visible,
+            reference,
+            supplements,
+        ));
+        Ok(projected)
     }
 }
 
@@ -826,6 +872,16 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
         let Some(cursor) = self.planned_child_cursor(edge) else {
             return false;
         };
+        self.register_cursor_origins(&cursor, false);
+        true
+    }
+
+    /// Capture local carriers without repeating semantic source admissions.
+    pub(super) fn reanchor_stack_cursor(&mut self, cursor: &Cursor) {
+        self.register_cursor_origins(cursor, true);
+    }
+
+    fn register_cursor_origins(&mut self, cursor: &Cursor, reanchor: bool) {
         let page = NonZeroUsize::new(self.pages.len() + 1).unwrap();
         let point = crate::entities::layout_types::Point {
             x: self.regions.current.cursor_x,
@@ -837,6 +893,7 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
             packet: PacketId,
             page: NonZeroUsize,
             point: crate::entities::layout_types::Point,
+            reanchor: bool,
         ) {
             use crate::compiler::introspect::page_running::PlanRole;
             let Some(node) = cursor.plan.node(packet) else {
@@ -995,25 +1052,34 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
                 .chain(node.auxiliary_locations.iter().filter(|_| citation_selected))
                 .copied()
             {
-                layouter.locator.observe(location);
+                if reanchor {
+                    if !layouter.runtime.positions.contains_key(&location) {
+                        continue;
+                    }
+                } else {
+                    layouter.locator.observe(location);
+                }
                 layouter.record_location_position(
                     location,
                     crate::entities::position::Position { page, point },
-                    true,
+                    !reanchor,
                 );
             }
-            if let Some(pass) = &mut layouter.page_running_pass {
-                pass.admit_cursor(cursor, packet, PlanPhase::Root, page);
+            if !reanchor {
+                if let Some(pass) = &mut layouter.page_running_pass {
+                    pass.admit_cursor(cursor, packet, PlanPhase::Root, page);
+                }
             }
             for (_, child) in &node.children {
-                visit(layouter, cursor, *child, page, point);
+                visit(layouter, cursor, *child, page, point, reanchor);
             }
-            if let Some(pass) = &mut layouter.page_running_pass {
-                pass.admit_cursor(cursor, packet, PlanPhase::PostChildren, page);
+            if !reanchor {
+                if let Some(pass) = &mut layouter.page_running_pass {
+                    pass.admit_cursor(cursor, packet, PlanPhase::PostChildren, page);
+                }
             }
         }
-        visit(self, &cursor, cursor.packet, page, point);
-        true
+        visit(self, cursor, cursor.packet, page, point, reanchor);
     }
 }
 
@@ -1048,6 +1114,7 @@ mod tests {
             auxiliary_locations: vec![],
             conditional_ref: None,
             original: false,
+            math: false,
         };
         let root = PlanNode {
             content: content.clone(),
@@ -1065,6 +1132,7 @@ mod tests {
             auxiliary_locations: vec![],
             conditional_ref: None,
             original: false,
+            math: false,
         };
         let plan = Arc::new(SourcePlan {
             root: PacketId(0),
@@ -1078,7 +1146,79 @@ mod tests {
             }],
             nodes: vec![root, template],
         });
-        PageRunningBody { content, plan }
+        PageRunningBody { content, plan, numbering_input: None }
+    }
+
+    #[test]
+    fn readiness_numbering_input_preserves_local_values_and_source_authority() {
+        use crate::entities::file_id::FileId;
+        use crate::entities::numbering::Numbering;
+        let nz = |n| NonZeroUsize::new(n).unwrap();
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let span = Span::from_range(file, 2..5);
+        let pages = PageStore::from_realized(
+            nz(3),
+            vec![Some(Numbering::from("I")), None, Some(Numbering::from("1 / 1"))],
+            vec![10, 0, 22],
+            vec![Span::detached(), span, Span::detached()],
+            vec![Some(Content::text("FIRST")), Some(Content::Empty), None],
+            vec![None, None, Some(Content::Empty)],
+            vec![Content::text("FIRST"), Content::Empty, Content::text("LAST")],
+        );
+        let original = body();
+        let projected = original
+            .with_numbering_input(&pages, nz(2), nz(2))
+            .expect("valid non-first interval");
+        assert!(Arc::ptr_eq(&original.plan, &projected.plan));
+        let (Content::SetPage(before), Content::SetPage(after)) =
+            (original.content(), projected.content())
+        else {
+            panic!("same source")
+        };
+        assert!(Arc::ptr_eq(before, after));
+        assert!(original.numbering_input.is_none());
+        let local = projected.numbering_input.as_ref().expect("local numbering input");
+        assert_eq!(local.total_pages(), Some(nz(2)));
+        assert_eq!(local.logical_number_for_page(nz(1)), Some(0));
+        assert_eq!(local.logical_number_for_page(nz(2)), Some(22));
+        assert!(local.numbering_for_page(nz(1)).is_none());
+        assert_eq!(local.numbering_for_page(nz(2)).unwrap().as_pattern(), Some("1 / 1"));
+        assert_eq!(local.numbering_span_for_page(nz(1)), Some(span));
+        assert!(matches!(local.visible_numbering_for_page(nz(1)), Some(Content::Empty)));
+        assert!(local.visible_numbering_for_page(nz(2)).is_none());
+        assert!(local.reference_numbering_for_page(nz(1)).is_none());
+        assert!(matches!(
+            local.reference_numbering_for_page(nz(2)),
+            Some(Content::Empty)
+        ));
+        assert!(matches!(local.supplement_for_page(nz(1)), Some(Content::Empty)));
+        assert_eq!(local.supplement_for_page(nz(2)).unwrap().plain_text(), "LAST");
+        assert_eq!(pages.logical_number_for_page(nz(1)), Some(10));
+    }
+
+    #[test]
+    fn readiness_numbering_input_rejects_missing_bounds_and_incomplete_slots() {
+        let nz = |n| NonZeroUsize::new(n).unwrap();
+        let original = body();
+        let full = PageStore::from_runtime(nz(3), vec![None; 3], vec![Content::Empty; 3]);
+        for (first, total) in [(4, 1), (3, 2), (usize::MAX, 2), (1, usize::MAX)] {
+            assert!(
+                original.with_numbering_input(&full, nz(first), nz(total)).is_err(),
+                "must reject interval {first}/{total}"
+            );
+        }
+        for incomplete in [
+            PageStore::empty(),
+            PageStore::from_total_pages(nz(3)),
+            PageStore::from_runtime(nz(3), vec![None], vec![Content::Empty; 3]),
+            PageStore::from_runtime(nz(3), vec![None; 3], vec![Content::Empty]),
+        ] {
+            assert!(
+                original.with_numbering_input(&incomplete, nz(2), nz(2)).is_err(),
+                "must reject absent metadata slots"
+            );
+        }
+        assert!(original.with_numbering_input(&full, nz(1), nz(3)).is_ok());
     }
 
     fn request(body: &PageRunningBody) -> PageRunningRequest {
@@ -1097,6 +1237,36 @@ mod tests {
             region: Rect { x: Pt(0.0), y: Pt(0.0), w: Pt(100.0), h: Pt(20.0) },
             span: Span::detached(),
         })
+    }
+
+    #[test]
+    fn stack_origin_recapture_does_not_allocate_unvisited_locations() {
+        use crate::compiler::layout::{FixedMetrics, Layouter};
+        use crate::entities::image_sizer::NullImageSizer;
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        use comemo::Track;
+        let source = body();
+        let mut plan = (*source.plan).clone();
+        let location = Locator::new().next();
+        plan.nodes[0].location = Some(location);
+        let cursor = Cursor {
+            plan: Arc::new(plan),
+            packet: PacketId(0),
+            section: TraceSection::Body,
+            generated_edges: vec![],
+            anchor: None,
+        };
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let seed = l.locator.checkpoint();
+        l.reanchor_stack_cursor(&cursor);
+        assert_eq!(l.locator.checkpoint(), seed);
+        assert!(!l.runtime.positions.contains_key(&location));
     }
 
     #[test]

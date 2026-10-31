@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash c781a65c
+//! @prompt-hash 58d03a0a
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -61,6 +61,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     prev_line_baseline: f64,
     terminal_paragraph_line: bool,
     empty_paragraph_weak_spacing: f64,
+    pending_horizontal_paragraph: Option<super::h_space::Paragraph>,
     last_flush_advance: f64,
     prev_block_equation_descent: f64,
     last_equation_descent: f64,
@@ -125,6 +126,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     pending_page_numbering_len: usize,
     pending_par_line_numbering_len: usize,
     pending_equation_centering_len: usize,
+    pending_dividers: Vec<(usize, f64)>,
     pending_equation_numbering_len: usize,
     pending_align_centering_len: usize,
     pending_align_v_centering_len: usize,
@@ -241,6 +243,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             prev_line_baseline: self.prev_line_baseline,
             terminal_paragraph_line: self.terminal_paragraph_line,
             empty_paragraph_weak_spacing: self.empty_paragraph_weak_spacing,
+            pending_horizontal_paragraph: self.pending_horizontal_paragraph.clone(),
             last_flush_advance: self.last_flush_advance,
             prev_block_equation_descent: self.prev_block_equation_descent,
             last_equation_descent: self.last_equation_descent,
@@ -307,6 +310,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_page_numbering_len: self.pending_page_numbering.len(),
             pending_par_line_numbering_len: self.pending_par_line_numbering.len(),
             pending_equation_centering_len: self.pending_equation_centering.len(),
+            pending_dividers: self.pending_dividers.clone(),
             pending_equation_numbering_len: self.pending_equation_numbering.len(),
             pending_align_centering_len: self.pending_align_centering.len(),
             pending_align_v_centering_len: self.pending_align_v_centering.len(),
@@ -389,6 +393,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.prev_line_baseline = checkpoint.prev_line_baseline;
         self.terminal_paragraph_line = checkpoint.terminal_paragraph_line;
         self.empty_paragraph_weak_spacing = checkpoint.empty_paragraph_weak_spacing;
+        self.pending_horizontal_paragraph = checkpoint.pending_horizontal_paragraph;
         self.last_flush_advance = checkpoint.last_flush_advance;
         self.prev_block_equation_descent = checkpoint.prev_block_equation_descent;
         self.last_equation_descent = checkpoint.last_equation_descent;
@@ -477,6 +482,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             .truncate(checkpoint.pending_par_line_numbering_len);
         self.pending_equation_centering
             .truncate(checkpoint.pending_equation_centering_len);
+        self.pending_dividers = checkpoint.pending_dividers;
         self.pending_equation_numbering
             .truncate(checkpoint.pending_equation_numbering_len);
         self.pending_align_centering

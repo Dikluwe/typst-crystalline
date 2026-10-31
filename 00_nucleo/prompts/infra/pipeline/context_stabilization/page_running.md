@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization/page_running
-Hash do Código: 53a069ca
+Hash do Código: 91933bab
 
 
 **Layer:** L3
@@ -8,6 +8,8 @@ Hash do Código: 53a069ca
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
+- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 
@@ -391,3 +393,95 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Approved readiness physical eligibility — plain numbering and heading Outline
+
+### Measurement and human decision before code
+
+readiness-fixes-2026-10-28/{number2-build.json,number2-build-source.json.gz,
+number2-extras/comparison.json,article-route-before/receipt.json,
+outline-route-debugger/receipt.json} bind exact binary/source/fixture hashes,
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat and UTC. Product
+92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The terminal17pt/DejaVu page loses lexical style after restoration; the selected
+Ref source bypasses ordinary Outline realization and paints an incorrectly
+numbered title without fill. Actual debugger function entries/piles distinguish
+both routes and full compiles, rather than inferring them from appearance.
+Readiness review documents exact source anchors and independent remaining debts.
+These are language/style/source observations, not upstream Rust-mechanics parity.
+
+The human directly approved “Aprovar a ampliação proposta” in this chat;
+physical-number-outline-approval.json records authority, UTC and frozen review
+SHA-2569d52d041904a94221cae76e4d9d394afd3a758be31e0e4b8845c6839a0dcdc87
+with its owner/receipt manifest. ADR-0127 phase gate is satisfied ONLY for that
+reviewed extension. This section supersedes earlier preserve-phase/noneligible
+clauses only for its named heading-Outline/plain-number eligibility; prior
+Repeat approval is not used as authorization. Existing APIs and other phases
+remain unchanged. The approval does not certify tests, rendering or readiness.
+
+### Exclusive implementation and acceptance
+
+Own only the private nominal reached-member classifier and existing physical coordination. Extend the former Repeat-only reached predicate to Headings Outline and Some(Some(Numbering::Pattern)) in reached SetPage/PageRun declarations, preserving existing rich-marginal selection. Traverse only actual ordinary body/visual members through current public Content surface and existing closed nominal alternatives; inspect no dormant operational template, opaque closure or Realized original. Keep current table/cell projection, source wrappers, original metadata and all former eligible cases. A reached contextual contribution can select the same protocol through the parent's existing hook. Rename private Repeat-only helper terminology where necessary without exporting a facade. Preserve all existing Outline realization/transactions, source authority, rebind/index/replay and generation invalidation; no copied language/layout logic belongs here.
+
+Stage real current-API REDs before code. Revalidate the approved exact source
+variants, source words/pages/0.001pt and separate PDF/SVG, actual styles/query/
+Location/effects once, causal errors/warnings, aliases/dormant/hidden producers,
+None/Content, all old marginals/Repeat/rollback/notes/callback/Bundle/HTML gates.
+Retain strict authority, coverage, Location and reflexive/current observation
+proof; no extra attempt, normalization, suppression or weakened expectation.
+V15/V26 before resealing, forward/reverse lineage, twelve technical gates,
+full original historic corpus and JPEG time/RSS preservation remain mandatory.
+Unresolved numbered-fill, justification, explicit-footer/bold-PDF and all other
+readiness debts keep their separate receipts and acceptance; no general claim.
+
+## Approved document-local numbering input (2026-10-28)
+
+Measure before decision: readiness-fixes-2026-10-28/physical-candidate-execution.json,
+its source archive and full preservation log bind dirty HEAD212aed0449, exact
+diffstat, inputs and UTC. p1486 keeps /St20 and /St22 but the last PDF paints10
+instead of20, because run_planned consults global PageStore by local ordinal.
+The review review-bundle-numbering-input.md SHA-256
+d248aa88694a06da945a2036ec33887fcbba0f67adf3e3bd7ccb30757354670d was approved
+in direct human reply, retained in bundle-numbering-input-approval.json.
+This ratifies only the named additive method and its local transport, superseding
+earlier no-new-API clauses only for that method; all other boundaries remain.
+
+Pass a wrapper projected from the SAME immutable input snapshot into each
+paged Bundle layout. Discovery uses the retained page counts of completed
+document steps that produced that outer input; replay uses a frozen partition
+of its current discovery steps. HTML is zero, SVG/PNG remain paginated.
+Validate lengths, checked sum and global total before constructing ranges.
+The first empty input has no invented projection. An unavailable partial
+partition may continue existing discovery/replay, but cannot qualify completion;
+retain full final-step document counts for the next existing attempt even when
+the current candidate is not yet qualified. Never infer counts from requests,
+source element positions, paint or equality. No extra index construction,
+Session, source execution, solver or attempt. Preserve existing trace validation,
+callback scope, warnings, partitions during local page count changes, Bundle
+format/selection/counter tests, and the original p1486 expected20/22.
+
+Require functional RED→GREEN, original integrated controls, complete technical
+gates and independent PDF/SVG/word/page/0.001pt validation with source provenance.
+Finite tests do not certify general parity, geometry, performance or JPEG.
+
+Functional RED before implementation: numbering-input-red.json/log and source
+archive retain the approved API skeleton returning its unchanged clone. The
+valid non-first interval has no local view, and an invalid4/1 interval is accepted;
+both tests fail. outline-original3-green separately passes its corrected carrier
+observer under the same frozen inputs. The p1486 original integrated RED remains
+the independent transport acceptance gate; no expected values may be relaxed.
+
+## Approved issue 8954 — exclusive carrier reader migration
+
+The human-approved schema is recorded in approval.json, patch SHA
+18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20
+under lab/results/construction/diagnostics/issue-8954-2026-10-31/.
+carrier-audit-before.json.gz retains exact owner/source/UTC/dirty state. Manual
+Table readers currently inspect only legacy children/header/footer: with the
+new ordered stream this incorrectly certifies empty/context-free raw subtrees.
+In this owner's existing traversal/certificate use Complete visual cells, else
+authoritative Some(items), else legacy children/header/footer, and caption once.
+No parallel visitation, new allocation, context evaluation, phase or public API.
+Retain existing policies and negative certificates for all other carriers.

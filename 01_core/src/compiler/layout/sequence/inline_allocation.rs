@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence/inline_allocation.md
-//! @prompt-hash 0b23fb3b
+//! @prompt-hash 2a40a279
 //! @layer L1
 //! @updated 2026-10-21
 //!
@@ -17,6 +17,7 @@ use crate::entities::{
     value::Value,
 };
 use std::sync::Arc;
+use unicode_script::{Script, UnicodeScript};
 
 #[derive(Debug, Clone)]
 pub(in crate::compiler::layout) enum Node {
@@ -48,6 +49,7 @@ struct Certificate<'a, M> {
     wrap_scope_eligible: bool,
     wrap_eligible: bool,
     material: bool,
+    leading_shifted: bool,
     weak_space: bool,
     direction: Option<Dir>,
     boxes: usize,
@@ -104,32 +106,56 @@ impl<M: FontMetrics> Certificate<'_, M> {
                 Occupancy::Fixed(..) | Occupancy::Weak(..) => None,
             })
             .sum();
-        let free = right - left - fixed;
+        let mut free = right - left - fixed;
         if !free.is_finite() || free < 0.0 || !weights.is_finite() {
             return None;
         }
-        let share = |weight: f64| {
+        let share = |weight: f64, remaining: f64| {
             let ratio = weight / weights;
             if ratio.is_finite() {
-                (ratio * free).max(0.0)
+                (ratio * remaining).max(0.0)
             } else {
                 0.0
             }
         };
-        let final_cursor = occupancy.iter().fold(left, |cursor, v| {
-            cursor
-                + match v {
-                    Occupancy::Fixed(width) | Occupancy::Weak(width) => *width,
-                    Occupancy::Fraction(_, weight, _) => share(*weight),
-                }
-        });
+        let cursor_for = |remaining| {
+            occupancy.iter().fold(left, |cursor, v| {
+                cursor
+                    + match v {
+                        Occupancy::Fixed(width) | Occupancy::Weak(width) => *width,
+                        Occupancy::Fraction(_, weight, _) => share(*weight, remaining),
+                    }
+            })
+        };
+        let mut final_cursor = cursor_for(free);
+        // A rounded sum can exceed the edge by its immediate successor.
+        // Try one smaller budget, then require the original strict
+        // containment proof again. Signed/zero shares retain their old path.
+        if final_cursor.is_finite()
+            && final_cursor == right.next_up()
+            && free > 0.0
+            && weights > 0.0
+            && occupancy.iter().all(|item| match item {
+                Occupancy::Fraction(_, weight, _) => *weight > 0.0,
+                Occupancy::Fixed(_) | Occupancy::Weak(_) => true,
+            })
+        {
+            let smaller_free = free.next_down();
+            let smaller_cursor = cursor_for(smaller_free);
+            if smaller_cursor.is_finite() && smaller_cursor <= right {
+                free = smaller_free;
+                final_cursor = smaller_cursor;
+            }
+        }
         if !final_cursor.is_finite() || final_cursor > right {
             return None;
         }
         let assignments = occupancy
             .iter()
             .filter_map(|v| match v {
-                Occupancy::Fraction(index, weight, _) => Some((*index, share(*weight))),
+                Occupancy::Fraction(index, weight, _) => {
+                    Some((*index, share(*weight, free)))
+                }
                 Occupancy::Fixed(..) | Occupancy::Weak(..) => None,
             })
             .collect();
@@ -224,6 +250,7 @@ impl<M: FontMetrics> Certificate<'_, M> {
         self.boxes = 0;
         self.direction = None;
         self.material = false;
+        self.leading_shifted = false;
         self.weak_space = false;
         self.valid = self.scope_eligible;
         self.wrap_eligible = self.wrap_scope_eligible;
@@ -259,7 +286,7 @@ impl<M: FontMetrics> Certificate<'_, M> {
             Content::Styled(v) => {
                 // Only positively classified lexical fields and channels are
                 // transparent; unknown custom scopes remain opaque.
-                if !styles_supported(&v.styles) {
+                if !styles_supported(&v.styles, &v.body) {
                     self.valid = false;
                     return Draft::Blocked;
                 }
@@ -297,12 +324,47 @@ impl<M: FontMetrics> Certificate<'_, M> {
                 if style.dir == Some(Dir::RTL) && !text.is_ascii() {
                     self.valid = false;
                 }
-                if text.chars().any(char::is_whitespace)
-                    || super::super::word_segment::word_needs_line_segmentation(text)
-                {
-                    self.valid = false;
+                let literal_words = text.contains(' ')
+                    && matches!(style.dir, None | Some(Dir::LTR))
+                    && matches!(
+                        chain.custom("text.dir"),
+                        None | Some(Value::Dir(Dir::LTR))
+                    )
+                    && text.split(' ').all(|word| {
+                        !word.is_empty()
+                            && word.chars().all(|ch| {
+                                (ch.is_ascii()
+                                    && !ch.is_ascii_control()
+                                    && !ch.is_ascii_whitespace())
+                                    || matches!(
+                                        ch.script(),
+                                        Script::Latin | Script::Inherited
+                                    )
+                            })
+                    });
+                if literal_words {
+                    self.wrap_eligible = false;
+                    let mut words = text.split(' ').peekable();
+                    while let Some(word) = words.next() {
+                        self.fixed(
+                            super::super::text_measure::word(self.metrics, word, style).0,
+                        );
+                        if words.peek().is_some() {
+                            self.fixed(
+                                super::super::text_measure::space(self.metrics, style).0,
+                            );
+                        }
+                    }
+                } else {
+                    if text.chars().any(char::is_whitespace)
+                        || super::super::word_segment::word_needs_line_segmentation(text)
+                    {
+                        self.valid = false;
+                    }
+                    self.fixed(
+                        super::super::text_measure::word(self.metrics, text, style).0,
+                    );
                 }
-                self.fixed(super::super::text_measure::word(self.metrics, text, style).0);
                 self.material = true;
                 self.weak_space = false;
                 Draft::Blocked
@@ -317,7 +379,33 @@ impl<M: FontMetrics> Certificate<'_, M> {
             Content::HSpace(v) => match v.amount {
                 Spacing::Absolute(width) => {
                     self.wrap_eligible = false;
-                    self.fixed(width.resolve_pt(style.size.0));
+                    let width = width.resolve_pt(style.size.0);
+                    let leading = self.valid
+                        && width.is_finite()
+                        && width < 0.0
+                        && !v.weak
+                        && !self.leading_shifted
+                        && !self.material
+                        && self.occupancy.is_empty()
+                        && matches!(style.dir, None | Some(Dir::LTR))
+                        && matches!(
+                            chain.custom("text.dir"),
+                            None | Some(Value::Dir(Dir::LTR))
+                        );
+                    if leading {
+                        let left = self.left + width;
+                        if left.is_finite() {
+                            // The original H performs this same addition at dispatch.
+                            // Its compensation affects this line, not its continuation.
+                            self.observe_direction(style);
+                            self.left = left;
+                            self.leading_shifted = true;
+                        } else {
+                            self.valid = false;
+                        }
+                    } else {
+                        self.fixed(width);
+                    }
                     Draft::Blocked
                 }
                 Spacing::Fractional(weight) => self.fraction(weight, false),
@@ -464,7 +552,7 @@ impl<M: FontMetrics> Certificate<'_, M> {
 // Reconstruct the complete admitted delta, so a new or unsupported field
 // cannot silently become an inert channel. The same bounded lexical class
 // already has a positive certificate in paragraph preparation.
-fn styles_supported(styles: &Styles) -> bool {
+fn styles_supported(styles: &Styles, body: &Content) -> bool {
     let d = styles.delta();
     let mut permitted = crate::entities::style_chain::StyleDelta::empty();
     permitted.bold = d.bold;
@@ -477,33 +565,55 @@ fn styles_supported(styles: &Styles) -> bool {
     permitted.lang = d.lang;
     permitted.font = d.font.clone();
     for (key, value) in &d.custom {
-        if !matches!(
-            key.as_str(),
-            "text.size"
-                | "text.fill"
-                | "text.bold"
-                | "text.italic"
-                | "text.weight"
-                | "text.style"
-                | "text.font"
-                | "text.lang"
-                | "text.dir"
-                | "text.hyphenate"
-                | "text.overhang"
-                | "eval.flow.scope"
-                | "page.width"
-                | "page.height"
-                | "page.margin-top"
-                | "page.margin-right"
-                | "page.margin-bottom"
-                | "page.margin-left"
-        ) && !crate::compiler::text_costs::is_channel(key.as_str())
+        let outline_marker = match key.as_str() {
+            "pdf.marker.tag" => {
+                matches!(body, Content::Text(_))
+                    && matches!(value, Value::Str(tag) if tag.as_str() == "label")
+            }
+            "outline.prefix-info" => {
+                matches!(body, Content::Empty) && inert_prefix_info(value)
+            }
+            _ => false,
+        };
+        if !outline_marker
+            && !matches!(
+                key.as_str(),
+                "text.size"
+                    | "text.fill"
+                    | "text.bold"
+                    | "text.italic"
+                    | "text.weight"
+                    | "text.style"
+                    | "text.font"
+                    | "text.lang"
+                    | "text.dir"
+                    | "text.hyphenate"
+                    | "text.overhang"
+                    | "eval.flow.scope"
+                    | "page.width"
+                    | "page.height"
+                    | "page.margin-top"
+                    | "page.margin-right"
+                    | "page.margin-bottom"
+                    | "page.margin-left"
+            )
+            && !crate::compiler::text_costs::is_channel(key.as_str())
         {
             return false;
         }
         permitted.custom.push((key.clone(), value.clone()));
     }
     *d == permitted
+}
+
+fn inert_prefix_info(value: &Value) -> bool {
+    let Value::Array(parts) = value else { return false };
+    let [Value::Int(_), Value::Int(level), Value::Length(inset)] = parts.as_slice()
+    else {
+        return false;
+    };
+    let absolute = inset.abs.to_pt();
+    *level > 0 && inset.em == 0.0 && absolute.is_finite() && absolute >= 0.0
 }
 
 fn safe_style(chain: &StyleChain, style: &TextStyle) -> bool {
@@ -586,6 +696,7 @@ pub(super) fn prepare<M: FontMetrics, S: ImageSizer>(
         wrap_scope_eligible,
         wrap_eligible: valid && wrap_scope_eligible,
         material: false,
+        leading_shifted: false,
         weak_space: false,
         direction: None,
         boxes: 0,
@@ -809,6 +920,220 @@ mod tests {
             panic!("complete source scope must retain its child routes");
         };
         children[index].clone()
+    }
+
+    fn prefix_marker(body: Content, key: &str, value: Value) -> Content {
+        Content::styled(body, Styles::new().push_custom(key, value))
+    }
+
+    #[test]
+    fn readiness_outline_prefix_label_preserves_its_known_fixed_advance() {
+        let marker = prefix_marker(
+            Content::text("1."),
+            "pdf.marker.tag",
+            Value::Str("label".into()),
+        );
+        let plan =
+            scope(&[marker, Content::Space, fraction(1.0), Content::text("1")], 100.0);
+        assert_eq!(assigned(child(&plan, 2)), Some(60.0));
+    }
+
+    #[test]
+    fn readiness_outline_prefix_empty_info_keeps_the_original_budget() {
+        let marker = prefix_marker(
+            Content::Empty,
+            "outline.prefix-info",
+            Value::Array(vec![
+                Value::Int(17),
+                Value::Int(1),
+                Value::Length(Length::pt(25.0)),
+            ]),
+        );
+        let plan = scope(
+            &[marker, Content::text("A"), fraction(1.0), Content::text("B")],
+            100.0,
+        );
+        assert_eq!(assigned(child(&plan, 2)), Some(80.0));
+    }
+
+    #[test]
+    fn readiness_outline_prefix_leading_compensation_keeps_next_line_origin() {
+        let plan = scope(
+            &[
+                Content::h_space(Length::pt(-10.0), false),
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+                Content::Parbreak,
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ],
+            100.0,
+        );
+        assert_eq!(assigned(child(&plan, 2)), Some(90.0));
+        assert_eq!(
+            assigned(child(&plan, 6)),
+            Some(80.0),
+            "leading compensation leaked into the next scope"
+        );
+    }
+
+    #[test]
+    fn readiness_outline_prefix_unproved_markers_and_signed_advances_stay_opaque() {
+        let invalid = [
+            prefix_marker(Content::text("1."), "pdf.marker.tag", Value::Int(1)),
+            prefix_marker(
+                Content::text("1."),
+                "pdf.marker.tag",
+                Value::Str("other".into()),
+            ),
+            prefix_marker(fraction(1.0), "pdf.marker.tag", Value::Str("label".into())),
+            prefix_marker(
+                Content::text("1."),
+                "outline.prefix-info",
+                Value::Array(vec![
+                    Value::Int(17),
+                    Value::Int(1),
+                    Value::Length(Length::pt(25.0)),
+                ]),
+            ),
+            prefix_marker(
+                Content::Empty,
+                "outline.prefix-info",
+                Value::Array(vec![
+                    Value::Int(17),
+                    Value::Int(0),
+                    Value::Length(Length::pt(25.0)),
+                ]),
+            ),
+            prefix_marker(
+                Content::Empty,
+                "outline.prefix-info",
+                Value::Array(vec![
+                    Value::Int(17),
+                    Value::Int(1),
+                    Value::Length(Length::em(1.0)),
+                ]),
+            ),
+            prefix_marker(
+                Content::Empty,
+                "outline.prefix-info",
+                Value::Array(vec![
+                    Value::Int(17),
+                    Value::Int(1),
+                    Value::Length(Length::pt(f64::NAN)),
+                ]),
+            ),
+            prefix_marker(Content::Empty, "outline.unknown", Value::Bool(true)),
+        ];
+        for marker in invalid {
+            let plan = scope(
+                &[marker, Content::text("A"), fraction(1.0), Content::text("B")],
+                100.0,
+            );
+            assert_eq!(assigned(child(&plan, 2)), None);
+        }
+        for parts in [
+            vec![
+                Content::text("A"),
+                Content::h_space(Length::pt(-10.0), false),
+                fraction(1.0),
+                Content::text("B"),
+            ],
+            vec![
+                Content::h_space(Length::pt(-10.0), true),
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ],
+            vec![
+                Content::h_space(Length::pt(-10.0), false),
+                Content::h_space(Length::pt(-10.0), false),
+                fraction(1.0),
+                Content::text("B"),
+            ],
+            vec![
+                Content::h_space(Length::pt(f64::NEG_INFINITY), false),
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ],
+        ] {
+            let plan = scope(&parts, 100.0);
+            assert_eq!(assigned(child(&plan, 2)), None);
+        }
+        let rtl = Content::styled(
+            Content::sequence(vec![
+                Content::h_space(Length::pt(-10.0), false),
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ]),
+            Styles::new().push_custom("text.dir", Value::Dir(Dir::RTL)),
+        );
+        let plan = scope(&[rtl], 100.0);
+        let inner = child(&plan, 0).expect("original RTL sequence route");
+        assert_eq!(
+            assigned(child(&inner, 2)),
+            None,
+            "LTR compensation proof cannot admit RTL"
+        );
+    }
+
+    #[test]
+    fn readiness_outline_prefix_compensation_refuses_later_rtl() {
+        let later_rtl = Content::styled(
+            Content::sequence(vec![
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ]),
+            Styles::new().push_custom("text.dir", Value::Dir(Dir::RTL)),
+        );
+        let plan = scope(&[Content::h_space(Length::pt(-10.0), false), later_rtl], 100.0);
+        let inner = child(&plan, 1).expect("original direction scope");
+        assert_eq!(
+            assigned(child(&inner, 1)),
+            None,
+            "a leading LTR origin proof cannot certify later RTL material"
+        );
+    }
+
+    #[test]
+    fn readiness_fraction_inset_observed_positive_budget_has_a_strict_certificate() {
+        let occupancy = [
+            Occupancy::Fixed(f64::from_bits(0x4033e353f7ced917)),
+            Occupancy::Weak(2.75),
+            Occupancy::Fraction(0, 1.0, true),
+            Occupancy::Weak(2.75),
+            Occupancy::Fixed(f64::from_bits(0x401475c28f5c28f6)),
+        ];
+        let (assignments, cursor) =
+            Certificate::<DeclaredWidths>::line_assignments(&occupancy, 33.2, 280.0)
+                .expect("observed inset Repeat must receive a contained final share");
+        assert_eq!(assignments.len(), 1);
+        assert_eq!(assignments[0].0, 0);
+        assert!((assignments[0].1 - 216.297).abs() < 1e-10);
+        assert!(cursor.is_finite() && cursor <= 280.0);
+        assert!((cursor - 280.0).abs() < 1e-10);
+
+        let (normal, cursor) =
+            Certificate::<DeclaredWidths>::line_assignments(&occupancy, 20.0, 280.0)
+                .expect("original zero-inset certificate stays valid");
+        assert!((normal[0].1 - 229.497).abs() < 1e-10);
+        assert!(cursor <= 280.0);
+        for width in [300.0, f64::INFINITY, f64::NAN] {
+            assert!(
+                Certificate::<DeclaredWidths>::line_assignments(
+                    &[Occupancy::Fixed(width), Occupancy::Fraction(0, 1.0, true)],
+                    20.0,
+                    280.0,
+                )
+                .is_none(),
+                "uncertified fixed width cannot become a share: {width}"
+            );
+        }
     }
 
     #[test]

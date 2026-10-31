@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query_helpers.md
-//! @prompt-hash 7e4113df
+//! @prompt-hash b2b5d960
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -547,7 +547,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::GridCell(cell) => has_any_text(&cell.body),
         Content::Table(table) => {
             let caption_text = table.caption.as_ref().is_some_and(has_any_text);
-            caption_text || table.resolved.as_ref().map_or(&table.children,|r|&r.cells).iter().any(has_any_text)
+            caption_text || table.resolved.as_ref().map_or(table.items.as_ref().unwrap_or(&table.children),|r|&r.cells).iter().any(has_any_text)
         }
         Content::TableHeader(header) => has_any_text(&header.body),
         Content::TableFooter(footer) => has_any_text(&footer.body),
@@ -637,7 +637,7 @@ where
         Content::GridCell(cell) => count_variant(&cell.body, predicate),
         Content::Table(table) => {
             table.caption.as_ref().map_or(0, |c| count_variant(c, predicate))
-                + table.resolved.as_ref().map_or(&table.children,|r|&r.cells).iter().map(|c| count_variant(c, predicate)).sum::<usize>()
+                + table.resolved.as_ref().map_or(table.items.as_ref().unwrap_or(&table.children),|r|&r.cells).iter().map(|c| count_variant(c, predicate)).sum::<usize>()
         }
         Content::TableHeader(header) => count_variant(&header.body, predicate),
         Content::TableFooter(footer) => count_variant(&footer.body, predicate),

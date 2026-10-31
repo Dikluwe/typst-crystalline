@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/metrics.md
-//! @prompt-hash 933bdf9f
+//! @prompt-hash ee8d3837
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -20,6 +20,28 @@ use unicode_script::{Script, UnicodeScript};
 /// `font_size` é passado em cada chamada para suportar tamanhos mistos
 /// (rich text futuro).
 pub trait FontMetrics: Send + Sync {
+    fn text_trailing_overhang(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+        ratios: &[(char, f64)],
+    ) -> Option<(Pt, usize)> {
+        let _ = (text, size, style, ratios);
+        None
+    }
+
+    fn glyph_overhang(
+        &self,
+        font: &crate::entities::world_types::Font,
+        glyph_id: u16,
+        advance: Pt,
+        ratios: &[(char, f64)],
+    ) -> Option<Pt> {
+        let _ = (font, glyph_id, advance, ratios);
+        None
+    }
+
     /// Avanço horizontal de uma string em pontos tipográficos.
     ///
     /// **P544** — o estilo de texto é passado para que implementações com
@@ -448,6 +470,25 @@ impl FontMetrics for FixedMetrics {
 /// um tipo genérico `M: FontMetrics`. Delega cada método obrigatório para o
 /// trait object subjacente; os métodos com default usam esses quatro.
 impl FontMetrics for &dyn FontMetrics {
+    fn text_trailing_overhang(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+        ratios: &[(char, f64)],
+    ) -> Option<(Pt, usize)> {
+        (*self).text_trailing_overhang(text, size, style, ratios)
+    }
+    fn glyph_overhang(
+        &self,
+        font: &crate::entities::world_types::Font,
+        glyph_id: u16,
+        advance: Pt,
+        ratios: &[(char, f64)],
+    ) -> Option<Pt> {
+        (*self).glyph_overhang(font, glyph_id, advance, ratios)
+    }
+
     fn advance_shaped(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
         (*self).advance_shaped(text, size, style)
     }

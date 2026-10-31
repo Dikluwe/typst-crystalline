@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "outline-inline-budget"
+title = "Bounded plain-prefix Outline inline budgets"
+[[claims]]
+id = "original-carriers"
+level = "must"
+statement = "The existing indented Outline producer preserves original prefix-info, signed compensation, Label prefix, gap and inner Content. For the positively admitted plain-Text subset, certification may recognize only the exact existing Empty prefix-info schema and label marker; it does not erase markers, flatten Semantic Label, clone/replay children or constrain the producer's other rich forms."
+[[claims]]
+id = "leading-origin"
+level = "may"
+statement = "A no-wrap LTR certificate may account for one first finite negative nonweak absolute H before any material or fixed occupancy by applying its exact finite addition to the current line origin. Continuation origin stays unchanged. This grants no wrapping proof, later/repeated negative advance, weak-negative interpretation, opaque-width assumption or relaxed final containment."
+[[claims]]
+id = "preservation"
+level = "must"
+statement = "Keep the original one-time dispatch and all content, prefix metadata, semantic envelope, baselines, scope restoration and effects. Require complete known widths and strict finite ordered cursor <= right, preserve existing signed/zero/nonfinite/opaque and rounding controls, and accept only unchanged words/pages with 0.001pt geometry plus independent PDF/SVG paint."

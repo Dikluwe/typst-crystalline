@@ -56,21 +56,21 @@ active prompts remain in the lineage gate.
 On Linux, install `poppler-utils`, `qpdf`, `librsvg2-bin`, and `imagemagick`.
 Parity tests require `TYPST_VANILLA` to point to an oracle with verified
 provenance. Do not use the old `/usr/local/bin/typst` installation. To use the
-locally ratified binary from the 2026-10-17 resync:
+locally ratified binary from the 2026-10-26 resync:
 
 ```sh
-echo '9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9  lab/typst-original/target/release/typst' | sha256sum --check
+echo '22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34  lab/typst-original/target/release/typst' | sha256sum --check
 export TYPST_VANILLA="$PWD/lab/typst-original/target/release/typst"
 ```
 
 CI independently checks out upstream `typst/typst` at pinned commit
-`bd5ebec285505889e8ff1d4f68804ab147a699f3`. `build_oracle.py` verifies the
+`64c5e8c02fe0394d913ead36e42ef8c1334d2107`. `build_oracle.py` verifies the
 upstream commit and tree, checks that the source has no modifications before or
 after the build, and writes the receipt to `lab/results/oracle-build.json`.
 It builds with the lockfile, one job, and the workspace Rust toolchain. The
 receipt records the recipe and executable SHA-256. The local resync report and
 receipt are preserved at
-`lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md`.
+`lab/results/construction/diagnostics/vanilla-resync-2026-10-26/relatorio.md`.
 A rebuild may have a different SHA from the locally ratified binary; record the
 actual hash and never substitute a version string for binary identity.
 

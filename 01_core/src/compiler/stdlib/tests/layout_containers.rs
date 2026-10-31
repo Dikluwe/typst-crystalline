@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/layout_containers.md
-//! @prompt-hash 021524fb
+//! @prompt-hash 3cae78b7
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -169,7 +169,7 @@ fn p247_native_block_aceita_stroke_length_shorthand() {
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Block(e)) = r {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
-        assert_eq!(s.thickness, 2.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(2.0));
     } else {
         panic!("esperado Content::Block");
     }
@@ -228,7 +228,11 @@ fn p247_native_box_aceita_stroke_color_shorthand() {
     if let Value::Content(Content::Boxed(e)) = r {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
         assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 255)));
-        assert_eq!(s.thickness, 1.0, "Color shorthand default 1pt thickness");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "Color shorthand default 1pt thickness"
+        );
     } else {
         panic!("esperado Content::Boxed");
     }
@@ -266,7 +270,10 @@ fn p247_native_block_combina_fill_stroke_radius_clip_outset() {
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Block(e)) = r {
         assert_eq!(e.fill, Some(Color::rgb(50, 100, 150)));
-        assert_eq!(e.stroke.clone().unwrap().thickness, 1.5);
+        assert_eq!(
+            e.stroke.clone().unwrap().thickness,
+            crate::entities::layout_types::Length::pt(1.5)
+        );
         assert_eq!(e.radius.top_left, Length::pt(3.0));
         assert!(e.clip);
         assert_eq!(e.outset.left, Length::pt(2.0));
@@ -429,7 +436,7 @@ fn p252_native_block_stroke_length_atalho_overhang_default_true() {
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Block(e)) = r {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
-        assert_eq!(s.thickness, 2.5);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(2.5));
         assert!(
             s.overhang,
             "P252 — Length atalho default overhang=true (paridade vanilla)"
@@ -451,7 +458,7 @@ fn p252_native_block_stroke_color_atalho_overhang_default_true() {
     if let Value::Content(Content::Block(e)) = r {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
         assert_eq!(s.paint, Paint::Solid(Color::rgb(255, 0, 0)));
-        assert_eq!(s.thickness, 1.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(1.0));
         assert!(
             s.overhang,
             "P252 — Color atalho default overhang=true (paridade vanilla)"
@@ -472,7 +479,7 @@ fn p252_native_stroke_overhang_explicit_false() {
     args.named.insert("overhang".into(), Value::Bool(false));
     let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Stroke(s) = r {
-        assert_eq!(s.thickness, 2.0);
+        assert_eq!(s.thickness, crate::entities::layout_types::Length::pt(2.0));
         assert!(!s.overhang);
     } else {
         panic!("esperado Value::Stroke");
@@ -821,13 +828,18 @@ fn native_stack_rejeita_dir_invalido() {
 }
 
 #[test]
-fn native_stack_rejeita_spacing_negativo() {
+fn native_stack_preserva_spacing_negativo_tipado() {
     null_ctx!(ctx);
-    use crate::entities::layout_types::Length;
+    use crate::entities::{dir::Dir, layout_types::Length};
     let mut args = p(vec![]);
     args.named.insert("spacing".into(), Value::Length(Length::pt(-1.0)));
-    let r = native_stack(&mut ctx, &args, &null_world(), test_file_id());
-    assert!(r.is_err(), "spacing negativo deve retornar Err");
+    let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+    let Value::Content(Content::Stack(e)) = r else {
+        panic!("expected Stack");
+    };
+    assert_eq!(e.spacing, Some(Length::pt(-1.0)));
+    assert_eq!(e.dir, Dir::TTB);
+    assert!(e.children.is_empty());
 }
 
 #[test]

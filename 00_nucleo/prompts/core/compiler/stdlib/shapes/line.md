@@ -1,5 +1,8 @@
 # L0 — stdlib/shapes/line
-Hash do Código: b53ebd37
+Hash do Código: ce9018bc
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
 
 ## Ownership and evidence
 
@@ -76,3 +79,29 @@ negative/zero lengths, default legacy zero line and nonzero-origin Path geometry
 Tests cover malformed legacy inputs, supplied-value span, valid absolute/numeric
 and negative/zero controls, stroke/conflict precedence and named dimensional
 debts. No native public signature/default/phase changes and no suppression.
+
+
+
+## R13 — approved materialization
+
+Owner approved the saved proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00, including the public carrier and eval-to-layout boundary. Approval and measured baseline are retained in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/. The previously pending section is now ratified within that exact scope. Apply the pinned nucleus before code; RED→GREEN and complete validation remain mandatory.
+This supersedes only the old polar Ratio rejection and loss of em/relative coordinate coefficients. Preserve malformed legacy dx/dy diagnostics and span, conflicts, stroke-first validation, end precedence, absolute paths and legacy zero default. Add acceptance tests before implementation, then coefficient and diagnostic controls.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

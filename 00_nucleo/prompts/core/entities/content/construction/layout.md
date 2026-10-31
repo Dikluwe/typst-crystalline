@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/layout
-Hash do Código: 1cf58eb0
+Hash do Código: ee3e18f4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -74,3 +74,22 @@ arguments/defaults, including radius-to-RoundedRect behavior. Initialize
 axes. Never infer Circle from kind, dimensions or paint. Origin is no new render
 parameter. All other constructors retain their current contracts. Require generic
 Ellipse/Rect/RoundedRect controls and full dependent migration validation.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

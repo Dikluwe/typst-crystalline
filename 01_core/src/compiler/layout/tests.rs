@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash 03a2a27c
+//! @prompt-hash cd4f3d80
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -2816,7 +2816,7 @@ fn layout_terms_sem_parbreak_continua_grupo() {
 }
 
 #[test]
-fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
+fn layout_lista_para_enum_usa_espaco_de_paragrafo() {
     let content = Content::sequence(vec![
         Content::list_item(Content::text("first")),
         Content::Parbreak,
@@ -2840,8 +2840,9 @@ fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
     assert_eq!(ys.len(), 2, "deve haver um marcador e um rótulo");
     let style = TextStyle::default();
     let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-    let line_advance = top.val() + bottom.val().abs() + leading;
+    // Paired list-enum-fresh: distinct groups use paragraph spacing (1.2em).
+    let paragraph_spacing = 11.0 * 1.2;
+    let line_advance = top.val() + bottom.val().abs() + paragraph_spacing;
     let actual_gap = ys[1] - ys[0];
     assert!(
         (actual_gap - line_advance).abs() < 0.01,
@@ -3436,6 +3437,33 @@ fn layout_set_heading_numbering_activa_contador() {
 
 // ── P451 — Layout E2E com patterns de numeração configuráveis ───────────────
 
+fn assert_numbered_heading_runs(doc: &PagedDocument, expected: &[(&str, &str)]) {
+    let runs: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|page| frame_items_recursive(&page.items))
+        .filter_map(|item| match item {
+            FrameItem::Text { text, pos, style, .. } => Some((text.as_str(), pos, style)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(runs.len(), 2 * expected.len(), "each heading keeps its prefix and body");
+    let mut previous_y = None;
+    for (pair, &(prefix, body)) in runs.chunks_exact(2).zip(expected) {
+        assert_eq!(pair[0].0, prefix);
+        assert_eq!(pair[1].0, body);
+        assert_eq!(pair[0].1.y, pair[1].1.y, "number and body share a baseline");
+        let size = pair[0].2.size.0;
+        let gap =
+            pair[1].1.x.0 - pair[0].1.x.0 - prefix.chars().count() as f64 * 0.6 * size;
+        assert!((gap - 0.3 * size).abs() < 1e-8, "heading gap: {gap}");
+        if let Some(y) = previous_y {
+            assert!(pair[0].1.y.0 > y);
+        }
+        previous_y = Some(pair[0].1.y.0);
+    }
+}
+
 #[test]
 fn p451_layout_heading_pattern_1_ponto() {
     let content = Content::heading_numbered_with_pattern(
@@ -3443,8 +3471,7 @@ fn p451_layout_heading_pattern_1_ponto() {
         Content::text("Intro"),
         Some("1.".into()),
     );
-    let text = smartquote_rendered_text(&layout(&content));
-    assert!(text.contains("1. Intro"), "esperado '1. Intro' em: {text}");
+    assert_numbered_heading_runs(&layout(&content), &[("1.", "Intro")]);
 }
 
 #[test]
@@ -3464,9 +3491,7 @@ fn p451_layout_heading_pattern_1_ponto_1() {
         ]
         .into(),
     );
-    let text = smartquote_rendered_text(&layout(&content));
-    assert!(text.contains("1. Cap"), "esperado '1. Cap' em: {text}");
-    assert!(text.contains("1.1 Sec"), "esperado '1.1 Sec' em: {text}");
+    assert_numbered_heading_runs(&layout(&content), &[("1.", "Cap"), ("1.1", "Sec")]);
 }
 
 #[test]
@@ -3491,13 +3516,10 @@ fn p451_layout_heading_pattern_romano_reseta_inferior() {
         ]
         .into(),
     );
-    let text = smartquote_rendered_text(&layout(&content));
-    assert!(text.contains("I. A"), "esperado 'I. A' em: {text}");
-    assert!(
-        text.contains("I.I B"),
-        "esperado prefixo romano hierárquico 'I.I B' em: {text}"
+    assert_numbered_heading_runs(
+        &layout(&content),
+        &[("I.", "A"), ("I.I", "B"), ("II.", "C")],
     );
-    assert!(text.contains("II. C"), "esperado 'II. C' em: {text}");
 }
 
 // ── Lote F-2 S1 (P335) — o gate de numeração migrou do Introspector para o
@@ -5691,18 +5713,10 @@ fn p772v_table_header_footer_nomeados_dao_erro() {
 }
 
 #[test]
-fn p772v_table_multiplos_headers_da_erro() {
-    let prev_hook = std::panic::take_hook();
-    std::panic::set_hook(Box::new(|_| {}));
-    let result = std::panic::catch_unwind(|| {
-        layout_test("#table(columns: 1, table.header[A], table.header[B])")
-    });
-    std::panic::set_hook(prev_hook);
-    assert!(
-        result.is_err(),
-        "múltiplos headers devem errar explicitamente (scope-out — não \
-         suportamos múltiplos headers por `level`)"
-    );
+fn p772v_table_multiplos_headers_preservam_ocorrencias() {
+    let doc = layout_test("#table(columns: 1, table.header[A], table.header[B])");
+    let text = doc.pages.iter().map(|p| p.plain_text()).collect::<String>();
+    assert!(text.find('A').unwrap() < text.find('B').unwrap(), "{text}");
 }
 
 // ── P789 — conflito de célula do corpo com header deve errar ──────────────
@@ -9474,7 +9488,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -9512,7 +9526,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -9540,13 +9554,13 @@ mod tests_show_rule_integration {
 
         let red = Stroke {
             paint: Paint::Solid(Color::rgb(255, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
         let blue = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 255)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
@@ -9682,7 +9696,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -9774,6 +9788,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -9786,7 +9801,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
-                    thickness: 0.5,
+                    thickness: crate::entities::layout_types::Length::pt(0.5),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -9994,7 +10009,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10036,6 +10051,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -10213,7 +10229,7 @@ mod tests_show_rule_integration {
                 rowspan: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
-                    thickness: 5.0,
+                    thickness: crate::entities::layout_types::Length::pt(5.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10238,7 +10254,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10338,7 +10354,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 3.0,
+                    thickness: crate::entities::layout_types::Length::pt(3.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10383,7 +10399,7 @@ mod tests_show_rule_integration {
                 rowspan: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10448,7 +10464,7 @@ mod tests_show_rule_integration {
                 rowspan: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }), // cell stroke
@@ -10869,7 +10885,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -10916,7 +10932,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -11052,7 +11068,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(10, 20, 30)),
-                    thickness: 1.5,
+                    thickness: crate::entities::layout_types::Length::pt(1.5),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -11654,6 +11670,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -11737,6 +11754,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -11828,6 +11846,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -11927,6 +11946,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -12160,6 +12180,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -12917,7 +12938,7 @@ mod tests_show_rule_integration {
                 fill: Some(Color::rgb(200, 200, 200)),     // P247
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }), // P247
@@ -13010,6 +13031,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13100,6 +13122,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13163,6 +13186,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13262,6 +13286,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13347,6 +13372,7 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13454,6 +13480,7 @@ mod tests_show_rule_integration {
         };
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
                 rows_explicit: false,
@@ -13500,20 +13527,20 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Color;
         let s1 = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
         let s2 = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: true,
             ..Stroke::default()
         };
         assert_ne!(s1, s2, "P252 — overhang distingue strokes em PartialEq");
         let s3 = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 1.0,
+            thickness: crate::entities::layout_types::Length::pt(1.0),
             overhang: false,
             ..Stroke::default()
         };
@@ -13526,7 +13553,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Color;
         let s = Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: 2.0,
+            thickness: crate::entities::layout_types::Length::pt(2.0),
             overhang: true,
             ..Stroke::default()
         };
@@ -13556,7 +13583,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 4.0,
+                    thickness: crate::entities::layout_types::Length::pt(4.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -13603,7 +13630,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 4.0,
+                    thickness: crate::entities::layout_types::Length::pt(4.0),
                     overhang: true,
                     ..Stroke::default()
                 }),
@@ -13650,7 +13677,7 @@ mod tests_show_rule_integration {
                 fill: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                    thickness: 6.0,
+                    thickness: crate::entities::layout_types::Length::pt(6.0),
                     overhang: true,
                     ..Stroke::default()
                 }),
@@ -14569,7 +14596,7 @@ mod tests_show_rule_integration {
                 rowspan: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
-                    thickness: 2.0,
+                    thickness: crate::entities::layout_types::Length::pt(2.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -14632,7 +14659,7 @@ mod tests_show_rule_integration {
                 rowspan: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(0, 0, 255)),
-                    thickness: 7.0,
+                    thickness: crate::entities::layout_types::Length::pt(7.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -14657,7 +14684,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(255, 0, 0)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -14738,7 +14765,7 @@ mod tests_show_rule_integration {
                 footer: None,
                 stroke: Some(Stroke {
                     paint: Paint::Solid(Color::rgb(100, 100, 100)),
-                    thickness: 1.0,
+                    thickness: crate::entities::layout_types::Length::pt(1.0),
                     overhang: false,
                     ..Stroke::default()
                 }),
@@ -24932,7 +24959,9 @@ fn special_cell_geometry_preserves_subframe_fallback() {
         if kind == 1 {
             if let Content::Table(elem) = &mut table {
                 Arc::make_mut(elem).align =
-                    Some(Align2D { h: Some(HAlign::Center), v: None });
+                    Some(crate::entities::elements::table::TableAlignment::Uniform(
+                        Align2D { h: Some(HAlign::Center), v: None },
+                    ));
             }
         }
         CELL_SUB_FRAME_CALLS.with(|count| count.set(0));
@@ -25705,6 +25734,9 @@ mod paint_root_transport {
     fn shape() -> Content {
         Content::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(8.0)))),
             height: Some(Box::new(Value::Length(Length::pt(6.0)))),
@@ -26542,5 +26574,768 @@ mod weak_pagebreak_regressions {
             document(r#"#page[One]#pagebreak(weak:true,to:"odd")"#).pages.len(),
             2
         );
+    }
+}
+
+#[cfg(test)]
+mod readiness_list_boundary_tests {
+    use crate::entities::{
+        content::Content,
+        layout_types::{FrameItem, Length},
+        style::{Style, Styles},
+        value::Value,
+    };
+
+    fn item(numbered: bool, text: &str, nested: bool) -> Content {
+        let body = if nested {
+            Content::sequence(vec![
+                Content::text(text),
+                Content::Space,
+                Content::equation(Content::text("x"), false),
+            ])
+        } else {
+            Content::text(text)
+        };
+        if numbered {
+            Content::enum_item(None, body)
+        } else {
+            Content::list_item(body)
+        }
+    }
+
+    fn positions_with_body(
+        first_numbered: bool,
+        switch: bool,
+        blank: bool,
+        spacing: f64,
+        leading: f64,
+        nested: bool,
+    ) -> Vec<f64> {
+        let mut parts = vec![
+            item(first_numbered, "ALPHA", nested),
+            item(first_numbered, "BETA", nested),
+        ];
+        parts.push(if blank { Content::Parbreak } else { Content::SpaceFromNewline });
+        parts.push(item(
+            if switch { !first_numbered } else { first_numbered },
+            "GAMMA",
+            nested,
+        ));
+        parts.push(item(
+            if switch { !first_numbered } else { first_numbered },
+            "DELTA",
+            nested,
+        ));
+        let styles = Styles::from_iter([
+            Style::Size(Length::pt(11.0)),
+            Style::Leading(Length::pt(leading)),
+        ])
+        .push_custom("par.leading", Value::Length(Length::pt(leading)))
+        .push_custom("par.spacing", Value::Length(Length::pt(spacing)));
+        let doc = crate::compiler::layout::layout(&Content::styled(
+            Content::sequence(parts),
+            styles,
+        ));
+        ["ALPHA", "BETA", "GAMMA", "DELTA"]
+            .iter()
+            .map(|name| {
+                doc.pages
+                    .iter()
+                    .flat_map(|page| {
+                        crate::compiler::layout::tests::frame_items_recursive(&page.items)
+                    })
+                    .find_map(|item| match item {
+                        FrameItem::Text { text, pos, .. } if text == *name => {
+                            Some(pos.y.0)
+                        }
+                        _ => None,
+                    })
+                    .expect("each source item paints once")
+            })
+            .collect()
+    }
+
+    fn positions(
+        first_numbered: bool,
+        switch: bool,
+        blank: bool,
+        spacing: f64,
+        leading: f64,
+    ) -> Vec<f64> {
+        positions_with_body(first_numbered, switch, blank, spacing, leading, false)
+    }
+
+    #[test]
+    fn readiness_list_boundary_body_sequence_preserves_outer_group() {
+        for numbered in [false, true] {
+            for blank in [false, true] {
+                let continuous =
+                    positions_with_body(numbered, false, false, 13.2, 7.15, true);
+                let switched =
+                    positions_with_body(numbered, true, blank, 13.2, 7.15, true);
+                assert_eq!(&continuous[..2], &switched[..2]);
+                for index in 2..4 {
+                    assert!((switched[index] - continuous[index] - 6.05).abs() < 1e-8,
+                        "body scope erased outer grouping: {continuous:?} -> {switched:?}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_list_boundary_replaces_leading_in_both_directions() {
+        for numbered in [false, true] {
+            for blank in [false, true] {
+                for (spacing, leading) in [(13.2, 7.15), (40.0, 7.15), (5.0, 20.0)] {
+                    let continuous = positions(numbered, false, false, spacing, leading);
+                    let switched = positions(numbered, true, blank, spacing, leading);
+                    assert_eq!(&continuous[..2], &switched[..2]);
+                    for index in 2..4 {
+                        let actual = switched[index] - continuous[index];
+                        assert!((actual - (spacing - leading)).abs() < 1e-8,
+                            "numbered={numbered}, blank={blank}, spacing={spacing}, leading={leading}: correction={actual}");
+                    }
+                    assert!(switched.windows(2).all(|pair| pair[1] > pair[0]));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_list_boundary_same_kind_keeps_its_leading() {
+        for numbered in [false, true] {
+            let a = positions(numbered, false, false, 13.2, 7.15);
+            let b = positions(numbered, false, false, 40.0, 7.15);
+            assert_eq!(a, b, "paragraph spacing does not replace intra-list leading");
+        }
+    }
+}
+
+#[cfg(test)]
+mod readiness_fraction_inset_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Length, PageMarginSpec, PageMargins, Pt, TextStyle},
+        sides::Sides,
+    };
+    use comemo::Track;
+
+    struct DeclaredWidths;
+    impl FontMetrics for DeclaredWidths {
+        fn advance(&self, text: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(text
+                .chars()
+                .map(|c| match c {
+                    'B' => 6.974,
+                    'e' => 4.884,
+                    't' => 3.058,
+                    'a' => 4.972,
+                    ' ' => 2.75,
+                    '1' => 5.115,
+                    '\u{2060}' => 0.0,
+                    '.' => 2.75,
+                    _ => panic!("undeclared fixture character {c:?}"),
+                })
+                .sum())
+        }
+        fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(7.238), Pt(12.54))
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            Pt(7.238)
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(7.238), Pt(0.0))
+        }
+    }
+
+    fn assert_layout(inset: f64, repeat: bool) {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            DeclaredWidths,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.regions.current.width = 300.0;
+        l.regions.current.line_start_x = Pt(20.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        let mut parts = vec![
+            Content::text("Beta"),
+            Content::Space,
+            Content::boxed_fractional(
+                if repeat {
+                    Content::repeat(Content::text("."), Some(Length::em(0.15)), true)
+                } else {
+                    Content::text(".")
+                },
+                1.0,
+            ),
+            Content::Space,
+        ];
+        if repeat {
+            parts.push(Content::text("\u{2060}1"));
+        } else {
+            parts.extend([Content::text("\u{2060}"), Content::text("1")]);
+        }
+        let body = Content::sequence(parts);
+        l.layout_content(&Content::block(
+            body,
+            None,
+            None,
+            Sides::new(Length::pt(inset), Length::ZERO, Length::ZERO, Length::ZERO),
+            true,
+        ));
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        let items = frame_items_recursive(&doc.pages[0].items);
+        let positions = ["Beta", if repeat { "\u{2060}1" } else { "1" }].map(|needle| {
+            let found: Vec<_> = items
+                .iter()
+                .filter_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } if text == needle => Some(*pos),
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(found.len(), 1, "source word {needle} must occur once");
+            found[0]
+        });
+        assert!(
+            (positions[0].y.0 - positions[1].y.0).abs() < 1e-8,
+            "same source line: {positions:?}"
+        );
+        assert!(
+                (positions[1].x.0 + 5.115 - 280.0).abs() < 1e-8,
+                "inset={inset}, repeat={repeat}: suffix must reach regional right edge: {positions:?}"
+            );
+    }
+
+    #[test]
+    fn readiness_fraction_inset_keeps_suffix_at_actual_right_edge() {
+        for inset in [0.0, 13.2] {
+            assert_layout(inset, false);
+        }
+    }
+
+    #[test]
+    fn readiness_fraction_inset_repeat_body_keeps_suffix_at_actual_right_edge() {
+        for inset in [0.0, 13.2] {
+            assert_layout(inset, true);
+        }
+    }
+    #[test]
+    fn readiness_outline_multiword_nested_prefix_keeps_actual_right_edge() {
+        use crate::entities::{layout_types::SemanticKind, style::Styles, value::Value};
+        for metadata in [false, true] {
+            for base in [0.0, 5.5] {
+                let intr = TagIntrospector::empty();
+                let mut l = Layouter::new(
+                    DeclaredWidths,
+                    NullImageSizer,
+                    11.0,
+                    (&intr as &dyn Introspector).track(),
+                );
+                l.page_config.width = 300.0;
+                l.page_config.margin = PageMargins::uniform(20.0);
+                l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+                l.regions.current.width = 300.0;
+                l.regions.current.line_start_x = Pt(20.0);
+                l.regions.current.cursor_x = Pt(20.0);
+                let prefix_width = 5.115 + 2.75;
+                let hanging = prefix_width + 5.5;
+                let mut parts = Vec::new();
+                if metadata {
+                    parts.push(Content::styled(
+                        Content::Empty,
+                        Styles::new().push_custom(
+                            "outline.prefix-info",
+                            Value::Array(vec![
+                                Value::Int(17),
+                                Value::Int(1),
+                                Value::Length(Length::pt(hanging)),
+                            ]),
+                        ),
+                    ));
+                }
+                parts.extend([
+                    Content::h_space(Length::pt(-hanging), false),
+                    Content::styled(
+                        Content::text("1."),
+                        Styles::new()
+                            .push_custom("pdf.marker.tag", Value::Str("label".into())),
+                    ),
+                    Content::h_space(Length::pt(hanging - prefix_width), false),
+                    Content::sequence(vec![
+                        Content::text("Beta Beta"),
+                        Content::Space,
+                        Content::boxed_fractional(
+                            Content::repeat(
+                                Content::text("."),
+                                Some(Length::em(0.15)),
+                                true,
+                            ),
+                            1.0,
+                        ),
+                        Content::Space,
+                        Content::text("\u{2060}"),
+                        Content::text("1"),
+                    ]),
+                ]);
+                let body = Content::block(
+                    Content::sequence(parts),
+                    None,
+                    None,
+                    Sides::new(
+                        Length::pt(base + hanging),
+                        Length::ZERO,
+                        Length::ZERO,
+                        Length::ZERO,
+                    ),
+                    true,
+                );
+                l.layout_content(&body);
+                let doc = l.finish();
+                assert_eq!(doc.pages.len(), 1);
+                let items = frame_items_recursive(&doc.pages[0].items);
+                let positions = ["1.", "Beta", "1"].map(|needle| {
+                    let found: Vec<_> = items
+                        .iter()
+                        .filter_map(|item| match item {
+                            FrameItem::Text { text, pos, .. }
+                            | FrameItem::TextShaped { text, pos, .. }
+                                if text == needle =>
+                            {
+                                Some(*pos)
+                            }
+                            _ => None,
+                        })
+                        .collect();
+                    assert_eq!(
+                        found.len(),
+                        if needle == "Beta" { 2 } else { 1 },
+                        "source word {needle}"
+                    );
+                    found[0]
+                });
+                assert!(
+                    (positions[0].x.0 - (20.0 + base)).abs() < 1e-8,
+                    "original prefix origin: {positions:?}"
+                );
+                assert!(
+                    (positions[1].x.0 - (20.0 + base + hanging)).abs() < 1e-8,
+                    "original body/gap: {positions:?}"
+                );
+                assert!((positions[2].x.0+5.115-280.0).abs()<1e-8,"metadata={metadata},base={base}: actual suffix must reach regional edge: {positions:?}");
+                assert!(positions
+                    .iter()
+                    .all(|p| (p.y.0 - positions[0].y.0).abs() < 1e-8));
+                assert_eq!(
+                    items
+                        .iter()
+                        .filter(|item| matches!(
+                            item,
+                            FrameItem::Semantic { kind: SemanticKind::Label, .. }
+                        ))
+                        .count(),
+                    1
+                );
+                assert!(
+                    items
+                        .iter()
+                        .filter(
+                            |item| matches!(item,FrameItem::Text{text,..} if text==".")
+                        )
+                        .count()
+                        > 1,
+                    "the actual Repeat must retain its visible dot copies"
+                );
+                let observed = crate::compiler::introspect::introspect(&body);
+                if metadata {
+                    assert_eq!(
+                        observed.outline_prefix_widths.get(&17),
+                        Some(&vec![Some(hanging)])
+                    );
+                } else {
+                    assert!(observed.outline_prefix_widths.is_empty());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_outline_prefix_actual_line_preserves_inset_marker_and_right_edge() {
+        use crate::entities::{layout_types::SemanticKind, style::Styles, value::Value};
+        for metadata in [false, true] {
+            for base in [0.0, 5.5] {
+                let intr = TagIntrospector::empty();
+                let mut l = Layouter::new(
+                    DeclaredWidths,
+                    NullImageSizer,
+                    11.0,
+                    (&intr as &dyn Introspector).track(),
+                );
+                l.page_config.width = 300.0;
+                l.page_config.margin = PageMargins::uniform(20.0);
+                l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+                l.regions.current.width = 300.0;
+                l.regions.current.line_start_x = Pt(20.0);
+                l.regions.current.cursor_x = Pt(20.0);
+                let prefix_width = 5.115 + 2.75;
+                let hanging = prefix_width + 5.5;
+                let mut parts = Vec::new();
+                if metadata {
+                    parts.push(Content::styled(
+                        Content::Empty,
+                        Styles::new().push_custom(
+                            "outline.prefix-info",
+                            Value::Array(vec![
+                                Value::Int(17),
+                                Value::Int(1),
+                                Value::Length(Length::pt(hanging)),
+                            ]),
+                        ),
+                    ));
+                }
+                parts.extend([
+                    Content::h_space(Length::pt(-hanging), false),
+                    Content::styled(
+                        Content::text("1."),
+                        Styles::new()
+                            .push_custom("pdf.marker.tag", Value::Str("label".into())),
+                    ),
+                    Content::h_space(Length::pt(hanging - prefix_width), false),
+                    Content::text("Beta"),
+                    Content::Space,
+                    Content::boxed_fractional(
+                        Content::repeat(Content::text("."), Some(Length::em(0.15)), true),
+                        1.0,
+                    ),
+                    Content::Space,
+                    Content::text("\u{2060}1"),
+                ]);
+                let body = Content::block(
+                    Content::sequence(parts),
+                    None,
+                    None,
+                    Sides::new(
+                        Length::pt(base + hanging),
+                        Length::ZERO,
+                        Length::ZERO,
+                        Length::ZERO,
+                    ),
+                    true,
+                );
+                l.layout_content(&body);
+                let doc = l.finish();
+                assert_eq!(doc.pages.len(), 1);
+                let items = frame_items_recursive(&doc.pages[0].items);
+                let positions = ["1.", "Beta", "\u{2060}1"].map(|needle| {
+                    let found: Vec<_> = items
+                        .iter()
+                        .filter_map(|item| match item {
+                            FrameItem::Text { text, pos, .. }
+                            | FrameItem::TextShaped { text, pos, .. }
+                                if text == needle =>
+                            {
+                                Some(*pos)
+                            }
+                            _ => None,
+                        })
+                        .collect();
+                    assert_eq!(found.len(), 1, "source word {needle} must occur once");
+                    found[0]
+                });
+                assert!(
+                    (positions[0].x.0 - (20.0 + base)).abs() < 1e-8,
+                    "original prefix origin: {positions:?}"
+                );
+                assert!(
+                    (positions[1].x.0 - (20.0 + base + hanging)).abs() < 1e-8,
+                    "original body/gap: {positions:?}"
+                );
+                assert!((positions[2].x.0+5.115-280.0).abs()<1e-8,"metadata={metadata},base={base}: actual suffix must reach regional edge: {positions:?}");
+                assert!(positions
+                    .iter()
+                    .all(|p| (p.y.0 - positions[0].y.0).abs() < 1e-8));
+                assert_eq!(
+                    items
+                        .iter()
+                        .filter(|item| matches!(
+                            item,
+                            FrameItem::Semantic { kind: SemanticKind::Label, .. }
+                        ))
+                        .count(),
+                    1
+                );
+                assert!(
+                    items
+                        .iter()
+                        .filter(
+                            |item| matches!(item,FrameItem::Text{text,..} if text==".")
+                        )
+                        .count()
+                        > 1,
+                    "the actual Repeat must retain its visible dot copies"
+                );
+                let observed = crate::compiler::introspect::introspect(&body);
+                if metadata {
+                    assert_eq!(
+                        observed.outline_prefix_widths.get(&17),
+                        Some(&vec![Some(hanging)])
+                    );
+                } else {
+                    assert!(observed.outline_prefix_widths.is_empty());
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod readiness_page_number_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{Length, Page, PageMarginSpec, PageMargins, Pt, TextStyle},
+        numbering::Numbering,
+        page_running::{
+            PageMarginal, PageMarginalOffset, PageNumberAlign, PageNumberVAlign,
+        },
+        style::{Style, Styles},
+        style_chain::StyleChain,
+    };
+    use comemo::Track;
+
+    struct DeclaredEdges;
+    impl FontMetrics for DeclaredEdges {
+        fn advance(&self, text: &str, size: Pt, _: &TextStyle) -> Pt {
+            Pt(text.chars().count() as f64 * size.0 * 0.5)
+        }
+        fn vertical_metrics(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(size.0 * 0.93), Pt(size.0 * 1.2))
+        }
+        fn cap_height(&self, size: Pt, _: &TextStyle) -> Pt {
+            Pt(size.0 * 0.61)
+        }
+        fn text_edges(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(size.0 * 0.61), Pt(0.0))
+        }
+    }
+
+    fn document(
+        pattern: &str,
+        vertical: PageNumberVAlign,
+        marginal: PageMarginal,
+    ) -> PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            DeclaredEdges,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 300.0;
+        l.page_config.height = 300.0;
+        l.page_config.margin = PageMargins::uniform(20.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(20.0);
+        l.page_config.numbering = Some(Numbering::Pattern(pattern.into()));
+        l.page_config.number_align =
+            PageNumberAlign { horizontal: HAlign::Center, vertical };
+        l.page_config.header_ascent = PageMarginalOffset { rel: 0.3, abs: Length::ZERO };
+        l.page_config.footer_descent =
+            PageMarginalOffset { rel: 0.0, abs: Length::em(0.2) };
+        match vertical {
+            PageNumberVAlign::Top => l.page_config.header = marginal,
+            PageNumberVAlign::Bottom => l.page_config.footer = marginal,
+        }
+        l.regions.current.width = 300.0;
+        l.regions.current.height = 300.0;
+        l.regions.current.line_start_x = Pt(20.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.regions.current.cursor_y = Pt(20.0);
+        l.initial_baseline_pending = true;
+        for (index, size) in [11.0, 17.0].into_iter().enumerate() {
+            l.chain = StyleChain::default_chain()
+                .push_styles(&Styles::from_iter([Style::Size(Length::pt(size))]));
+            l.style = TextStyle::from(&l.chain);
+            l.layout_content(&Content::text(if index == 0 { "Alpha" } else { "Beta" }));
+            if index == 0 {
+                l.layout_content(&Content::pagebreak(false, None));
+            }
+        }
+        l.finish()
+    }
+
+    fn foreground_text(page: &Page) -> Vec<(&str, Point, f64)> {
+        super::frame_items_recursive(&page.foreground)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, style, .. }
+                | FrameItem::TextShaped { text, pos, style, .. } => {
+                    Some((text.as_str(), *pos, style.size.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn readiness_page_number_footer_baseline_uses_declared_text_edge() {
+        for pattern in ["1", "1 / 1"] {
+            let doc = document(pattern, PageNumberVAlign::Bottom, PageMarginal::Auto);
+            assert_eq!(doc.pages.len(), 2);
+            for (index, (page, size)) in doc.pages.iter().zip([11.0, 17.0]).enumerate() {
+                let expected = if pattern == "1" {
+                    (index + 1).to_string()
+                } else {
+                    format!("{} / 2", index + 1)
+                };
+                let words = foreground_text(page);
+                assert_eq!(words.len(), 1, "one original formatted number per page");
+                assert_eq!(words[0].0, expected);
+                let expected_y = 300.0 - 20.0 + 0.2 * size + 0.61 * size;
+                assert!((words[0].1.y.0 - expected_y).abs() < 1e-8,
+                    "page={index}, pattern={pattern}, actual={:?}, expected baseline={expected_y}", words[0]);
+                assert_eq!(words[0].2, size);
+                let width = expected.chars().count() as f64 * size * 0.5;
+                assert!((words[0].1.x.0 - (300.0 - width) / 2.0).abs() < 1e-8);
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_page_number_total_retains_each_page_style_and_top_anchor() {
+        let doc = document("1 / 1", PageNumberVAlign::Top, PageMarginal::Auto);
+        assert_eq!(doc.pages.len(), 2);
+        for (index, (page, size)) in doc.pages.iter().zip([11.0, 17.0]).enumerate() {
+            let words = foreground_text(page);
+            assert_eq!(words.len(), 1);
+            assert_eq!(words[0].0, format!("{} / 2", index + 1));
+            assert_eq!(words[0].2, size, "deferred number borrowed another page's style");
+            assert!(
+                (words[0].1.y.0 - 14.0).abs() < 1e-8,
+                "top anchor is already correct"
+            );
+            assert!((words[0].1.x.0 - (300.0 - 5.0 * size * 0.5) / 2.0).abs() < 1e-8);
+        }
+    }
+
+    #[test]
+    fn readiness_page_number_explicit_marginal_remains_authoritative() {
+        for vertical in [PageNumberVAlign::Top, PageNumberVAlign::Bottom] {
+            for marginal in [
+                PageMarginal::None,
+                PageMarginal::Content(std::sync::Arc::new(Content::text("CUSTOM"))),
+            ] {
+                let content = matches!(&marginal, PageMarginal::Content(_));
+                let doc = document("1", vertical, marginal);
+                assert_eq!(doc.pages.len(), 2);
+                for page in &doc.pages {
+                    let words = foreground_text(page);
+                    assert!(!words
+                        .iter()
+                        .any(|(text, _, _)| *text == "1" || *text == "2"));
+                    assert_eq!(
+                        words.iter().filter(|(text, _, _)| *text == "CUSTOM").count(),
+                        usize::from(content)
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn table_declarative_raw_columns_and_span_origins_match_explicit_cells() {
+    use crate::entities::elements::table::TableAlignment;
+    use crate::entities::layout_types::{Align2D, TrackSizing};
+    let left = Align2D::from_string("left");
+    let right = Align2D::from_string("right");
+    fn render(
+        columns: usize,
+        alignment: Option<TableAlignment>,
+        children: Vec<Content>,
+    ) -> Vec<(String, f64, f64)> {
+        let mut table = Content::table(
+            vec![TrackSizing::Fixed(100.0); columns],
+            vec![TrackSizing::Fixed(40.0)],
+            children,
+        );
+        let Content::Table(elem) = &mut table else { unreachable!() };
+        std::sync::Arc::make_mut(elem).align = alignment;
+        let doc = layout(&table);
+        doc.pages
+            .iter()
+            .flat_map(|page| frame_items_recursive(&page.items))
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if !text.trim().is_empty() => {
+                    Some((text.to_string(), pos.x.0, pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+    fn aligned(
+        text: &str,
+        align: Align2D,
+        x: Option<usize>,
+        colspan: Option<usize>,
+    ) -> Content {
+        let mut c = Content::table_cell(Content::text(text), x, None, colspan, None);
+        let Content::TableCell(cell) = &mut c else { unreachable!() };
+        std::sync::Arc::make_mut(cell).align = Some(align);
+        c
+    }
+    for span in [false, true] {
+        let (cols, raw, reference) = if span {
+            (
+                3,
+                vec![
+                    Content::table_cell(
+                        Content::text("SPAN"),
+                        Some(1),
+                        None,
+                        Some(2),
+                        None,
+                    ),
+                    Content::text("AA"),
+                ],
+                vec![
+                    aligned("SPAN", right, Some(1), Some(2)),
+                    aligned("AA", left, None, None),
+                ],
+            )
+        } else {
+            (
+                2,
+                vec![Content::text("AA"), Content::text("BBBB")],
+                vec![aligned("AA", left, None, None), aligned("BBBB", right, None, None)],
+            )
+        };
+        let actual = render(
+            cols,
+            Some(TableAlignment::Columns(vec![Some(left), Some(right)])),
+            raw,
+        );
+        let expected = render(cols, Some(TableAlignment::Auto), reference);
+        assert_eq!(actual.len(), 2, "raw output must retain both words: {actual:?}");
+        assert_eq!(actual.len(), expected.len());
+        for (actual, expected) in actual.iter().zip(&expected) {
+            assert_eq!(actual.0, expected.0);
+            assert!(
+                (actual.1 - expected.1).abs() < 0.001
+                    && (actual.2 - expected.2).abs() < 0.001,
+                "raw declaration differs for span={span}: {actual:?} vs {expected:?}"
+            );
+        }
     }
 }

@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "word-joiner-unicode"
+title = "Occurrence Word Joiner and ordinary space extraction"
+[[claims]]
+id = "space-canonical"
+level = "must"
+statement = "When a used space and a shaped U+2060 share a glyph, the ordinary space CID retains U+0020; a first shaped cluster must not relabel every space in the resource."
+[[claims]]
+id = "joiner-occurrence"
+level = "must"
+statement = "Source U+2060 remains extractable by occurrence through ActualText without deleting it or changing glyphs, positions, advances, styles or selected font-resource identities; an enclosing authored text replacement remains authoritative."
+[[claims]]
+id = "scope-boundary"
+level = "must"
+statement = "A shaped run containing U+2060 cannot be coalesced across its occurrence ActualText scopes, including a certified separator-prefix scope. Ordinary runs keep their existing behavior; Compact and Verbose, local/top and deferred restoration remain balanced."
+[[claims]]
+id = "separator-prefix"
+level = "may"
+statement = "For two adjacent original leaves, a causal positive-advance separator and a same-style/same-resource LTR shaped run with no bidi override may retain separate ActualText scopes while the separator carries its original space plus only the run's leading U+2060 prefix, and the run carries its exact remainder. The prefix must have the supplied real face's empty-space glyphs with zero advances/offsets, exact same baseline and adjacent positions; bitmap, missing-face, opaque or authored-replacement scopes retain their prior route. Concatenated source Unicode, original leaf identities/MCIDs, all glyph paint and positions remain unchanged; a single wide replacement is not authorized."

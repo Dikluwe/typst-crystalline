@@ -1,5 +1,5 @@
 # L0 — compiler/math/layout/style_transform
-Hash do Código: b0de8831
+Hash do Código: ac517dca
 
 
 Núcleos Tekt:
@@ -47,3 +47,34 @@ Preserve native Symbol through default and explicit math glyph mapping, retainin
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
 
 Measured selected-string-class/receipt.json shows native Symbol multi-character arrow and sum remain upright locally but math-italic per scalar upstream. Apply default and explicit glyph styling per scalar of a Symbol string (including preservation of variation selectors) without changing the native variant or legacy MathIdent/MathText behavior. No symbol-name lookup is authorized by a selected text string.
+
+
+## Class carrier glyph transformation
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/math-class-style-before/receipt.json binds twelve
+source cases to immutable binaries/current oracle/UTC/HEAD/diffstat/archive;
+math-class-findings-before-decision.json verifies this consumer unchanged from
+that build through physical15. Class math body x remains roman locally while
+native emits mathematical italic; outer bold is lost while inner bold works.
+Nested class repeats the loss. Literal string x correctly remains roman and
+upright controls pass. Existing bold-string also differs without class and
+remains an independent negative. style_transform.rs:35 and the explicit helper
+fall through on MathClassOverride; native math/mod.rs:227 declares a spacing
+class override with an otherwise normally styled body. This is semantic glyph
+style and carrier preservation, not a Rust structural-equality requirement.
+
+### Exclusive correction and acceptance
+
+Both existing glyph transformation helpers recurse into MathClassOverride.body
+and rebuild with the same class via the existing constructor. Preserve Source
+origins, nested class values, MathStyled inner-axis precedence, sizes/cramped/
+attachment bits and literal Text behavior. Neither class identity nor an outer
+spacing override disables mathematical glyph style. Default must leave quoted
+Text unchanged; explicit bold/upright of Symbol follows the same existing
+mapping as an unwrapped Symbol. Do not fix quoted-bold by coercing Text to math.
+Require RED for default/outer bold/nested class plus literal/upright/inner-style
+controls; bilateral source/render checks must retain unrelated bold-string
+negatives. No geometry/callback/public/default/phase change is authorized.
+Continuous ADR-0127: L0 first, RED→GREEN, seals and full existing validation.

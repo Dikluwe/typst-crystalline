@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/table_header.md
-//! @prompt-hash cd6af825
+//! @prompt-hash 3f64f079
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,6 +16,7 @@ use crate::entities::source_result::SourceResult;
 /// Cabeçalho de tabela (`body` + `repeat`).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct TableHeaderElem {
+    pub level: u32,
     pub body: Content,
     pub repeat: bool,
 }
@@ -34,6 +35,7 @@ impl Element for TableHeaderElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::TableHeader(Arc::new(TableHeaderElem {
+            level: self.level,
             body: self.body.map_content(transform)?,
             repeat: self.repeat,
         })))
@@ -44,6 +46,7 @@ impl Element for TableHeaderElem {
         F: FnMut(&str) -> String,
     {
         Content::TableHeader(Arc::new(TableHeaderElem {
+            level: self.level,
             body: self.body.map_text(transform),
             repeat: self.repeat,
         }))
@@ -55,7 +58,7 @@ mod tests {
     use super::*;
 
     fn ex() -> TableHeaderElem {
-        TableHeaderElem { body: Content::text("h"), repeat: true }
+        TableHeaderElem { level: 1, body: Content::text("h"), repeat: true }
     }
 
     #[test]
@@ -66,7 +69,9 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(TableHeaderElem { body: Content::Empty, repeat: false }.is_empty());
+        assert!(
+            TableHeaderElem { level: 1, body: Content::Empty, repeat: false }.is_empty()
+        );
     }
 
     #[test]
@@ -83,6 +88,9 @@ mod tests {
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), TableHeaderElem { body: Content::text("h"), repeat: false });
+        assert_ne!(
+            ex(),
+            TableHeaderElem { level: 1, body: Content::text("h"), repeat: false }
+        );
     }
 }

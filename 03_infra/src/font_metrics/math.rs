@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/math.md
-//! @prompt-hash b241f920
+//! @prompt-hash 22408f23
 //! @layer L3
 //! @updated 2026-10-10
 
@@ -221,6 +221,8 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
         // no PDF real, achado da revalidação end-to-end de P952).
         '∑', '∏', '∐', '⋃', '⋂', '⨄', '⨅', '⨆', '∫', '∬', '∭', '∮', '∯', '∰', '⨁', '⨂',
         '⨀', '⋀', '⋁',
+        // Fraction slash variants retain their actual textual identity.
+        '⁄',
     ];
 
     // **P906** — chars extensíveis no eixo horizontal (chaves/colchetes de
@@ -232,8 +234,10 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
     // glifos de esticamento horizontal ficavam fora do subset embutido ou
     // referenciados pela fonte errada. Extensor mapeia para `_` (linha
     // horizontal), análogo ao `|` já usado para extensores verticais.
-    const STRETCHY_BASES_HORIZONTAL: &[char] =
-        &['⏟', '⏞', '⎵', '⎴', '⏝', '⏜', '\u{0302}', '\u{0303}'];
+    const STRETCHY_BASES_HORIZONTAL: &[char] = &[
+        '⏟', '⏞', '⎵', '⎴', '⏝', '⏜', '\u{0302}', '\u{0303}', '\u{0305}', '\u{0306}',
+        '\u{030c}', '\u{20d6}', '\u{20d7}', '\u{20e1}', '\u{20d0}', '\u{20d1}',
+    ];
 
     // **P946** — mapa inverso da cmap da face (glyph_id → char), um passe:
     // peças de assembly com codepoint próprio (ex.: `⎧`/`⎨`/`⎩`/`⎪`,
@@ -673,5 +677,52 @@ mod tests {
         assert_eq!(ssty_level_of(&script_glyph, true), Some(1));
         assert_eq!(ssty_level_of(&scriptscript_glyph, true), Some(2));
         assert_eq!(ssty_level_of(&script_glyph, false), None);
+    }
+}
+
+#[cfg(test)]
+mod fraction_slash_tests {
+    use super::*;
+    #[test]
+    fn readiness_fraction_slash_maps_each_real_font_variant() {
+        let data = include_bytes!("../../fixtures/fonts/NewCMMath-Book.otf");
+        let face = Face::parse(data, 0).expect("valid real MATH fixture");
+        let variants = extract_variants(&face, '⁄');
+        assert!(variants.variants.len() > 1, "real stretch constructions required");
+        let map = build_math_glyph_reverse_map(&face);
+        for glyph in variants.variants {
+            assert_eq!(
+                map.get(&glyph.glyph_id),
+                Some(&'⁄'),
+                "fraction slash glyph{}",
+                glyph.glyph_id
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod readiness_accent_reverse_tests {
+    use super::*;
+    #[test]
+    fn readiness_accent_reverse_each_real_horizontal_variant_has_unicode() {
+        let data = include_bytes!("../../fixtures/fonts/NewCMMath-Book.otf");
+        let face = Face::parse(data, 0).expect("valid real MATH fixture");
+        let map = build_math_glyph_reverse_map(&face);
+        for ch in [
+            '\u{0305}', '\u{0306}', '\u{030c}', '\u{20d6}', '\u{20d7}', '\u{20e1}',
+            '\u{20d0}', '\u{20d1}',
+        ] {
+            let variants = extract_variants_horizontal(&face, ch);
+            assert!(variants.variants.len() > 1, "real horizontal variants for {ch:?}");
+            for glyph in variants.variants {
+                assert_eq!(
+                    map.get(&glyph.glyph_id),
+                    Some(&ch),
+                    "{ch:?} glyph{}",
+                    glyph.glyph_id
+                );
+            }
+        }
     }
 }

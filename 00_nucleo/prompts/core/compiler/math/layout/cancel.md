@@ -1,5 +1,5 @@
 # L0 — math/layout/cancel
-Hash do Código: 8185f0f5
+Hash do Código: baa817bb
 
 
 Núcleos Tekt:
@@ -84,3 +84,23 @@ tests and compare measured SVGs before/after, reporting differences; geometry
 does not certify all cases/platforms. Validate build/all targets/core/Clippy/
 lineage. Do not suppress the lint or substitute compiler-byte identity for
 acceptance.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Preserve full Length thickness through eval construction, field access and repr.
+Resolve thickness with the effective occurrence font at existing layout consumers
+and prepared FrameStroke boundary before scalar geometry/overhang is calculated.
+Keep all other values, field-presence, validation/error priority, behavior and
+previous approvals. Point-only fixtures retain exactly their numeric values.
+The approved public/phase contract is bound in approval.json. RED→GREEN and
+full proportional validation plus forward/reverse lineage remain required.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/style_transform.md
-//! @prompt-hash fd16b8c1
+//! @prompt-hash f03321a1
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -35,6 +35,9 @@ fn map_attach_slot(
 pub(super) fn apply_math_default(body: &Content) -> Content {
     match body {
         Content::Source(e) => apply_math_default(&e.body).with_source_span(e.span),
+        Content::MathClassOverride(e) => {
+            Content::math_class_override(e.class, apply_math_default(&e.body))
+        }
         // Wrapper explícito: não tocar — o handler dedicado trata-o.
         Content::MathStyled(_) => body.clone(),
         // Folhas: default de itálico por codepoint (P809).
@@ -282,6 +285,10 @@ pub(super) fn apply_math_style(
         Content::Source(e) => {
             apply_math_style(&e.body, kind, bold, italic).with_source_span(e.span)
         }
+        Content::MathClassOverride(e) => Content::math_class_override(
+            e.class,
+            apply_math_style(&e.body, kind, bold, italic),
+        ),
         // P1291 — setters internos vencem no mesmo eixo. Tamanho e cramped
         // não pertencem à transformação de glifo: preserva-se um wrapper
         // mínimo para o handler aplicar esses eixos no subtree correcto.
@@ -555,5 +562,66 @@ mod symbol_identity_tests {
             panic!("native variant lost")
         };
         assert_eq!(text.as_str(), "xy");
+    }
+}
+
+#[cfg(test)]
+mod readiness_math_tests {
+    use super::*;
+    use crate::entities::math_class::MathClass;
+    fn body_symbol(content: &Content) -> &str {
+        let Content::MathClassOverride(e) = content else { panic!("class carrier lost") };
+        assert_eq!(e.class, MathClass::Relation);
+        let Content::Symbol(text) = &e.body else { panic!("symbol body lost") };
+        text.as_str()
+    }
+    #[test]
+    fn readiness_math_class_default_reaches_math_symbol() {
+        let c = Content::math_class_override(
+            MathClass::Relation,
+            Content::Symbol("x".into()),
+        );
+        assert_eq!(body_symbol(&apply_math_default(&c)), "𝑥");
+    }
+    #[test]
+    fn readiness_math_class_outer_bold_reaches_math_symbol() {
+        let c = Content::math_class_override(
+            MathClass::Relation,
+            Content::Symbol("x".into()),
+        );
+        assert_eq!(body_symbol(&apply_math_style(&c, None, Some(true), None)), "𝒙");
+        assert_eq!(body_symbol(&apply_math_style(&c, None, None, Some(false))), "x");
+    }
+    #[test]
+    fn readiness_math_class_nested_and_inner_upright() {
+        let c = Content::math_class_override(
+            MathClass::Binary,
+            Content::math_class_override(
+                MathClass::Relation,
+                Content::Symbol("x".into()),
+            ),
+        );
+        let Content::MathClassOverride(outer) = apply_math_default(&c) else {
+            panic!("outer lost")
+        };
+        assert_eq!(outer.class, MathClass::Binary);
+        assert_eq!(body_symbol(&outer.body), "𝑥");
+        let inner = Content::math_styled(
+            None,
+            None,
+            Some(false),
+            Content::Symbol("x".into()),
+            None,
+        );
+        let c = Content::math_class_override(MathClass::Relation, inner);
+        assert_eq!(body_symbol(&apply_math_style(&c, None, Some(true), None)), "𝐱");
+    }
+    #[test]
+    fn readiness_math_class_literal_text_keeps_normal_default() {
+        let c = Content::math_class_override(MathClass::Relation, Content::text("x"));
+        let Content::MathClassOverride(e) = apply_math_default(&c) else {
+            panic!("class lost")
+        };
+        assert!(matches!(&e.body,Content::Text(text) if text=="x"));
     }
 }

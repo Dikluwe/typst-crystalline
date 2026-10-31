@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/repeat.md
-//! @prompt-hash 1939248b
+//! @prompt-hash 53e6aa70
 //! @layer L1
 //! @updated 2026-10-22
 //!
@@ -46,6 +46,21 @@ impl PieceAlignment {
             pending_paint: Vec::new(),
             paint: Vec::new(),
         }
+    }
+
+    pub(super) fn register_frame(
+        &mut self,
+        start: usize,
+        count: usize,
+        alignment: HAlign,
+        free: f64,
+    ) -> usize {
+        let operation = self.lines.len();
+        self.lines.push(AlignedLine {
+            operation: Some((alignment, free)),
+            items: (start..start + count).collect(),
+        });
+        operation
     }
 
     fn shift(&self, line: usize, width: f64) -> f64 {
@@ -695,6 +710,9 @@ mod nested_inline_repeat_tests {
         let location = Locator::new().next();
         let shape = Content::Shape(std::sync::Arc::new(ShapeElem {
             origin: ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(25.0)))),
             height: Some(Box::new(Value::Length(Length::pt(8.0)))),

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "selected-symbol-accent-call"
+title = "Selected raw Symbol accent calls in existing eval"
+[[claims]]
+id = "selected-value"
+level = "must"
+statement = "Recognize callable accents from the actually resolved raw Symbol Unicode value using the one strict accent alias table, preserving variation selectors. Do not classify by variable spelling, rendered glyphs, ordinary strings or arbitrary Content."
+[[claims]]
+id = "bounded-domain"
+level = "must"
+statement = "Only the existing recognized accent set gains call normalization. Nonaccent symbols and strings retain existing math notation and Code rejection, lexical shadowing, operators and unknown-head priority. This does not certify general Symbol function metadata or LR symbol calls."
+[[claims]]
+id = "call-once"
+level = "must"
+statement = "Resolve callee before ordinary arguments, evaluate each argument once through its existing math or Code route, retain occurrence order and actual spans, then reuse existing Func application and canonical accent construction. Do not replay callbacks or compensate effects."
+[[claims]]
+id = "canonical-construction"
+level = "must"
+statement = "The accent owner alone owns mapping and implicit-accent insertion. A symbol wrapper accepts exactly one actual base, preserves size and dotless occurrences and delegates semantic construction to the canonical accent constructor. Raw Symbol values remain Symbol outside this call boundary."
+[[claims]]
+id = "internal-only"
+level = "must-not"
+statement = "Add public Rust fields, traits, signatures, Func representations, registries, modes, mutable global state or pipeline phases for this repair. Use pure existing RAM carriers and compiler-private bridges."

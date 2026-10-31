@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "optical-overhang"
+title = "Font-certified optical margin at accepted-line emission"
+[[claims]]
+id = "policy"
+level = "must"
+statement = "L1 owns optical ratios and final-style policy. Apply compensation only to accepted-line emission; preserve all line choices, costs, word advances, source text and existing hyphen compensation without double counting."
+[[claims]]
+id = "font-authority"
+level = "must"
+statement = "A supplied shaped Font/GID/advance is authoritative. Providers match the supplied policy characters through the actual cmap and use the actual terminal advance; never substitute a requested family, isolated character width or font-name coefficient."
+[[claims]]
+id = "scope"
+level = "must"
+statement = "Initial admission is certified LTR text with final overhang policy enabled and more than one actual glyph or exterior line material. Unknown, invalid, opaque or unsupported evidence retains the previous path; None is not fabricated font evidence."
+[[claims]]
+id = "effects"
+level = "must-not"
+statement = "Do not evaluate content, callbacks or Context, mutate source identities, move pipeline phases, change selection costs, or infer optical metrics from painted bounding boxes."

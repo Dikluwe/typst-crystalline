@@ -1,5 +1,5 @@
 # L0 — infra/export/line_cap_tests
-Hash do Código: 1a4e09d6
+Hash do Código: 1217fb1a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -125,3 +125,21 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate only the declarative Stroke fixture thickness to Length::pt at its
+original exact point value, preserving all other arguments, existing source
+and expected rendered behavior. Prepared FrameStroke fixtures remain scalar.
+This is the mechanical consumer migration of the approved entity change;
+all substantive assertions and previous approvals remain unchanged.

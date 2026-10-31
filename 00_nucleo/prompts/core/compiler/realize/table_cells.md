@@ -1,5 +1,5 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: b02c909b
+Hash do Código: 489c9f9c
 
 
 
@@ -10,9 +10,11 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
 
 ## Ratified Table insertion and incomplete Cell scope
@@ -736,3 +738,150 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+At actual Table insertion select the explicit declaration or the validated causal table.align style when omitted. After existing placement select by p.col and fold cell axes over that root before Cell show. Complete plan stores this resolved alignment. Preserve Table hiding, argument defaults, cell snapshots/guards/Source and effect order; do not mutate the lexical Table declaration or reexecute alignment callbacks.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+## Measured external Flow restoration after Math suppression (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/equation-scope-boundaries9/receipt.json`
+retains31 source-bound bilateral probes, exact UTC/HEAD/dirty stat/source hashes,
+actual9 SHA c2a75337e8ddda54731a4e16e1df95d4e3aac308a3acd6732834610f6eb71558
+and the pinned64c5e8c0 oracle/tree/full binary SHA. The immutable8 backcheck
+`equation-scope-boundaries8-backcheck/receipt.json` verifies its source archive
+against every build8 input and explicitly reuses unchanged native9 observations
+with original argv/UTC at the exact same paths. Actual8 emits INNER but9 emits x
+under Par, Heading, Title, ListItem/EnumItem, Place, Grid, Table, Transform and
+Stack; native emits INNER. These are newly exposed regressions from the bounded9
+own-show correction, not accepted visual tolerances. Native Repeat also emits
+INNER, while both productive baselines reject its physical source plan; that
+compile debt remains independent. The frac fixture is rejected by both and
+is not valid scope evidence.
+
+`equation-scope-extra9/receipt.json` measures replacement/cell refuters before
+this amendment: Table/Heading/Grid replaced by an Equation preserve Math and
+must not emit INNER; a Cell replaced within an actual Table emits INNER.
+Standalone TableCell and GridCell preserve Math (native one Equation), unlike
+cells emitted by actual Table/Grid parents. Rotate/scale/move/skew all use Flow.
+Existing inline9 controls keep their inner rule inactive. Source language effects,
+query membership and retained morphology are evidence; no native mechanics or
+Rust equality is a parity requirement. Exact before owner/source texts, hashes,
+HEAD, UTC and dirty stat are in `external-flow-before10.json.gz`.
+
+### Internal classification and preservation
+
+This is ADR-0127 continuous parity correction with existing recipe_math_depth;
+no public contract, default mode, compatibility break or pipeline phase changes.
+Consume the pinned external-flow-body nucleus. Retain Table show→placement→Cell
+show→actual body order, no callback replay or hidden-body preparation, all existing
+Cell defaults/guards/fields/aliases, shared arena and strict physical coverage.
+No SourcePlan, semantic index, renderer or context capture is changed by this
+scope repair. The temporary task `readiness-math-kind-source-plan` remains
+explicitly incomplete for nested membership, labels/counters, transparent painting
+and deferred Context kind. The later boundary refuters distinguish explicit Quote.block true (Flow) from
+inline Quote (Math). Unsupported set quote(block:) and inactive inline attribution
+are separate existing feature debts; this repair adds no set target or quote field.
+
+The independent actual9 full replay recovered compilation of the original
+`docs-math-equation.typ` in PDF/SVG (native0), contrary to the earlier pre-replay
+forecast of an open stability error. Its glyph/paint mismatch and unsupported
+set-block warning remain open. Do not discard this actual compile improvement
+while repairing external scopes, and do not claim full document parity.
+
+Require functional RED before productive edits; source-level INNER versus
+inactive inline controls, Table/Cell replacements, standalone-cell preservation,
+sibling scope restoration and Table success/error restoration. Preserve every
+old test and all prior positive compile/0.001pt/PDF/SVG criteria. Seal valid
+V15/V26 before V5/reverse lineage; full strict lint and all12 technical gates,
+fresh release/source archive, broad bilateral remeasurement and explicit no-new-
+regression checks are mandatory. Final historical/JPEG qualification is separate.
+
+### Exclusive actual-Table cell boundary
+
+Only after the actual Table survives its own show and placement selects a real
+cell, temporarily set recipe_math_depth to Flow around that existing realize_cell
+call, including its own Cell replacement and emitted body. Save its Result,
+restore the incoming Math depth, then propagate the same error or use the same
+visual. Do not move the reset before Table own-show, repeat defaults/placement,
+change stage/fields/guards, or treat standalone Cell as a Flow root. Preserve
+row-major callback order and existing Table error origin. Tests must exercise
+successful body show and a body-show error from nonzero incoming Math depth.
+
+
+The archived `equation-scope-boundary-refuters9b/receipt.json` further measures
+standalone ListItem/EnumItem and TermItem bodies as Flow, standalone Cell/GridCell
+and pdf.artifact as Math, and explicit Quote(block:true) as Flow. The initially
+attempted refuters9 was refused by its workspace-equals-build guard after new
+L0/tests were added; refuters9b instead verifies every archived build9 input and
+explicitly separates immutable product provenance from the new observer workspace.
+It is not a fresh build9 or a relaxed source identity claim.
+`equation-scope-final-refuters9/receipt.json` confirms block Quote body and
+attribution both execute INNER. The valid native Terms constructor remains a
+Tekt syntax/argument debt (native succeeds, Tekt rejects), while the original
+Terms tuple fixture was invalid in both; neither establishes successful Terms
+construction parity. Existing Terms/TermItem domain bodies follow the same Flow
+boundary without changing constructors or their errors. Inline attribution
+emission and set quote support remain separate, unchanged limitations.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+For items=Some select that stream exclusively for defaults and logical placement. Delegate ordered occupancy to its owner; carry complete header ranges to TableGridResolved. Preserve existing Table show -> placement/defaults -> Cell show -> body, row-major effects once, aliases/guards/error restoration and source data. Only publish Complete plans; no layout callbacks here.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.

@@ -1,8 +1,9 @@
 # L0 — Layout attempt convergence
-Hash do Código: 8480ad0c
+Hash do Código: e44cf98b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
@@ -83,3 +84,32 @@ cloning, authority, geometry, verification and acceptance. This is private stora
 indirection only: the public opaque PageRunningTrace and all public fields and
 function signatures stay unchanged. No new semantic fact, source traversal, phase,
 callback, diagnostic suppression or relaxed gate is authorized.
+
+## Approved document-local numbering input (2026-10-28)
+
+Measure before decision: readiness-fixes-2026-10-28/physical-candidate-execution.json,
+its source archive and full preservation log bind dirty HEAD212aed0449, exact
+diffstat, inputs and UTC. p1486 keeps /St20 and /St22 but the last PDF paints10
+instead of20, because run_planned consults global PageStore by local ordinal.
+The review review-bundle-numbering-input.md SHA-256
+d248aa88694a06da945a2036ec33887fcbba0f67adf3e3bd7ccb30757354670d was approved
+in direct human reply, retained in bundle-numbering-input-approval.json.
+This ratifies only the named additive method and its local transport, superseding
+earlier no-new-API clauses only for that method; all other boundaries remain.
+
+Only run_planned uses body.numbering_input when present to initialize the
+layout runtime known_page_store and its injected-store flag. The tracked
+Introspector remains the complete global snapshot for query/counter/position.
+All existing layout and source facades, legacy run, attempts, callbacks and
+CSL/label/figure/table maps keep their behavior. No projected store is published.
+
+Require functional RED→GREEN, original integrated controls, complete technical
+gates and independent PDF/SVG/word/page/0.001pt validation with source provenance.
+Finite tests do not certify general parity, geometry, performance or JPEG.
+
+Functional RED before implementation: numbering-input-red.json/log and source
+archive retain the approved API skeleton returning its unchanged clone. The
+valid non-first interval has no local view, and an invalid4/1 interval is accepted;
+both tests fail. outline-original3-green separately passes its corrected carrier
+observer under the same frozen inputs. The p1486 original integrated RED remains
+the independent transport acceptance gate; no expected values may be relaxed.

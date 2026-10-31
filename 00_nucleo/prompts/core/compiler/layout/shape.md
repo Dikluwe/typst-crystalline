@@ -1,16 +1,19 @@
 # L0 — shape block behaviour
-Hash do Código: 16ba88bc
+Hash do Código: 248e09fa
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
-- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
-- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
-- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
-- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
+- 00_nucleo/prompts/_nuclei/layout/rectangle-decoration.toml sha256:dbc5dd8b047bdebcd6adf912663a2d5e50b50ad46d4af6c6cf7beff23097ded8
+- 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
+- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 ## Evidence before specification
 
@@ -137,3 +140,153 @@ This is an ADR-0127 continuous private layout correction, with no public contrac
 new product mode/default, compatibility break or eval/layout phase change.
 L0 precedes implementation and scoped resealing; full tests/Clippy/rustdoc/fmt,
 zero Tekt errors/warnings, paths and forward/reverse lineage remain mandatory.
+
+
+
+## R13 — approved materialization
+
+Owner approved the saved proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00, including the public carrier and eval-to-layout boundary. Approval and measured baseline are retained in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/. The previously pending section is now ratified within that exact scope. Apply the pinned nucleus before code; RED→GREEN and complete validation remain mandatory.
+Resolve the carrier before existing shape flow placement/reservation and use its resolved path/dimensions there. Preserve all existing block spacing, paint preparation and region behavior. Local tests must distinguish independent axes, em and causal negative/nonzero-origin dimensions.
+
+
+## Issue 8780 — constrained relative shape measurement (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8780-fix-2026-10-31/before.json`
+freezes UTC, HEAD, exact uncommitted diffstat/status and original source/L0 hashes.
+The original report and receipt are in
+`lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/`:
+its literal 8780 SVG emits a red 0×50pt rectangle in a 100×100pt page.
+`01_core/src/compiler/layout/measurement.rs:366-395` uses absolute-only
+resolve_pt for Shape dimensions; its unsupported complement at :671 includes
+GridCell. `01_core/src/compiler/layout/grid/tracks.rs:218-254` passes that cell
+through constrained measurement. `01_core/src/compiler/layout/sub_frame.rs:403-415`
+already retains the parent's relative height independently of unconstrained
+layout height, both for row measurement and cell emission. Therefore zero width
+is independently explained without attributing vanilla's infinite-height row
+algorithm to Tekt. Geometry is language behavior; dispatcher strategy is mechanics.
+Upstream issue 8780 describes a separate zero-height mechanism and warns about
+applying a height percentage twice. Its report is observed behavior, not proof of intent.
+The separate `vanilla-width-controls/receipt.json` and
+`historical-width-controls/receipt.json` in the same 8780 diagnostic directory
+measure width50% in an Auto column: pinned vanilla emits25pt, historical Tekt
+bare emits50pt and wrapped emits0pt. Width measurement and final column-relative
+width are separate stages; that control does not define a new vertical base.
+
+### Exclusive correction and refuters
+
+Expose the existing pure resolve_dimension helper only to sibling layout units
+through pub(super), so constrained measurement uses the same ratio/mixed/em
+arithmetic and nonfinite relative-term policy as emission. Preserve its body and
+all existing geometry/flow/paint/default behavior; introduce no public signature.
+This is continuous-flow internal formula/parity repair under ADR-0127. L0 and
+restricted seals precede RED tests and code. Require RED→GREEN, core layout and
+workspace validation, build, full crystalline-lint and source PDF/SVG controls.
+Any second application of the height ratio to the Auto row result, changed
+parent state, missing body, zero finite geometry
+or unrelated control regression refutes the correction. Unbounded percentages
+retain the existing zero-relative-term policy; broader cyclic sizing, fractional
+shape sizes and vanilla row semantics are not certified by this repair.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Bodyless rectangle intrinsic geometry — issue 8976 (2026-10-31)
+
+### Measurement before decision
+
+The historical independent report/fixtures under
+lab/results/construction/diagnostics/typst-open-bugs-2026-10-30/agent-text-svg/
+separate Tekt's zero-height literal rectangle from vanilla's Edge mask defect.
+Current source shape.rs:233-248 and measurement.rs:385-407 substitute available
+width and zero height for omitted dimensions. native_rect at
+stdlib/shapes/rect.rs:33-34 correctly retains omitted fields for layout; baking
+resolved dimensions there would change source semantics. Source inspection is
+not a claim about upstream intent.
+
+The pinned upstream shapes.rs:542-558 explicitly defines a 45x30pt default,
+capped by region size and replaced independently on forced axes.
+issue-8976-geometry-2026-10-31/oracle-receipt.json under
+lab/results/construction/diagnostics/ binds actual oracle SHA-256, source,
+UTC, dirty HEAD/stat and 45x30 omitted/Auto/24pt-font observations, 20x30 narrow
+and 45x15 short controls, plus explicit/zero/relative cases. before.json.gz
+freezes the combined productive/L0 inputs. The reflection probe is rejected
+by the oracle and is a separate unsupported observation, not a sizing criterion.
+These are physical geometry/language obligations, not mandatory PDF bytes,
+soft-mask implementation or copied Rust layout. Changed explicit geometry,
+paint-dependent size, lost text/flow, font scaling of the default or duplicated
+height ratios refute this correction.
+
+### Classification and exclusive correction
+
+Internal geometry/parity repair, continuous flow ADR-0127. No public contract,
+constructor field, mode/flag/default path, compatibility or phase change.
+This supersedes the earlier blanket automatic-dimension debt only for bodyless
+Rect/RoundedRect intrinsic defaults; all other unresolved scopes and approvals
+remain intact. L0 and restricted seal precede functional RED and code.
+
+Own a private pure intrinsic_defaults helper for bodyless Rect/RoundedRect only:
+choose 45pt horizontally and 30pt vertically, each capped at the corresponding
+nonnegative available regional axis; infinite constraints retain those finite
+sizes. Feed those fallbacks to the existing resolve_dimension calls. Omitted
+and Auto axes use these defaults; explicit lengths (including zero), relative
+and mixed values continue through the existing resolver without forcing aspect
+ratio or shrinking an explicit size. Keep Ellipse/Path/Line legacy defaults and
+all Circle/Square constructor and body support debts outside this change.
+Export nothing publicly, add no entity field or constructor-origin value, and
+preserve paint preparation, source identity, shape emission/flow/baseline and
+fitting. Cite pinned shapes.rs:542-558 for the intrinsic constants. Tests cover
+omitted/Auto, one explicit axis, zero, small finite and infinite regions, font
+independence and the complete emitted physical frame.
+
+### Acceptance
+
+Require fresh combined-state source reproduction, assertional module RED then
+GREEN, original literal plus explicit-size and solid-paint controls in PDF,
+SVG and independent raster. Preserve finite/infinite regional constraints,
+one/zero/relative/em axes, reuse at different fonts, Box/Block, following text
+and existing 8780/8525/8894 behavior. Gate on geometry and visible content;
+compare alpha differences separately. Do not introduce, copy or use /SMask or
+Edge-specific behavior as a target. Revalidate core tests, cargo build, full
+crystalline-lint, ownership and both seals with artifacts exclusively in
+/dev/shm/typst-crystalline-8976-target. Retain exact HEAD, dirty stat, UTC,
+source/binary hashes and failed attempts. No commit or branch/worktree change.
+
+
+Only an absent axis or explicit Value::Auto receives the intrinsic fallback.
+The private helper may inspect each optional axis value to retain the old
+available-width/zero-height fallback for other unsupported Value classes;
+this repair does not widen dimension casts or change their diagnostic debt.
+All valid explicit values continue through the same existing resolver.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Resolve rect_radius after real dimensions and font are known; preserve flow
+and emit its decoration through a child render-layer module. rect_stroke Some
+may produce fill plus distinct resolved border paths, superseding one-Shape
+emission only in that new case. None preserves every existing route.

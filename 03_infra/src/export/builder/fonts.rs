@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/fonts.md
-//! @prompt-hash 9c07fa22
+//! @prompt-hash 4eba9d7e
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -396,6 +396,28 @@ impl Default for FontDescriptorMetrics {
     }
 }
 
+fn seed_space_unicode(
+    mappings: &[(char, u16)],
+    clusters: &[(u16, String)],
+    glyph_mapping: &HashMap<u16, u16>,
+    unicode: &mut Vec<(u16, String)>,
+    seen: &mut HashSet<u16>,
+) {
+    for &(ch, gid) in mappings {
+        let aliases_joiner = ch == ' '
+            && gid != 0
+            && clusters.iter().any(|(old, hex)| {
+                remap_glyph_id(*old, glyph_mapping) == gid
+                    && !hex.is_empty()
+                    && hex.len() % 4 == 0
+                    && hex.as_bytes().chunks_exact(4).all(|part| part == b"2060")
+            });
+        if aliases_joiner && seen.insert(gid) {
+            unicode.push((gid, char_to_utf16_hex(ch)));
+        }
+    }
+}
+
 impl PdfBuilder {
     pub(super) fn measure_subset(
         &mut self,
@@ -533,7 +555,15 @@ impl PdfBuilder {
         // final é o próprio old_gid.
         let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
         let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
-        for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
+        let single_cluster_texts = collect_shaped_cluster_texts(doc);
+        seed_space_unicode(
+            &mappings,
+            &single_cluster_texts,
+            &glyph_mapping,
+            &mut to_unicode_mappings,
+            &mut seen_to_unicode_gids,
+        );
+        for (old_gid, hex) in single_cluster_texts {
             let new_gid = if glyph_mapping.is_empty() {
                 old_gid
             } else {
@@ -1039,6 +1069,13 @@ impl PdfBuilder {
             // reconstruindo o texto completo de cada cluster.
             let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
             let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
+            seed_space_unicode(
+                &mappings,
+                &shaped_cluster_texts,
+                &glyph_mapping,
+                &mut to_unicode_mappings,
+                &mut seen_to_unicode_gids,
+            );
             if !glyph_mapping.is_empty() {
                 for &(old_gid, ref hex) in &shaped_cluster_texts {
                     let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
@@ -1680,6 +1717,331 @@ mod r10_bitmap_text_tests {
                         "bitmap paint must retain its source character: {}",
                         String::from_utf8_lossy(&out.stdout)
                     );
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod readiness_unicode_tests {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    use typst_core::entities::{
+        content::Content,
+        font_book::FontVariant,
+        font_list::FontList,
+        font_variations::FontVariations,
+        layout_types::{
+            FrameItem, Page, PagedDocument, Point, Pt, ShapedGlyph, TextSeparatorOrigin,
+            TextStyle,
+        },
+        world_types::Font,
+    };
+
+    fn extracted(pdf: &[u8]) -> String {
+        let mut child = Command::new("pdftotext")
+            .args(["-raw", "-", "-"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("pdftotext is a required validation observer");
+        child.stdin.take().unwrap().write_all(pdf).unwrap();
+        let output = child.wait_with_output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        String::from_utf8(output.stdout).unwrap()
+    }
+
+    fn bbox_words(pdf: &[u8]) -> Vec<(String, [f64; 4])> {
+        let mut child = Command::new("pdftotext")
+            .args(["-bbox-layout", "-", "-"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("pdftotext is a required word/bounds observer");
+        child.stdin.take().unwrap().write_all(pdf).unwrap();
+        let output = child.wait_with_output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        let xml = String::from_utf8(output.stdout).unwrap();
+        xml.lines()
+            .filter(|line| line.trim_start().starts_with("<word "))
+            .map(|line| {
+                let (attributes, body) = line.split_once('>').unwrap();
+                let text = body.strip_suffix("</word>").unwrap().to_string();
+                let bounds = ["xMin", "yMin", "xMax", "yMax"].map(|name| {
+                    let prefix = format!("{name}=\"");
+                    attributes
+                        .split_once(prefix.as_str())
+                        .unwrap()
+                        .1
+                        .split('"')
+                        .next()
+                        .unwrap()
+                        .parse()
+                        .unwrap()
+                });
+                (text, bounds)
+            })
+            .collect()
+    }
+
+    #[test]
+    fn readiness_unicode_joiner_prefix_retains_original_word_bounds() {
+        let bytes = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let face = ttf_parser::Face::parse(bytes, 0).unwrap();
+        let family = FontList::single("DejaVu Sans".into());
+        let style = TextStyle {
+            size: Pt(12.0),
+            font: Some(family.clone()),
+            ..Default::default()
+        };
+        let font = Font::from_data(bytes.to_vec());
+        let upem = face.units_per_em();
+        let advance = |ch| {
+            f64::from(face.glyph_hor_advance(face.glyph_index(ch).unwrap()).unwrap())
+                * 12.0
+                / f64::from(upem)
+        };
+        let shaped = |text: &str, x| FrameItem::TextShaped {
+            pos: Point { x: Pt(x), y: Pt(20.0) },
+            text: text.into(),
+            style: style.clone(),
+            glyphs: text
+                .char_indices()
+                .map(|(cluster, ch)| {
+                    let gid = face
+                        .glyph_index(if ch == '\u{2060}' { ' ' } else { ch })
+                        .unwrap();
+                    ShapedGlyph {
+                        glyph_id: gid.0,
+                        x_advance: if ch == '\u{2060}' {
+                            0
+                        } else {
+                            i32::from(face.glyph_hor_advance(gid).unwrap())
+                        },
+                        x_offset: 0,
+                        y_offset: 0,
+                        cluster: u32::try_from(cluster).unwrap(),
+                        char_code: ch,
+                    }
+                })
+                .collect(),
+            units_per_em: upem,
+            bidi: None,
+            font: Some(font.clone()),
+        };
+        let space = |x| FrameItem::TextSeparator {
+            pos: Point { x: Pt(x), y: Pt(20.0) },
+            advance: Pt(advance(' ')),
+            style: style.clone(),
+            origin: TextSeparatorOrigin::Literal,
+            bidi: None,
+        };
+        let dot_end = 10.0 + advance('.');
+        let digit_x = dot_end + advance(' ');
+        let digit_end = digit_x + advance('1');
+        let tail_x = digit_end + advance(' ');
+        let fonts = vec![(
+            (family, FontVariant::default(), FontVariations::default()),
+            bytes.to_vec(),
+        )];
+        for split in [false, true] {
+            let mut original = vec![shaped(".", 10.0), space(dot_end)];
+            if split {
+                original.extend([shaped("\u{2060}", digit_x), shaped("1", digit_x)]);
+            } else {
+                original.push(shaped("\u{2060}1", digit_x));
+            }
+            original.extend([space(digit_end), shaped("TAIL", tail_x)]);
+            for local in [false, true] {
+                for nested in [false, true] {
+                    for replacement in [false, true] {
+                        let mut items = original.clone();
+                        if nested {
+                            use typst_core::entities::layout_types::{
+                                LinkTarget, SemanticKind, SemanticPlacement, Size,
+                            };
+                            items = vec![FrameItem::Semantic {
+                                kind: SemanticKind::Label,
+                                placement: SemanticPlacement::Inline,
+                                alt: None,
+                                items: vec![FrameItem::Link {
+                                    target: LinkTarget::Url(
+                                        "https://example.invalid/".into(),
+                                    ),
+                                    pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                                    size: Size { width: Pt(100.0), height: Pt(40.0) },
+                                    items,
+                                }],
+                            }];
+                        }
+                        if local {
+                            items = vec![FrameItem::Group {
+                                paint_root: false,
+                                pos: Point { x: Pt(11.0), y: Pt(7.0) },
+                                matrix: Default::default(),
+                                clip_mask: None,
+                                inner_width: 100.0,
+                                inner_height: 40.0,
+                                items,
+                            }];
+                        }
+                        if replacement {
+                            items = vec![FrameItem::TextReplacement {
+                                text: "ALT".into(),
+                                items,
+                            }];
+                        }
+                        let doc = PagedDocument::new(vec![Page {
+                            width: 200.0,
+                            height: 100.0,
+                            logical_number: 1,
+                            numbering: None,
+                            supplement: Content::Empty,
+                            bleed: Default::default(),
+                            fill: Default::default(),
+                            background: vec![],
+                            foreground: vec![],
+                            items,
+                        }]);
+                        for mode in [
+                            crate::export::StreamMode::Compact,
+                            crate::export::StreamMode::Verbose,
+                        ] {
+                            for pdf in [
+                                crate::export::export_pdf_with_font(&doc, bytes, mode),
+                                crate::export::export_pdf_multifont(&doc, &fonts, mode),
+                            ] {
+                                let words = bbox_words(&pdf);
+                                let names: Vec<_> =
+                                    words.iter().map(|(text, _)| text.as_str()).collect();
+                                assert_eq!(names, if replacement { vec!["ALT"] } else { vec![". \u{2060}1", "TAIL"] },
+                                "original word scopes: split={split}, local={local}, nested={nested}, replacement={replacement}, mode={mode:?}");
+                                assert_eq!(
+                                    extracted(&pdf).trim(),
+                                    if replacement { "ALT" } else { ". \u{2060}1 TAIL" }
+                                );
+                                if !replacement {
+                                    let offset = if local { 11.0 } else { 0.0 };
+                                    assert!(
+                                        (words[0].1[0] - 10.0 - offset).abs() <= 0.001
+                                    );
+                                    assert!(
+                                        (words[0].1[2] - digit_end - offset).abs()
+                                            <= 0.001
+                                    );
+                                    assert!(
+                                        (words[1].1[0] - tail_x - offset).abs() <= 0.001
+                                    );
+                                    assert!(words[0].1[3] > words[0].1[1]);
+                                    assert!(
+                                        (words[0].1[1] - words[1].1[1]).abs() <= 0.001
+                                    );
+                                    assert!(
+                                        (words[0].1[3] - words[1].1[3]).abs() <= 0.001
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn readiness_unicode_space_and_joiner_keep_distinct_source_text() {
+        let bytes = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let face = ttf_parser::Face::parse(bytes, 0).unwrap();
+        let family = FontList::single("DejaVu Sans".into());
+        let style = TextStyle {
+            size: Pt(12.0),
+            font: Some(family.clone()),
+            ..Default::default()
+        };
+        let font = Font::from_data(bytes.to_vec());
+        let upem = face.units_per_em();
+        let advance = |ch| {
+            f64::from(face.glyph_hor_advance(face.glyph_index(ch).unwrap()).unwrap())
+                * 12.0
+                / f64::from(upem)
+        };
+        let shaped = |ch: char, x, zero| {
+            let gid = face.glyph_index(if ch == '\u{2060}' { ' ' } else { ch }).unwrap();
+            FrameItem::TextShaped {
+                pos: Point { x: Pt(x), y: Pt(20.0) },
+                text: ch.to_string().into(),
+                style: style.clone(),
+                glyphs: vec![ShapedGlyph {
+                    glyph_id: gid.0,
+                    x_advance: if zero {
+                        0
+                    } else {
+                        i32::from(face.glyph_hor_advance(gid).unwrap())
+                    },
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: ch,
+                }],
+                units_per_em: upem,
+                bidi: None,
+                font: Some(font.clone()),
+            }
+        };
+        let space = |x| FrameItem::TextSeparator {
+            pos: Point { x: Pt(x), y: Pt(20.0) },
+            advance: Pt(advance(' ')),
+            style: style.clone(),
+            origin: TextSeparatorOrigin::Literal,
+            bidi: None,
+        };
+        let a_end = 10.0 + advance('A');
+        let bx = a_end + advance(' ');
+        let b_end = bx + advance('B');
+        let doc = PagedDocument::new(vec![Page {
+            width: 120.0,
+            height: 100.0,
+            logical_number: 1,
+            numbering: None,
+            supplement: Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![
+                shaped('A', 10.0, false),
+                space(a_end),
+                shaped('\u{2060}', bx, true),
+                shaped('B', bx, false),
+                space(b_end),
+                shaped('C', b_end + advance(' '), false),
+            ],
+        }]);
+        let fonts = vec![(
+            (family, FontVariant::default(), FontVariations::default()),
+            bytes.to_vec(),
+        )];
+        for replacement in [false, true] {
+            let mut document = doc.clone();
+            if replacement {
+                document.pages[0].items = vec![FrameItem::TextReplacement {
+                    text: "ALT".into(),
+                    items: document.pages[0].items.clone(),
+                }];
+            }
+            for mode in
+                [crate::export::StreamMode::Compact, crate::export::StreamMode::Verbose]
+            {
+                for pdf in [
+                    crate::export::export_pdf_with_font(&document, bytes, mode),
+                    crate::export::export_pdf_multifont(&document, &fonts, mode),
+                ] {
+                    let text = extracted(&pdf);
+                    assert_eq!(text.trim(), if replacement { "ALT" } else { "A \u{2060}B C" },
+                        "ordinary spaces and source joiner must coexist without font-global aliasing");
                 }
             }
         }

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "table-declarative-alignment"
+title = "Presence and effective-column alignment of declarative Table cells"
+[[claims]]
+id = "presence"
+level = "must"
+statement = "Omitted Table alignment inherits the causal insertion declaration; explicit auto stops that inheritance. Uniform preserves optional axes; Columns preserves order and cycles by effective x, with empty and typed None members selecting auto. Runtime none is invalid."
+[[claims]]
+id = "one-classifier"
+level = "must"
+statement = "Constructor and native-identity set rules share one declarative caster accepting auto, alignment and arrays of auto/alignment. Evaluate arguments once in source order; false condition suppresses target/argument evaluation. Validate before publishing style deltas. Alignment functions are explicitly unsupported and must not execute."
+[[claims]]
+id = "placement-and-preparation"
+level = "must"
+statement = "Select alignment by actual placed column including spans, padding and header/footer, then fold cell axes over root axes in the existing preparation. Complete cells retain the selected result; rendering never reruns recipes, casts source or occupancy of a complete plan. Preserve Table show, placement/defaults, Cell show and body order."
+[[claims]]
+id = "physical-preservation"
+level = "must"
+statement = "Raw synthetic Table and prepared Table share the physical grid engine. Preserve Grid uniform behavior, causal Source routes, restoration, paint, inset, pagination, and existing cache controls. Reuse requires proved identical alignment and region; unproved new cases miss."
+[[claims]]
+id = "bounded-contract"
+level = "must-not"
+statement = "Do not add public signatures, traits, Grid fields, callbacks or modes beyond the approved TableAlignment enum and TableElem.align type change. Do not certify alignment functions, Table root reflection, rich paint/insets, multipage spans or PDF/UA."

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/page_running.md
-//! @prompt-hash c8395398
+//! @prompt-hash 5a9ac2c3
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -151,6 +151,7 @@ pub(in crate::compiler) struct PlanNode {
     pub(in crate::compiler) auxiliary_locations: Vec<Location>,
     pub(in crate::compiler) conditional_ref: Option<PacketId>,
     pub(in crate::compiler) original: bool,
+    pub(in crate::compiler) math: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -468,6 +469,7 @@ struct PlanBuildContext {
     forced: Option<Location>,
     role: PlanRole,
     span: Span,
+    math: bool,
 }
 
 /// One owned child selected by the closed source partition before descent.
@@ -513,6 +515,7 @@ impl PlanBuilder<'_> {
             forced,
             role,
             span,
+            math,
         } = context;
         let id = PacketId(self.nodes.len());
         let pruned = self.original
@@ -560,6 +563,7 @@ impl PlanBuilder<'_> {
             auxiliary_locations: Vec::new(),
             conditional_ref: self.conditional_ref,
             original: self.original,
+            math,
         });
         if matches!(role, PlanRole::OperationalTemplate | PlanRole::PrunedOriginal) {
             return Ok(id);
@@ -601,7 +605,10 @@ impl PlanBuilder<'_> {
                 }
             }
         }
-        let parent = if plan_owns_payload(content) || matches!(content, Content::Ref(_)) {
+        let nested_equation = math && matches!(content, Content::Equation(_));
+        let parent = if (plan_owns_payload(content) && !nested_equation)
+            || matches!(content, Content::Ref(_))
+        {
             Some(id)
         } else {
             source_parent
@@ -716,6 +723,7 @@ impl PlanBuilder<'_> {
                 Content::Emph(e) => child!(PlanEdge::EmphBody, &e.body),
                 Content::ListItem(e) => child!(PlanEdge::ListItemBody, &e.body),
                 Content::EnumItem(e) => child!(PlanEdge::EnumItemBody, &e.body),
+                Content::Equation(_) if role == PlanRole::OriginalOnly => {}
                 Content::Equation(e) => child!(PlanEdge::EquationBody, &e.body),
                 Content::Label(e) => children.push(PlanChild {
                     edge: PlanEdge::LabelBody,
@@ -889,6 +897,10 @@ impl PlanBuilder<'_> {
                         });
                         for (index, cell) in cells {
                             child!(PlanEdge::TableResolvedCell(index), cell);
+                        }
+                    } else if let Some(items) = &e.items {
+                        for (index, item) in items.iter().enumerate() {
+                            child!(PlanEdge::TableRawChild(index), item);
                         }
                     } else {
                         if let Some(header) = &e.header {
@@ -1160,6 +1172,7 @@ impl PlanBuilder<'_> {
                     forced,
                     role,
                     span,
+                    math: super::walk::child_math_scope(content, math),
                 },
             )?;
             self.conditional_ref = previous_conditional;
@@ -1235,6 +1248,7 @@ fn build_body(
             forced: None,
             role: PlanRole::Canonical,
             span: Span::detached(),
+            math: false,
         },
     )?;
     let plan = Arc::new(SourcePlan {
@@ -1245,7 +1259,11 @@ fn build_body(
         allocation_owner,
         document_boundary,
     });
-    Ok(PageRunningBody { content: content.clone(), plan })
+    Ok(PageRunningBody {
+        content: content.clone(),
+        plan,
+        numbering_input: None,
+    })
 }
 
 impl SourcePlan {
@@ -1477,7 +1495,8 @@ fn first_semantic_location(
     {
         return None;
     }
-    if plan_owns_payload(&node.content)
+    if (plan_owns_payload(&node.content)
+        && !(node.math && matches!(node.content, Content::Equation(_))))
         || (!node.original
             && super::bibliography::project_reference_root(&node.content, keys).is_some())
     {
@@ -1656,6 +1675,7 @@ struct Construction {
     headings: Vec<(Arc<SourcePlan>, PacketId, super::heading::PlannedHeading)>,
     bibliography_keys: std::collections::HashSet<String>,
     observed_roots: Vec<ObservedSourceRoots>,
+    entry_memberships: std::collections::HashSet<Location>,
 }
 
 impl Construction {
@@ -1667,6 +1687,7 @@ impl Construction {
             headings: Vec::new(),
             bibliography_keys: std::collections::HashSet::new(),
             observed_roots: Vec::new(),
+            entry_memberships: std::collections::HashSet::new(),
         }
     }
 
@@ -1733,7 +1754,10 @@ impl Construction {
         if event.phase == PlanPhase::Root {
             let internal_context = matches!(&node.content, Content::ContextBlock(block) if
                 crate::compiler::realize::reference_supplements::is_reference_supplement_producer(block));
-            if plan_owns_payload(semantic) || internal_context {
+            if (plan_owns_payload(semantic)
+                && !(node.math && matches!(semantic, Content::Equation(_))))
+                || internal_context
+            {
                 let location = selected_location(node, &self.bibliography_keys)
                     .ok_or_else(|| invalid_plan(node.span))?;
                 let already = self.intr.elements.contains_key(&location);
@@ -1841,6 +1865,9 @@ impl Construction {
                     }
                 }
                 Content::Label(label) => {
+                    if node.math && super::walk::is_equation_root(&label.body) {
+                        return Ok(());
+                    }
                     if super::labelled::located_reference_original(&label.body).is_none()
                     {
                         let target = event
@@ -1901,11 +1928,13 @@ impl Construction {
                 }
                 Content::OutlineEntry(_) => {
                     if let Some(location) = node.location {
-                        self.intr
-                            .kind_index
-                            .entry(ElementKind::OutlineEntry)
-                            .or_default()
-                            .push(location);
+                        if self.entry_memberships.insert(location) {
+                            self.intr
+                                .kind_index
+                                .entry(ElementKind::OutlineEntry)
+                                .or_default()
+                                .push(location);
+                        }
                     }
                 }
                 Content::Source(_)
@@ -3608,6 +3637,121 @@ SECOND
                 Ok::<_, Vec<crate::entities::source_result::SourceDiagnostic>>(())
             })
             .expect("Source and Located carry actual roots without owning their payload");
+    }
+
+    fn membership_body(origin: &Content) -> PageRunningBody {
+        let mut arena = ContextOccurrenceArena::new(origin);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        arena
+            .evaluate(&mut frame, &mut ctx, |ctx| prepare_page_running_body(origin, ctx))
+            .unwrap()
+    }
+    #[test]
+    fn readiness_equation_membership_planned_nested_counter_and_label() {
+        use crate::entities::{
+            counter::CounterKey, element_kind::ElementKind, introspector::Introspector,
+            label::Label, selector::Selector, style::Styles, value::Value,
+        };
+        let nested =
+            Content::label_auto("inner", Content::equation(Content::text("x"), true));
+        let origin = Content::styled(
+            Content::equation(nested, true),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
+        );
+        let body = membership_body(&origin);
+        let intr = source_only_index(&body);
+        assert_eq!(intr.query_by_kind(ElementKind::Equation).len(), 1);
+        assert_eq!(
+            intr.counter_final_values(&CounterKey::Selector(Selector::Kind(
+                ElementKind::Equation
+            ))),
+            Some([1].as_slice())
+        );
+        assert!(intr.labels.lookup(&Label("inner".into())).is_none());
+        assert!(!intr.unreferencable_labels.contains_key(&Label("inner".into())));
+    }
+    #[test]
+    fn readiness_equation_membership_planned_hidden_original_and_actual_visual() {
+        use crate::entities::{
+            content::{LocatedContent, RealizedContent},
+            element_kind::ElementKind,
+            introspector::Introspector,
+            locator::Locator,
+            value::Value,
+        };
+        let mut locator = Locator::new();
+        let root = locator.next();
+        let actual = locator.next();
+        let metadata = Content::metadata(Value::Str("M".into()));
+        let original = Content::Located(Arc::new(LocatedContent {
+            location: root,
+            body: Content::equation(metadata.clone(), true),
+        }));
+        let hidden = Content::Realized(Arc::new(RealizedContent {
+            original: original.clone(),
+            visual: Content::Empty,
+        }));
+        let intr = source_only_index(&membership_body(&hidden));
+        assert_eq!(intr.query_by_kind(ElementKind::Equation).len(), 1);
+        assert!(intr.query_by_kind(ElementKind::Metadata).is_empty());
+        let Content::Equation(snapshot) = intr.elements[&root].content().source_body()
+        else {
+            panic!("snapshot")
+        };
+        assert!(matches!(snapshot.body, Content::Metadata(_)));
+        let visual = Content::Located(Arc::new(LocatedContent {
+            location: root,
+            body: Content::equation(
+                Content::Located(Arc::new(LocatedContent {
+                    location: actual,
+                    body: metadata,
+                })),
+                true,
+            ),
+        }));
+        let shown = Content::Realized(Arc::new(RealizedContent { original, visual }));
+        assert_eq!(
+            source_only_index(&membership_body(&shown))
+                .query_by_kind(ElementKind::Metadata),
+            vec![actual]
+        );
+    }
+    #[test]
+    fn readiness_equation_membership_planned_raw_inner_phase_is_still_required() {
+        use crate::compiler::layout::{
+            layout_with_page_running, FixedMetrics, PageRunningLayoutInputs,
+        };
+        use crate::entities::{image_sizer::NullImageSizer, value::Value};
+        let origin = Content::equation(
+            Content::equation(Content::metadata(Value::Str("M".into())), false),
+            true,
+        );
+        let body = membership_body(&origin);
+        let empty = SealedPageRunning::new(vec![]).unwrap();
+        let outcome = layout_with_page_running(
+            &body,
+            source_only_index(&body),
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: Some(&empty) },
+        )
+        .into_result();
+        let trace = match outcome {
+            Ok(doc) => doc.trace,
+            Err(pending) => pending.trace,
+        };
+        assert!(trace.data.complete);
+        let inside = trace.data.admissions.iter().position(|event| event.phase == PlanPhase::Root && matches!(&event.plan.node(event.packet).unwrap().content, Content::Equation(eq) if !eq.block)).unwrap();
+        let mut invalid = trace.clone();
+        invalid.data.admissions.remove(inside);
+        assert!(scheduled_document(&PageRunningIndexInput {
+            body: &body,
+            target: EvalTarget::Paged,
+            running: Some((&invalid, &empty))
+        })
+        .is_err());
     }
 
     fn source_only_index(body: &PageRunningBody) -> TagIntrospector {

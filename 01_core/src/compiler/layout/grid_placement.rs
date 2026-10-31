@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_placement.md
-//! @prompt-hash ec7fa78b
+//! @prompt-hash 326b8531
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -80,7 +80,21 @@ pub(super) fn place_cells_indexed(
     cells: &[Content],
     num_cols: usize,
 ) -> SourceResult<Vec<(Option<usize>, PlacedCell)>> {
-    place_indexed(cells, num_cols, 0, PlacementPolicy::GridExplicitFirst)
+    place_indexed(cells, num_cols, 0, PlacementPolicy::GridExplicitFirst, &mut [])
+}
+
+pub(super) fn place_table_cells_indexed(
+    cells: &[Content],
+    num_cols: usize,
+    minimum_rows: usize,
+) -> SourceResult<Vec<(Option<usize>, PlacedCell)>> {
+    place_indexed(
+        cells,
+        num_cols,
+        minimum_rows,
+        PlacementPolicy::TableDocumentOrder,
+        &mut [],
+    )
 }
 
 pub(crate) fn place_table_cells(
@@ -91,13 +105,48 @@ pub(crate) fn place_table_cells(
     place(cells, num_cols, minimum_rows, PlacementPolicy::TableDocumentOrder)
 }
 
+pub(crate) fn place_table_items(
+    items: &[Content],
+    columns: usize,
+    minimum_rows: usize,
+) -> SourceResult<(
+    Vec<PlacedCell>,
+    Vec<crate::entities::elements::table::TableHeaderRange>,
+    usize,
+)> {
+    let (cells, mut groups) = super::grid::row_groups::ordered_groups(items)?;
+    let placed = place_indexed(
+        &cells,
+        columns,
+        minimum_rows,
+        PlacementPolicy::TableDocumentOrder,
+        &mut groups,
+    )?;
+    let rows = placed.iter().map(|(_, c)| c.row + c.rowspan).max().unwrap_or(0);
+    let footer = groups.iter().find(|g| g.header.is_none()).map_or(rows, |g| g.start);
+    let headers = groups
+        .into_iter()
+        .filter_map(|g| {
+            g.header.map(|(level, repeat)| {
+                crate::entities::elements::table::TableHeaderRange {
+                    start: g.start,
+                    end: g.end,
+                    level,
+                    repeat,
+                }
+            })
+        })
+        .collect();
+    Ok((placed.into_iter().map(|(_, cell)| cell).collect(), headers, footer))
+}
+
 fn place(
     cells: &[Content],
     num_cols: usize,
     minimum_rows: usize,
     policy: PlacementPolicy,
 ) -> SourceResult<Vec<PlacedCell>> {
-    place_indexed(cells, num_cols, minimum_rows, policy)
+    place_indexed(cells, num_cols, minimum_rows, policy, &mut [])
         .map(|cells| cells.into_iter().map(|(_, cell)| cell).collect())
 }
 
@@ -106,6 +155,7 @@ fn place_indexed(
     num_cols: usize,
     minimum_rows: usize,
     policy: PlacementPolicy,
+    groups: &mut [super::grid::row_groups::OrderedGroup],
 ) -> SourceResult<Vec<(Option<usize>, PlacedCell)>> {
     if num_cols == 0 {
         return Err(vec![SourceDiagnostic::error(
@@ -260,11 +310,48 @@ fn place_indexed(
     let mut occupied: Vec<Vec<bool>> = Vec::new();
     let mut placed = Vec::new();
     let mut cursor = 0usize;
+    let mut group_cursor = None;
     for (source_index, cell) in ordered {
+        if let Some(group) = groups.iter_mut().find(|g| g.first == source_index) {
+            let mut row = cursor.div_ceil(num_cols);
+            while row < occupied.len() && occupied[row].iter().any(|used| *used) {
+                row += 1;
+            }
+            group_cursor = Some((cursor, false));
+            group.start = usize::MAX;
+            group.end = 0;
+            cursor = row.checked_mul(num_cols).ok_or_else(|| {
+                vec![SourceDiagnostic::error(Span::detached(), "cell position too large")]
+            })?;
+        }
+        let group_index = groups
+            .iter()
+            .position(|g| g.first <= source_index && source_index < g.last);
+
         let (x, y, cs, rs, span) = fields(cell);
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
         let fail = |msg: &str| vec![SourceDiagnostic::error(span, msg)];
+        if group_index.is_none() {
+            if let Some(row) = y {
+                let end = row
+                    .checked_add(rowspan)
+                    .ok_or_else(|| fail("cell position too large"))?;
+                if let Some(group) = groups
+                    .iter()
+                    .find(|g| g.last <= source_index && row < g.end && end > g.start)
+                {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "cell would conflict with header also spanning row {}",
+                            row.max(group.start)
+                        ),
+                    )
+                    .with_hint("try moving the cell or the header")]);
+                }
+            }
+        }
         if x.is_some_and(|c| c >= num_cols) {
             return Err(fail(&format!(
                 "cell could not be placed at invalid column {}",
@@ -287,9 +374,20 @@ fn place_indexed(
         }
         let (row, col) = match (x, y) {
             (Some(c), Some(r)) => (r, c),
-            (Some(c), None) => {
-                (find_next_free_row(&occupied, c, if table { 1 } else { colspan }), c)
-            }
+            (Some(c), None) => (
+                if let Some(index) = group_index {
+                    let start = if groups[index].start == usize::MAX {
+                        cursor / num_cols
+                    } else {
+                        groups[index].start
+                    };
+                    start
+                        + find_next_free_row(&occupied[start.min(occupied.len())..], c, 1)
+                } else {
+                    find_next_free_row(&occupied, c, if table { 1 } else { colspan })
+                },
+                c,
+            ),
             (None, Some(r)) => {
                 let c = if table {
                     (0..num_cols).find(|&c| r >= occupied.len() || !occupied[r][c])
@@ -354,6 +452,28 @@ fn place_indexed(
             .ok_or_else(|| fail("cell position too large"))?;
         end.checked_mul(num_cols)
             .ok_or_else(|| fail("cell position too large"))?;
+        if let Some(index) = group_index {
+            groups[index].start = groups[index].start.min(row);
+            groups[index].end = groups[index].end.max(end);
+            if x.is_none() && y.is_none() {
+                if let Some((_, automatic)) = &mut group_cursor {
+                    *automatic = true;
+                }
+            }
+        } else if let Some(group) = groups
+            .iter()
+            .find(|g| g.last <= source_index && row < g.end && end > g.start)
+        {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "cell would conflict with header also spanning row {}",
+                    row.max(group.start)
+                ),
+            )
+            .with_hint("try moving the cell or the header")]);
+        }
+
         occupied
             .try_reserve(end.saturating_sub(occupied.len()))
             .map_err(|_| fail("cell position too large"))?;
@@ -396,6 +516,49 @@ fn place_indexed(
                     })
                 })
                 .ok_or_else(|| fail("cell position too large"))?;
+        }
+        if let Some(index) = group_index.filter(|&i| groups[i].last == source_index + 1) {
+            let group = &groups[index];
+            if placed.iter().any(|(source, p)| {
+                source.is_some_and(|source| {
+                    (source < group.first || source >= group.last)
+                        && p.row < group.end
+                        && p.row + p.rowspan > group.start
+                })
+            }) {
+                return Err(fail("header rows would conflict with an earlier cell"));
+            }
+            if groups[..index].iter().any(|g| g.end > group.start) {
+                return Err(fail("header row groups must be ordered and nonoverlapping"));
+            }
+            for (row_offset, slots) in
+                occupied[group.start..group.end].iter_mut().enumerate()
+            {
+                for (col, used) in slots.iter_mut().enumerate() {
+                    if !*used {
+                        placed.push((
+                            None,
+                            PlacedCell {
+                                body: Content::Empty,
+                                row: group.start + row_offset,
+                                col,
+                                colspan: 1,
+                                rowspan: 1,
+                            },
+                        ));
+                        *used = true;
+                    }
+                }
+            }
+            let (outer, automatic) = group_cursor.take().unwrap();
+            cursor = if automatic {
+                group
+                    .end
+                    .checked_mul(num_cols)
+                    .ok_or_else(|| fail("cell position too large"))?
+            } else {
+                outer
+            };
         }
     }
     if table {
@@ -939,7 +1102,8 @@ mod physical_page_placement_routes {
         let cells =
             [Content::table_cell(Content::text("source"), Some(1), Some(1), None, None)];
         let placed =
-            place_indexed(&cells, 2, 2, PlacementPolicy::TableDocumentOrder).unwrap();
+            place_indexed(&cells, 2, 2, PlacementPolicy::TableDocumentOrder, &mut [])
+                .unwrap();
         assert_eq!(placed.len(), 4);
         assert_eq!(
             placed.iter().map(|(index, _)| *index).collect::<Vec<_>>(),
@@ -953,5 +1117,79 @@ mod physical_page_placement_routes {
                 .collect::<Vec<_>>(),
             vec![(0, 0), (0, 1), (1, 0), (1, 1)]
         );
+    }
+}
+
+#[cfg(test)]
+mod ordered_header_tests {
+    use super::*;
+    #[test]
+    fn issue_8954_ranges_follow_occupied_spans_and_whole_rows() {
+        let prefix =
+            Content::table_cell(Content::text("prefix"), None, None, None, Some(2));
+        let header = Content::table_header(
+            Content::table_cell(Content::text("head"), None, None, Some(2), Some(2)),
+            true,
+        );
+        let (cells, groups, _) =
+            place_table_items(&[prefix, header, Content::text("after")], 2, 0).unwrap();
+        assert_eq!((groups[0].start, groups[0].end), (2, 4));
+        let after = cells.iter().find(|c| c.body.plain_text() == "after").unwrap();
+        assert_eq!((after.row, after.col), (4, 0));
+    }
+    #[test]
+    fn issue_8954_adjacent_equal_levels_retain_two_ranges() {
+        let (cells, groups, _) = place_table_items(
+            &[
+                Content::table_header(Content::text("A"), true),
+                Content::table_header(Content::text("B"), true),
+                Content::text("C"),
+            ],
+            1,
+            0,
+        )
+        .unwrap();
+        assert_eq!(
+            groups.iter().map(|g| (g.start, g.end)).collect::<Vec<_>>(),
+            vec![(0, 1), (1, 2)]
+        );
+        assert_eq!(
+            cells.iter().map(|c| c.body.plain_text()).collect::<Vec<_>>(),
+            vec!["A", "B", "C"]
+        );
+    }
+    #[test]
+    fn issue_8954_body_cannot_enter_header_padding() {
+        let error = place_table_items(
+            &[
+                Content::table_header(Content::text("A"), true),
+                Content::table_cell(Content::text("B"), Some(1), Some(0), None, None),
+            ],
+            2,
+            0,
+        )
+        .unwrap_err();
+        assert!(error[0].message.contains("conflict with header"));
+    }
+    #[test]
+    fn issue_8954_positioned_header_keeps_outer_auto_cursor() {
+        let (cells, groups, _) = place_table_items(
+            &[
+                Content::table_header(
+                    Content::table_cell(Content::text("A"), Some(1), Some(2), None, None),
+                    true,
+                ),
+                Content::text("B"),
+                Content::text("C"),
+            ],
+            2,
+            0,
+        )
+        .unwrap();
+        assert_eq!((groups[0].start, groups[0].end), (2, 3));
+        for (text, row, col) in [("A", 2, 1), ("B", 0, 0), ("C", 0, 1)] {
+            let cell = cells.iter().find(|c| c.body.plain_text() == text).unwrap();
+            assert_eq!((cell.row, cell.col), (row, col));
+        }
     }
 }

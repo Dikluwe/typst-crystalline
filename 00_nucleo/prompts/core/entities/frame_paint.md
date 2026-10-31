@@ -1,5 +1,5 @@
 # L0 — entities/frame_paint
-Hash do Código: d09b66a9
+Hash do Código: 5e19d16f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -103,3 +103,22 @@ No PartialEq on carriers changes language equality. Preserve nucleus invariants.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/frame_paint.md` preserves the original evidence and chronology.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's original point-only Stroke test values/assignments
+to Length::pt while preserving exact numeric values and all assertions. When
+a prepared scalar is compared to its declarative source, explicitly resolve
+that source with the fixture font; do not relax expected geometry or tolerance.
+This test migration implements only the approved field representation change;
+existing non-stroke obligations and prior approvals remain intact.

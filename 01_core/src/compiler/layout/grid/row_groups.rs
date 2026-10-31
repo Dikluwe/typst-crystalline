@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/row_groups.md
-//! @prompt-hash 3fbf6f75
+//! @prompt-hash 360fbf3e
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -996,4 +996,202 @@ mod v16_table_tests {
         assert_eq!(e[0].span, span());
         assert!(e[0].message.contains("header"));
     }
+}
+
+/// Boundaries in the normalized input stream, filled with actual row bounds by
+/// the placement owner. None header metadata denotes the unique footer.
+pub(in crate::compiler) struct OrderedGroup {
+    pub(in crate::compiler) first: usize,
+    pub(in crate::compiler) last: usize,
+    pub(in crate::compiler) header: Option<(u32, bool)>,
+    pub(in crate::compiler) start: usize,
+    pub(in crate::compiler) end: usize,
+}
+
+pub(in crate::compiler) fn ordered_groups(
+    items: &[Content],
+) -> crate::entities::source_result::SourceResult<(Vec<Content>, Vec<OrderedGroup>)> {
+    use crate::entities::source_result::SourceDiagnostic;
+    let mut cells = Vec::new();
+    let mut groups = Vec::new();
+    let mut footer_seen = false;
+    for item in items {
+        let fail = |message| vec![SourceDiagnostic::error(item.source_span(), message)];
+        match item.source_body() {
+            Content::TableHeader(header) => {
+                if footer_seen {
+                    return Err(fail("table header cannot follow footer"));
+                }
+                if header.level == 0 {
+                    return Err(fail("header level must be positive"));
+                }
+                let first = cells.len();
+                if let Content::Sequence(parts) = header.body.source_body() {
+                    cells.extend(parts.iter().map(|c| c.source_body().clone()));
+                } else {
+                    cells.push(header.body.source_body().clone());
+                }
+                if first == cells.len() {
+                    return Err(fail("table header must contain a cell"));
+                }
+                groups.push(OrderedGroup {
+                    first,
+                    last: cells.len(),
+                    header: Some((header.level, header.repeat)),
+                    start: 0,
+                    end: 0,
+                });
+            }
+            Content::TableFooter(footer) => {
+                if footer_seen {
+                    return Err(fail("table: não pode haver mais do que um footer"));
+                }
+                footer_seen = true;
+                let first = cells.len();
+                if let Content::Sequence(parts) = footer.body.source_body() {
+                    cells.extend(parts.iter().map(|c| c.source_body().clone()));
+                } else {
+                    cells.push(footer.body.source_body().clone());
+                }
+                if first == cells.len() {
+                    cells.push(Content::Empty);
+                }
+                groups.push(OrderedGroup {
+                    first,
+                    last: cells.len(),
+                    header: None,
+                    start: 0,
+                    end: 0,
+                });
+            }
+            Content::TableHLine(_) | Content::TableVLine(_) => {
+                return Err(fail(
+                    "ordered headers with explicit lines are not supported",
+                ));
+            }
+            Content::GridCell(..)
+            | Content::TableCell(..)
+            | Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Empty
+            | Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::Symbol(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {
+                if footer_seen {
+                    return Err(fail("footer must end at the last row"));
+                }
+                cells.push(item.source_body().clone());
+            }
+        }
+    }
+    Ok((cells, groups))
 }

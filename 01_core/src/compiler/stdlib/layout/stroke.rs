@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md
-//! @prompt-hash 0dffc18f
+//! @prompt-hash 9982fae2
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -90,9 +90,9 @@ pub fn native_stroke(
                     ),
                 )]
             })?;
-            len.abs.to_pt()
+            len
         }
-        None => 1.0,
+        None => Length::pt(1.0),
     };
 
     let parse_name = |field: &str, choices: &[&str]| -> SourceResult<Option<&str>> {
@@ -241,10 +241,13 @@ pub fn native_stroke(
         )]);
     }
 
-    if thickness <= 0.0 {
+    if thickness.abs.to_pt() <= 0.0 && thickness.em <= 0.0 {
         return Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("stroke(thickness): deve ser > 0 (recebeu {})", thickness),
+            format!(
+                "stroke(thickness): deve ser > 0 (recebeu {})",
+                thickness.abs.to_pt()
+            ),
         )]);
     }
 
@@ -392,7 +395,7 @@ pub(crate) fn positional_stroke(
     let mut stroke = Stroke { overhang: true, ..Stroke::default() };
     match value {
         Value::Length(length) => {
-            stroke.thickness = length.abs.to_pt();
+            stroke.thickness = *length;
             stroke.specified.thickness = true;
         }
         Value::Color(color) => {
@@ -430,7 +433,7 @@ pub(crate) fn positional_stroke(
             match dict.get("thickness") {
                 None | Some(Value::Auto) => {}
                 Some(Value::Length(length)) => {
-                    stroke.thickness = length.abs.to_pt();
+                    stroke.thickness = *length;
                     stroke.specified.thickness = true;
                 }
                 Some(other) => return Err(invalid(span, "thickness", other)),

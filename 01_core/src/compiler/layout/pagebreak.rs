@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/pagebreak.md
-//! @prompt-hash 2ccc19fc
+//! @prompt-hash a40292a0
 //! @layer L1
-//! @updated 2026-06-19
+//! @updated 2026-10-24
 //!
 //! Atomização (ADR-0109, P380): o layout de `Pagebreak` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
@@ -49,6 +49,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.new_page();
             layouter.weak_page_successor = optional_successor;
         }
+    }
+    if !layouter.is_sub_frame {
+        layouter.footnote_entry_scope = None;
     }
 }
 

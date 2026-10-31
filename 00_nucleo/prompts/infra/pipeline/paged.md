@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: 61b6bee5
+Hash do Código: b5864545
 
 
 
@@ -18,6 +18,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -305,3 +306,66 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Final query snapshot after Stack fragmentation (2026-10-27)
+
+Measurement before decision: `lab/results/construction/diagnostics/stack-image-flow-fix-2026-10-27/pipeline-red.log`, with its sealed source and state, records twenty Context producers mapped to Locations0,2,...,38 in the expanded topology, while returned metadata still retains Here Locations0,1,...,19 and captured page1 from the initial pre-layout expansion. The twentieth physical context is correctly on page2. At `paged.rs:878`, intr_for_positions is cloned before the ordinary fixed point; `:1001-1013` constructs a fresh runtime candidate but updates only layout_intr, while `:1047-1050` copies merely page stores/counters to the initial snapshot. Queries therefore mix metadata from the initial generation with positions of the accepted document. Candidate1 already exhibits the stale captured page without the later child-local-index collision; keep both independent findings. This is observable query identity/page semantics.
+
+Decision: within the existing ordinary loop, retain the fresh successful runtime introspection candidate as intr_for_positions before it is moved into realization/layout. Accepted final semantic metadata/Context identities must come from the same generation as the final layout content. Keep final positions, pages/counters and query publication on the existing path. Do not reexecute callbacks for publication, change the existing five-attempt/convergence rule, selected path, warning ownership, public facade, phase, metrics or defaults. Preserve existing extracted heading handling; any newly observed heading/ref/counter regression refutes the change and must be investigated, not weakened. ADR-0127 continuous internal parity repair applies.
+
+Acceptance: integrated twenty-child RED→GREEN requires source-order metadata and both captured/final Here pages19×1 then2; independent JPEG, reverse, spacing and wrapper sources must agree with pinned vanilla. Full context/counter/state/ref/heading and all validation/resource gates remain mandatory.
+
+## Approved readiness physical eligibility — plain numbering and heading Outline
+
+### Measurement and human decision before code
+
+readiness-fixes-2026-10-28/{number2-build.json,number2-build-source.json.gz,
+number2-extras/comparison.json,article-route-before/receipt.json,
+outline-route-debugger/receipt.json} bind exact binary/source/fixture hashes,
+HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat and UTC. Product
+92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The terminal17pt/DejaVu page loses lexical style after restoration; the selected
+Ref source bypasses ordinary Outline realization and paints an incorrectly
+numbered title without fill. Actual debugger function entries/piles distinguish
+both routes and full compiles, rather than inferring them from appearance.
+Readiness review documents exact source anchors and independent remaining debts.
+These are language/style/source observations, not upstream Rust-mechanics parity.
+
+The human directly approved “Aprovar a ampliação proposta” in this chat;
+physical-number-outline-approval.json records authority, UTC and frozen review
+SHA-2569d52d041904a94221cae76e4d9d394afd3a758be31e0e4b8845c6839a0dcdc87
+with its owner/receipt manifest. ADR-0127 phase gate is satisfied ONLY for that
+reviewed extension. This section supersedes earlier preserve-phase/noneligible
+clauses only for its named heading-Outline/plain-number eligibility; prior
+Repeat approval is not used as authorization. Existing APIs and other phases
+remain unchanged. The approval does not certify tests, rendering or readiness.
+
+### Exclusive implementation and acceptance
+
+Consume the existing complete selected physical result for the newly approved eligibility exactly as for current rich-marginal/Repeat candidates. Keep accepted source/index/metrics lifetime and final transforms/format/query/diagnostic publication; do not evaluate the source or run ordinary Outline realization again over that completed result. Existing noneligible/HTML/Bundle entrypoints and their target-specific contracts remain unchanged. This owner owns coordination only; pure eligibility/language/render policy remains in its current descendants/L1 owners.
+
+Stage real current-API REDs before code. Revalidate the approved exact source
+variants, source words/pages/0.001pt and separate PDF/SVG, actual styles/query/
+Location/effects once, causal errors/warnings, aliases/dormant/hidden producers,
+None/Content, all old marginals/Repeat/rollback/notes/callback/Bundle/HTML gates.
+Retain strict authority, coverage, Location and reflexive/current observation
+proof; no extra attempt, normalization, suppression or weakened expectation.
+V15/V26 before resealing, forward/reverse lineage, twelve technical gates,
+full original historic corpus and JPEG time/RSS preservation remain mandatory.
+Unresolved numbered-fill, justification, explicit-footer/bold-PDF and all other
+readiness debts keep their separate receipts and acceptance; no general claim.
+
+## Approved issue 8954 — exclusive carrier reader migration
+
+The human-approved schema is recorded in approval.json, patch SHA
+18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20
+under lab/results/construction/diagnostics/issue-8954-2026-10-31/.
+carrier-audit-before.json.gz retains exact owner/source/UTC/dirty state. Manual
+Table readers currently inspect only legacy children/header/footer: with the
+new ordered stream this incorrectly certifies empty/context-free raw subtrees.
+In this owner's existing traversal/certificate use Complete visual cells, else
+authoritative Some(items), else legacy children/header/footer, and caption once.
+No parallel visitation, new allocation, context evaluation, phase or public API.
+Retain existing policies and negative certificates for all other carriers.

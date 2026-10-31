@@ -1,9 +1,10 @@
 # L0 — word_layout
-Hash do Código: 47bf03d1
+Hash do Código: c8277100
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
@@ -89,3 +90,14 @@ translate only the text/highlight paint of the actual script run. This is privat
 formula/state correction, no new public field/API/phase (ADR-0127 continuous).
 Add the active private text_horizontal_offset only to emitted Text and highlight x coordinates. Cursor, measured width, tracking, wrap and paragraph widths retain their current formulas.
 Require nonzero injected offset and following-text/rollback/subframe RED→GREEN, actual-font controls and complete validation.
+
+## Accepted-line terminal optical policy
+
+optical-red.json/source archive binds dirty HEAD212aed0449, exact frozen source,
+UTC and diffstat: both accepted-line emitters end at45pt rather than injected48pt.
+Read word_layout.rs:89-147: push_text owns the final lexical text occurrence;
+TextStyle has no overhang field. Preserve this lexical decision privately on the
+Layouter when emitting text so later outer-style restoration cannot enable a
+terminal overhang:false. No public field or source carrier changes. The record
+is reset at line commit; unrelated/opaque terminal material cannot certify text.
+Prepared emission retains its own fragment policy. Preserve all break/cost rules.

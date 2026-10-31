@@ -1,11 +1,12 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: c83d648e
+Hash do Código: 6c5381b8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
 - 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:99bae094b60a12dbe90a88c5e32df53c0422584e53097bdad7892943337ca219
+- 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/mod.rs`
@@ -86,3 +87,72 @@ classification without copying tables or changing external APIs. Structural
 modules and classifier algorithms remain unchanged; this hub owns no new domain
 logic. Validate existing Symbol diagnostics, workspace compilation, topology,
 canonical lineage and the complete Figure acceptance suite.
+
+
+## Approved declarative Table alignment — 2026-10-29
+
+### Measurement and authorization before decision
+
+readiness-fixes-2026-10-28/table-align-before/receipt.json and
+ table-align-extra-before/receipt.json under lab/results/construction/diagnostics/
+retain the exact physical12/pinned64c5e8c0 binaries, HEAD, dirty input/diffstat,
+UTC, source hashes and bilateral geometry/errors/effect order. The signed review
+review-table-column-alignment.md SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e
+was approved by the human as “Aprovar o contrato proposto”; receipt
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/table-column-alignment-approval.json.
+This gate covers exactly TableAlignment and TableElem.align plus the explicit
+runtime-none rejection and unsupported-function diagnostic. It adds no other
+public signature, Grid field, trait, callback, default mode or phase.
+
+### Exclusive amendment
+
+Directly reexport the compiler-private Table declarative caster/column-selection helpers through structural before inline tests, with no wrapper, parser, layout or public API change.
+
+### Gates and bounded scope
+
+This amendment supersedes only conflicting legacy scalar/None and name-based
+Table-set clauses. General Table root reflection including .align remains
+unsupported; functions, Grid column arrays, rich paints/insets, multipage spans
+and PDF/UA remain negative scope. Require genuine source RED before code, GREEN
+for arrays/cycle/auto/presence/aliases/late/local/condition/effects/errors/spans,
+header/footer/padding/colspan and hidden/replaced Table/Cell, raw/prepared and
+unchanged legacy controls. No relaxation of expected output/tolerance or cache
+controls. Rebuild financial original and compare PDF/SVG, words/pages/0.001pt
+and independent paint without normalization; compilation does not certify the
+whole financial document. Final stable batch requires valid V15/V26, resealed
+forward/reverse lineage, full warning-denying lint, twelve gates, historical
+1720 flags and both original JPEG resource/timing campaigns under one job,
+12GiB/High8GiB/swap0. Keep failures and unrelated readiness debt explicit.
+
+
+## Selected-symbol accent callability — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/accent-callability-findings6.json`
+binds actual release6 source/archive, HEAD 212aed0449150dd296ceea13fc2be665cc5db01a,
+uncommitted exact dirty-file stat, UTC and pinned oracle64c5e8c0. The original
+14-case receipt's single-letter a is notation in BOTH engines; only the corrected
+long-name before6b cohort proves local alias callability. Bare grave/arrow render
+symbol+parentheses in Tekt, native accents; qualified and Code Symbol calls reject
+Func in Tekt. Long local symbols lose accents/options/arity; beta/string notation
+and noncallable Code rejection remain controls. accent-effects-before6/receipt.json
+measures one seen.push effect in valid math/native Code controls, with Code Tekt
+blocked at callee. No source/font/PDF-byte equality is language acceptance.
+
+Pinned typst-library/src/foundations/symbol.rs:133-137 dispatches selected Symbol
+through its accent function; math/accent.rs:212-290 owns strict aliases and the
+single-base wrapper. Existing Func::native/with and call_dispatch's With merger
+already transport bound arguments, final call span and occurrence order.
+This is an internal semantic/morphological parity repair under ADR-0127 continuous
+flow, not a public API/default/phase change.
+
+### Exclusive amendment and acceptance
+
+Directly reexport structural::symbol_accent_func with pub(in crate::compiler), before tests. Preserve all existing exports and their visibility. Add no classification, registry entry or algorithm to this facade.
+
+L0 precedes actual functional RED, then implementation/GREEN; preserve old tests,
+source-bound bilateral PDF/SVG/error/effect controls, full core/workspace, build,
+strict lint/Clippy/rustdoc/fmt and both lineage directions. Validate V15/V26 before
+resealing. No completion/performance/JPEG qualification from a finite call fix.

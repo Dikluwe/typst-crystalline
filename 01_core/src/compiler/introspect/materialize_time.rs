@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash de69fcec
+//! @prompt-hash 0e8c0da8
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -323,6 +323,13 @@ pub(super) fn materialize_time(
             let mut c=e.as_ref().clone();let mut r=c.resolved.as_ref().unwrap().as_ref().clone();
             r.visual=materialize_time(&r.visual,intr,location);c.resolved=Some(std::sync::Arc::new(r));Content::TableCell(std::sync::Arc::new(c))
         },
+        Content::Table(e) if e.items.is_some() => {
+            let mut t = e.as_ref().clone();
+            t.items = e.items.as_ref().map(|items| items.iter()
+                .map(|c| materialize_time(c, intr, location)).collect());
+            t.caption = e.caption.as_ref().map(|c| materialize_time(c, intr, location));
+            Content::Table(Arc::new(t))
+        },
         Content::Table(e) => Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
                 caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
@@ -340,7 +347,11 @@ pub(super) fn materialize_time(
             },
         )),
         // Modelo D (Lote 5 P320): TableHeader/TableFooter via construtor.
-        Content::TableHeader(e) => Content::table_header(materialize_time(&e.body, intr, location), e.repeat),
+        Content::TableHeader(e) => {
+            let mut h = e.as_ref().clone();
+            h.body = materialize_time(&e.body, intr, location);
+            Content::TableHeader(Arc::new(h))
+        },
         Content::TableFooter(e) => Content::table_footer(materialize_time(&e.body, intr, location), e.repeat),
         // Passo 512 — linhas em grid/table são terminais.
         Content::TableHLine(_) | Content::TableVLine(_) => content.clone(),

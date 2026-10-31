@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash f891c06d
+//! @prompt-hash e6098b7e
 //! @layer L3
 //! @updated 2026-09-28
 //! SVG facade and exhaustive renderer dispatcher.
@@ -285,7 +285,7 @@ fn render_item(
                     *size,
                     style,
                     *base_char,
-                    fonts.fonts(),
+                    fonts.original_fonts(),
                     session.glyph_fonts,
                     session.glyph_defs,
                 );

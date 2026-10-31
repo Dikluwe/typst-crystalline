@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/paint.md
-//! @prompt-hash 705d0e75
+//! @prompt-hash f29a11e4
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -103,16 +103,16 @@ pub(in crate::compiler::eval) fn repr_stroke(s: &Stroke) -> String {
         if !s.specified.paint
             && !s.specified.thickness
             && s.paint == Stroke::default().paint
-            && s.thickness == 1.0
+            && s.thickness == crate::entities::layout_types::Length::pt(1.0)
         {
             return "stroke()".to_string();
         }
         return match (s.specified.paint, s.specified.thickness) {
             (true, false) => repr_paint(&s.paint),
-            (false, true) => format_float_with_unit(s.thickness, "pt"),
+            (false, true) => super::measure::repr_length(&s.thickness),
             _ => format!(
                 "{} + {}",
-                format_float_with_unit(s.thickness, "pt"),
+                super::measure::repr_length(&s.thickness),
                 repr_paint(&s.paint)
             ),
         };
@@ -122,7 +122,7 @@ pub(in crate::compiler::eval) fn repr_stroke(s: &Stroke) -> String {
         fields.push(format!("paint: {}", repr_paint(&s.paint)));
     }
     if s.specified.thickness {
-        fields.push(format!("thickness: {}", format_float_with_unit(s.thickness, "pt")));
+        fields.push(format!("thickness: {}", super::measure::repr_length(&s.thickness)));
     }
     if s.specified.cap {
         fields.push(format!(

@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "page-number-baseline"
+title = "Automatic plain page-number style and baseline"
+[[claims]]
+id = "page-style"
+level = "must"
+statement = "An automatic plain pattern number uses the retained effective text style of its physical page. A deferred total-dependent number preserves that page's style and resolved marginal geometry when queued, rather than borrowing the last document style. Legacy unplanned calls use their actual current chain."
+[[claims]]
+id = "footer-baseline"
+level = "must"
+statement = "For automatic plain Text in the bottom Auto marginal, the selected number-position anchor is the frame top: the text baseline includes the effective injected text top edge. The separately measured top-position baseline and Auto/None/Content eligibility remain unchanged. No empirical font constant or blanket rich-marginal geometry claim is allowed."
+[[claims]]
+id = "preserve-authority"
+level = "must"
+statement = "Preserve number text, logical/total counters, page membership, formatting, source/style authority, rollback and composition order; no new callback, source replay, public field/signature, pipeline phase or document-wide style reconstruction is authorized."

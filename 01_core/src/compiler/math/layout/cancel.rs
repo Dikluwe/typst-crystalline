@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/cancel.md
-//! @prompt-hash adc775d5
+//! @prompt-hash 80f3e0e2
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -100,7 +100,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let center_x = body_box.width / 2.0;
             let center_y = (body_box.descent - body_box.ascent) / 2.0;
             let (thickness, color) = match &elem.stroke {
-                Some(stroke) => (stroke.thickness, Some(stroke.paint.to_color())),
+                Some(stroke) => (
+                    stroke.thickness.resolve_pt(style.size.val()),
+                    Some(stroke.paint.to_color()),
+                ),
                 None => (0.05 * style.size.val(), style.fill.clone()),
             };
             FrameItem::Line {

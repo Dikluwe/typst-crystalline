@@ -1,8 +1,9 @@
 # L0 — page running
-Hash do Código: 45ee87fc
+Hash do Código: 3fb4df03
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
+- 00_nucleo/prompts/_nuclei/layout/page-number-baseline.toml sha256:0c492a09d2660de765df65c22e703cc8c3e63cc663ee4d9ac2dd612afc80dfa3
 - 00_nucleo/prompts/_nuclei/layout/page-running.toml sha256:9f5dc1dba49ac843612415dfe6018b40308686a4fef442d153bdbd06834466d2
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -55,3 +56,39 @@ Own finite Header/Footer slot geometry and isolated composition for the planned 
 ### Acceptance and preserved boundaries
 
 Require semantic RED→GREEN for repeated physical header/footer/four-slot order, zero-paint updates, source-derived parents, overwritten inert templates, aliases and physical pages, effective20/30pt ambient plus explicit inner styles, nested PageRun restoration, Context reads, and exact duplicate-label/source diagnostics. Cover speculative suffix rollback, deferred floats/notes, subframes, measurement isolation, complete body/slot coverage, stale/mixed authority and math/par.line coexistence. Do not weaken existing tests, callback budgets, per-store sealing, source morphology, HTML isolation or old public compatibility. No generic painted-frame semantic reconstruction, source re-evaluation, second arena/Context solver, direct Func marginal mode, new default/flag or extra public API is authorized. Every changed descendant retains its own current 1:1 owner and explicit typed route; finite source inventories are not blanket traversal permission. Exhaustive new decisions need actual future-variant barriers, and the complete lineage/Nucleus, build/test/lint/Rustdoc/fmt/Clippy gates remain required without suppressions.
+
+
+## Readiness: automatic number baseline and per-page style (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/{article-fields-before,article-fields-extra-before,
+page-number-total-before}/receipt.json preserve exact source/font/compiler/oracle
+hashes, current source-bound wj2 build/archive, HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+dirty stat, UTC, commands and frozen productive/L0/fixture inputs. Oracle commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The default bottom number is7.238pt too high at11pt; at17pt its first-page
+offset is11.186pt. Bold/DejaVu produce different measured top edges, refuting
+a universal constant. The top unary/compound control already matches. A final
+page loses the17pt/bold/DejaVu style, and compound patterns borrow11pt even for
+the first17pt page. Explicit CUSTOM footer is a DIFFERENT measured negative;
+it is not fixed or waived here. Body text and None-number controls are retained.
+
+Source page_commit.rs:62-111 and finish.rs:123-174 emit Text directly at the
+number-position anchor. finish.rs:247-275 later builds compound text using the
+then-current chain. The retained page-effective chain already exists and is
+used for running content; this correction consumes it rather than introducing
+another source/style authority. Positions, styles, words and pages are language
+observables; tuple/record representation and queue mechanics are not parity.
+
+### Exclusive correction and acceptance
+
+Own a compiler-private pending-number record and capture factory containing the existing page index/logical number/pattern/align/margins/resolved offsets plus the OWNED effective TextStyle. Read style from the existing retained page-running chain when planned, otherwise the existing current chain; never create a new PageConfig field, solver or source snapshot. Resolve em offsets using that same captured size. Own the pure baseline conversion: Bottom adds injected metrics.text_edges(style.size,style).top to the existing anchor; Top preserves the existing anchor. Keep number_position and all public signatures intact. Existing rich/function-numbering composition and explicit Header/Footer paths retain their route and remain separately unqualified.
+
+ADR-0127 continuous internal parity correction. L0/pins first, actual RED before
+code, V15/V26 before resealing, exact source words/pages/0.001pt and independent
+PDF/SVG paint. Preserve all previous running/source/callback/rollback/notes,
+Unicode, layout, technical/lineage and historical/JPEG resource gates without
+new tolerances, ignored tests or suppression. No overall readiness claim.

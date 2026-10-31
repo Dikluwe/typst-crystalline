@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/mod.md
-//! @prompt-hash 8a1efa20
+//! @prompt-hash cfba9f64
 //! @layer L1
-//! @updated 2026-10-17
+//! @updated 2026-10-31
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::cell::Cell;
@@ -1154,6 +1154,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         // P809 com `apply_math_style` no topo consumia o wrapper e
         // destruía display/script/sscript (regressão medida em P812-A).
         let transformed = apply_math_default(body);
+        let transformed =
+            self.lr_multiline_view(&transformed, style).unwrap_or(transformed);
         let math_box = self.layout_node(&transformed, style);
         // `place` com baseline_y = ascent ⇒ parent_y = local_y: os items
         // internos já são compostos com y=0 na baseline (ex.: attach põe sup
@@ -1182,6 +1184,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> (Vec<FrameItem>, EquationExtent) {
         let transformed = apply_math_default(body);
+        let transformed =
+            self.lr_multiline_view(&transformed, style).unwrap_or(transformed);
         let (math_box, line_baselines) = match transformed.source_body() {
             Content::MathSequence(nodes) => {
                 if self.block && needs_grid_layout(nodes) {

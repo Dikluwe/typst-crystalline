@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/show.md
-//! @prompt-hash 1e62a941
+//! @prompt-hash 7e86baba
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -423,10 +423,23 @@ pub(crate) fn eval_show_rule(
         }
     };
 
-    // Classificar a transformação. Show-set (`#show k: set …`) é detetado pelo
-    // tipo do nó (`Expr::SetRule`) e **capturado sem mutar `engine.styles`**
-    // globalmente (P352); as restantes formas avaliam para um `Value` e
-    // classificam-se em `Transformation`.
+    let transform = capture_show_transformation(show_rule, scopes, ctx, engine)?;
+    let id = ctx.next_rule_id;
+    ctx.next_rule_id += 1;
+    // Reconstruir o slice com a nova regra (Passo 95 + 109: show_rules
+    // é campo do Engine, mutação local via &mut).
+    let mut rules = engine.show_rules.to_vec();
+    rules.push(ShowRule { id, selector, transform });
+    *engine.show_rules = Arc::from(rules);
+    Ok(Value::None)
+}
+
+pub(in crate::compiler::eval) fn capture_show_transformation(
+    show_rule: ShowRuleNode<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Transformation> {
     let transform_expr = show_rule.transform();
     let transform = match transform_expr {
         Expr::SetRule(set) => {
@@ -442,24 +455,24 @@ pub(crate) fn eval_show_rule(
                 other => {
                     return Err(vec![SourceDiagnostic::error(
                         expr.span(),
-                        format!(
-                            "transformação de show rule inválida: esperado função, \
-                         Content, string ou set rule, recebeu {}",
-                            other.type_name()
-                        ),
+                        if show_rule.selector().is_none() {
+                            format!(
+                                "expected content or function, found {}",
+                                crate::compiler::eval::operators::error_formatting::vanilla_type_name(&other)
+                            )
+                        } else {
+                            format!(
+                                "transformação de show rule inválida: esperado função, \
+                             Content, string ou set rule, recebeu {}",
+                                other.type_name()
+                            )
+                        },
                     )]);
                 }
             }
         }
     };
-    let id = ctx.next_rule_id;
-    ctx.next_rule_id += 1;
-    // Reconstruir o slice com a nova regra (Passo 95 + 109: show_rules
-    // é campo do Engine, mutação local via &mut).
-    let mut rules = engine.show_rules.to_vec();
-    rules.push(ShowRule { id, selector, transform });
-    *engine.show_rules = Arc::from(rules);
-    Ok(Value::None)
+    Ok(transform)
 }
 
 #[cfg(test)]

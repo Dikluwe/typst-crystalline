@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md
-//! @prompt-hash d0bb0aa3
+//! @prompt-hash 48b55688
 //! @layer L1
-//! @updated 2026-10-17
+//! @updated 2026-10-31
 
 use super::*;
 
@@ -21,6 +21,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         nodes: &[Content],
         style: &TextStyle,
     ) -> MathBox {
+        let expanded = self.lr_multiline_nodes(nodes, style);
+        let nodes = expanded.as_deref().unwrap_or(nodes);
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/class.md
-//! @prompt-hash 8be787b1
+//! @prompt-hash c55704d4
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -19,11 +19,9 @@ use crate::entities::value::Value;
 // o body mantém o layout normal. Esta unidade só constrói o carrier.
 
 /// `class(class, body)` — emite `Content::MathClassOverride { class, body }`.
-/// `class` é obrigatório e uma das **10 strings do cast vanilla**
-/// (P825 — `foundations/cast.rs:502-520`; as outras 5 variantes do enum —
-/// `alphabetic`, `diacritic`, `glyph-part`, `space`, `special` — são
-/// internas e rejeitadas no cast); `body` é obrigatório (content ou
-/// string).
+/// `class` é obrigatório e pertence ao domínio público de onze nomes do
+/// oracle atual; `alphabetic`, `glyph-part`, `space` e `special` continuam
+/// internos. `body` passa pelo conversor de conteúdo existente.
 pub fn native_math_class(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -31,7 +29,7 @@ pub fn native_math_class(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     // **P825** — domínio do cast do vanilla + mensagem verbatim.
-    const CAST_DOMAIN: [&str; 10] = [
+    const CAST_DOMAIN: [&str; 11] = [
         "normal",
         "punctuation",
         "opening",
@@ -42,10 +40,11 @@ pub fn native_math_class(
         "unary",
         "binary",
         "vary",
+        "diacritic",
     ];
     const CAST_MSG: &str = "expected \"normal\", \"punctuation\", \"opening\", \
          \"closing\", \"fence\", \"large\", \"relation\", \"unary\", \"binary\", \
-         or \"vary\"";
+         \"vary\", or \"diacritic\"";
 
     let class_name = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
@@ -103,7 +102,7 @@ mod tests {
     use std::num::NonZeroU16;
 
     #[derive(Default)]
-    struct NullWorld {
+    pub(super) struct NullWorld {
         library: Library,
         book: FontBook,
     }
@@ -150,7 +149,35 @@ mod tests {
         .unwrap_err();
         assert_eq!(
             error[0].message,
-            r#"expected "normal", "punctuation", "opening", "closing", "fence", "large", "relation", "unary", "binary", or "vary""#
+            r#"expected "normal", "punctuation", "opening", "closing", "fence", "large", "relation", "unary", "binary", "vary", or "diacritic""#
         );
+    }
+}
+
+#[cfg(test)]
+mod readiness_math_tests {
+    use super::tests::NullWorld;
+    use super::*;
+    use crate::entities::math_class::MathClass;
+    use std::num::NonZeroU16;
+
+    #[test]
+    fn readiness_math_class_accepts_diacritic() {
+        let args = Args::positional(vec![
+            Value::Str("diacritic".into()),
+            Value::Content(Content::Symbol("x".into())),
+        ]);
+        let result = native_math_class(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .expect("current public class");
+        let Value::Content(Content::MathClassOverride(e)) = result else {
+            panic!("class carrier lost")
+        };
+        assert_eq!(e.class, MathClass::Diacritic);
+        assert!(matches!(&e.body,Content::Symbol(text) if text=="x"));
     }
 }

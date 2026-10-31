@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/math_matrix_tests.md
-//! @prompt-hash 8ff5836c
+//! @prompt-hash 392f747a
 //! @layer L1
 #![cfg(test)]
 
@@ -92,7 +92,7 @@ fn hash(content: &Content) -> u64 {
 }
 fn complete() -> Content {
     let stroke = Stroke {
-        thickness: 2.0,
+        thickness: crate::entities::layout_types::Length::pt(2.0),
         cap: LineCap::Round,
         ..Stroke::default()
     };
@@ -230,14 +230,14 @@ fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
         call(args)
     };
     let round = Stroke {
-        thickness: 1.0,
+        thickness: crate::entities::layout_types::Length::pt(1.0),
         cap: LineCap::Round,
         ..Stroke::default()
     };
     let mut square = round.clone();
     square.cap = LineCap::Square;
     let mut thick = round.clone();
-    thick.thickness = 2.0;
+    thick.thickness = crate::entities::layout_types::Length::pt(2.0);
     let mut red = round.clone();
     red.paint = Paint::Solid(Color::rgb(255, 0, 0));
     distinct(

@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/math/matrix
-Hash do Código: ea33d738
+Hash do Código: d59b0b29
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/matrix.rs`
@@ -70,3 +70,22 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

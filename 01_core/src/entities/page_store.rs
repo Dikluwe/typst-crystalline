@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/page_store.md
-//! @prompt-hash e22afb85
+//! @prompt-hash 068e4fde
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -111,6 +111,24 @@ impl PageStore {
             reference_numberings,
             supplements,
         }
+    }
+
+    /// Internal coverage proof; absent optional values still require a real slot.
+    pub(crate) fn contains_complete_interval(
+        &self,
+        first: NonZeroUsize,
+        total: NonZeroUsize,
+    ) -> bool {
+        let Some(last) = first.get().checked_add(total.get() - 1) else {
+            return false;
+        };
+        self.total_pages.is_some_and(|available| last <= available.get())
+            && self.numberings.len() >= last
+            && self.logical_numbers.len() >= last
+            && self.numbering_spans.len() >= last
+            && self.visible_numberings.len() >= last
+            && self.reference_numberings.len() >= last
+            && self.supplements.len() >= last
     }
 
     /// Total de páginas, ou `None` pre-injecção.

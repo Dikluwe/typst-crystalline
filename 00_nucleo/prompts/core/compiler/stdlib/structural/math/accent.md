@@ -1,5 +1,8 @@
 # L0 — compiler/stdlib/structural/math/accent
-Hash do Código: d93de32a
+Hash do Código: 2aa01635
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/selected-symbol-accent-call.toml sha256:c6ef1be7fbad9f9513c172b144b3dbe314ba24a6d4c8c09a26a9bca6c6f8b48b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/accent.rs`
@@ -92,3 +95,35 @@ not admit arbitrary styled content, arbitrary text or change accent geometry.
 Add co-located RED→GREEN for native and Source-wrapped Symbol, invalid
 multicodepoint content and unchanged String/Symbol alias conversion. Repeat full
 validation on the final frozen source; the interrupted validation remains evidence.
+
+
+## Selected-symbol accent callability — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/accent-callability-findings6.json`
+binds actual release6 source/archive, HEAD 212aed0449150dd296ceea13fc2be665cc5db01a,
+uncommitted exact dirty-file stat, UTC and pinned oracle64c5e8c0. The original
+14-case receipt's single-letter a is notation in BOTH engines; only the corrected
+long-name before6b cohort proves local alias callability. Bare grave/arrow render
+symbol+parentheses in Tekt, native accents; qualified and Code Symbol calls reject
+Func in Tekt. Long local symbols lose accents/options/arity; beta/string notation
+and noncallable Code rejection remain controls. accent-effects-before6/receipt.json
+measures one seen.push effect in valid math/native Code controls, with Code Tekt
+blocked at callee. No source/font/PDF-byte equality is language acceptance.
+
+Pinned typst-library/src/foundations/symbol.rs:133-137 dispatches selected Symbol
+through its accent function; math/accent.rs:212-290 owns strict aliases and the
+single-base wrapper. Existing Func::native/with and call_dispatch's With merger
+already transport bound arguments, final call span and occurrence order.
+This is an internal semantic/morphological parity repair under ADR-0127 continuous
+flow, not a public API/default/phase change.
+
+### Exclusive amendment and acceptance
+
+Add a pure pub(in crate::compiler) symbol_accent_func(selected: &str, call_span: Span) -> Option<Func>. Consult strict is_known_math_accent and existing normalization only. For a recognized value, return an existing native Func with the canonical accent prebound through existing With/Args; retain actual call_span in the private bound occurrence. This function is used immediately as a callee, not published as a new language value or registry. A private native wrapper removes only its own bound accent occurrence, validates exactly one actual positional base (missing argument: base / unexpected argument), inserts that accent immediately after base, retains all user occurrences/options, rebuilds Args at the retained actual call span and delegates math_accent_content. Propagate ordinary diagnostics; no unwrap/expect or fabricated source. Native/With/application machinery stays unchanged; no new Func representation or alias table. Existing four bare special wrappers may remain unchanged. Preserve all old constructors/classifiers and geometry. General Symbol metadata/field-method/LR callability and existing unrelated diagnostic wording are outside certification.
+
+L0 precedes actual functional RED, then implementation/GREEN; preserve old tests,
+source-bound bilateral PDF/SVG/error/effect controls, full core/workspace, build,
+strict lint/Clippy/rustdoc/fmt and both lineage directions. Validate V15/V26 before
+resealing. No completion/performance/JPEG qualification from a finite call fix.

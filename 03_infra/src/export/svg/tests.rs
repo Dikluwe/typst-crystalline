@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/tests.md
-//! @prompt-hash 17cfe645
+//! @prompt-hash 8857f6ce
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -1678,4 +1678,166 @@ fn svg_link_overflow_keeps_visual_ink_outside_nominal_anchor() {
         svg[..start].contains("fill=\"#ff0000\""),
         "overflow paint must survive outside the anchor"
     );
+}
+
+#[cfg(test)]
+mod readiness_variable_contours {
+    use super::*;
+    use typst_core::entities::world_types::Font;
+
+    const VARIABLE: &[u8] =
+        include_bytes!("../../../fixtures/fonts/UbuntuSans-Variable.ttf");
+
+    fn original_contour(data: &[u8], weight: Option<f32>) -> String {
+        let mut face = Face::parse(data, 0).expect("portable original face");
+        if let Some(weight) = weight {
+            assert!(face
+                .set_variation(ttf_parser::Tag::from_bytes(b"wght"), weight)
+                .is_some());
+        }
+        let gid = face.glyph_index('A').unwrap();
+        let mut path = SvgGlyphPathBuilder::new(17.0 / f64::from(face.units_per_em()));
+        face.outline_glyph(gid, &mut path).expect("actual A outline");
+        path.finish()
+    }
+
+    fn input(
+        data: &[u8],
+        weight: u16,
+        explicit: Option<f32>,
+        x: f64,
+    ) -> (FrameItem, FontKey) {
+        let family = FontList::single(
+            crate::fonts::font_info_from_bytes(data, 0)
+                .expect("portable face metadata")
+                .family
+                .into(),
+        );
+        let mut style = TextStyle::regular(Pt(17.0));
+        style.font = Some(family.clone());
+        style.weight = Some(weight);
+        style.variations = explicit.map(|value| FontVariations(vec![(*b"wght", value)]));
+        let key = (
+            (
+                family,
+                text_style_to_font_variant(&style),
+                style.variations.clone().unwrap_or_default(),
+            ),
+            data.to_vec(),
+        );
+        let face = Face::parse(data, 0).unwrap();
+        let gid = face.glyph_index('A').unwrap();
+        let item = FrameItem::TextShaped {
+            pos: Point { x: Pt(x), y: Pt(40.0) },
+            glyphs: vec![ShapedGlyph {
+                glyph_id: gid.0,
+                x_advance: i32::from(face.glyph_hor_advance(gid).unwrap()),
+                x_offset: 0,
+                y_offset: 0,
+                cluster: 0,
+                char_code: 'A',
+            }],
+            style,
+            text: "A".into(),
+            units_per_em: face.units_per_em(),
+            font: Some(Font::from_data(data.to_vec())),
+            bidi: None,
+        };
+        (item, key)
+    }
+
+    fn attr<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
+        let marker = format!(" {name}=\"");
+        let tail = tag.split_once(&marker)?.1;
+        Some(tail.split_once('"')?.0)
+    }
+
+    fn used_contours(svg: &str) -> Vec<String> {
+        let mut symbols = std::collections::HashMap::new();
+        for symbol in svg.split("<symbol").skip(1) {
+            let (head, body) = symbol.split_once('>').unwrap();
+            let id = attr(head, "id").unwrap();
+            let path = body.split_once("<path").unwrap().1.split_once('>').unwrap().0;
+            symbols.insert(id.to_owned(), attr(path, "d").unwrap().to_owned());
+        }
+        svg.split("<use")
+            .skip(1)
+            .map(|tail| {
+                let tag = tail.split_once('>').unwrap().0;
+                let reference =
+                    attr(tag, "xlink:href").or_else(|| attr(tag, "href")).unwrap();
+                symbols
+                    .get(reference.strip_prefix('#').unwrap())
+                    .expect("referenced outline")
+                    .clone()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn readiness_svg_variable_shaped_contour_preserves_original_instance() {
+        let (item, key) = input(VARIABLE, 700, None, 20.0);
+        let svg = export_svg_with_fonts(
+            &p1227_page(vec![item]),
+            &SvgOptions::default(),
+            &[key],
+        );
+        // The reference configures the original font directly. It does not use
+        // resource materialization, binding lookup, or an exporter instance helper.
+        assert_eq!(used_contours(&svg), vec![original_contour(VARIABLE, Some(700.0))]);
+    }
+
+    #[test]
+    fn readiness_svg_variable_instances_and_explicit_override_do_not_alias() {
+        let (a, ka) = input(VARIABLE, 400, None, 10.0);
+        let (b, kb) = input(VARIABLE, 700, None, 35.0);
+        let (c, kc) = input(VARIABLE, 400, Some(700.0), 60.0);
+        let svg = export_svg_with_fonts(
+            &p1227_page(vec![a, b, c]),
+            &SvgOptions::default(),
+            &[ka, kb, kc],
+        );
+        let regular = original_contour(VARIABLE, Some(400.0));
+        let bold = original_contour(VARIABLE, Some(700.0));
+        assert_ne!(regular, bold, "fixture has distinct actual contours");
+        assert_eq!(used_contours(&svg), vec![regular, bold.clone(), bold]);
+    }
+
+    #[test]
+    fn readiness_svg_variable_direct_glyph_preserves_original_instance() {
+        let (item, key) = input(VARIABLE, 700, None, 20.0);
+        let FrameItem::TextShaped { pos, glyphs, style, .. } = item else {
+            unreachable!()
+        };
+        let request = GlyphFontRequest::new('A', &style);
+        let context = SvgGlyphFontContext::from_resolutions([(request, key.0.clone())]);
+        let item = FrameItem::Glyph {
+            pos,
+            glyph_id: glyphs[0].glyph_id,
+            x_advance: Pt(12.0),
+            size: style.size,
+            style,
+            base_char: 'A',
+        };
+        let svg = export_svg_with_fonts_and_contexts(
+            &p1227_page(vec![item]),
+            &SvgOptions::default(),
+            &[key],
+            &SvgDestinationContext::empty(),
+            &context,
+        );
+        assert_eq!(used_contours(&svg), vec![original_contour(VARIABLE, Some(700.0))]);
+    }
+
+    #[test]
+    fn readiness_svg_static_face_ignores_inapplicable_variation() {
+        let data = include_bytes!("../../../fixtures/fonts/DejaVuSans.ttf");
+        let (item, key) = input(data, 400, Some(700.0), 20.0);
+        let svg = export_svg_with_fonts(
+            &p1227_page(vec![item]),
+            &SvgOptions::default(),
+            &[key],
+        );
+        assert_eq!(used_contours(&svg), vec![original_contour(data, None)]);
+    }
 }

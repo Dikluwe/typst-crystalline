@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/realized.md
-//! @prompt-hash fe4dea7c
+//! @prompt-hash 820f5091
 //! @layer L1
 //! @updated 2026-10-16
 
@@ -286,8 +286,23 @@ pub(super) fn register_origins<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     original: &Content,
 ) {
+    register_origins_with_policy(layouter, original, true);
+}
+
+pub(super) fn reanchor_stack_origins<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    original: &Content,
+) {
+    register_origins_with_policy(layouter, original, false);
+}
+
+fn register_origins_with_policy<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    original: &Content,
+    only_if_absent: bool,
+) {
     let mut locations = Vec::new();
-    if !prepared_locations(original, &mut locations) {
+    if !prepared_locations(original, &mut locations) && only_if_absent {
         locations = crate::compiler::introspect::introspect_with_introspector(original)
             .elements
             .keys()
@@ -300,8 +315,16 @@ pub(super) fn register_origins<M: FontMetrics, S: ImageSizer>(
         y: layouter.regions.current.cursor_y,
     };
     for location in locations {
-        layouter.locator.observe(location);
-        layouter.record_location_position(location, Position { page, point }, true);
+        if only_if_absent {
+            layouter.locator.observe(location);
+        } else if !layouter.runtime.positions.contains_key(&location) {
+            continue;
+        }
+        layouter.record_location_position(
+            location,
+            Position { page, point },
+            only_if_absent,
+        );
     }
 }
 

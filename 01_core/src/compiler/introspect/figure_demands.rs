@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/figure_demands.md
-//! @prompt-hash 23137120
+//! @prompt-hash c73fa5f5
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -293,6 +293,10 @@ fn visit(
         Content::Table(e) => {
             if let Some(plan) = &e.resolved {
                 for c in &plan.cells {
+                    visit(c, intr, chain, None, span, out)?;
+                }
+            } else if let Some(items) = &e.items {
+                for c in items {
                     visit(c, intr, chain, None, span, out)?;
                 }
             } else {

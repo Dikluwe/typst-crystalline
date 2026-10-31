@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "intrinsic-piece-alignment"
+title = "Independent causal frames in an intrinsic alignment scope"
+[[claims]]
+id = "domain"
+level = "must"
+statement = "Captured alignment is settled once at the causal width of its own piece. A Block body is an independent domain: known width uses ordinary child alignment, Auto width captures its own lines until final inner width. Child item indices and unresolved operation tokens cannot escape the completed frame."
+[[claims]]
+id = "frame"
+level = "must"
+statement = "An actual completed Block in a captured parent contributes one typed frame operation after its root and backing are composed. Its body, backing and associated decoration segments receive the same final parent displacement. Direct Shapes and neutral markers never acquire guessed text-line alignment."
+[[claims]]
+id = "effects"
+level = "must-not"
+statement = "Do not rerun source, infer source membership from paint, change public contracts or pipeline phases, substitute paint bounds for causal allocation, or certify fragmentation and unsupported decoration geometry from these finite controls."

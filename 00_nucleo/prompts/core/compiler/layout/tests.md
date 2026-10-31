@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 66731837
+Hash do Código: e4051bcb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -7,6 +7,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml sha256:0177da7d5af56bbce26198ac775e603cec4529be91fb3567373c243543fa85e3
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
+- 00_nucleo/prompts/_nuclei/layout/outline-inline-budget.toml sha256:7995dc5e028bf26ac3bd89a9dd751f8522530af98c627211825f9b55e551a9c1
+- 00_nucleo/prompts/_nuclei/layout/page-number-baseline.toml sha256:0c492a09d2660de765df65c22e703cc8c3e63cc663ee4d9ac2dd612afc80dfa3
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -380,3 +382,263 @@ visitor/schema mutation or normalization of actual paint is authorized.
 
 ## R8: workspace superscript and oversized-note acceptance
 Measurement before decision: validation-complete3/tests-domain-infra.log in footnote-layout-r8-2026-10-24 records p448 expecting upward movement as a larger frame y and p595 expecting an oversized warning for a now-certified splittable text note. Actual R8 paired PDFs/SVGs establish downward frame coordinates and upward superscript; change p448 to smaller y, retaining reduced size. large-note-controls/receipt.json distinguishes splittable lorem200 (successful, no warning) from an indivisible block(height:500pt,breakable:false) on a 200pt page (existing warning). Preserve the defensive-warning test by making its oversized body explicitly indivisible; add a separate certified multiline continuation test with START/END once and both call/entry markers, no oversized warning. Do not suppress warnings for uncertified or indivisible oversized frames, weaken content assertions, or alter unrelated tests. No new public/default/pipeline contract.
+
+
+## R13 — approved ShapeElem literal migration
+
+The source inventory in lab/results/construction/diagnostics/relative-lines-r13-2026-10-25/migration-owners.json identifies this consumer. Owner approved the public ShapeElem.relative_line addition (proposal SHA-256 d8c9a01413232bac7113d1148af3c1b3bcd671bb37eeca68a94d5749d671db00). Initialize that field to None in existing constructors and fixture literals, preserving all geometry, paint and behavior. No other implementation change is authorized here. Full existing tests, build and lineage must pass.
+
+
+## Readiness: generated heading separation
+
+Measurement precedes this update: readiness-fixes-2026-10-28/unicode-validation/
+tests-domain-infra.log records only the three p451 numbering controls failing:
+text-item concatenation yields 1.Intro, 1.Cap1.1Sec, I.AI.IBII.C. The current
+heading owner specifies a 0.3em geometric separator, proved by the actual pinned
+control-heading-numbering PDF/SVG and the independent numeric-gap RED→GREEN.
+A literal U+0020 in a Text item is not the spacing contract. Keep all three
+numbering patterns, hierarchical sequence and Roman reset expectations, and
+strengthen their observation with exact prefix/body run order, same baseline,
+increasing heading baselines and the measured0.3em gap using FixedMetrics.
+Do not restore a space-glyph-dependent gap, normalize extracted source words,
+remove these controls, or reduce their numbering assertions.
+
+
+## Readiness: list group geometry and body isolation
+
+Own the three public-layout controls for list/enum signed spacing and nested
+item-body scope, transferred intact from Sequence's inline test module. Their
+source evidence and required behavior are in the sequence owner's readiness
+clauses: direct/inverted groups, blank boundary, spacing40/leading20-spacing5,
+continuous groups, and Sequence bodies with inline math. Preserve every input,
+coordinate assertion and failure; do not count a helper compilation failure
+as functional RED. This dedicated test-only layout unit avoids mixing test
+maintenance with the productive sibling coordinator. No productive public
+contract, default or phase changes.
+
+## Readiness: inset fractional allocation investigation
+
+Measurement: `readiness-fixes-2026-10-28/list-body-extras/comparison.json`
+and the original paired `outline-fr-box-inset` source retain the pinned
+64c5e8c0 oracle, frozen input hashes, dirty HEAD and UTC. A 13.2pt left
+Block inset leaves the page number near Beta instead of the right margin;
+the zero-inset control reaches that margin. The standalone Rust arithmetic
+receipt is a hypothesis only, not proof of the productive cause.
+
+Add a source-shaped functional control with declared Beta19.888pt,
+space2.75pt, digit5.115pt and zero-width U+2060, actual Block insets0/13.2,
+and the actual fractional Box dispatch. Require source words once, the
+same baseline and the digit's right edge at280pt within1e-8. Keep unknown
+width, overflow, signed/zero fractions and historical rounding controls
+unchanged. This clause authorizes investigation tests only; it does not
+supersede the allocation owner's strict arithmetic restrictions or authorize
+a productive rounding change before a functional RED and new decision.
+
+
+The first inset test attempt (fraction-inset-red.json/log) incorrectly set the
+region's absolute width to260 while separately installing20pt margins; its
+zero-inset control ended at240pt. Preserve that failed setup as evidence but
+do not count it as the productive RED. Set the absolute region width to300,
+retaining20pt margins and the original expected right edge280pt. This corrects
+the adapter, not the acceptance criterion.
+
+
+The read-only outline-eval-probe/ and outline-metric-probe/ receipts retain
+exact worker/rlib/input hashes, dirty HEAD, UTC and evaluated original trees.
+The first probe omitted the font catalog, so its fallback metrics are not
+productive font measurements. The second uses the CLI catalog; explicit
+Libertinus Serif measures Beta19.888, space2.75, digit5.115 and shaped U+2060
+zero, while the evaluated body contains an actual Repeat inside the fractional
+Box and one combined Text(U+2060+1). Preserve the passing plain-Box test.
+Add this actual Repeat/combined-text body with gap0.15em and both insets;
+require both words once on the same baseline and the same280pt right edge.
+These tests distinguish composition from a guessed numeric correction; they
+still authorize no productive allocation rewrite on their own.
+
+
+## Readiness: automatic number baseline and per-page style (2026-10-28)
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/{article-fields-before,article-fields-extra-before,
+page-number-total-before}/receipt.json preserve exact source/font/compiler/oracle
+hashes, current source-bound wj2 build/archive, HEAD212aed0449150dd296ceea13fc2be665cc5db01a,
+dirty stat, UTC, commands and frozen productive/L0/fixture inputs. Oracle commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The default bottom number is7.238pt too high at11pt; at17pt its first-page
+offset is11.186pt. Bold/DejaVu produce different measured top edges, refuting
+a universal constant. The top unary/compound control already matches. A final
+page loses the17pt/bold/DejaVu style, and compound patterns borrow11pt even for
+the first17pt page. Explicit CUSTOM footer is a DIFFERENT measured negative;
+it is not fixed or waived here. Body text and None-number controls are retained.
+
+Source page_commit.rs:62-111 and finish.rs:123-174 emit Text directly at the
+number-position anchor. finish.rs:247-275 later builds compound text using the
+then-current chain. The retained page-effective chain already exists and is
+used for running content; this correction consumes it rather than introducing
+another source/style authority. Positions, styles, words and pages are language
+observables; tuple/record representation and queue mechanics are not parity.
+
+### Exclusive correction and acceptance
+
+Own functional composed-page REDs using declared unequal top/vertical metrics, two physical pages with11/17pt styles, unary and total-dependent patterns, top/bottom alignment and em footer offset. Require one unchanged formatted number per page, exact style and x/y from the actual page and injected metric, and nonzero top-edge distinction from ascent. Keep Top and explicit None/Content suppression controls; do not qualify the separately negative explicit-footer geometry or erase prior failures. These tests exercise commit and finish through genuine page transitions, not just the new helper's implementation.
+
+ADR-0127 continuous internal parity correction. L0/pins first, actual RED before
+code, V15/V26 before resealing, exact source words/pages/0.001pt and independent
+PDF/SVG paint. Preserve all previous running/source/callback/rollback/notes,
+Unicode, layout, technical/lineage and historical/JPEG resource gates without
+new tolerances, ignored tests or suppression. No overall readiness claim.
+
+## Readiness: bounded numbered Outline inline budget
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/outline-prefix-source-evidence.json binds exact
+source/owner hashes, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat/UTC,
+number2 build/source archive and actual paired numbered-outline cases. The
+executable is92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The non-Ref numbered controls retain different fill/word positions. Source
+stdlib structural outline.rs:319-391 emits Empty prefix-info, a nonweak negative
+hanging compensation, the original marked textual prefix and gap inside an inset
+Block. style_scope.rs:133-167 preserves Label semantics through the parent-line
+inline subframe; sub_frame.rs:724-748 retains its actual horizontal advance.
+inline_allocation.rs:283-294,488-530 rejects the two known custom markers;
+:61-64,341-346 refuses every negative absolute H. These explicit refusals are
+source evidence, not proof of every causal/rendering obligation. Actual local
+certificate and composed-line REDs must fail before productive implementation.
+Source counts/styles/positions and preserved semantic envelopes are language
+obligations; the certificate's representation and fallback route are mechanics.
+No upstream intent is inferred or old floating-point hypothesis resurrected.
+
+### Exclusive correction and acceptance
+
+Own a functional composed-line RED with the existing standard numbered-outline body: Empty prefix-info where present, first nonweak negative hanging H, original Text prefix in Label marker, gap, body, actual fractional Repeat Box, weak spaces and original U+2060+page suffix. Use declared injected widths and the real inset Block path; cover auto metadata present/absent and different base inset. Require one prefix/body/suffix at their source positions and common baseline, suffix at the actual regional right edge, real dot copies and one preserved Semantic Label. Preserve metadata's source-side prefix-width observation. Do not substitute a helper-level allocation assertion for actual layout.
+
+ADR-0127 continuous internal parity/certificate correction, separate from the
+pending physical-phase approval. L0/pins first, meaningful RED→GREEN, V15/V26
+before resealing, full source-language/PDF/SVG and technical gates. Keep all
+historical/JPEG controls and remaining readiness negatives; do not relax any
+metric, suppress diagnostics or claim general rich-prefix/RTL/wrapping parity.
+
+## Multiword numbered outline budget observer
+
+The physical4 article paired receipt observes overlapping first-entry fill;
+inline_allocation currently refuses whitespace Text. Add a separate regression
+with the native nested shape (prefix-info, negative H, marked1., compensating H,
+inner Sequence Text Beta Beta/Space/fractional Repeat/Space/WJ/page). Use existing
+DeclaredWidths, real layout and inset bounds. Require both Beta occurrences,
+one page and the suffix at the existing280pt right edge. Preserve the old
+single-word test unchanged. This is a position test, not a new allocator formula.
+Original paired PDF/SVG fill/body geometry remains required for acceptance.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.
+
+## List-to-enum paragraph boundary expectation
+
+physical9-validation/tests-domain-infra.log preserves actual old-test failure:
+20.9pt versus14.85pt, fixed metrics, exact source archived by physical9 build.
+list-enum-fresh/receipt.json binds immutable product2fc7b30d… and current pinned
+oracle22897f93…, sources/hashes/UTC/dirty HEAD/diffstat/build archive. Tight and
+explicit Parbreak source both measure20.438pt at11pt/spacing1.2em and29.238pt at
+spacing2em in both binaries. Changing paragraph spacing shifts the gap8.8pt.
+The previous expectation of leading between different List/Enum groups conflicts
+with this earlier parity correction. Preserve source words/Parbreak/two markers
+and use supplied FixedMetrics top+bottom plus the default paragraph spacing
+1.2em, not the0.65em leading. Name the test for that actual contract. No product
+formula, rendering tolerance, source fixture or unrelated Terms expectation is
+changed by this test correction. Require the full suite green.
+
+
+## Approved TableAlignment consumer migration — 2026-10-29
+
+The table-column-alignment-approval.json receipt ratifies review SHA256
+1e73466f33e416cb14541575124b16244272079ac336e04159ac89ce1bdef66e.
+Actual table-alignment-green1 compilation identifies this owner as a productive
+consumer of the field type changed by that gate; the failed attempt is retained.
+This migration adds no other public field, trait, signature or phase. L0 first:
+Migrate the existing synthetic centered-Table cache-refusal fixture from
+Some(Align2D) to Some(TableAlignment::Uniform(same Align2D)). Preserve body,
+metrics, expected call count and geometry/content assertions exactly; no cache
+control is relaxed. Add raw synthetic declaration/column/span geometry controls
+using this same physical engine, keeping them distinct from source/prepared tests.
+Require original tests plus focused RED→GREEN, valid graph/reseal, full gates
+and unchanged native geometry/JPEG criteria. Function alignment, general Table
+reflection, Grid column arrays, rich paint/inset, multipage spans and PDF/UA
+remain outside certification.
+
+
+The new raw declaration comparison in green2/core-before-repair used exact f64
+equality accidentally: BBBB x differs by 2.8e-14pt between equivalent paths.
+Use the already-approved physical criterion 0.001pt for that new test, retaining
+text/count/axes assertions and immutable failed receipts. Its explicit-cell
+reference must request the newly represented Auto raw placement as well, so the
+span comparison tests the same supported coordinate contract. Do not change any
+legacy expected geometry, fixture or subframe/cache call count.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+
+## Issue 8954 — approved integration
+
+### Evidence before implementation
+
+`lab/results/construction/diagnostics/issue-8954-2026-10-31/implementation-before.json.gz`
+retains this exact owner/source, UTC, HEAD and dirty diffstat/status; measurements.json.gz
+contains the fresh combined native probes and actual glyph baselines. The original
+case is rejected, while distinct levels reorder 0,A,B,1 into A,B,0,1. Ordered
+replacement/repeat controls establish group-level language behavior independently
+of Cell kind or upstream panic mechanics. Human ratification is approval.json
+in that directory, patch SHA 18e5019618e3c08e71c3a9d2f51a4f50d9b4a2e624fc70ab6d8de6c4aac6ee20.
+
+### Exclusive amendment
+
+Migrate only the approved literal additions: raw Table items=None, legacy plans header_groups empty, Header level 1 unless cloning an existing header (preserve its level). Preserve every old semantic assertion and all other data; no new APIs/default/phase. Representation-only test assertions that freeze the superseded duplicate-header rejection must be replaced by positive source-order/range safety acceptance, without weakening unrelated controls.
+
+L0 and restricted reseal precede RED/code. Preserve prior ratifications, purity and
+static dispatch. Validate original source order, adjacent/replaced/nonrepeating
+groups, effects and no hidden admission, spans/conflicts/padding, finite region
+progress, legacy controls, native PDF/SVG/HTML, proportional suites/build and full
+forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
+target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
+remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
+require a new gate; the approved fields are not inferred from diagnostics.
+
+
+## Issue 8583 — approved consumer obligation
+
+Measurement and explicit public/phase approval are bound by before/combined
+source archives, baseline.json and approval.json under
+`lab/results/construction/diagnostics/issue-8583-2026-10-31/`.
+The radius caster at casting.rs:31–39 erases ratios and rect.rs:44–56 drops
+side dictionaries. These are language geometry/paint losses.
+
+Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
+and rect_stroke are None (or explicitly bound/observed for observation). Preserve
+all existing values, expectations and other APIs; public addition is approved.
+Do not materialize unrelated square/container features.

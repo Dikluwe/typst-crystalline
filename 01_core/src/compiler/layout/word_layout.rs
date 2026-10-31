@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/word_layout.md
-//! @prompt-hash 0a5b8f65
+//! @prompt-hash 70fccf7d
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -143,6 +143,10 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
         }
         None => visual,
     };
+    layouter.line_optical_overhang = Some(!matches!(
+        layouter.chain.custom("text.overhang"),
+        Some(crate::entities::value::Value::Bool(false))
+    ));
     layouter.regions.current.current_line.push(item);
     layouter.text_tracking_state.record();
 }

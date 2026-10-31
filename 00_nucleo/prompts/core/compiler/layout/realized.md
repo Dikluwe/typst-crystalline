@@ -1,5 +1,5 @@
 # L0 — compiler/layout/realized
-Hash do Código: 4dd6a6fd
+Hash do Código: 28dc0ac1
 
 
 **Layer:** L1
@@ -79,3 +79,15 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Stack child origin transport (2026-10-27)
+
+Measurement before decision: `lab/results/construction/diagnostics/stack-image-flow-fix-2026-10-27/effects-candidate/context-binding.json` records the twentieth child with metadata location page 2, but both captured `here().page()` and the retained Here Location page 1; vanilla reports page 2 for all three. `page_running_requests.rs:990-1003` and `realized.rs:285-307` register descendant original identities only when absent. Ancestor registration can therefore prevent a local child carrier from being captured. This is observable location semantics, not a requirement to imitate vanilla mechanics.
+
+Decision (ADR-0127 continuous flow): while entering the existing private Stack subframe, recapture the child's already-authorized original identities at the local origin, before dispatch. Reuse the selected source-plan traversal, operational/pruned/ref predicates and existing marker protocol; this anchoring mode must not admit source events a second time or execute callbacks. Without a plan, reuse the existing original-location collection, without introducing a new allocator/identity rule. Ordinary original registration remains only-if-absent. Later explicit placements remain authoritative and nested Stack frames repeat the same local transport. Geometry and semantic event ordering remain separate. No public contract, phase, global dispatcher or Context solver changes.
+
+Acceptance: an ancestor-pre-registered realized child origin must follow that child's transported frame onto page 2; source-level stored Here Location, captured page integer and metadata Location must all match vanilla. Counter/footer source ordering and all current context stability gates remain mandatory.
+
+The second candidate refutes eager observation of every descendant: `effects-candidate2/binding.json` in the same diagnostic records rotated Metadata/Here positions after the preliminary reanchor advanced the Locator for unvisited visual nodes. Local recapture must neither observe/allocate locations nor create an absent runtime position. It only attaches a local carrier to identities already admitted by an ancestor. Existing normal traversal remains the sole first admission/allocator authority. Preserve the failing candidate and add a RED test asserting that recapture leaves the Locator seed and unvisited membership unchanged.
+
+Integrated `pipeline-red.log` proves the fallback's fresh child-local index wrongly relocates global identities0/1 to the final child. In recapture policy only, retain explicit prepared identities and never synthesize a fresh local introspector when preparation is incomplete; ordinary only-if-absent registration keeps its original fallback. Bare contextual markers retain their existing normal first-admission traversal. This removes the demonstrated alias collision without a new identity lookup/allocator.

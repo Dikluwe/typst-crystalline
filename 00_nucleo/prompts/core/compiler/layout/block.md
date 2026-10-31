@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: e213c6ae
+Hash do Código: dfde15ae
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -10,8 +10,10 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/layout/single-region-stack.toml sha256:cf78ebaac0d5f3c4adbdc6ca2e6853ccd6b9ca565ec814e9f81b75a546089024
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
@@ -175,3 +177,149 @@ Generic Block likewise propagates only a supplied body decision; outer None rema
 uncertified. Never flatten unknown into authoritative absence. The Box owner's
 whole-body certificate retains its existing affine-paint fallback on uncertified
 producer paths; this is no universal first-frame/flow-baseline claim.
+
+## Independent Block inside a captured intrinsic piece — 2026-10-29
+
+figure-optical-second1 source archive/receipt binds dirty HEAD212aed, exact
+UTC/inputs and functional RED for painted80×35 Block inside Figure. Its backing
+starts285.637795pt instead of257.637795pt, BODY351.023622pt instead of285.637795pt;
+the earlier no-backing BODY control passes. The retained current-pin native
+figure controls and explicit geometry define acceptance, not Rust buffers.
+block.rs:215–241 positions before final parent width; :318–330 uses the outer
+piece scope for child text; :480–510 subsequently groups/inserts backing,
+invalidating child item indices. These are measured causal-domain conflicts.
+
+When a real Block enters an active private piece-alignment scope, defer its
+exterior horizontal placement and use the causal saved line start. Isolate
+its body: explicit inner width uses ordinary child alignment; Auto inner width
+creates a fresh private piece scope, settled against actual allocated inner
+width before clip/root/backing changes. Resolve child decoration associations
+in that same domain, restore the parent scope in LIFO, then publish exactly
+one completed typed frame operation for the actual root/backing item range
+in a surviving region. Use existing resolved exterior alignment/direction and
+original available free width; final parent settlement moves body/backing and
+new decoration segments together. Preserve causal width, source plans, margins,
+height and all ordinary callers without capture. Fragmentation remains open.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Preserve full Length thickness through eval construction, field access and repr.
+Resolve thickness with the effective occurrence font at existing layout consumers
+and prepared FrameStroke boundary before scalar geometry/overhang is calculated.
+Keep all other values, field-presence, validation/error priority, behavior and
+previous approvals. Point-only fixtures retain exactly their numeric values.
+The approved public/phase contract is bound in approval.json. RED→GREEN and
+full proportional validation plus forward/reverse lineage remain required.
+
+
+## Resolve region-owned dividers before Block composition — issue 8525
+
+Measurement before decision: candidate1-outputs.json under
+lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31 binds the
+actual compiled binary, source hashes, dirty stat, UTC and source-level Block
+refuter. The root case is finite, but block[FIRST divider LONGER SECOND] panics
+at divider.rs:68 because block.rs:510 drains the body into a paint root while
+its exact divider index remains in the parent queue. block-before.json freezes
+this source/L0 and provenance before amendment. This is a rejected candidate,
+not permission to clamp stale indices or infer source identity from paint.
+
+For a surviving single-region Block, after allocated_w is causally known and
+before any alignment/clip/root/backing changes item indices, delegate resolution
+of only certified pending divider indices at or after items_before. Supply the
+same completed inner right boundary plus the existing right margin convention.
+Leave earlier parent requests untouched for their final region width; nested
+Blocks settle their own requests before enclosing composition. Preserve body
+execution count, geometry, source routing, existing fragment behavior, spacing,
+styles, allocation and all previous approvals. No public API/phase/default.
+
+The divider owner provides a private index-range resolver; this owner only calls
+it at its own composition boundary. Require this actual PDF/SVG RED→GREEN,
+parent/child/nested/clip/fixed controls and proportional tests/build/full lint.
+Internal ADR-0127 continuous flow with L0/reseal before code.
+
+
+## Issue 8790 — single-region Block/Stack composition (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8790-fix-2026-10-31/before.json`
+freezes dirty HEAD, UTC, exact diffstat/status and source hashes. The freshly
+built combined-tree binary and each PDF/SVG source/result/argv/hash/UTC are bound
+in `before/receipt.json`; the independent pinned64c5e8c0 oracle is in
+`vanilla/receipt.json`. Literal, unclipped and TTB each produce two Tekt pages;
+adding TAIL produces three. Underfill remains one page. Vanilla literal is one
+page but overlaps children after exhausting the region; do not reproduce that bug.
+`01_core/src/compiler/layout/block.rs:171-191` performs only an initial
+unbreakable admission. Its existing private InlineRegion is saved/restored through
+Block, checkpoint and subframe as an opaque Copy context. `stack.rs:173-201`
+checks only is_sub_frame to select fragmentation; :220-226 anchors reverse
+placement to total logical main extent. A Block body retains main-flow semantics,
+so classifying it as a generic subframe would also change Shape margin policy.
+These are source-measured mechanisms; geometry/page/content/effect preservation
+are language obligations, not a requirement to copy vanilla mechanics or defects.
+The issue's proposed algorithm and expected positions are hypotheses. Refute them
+through co-located tests: five logical22pt frames must remain present, with local
+BTT y48,26,4,-18,-40 under fixed70pt; unclipped/TTB must keep22pt separation.
+
+### Exclusive internal correction
+
+Extend only the existing private Copy InlineRegion with inherited unbreakable
+intent. Provide a private layout-descendant allows_fragmentation query combining
+that context with the existing isolated-subframe constraint. Block preflight
+requests a new region only when that outer context permits it. Install own
+unbreakable intent OR inherited intent while the body runs, then restore the
+previous opaque context through existing LIFO routes. Keep BlockBody source
+routing, outer admission, style/margin policy, dimensions, clip/backing/decorations,
+flow publication and checkpoint/subframe representation unchanged. No new Layouter
+field, public field/signature/trait, recipe replay, phase or product mode.
+The Stack owner consumes the query for its actual fragment decision. This bounded
+repair does not redesign all other feature-specific pagination or explicit
+pagebreak/colbreak/SetPage semantics; those owners retain their existing policy.
+
+### Gates and boundaries
+
+ADR-0127 continuous internal layout/parity correction: L0 and seals before code,
+genuine RED→GREEN, all-item/page/clip/TTB/BTT/underfill/prefix/nested/state
+controls, actual source PDF/SVG/raster, full build/tests and crystalline-lint.
+Preserve previous approvals and every unrelated working-tree change. Add no
+ignored test, tolerance relaxation, normalization, hidden callback or wholesale
+fallback. Exact provenance and effects-once controls must distinguish this Tekt
+fragmentation defect from vanilla overlap. This does not certify arbitrary
+multipage Stack children, general table/footnote pagination or explicit breaks
+inside unbreakable containers. No universal parity/performance claim follows.
+
+
+### Auto-nested finite-anchor refuter (before refinement)
+
+`lab/results/construction/diagnostics/issue-8790-fix-2026-10-31/candidate1-rejection.json`
+and `candidate1/receipt.json` retain the rejected candidate, exact source/owner
+bytes, binary/inputs/hash/UTC/dirty state. The source nested control uses an Auto
+inner Block under fixed70 outer Block. It keeps one page/five22pt children but
+positions them at global98,76,54,32,10 instead of58,36,14,-8,-30. The inner
+Auto block_place_region has infinite height; relying only on that immediate
+region loses the nearest actual declared ancestor. This refutes full closure.
+Keep an optional Stack placement bottom in the same opaque private Copy
+InlineRegion: own declared inner bottom wins, otherwise inherit the outer
+context through Auto Blocks. A feature-owned query exposes only that optional
+bottom to Stack. Checkpoints copy and subframes suspend/restore the existing
+opaque value unchanged. Do not change Block Auto allocation, actual Place
+region, percentages, clipping or child logical height to carry this reference.
+A nearer explicit120pt inner Block must override outer70; an outer Auto with
+no declared ancestor retains natural placement. Add actual Auto-nested RED and
+explicit-inner precedence control before refinement; no new public/phase gate.
+
+The optional placement bottom is qualified by the producing physical page and
+column. The feature-owned query refuses it after either changes; never transport
+a finished region's vertical origin into its successor. Checkpoints still copy
+and subframes still suspend/restore the opaque existing InlineRegion. This
+qualification adds no page dispatcher or change to explicit-break semantics.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 5db5acc4
+//! @prompt-hash 7d6322d3
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -123,10 +123,11 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         Content::Table(elem) => {
             elem.resolved
                 .as_ref()
-                .map_or(&elem.children, |r| &r.cells)
+                .map_or(elem.items.as_ref().unwrap_or(&elem.children), |r| &r.cells)
                 .iter()
                 .all(initial_layout_independent)
                 && (elem.resolved.is_some()
+                    || elem.items.is_some()
                     || (optional(&elem.header) && optional(&elem.footer)))
                 && optional(&elem.caption)
         }
@@ -653,6 +654,10 @@ fn visit_body_context_blocks(
                 for cell in &resolved.cells {
                     visit_body_context_blocks(cell, true, visit);
                 }
+            } else if let Some(items) = &e.items {
+                for child in items {
+                    visit_body_context_blocks(child, true, visit);
+                }
             } else {
                 for child in &e.children {
                     visit_body_context_blocks(child, true, visit);
@@ -999,6 +1004,7 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                         layout_intr.page_counter_values.clone();
                     expanded_intr.page_counter_final_values =
                         layout_intr.page_counter_final_values.clone();
+                    intr_for_positions = expanded_intr.clone();
                     content = expanded;
                     layout_intr = expanded_intr;
                     let (realized, realization_warnings) = realize_outlines_for_pipeline(

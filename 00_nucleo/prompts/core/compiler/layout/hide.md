@@ -1,8 +1,9 @@
 # L0 — hide
-Hash do Código: 0734c5df
+Hash do Código: e603a15b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 **Layer:** L1
@@ -54,3 +55,34 @@ Route this feature's actual source children through closed typed plan edges `Hid
 Before restoring saved painted buffers, record whether the actually executed hidden body produced material in its local current items/line. Outside isolated subframes, preserve that fact as unpainted page material. Do not mark an empty or metadata-only hidden body. Keep existing body execution, causal plan edges, geometry, hidden paint removal and nested behavior.
 
 L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.
+
+## Terminal optical policy and existing line ownership
+
+optical-isolation-red.json/source.json.gz binds exact dirty HEAD212aed0449, UTC,
+diffstat and source inputs. The actual parent-line test emits bb. at45pt rather
+than48pt after an isolated child with overhang:false returns. This refutes
+restoration of the new private policy; no break/cost/default/public/phase change
+is authorized. Source swaps are documented in optical_margin.md.
+
+Save/take the optional terminal optical policy when isolating the corresponding
+parent line; begin the local line without outer policy, then restore it with the
+original line at the existing LIFO exit. Preserve all cursor, source, fraction,
+alignment, hidden paint and regional formulas. Do not extend all-state isolation
+to the separate inline-tail helper, which contributes its actual terminal text.
+
+
+## Region-owned divider requests — issue 8525 (2026-10-31)
+
+Measurement before decision: hide.rs:20,30 swaps the emitted-item buffer around
+actual body execution. The pending divider repair is specified in
+00_nucleo/prompts/core/compiler/layout/divider.md; its exact-index requests
+belong to the swapped buffer. Received source/L0, UTC, HEAD and dirty stat are
+in lab/results/construction/diagnostics/auto-page-width-8525-2026-10-31/hide-before.json.
+Retaining child requests after discarding their shapes would address exterior
+items; hidden visibility and intact exterior rules refute that error.
+
+Save/take the parent divider queue with the parent item buffer, execute the
+hidden body with an empty queue, then discard its local pending requests and
+restore the parent queue with its items. Preserve body source effects and all
+cursor/material/typographic policies. No rendering, replay or new public API.
+Internal continuous ADR-0127: L0/reseal first; RED/GREEN and build/test/lint.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash c28a62e6
+//! @prompt-hash 64814ed5
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -102,10 +102,21 @@ impl ObservationEq for crate::entities::elements::shape::ShapeOrigin {
         }
     }
 }
+impl ObservationEq for crate::entities::elements::shape::RelativeLine {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { start: _, end: _ } = self;
+        self.start
+            .observation_relation(&other.start)
+            .and(self.end.observation_relation(&other.end))
+    }
+}
 impl ObservationEq for crate::entities::elements::shape::ShapeElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
             origin: _,
+            rect_radius: _,
+            rect_stroke: _,
+            relative_line: _,
             kind: _,
             width: _,
             height: _,
@@ -116,6 +127,9 @@ impl ObservationEq for crate::entities::elements::shape::ShapeElem {
         ObservationRelation::Same
             .and(self.origin.observation_relation(&other.origin))
             .and(self.kind.observation_relation(&other.kind))
+            .and(self.relative_line.observation_relation(&other.relative_line))
+            .and(self.rect_radius.observation_relation(&other.rect_radius))
+            .and(self.rect_stroke.observation_relation(&other.rect_stroke))
             .and(self.width.observation_relation(&other.width))
             .and(self.height.observation_relation(&other.height))
             .and(self.fill.observation_relation(&other.fill))
@@ -437,9 +451,25 @@ impl ObservationEq for crate::entities::elements::pdf_attach::AttachedFileRelati
         }
     }
 }
+impl ObservationEq for crate::entities::elements::table::TableAlignment {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match (self, other) {
+            (Self::Auto, Self::Auto) => ObservationRelation::Same,
+            (Self::Uniform(a), Self::Uniform(b)) => a.observation_relation(b),
+            (Self::Columns(a), Self::Columns(b)) => a.observation_relation(b),
+            (Self::Auto, Self::Uniform(_) | Self::Columns(_))
+            | (Self::Uniform(_), Self::Auto | Self::Columns(_))
+            | (Self::Columns(_), Self::Auto | Self::Uniform(_)) => {
+                ObservationRelation::Different
+            }
+        }
+    }
+}
+
 impl ObservationEq for crate::entities::elements::table::TableElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            items: _,
             source_span: _,
             rows_explicit: _,
             resolved: _,
@@ -460,6 +490,7 @@ impl ObservationEq for crate::entities::elements::table::TableElem {
         } = self;
         ObservationRelation::Same
             .and(self.source_span.observation_relation(&other.source_span))
+            .and(self.items.observation_relation(&other.items))
             .and(self.rows_explicit.observation_relation(&other.rows_explicit))
             .and(self.resolved.observation_relation(&other.resolved))
             .and(self.columns.observation_relation(&other.columns))
@@ -663,9 +694,10 @@ impl ObservationEq
 }
 impl ObservationEq for crate::entities::elements::table_header::TableHeaderElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { body: _, repeat: _ } = self;
+        let Self { body: _, repeat: _, level: _ } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
+            .and(self.level.observation_relation(&other.level))
             .and(self.repeat.observation_relation(&other.repeat))
     }
 }
@@ -1339,6 +1371,7 @@ mod cell_presence_observation_tests {
 impl ObservationEq for crate::entities::elements::table::TableGridResolved {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            header_groups: _,
             cells: _,
             num_cols: _,
             num_rows: _,
@@ -1351,6 +1384,7 @@ impl ObservationEq for crate::entities::elements::table::TableGridResolved {
             .and(self.num_cols.observation_relation(&other.num_cols))
             .and(self.num_rows.observation_relation(&other.num_rows))
             .and(self.header_rows.observation_relation(&other.header_rows))
+            .and(self.header_groups.observation_relation(&other.header_groups))
             .and(self.footer_start.observation_relation(&other.footer_start))
             .and(self.complete.observation_relation(&other.complete))
     }
@@ -1626,5 +1660,69 @@ mod figure_kind_capability_observation_tests {
             changed.observation_relation(&changed.clone()),
             ObservationRelation::Same
         );
+    }
+}
+
+#[cfg(test)]
+mod r13_tests {
+    use super::*;
+    #[test]
+    fn r13_observation_retains_relative_coefficients() {
+        use crate::entities::{
+            content::Content, elements::shape::RelativeLine, geometry::ShapeKind,
+            layout_types::Length, rel::Rel,
+        };
+        let Content::Shape(mut a) =
+            Content::shape(ShapeKind::Path(vec![]), None, None, None, None)
+        else {
+            panic!("shape")
+        };
+        std::sync::Arc::make_mut(&mut a).relative_line = Some(RelativeLine {
+            start: [Rel::zero(); 2],
+            end: [Rel { rel: 0.5, abs: Length::ZERO }, Rel::zero()],
+        });
+        let mut b = a.clone();
+        std::sync::Arc::make_mut(&mut b).relative_line.as_mut().unwrap().end[0].rel = 0.6;
+        assert!(matches!(a.observation_relation(&a), ObservationRelation::Same));
+        assert!(matches!(a.observation_relation(&b), ObservationRelation::Different));
+    }
+}
+
+#[cfg(test)]
+mod table_declarative_observation_tests {
+    use super::*;
+    use crate::entities::elements::table::TableAlignment;
+    use crate::entities::layout_types::Align2D;
+
+    #[test]
+    fn table_declarative_observation_keeps_nominal_presence_and_column_order() {
+        let right = Align2D::from_string("right");
+        let a = TableAlignment::Columns(vec![None, Some(right)]);
+        assert_eq!(a.observation_relation(&a.clone()), ObservationRelation::Same);
+        for b in [
+            TableAlignment::Auto,
+            TableAlignment::Uniform(right),
+            TableAlignment::Columns(vec![Some(right), None]),
+            TableAlignment::Columns(vec![None]),
+            TableAlignment::Columns(vec![]),
+        ] {
+            assert_eq!(a.observation_relation(&b), ObservationRelation::Different);
+            assert_eq!(b.observation_relation(&a), ObservationRelation::Different);
+        }
+        assert_eq!(
+            None::<TableAlignment>.observation_relation(&Some(TableAlignment::Auto)),
+            ObservationRelation::Different
+        );
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table::TableHeaderRange {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { start: _, end: _, level: _, repeat: _ } = self;
+        ObservationRelation::Same
+            .and(self.start.observation_relation(&other.start))
+            .and(self.end.observation_relation(&other.end))
+            .and(self.level.observation_relation(&other.level))
+            .and(self.repeat.observation_relation(&other.repeat))
     }
 }

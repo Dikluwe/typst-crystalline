@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/trace_plugin
-Hash do Código: 27a58f7a
+Hash do Código: 1ff5196a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -37,3 +37,18 @@ helper is crate-private and adds no external API or phase move.
 Preserve exclusive ownership and static dispatch without I/O, new
 signature/trait/flag or eval↔layout phase change. C2/C/macro tests and
 collections, builds and lineage are required before certification.
+
+## Selectorless lexical-call trace reuse (2026-10-29)
+
+Before deciding, the pinned `selectorless-capture-before` receipt under
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/` measures
+alias native/closure errors at their real definition origins, with an additional
+call trace at the actual show declaration. The current helper is at
+trace_plugin.rs:24–63 and already owns containment-based trace addition.
+Allow this existing helper within compiler/eval ancestry for the private whole
+operator, retaining its exact signature/body/name and range policy. No new public
+API or duplicated trace algorithm. The caller supplies actual function/error and
+declaration spans; detached/unresolvable origins keep the current behavior.
+Existing inferred closure-name debt is not certified by reusing this helper.
+Require real source/function-parameter/call-trace controls, existing call tests,
+valid lineage and unchanged final gates. Internal ADR-0127 delegation only.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction/layout.md
-//! @prompt-hash c1029e06
+//! @prompt-hash f491fb29
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -95,6 +95,9 @@ impl Content {
         };
         Self::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind,
             width,
             height,

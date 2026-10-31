@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/value.md
-//! @prompt-hash b67e51c5
+//! @prompt-hash 3b503c46
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -1778,7 +1778,7 @@ mod memory5_tests {
     #[test]
     fn memory5_clone_shares_stroke_payload_and_rebuild_is_independent() {
         let original = Stroke {
-            thickness: 2.5,
+            thickness: crate::entities::layout_types::Length::pt(2.5),
             cap: LineCap::Round,
             join: LineJoin::Bevel,
             dash: Some(DashPattern { array: vec![DashLength::Length(3.)], phase: 1. }),
@@ -1791,15 +1791,21 @@ mod memory5_tests {
         assert_eq!(value, cloned);
         assert_eq!(format!("{:?}", value), format!("{:?}", cloned));
         let mut independent = payload(&cloned).clone();
-        independent.thickness = 9.;
+        independent.thickness = crate::entities::layout_types::Length::pt(9.);
         independent.dash.as_mut().unwrap().array[0] = DashLength::Length(7.);
         let rebuilt = Value::from(independent);
-        assert_eq!(payload(&value).thickness, 2.5);
+        assert_eq!(
+            payload(&value).thickness,
+            crate::entities::layout_types::Length::pt(2.5)
+        );
         assert_eq!(
             payload(&cloned).dash.as_ref().unwrap().array,
             vec![DashLength::Length(3.)]
         );
-        assert_eq!(payload(&rebuilt).thickness, 9.);
+        assert_eq!(
+            payload(&rebuilt).thickness,
+            crate::entities::layout_types::Length::pt(9.)
+        );
         assert!(
             std::ptr::eq(payload(&value), payload(&cloned)),
             "clone shares immutable payload"

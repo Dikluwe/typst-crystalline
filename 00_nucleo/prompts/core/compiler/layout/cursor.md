@@ -1,9 +1,11 @@
 # L0 — cursor
-Hash do Código: 94be1d82
+Hash do Código: 8e04cf2a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
+- 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:a3772778f9e542de87823509c8eac57904fc73fea9526cebe6052833a69ef806
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
@@ -173,3 +175,35 @@ closure claim. Preserve the five earlier alignment tests and all source/physical
 coverage checks. The private visibility warning is repaired by keeping the
 new hub state private to its actual layout descendants, never widening it or
 adding a lint suppression.
+
+## Measured optical Center/Right accepted-line remainder
+
+Current64c5e8c0 comparison alignment-overhang-before (physical12-build source
+and executable identities, UTC/diffstat) isolates0.968pt Center/1.936pt Right
+for Texto.; overhang:false, one period and plain Texto match. cursor.rs:271
+subtracts content_right without the optical remainder that pinned
+inline/line.rs:493–526 includes after selection. This is language geometry.
+
+Before implementation add an injected actual3pt optical query RED with natural
+aa. advance15pt in an80pt region starting10pt: Center starts44pt enabled and
+42.5pt disabled; Right78pt enabled and75pt disabled. Preserve all source/width/
+vertical/line-selection facts and default provider refusal. Use the shared
+optical owner only for certified LTR with the final accepted policy enabled;
+add its amount to free width before the existing Center/Right multiplier,
+also when the translation is retained in a private intrinsic scope. Unknown,
+RTL, disabled, opaque and existing literal/tracking/hyphen routes retain their
+contracts. No second justification, selection cost or public/phase change.
+
+figure-optical-red1 is functional: the48 existing readiness controls pass and
+both injected enabled optical cases fail after their disabled controls pass.
+Apply the measured accepted-line remainder now, preserving natural advances.
+
+figure-boundary-before isolates retained terminal Literal space: enabled
+Center/Right differ2.343/4.686pt; weak counterparts agree. The actual cursor
+received a Literal advance but only aligns painted text, then compensates
+preceding punctuation. Require supplied-metric RED before using the existing
+line_commit literal extent projector as a separate final LTR alignment bound.
+Do not change FontMetrics.line_content_right. For retained final/explicit lines
+combine actual text and Literal extents; normal continued lines retain existing
+trimming. Use the optical owner's retained-tail proof only for the former,
+preserving current soft-wrap justification, RTL literal-prefix and every policy.

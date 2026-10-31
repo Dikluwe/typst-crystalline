@@ -1,5 +1,5 @@
 # L0 prompt — runtime values and type identities
-Hash do Código: 9e71842b
+Hash do Código: 4a30d7d3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
@@ -172,3 +172,22 @@ Acceptance is ratified H1–H8 with bilateral RED before code. H2 authorizes no 
 Co-located `#[cfg(test)]` controls cover each materialized variant and these original obligations: None has type `"none"` and is_none true; Int(0) is_none false; Int(3).cast_float gives Some(3.0), Float(3.14) Some(3.14), Bool(true) None. From("hello"), 42i64, 3.14f64, and true yield Str(EcoString), Int, Float, Bool. Equal/different EcoStrings compare correspondingly; mutating a cloned Array does not affect its source. Dict has type `"dictionary"` and `cast_dict().get("k") == Some(&Value::Int(1))`; Module clone remains type `"module"` with Arc sharing. Length pt12 has type `"length"`, Ratio .5 `"ratio"`, Angle90 `"angle"`, Color rgb0 `"color"`, Auto `"auto"`, Tiling `"tiling"`. Scope::define("x", Int(42)) yields the same value from scope.get("x"). Relative's old test label `"relative length"` conflicts with the measured corrected public name `"relative"`; the measured relative-type correction supersedes that stale spelling, without deleting the constructor/cast control itself.
 
 Path approval, the Symbol owner's public gate, R5 receipt verification, the remaining namespace/type reconciliation, and unmaterialized future variants remain explicit boundaries. Neither current implementation, a historical GREEN receipt, mechanical equality, nor this English consolidation supplies missing approval or current-pin parity certification.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

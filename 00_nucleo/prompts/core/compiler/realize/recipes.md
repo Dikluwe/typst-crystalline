@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: a0cd5c4a
+Hash do Código: 4f62da31
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
@@ -10,6 +10,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
 
 
 ## Causal realization evidence and ratification
@@ -367,3 +368,191 @@ Preserve the existing unit responsibility and all other variants/effects; no pub
 Measured symbol-render-v2-before/receipt.json and pinned typst-realize/src/lib.rs:242-260,317-345 show the kind-dependent boundary precedes native show rules: outside math convert direct/source-wrapped Symbol to Text before root rules and textual grouping; inside math retain Symbol and apply textual regex per element before native element rules. Preserve source spans, wrappers, guards and existing realization order without phase migration. Adjacent textual runs may span the converted symbol.
 
 Actual math depth excludes textual grouping of adjacent elements (including Symbol), preserving the measured per-element regex rule. Outside math, normalize selected Symbol to Text before existing grouping so compatible adjacent text/symbol/text captures can match one regex.
+
+
+## Unmodified prepared show-set original — readiness 2026-10-29
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/unmodified-show-before7/receipt.json`
+SHA256 3d49e1f07cc125676b6927a5e9d358d99b27fb8d4cb525a816a4c5d858294e32 records actual release7,
+HEAD 212aed0449150dd296ceea13fc2be665cc5db01a, uncommitted exact dirty stat, source/archive/inputs,
+UTC 2026-10-29T18:45:09.689711+00:00 through 2026-10-29T18:45:14.050776+00:00, argv and pinned64c5e8c0 oracle.
+Empty show-set text duplicates Equation and Heading query entries (2 versus
+native1); identity Func and Figure empty/identity controls retain1 in both.
+Finite-page PDF extraction is clean; earlier auto-page Figure syntax warnings
+remain separate negative evidence, not render acceptance.
+
+Local recipes.rs:566-571 selects raw node for original when apply returns a
+non-Realized result. apply.rs:758-762 returns its already prepared Located node
+when neither replacement nor nonempty style delta applies. Reusing that actual
+returned identity is the bounded inferred correction; unchanged duplicate
+query counts or loss of raw body/guards would refute it. Query/label/counter
+identity is language behavior; no upstream algorithm/bytes requirement.
+
+### Exclusive correction and acceptance
+
+Inside the existing guarded root path, keep Realized decomposition first.
+If the returned result's Source projection is Located, retain result.clone() as
+original and result as product instead of pairing an unprepared raw original
+with that prepared product. All other fallbacks stay unchanged. Preserve
+emitted-child order, guards, protected locations, actual Source, raw morphology,
+captionless Figure special handling, physical-template captures and once-only
+effects. Add no lookup, new Location, Session gate relaxation, traversal role,
+public API or phase. This is a private identity formula/parity correction under
+ADR-0127 continuous flow; it does not repair nested Equation kind.
+
+Before implementation add co-located raw Source eval + existing introspect
+REDs for Equation/Heading empty show-set and identity Func/Figure controls.
+Do not use eval_for_test: that helper deliberately strips Located/Realized.
+Require query count1 with existing body/morphology contracts intact, full core,
+recipe/context/Table/Figure tests, build, strict twelve gates and source-bound
+PDF/SVG/history/resource validation with unchanged criteria. No completion claim
+for the full Equation document, unresolved containers or overall readiness.
+
+
+## Measured nested Equation own-show boundary (2026-10-29)
+
+### Measurement before decision
+
+The actual release8 receipt `lab/results/construction/diagnostics/readiness-fixes-2026-10-28/equation-after8-before-kind/receipt.json`
+retains source, commands, UTC, dirty HEAD212aed0449 and the ratified
+64c5e8c02fe0394d913ead36e42ef8c1334d2107 oracle. An outer block Equation
+whose body is `$x$` incorrectly applies the inline Equation show and emits BAD;
+the oracle retains x and only the outer Equation is queryable. The independent
+`equation-kind-refuters8/receipt.json` and `equation-boundary-before6/receipt.json`
+measure external Flow bodies of Box, Block, Pad, Footnote, Figure and Columns,
+but Math-preserving Align, Strong, Emph, Text, Quote, Underline and Hide.
+`math-equation-role-before/receipt.json` is the morphology authority:
+the outer body field retains its raw nested Equation. Pinned
+`typst-realize/src/lib.rs:302-310` visits nested Equation.body before own-show
+and preparation in Math. This classifies observable show effects and morphology,
+not Rust equality, allocation mechanics or a new product default.
+Exact before owner/source texts, SHA-256, UTC and dirty stat are retained in
+`equation-own-show-before9.json.gz` under the same diagnostic directory.
+
+### Bounded internal contract and explicit incompleteness
+
+Within the existing recipe_math_depth scope, an Equation encountered while
+already in Math bypasses its own show/preparation and recursively realizes only
+its emitted body. Preserve the Equation carrier and fields as language
+morphology, actual existing Located identity, source spans and descendant
+realized provenance. Transparent Source/Located carriers must not accidentally
+prepare the nested root before reaching this decision. A top-level Equation
+still executes its existing own-show before entering its Math body.
+
+Only after an actual parent root's replacement decision, emitted Box, Block,
+Pad, Footnote, Figure and Columns bodies temporarily reset recipe Math depth to
+Flow. Restore the previous scope on success and errors using the existing
+save-and-restore boundary. Preserve Math through inline wrappers, real lexical
+show rules, Symbol identity, argument evaluation and hidden-child behavior.
+Do not infer this boundary from rendered style, Location, pointer/hash identity
+or the generic needs_external_layout predicate. Do not visit stored originals
+as emitted children. Add no public field/method/signature, new allocation,
+callback pass, pipeline phase, solver, budget, mode or compatibility break.
+This measured own-show correction follows ADR-0127 continuous flow.
+
+This subset is deliberately incomplete: temporary task
+`readiness-math-kind-source-plan` must complete Math-kind-aware typed SourcePlan
+membership, legacy index traversal and transparent nested-equation painting.
+The extra nested Equation query result, empty nested formula PDF and full docs
+contextual-stability failure remain open. This owner change alone must not be
+reported as closing them or general Math-kind parity. Preserve all existing
+source-plan admission/coverage and five-attempt/contextual-read requirements.
+
+Require genuine functional RED then GREEN for nested own-show suppression,
+retained Equation body morphology, top-level show execution, measured external
+Flow boundaries and inline Math-preserving wrappers. Preserve all old tests,
+prepared identity controls and actual source-bound positive compile controls.
+Seal lineage and run the existing strict gates before final qualification.
+
+
+## Measured external Flow restoration after Math suppression (2026-10-29)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/equation-scope-boundaries9/receipt.json`
+retains31 source-bound bilateral probes, exact UTC/HEAD/dirty stat/source hashes,
+actual9 SHA c2a75337e8ddda54731a4e16e1df95d4e3aac308a3acd6732834610f6eb71558
+and the pinned64c5e8c0 oracle/tree/full binary SHA. The immutable8 backcheck
+`equation-scope-boundaries8-backcheck/receipt.json` verifies its source archive
+against every build8 input and explicitly reuses unchanged native9 observations
+with original argv/UTC at the exact same paths. Actual8 emits INNER but9 emits x
+under Par, Heading, Title, ListItem/EnumItem, Place, Grid, Table, Transform and
+Stack; native emits INNER. These are newly exposed regressions from the bounded9
+own-show correction, not accepted visual tolerances. Native Repeat also emits
+INNER, while both productive baselines reject its physical source plan; that
+compile debt remains independent. The frac fixture is rejected by both and
+is not valid scope evidence.
+
+`equation-scope-extra9/receipt.json` measures replacement/cell refuters before
+this amendment: Table/Heading/Grid replaced by an Equation preserve Math and
+must not emit INNER; a Cell replaced within an actual Table emits INNER.
+Standalone TableCell and GridCell preserve Math (native one Equation), unlike
+cells emitted by actual Table/Grid parents. Rotate/scale/move/skew all use Flow.
+Existing inline9 controls keep their inner rule inactive. Source language effects,
+query membership and retained morphology are evidence; no native mechanics or
+Rust equality is a parity requirement. Exact before owner/source texts, hashes,
+HEAD, UTC and dirty stat are in `external-flow-before10.json.gz`.
+
+### Internal classification and preservation
+
+This is ADR-0127 continuous parity correction with existing recipe_math_depth;
+no public contract, default mode, compatibility break or pipeline phase changes.
+Consume the pinned external-flow-body nucleus. Retain Table show→placement→Cell
+show→actual body order, no callback replay or hidden-body preparation, all existing
+Cell defaults/guards/fields/aliases, shared arena and strict physical coverage.
+No SourcePlan, semantic index, renderer or context capture is changed by this
+scope repair. The temporary task `readiness-math-kind-source-plan` remains
+explicitly incomplete for nested membership, labels/counters, transparent painting
+and deferred Context kind. The later boundary refuters distinguish explicit Quote.block true (Flow) from
+inline Quote (Math). Unsupported set quote(block:) and inactive inline attribution
+are separate existing feature debts; this repair adds no set target or quote field.
+
+The independent actual9 full replay recovered compilation of the original
+`docs-math-equation.typ` in PDF/SVG (native0), contrary to the earlier pre-replay
+forecast of an open stability error. Its glyph/paint mismatch and unsupported
+set-block warning remain open. Do not discard this actual compile improvement
+while repairing external scopes, and do not claim full document parity.
+
+Require functional RED before productive edits; source-level INNER versus
+inactive inline controls, Table/Cell replacements, standalone-cell preservation,
+sibling scope restoration and Table success/error restoration. Preserve every
+old test and all prior positive compile/0.001pt/PDF/SVG criteria. Seal valid
+V15/V26 before V5/reverse lineage; full strict lint and all12 technical gates,
+fresh release/source archive, broad bilateral remeasurement and explicit no-new-
+regression checks are mandatory. Final historical/JPEG qualification is separate.
+
+### Exclusive recipe-owner amendment
+
+At the existing already-decided-root body descent, extend the measured Flow
+boundaries to Par, Heading, Title, ListItem, EnumItem, Place, Grid, Transform,
+Stack, Repeat and an actually emitted Table, retaining the prior six boundaries.
+Preserve incoming Math for standalone Cell/GridCell and inline wrappers. Roots
+with no own rule still establish their actual body boundary through the existing
+realize_children path; never normalize the parent's replacement as Flow merely
+because its original was external. Preserve the existing save/restore scope and
+own-show ordering; do not alter completed-cell/table guard policy or layout.
+
+
+The archived `equation-scope-boundary-refuters9b/receipt.json` further measures
+standalone ListItem/EnumItem and TermItem bodies as Flow, standalone Cell/GridCell
+and pdf.artifact as Math, and explicit Quote(block:true) as Flow. The initially
+attempted refuters9 was refused by its workspace-equals-build guard after new
+L0/tests were added; refuters9b instead verifies every archived build9 input and
+explicitly separates immutable product provenance from the new observer workspace.
+It is not a fresh build9 or a relaxed source identity claim.
+`equation-scope-final-refuters9/receipt.json` confirms block Quote body and
+attribution both execute INNER. The valid native Terms constructor remains a
+Tekt syntax/argument debt (native succeeds, Tekt rejects), while the original
+Terms tuple fixture was invalid in both; neither establishes successful Terms
+construction parity. Existing Terms/TermItem domain bodies follow the same Flow
+boundary without changing constructors or their errors. Inline attribution
+emission and set quote support remain separate, unchanged limitations.
+
+Conditional Quote body scope reads only the existing QuoteElem.block boolean;
+it does not infer kind from a render-math style flag, execute a setter or bake
+styles into morphology. A guarded Quote(true) arm retains Quote in the exhaustive
+false complement. Root own-show still decides before actual body scope. Terms
+and TermItem use the measured external body scope; standalone Cell/GridCell stay
+inherited. These amendments refine the earlier finite list, not a public API.

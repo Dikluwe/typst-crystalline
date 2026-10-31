@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash 40390b99
+//! @prompt-hash b532d53b
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -13,9 +13,7 @@ use crate::entities::{
 };
 
 use super::metrics::FontMetrics;
-use super::{
-    block, curve, resolve_pt, sub_frame, Layouter, COLUMNS_DEFAULT_GUTTER_RATIO,
-};
+use super::{block, curve, sub_frame, Layouter, COLUMNS_DEFAULT_GUTTER_RATIO};
 
 /// Positive certificate for sequences whose children share an inline flow.
 fn inline_flow(content: &Content) -> bool {
@@ -363,7 +361,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 (max_w, total_h)
             }
 
+            // Insets belong to track allocation, not to the measured body.
+            Content::GridCell(e) => self.measure_content_constrained(&e.body, max_width),
+
             Content::Shape(e) => {
+                let relative_height = self
+                    .block_place_region
+                    .filter(|region| region.h.0.is_finite())
+                    .map(|region| region.h.0)
+                    .or(self.relative_region_size.map(|size| size.1))
+                    .unwrap_or_else(|| self.available_height());
+                if let Some(line) = e.relative_line {
+                    let width =
+                        self.block_place_region.map_or(max_width, |region| region.w.0);
+
+                    let (_, width, height) = super::shape::resolve_relative_line(
+                        line,
+                        width,
+                        relative_height,
+                        self.style.size.0,
+                    );
+                    return (width.min(max_width), height);
+                }
                 let (kind, width, height) = (&e.kind, &e.width, &e.height);
                 match kind {
                     // P242 — RoundedRect partilha dimensões com Rect.
@@ -371,8 +390,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     | ShapeKind::RoundedRect { .. }
                     | ShapeKind::Ellipse
                     | ShapeKind::Path(_) => {
-                        let w = resolve_pt(width.as_deref(), max_width).min(max_width);
-                        let h = resolve_pt(height.as_deref(), 0.0);
+                        let font = self.style.size.0;
+                        let (default_w, default_h) = super::shape::intrinsic_defaults(
+                            kind,
+                            width.as_deref(),
+                            height.as_deref(),
+                            max_width,
+                            relative_height,
+                        );
+                        let w = super::shape::resolve_dimension(
+                            width.as_deref(),
+                            max_width,
+                            font,
+                            default_w.unwrap_or(max_width),
+                        )
+                        .min(max_width);
+                        let h = super::shape::resolve_dimension(
+                            height.as_deref(),
+                            relative_height,
+                            font,
+                            default_h.unwrap_or(0.0),
+                        );
                         (w, h)
                     }
                     ShapeKind::Line { dx, dy } => (dx.abs().min(max_width), dy.abs()),
@@ -651,7 +689,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::Grid(..)
             | Content::GridHeader(..)
             | Content::GridFooter(..)
-            | Content::GridCell(..)
             | Content::SetPage(..)
             | Content::PageRun(..)
             | Content::Place(..)
@@ -881,6 +918,9 @@ mod v16_d_tests {
     fn shape() -> Content {
         Content::Shape(Arc::new(ShapeElem {
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            rect_radius: None,
+            rect_stroke: None,
+            relative_line: None,
             kind: ShapeKind::Rect,
             width: Some(Box::new(Value::Length(Length::pt(40.0)))),
             height: Some(Box::new(Value::Length(Length::pt(20.0)))),
@@ -1071,5 +1111,192 @@ mod v16_d_tests {
         assert_eq!(l.locator.checkpoint(), before);
         drop(l);
         assert!(pass.finish_transcript().is_ok());
+    }
+}
+
+#[cfg(test)]
+mod r13_measurement_tests {
+    use super::*;
+    use crate::entities::{
+        elements::shape::RelativeLine,
+        layout_types::{Length, Rect},
+        rel::Rel,
+    };
+    use comemo::Track;
+    #[test]
+    fn r13_constrained_measurement_uses_relative_line_geometry() {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            intr_dyn.track(),
+        );
+        l.block_place_region = Some(Rect {
+            x: Pt::ZERO,
+            y: Pt::ZERO,
+            w: Pt(260.0),
+            h: Pt(140.0),
+        });
+        let Content::Shape(mut e) =
+            Content::shape(ShapeKind::Path(vec![]), None, None, None, None)
+        else {
+            panic!("shape")
+        };
+        std::sync::Arc::make_mut(&mut e).relative_line = Some(RelativeLine {
+            start: [Rel::zero(); 2],
+            end: [
+                Rel { rel: 0.5, abs: Length::em(2.0) },
+                Rel { rel: 0.25, abs: Length::ZERO },
+            ],
+        });
+        assert_eq!(
+            l.measure_content_constrained(&Content::Shape(e), 260.0),
+            (152.0, 35.0)
+        );
+    }
+}
+
+#[cfg(test)]
+mod issue_8780_tests {
+    use super::*;
+    use crate::entities::{
+        elements::grid_cell::GridCellElem,
+        layout_types::{Length, Ratio},
+        rel::Rel,
+        value::Value,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn rect(width: Value, height: Value) -> Content {
+        Content::shape(
+            ShapeKind::Rect,
+            Some(Box::new(width)),
+            Some(Box::new(height)),
+            None,
+            None,
+        )
+    }
+    fn cell(body: Content, breakable: bool) -> Content {
+        Content::GridCell(Arc::new(GridCellElem {
+            body,
+            x: None,
+            y: None,
+            colspan: None,
+            rowspan: None,
+            stroke: None,
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: Some(breakable),
+        }))
+    }
+    #[test]
+    fn issue_8780_grid_cell_does_not_erase_absolute_body_measurement() {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut l =
+            Layouter::new(super::super::FixedMetrics, NullImageSizer, 11.0, intr.track());
+        for breakable in [false, true] {
+            let body = cell(
+                rect(Value::Length(Length::pt(60.0)), Value::Length(Length::pt(20.0))),
+                breakable,
+            );
+            assert_eq!(l.measure_content_constrained(&body, 100.0), (60.0, 20.0));
+        }
+    }
+    #[test]
+    fn issue_8780_shape_measurement_resolves_ratios_and_mixed_lengths() {
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut l =
+            Layouter::new(super::super::FixedMetrics, NullImageSizer, 11.0, intr.track());
+        l.relative_region_size = Some((100.0, 100.0));
+        for ratio in [0.0, 0.5, 0.8, 1.0] {
+            let body = rect(Value::Ratio(Ratio(1.0)), Value::Ratio(Ratio(ratio)));
+            assert_eq!(
+                l.measure_content_constrained(&body, 100.0),
+                (100.0, ratio * 100.0)
+            );
+        }
+        let mixed = Value::Relative(Rel { rel: 0.5, abs: Length::em(2.0) });
+        assert_eq!(
+            l.measure_content_constrained(&rect(mixed.clone(), mixed.clone()), 100.0),
+            (72.0, 72.0)
+        );
+        l.relative_region_size = Some((f64::INFINITY, f64::INFINITY));
+        assert_eq!(
+            l.measure_content_constrained(&rect(mixed.clone(), mixed), f64::INFINITY),
+            (22.0, 22.0)
+        );
+    }
+    #[test]
+    fn issue_8780_auto_grid_emits_relative_height_once() {
+        use crate::entities::{
+            elements::grid::GridElem,
+            layout_types::{FrameItem, TrackSizing},
+            sides::Sides,
+        };
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr: &dyn crate::entities::introspector::Introspector = &intr;
+        for breakable in [false, true] {
+            for ratio in [0.5, 0.8, 1.0] {
+                let mut l = Layouter::new(
+                    super::super::FixedMetrics,
+                    NullImageSizer,
+                    11.0,
+                    intr.track(),
+                );
+                l.relative_region_size = Some((100.0, 100.0));
+                l.regions.current.width = 100.0;
+                l.regions.current.height = 100.0;
+                l.page_config.margin =
+                    crate::entities::layout_types::PageMargins::uniform(0.0);
+                l.regions.current.line_start_x = Pt::ZERO;
+                l.regions.current.cursor_x = Pt::ZERO;
+                l.regions.current.cursor_y = Pt::ZERO;
+                let grid = Content::Grid(Arc::new(GridElem {
+                    source_order: None,
+                    columns: vec![TrackSizing::Auto],
+                    rows: vec![TrackSizing::Auto],
+                    cells: vec![cell(
+                        rect(Value::Ratio(Ratio(1.0)), Value::Ratio(Ratio(ratio))),
+                        breakable,
+                    )],
+                    hlines: vec![],
+                    vlines: vec![],
+                    gutter: None,
+                    align: None,
+                    inset: Sides::uniform(Length::ZERO),
+                    header: None,
+                    footer: None,
+                    stroke: None,
+                    fill: None,
+                }));
+                l.layout_content(&grid);
+                let shapes: Vec<_> = l
+                    .regions
+                    .current
+                    .current_items
+                    .iter()
+                    .filter_map(|item| {
+                        if let FrameItem::Shape { width, height, .. } = item {
+                            Some((*width, *height))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                assert_eq!(
+                    shapes,
+                    vec![(100.0, 100.0 * ratio)],
+                    "breakable={breakable} ratio={ratio}"
+                );
+                assert_eq!(l.relative_region_size, Some((100.0, 100.0)));
+                assert!(l.regions.cell.is_none());
+            }
+        }
     }
 }

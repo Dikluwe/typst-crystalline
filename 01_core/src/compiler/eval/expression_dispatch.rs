@@ -1,10 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash 53fb6017
+//! @prompt-hash 3ec7db6a
 //! @layer L1
 //! @updated 2026-10-07
 
 use super::*;
+
+enum CodeTail {
+    Set(Box<CodeSetTail>),
+    Whole { prefix: Value, span: Span, recipe: Box<super::whole_recipe::WholeRecipe> },
+}
 
 struct CodeSetTail {
     prefix: Value,
@@ -41,6 +46,24 @@ fn style_code_tail(content: Content, styles: crate::entities::style::Styles) -> 
             )
         }
         other => Content::styled(other, styles),
+    }
+}
+
+fn warn_discarded_output(output: &Value, ctx: &EvalContext, engine: &mut Engine<'_>) {
+    if let Some(FlowEvent::Return(span, Some(_), false)) = &ctx.flow {
+        if let Value::Content(c) = output {
+            let hint2 = if content_has_state_or_counter(c) {
+                "state/counter updates are content that must end up in the document to have an effect"
+            } else {
+                ""
+            };
+            engine.sink.warn_note2(
+                *span,
+                "this return unconditionally discards the content before it",
+                "try omitting the `return` to automatically join all values",
+                hint2,
+            );
+        }
     }
 }
 
@@ -137,6 +160,7 @@ fn eval_expr_inner(
 
         Expr::CodeBlock(code_block) => {
             let textual_frame = rules::textual::enter_scope(ctx, engine);
+            let previous_defer = ctx.defer_show_rules;
             // Bloco de código — styles e show_rules locais (atomização
             // Passos 94 e 95). `#set`/`#show` dentro do bloco mutam as
             // cópias locais mas não afectam o chamador. Engine
@@ -147,7 +171,7 @@ fn eval_expr_inner(
             let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
             let mut output = Value::None;
-            let mut set_tails: Vec<CodeSetTail> = Vec::new();
+            let mut tails: Vec<CodeTail> = Vec::new();
             let mut styled_set_tail = false;
             let mut set_tail_rules = Arc::clone(engine.show_rules);
             // **P772l** — paridade vanilla `ast::CodeBlock::eval`
@@ -174,6 +198,26 @@ fn eval_expr_inner(
                     // `typst-eval/src/code.rs:57` + `ops::join`), não só o
                     // da última. Medido: `{ (1,); (2,) }` → `(1, 2)`.
                     let span = expr.span();
+                    if let Expr::ShowRule(rule) = expr {
+                        if rule.selector().is_none() {
+                            let recipe = super::whole_recipe::WholeRecipe::capture(
+                                rule,
+                                scopes,
+                                ctx,
+                                &mut local_engine,
+                            )?;
+                            if ctx.flow.is_some() {
+                                break;
+                            }
+                            tails.push(CodeTail::Whole {
+                                prefix: std::mem::replace(&mut output, Value::None),
+                                span,
+                                recipe: Box::new(recipe),
+                            });
+                            ctx.defer_show_rules = true;
+                            continue;
+                        }
+                    }
                     if matches!(expr, Expr::SetRule(_)) {
                         let before = local_engine.styles.clone();
                         let carrier = eval_expr(expr, scopes, ctx, &mut local_engine)?;
@@ -188,7 +232,7 @@ fn eval_expr_inner(
                         );
                         styled_set_tail |= !styles.is_empty();
                         set_tail_rules = Arc::clone(local_engine.show_rules);
-                        set_tails.push(CodeSetTail {
+                        tails.push(CodeTail::Set(Box::new(CodeSetTail {
                             prefix: std::mem::replace(&mut output, Value::None),
                             styles,
                             span,
@@ -212,7 +256,7 @@ fn eval_expr_inner(
                                 guards: local_engine.active_guards.clone(),
                                 file: local_engine.current_file,
                             },
-                        });
+                        })));
                         continue;
                     }
                     let mut value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
@@ -312,59 +356,71 @@ fn eval_expr_inner(
                         break;
                     }
                 }
-                for mut tail in set_tails.into_iter().rev() {
-                    let raw_display =
-                        matches!(output, Value::Bool(_) | Value::Auto | Value::Length(_));
-                    let mut content =
-                        value_to_display_content(output).unwrap_or(Content::Empty);
-                    if raw_display {
-                        content =
-                            rules::intercept_content(content, ctx, &mut local_engine)?;
-                    }
-                    if let Some(carrier) = tail.carrier {
-                        content = Content::sequence(vec![carrier, content]);
-                    }
-                    if !tail.styles.is_empty() {
-                        if crate::compiler::realize::table_cells_needed(&content) {
-                            tail.recipe.body = content.clone();
-                            tail.styles = tail
-                                .styles
-                                .push_custom(
-                                    "eval.table.local.recipe",
-                                    Value::Content(Content::ShowRecipe(Arc::new(
-                                        tail.recipe,
-                                    ))),
-                                )
-                                .push_custom("eval.table.local", Value::Bool(true));
+                for tail in tails.into_iter().rev() {
+                    match tail {
+                        CodeTail::Set(tail) => {
+                            let mut tail = *tail;
+                            let raw_display = matches!(
+                                output,
+                                Value::Bool(_) | Value::Auto | Value::Length(_)
+                            );
+                            let mut content = value_to_display_content(output)
+                                .unwrap_or(Content::Empty);
+                            if raw_display {
+                                content = rules::intercept_content(
+                                    content,
+                                    ctx,
+                                    &mut local_engine,
+                                )?;
+                            }
+                            if let Some(carrier) = tail.carrier {
+                                content = Content::sequence(vec![carrier, content]);
+                            }
+                            if !tail.styles.is_empty() {
+                                if crate::compiler::realize::table_cells_needed(&content)
+                                {
+                                    tail.recipe.body = content.clone();
+                                    tail.styles = tail
+                                        .styles
+                                        .push_custom(
+                                            "eval.table.local.recipe",
+                                            Value::Content(Content::ShowRecipe(
+                                                Arc::new(tail.recipe),
+                                            )),
+                                        )
+                                        .push_custom(
+                                            "eval.table.local",
+                                            Value::Bool(true),
+                                        );
+                                }
+                                content = style_code_tail(
+                                    content,
+                                    tail.styles.push_custom(
+                                        "eval.flow.scope",
+                                        Value::Bool(true),
+                                    ),
+                                );
+                            }
+                            output =
+                                operators::join(tail.prefix, Value::Content(content))
+                                    .map_err(|message| {
+                                        vec![SourceDiagnostic::error(tail.span, message)]
+                                    })?;
                         }
-                        content = style_code_tail(
-                            content,
-                            tail.styles.push_custom("eval.flow.scope", Value::Bool(true)),
-                        );
-                    }
-                    output = operators::join(tail.prefix, Value::Content(content))
-                        .map_err(|message| {
-                            vec![SourceDiagnostic::error(tail.span, message)]
-                        })?;
-                }
-                // Emit before the caller handles the return, so this diagnostic
-                // can coexist with an invalid-return error. The second hint is
-                // a nonexecuting scan for actual state/counter update content.
-                if let Some(FlowEvent::Return(span, Some(_), false)) = &ctx.flow {
-                    if let Value::Content(c) = &output {
-                        let hint2 = if content_has_state_or_counter(c) {
-                            "state/counter updates are content that must end up in the document to have an effect"
-                        } else {
-                            ""
-                        };
-                        local_engine.sink.warn_note2(
-                            *span,
-                            "this return unconditionally discards the content before it",
-                            "try omitting the `return` to automatically join all values",
-                            hint2,
-                        );
+                        CodeTail::Whole { prefix, span, recipe } => {
+                            warn_discarded_output(&output, ctx, &mut local_engine);
+                            let content = value_to_display_content(output)
+                                .unwrap_or(Content::Empty);
+                            let content =
+                                recipe.apply(content, ctx, &mut local_engine)?;
+                            output = operators::join(prefix, Value::Content(content))
+                                .map_err(|message| {
+                                    vec![SourceDiagnostic::error(span, message)]
+                                })?;
+                        }
                     }
                 }
+                warn_discarded_output(&output, ctx, &mut local_engine);
                 if let Some(FlowEvent::Return(
                     span,
                     Some(Value::Content(content)),
@@ -384,6 +440,7 @@ fn eval_expr_inner(
                 Ok(output)
             })();
             scopes.exit();
+            ctx.defer_show_rules = previous_defer;
             rules::textual::leave_scope(ctx, textual_frame);
             result
         }
@@ -730,7 +787,10 @@ fn eval_expr_inner(
             )))
         }
 
-        Expr::Escape(v) => Ok(Value::Str(EcoString::from(v.get()))),
+        Expr::Escape(v) => Ok(Value::Symbol(crate::entities::symbol::Symbol::new(
+            EcoString::from(v.get()),
+            "",
+        ))),
         Expr::Shorthand(v) => Ok(Value::Str(EcoString::from(v.get()))),
         Expr::Linebreak(_) => Ok(Value::Content(Content::linebreak())),
 
@@ -1267,5 +1327,17 @@ mod v16_c_effect_tests {
         assert!(content_has_state_or_counter(&Content::Realized(Arc::new(
             RealizedContent { original: display, visual: update }
         ))));
+    }
+
+    #[test]
+    fn readiness_math_input_markup_escape_preserves_symbol_identity() {
+        let world = world(
+            r"#let escaped=repr([\u{0041}].func())
+#let literal=repr([A].func())",
+        );
+        let module = crate::compiler::eval::tests::eval_for_test(&world, &world.source)
+            .expect("escape and literal controls");
+        assert_eq!(module.scope().get("escaped"), Some(&Value::Str("symbol".into())));
+        assert_eq!(module.scope().get("literal"), Some(&Value::Str("text".into())));
     }
 }

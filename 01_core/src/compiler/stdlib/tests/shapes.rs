@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/shapes.md
-//! @prompt-hash 5076425c
+//! @prompt-hash e7cf5969
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -23,7 +23,11 @@ fn rect_sem_cores_tem_stroke_preta_1pt() {
             Paint::Solid(Color::rgb(0, 0, 0)),
             "stroke de fallback deve ser preta"
         );
-        assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "espessura de fallback deve ser 1pt"
+        );
     } else {
         panic!("Esperado Content::Shape");
     }
@@ -53,7 +57,7 @@ fn p1221_rect_preserva_stroke_rico_com_fill() {
     null_ctx!(ctx);
     let expected = Stroke {
         paint: Paint::Solid(Color::rgb(0, 116, 217)),
-        thickness: 2.0,
+        thickness: crate::entities::layout_types::Length::pt(2.0),
         overhang: true,
         ..Stroke::default()
     };
@@ -170,7 +174,11 @@ fn square_sem_cores_tem_stroke_preta_1pt() {
             Paint::Solid(Color::rgb(0, 0, 0)),
             "stroke de fallback deve ser preta"
         );
-        assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "espessura de fallback deve ser 1pt"
+        );
     } else {
         panic!("Esperado Content::Shape");
     }
@@ -202,7 +210,7 @@ fn p1221_line_preserva_stroke_rico() {
     null_ctx!(ctx);
     let expected = Stroke {
         paint: Paint::Solid(Color::rgb(255, 65, 54)),
-        thickness: 2.0,
+        thickness: crate::entities::layout_types::Length::pt(2.0),
         overhang: true,
         ..Stroke::default()
     };
@@ -420,7 +428,11 @@ fn p732_polygon_sem_cores_tem_stroke_preta_1pt() {
             Paint::Solid(Color::rgb(0, 0, 0)),
             "stroke de fallback deve ser preta"
         );
-        assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "espessura de fallback deve ser 1pt"
+        );
     } else {
         panic!("Esperado Content::Shape");
     }
@@ -1095,7 +1107,11 @@ fn p727_curve_sem_cores_tem_stroke_preta_1pt() {
             Paint::Solid(Color::rgb(0, 0, 0)),
             "stroke de fallback deve ser preta"
         );
-        assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        assert_eq!(
+            s.thickness,
+            crate::entities::layout_types::Length::pt(1.0),
+            "espessura de fallback deve ser 1pt"
+        );
     } else {
         panic!("Esperado Content::Shape");
     }
@@ -1213,7 +1229,7 @@ fn stroke_paint_shapes_direct_preserve_gradient_and_tiling() {
             };
             let stroke = shape.stroke.as_ref().expect("explicit stroke");
             assert_eq!(stroke.paint, paint);
-            assert_eq!(stroke.thickness, 1.0);
+            assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(1.0));
             assert!(stroke.specified.paint);
         }
     }
@@ -1239,7 +1255,7 @@ fn stroke_paint_uniform_dictionary_preserves_rich_fields() {
         };
         let stroke = shape.stroke.as_ref().expect("explicit stroke");
         assert_eq!(stroke.paint, Paint::Gradient(gradient.clone()));
-        assert_eq!(stroke.thickness, 12.0);
+        assert_eq!(stroke.thickness, crate::entities::layout_types::Length::pt(12.0));
         assert_eq!(stroke.cap, LineCap::Round);
         assert!(
             stroke.specified.paint && stroke.specified.thickness && stroke.specified.cap

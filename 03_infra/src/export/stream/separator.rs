@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/separator.md
-//! @prompt-hash 92cd4d28
+//! @prompt-hash b64d8a1b
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -43,24 +43,7 @@ pub(super) fn emit(
 ) {
     if closes_ltr_embedding(origin, span) {
         // PDF direction formatting stays outside authored carriers and ToUnicode.
-        super::text_replacement::opening(ops, " \u{202c}");
-        let restore = match ctx.mode {
-            StreamMode::Compact => {
-                emit_text_pdf_deferred(ops, x, pdf_y, " ", style, &ctx.font_scenario)
-            }
-            StreamMode::Verbose => emit_text_pdf_verbose_deferred(
-                ops,
-                x,
-                pdf_y,
-                " ",
-                style,
-                &ctx.font_scenario,
-            ),
-        };
-        super::text_replacement::closing(ops);
-        if restore {
-            ops.push_str("Q\n");
-        }
+        emit_marked(ops, x, pdf_y, style, " \u{202c}", ctx);
     } else {
         match ctx.mode {
             StreamMode::Compact => {
@@ -70,6 +53,30 @@ pub(super) fn emit(
                 emit_text_pdf_verbose(ops, x, pdf_y, " ", style, &ctx.font_scenario)
             }
         }
+    }
+}
+
+/// Paint the original space once; its caller owns the causal replacement.
+pub(super) fn emit_marked(
+    ops: &mut String,
+    x: f64,
+    pdf_y: f64,
+    style: &TextStyle,
+    actual: &str,
+    ctx: &PageContext,
+) {
+    super::text_replacement::opening(ops, actual);
+    let restore = match ctx.mode {
+        StreamMode::Compact => {
+            emit_text_pdf_deferred(ops, x, pdf_y, " ", style, &ctx.font_scenario)
+        }
+        StreamMode::Verbose => {
+            emit_text_pdf_verbose_deferred(ops, x, pdf_y, " ", style, &ctx.font_scenario)
+        }
+    };
+    super::text_replacement::closing(ops);
+    if restore {
+        ops.push_str("Q\n");
     }
 }
 

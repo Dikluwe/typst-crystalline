@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash d51e8d9b
+//! @prompt-hash 07c1c351
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -23,6 +23,7 @@ fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
             units_per_em: ua,
             glyphs: ga,
             font: fa,
+            text: ta,
             ..
         },
         FrameItem::TextShaped {
@@ -31,12 +32,16 @@ fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
             units_per_em: ub,
             glyphs: gb,
             font: fb,
+            text: tb,
             ..
         },
     ) = (a, b)
     else {
         return false;
     };
+    if ta.contains('\u{2060}') || tb.contains('\u{2060}') {
+        return false;
+    }
     if ga.is_empty() || gb.is_empty() {
         return false;
     }
@@ -280,5 +285,76 @@ mod tests {
         assert_eq!(painted.len(), 2);
         assert!((painted[1] - 12.345678).abs() < 1e-7, "{ops}");
         assert!((cursor - 12.345678 - 1280.0 / 2048.0 * 11.0).abs() < 1e-7, "{ops}");
+    }
+}
+
+#[cfg(test)]
+mod readiness_unicode_tests {
+    use super::*;
+    use typst_core::entities::{
+        content::Content,
+        layout_types::{Page, Point, Pt, ShapedGlyph, TextStyle},
+    };
+
+    #[test]
+    fn readiness_unicode_joiner_scope_survives_adjacent_prose() {
+        let style = TextStyle::regular(Pt(11.0));
+        let items = [('\u{2060}', 3, 0), ('A', 4, 600)]
+            .into_iter()
+            .map(|(ch, gid, advance)| FrameItem::TextShaped {
+                pos: Point { x: Pt(10.0), y: Pt(20.0) },
+                text: ch.to_string().into(),
+                style: style.clone(),
+                units_per_em: 1000,
+                font: None,
+                bidi: None,
+                glyphs: vec![ShapedGlyph {
+                    glyph_id: gid,
+                    x_advance: advance,
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: ch,
+                }],
+            })
+            .collect();
+        let page = Page {
+            width: 100.0,
+            height: 100.0,
+            logical_number: 1,
+            numbering: None,
+            supplement: Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items,
+        };
+        let chars = HashMap::new();
+        let mapping = HashMap::new();
+        let nominal = HashMap::from([(3, 250), (4, 600)]);
+        let ptrs = HashMap::new();
+        let patterns = HashMap::new();
+        let ctx = PageContext::with_font_scenario(
+            &ptrs,
+            &[],
+            &patterns,
+            &[],
+            FontScenario::Cidfont {
+                char_to_gid: &chars,
+                glyph_mapping: &mapping,
+                glyph_to_nominal: &nominal,
+                bitmap: None,
+            },
+            crate::export::StreamMode::Verbose,
+        );
+        let ops =
+            String::from_utf8(crate::export::stream::build_page_stream(&page, &ctx))
+                .unwrap();
+        assert_eq!(ops.matches("/ActualText <FEFF2060>").count(), 1, "{ops}");
+        assert!(
+            !ops.contains("/ActualText <FEFF0041>"),
+            "ordinary neighbor is not rewritten"
+        );
     }
 }

@@ -1,5 +1,5 @@
 # L0 — certified inline fractional allocation
-Hash do Código: 16b97a92
+Hash do Código: 5d0238ad
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/sequence/inline_allocation.rs`
@@ -7,6 +7,7 @@ Hash do Código: 16b97a92
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/outline-inline-budget.toml sha256:7995dc5e028bf26ac3bd89a9dd751f8522530af98c627211825f9b55e551a9c1
 
 
 ## Measurement before specification
@@ -416,3 +417,162 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## Readiness: one-step conservative certification after an actual rounded overflow
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/fraction-inset-red3.json`
+and its frozen source archive record a genuine functional RED: the original
+plain-Box control passes, while the actual Repeat/combined-U+2060+1 body fails
+only at inset13.2, placing the suffix at58.588 instead of274.885pt. The earlier
+red2 plain body passed; that does not prove that the Repeat's exterior share
+was certified, since simple text can survive the legacy fractional fallback.
+The first red attempt had a wrong absolute region width and is not a RED.
+
+The same directory's `outline-allocation-debugger/receipt.json` and
+`outline-zero-debugger/receipt.json` bind the actual source, list-body release
+binary, successful build/source receipt, HEAD/dirty stat, UTC, commands and
+complete traces. The own-process debugger observes left33.200000000000003,
+right280 and five occupancy entries, followed by layout_fractional; the zero
+control observes left20/right280 and layout_sized. Both compiles finish.
+The archived disassembly confirms left/right in xmm0/xmm1, slice in rsi/rdx,
+24-byte occupancy stride, tag at byte0, fixed width at8 and fraction weight
+at16. The observed fixed payload bits are4033e353f7ced917,4006000000000000,
+4006000000000000,401475c28f5c28f6; the fraction is1. These match the catalog-
+backed explicit-Libertinus metric probe. The exact ordered Rust model records
+cursor280.00000000000005684, exactly right.next_up(), and one smaller free
+budget producing cursor280. This time the source-shaped RED and actual runtime
+route corroborate the arithmetic; the withdrawn historical compensated-sum
+model remains refuted and is not reused as evidence.
+
+The language oracle for these fresh sources is commit
+64c5e8c02fe0394d913ead36e42ef8c1334d2107, tree
+483bd6f1d8ac8810db47b65336d402647955fd17, executable SHA-256
+22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The register/rounding observations diagnose a cause; acceptance remains language
+positions/text and independently painted outputs, not machine-step parity.
+`fraction-inset-red4.json` confirms the local certificate RED and actual Repeat
+RED together, with the plain control passing, before productive implementation.
+`outline-runtime-budget-analysis.json` decodes only actual enum tags/payloads,
+ignores padding, binds both raw traces/disassemblies and preserves the separate
+zero-inset result. No old or first-attempt model is promoted to closure.
+
+### Bounded decision and refuters
+
+Keep the current calculation and assignments exactly whenever their ordered
+cursor already fits. Only when the complete known budget has strictly positive
+finite fraction weights, positive finite free width, and a finite final cursor
+exactly equal to right.next_up(), try free.next_down() once. Use the SAME finite
+normalized ratio/clamp formula with that smaller budget and recompute the SAME
+ordered cursor. Publish assignments only if this new cursor is finite and
+strictly <=right. Otherwise refuse exactly as before. This conservative retry
+supersedes the earlier prohibition on representable-budget changes only for
+this measured one-successor positive-weight case. It grants no tolerance in
+the proof, epsilon, suffix/cursor snapping, repeated search, changed occupancy,
+unknown-width admission, or use of the rounded final cursor as actual geometry.
+
+Zero, signed/negative, cancelling and nonfinite weights keep their existing
+formula/refusal paths without this retry. Fixed overfull scopes and unproved
+wrapping still refuse; exact zero remains distinct from absent assignment.
+The full original source tree, complete-segment planning and one body dispatch
+remain unchanged. No source replay, new public field/signature/trait, phase,
+default, cache or entity representation is authorized (ADR-0127 continuous
+internal formula/parity correction).
+
+Add a local RED with the observed occupancy/bounds, retain the existing signed,
+zero, cancellation, opaque, terminal-space and nested-region controls, and
+check strict final containment and an unchanged already-fitting zero-inset
+budget. Genuine fixed overflow and nonfinite inputs remain refusals. Require
+the existing Repeat inset functional RED to turn GREEN, all original zero/inset
+and outline source words/pages/0.001pt geometry plus independent PDF/SVG paint,
+and retain the separate ActualText extraction debt until actually fixed.
+Full technical gates, unfiltered lint, forward/reverse seals and final historic/
+JPEG resource revalidation remain mandatory; no changed threshold or old
+negative is waived by this bounded certificate correction.
+
+## Readiness: bounded numbered Outline inline budget
+
+### Measurement before decision
+
+readiness-fixes-2026-10-28/outline-prefix-source-evidence.json binds exact
+source/owner hashes, HEAD212aed0449150dd296ceea13fc2be665cc5db01a dirty stat/UTC,
+number2 build/source archive and actual paired numbered-outline cases. The
+executable is92c6346f8562438618e2cd7ba57166423316ee26fc08aa597ac357c482859fd7;
+oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17,
+executable22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34.
+The non-Ref numbered controls retain different fill/word positions. Source
+stdlib structural outline.rs:319-391 emits Empty prefix-info, a nonweak negative
+hanging compensation, the original marked textual prefix and gap inside an inset
+Block. style_scope.rs:133-167 preserves Label semantics through the parent-line
+inline subframe; sub_frame.rs:724-748 retains its actual horizontal advance.
+inline_allocation.rs:283-294,488-530 rejects the two known custom markers;
+:61-64,341-346 refuses every negative absolute H. These explicit refusals are
+source evidence, not proof of every causal/rendering obligation. Actual local
+certificate and composed-line REDs must fail before productive implementation.
+Source counts/styles/positions and preserved semantic envelopes are language
+obligations; the certificate's representation and fallback route are mechanics.
+No upstream intent is inferred or old floating-point hypothesis resurrected.
+
+### Exclusive correction and acceptance
+
+Extend only the positive style classifier with existing pdf.marker.tag=Str(label) when the actual body is one Text leaf, and outline.prefix-info when the actual body is Empty and its value is exactly [Int parent, Int level>0, Length with em=0 and finite nonnegative absolute pt]. Reconstruct/compare the entire admitted delta as before; unknown fields, other tags/types/bodies stay opaque. Keep existing style resolution and every original marker/child. A marked prefix cannot smuggle in fractional or opaque body work.
+
+For exactly the first absolute negative nonweak H in a current LTR line with no material/fixed occupancy, use the same finite ordered addition to its current budget left edge; retain the original continuation left edge. Mark that leading shift as consumed, disable wrapping for that line, and clear it only at the existing independent-line close. Keep the H in the original tree for its ordinary once-only dispatch. Repeated/later/weak negative H, RTL/mixed direction and nonfinite additions remain refusals. Do not generally admit negative fixed occupancy, adjust actual cursors, infer widths from paint, or use final containment to justify intermediate wrapping. Preserve all existing assignment formulas/rounding retry, true overfull/unknown refusals and signed/zero controls. No new public field/signature, phase or feature-specific geometry constant.
+
+ADR-0127 continuous internal parity/certificate correction, separate from the
+pending physical-phase approval. L0/pins first, meaningful RED→GREEN, V15/V26
+before resealing, full source-language/PDF/SVG and technical gates. Keep all
+historical/JPEG controls and remaining readiness negatives; do not relax any
+metric, suppress diagnostics or claim general rich-prefix/RTL/wrapping parity.
+
+The first productive candidate's exact archived inputs and executed receipt
+outline-candidate-source.json.gz / outline-candidate-execution.json show the
+three positive certificate REDs and composed-line RED now pass; the explicit
+later-RTL guard instead receives Some(90) rather than None. These are separate
+observed results, not closure. At the accepted leading compensation, register
+its already-proved LTR direction through the existing observe_direction protocol;
+later RTL material must then invalidate the same complete scope. No second
+direction flag, altered metrics or relaxed existing refusal is allowed. Retain
+the actual mixed-direction RED and direct RTL/weak/later/repeated/nonfinite
+controls; source/binary publication still requires the remaining gates.
+
+## Bounded literal ASCII separators inside one Text
+
+Measurement before decision: physical4-article-route/receipt.json and
+comparison provenance bind source/build/UTC/dirty state. Original first Entry
+Relatório experimental has filler starting at38.035pt, overlapping body, and
+page text immediately after the body instead of at the right edge. Single-word
+minimal-label/ref controls match. Actual consumer text.rs:185-228 splits U+0020
+and advances each Literal separator via text_measure::space; this certificate
+unconditionally refuses any whitespace. Its prior single-word-only clause is
+superseded only by the following bounded positive grammar.
+
+Permit LTR Text made of nonempty supported words separated by SINGLE U+0020,
+with no leading/trailing/repeated space, other whitespace or segmentation-script
+word. All existing safe_style requirements remain, including no tracking,
+justification, script shift, math, smallcaps or hanging scope. Disable wrapping
+for this positive case; require the existing full finite no-wrap budget proof.
+Measure each actual word through text_measure::word and each literal separator
+through text_measure::space as fixed occupancy in original order. Do not alter
+the authored tree, emit/normalize whitespace or treat literal gaps as weak.
+Preserve the original single-word and all refused cases, formula/one-successor
+rule/strict containment and callbacks/lineage. Require a nested actual-shaped
+numbered prefix with Beta Beta and Repeat to place suffix at regional right edge
+while emitting both words once; actual original Portuguese PDF/SVG remains an
+independent mandatory gate. No public API/phase/default change.
+
+Functional RED receipt: entry-text-weight-red.json/log and source archive retain
+exact inputs/HEAD/dirty list/UTC and --no-fail-fast execution. Core records one
+actual suffix at81.391pt instead of the regional right edge; four actual Entry
+query tests and one real static-font emitter fail in infra. The hidden Entry
+control and all prior readiness tests remain green. Preserve those logs rather
+than treating later tests as historical RED.
+
+Positive multiword grammar is further closed to ASCII printable nonspace
+characters, Latin script and inherited combining marks within each word. Use
+the already authorized unicode_script classification, not a new dependency.
+Non-Latin directional text, controls and other whitespace stay refused;
+bidi_origin.rs:142 documents why style.dir=None alone does not certify such
+text as LTR. This limits the new positive class and leaves old single words
+unchanged. No generic Unicode or wrapping claim follows from the Latin probe.

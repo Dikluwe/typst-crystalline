@@ -1,5 +1,5 @@
 # L0 — placement
-Hash do Código: 5d265148
+Hash do Código: 0be91b7e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -173,3 +173,98 @@ Before this correction, `lab/results/remaining-parity-2026-10-22/agents/repeat/s
 For this owner's actual Align admission only, treat an existing Source wrapper as transparent when its entire body passes the existing closed textual classifier, recursively through already admitted textual envelopes. Preserve the original actual body, span, source cursor and dispatch; do not unwrap/reconstruct emitted Content or execute anything during classification. Unknown/effectful/geometric bodies still fail the positive textual proof. Keep finite width and absent/Top vertical restrictions, explicit per-axis resolution/restoration, and all original geometry calculations. The existing `text_alignment_body` caller in Auto RTL Block retains its prior Source refusal: a private classifier choice avoids widening that separate certificate. No public API, new producer/mode/default, or phase is added; this supersedes only the textual Align Source gap, leaving the Place-only gap open.
 
 Require actual layout controls for inherited center around Repeat of a25pt fixed Box: explicit child Left with bare10pt text stays GREEN, while the same Source-wrapped text must first demonstrate the RED and then reach the same expected residual-only x37.5pt in an80pt region at origin10pt. Retain the immutable eight-source bilateral matrix, earlier six piece/source-anchor regressions, source metadata/effects, Block caller controls, all tests and forward/reverse lineage. No fixture/tolerance/alert relaxation.
+
+## Intrinsic textual Align inside a captured automatic piece
+
+figure-frame-build1/figure-geometry-after1 caption-right loses actual caption
+words; figure-alignment-red1 shows declared10pt CAP x724.181 outside the page
+instead of its independently expected centered intrinsic frame. Current
+placement.rs:168 uses an ordinary child subframe; :216–218 gives textual Align
+the entire provisional available width. These measurements bind exact dirty
+inputs, UTC, oracle64c5e8c0 and unchanged test fixtures/bounds.
+
+For the existing finite absent/Top textual certificate only, when the parent
+already has both active PieceAlignment capture and automatic intrinsic width,
+compose the same actual AlignBody once through the intrinsic-piece adapter.
+Settle its own captured lines against its actual causal width, preserving the
+lexical explicit alignment and optical-margin policy. Its envelope has that
+intrinsic width and no second page-width horizontal displacement. Keep the
+original typed source cursor, own height/baseline, decorations, parent state
+restoration and all old ordinary/Repeat/Block controls. Other textual/full
+flow/geometry/vertical branches keep the previous strategy. This supersedes
+only the old entire-width envelope for this proven captured intrinsic branch;
+no new certificate, phase, source callback, mode or public contract is added.
+
+release2 fixed-block-left actual BODY differs116.074pt although its wider
+caption matches. The current exact source/native report precedes this proposal.
+Add painted Block/root-Left functional RED before extending the captured
+intrinsic branch. Only an actual independent Block (through existing transparent
+source/style/location/visual or one-child Sequence wrappers) qualifies beyond
+textual content, under the same finite absent/Top and active captured Auto
+conditions. Its lexical horizontal override must reach the real body, while
+its intrinsic envelope is settled once rather than displaced by provisional
+page width. All other geometry/certificates/default callers stay unchanged.
+
+figure-boundary-red1 confirms actual painted Block/root Left failure, retaining
+all52 earlier controls. The intrinsic certificate includes a proven independent
+Block as stated above; apply/restore its lexical horizontal override even when
+it follows this bounded geometric intrinsic route. No other geometric branch
+changes its current inherited-line strategy.
+
+## Rustfmt gate repair (2026-10-29)
+
+The frozen `physical13-validation2/fmt.log` under
+`lab/results/construction/diagnostics/readiness-fixes-2026-10-28/`
+records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
+without changing executable tokens, fixtures, expectations or assertions.
+Preserve all behavioral obligations above; reseal both directions and rerun
+the unchanged gates against the final frozen source. Internal ADR-0127 flow.
+
+
+## Template paragraph geometry — measured repair 2026-10-29
+
+### Measurement before decision
+
+The immutable table-alignment-build1/source archive and
+readiness-fixes-2026-10-28/template-isolation1, template-scope-before and
+ template-explicit-before receipts preserve exact inputs/HEAD/dirty stat,
+UTC, source/asset/binary hashes and pinned64c5e8c0 native coordinates.
+Whole show and direct function call have identical defects: title is centered,
+but author stays at the title's left edge. Plain one19pt wrapper before a
+paragraph break places AUTHOR9.6pt too high; two sibling19pt wrappers or mixed
+19/8 keep the correct11pt common paragraph spacing. A shared two-word19pt
+wrapper still needs9.6pt more; custom2em needs16pt, absolute25pt stays unchanged.
+An explicit Par around the19pt run intentionally keeps11pt outer paragraph
+spacing in native; it is a control, not an equivalent replacement. These
+observations support lexical common scope, not maximum/run-value consensus.
+Current sequence.rs:347 closes shared segments only for Block/Align;
+placement.rs:152 refuses Parbreak in an otherwise textual Align body.
+
+### Exclusive amendment
+
+Admit Parbreak as a neutral textual boundary only in the existing positive
+text-alignment certificate, under the same finite-width/absent-or-Top vertical
+restrictions and recursive proven envelopes. Each paragraph then receives the
+existing per-line explicit horizontal alignment, rather than centering the
+largest completed frame and left-aligning smaller paragraphs inside it. Keep
+the actual source body/cursors, direction, heights, decorations/fixups and
+lexical restoration. Opaque/geometric bodies retain their old route. Add a
+pure physical RED verifying both differently sized paragraphs independently
+center at their actual region, without changing baselines or expected widths.
+
+### Acceptance and limits
+
+ADR-0127 continuous internal language-parity correction: no public field,
+method/signature, dependency, flag, mode or eval/layout phase move. Require
+co-located genuine RED→GREEN, unchanged prior scope/align/Repeat/Figure/Table
+and source/planning/rollback controls, full core and twelve stable-batch gates.
+Rebuild original local-template and all retained controls, compare native
+PDF/SVG/words/pages/0.001pt/paint without normalization. Explicit Linebreak's
+separate mixed-size vertical mismatch remains open; admitting Parbreak does
+not certify it. Keep opaque text-scope refusals, no guessed coordinates, new
+frame scanning or linter suppressions. JPEG/historical gates remain required.
+
+The shared legacy text_alignment_body caller used by Auto RTL Block keeps its
+prior Parbreak refusal as well as Source refusal. Only actual layout_align
+uses the source/paragraph-transparent classifier choice; a private parameter
+may be renamed to identify this scope without any public signature change.

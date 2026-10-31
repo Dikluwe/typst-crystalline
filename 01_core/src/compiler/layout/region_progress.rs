@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/region_progress.md
-//! @prompt-hash 5e36ed2a
+//! @prompt-hash 8508ea21
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -180,6 +180,7 @@ pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
 fn reset_closed_region_flow<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
 ) {
+    layouter.pending_horizontal_paragraph = None;
     layouter.last_flush_advance = 0.0;
     layouter.flow_placement_end = None;
     layouter.block_place_region = None;

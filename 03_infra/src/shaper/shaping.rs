@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 9a4835f9
+//! @prompt-hash 9d3574f0
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -29,6 +29,129 @@ pub(super) fn ssty_level_for_subrun(style: &TextStyle, text: &str) -> Option<u8>
         MathSize::ScriptScript => Some(2),
         MathSize::Display | MathSize::Text => None,
     }
+}
+
+/// Validate supplied policy and match the actual face's cmap, in policy order.
+pub(crate) fn glyph_overhang_in_face(
+    face: &ttf_parser::Face<'_>,
+    glyph_id: u16,
+    advance: Pt,
+    ratios: &[(char, f64)],
+) -> Option<Pt> {
+    if !advance.0.is_finite()
+        || advance.0 < 0.0
+        || glyph_id >= face.number_of_glyphs()
+        || ratios.iter().any(|(_, ratio)| !ratio.is_finite() || *ratio < 0.0)
+    {
+        return None;
+    }
+    let ratio = ratios
+        .iter()
+        .find_map(|(c, ratio)| {
+            face.glyph_index(*c).filter(|gid| gid.0 == glyph_id).map(|_| *ratio)
+        })
+        .unwrap_or(0.0);
+    let value = advance.0 * ratio;
+    value.is_finite().then_some(Pt(value))
+}
+
+/// The measurement path's existing feature policy, without producing frame items.
+pub(crate) fn terminal_in_face(
+    face: &rustybuzz::Face<'_>,
+    text: &str,
+    style: &TextStyle,
+    ratios: &[(char, f64)],
+) -> Option<(Pt, usize)> {
+    if text.is_empty()
+        || !style.size.0.is_finite()
+        || style.size.0 <= 0.0
+        || style
+            .dir
+            .is_some_and(|dir| dir != typst_core::entities::dir::Dir::LTR)
+        || text.chars().any(|c| c == '\n' || c == '\r')
+    {
+        return None;
+    }
+    let paragraphs = bidi_runs(text);
+    if paragraphs.len() != 1 || paragraphs[0].iter().any(|run| run.rtl) {
+        return None;
+    }
+    let mut buffer = UnicodeBuffer::new();
+    buffer.push_str(text);
+    super::text_identity::configure_authored_ignorables_buffer(&mut buffer, text);
+    if let Some(lang) = style.lang {
+        buffer.set_language(lang.as_str().parse().ok()?);
+    }
+    buffer.set_direction(Direction::LeftToRight);
+    let feature = rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"sups"), 1, ..);
+    let native = style.superscript
+        && style.superscript_native != Some(false)
+        && !style.subscript
+        && crate::font_metrics::superscript_in_face(face, text, style.size).3;
+    let features = if native { std::slice::from_ref(&feature) } else { &[] };
+    let output = rustybuzz::shape(face, features, buffer);
+    let info = output.glyph_infos().last()?;
+    let position = output.glyph_positions().last()?;
+    let upem = face.units_per_em();
+    if upem == 0 {
+        return None;
+    }
+    let advance = Pt(f64::from(position.x_advance) * style.size.0 / f64::from(upem));
+    let value = glyph_overhang_in_face(
+        face,
+        u16::try_from(info.glyph_id).ok()?,
+        advance,
+        ratios,
+    )?;
+    Some((value, output.glyph_infos().len()))
+}
+
+/// Resolve precisely the same candidates/axes as shaped_width; certify LTR only.
+pub(crate) fn shaped_trailing_overhang(
+    world: &dyn World,
+    text: &str,
+    style: &TextStyle,
+    ratios: &[(char, f64)],
+    face_cache: &mut FaceCache,
+) -> Option<(Pt, usize)> {
+    if style
+        .dir
+        .is_some_and(|dir| dir != typst_core::entities::dir::Dir::LTR)
+        || text.chars().any(|c| c == '\n' || c == '\r')
+    {
+        return None;
+    }
+    let paragraphs = bidi_runs(text);
+    if paragraphs.len() != 1 || paragraphs[0].iter().any(|run| run.rtl) {
+        return None;
+    }
+    let font_list = style.font.as_ref()?;
+    let variant = text_style_to_font_variant(style);
+    let axis_vars = axis_variations_for_text_style(style);
+    let primary = primary_candidates(world, font_list, &variant, face_cache, style.math);
+    let like = primary
+        .first()
+        .and_then(|cand| world.book().infos().get(cand.slot_idx).cloned());
+    let mut candidates = CandidateSet::new(world, primary, face_cache, like, variant);
+    let mut terminal = None;
+    let mut count = 0usize;
+    for run in &paragraphs[0] {
+        for subrun in split_run_by_font(run, &mut candidates) {
+            let candidate = candidates.get(subrun.candidate_idx)?;
+            let font = world.font(candidate.slot_idx)?;
+            let mut face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
+            face.set_variations(&axis_vars);
+            let mut substyle = style.clone();
+            if !crate::font_metrics::superscript_in_face(&face, text, style.size).3 {
+                substyle.superscript_native = Some(false);
+            }
+            let (amount, glyphs) =
+                terminal_in_face(&face, &subrun.text, &substyle, ratios)?;
+            count = count.checked_add(glyphs)?;
+            terminal = Some(amount);
+        }
+    }
+    Some((terminal?, count))
 }
 
 /// **P591** — mede a largura de `text` já com shaping aplicado, sem gerar

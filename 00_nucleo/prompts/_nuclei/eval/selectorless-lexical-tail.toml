@@ -1,0 +1,32 @@
+tekt = 1
+kind = "nucleus"
+id = "selectorless-lexical-tail"
+title = "Causal selectorless transformations of lexical output tails"
+[[claims]]
+id = "lexical-tail"
+level = "must"
+statement = "A selectorless show transforms only the following output in its actual markup or CodeBlock scope; preceding output stays outside, nested tails compose inside out, and later local styles remain on their own body."
+[[claims]]
+id = "one-source-execution"
+level = "must"
+statement = "Evaluate the transformation expression once at declaration, ordinary tail code once, and the selected whole-tail transformation once after that tail. Allocate no selector RuleId. Preserve the existing single common evaluation and normal function recursion budget."
+[[claims]]
+id = "selected-recipes-deferred"
+level = "must"
+statement = "Selectorless lexical transformation uses the existing evaluation stream and function-call boundary. Selected child show recipes remain captured until their actually emitted product is reached; hidden child callbacks do not run, while ordinary body evaluation and its errors still occur."
+[[claims]]
+id = "causal-environment"
+level = "must"
+statement = "Capture declaration styles, selected rules, guards, file and actual transformation span. Newly generated callback content uses declaration styles, while passed body retains later lexical declarations. Compose existing insertion captures without replaying completed callbacks or exposing private transport in public fields."
+[[claims]]
+id = "caller-flow"
+level = "must"
+statement = "An open whole tail still transforms before caller Return or Break is consumed. Callback execution isolates and restores the pending caller event on success and error. Restore temporary styles, rules, guards, file and deferral state through every exit."
+[[claims]]
+id = "morphology-and-slots"
+level = "must"
+statement = "Preserve rich Content, first causal Source, authored Sequence and genuine Empty. Consumed slots remain distinct from authored values; lexical Style and Sequence boundaries keep their causal order relative to each whole tail."
+[[claims]]
+id = "private-pure-surface"
+level = "must-not"
+statement = "Do not add public fields, signatures, modes, flags, global state, I/O, a second source evaluation, a synthetic selector or an arbitrary sequential-tail depth limit. Preserve ordinary selected-show behavior and existing Table, Math, page-template and occurrence protocols."

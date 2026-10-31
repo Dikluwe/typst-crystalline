@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text.md
-//! @prompt-hash af3f28be
+//! @prompt-hash a1e47ac2
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -158,7 +158,8 @@ fn layout_run<M: FontMetrics, S: ImageSizer>(
     let prev_style = std::mem::replace(&mut layouter.style, effective.clone());
     let mut offset = 0usize;
     // Literal script breaks belong to layout, so following siblings use the final line.
-    let split_breaks = effective.superscript && !effective.subscript;
+    let script_breaks = effective.superscript && !effective.subscript;
+    let split_breaks = script_breaks || layouter.footnote_capture.is_some();
     let lines = if split_breaks {
         text.split_inclusive('\n').collect::<Vec<_>>()
     } else {
@@ -237,7 +238,7 @@ fn layout_run<M: FontMetrics, S: ImageSizer>(
                 },
             );
             layouter.bidi_cursor = cursor;
-            layouter.literal_script_break_pending = true;
+            layouter.literal_script_break_pending = script_breaks;
             layouter.style = effective.clone();
         }
     }

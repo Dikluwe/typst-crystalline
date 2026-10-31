@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math/arguments
-Hash do Código: 0a33a19d
+Hash do Código: cc088667
 
 ## Ownership and evidence
 
@@ -74,3 +74,42 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+
+## Typed mathematical inputs — measured 2026-10-29
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/readiness-fixes-2026-10-28/
+math-input-findings-before-decision.json binds actual build3/source, pinned
+oracle64c5e8c0, UTC, HEAD/dirty stat, exact sources and binary hashes. The fifteen
+math-input-values-before cases isolate Ratio, Code local/loop/Func and escaped
+accent failures with Length/Relative/literal/Math local/Content and Bool controls.
+math-escape-callback-values-before uses a CONTENT-returning callback: an escaped
+argument has type content versus native symbol; String stays str. Its markup
+escape function is text versus symbol, while literal A stays text. The earlier
+raw-Type-return callback has an independent return-display failure and does not
+authorize changing callback return policy. All affected owners remain identical
+to the archived actual build3.
+
+### Exclusive correction and acceptance
+
+In eval_math_arg_value, a singleton synthetic Math wrapper whose real sole child
+is Code Ident or Escape delegates to the same typed argument route, in addition
+to the existing singleton MathIdent. Code Ident and Escape use the existing
+code evaluator exactly once, retaining actual Value and original span until the
+constructor cast. MathIdent keeps lexical/math lookup and missing-name hints.
+Do not reparse ordinary math bodies as new Code expressions; multi-expression
+and alignment-point bodies retain their existing Content paths. Remove only
+the superseded display diversion for Code Ident. Preserve quoted/numeric and
+all other existing argument/row/spread behavior, ordering and effects.
+
+Co-located tests cover Ratio and Func bindings, each loop iteration, typed
+math-local/literal controls, existing Content rejection, escaped accent and a
+content-returning callback observing raw Symbol. Strings remain strings and
+prose accent arguments remain rejected. No callback-return-policy expansion.
+
+Internal measured parity correction follows ADR-0127 continuous flow: L0 before
+actual functional RED, implementation only after RED, GREEN and source-bound
+full tests/build/fmt/Clippy/Rustdoc/lint/lineage. Preserve all earlier positive
+visual/history and JPEG criteria; no normalization, suppression or limit change.

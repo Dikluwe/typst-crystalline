@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/stroke
-Hash do Código: 112b9bca
+Hash do Código: dfb1817e
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/stroke.rs`
@@ -27,3 +27,22 @@ Add independent local-fixture RED→GREEN for named Gradient/Tiling, Auto with u
 ## Acceptance and limits
 
 Preserve local/integration tests, public paths/observable results, all fixtures/tolerances/assertions and 1:1 ownership/nucleus/lineage; this test consumer authorizes no extra production change. For ratified shared payload, add relevant new-isolation RED→GREEN where needed, retain tests/oracles/restricted owner reseal/revalidation without semantics/default/phase expansion. Internal ADR-0127 continuous-flow parity correction: L0 first, meaningful RED→GREEN, restricted reseal/build/suite/lineage, PDF/raster/error recollection retaining uncorrected differences. Paint meaning/available form is acceptance, never binary equality. No public API/entity/default/phase expansion.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

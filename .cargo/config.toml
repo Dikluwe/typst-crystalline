@@ -9,3 +9,8 @@ target-dir = "lab/target/product"
 # 32 MB prevents crashes in depth tests (Route::MAX_CALL_DEPTH = 80,
 # MAX_SHOW_RULE_DEPTH = 64). This does not affect production (test threads only).
 RUST_MIN_STACK = "33554432"
+
+# Internal recipe owner: 00_nucleo/prompts/wiring/main.md.
+# Qualify decoder instruction placement on the measured target without CPU extensions.
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "llvm-args=-align-all-functions=3"]

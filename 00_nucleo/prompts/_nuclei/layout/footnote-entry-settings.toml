@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "footnote-entry-settings"
+title = "Shared-flow footnote entry settings preserve their language scope"
+
+[[claims]]
+id = "shared-flow-scope"
+level = "must"
+statement = "The existing footnote.entry separator, clearance, gap and indent declarations retain native identity and lexical source transport. Entry realization uses the shared outer flow settings, not the local call/body styles or the last pending note. Explicit source flow boundaries may establish a new shared scope; automatic pagination retains the original flow settings."
+
+[[claims]]
+id = "units-and-admission"
+level = "must"
+statement = "Indent resolves absolute plus em units at the reduced entry size. Gap and clearance resolve at the outer flow size. The same resolved settings and original separator footprint govern reservation, carrier admission, fitting, splitting and placement; captured continuations retain those settings."
+
+[[claims]]
+id = "separator-and-effects"
+level = "must"
+statement = "Absent separator keeps the existing default rule. Explicit none or empty content removes its paint without inventing separator height. Original supplied content is rendered in its own outer-style subframe once per actual separator region, with its real height and paint. Finite effect-free preflight must not execute callbacks or repeat note bodies; opacity retains the normal route. Public Content morphology, Locations and original deferred body ownership are preserved."

@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/stroke — stroke
-Hash do Código: f69f20a4
+Hash do Código: 88dbd142
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:b92ae8f26e4ebe8d5b7d0f1ee0e346e97210a9afb4c00ed1c9c184f690a263a8
@@ -60,3 +60,22 @@ infinity/em behavior. These latter preservation observations do not certify pari
 negative/empty rejection, em loss and diagnostics remain unresolved obligations.
 Future Value variants must produce local E0004. No change to positional stroke,
 public signature, carrier, default or pipeline is authorized by this correction.
+
+
+## Issue 8894 — approved Stroke migration
+
+Measurement: the source inventory and previous owner bytes in
+`lab/results/construction/diagnostics/issue-8894-2026-10-31/` bind exact
+HEAD/dirty diffstat/UTC and each affected source/owner before migration.
+`stdlib/layout/stroke.rs:430–434` erases em; geometry.rs:81 carries only f64.
+The explicit user approval in approval.json ratifies the public Length field
+and occurrence-layout resolution, as specified by
+`00_nucleo/prompts/core/entities/geometry.md`. This consumer retains its
+exclusive responsibility and all other ratified clauses and controls.
+
+Migrate this consumer's declarative Stroke literal thickness from scalar
+points to Length::pt without changing their value or other fields. FrameStroke
+remains scalar. Keep all existing semantic assertions; update only their
+representation as necessary. Producers preserve full Length; layout consumers
+resolve against effective font size before scalar geometry. Repr preserves
+absolute/em components. RED→GREEN, build/tests and scoped lineage are required.

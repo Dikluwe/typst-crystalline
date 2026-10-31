@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md
-//! @prompt-hash 9d035086
+//! @prompt-hash f921a68d
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -391,6 +391,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let saved_cursor_y = self.regions.current.cursor_y;
         let saved_cell_bidi_allowed = self.cell_bidi_allowed;
         self.cell_bidi_allowed = col_starts.len() == 1 && body_w.is_finite();
+        let geometric_origin = effective_align.is_some();
         let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
             measured_product.unwrap_or_else(|| {
                 self.layout_sub_frame_planned(
@@ -402,7 +403,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         align_rtl: true,
                         unconstrained_height: true,
                     },
-                    false,
+                    geometric_origin,
                     source_cursor,
                 )
             });
@@ -471,7 +472,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         | FrameItem::TextShaped { .. }
                         | FrameItem::TextSeparator { .. }
                 );
-                let abs_pos = if is_text {
+                let abs_pos = if geometric_origin {
+                    Point { x: Pt(lx), y: Pt(body_y + ly) }
+                } else if is_text {
                     Point {
                         x: Pt(lx),
                         y: Pt(body_y + (ly - local_start_y) + top_edge.0),
@@ -951,6 +954,75 @@ mod v16_d_boundaries {
             assert!(l.regions.cell.is_none());
             assert!(l.cell_origin_x.is_none());
             assert!(l.cell_origin_y.is_none());
+        }
+    }
+}
+
+#[cfg(test)]
+mod aligned_cell_baseline_tests {
+    use super::*;
+    use crate::entities::elements::table::TableAlignment;
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
+
+    fn baseline(alignment: Option<TableAlignment>) -> Vec<f64> {
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::super::Layouter::new(
+            super::super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let mut table = Content::table(
+            vec![TrackSizing::Fixed(100.0); 2],
+            vec![TrackSizing::Fixed(40.0)],
+            vec![Content::text("AA"), Content::text("BBBB")],
+        );
+        let Content::Table(e) = &mut table else { unreachable!() };
+        std::sync::Arc::make_mut(e).align = alignment;
+        l.layout_content(&table);
+        let doc = l.finish();
+        struct Baselines(Vec<f64>);
+        impl crate::entities::layout_types::FrameVisitor for Baselines {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { text, pos, .. } = item {
+                    if !text.trim().is_empty() {
+                        self.0.push(pos.y.0)
+                    }
+                }
+            }
+        }
+        let mut visitor = Baselines(Vec::new());
+        for page in &doc.pages {
+            crate::entities::layout_types::FrameVisitor::visit_items(
+                &mut visitor,
+                &page.items,
+            );
+        }
+        assert_eq!(visitor.0.len(), 2);
+        visitor.0
+    }
+    #[test]
+    fn table_declarative_horizontal_alignment_preserves_text_baseline() {
+        let expected = baseline(None);
+        for name in ["left", "right", "center", "top"] {
+            let actual =
+                baseline(Some(TableAlignment::Uniform(Align2D::from_string(name))));
+            for (a, b) in actual.iter().zip(&expected) {
+                assert!((a - b).abs() < 0.001, "{name}: {actual:?} vs {expected:?}");
+            }
+        }
+    }
+    #[test]
+    fn table_declarative_columns_preserve_text_baseline() {
+        let expected = baseline(None);
+        let actual = baseline(Some(TableAlignment::Columns(vec![
+            None,
+            Some(Align2D::from_string("right")),
+        ])));
+        for (a, b) in actual.iter().zip(&expected) {
+            assert!((a - b).abs() < 0.001, "{actual:?} vs {expected:?}");
         }
     }
 }

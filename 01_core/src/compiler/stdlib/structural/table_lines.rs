@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_lines.md
-//! @prompt-hash 1bb862c4
+//! @prompt-hash 53e80238
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -30,7 +30,7 @@ use crate::entities::value::Value;
 pub(super) fn default_hline_stroke() -> Stroke {
     Stroke {
         paint: Paint::Solid(Color::rgb(0, 0, 0)),
-        thickness: 1.0,
+        thickness: crate::entities::layout_types::Length::pt(1.0),
         overhang: true,
         ..Stroke::default()
     }

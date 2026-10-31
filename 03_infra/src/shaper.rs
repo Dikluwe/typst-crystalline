@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash cb5122aa
+//! @prompt-hash 51b02888
 //! @layer L3
 //! @updated 2026-10-03
 //! Post-layout shaping facade. Implementation remains in private L3 descendants.
@@ -24,7 +24,9 @@ pub(crate) use cache::CachedFace;
 pub(crate) use cache::FaceCache;
 pub use reconciliation::fix_line_positions;
 pub(crate) use reconciliation::fix_line_positions_with_metrics;
-pub(crate) use shaping::shaped_width;
+pub(crate) use shaping::{
+    glyph_overhang_in_face, shaped_trailing_overhang, shaped_width, terminal_in_face,
+};
 pub use traversal::shape_document;
 
 pub(crate) use traversal::shape_document_with_context;
