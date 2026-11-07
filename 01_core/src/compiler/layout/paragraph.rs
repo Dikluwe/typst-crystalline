@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph.md
-//! @prompt-hash 6954dd68
+//! @prompt-hash a90083f0
 //! @layer L1
-//! @updated 2026-10-17
+//! @updated 2026-11-01
 
 use super::{html_frame, parbreak, FontMetrics, ImageSizer, Layouter};
 use crate::entities::{content::Content, layout_types::Pt, value::Value};
@@ -425,16 +425,36 @@ pub(super) fn measure_first_fragment<M: FontMetrics, S: ImageSizer>(
     text_frame_bottom(&doc.pages.first()?.items, &l.metrics, &mut None, false)
 }
 
-fn chain_direction(
+pub(super) fn chain_direction(
     chain: &crate::entities::style_chain::StyleChain,
 ) -> crate::entities::dir::Dir {
-    chain
-        .custom("text.dir")
-        .and_then(|v| match v {
-            Value::Dir(d) => Some(*d),
-            _ => None,
+    use crate::entities::dir::Dir;
+    let declared = chain.custom("text.dir");
+    if let Some(Value::Dir(direction)) = declared {
+        return *direction;
+    }
+    let automatic = matches!(declared, None | Some(Value::Auto));
+    if automatic
+        && chain.lang().is_some_and(|lang| {
+            matches!(
+                lang.as_str(),
+                "ar" | "dv"
+                    | "fa"
+                    | "he"
+                    | "ks"
+                    | "pa"
+                    | "ps"
+                    | "sd"
+                    | "ug"
+                    | "ur"
+                    | "yi"
+            )
         })
-        .unwrap_or(crate::entities::dir::Dir::LTR)
+    {
+        Dir::RTL
+    } else {
+        Dir::LTR
+    }
 }
 
 pub(super) fn line_direction<M: FontMetrics, S: ImageSizer>(
@@ -1655,5 +1675,54 @@ mod v16_paragraph_tests {
         assert!((positions(&doc)[0].2 - 41.2).abs() < 1e-8);
         let reverse = language(r#"#par[#text(size:18pt, "")#text(size:8pt, "")]C"#);
         assert!((positions(&reverse)[0].2 - 28.4).abs() < 1e-8);
+    }
+}
+
+#[cfg(test)]
+mod issue8990_ab_direction_tests {
+    use super::chain_direction;
+    use crate::entities::{
+        dir::Dir,
+        layout_types::{Pt, TextStyle},
+        style_chain::StyleChain,
+        value::Value,
+    };
+
+    #[test]
+    fn issue8990_ab_auto_follows_effective_language() {
+        for lang in ["he", "ar", "fa", "dv", "ks", "pa", "ps", "sd", "ug", "ur", "yi"] {
+            let chain = StyleChain::default_chain()
+                .push_custom("text.lang", Value::Str(lang.into()));
+            assert_eq!(chain_direction(&chain), Dir::RTL, "{lang}");
+        }
+        assert_eq!(chain_direction(&StyleChain::default_chain()), Dir::LTR);
+        let english =
+            StyleChain::default_chain().push_custom("text.lang", Value::Str("en".into()));
+        assert_eq!(chain_direction(&english), Dir::LTR);
+    }
+
+    #[test]
+    fn issue8990_ab_explicit_direction_and_auto_restore_lexically() {
+        let outer = StyleChain::default_chain()
+            .push_custom("text.dir", Value::Dir(Dir::LTR))
+            .push_custom("text.lang", Value::Str("he".into()));
+        assert_eq!(chain_direction(&outer), Dir::LTR);
+        let automatic = outer.push_custom("text.dir", Value::Auto);
+        assert_eq!(chain_direction(&automatic), Dir::RTL);
+        let english = automatic.push_custom("text.lang", Value::Str("en".into()));
+        assert_eq!(chain_direction(&english), Dir::LTR);
+        assert_eq!(chain_direction(&outer), Dir::LTR);
+        assert_eq!(chain_direction(&automatic), Dir::RTL);
+    }
+
+    #[test]
+    fn issue8990_ab_text_style_uses_the_lexical_auto_direction() {
+        let chain =
+            StyleChain::default_chain().push_custom("text.lang", Value::Str("he".into()));
+        let style = TextStyle::regular(Pt(11.0));
+        let resolved = crate::compiler::layout::text::effective_style_in(&chain, &style);
+        assert_eq!(resolved.dir, Some(Dir::RTL));
+        assert!(resolved.lang.is_some());
+        assert_eq!(style.dir, None);
     }
 }

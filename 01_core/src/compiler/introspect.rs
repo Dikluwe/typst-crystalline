@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect.md
-//! @prompt-hash bf44cebb
+//! @prompt-hash 068f67a1
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -1828,6 +1828,8 @@ mod tests {
             other => panic!("unknown test element {other}"),
         };
         Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: caption.then(|| Content::text("caption")),
             kind: Some(Some(FigureKind::Element(function))),

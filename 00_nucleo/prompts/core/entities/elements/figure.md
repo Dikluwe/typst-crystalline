@@ -1,8 +1,9 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: 729e459e
+Hash do Código: 80db515d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
+- 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/figure.rs`
@@ -154,3 +155,20 @@ and pending limitations. The initial V16 gate is structural RED; preservation
 tests may already pass before implementation and must not be misreported as
 behavioral RED. Require the final unfiltered linter, tests, strict Clippy,
 rustdoc, formatting, canonical paths and both lineage directions.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Add the approved public Copy/Debug/Clone/PartialEq/Eq/Hash enum FigurePlacement { InFlow, Auto, Top, Bottom } and public placement/resolved_placement: Option<FigurePlacement> fields to FigureElem. None placement is lexical omission; Some(InFlow) is explicit none. Initialize legacy constructors/fixtures absent. Both maps preserve both fields; structural and observational identity observe them. get_field placement prefers resolved, then lexical, retaining raw unknown omission; project InFlow/Auto/Top/Bottom to None/Auto/vertical Align Top/Bottom. No new method/signature or render dependency.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.

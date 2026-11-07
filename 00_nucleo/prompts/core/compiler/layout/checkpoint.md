@@ -1,5 +1,5 @@
 # L0 — compiler/layout/checkpoint
-Hash do Código: 763bbc9e
+Hash do Código: 41cb9c79
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -7,6 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:4a93d5c55bf975b506b6f02ae484a91fdf7449716f9248dea2fcaa6b7b0738b6
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:029c2929c9e294efceb796a5358a6f425f02ae91c519314080f413374f4f4403
+- 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -406,3 +407,61 @@ Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
 divider when body width is positive, and complete text before/after the rule.
 Do not copy vanilla zero width or force a paper size. This does not certify
 other relative-size shapes, asymmetric margins or general auto-page parity.
+
+## Issue 8935 — measurement isolation (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-2026-10-31/` retains
+baseline-{tekt,vanilla}.json.gz and stage1-before.json.gz with exact source/L0,
+HEAD, UTC, dirty stat/status and binary identities. On HEAD3c6b0ce7 the official
+case and repeat:false controls fail contextual stability; ordinary footnote
+outside Table succeeds. Without a reference, the original non-repeated first
+header already emits extra copies of its note body. These are observed language
+errors/text, not upstream intent or an obligation to copy its duplicate-label
+defect. Pinned footnote.rs:42–48 documents multiple references to one labeled
+note; #8954's ratified Table contract retains one logical selected member.
+
+Source tracks.rs:234 and573 measures through layout_sub_frame on the live
+Layouter; footnote.rs:203–219 enqueues body/plan/frame. Ordinary subframe restores
+reservation but retains queues/positions. The hypothesis is speculative Note
+effects leaking into actual emission; a note-free finish after track measurement
+and one NOTE after actual Table rendering are independent language refuters.
+
+Classification: ADR-0127 continuous internal correction within existing
+measurement/layout and source-owned transactions. No public entity/trait/API,
+product mode/default, phase/order, compatibility or source re-evaluation change.
+Only the named consumer is authorized by this amendment.
+
+### Exclusive obligation
+
+Retain the original private page-running generation in a full flow checkpoint.
+Add only a layout-private measurement-restore operation which restores the same
+complete checkpoint but preserves that original generation. A discarded intrinsic
+probe has not rejected the enclosing accepted source Root, so it must not cancel
+its later PostChildren. Ordinary suffix rollback continues to advance generation
+as before. Queues, frames, cursors, markers, positions, Locator and all existing
+checkpoint fields restore atomically; no source/frame re-execution or generic
+phase/coverage suppression. Geometry result slots are the measuring owner's
+explicit outputs, not transaction effects. Keep existing rollback tests intact.
+
+L0 and restricted reseal precede behavioral module RED, implementation and GREEN.
+Revalidate native original/height/repeat/reference controls and visible note
+counts, source coverage, #8954/#8777, prior footnote/cache/checkpoint suites, full
+build/tests/lint/forward/reverse seals. Compilation/tests use only the unique
+/dev/shm/typst-crystalline-8935-01a191de target, one job,12GiB ceiling,debug0,
+incremental0,swap0. All unrelated preexisting/concurrent work stays unchanged;
+no commit/push/new branch. Other footnote/layout debts remain explicit.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+Capture and restore the new private column flow-end accumulator alongside the existing column transaction state, so rejected flow cannot retain a ghost height. Preserve complete source/queue/location rollback and original measurement behavior.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.

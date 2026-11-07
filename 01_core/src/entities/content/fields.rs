@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/fields.md
-//! @prompt-hash 68319dc2
+//! @prompt-hash 67b8fc31
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -170,6 +170,7 @@ impl Content {
     pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match (self, field) {
+            (Content::Image(image), field) => image.get_field(field),
             (Content::Symbol(text), "text") => {
                 Some(crate::entities::value::Value::Str(text.clone()))
             }
@@ -379,7 +380,6 @@ impl Content {
                 | Content::CounterDisplay(..)
                 | Content::CounterUpdate(..)
                 | Content::Outline(..)
-                | Content::Image(..)
                 | Content::Shape(..)
                 | Content::Curve(..)
                 | Content::Grid(..)

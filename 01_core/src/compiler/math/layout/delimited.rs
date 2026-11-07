@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/delimited.md
-//! @prompt-hash 8d1f1474
+//! @prompt-hash 9a3d3495
 //! @layer L1
 //! @updated 2026-10-31
 //!
@@ -182,6 +182,50 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 }
             });
         effective_lr_size(elem, cascaded)
+    }
+
+    /// Project complete wrappers only; authored content remains unchanged.
+    fn lr_layout_body(body: &Content, absolute: bool) -> Option<Content> {
+        let view = match body.source_body() {
+            Content::Equation(equation) => super::apply_math_default(&equation.body),
+            Content::MathLr(inner) if absolute => {
+                let paired = match inner.body.source_body() {
+                    Content::MathDelimited(e) => e.open != '\0' && e.close != '\0',
+                    body => positional_lr_delimiters(body).is_some(),
+                };
+                if !paired {
+                    return None;
+                }
+                inner.body.clone()
+            }
+            Content::MathSequence(nodes) if nodes.len() == 1 => {
+                Self::lr_layout_body(&nodes[0], absolute)?
+            }
+            _ => return None,
+        };
+        let view = Self::lr_layout_body(&view, absolute).unwrap_or(view);
+        let span = body.source_span();
+        let view = match view {
+            Content::MathSequence(nodes) if !span.is_detached() => Content::MathSequence(
+                nodes
+                    .iter()
+                    .map(|node| node.clone().with_source_span(span))
+                    .collect::<Vec<_>>()
+                    .into(),
+            ),
+            other => other,
+        };
+        Some(view.with_source_span(span))
+    }
+
+    fn lr_layout_view(&self, elem: &MathLrElem) -> Option<MathLrElem> {
+        Self::lr_layout_body(&elem.body, self.lr_size(elem).rel == 0.0).map(|body| {
+            MathLrElem {
+                body,
+                size: elem.size,
+                size_explicit: elem.size_explicit,
+            }
+        })
     }
 
     pub(super) fn lr_multiline_nodes(
@@ -369,6 +413,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         if !self.block {
             return None;
         }
+        let projected = self.lr_layout_view(elem);
+        let elem = projected.as_ref().unwrap_or(elem);
         let view = self.lr_multiline_view(&elem.body, style);
         let body = view.as_ref().unwrap_or(&elem.body);
         let Content::MathSequence(nodes) = body.source_body() else {
@@ -487,11 +533,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     }
 
     pub(super) fn layout_lr(&self, elem: &MathLrElem, style: &TextStyle) -> MathBox {
+        let projected = self.lr_layout_view(elem);
+        let elem = projected.as_ref().unwrap_or(elem);
         if let Some(view) = self.lr_multiline_body(elem, style) {
             return self.layout_node(&view, style);
         }
         let size = self.lr_size(elem);
-        match &elem.body {
+        match elem.body.source_body() {
             Content::MathDelimited(delimited) => self.layout_delimited_sized(
                 delimited.open,
                 &delimited.body,
@@ -822,5 +870,164 @@ mod issue_8973_tests {
             .collect();
         assert_eq!(bars, vec![301, 301, 302]);
         assert_eq!(layout.mid_target_pt.get(), None);
+    }
+
+    #[test]
+    fn issue_8973_complete_equation_body_preserves_rows_and_outer_fences() {
+        let style = TextStyle::regular(Pt(10.0));
+        let chain = StyleChain::default_chain()
+            .push_custom("math.lr.size", Value::Length(Length::em(1.0)));
+        for block in [false, true] {
+            let mut layout = super::super::MathLayouter::new(&Metrics, true, &style);
+            layout.lexical_styles = Some(&chain);
+            let body = Content::math_lr(
+                Content::equation(
+                    seq(vec![
+                        atom("["),
+                        atom("a"),
+                        Content::linebreak(),
+                        atom("b"),
+                        atom("]"),
+                    ]),
+                    block,
+                ),
+                Rel { rel: 0.0, abs: Length::em(3.0) },
+                true,
+            );
+            let original = body.clone();
+            let (items, extent) = layout.layout_equation_measured(&body, &style);
+            assert_eq!(extent.line_count, 2, "Equation body must expose both real rows");
+            assert_eq!((glyph(&items, '[').1, glyph(&items, ']').1), (102, 202));
+            assert!(text_y(&items, "𝑏") > text_y(&items, "𝑎"));
+            assert!(glyph(&items, ']').0.y.0 > glyph(&items, '[').0.y.0);
+            assert_eq!(body, original, "authored Equation/Lr content is unchanged");
+        }
+    }
+
+    #[test]
+    fn issue_8973_complete_single_row_equation_uses_same_boundary_as_plain_body() {
+        let style = TextStyle::regular(Pt(10.0));
+        let layout = super::super::MathLayouter::new(&Metrics, true, &style);
+        let inner = seq(vec![atom("["), atom("a"), atom("b"), atom("]")]);
+        let wrapped = Content::math_lr(
+            Content::equation(inner.clone(), false),
+            Rel { rel: 0.0, abs: Length::em(3.0) },
+            true,
+        );
+        let plain = Content::math_lr(inner, Rel { rel: 0.0, abs: Length::em(3.0) }, true);
+        let (items, extent) = layout.layout_equation_measured(&wrapped, &style);
+        let (control, _) = layout.layout_equation_measured(&plain, &style);
+        assert_eq!(extent.line_count, 1);
+        for ch in ['[', ']'] {
+            assert_eq!(glyph(&items, ch), glyph(&control, ch));
+        }
+        assert_eq!(text_y(&items, "𝑎"), text_y(&control, "𝑎"));
+    }
+
+    #[test]
+    fn issue_8973_absolute_outer_size_retargets_only_shared_boundary_fences() {
+        let style = TextStyle::regular(Pt(10.0));
+        let layout = super::super::MathLayouter::new(&Metrics, true, &style);
+        for multiline in [false, true] {
+            let mut nodes = vec![atom("["), atom("a")];
+            if multiline {
+                nodes.push(Content::linebreak());
+            }
+            nodes.extend([atom("b"), atom("]")]);
+            let inner = Content::math_lr(
+                seq(nodes),
+                Rel { rel: 0.0, abs: Length::em(2.0) },
+                true,
+            );
+            let outer =
+                Content::math_lr(inner, Rel { rel: 0.0, abs: Length::em(3.0) }, true);
+            let original = outer.clone();
+            let (items, extent) = layout.layout_equation_measured(&outer, &style);
+            assert_eq!(extent.line_count, if multiline { 2 } else { 1 });
+            assert_eq!((glyph(&items, '[').1, glyph(&items, ']').1), (102, 202));
+            assert_eq!(outer, original);
+        }
+    }
+
+    #[test]
+    fn issue_8973_unfenced_inner_mid_keeps_its_nearest_lr_target() {
+        let style = TextStyle::regular(Pt(10.0));
+        let layout = super::super::MathLayouter::new(&Metrics, true, &style);
+        let inner = Content::math_lr(
+            Content::math_mid(atom("|")),
+            Rel { rel: 0.0, abs: Length::em(2.0) },
+            true,
+        );
+        let outer = Content::math_lr(inner, Rel { rel: 0.0, abs: Length::em(3.0) }, true);
+        let (items, _) = layout.layout_equation_measured(&outer, &style);
+        assert_eq!(glyph(&items, '|').1, 301);
+        assert_eq!(layout.mid_target_pt.get(), None);
+    }
+    #[test]
+    fn issue_8973_equation_projection_records_callbacks_once_with_source() {
+        use super::super::callbacks::MathCallbackPassState;
+        use crate::entities::{
+            args::Args,
+            elements::math_cancel::{
+                MathCancelAngle, MathCancelElem, MathCancelExplicit,
+            },
+            file_id::FileId,
+            func::Func,
+            location::Location,
+            source_result::SourceResult,
+            span::Span,
+            style_chain::StyleChain,
+        };
+        fn angle(
+            _: &mut crate::compiler::eval::EvalContext,
+            _: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: FileId,
+        ) -> SourceResult<Value> {
+            panic!("layout must record, never evaluate, the callback")
+        }
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            17..23,
+        );
+        let cancel = Content::MathCancel(std::sync::Arc::new(MathCancelElem {
+            body: atom("a"),
+            length: Rel::from_percent(100.0),
+            inverted: false,
+            cross: false,
+            angle: MathCancelAngle::Func(Func::native("8973-angle", angle)),
+            stroke: None,
+            background: false,
+            span,
+            explicit: MathCancelExplicit::default(),
+        }));
+        let body =
+            seq(vec![atom("["), cancel.clone(), Content::linebreak(), cancel, atom("]")]);
+        let style = TextStyle::regular(Pt(10.0));
+        let chain = StyleChain::default_chain();
+        for size in [Rel { rel: 0.0, abs: Length::em(3.0) }, Rel::from_percent(150.0)] {
+            let pass = MathCallbackPassState::new(None);
+            let layout = super::super::MathLayouter::new_with_context(
+                &Metrics,
+                true,
+                &style,
+                Location::from_raw(0x8973),
+                Pt(200.0),
+                &chain,
+                &pass,
+            );
+            let content = Content::math_lr(
+                Content::equation(body.clone(), false).with_source_span(span),
+                size,
+                true,
+            );
+            let (_, extent) = layout.layout_equation_measured(&content, &style);
+            assert_eq!(extent.line_count, 2);
+            let requests =
+                pass.finish_transcript().expect_err("callbacks await resolution");
+            assert_eq!(requests.len(), 2, "geometry probes do not consume callbacks");
+            assert!(requests.iter().all(|request| request.span == span));
+            assert_ne!(requests[0].id.occurrence, requests[1].id.occurrence);
+        }
     }
 }

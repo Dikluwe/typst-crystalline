@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "svg-preparation"
+title = "Original SVG source, per-occurrence preparation and self-contained export"
+
+[[claims]]
+id = "original-and-render"
+level = "must"
+statement = "Image source and raw SVG/SVGZ bytes remain original language data; prepared SVG frame bytes are a separate render representation, preserving alt and source reflection."
+
+[[claims]]
+id = "effective-context"
+level = "must"
+statement = "Prepare SVG at each layout occurrence through the injected L3 port using captured rooted origin and effective ordered font families/fallback; preserve fractional CSS dimensions at 96 dpi."
+
+[[claims]]
+id = "world-boundaries"
+level = "must"
+statement = "Referenced SVG resources use injected World and its root/package restrictions during preparation; byte payload acquisition itself requires no file path or image IO. Bound decompression, resource recursion and aggregate data, reject cycles."
+
+[[claims]]
+id = "pure-carriers"
+level = "must-not"
+statement = "Domain entities parse XML, gzip, decode, select fonts or access IO. No backend library types cross the domain contract."
+
+[[claims]]
+id = "prepared-export"
+level = "must"
+statement = "Export consumes self-contained prepared SVG and resolved geometry without source/font/World IO or layout. PDF preserves vector forms and coordinated resource IDs; PNG renders at requested scale; SVG preserves self-contained paint."

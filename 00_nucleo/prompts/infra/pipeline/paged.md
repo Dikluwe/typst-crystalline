@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: b5864545
+Hash do Código: 465c3971
 
 
 
@@ -22,6 +22,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
@@ -369,3 +370,17 @@ In this owner's existing traversal/certificate use Complete visual cells, else
 authoritative Some(items), else legacy children/header/footer, and caption once.
 No parallel visitation, new allocation, context evaluation, phase or public API.
 Retain existing policies and negative certificates for all other carriers.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Inject a private World-aware SVG preparation adapter implementing the extended ImageSizer port; delegate raster size/dpi/orientation to existing ImageSizeImageSizer. Preserve the public unit raster adapter and pipeline signatures. Preparation receives current compile World/font catalog, honors resource root/package restrictions, and does not reopen files in export. Do not introduce a product flag or default-mode change.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.

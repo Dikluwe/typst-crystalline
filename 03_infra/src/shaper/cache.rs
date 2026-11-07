@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
-//! @prompt-hash da9a2e15
+//! @prompt-hash cdbf99c0
 //! @layer L3
-//! @updated 2026-10-10
+//! @updated 2026-11-06
 
 use super::font_selection::FontCandidate;
 use std::collections::HashMap;
@@ -19,7 +19,26 @@ use typst_core::entities::{font_book::FontVariant, font_list::FontList};
 /// tracking e idioma explícito opcional. O valor guarda os glifos shaped e a largura total em unidades
 /// de fonte.
 pub(super) struct ShapeCache {
-    pub(super) map: HashMap<String, CachedRun>,
+    pub(super) map: HashMap<ShapeKey, CachedRun>,
+}
+
+/// Owned identity of one shaped sub-run, with exact coordinate bits.
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub(super) struct ShapeKey {
+    text: String,
+    slot_idx: usize,
+    rtl: bool,
+    axis_vars: Vec<(u32, u32)>,
+    tracking_fu: i32,
+    ssty_level: Option<u8>,
+    language: Option<String>,
+    native_sups: Option<bool>,
+}
+
+impl ShapeKey {
+    pub(super) fn set_native_sups(&mut self, native_sups: bool) {
+        self.native_sups = Some(native_sups);
+    }
 }
 
 #[derive(Clone)]
@@ -42,17 +61,20 @@ impl ShapeCache {
         tracking_fu: i32,
         ssty_level: Option<u8>,
         language: Option<&str>,
-    ) -> String {
-        let axis_key: String = axis_vars
-            .iter()
-            .map(|v| format!("{}={:08x}", v.tag, v.value.to_bits()))
-            .collect::<Vec<_>>()
-            .join(",");
-        // **P977** — o resultado do shaping muda com o nível ssty.
-        format!(
-            "{}|{}|{}|{}|{}|ssty{:?}|lang{:?}",
-            text, slot_idx, rtl, axis_key, tracking_fu, ssty_level, language
-        )
+    ) -> ShapeKey {
+        ShapeKey {
+            text: text.to_owned(),
+            slot_idx,
+            rtl,
+            axis_vars: axis_vars
+                .iter()
+                .map(|v| (u32::from_be_bytes(v.tag.to_bytes()), v.value.to_bits()))
+                .collect(),
+            tracking_fu,
+            ssty_level,
+            language: language.map(str::to_owned),
+            native_sups: None,
+        }
     }
 }
 
@@ -246,5 +268,170 @@ mod axis_key_regressions {
             (1122114658, 1122114659),
             (446, 447),
         );
+    }
+}
+#[cfg(test)]
+mod structured_key_regressions {
+    use super::ShapeCache;
+    use rustybuzz::{ttf_parser::Tag, Variation};
+    use std::collections::HashMap;
+
+    #[derive(Clone, Debug)]
+    struct Input {
+        text: String,
+        slot: usize,
+        rtl: bool,
+        axes: Vec<(u32, u32)>,
+        tracking: i32,
+        ssty: Option<u8>,
+        language: Option<String>,
+        sups: Option<bool>,
+    }
+    impl Default for Input {
+        fn default() -> Self {
+            Self {
+                text: "б|langNone|sstySome(1) α\0🙂".into(),
+                slot: 0,
+                rtl: false,
+                axes: vec![],
+                tracking: 0,
+                ssty: None,
+                language: None,
+                sups: None,
+            }
+        }
+    }
+    macro_rules! key {
+        ($i:expr) => {{
+            let i = $i;
+            let axes: Vec<_> = i
+                .axes
+                .iter()
+                .map(|&(tag, bits)| Variation {
+                    tag: Tag(tag),
+                    value: f32::from_bits(bits),
+                })
+                .collect();
+            let mut k = ShapeCache::key(
+                &i.text,
+                i.slot,
+                i.rtl,
+                &axes,
+                i.tracking,
+                i.ssty,
+                i.language.as_deref(),
+            );
+            if let Some(sups) = i.sups {
+                k.set_native_sups(sups);
+            }
+            k
+        }};
+    }
+
+    #[test]
+    fn full_identity_and_abba_map_reuse() {
+        let base = Input::default();
+        let mut cases = vec![base.clone()];
+        macro_rules! add {
+            ($field:ident, $value:expr) => {{
+                let mut x = base.clone();
+                x.$field = $value;
+                cases.push(x);
+            }};
+        }
+        for text in [
+            "",
+            "б",
+            "α",
+            "a|0|false||0|sstyNone|langNone",
+            "a\0b",
+            "a|sups0",
+            "a|sups:true",
+            "a|sups:false",
+            "e\u{301}",
+            "é",
+        ] {
+            add!(text, text.into());
+        }
+        for slot in [1, usize::MAX] {
+            add!(slot, slot);
+        }
+        add!(rtl, true);
+        for tracking in [i32::MIN, -1, 1, i32::MAX] {
+            add!(tracking, tracking);
+        }
+        for ssty in [Some(0), Some(1), Some(2), Some(255)] {
+            add!(ssty, ssty);
+        }
+        for language in ["", "en", "sr", "ru", "EN", "en|sups1", "é"] {
+            add!(language, Some(language.into()));
+        }
+        for sups in [false, true] {
+            add!(sups, Some(sups));
+        }
+        let w = u32::from_be_bytes(*b"wght");
+        let d = u32::from_be_bytes(*b"wdth");
+        for bits in [
+            0, 0x80000000, 1, 1120998658, 1120998659, 0x7f800000, 0xff800000, 0x7fc00001,
+            0x7fc00002,
+        ] {
+            add!(axes, vec![(w, bits)]);
+        }
+        for axes in [
+            vec![(w, 1), (d, 2)],
+            vec![(d, 2), (w, 1)],
+            vec![(w, 1), (w, 2)],
+            vec![(w, 2), (w, 1)],
+            vec![(w, 1), (w, 1)],
+            vec![(d, 1)],
+            vec![(0, 1)],
+            vec![(u32::MAX, 1)],
+            vec![(u32::MAX - 1, 1)],
+            vec![(u32::MAX - 2, 1)],
+            vec![(u32::from_be_bytes(*b"|=,\0"), 1)],
+        ] {
+            add!(axes, axes);
+        }
+        let mut map = HashMap::new();
+        for (n, input) in cases.iter().enumerate() {
+            assert!(
+                map.insert(key!(input), n).is_none(),
+                "identity collision for {input:?}"
+            );
+            assert_eq!(map.get(&key!(input)), Some(&n), "identical owned key must reuse");
+        }
+        for a in 0..cases.len() {
+            for b in 0..cases.len() {
+                if a == b {
+                    continue;
+                }
+                let mut m = HashMap::new();
+                for index in [a, b, b, a, a, b] {
+                    let k = key!(&cases[index]);
+                    match m.insert(k, index) {
+                        None => {}
+                        Some(prior) => assert_eq!(prior, index, "ABBA contamination"),
+                    }
+                }
+                assert_eq!(m.len(), 2);
+            }
+        }
+    }
+
+    #[test]
+    fn native_sups_setter_replaces_effective_value() {
+        {
+            let input = Input::default();
+            let mut key = key!(&input);
+            key.set_native_sups(false);
+            key.set_native_sups(true);
+            let mut yes = input.clone();
+            yes.sups = Some(true);
+            assert_eq!(key, key!(&yes));
+            key.set_native_sups(false);
+            let mut no = input;
+            no.sups = Some(false);
+            assert_eq!(key, key!(&no));
+        }
     }
 }

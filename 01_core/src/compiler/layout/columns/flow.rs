@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/flow.md
-//! @prompt-hash 2d175c9f
+//! @prompt-hash 1928813e
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -90,6 +90,7 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
     margin: f64,
     page_column_notes: bool,
 ) {
+    let note_flow = layouter.column_flow_end.is_some();
     let saved_note_scope = layouter.page_column_notes;
     layouter.page_column_notes = page_column_notes;
     let saved_defer_par_line_patterns = layouter.defer_segmented_par_line_patterns;
@@ -158,7 +159,7 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
     // altura útil da página, excepto a última página que pode ser parcial.
     // Simplificação segura: avançar para `height - margin` quando houve
     // pelo menos uma página física criada; caso contrário manter o cursor.
-    if !layouter.pages.is_empty() {
+    if !note_flow && !layouter.pages.is_empty() {
         // O Layouter acabou de fechar uma página? Não — finish_columns não
         // cria página. Se new_page() foi chamado, a(s) página(s) anterior(es)
         // já estão em `pages`; a última página ainda está em current_items.
@@ -174,4 +175,57 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_container_leaves_page_owned_entry_pending() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        let cols = crate::entities::elements::columns::ColumnsElem {
+            count: 2,
+            gutter: None,
+            page_columns: false,
+            body: Content::sequence(vec![
+                Content::text("A"),
+                Content::footnote(Content::text("NOTE")),
+            ]),
+        };
+        super::super::layout(&mut l, &cols);
+        assert_eq!(
+            l.pending_footnote_bodies.len(),
+            1,
+            "page-owned body must survive sibling composition"
+        );
+    }
 }

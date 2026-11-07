@@ -1,5 +1,5 @@
 # L0 — compiler/eval/modules
-Hash do Código: 30064f50
+Hash do Código: a63c8a8b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -32,6 +32,40 @@ package resolution only through World; preserve current FileId, Route cycle
 detection, isolated Engine/scopes, exported bindings, sink and diagnostic traces.
 Construct the imported global stdlib object with public name global under lexical
 binding std. Ordinary imported modules retain their own stored names.
+
+## Delayed imported-stdlib composition
+
+### Evidence before decision
+
+The received consumer at HEAD
+`3c6b0ce7b7632cc74b004cea6681e4746e63d28d`, uncommitted tree,
+`modules.rs:60,108-111`, builds a stdlib from one World.inputs query for each
+import and initializes an isolated context. The qualified delayed candidate in
+`lab/experiments/watch-startup-neutral/apply.py:45-57` changes only this
+composition/seed transport; the measurements and limits are in
+`00_nucleo/diagnostics/stdlib-qualification-2026-11-06.md` and
+`stdlib-cli-residual-2026-11-06.md`. `entities/module.rs` retains allocation
+identity; sharing the same Module graph between files would change observable
+language equality and is prohibited.
+
+### Exclusive call and context transfer
+
+At the existing stdlib-construction point in eval_imported_file, obtain
+World.inputs exactly once, in the existing source/cycle/validation/effect order.
+Pass those inputs, caller features and the caller's private slot to
+`stdlib_snapshot::resolve` owned by
+`00_nucleo/prompts/core/compiler/eval/stdlib_snapshot.md`. Use its returned
+owned Scope in the existing global/std/Library composition. Pass its returned
+seed into the newly initialized local EvalContext before evaluating that file.
+Preserve the original full_error/features/target and show-rule isolation.
+
+Do not skip import evaluation, cache Module products, share caller scopes or
+styles, query World.inputs a second time, change includes/object imports,
+reorder validation/warnings/traces or alter any public signature/default/phase.
+The first import builds the seed; matching later imports instantiate fresh
+identities. Mismatches use a separate seed for their subtree without replacing
+the caller's seed. Root/expression builders remain with the hub owner.
+Internal integration authorized on 2026-11-06; continuous ADR-0127.
 
 A bare Module expression uses the syntactic import binding name (identifier,
 field or literal file-derived name), not Module::name(). Dynamic source without

@@ -1,7 +1,8 @@
 # L0 — figure
-Hash do Código: e7737e66
+Hash do Código: 5aa0f387
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
@@ -286,3 +287,32 @@ records V21 for the unchanged gap formula. Pinned upstream commit
 Place the source citation immediately before the gap binding, where V21 reads
 its provenance; change no executable token, behavior, fixture or assertion. Reseal and run the full linter
 with warnings denied before further build/validation. Internal ADR-0127 flow.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Resolve effective placement from the prepared field, lexical field or active chain for synthetic legacy input. InFlow preserves the existing rendering path. Floating paths compose actual body/caption once using the existing intrinsic-piece/source-edge owners (including captionless Figures), retain rich prefix and decorations/fixups, and enqueue one logical DeferredFloat frame. Defer packet cursors for physical admission. Auto selects nearest vertical side in the active finite region; it is not omission. Use existing place.clearance style when valid, otherwise the measured Figure floating default 1.5em; do not change legacy Place default. Admission considers consumed logical v-space; a pending float does not force already laid-out text to move or disappear. Preserve prior intrinsic centering, body alignment, counter validation and all source/Location identities. Add actual percent-independent frame/text/link/page/region tests; no paint-bbox sizing, source replay or widow disabling.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+Candidate-green is rejected as a valid geometry qualification: issue8890's new
+fixture used Layouter::new(10) without synchronizing Size(10pt) in the default
+11pt lexical chain (the earlier declared-metric warning above applies). Keep
+all bounds/inputs and correct only that fixture setup; repeat a functional RED
+against the pre-admission Figure renderer, then restore candidate behavior.
+No geometry repair may be justified by this inconsistent font setup.
+
+The new issue8890 frame observer must enumerate every FrameItem complement,
+including nonmatching guarded Text/Shape cases; an empty wildcard is V16.
+Replace that observer-only wildcard with its typed exhaustive complement without
+changing a fixture, expectation or productive renderer.

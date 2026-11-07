@@ -1,5 +1,5 @@
 # L0 — stream/draw
-Hash do Código: 233fafca
+Hash do Código: 756b5be2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
@@ -10,6 +10,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml sha256:3d2d44a53e9fb6a6c8d59ddee7b362412ae0ab05fac0e37e50ddf731d987c132
 - 00_nucleo/prompts/_nuclei/pdf-group-local-space.toml sha256:94c2f27db514ce909100e929a459524e08ebeb09583f4a39173f53f457c770cd
 - 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:afd5a809b6e3f2ac1f9a752fb1f6c6d704139eb1f71b085d430d9417f826b04e
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -483,3 +484,10 @@ Preserve prepared Shape stroke join, miter limit, dash array/phase and cap
 in both top/local painting scopes, including original LineWidth scaling.
 Serialize existing FrameStroke values only; keep defaults/modes/coordinates.
 New style tests must be RED before the internal serialization correction.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.

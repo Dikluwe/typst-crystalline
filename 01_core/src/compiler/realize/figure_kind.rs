@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure_kind.md
-//! @prompt-hash 45f32807
+//! @prompt-hash 1fb06117
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -972,6 +972,8 @@ mod tests {
         ] {
             let figure = Content::Figure(Arc::new(
                 crate::entities::elements::figure::FigureElem {
+                    placement: None,
+                    resolved_placement: None,
                     body: body.clone(),
                     caption: None,
                     kind: Some(Some(kind)),
@@ -1038,6 +1040,8 @@ mod tests {
     #[test]
     fn figure_kind_selected_supplement_and_caption_semantic_order() {
         let mut figure = crate::entities::elements::figure::FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: None,
             kind: None,

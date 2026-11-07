@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/svg_composite_graph.md
-//! @prompt-hash 31890d63
+//! @prompt-hash cd183352
 //! @layer L3
 //! @updated 2026-08-28
 //!
@@ -105,6 +105,7 @@ fn gradient() -> Paint {
 
 fn image(data: &[u8], orientation: u32, clip_rect: Option<Rect>) -> FrameItem {
     FrameItem::Image {
+        format: None,
         pos: Point { x: Pt(7.0), y: Pt(11.0) },
         data: Arc::new(data.to_vec()),
         width: Pt(6.0),

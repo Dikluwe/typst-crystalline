@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "footnote-numbering"
+title = "Lexical numbering of the original footnote"
+
+[[claims]]
+id = "effective-pattern"
+level = "must"
+statement = "The accepted string pattern for a call and entry is the explicit Footnote numbering when present, otherwise the lexical footnote.numbering style, otherwise 1. Set dispatch uses native identity and preserves lexical scope/explicit precedence. Original Content is not rewritten to bake insertion styles."
+
+[[claims]]
+id = "reference-snapshot"
+level = "must"
+statement = "An actual labelled Footnote records its resolved marker text and introspected numbering field at its existing source Location using the same counter snapshot and lexical pattern. References use that original marker snapshot, independently of styles at the reference. No counter action, note, Location, callback phase or public carrier is added."

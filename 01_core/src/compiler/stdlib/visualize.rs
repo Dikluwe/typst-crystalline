@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/visualize.md
-//! @prompt-hash ea161703
+//! @prompt-hash 7f7ec340
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -70,14 +70,17 @@ pub fn native_tiling(
                     )]);
                 }
             };
-            TilingBody::Image(crate::entities::elements::image::ImageElem {
-                path: path.to_string(),
+            TilingBody::Image(Box::new(crate::entities::elements::image::ImageElem {
+                format: None,
+                svg: None,
+                path: Some(path.to_string()),
+                source: None,
                 alt: None,
                 data: PtrEqArc(data),
                 width: None,
                 height: None,
                 fit: "cover".into(),
-            })
+            }))
         }
         Value::Tiling(t) if args.named.is_empty() => {
             return Ok(Value::Tiling(Arc::clone(t)))

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "image-source-provenance"
+title = "Original image source and absence of a file origin"
+
+[[claims]]
+id = "original-native-source"
+level = "must"
+statement = "Native image construction retains the original Path, Str or admitted Bytes value independently of the resolved raster payload. Reflection preserves its type and value; normalized virtual paths do not replace the original argument."
+
+[[claims]]
+id = "bytes-without-path"
+level = "must"
+statement = "An admitted byte image has no image file path and its payload acquisition requires neither path resolution nor file loading. Do not manufacture filenames or temporary files for a byte payload. Referenced SVG resources may separately use injected World during approved L3 preparation from the captured caller origin."
+
+[[claims]]
+id = "legacy-unknown"
+level = "must"
+statement = "Legacy internal image construction without an original source retains explicit absence. Clones, reconstruction, field projection and semantic observation preserve source presence and value without inventing an origin."
+
+[[claims]]
+id = "pure-transport"
+level = "must-not"
+statement = "Source metadata causes IO, decode, rendering, typography or a new pipeline phase in L1 entities or field projection. Admission does not certify decode integrity. SVG preparation requires its separately approved owning prompts and SVG preparation Nucleus; source metadata alone does not authorize new decoder capabilities."

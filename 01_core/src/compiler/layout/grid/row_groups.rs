@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/row_groups.md
-//! @prompt-hash 360fbf3e
+//! @prompt-hash 78032330
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -853,151 +853,6 @@ pub(in crate::compiler::layout) fn table_groups(
         })
 }
 
-#[cfg(test)]
-mod v16_table_tests {
-
-    use crate::contracts::world::World;
-    use crate::entities::{
-        file_id::FileId,
-        font_book::FontBook,
-        source::Source,
-        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
-    };
-    struct TestWorld {
-        library: Library,
-        book: FontBook,
-        source: Source,
-    }
-    impl TestWorld {
-        fn new(text: &str) -> Self {
-            Self {
-                library: Library::new(),
-                book: FontBook::new(),
-                source: Source::new(
-                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
-                    text.into(),
-                )
-                .expect("valid Source test fixture"),
-            }
-        }
-    }
-    impl World for TestWorld {
-        fn library(&self) -> &Library {
-            &self.library
-        }
-        fn book(&self) -> &FontBook {
-            &self.book
-        }
-        fn main(&self) -> FileId {
-            self.source.id()
-        }
-        fn source(&self, _: FileId) -> FileResult<Source> {
-            Ok(self.source.clone())
-        }
-        fn file(&self, _: FileId) -> FileResult<Bytes> {
-            Err(FileError::NotFound)
-        }
-        fn font(&self, _: usize) -> Option<Font> {
-            None
-        }
-        fn today(
-            &self,
-            _: Option<crate::entities::duration::Duration>,
-        ) -> Option<Datetime> {
-            None
-        }
-    }
-
-    use crate::compiler::{
-        eval::{EvalContext, EvalTarget},
-        realize::realize_document,
-        stdlib::native_table,
-    };
-    use crate::entities::{
-        args::Args, compiler_features::Features, content::Content,
-        element_registry::ElementRegistry, introspector::TagIntrospector, span::Span,
-        value::Value,
-    };
-    fn span() -> Span {
-        Span::from_range(TestWorld::new("").main(), 1..2)
-    }
-    fn table(raw: Vec<Content>) -> Content {
-        let w = TestWorld::new("");
-        let mut args = Args::positional(raw.into_iter().map(Value::Content).collect());
-        args.named.insert("columns".into(), Value::Int(2));
-        let Value::Content(t) =
-            native_table(&mut EvalContext::new(), &args, &w, w.main()).unwrap()
-        else {
-            panic!("table")
-        };
-        t
-    }
-    fn find_table(c: &Content) -> Option<&crate::entities::elements::table::TableElem> {
-        match c {
-            Content::Source(s) => find_table(&s.body),
-            Content::Located(e) => find_table(&e.body),
-            Content::Realized(e) => find_table(&e.visual),
-            Content::Table(t) => Some(t),
-            Content::Sequence(v) => v.iter().find_map(find_table),
-            Content::Empty => None,
-            other => panic!("unsupported observation {other:?}"),
-        }
-    }
-    fn realize(
-        t: Content,
-    ) -> crate::entities::source_result::SourceResult<
-        crate::compiler::realize::RealizedDocument,
-    > {
-        let w = TestWorld::new("logical table");
-        realize_document(
-            &t,
-            &w,
-            &w.source,
-            &ElementRegistry::new(),
-            &TagIntrospector::empty(),
-            false,
-            EvalTarget::Paged,
-            Features::empty(),
-        )
-        .0
-    }
-    fn group(header: bool) {
-        for on in [false, true] {
-            let v =
-                Content::Sequence(vec![Content::text("a"), Content::text("b")].into());
-            let v = if on { v.with_source_span(span()) } else { v };
-            let g = if header {
-                Content::table_header(v, true)
-            } else {
-                Content::table_footer(v, true)
-            };
-            let doc = realize(table(vec![g])).unwrap();
-            let t = find_table(&doc.visual).unwrap();
-            let r = t.resolved.as_ref().unwrap();
-            let texts = r.cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>();
-            assert_eq!(texts, ["a", "b"]);
-            assert_eq!(r.num_rows, 1);
-        }
-    }
-    #[test]
-    fn v16_table_header_group_source_sequence() {
-        group(true);
-    }
-    #[test]
-    fn v16_table_footer_group_source_sequence() {
-        group(false);
-    }
-    #[test]
-    fn v16_table_conflict_uses_first_cell_origin() {
-        let h = Content::table_header(Content::text("H"), true);
-        let c = Content::table_cell(Content::text("body"), None, Some(0), None, None)
-            .with_source_span(span());
-        let e = realize(table(vec![h, c])).err().expect("header conflict");
-        assert_eq!(e[0].span, span());
-        assert!(e[0].message.contains("header"));
-    }
-}
-
 /// Boundaries in the normalized input stream, filled with actual row bounds by
 /// the placement owner. None header metadata denotes the unique footer.
 pub(in crate::compiler) struct OrderedGroup {
@@ -1194,4 +1049,149 @@ pub(in crate::compiler) fn ordered_groups(
         }
     }
     Ok((cells, groups))
+}
+
+#[cfg(test)]
+mod v16_table_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::{
+        file_id::FileId,
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                )
+                .expect("valid Source test fixture"),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    use crate::compiler::{
+        eval::{EvalContext, EvalTarget},
+        realize::realize_document,
+        stdlib::native_table,
+    };
+    use crate::entities::{
+        args::Args, compiler_features::Features, content::Content,
+        element_registry::ElementRegistry, introspector::TagIntrospector, span::Span,
+        value::Value,
+    };
+    fn span() -> Span {
+        Span::from_range(TestWorld::new("").main(), 1..2)
+    }
+    fn table(raw: Vec<Content>) -> Content {
+        let w = TestWorld::new("");
+        let mut args = Args::positional(raw.into_iter().map(Value::Content).collect());
+        args.named.insert("columns".into(), Value::Int(2));
+        let Value::Content(t) =
+            native_table(&mut EvalContext::new(), &args, &w, w.main()).unwrap()
+        else {
+            panic!("table")
+        };
+        t
+    }
+    fn find_table(c: &Content) -> Option<&crate::entities::elements::table::TableElem> {
+        match c {
+            Content::Source(s) => find_table(&s.body),
+            Content::Located(e) => find_table(&e.body),
+            Content::Realized(e) => find_table(&e.visual),
+            Content::Table(t) => Some(t),
+            Content::Sequence(v) => v.iter().find_map(find_table),
+            Content::Empty => None,
+            other => panic!("unsupported observation {other:?}"),
+        }
+    }
+    fn realize(
+        t: Content,
+    ) -> crate::entities::source_result::SourceResult<
+        crate::compiler::realize::RealizedDocument,
+    > {
+        let w = TestWorld::new("logical table");
+        realize_document(
+            &t,
+            &w,
+            &w.source,
+            &ElementRegistry::new(),
+            &TagIntrospector::empty(),
+            false,
+            EvalTarget::Paged,
+            Features::empty(),
+        )
+        .0
+    }
+    fn group(header: bool) {
+        for on in [false, true] {
+            let v =
+                Content::Sequence(vec![Content::text("a"), Content::text("b")].into());
+            let v = if on { v.with_source_span(span()) } else { v };
+            let g = if header {
+                Content::table_header(v, true)
+            } else {
+                Content::table_footer(v, true)
+            };
+            let doc = realize(table(vec![g])).unwrap();
+            let t = find_table(&doc.visual).unwrap();
+            let r = t.resolved.as_ref().unwrap();
+            let texts = r.cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>();
+            assert_eq!(texts, ["a", "b"]);
+            assert_eq!(r.num_rows, 1);
+        }
+    }
+    #[test]
+    fn v16_table_header_group_source_sequence() {
+        group(true);
+    }
+    #[test]
+    fn v16_table_footer_group_source_sequence() {
+        group(false);
+    }
+    #[test]
+    fn v16_table_conflict_uses_first_cell_origin() {
+        let h = Content::table_header(Content::text("H"), true);
+        let c = Content::table_cell(Content::text("body"), None, Some(0), None, None)
+            .with_source_span(span());
+        let e = realize(table(vec![h, c])).err().expect("header conflict");
+        assert_eq!(e[0].span, span());
+        assert!(e[0].message.contains("header"));
+    }
 }

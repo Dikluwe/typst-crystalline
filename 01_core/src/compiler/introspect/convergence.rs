@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/convergence.md
-//! @prompt-hash 9870343e
+//! @prompt-hash 826adf38
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -118,6 +118,8 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::elements::figure::{FigureElem, FigureKind};
         Content::Figure(std::sync::Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("same body"),
             caption: Some(Content::text("same caption")),
             kind: None,

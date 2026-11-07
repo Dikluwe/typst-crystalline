@@ -1,10 +1,11 @@
 # Prompt L0 — layout_types
-Hash do Código: bf2fce1f
+Hash do Código: ef14341a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1. **Exclusive consumer:** `01_core/src/entities/layout_types.rs`.
@@ -259,3 +260,31 @@ complete workspace/build/tests/Clippy/fmt/Rustdoc, strict and reverse lineage,
 full lint and A–H/R1–R7 preservation. Keep arbitrary mixed-face shaping, opaque
 carrier migration and literal-newline flow limits explicitly measured; this
 field alone does not certify those broader scopes.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Add format:Option<ImageFormat> to FrameItem::Image, preserving all existing geometry/clip/orientation/alt carriers. SVG frame data is the prepared self-contained render representation; raster frame data remains original bytes. Frame transport never reopens resources or reselects fonts. No TextStyle or StyleDelta schema change is authorized by this proposal.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Transport the approved selected image format and SVG provenance through existing constructors/clones without changing raster behavior or inventing source. Legacy literals use explicit absence; reconstruction preserves the existing format.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.

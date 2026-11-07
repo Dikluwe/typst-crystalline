@@ -1,11 +1,13 @@
 # L0 — infra/export/render
-Hash do Código: 4bb8e999
+Hash do Código: b61b2f26
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/raster-decode.toml sha256:2f0f61bd281ffb77a1c9b62a8b40733e248ef55dff4bf2b81104c3c0d6ce5d0f
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -201,3 +203,35 @@ Prior full suite is evidence for identical executable code, not a fresh run;
 no lint-attribute mirror tests or new performance comparison for metadata.
 
 For the six-case private arity slice, only conditional C047/C066 residual expectations are permitted after their respective _text removals; five other correction arities remain visible. L0/private caller owners precede code, no external contract/default/phase/dependency/semantics/new global state. Preserve public fields/values, PNG/SVG/PDF/precedence/diagnostics/resources/MCIDs and unchanged fixtures/expectations/tolerances. Real selected RED→GREEN/denied expectations, workspace/build/all-target Clippy/Rustdoc/fmt/strict reverse lineage, 12GiB/swap0/jobs1; no private-carrier mirror tests or claimed performance from representation.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Use the export-private raster decode helper in build_texture; keep PNG page stacking, geometry, resizing, clipping, premultiplication and all defaults untouched. This repairs the measured existing WebP color error for bitmap as well as PDF. Test lossy WebP texture colors before implementation; no file/font IO or layout.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Render already-prepared SVG with an L3 SVG raster backend at requested output scale; preserve fractional geometry, alpha and existing transform/clip pipeline. No source/World IO, font lookup or layout in export. Keep existing corrected WebP/raster decoder and static GIF/WebP behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.

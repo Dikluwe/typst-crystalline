@@ -1,12 +1,79 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb/selective.md
-//! @prompt-hash 720680b5
+//! @prompt-hash 8c91b5e1
 //! @layer L3
-//! @updated 2026-10-07
+//! @updated 2026-11-04
 
 use std::io::{Read, Seek};
 use std::path::Path;
 use typst_core::entities::font_book::FontInfo;
+
+#[cfg(unix)]
+mod positional_reader {
+    use std::io::{self, Read, Seek, SeekFrom};
+
+    pub(super) trait Backend {
+        fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize>;
+    }
+
+    impl Backend for std::fs::File {
+        fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize> {
+            std::os::unix::fs::FileExt::read_at(self, buf, offset)
+        }
+    }
+
+    pub(super) struct PositionalReader<'a, R: ?Sized + Backend> {
+        source: &'a R,
+        cursor: u64,
+        size: u64,
+    }
+
+    impl<'a, R: ?Sized + Backend> PositionalReader<'a, R> {
+        pub(super) fn new(source: &'a R, size: u64) -> Self {
+            Self { source, cursor: 0, size }
+        }
+    }
+
+    impl<R: ?Sized + Backend> Read for PositionalReader<'_, R> {
+        fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+            if buf.is_empty() {
+                return Ok(0);
+            }
+            let n = self.source.read_at(buf, self.cursor)?;
+            if n > buf.len() {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "backend returned excessive length",
+                ));
+            }
+            let next = self.cursor.checked_add(n as u64).ok_or_else(|| {
+                io::Error::new(io::ErrorKind::InvalidInput, "cursor overflow")
+            })?;
+            self.cursor = next;
+            Ok(n)
+        }
+    }
+
+    impl<R: ?Sized + Backend> Seek for PositionalReader<'_, R> {
+        fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+            let next = match pos {
+                SeekFrom::Start(n) => Some(n),
+                SeekFrom::Current(n) => {
+                    u64::try_from(i128::from(self.cursor) + i128::from(n)).ok()
+                }
+                SeekFrom::End(n) => {
+                    u64::try_from(i128::from(self.size) + i128::from(n)).ok()
+                }
+            }
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "invalid seek"))?;
+            self.cursor = next;
+            Ok(next)
+        }
+    }
+}
+
+#[cfg(unix)]
+use positional_reader::PositionalReader;
 
 const MAX_TABLES: usize = 4096;
 const MAX_BUFFER: usize = 8 * 1024 * 1024;
@@ -15,9 +82,10 @@ const MAX_READ: u64 = 16 * 1024 * 1024;
 pub(super) fn acquire(path: &Path, index: u32) -> Option<FontInfo> {
     #[cfg(unix)]
     {
-        let mut file = std::fs::File::open(path).ok()?;
+        let file = std::fs::File::open(path).ok()?;
         let before = Identity::from_metadata(&file.metadata().ok()?)?;
-        let (bytes, _) = project(&mut file, before.len, index)?;
+        let mut positional = PositionalReader::new(&file, before.len);
+        let (bytes, _) = project(&mut positional, before.len, index)?;
         let mut info = crate::fonts::font_info_from_bytes(&bytes, 0)?;
         let face = ttf_parser::Face::parse(&bytes, 0).ok()?;
         info.coverage = crate::fonts::extract_coverage(&face);
@@ -386,5 +454,463 @@ mod tests {
         );
         assert!(Identity::from_metadata(&std::fs::metadata(&dir).unwrap()).is_none());
         std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
+#[cfg(all(test, unix))]
+mod positional_transport_tests {
+    use super::positional_reader::{Backend, PositionalReader};
+    use super::project;
+    use std::cell::RefCell;
+    use std::collections::VecDeque;
+    use std::fs;
+    use std::io::{self, Read, Seek, SeekFrom};
+    use std::path::PathBuf;
+
+    #[derive(Clone, Copy)]
+    enum Action {
+        Chunk(usize),
+        Error(io::ErrorKind),
+        Eof,
+        Excessive,
+    }
+
+    struct Script {
+        data: Vec<u8>,
+        actions: RefCell<VecDeque<Action>>,
+        requests: RefCell<Vec<(u64, usize)>>,
+    }
+
+    impl Script {
+        fn new(data: &[u8], actions: &[Action]) -> Self {
+            Self {
+                data: data.to_vec(),
+                actions: RefCell::new(actions.iter().copied().collect()),
+                requests: RefCell::new(Vec::new()),
+            }
+        }
+    }
+
+    impl Backend for Script {
+        fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize> {
+            self.requests.borrow_mut().push((offset, buf.len()));
+            match self.actions.borrow_mut().pop_front() {
+                Some(Action::Error(kind)) => Err(io::Error::new(kind, "injected error")),
+                Some(Action::Eof) => Ok(0),
+                Some(Action::Excessive) => Ok(buf.len() + 1),
+                action => {
+                    let start = usize::try_from(offset).unwrap_or(usize::MAX);
+                    let remaining = self.data.len().saturating_sub(start);
+                    let limit = match action {
+                        Some(Action::Chunk(n)) => n,
+                        _ => usize::MAX,
+                    };
+                    let n = remaining.min(buf.len()).min(limit);
+                    if n > 0 {
+                        buf[..n].copy_from_slice(&self.data[start..start + n]);
+                    }
+                    Ok(n)
+                }
+            }
+        }
+    }
+
+    struct TempDir(PathBuf);
+    impl TempDir {
+        fn new() -> Self {
+            let mut next = 0usize;
+            loop {
+                let path = std::env::temp_dir().join(format!(
+                    "typst-positional-{}-{:?}-{next}",
+                    std::process::id(),
+                    std::thread::current().id()
+                ));
+                match fs::create_dir(&path) {
+                    Ok(()) => return Self(path),
+                    Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
+                        next = next.checked_add(1).expect("fixture namespace exhausted");
+                    }
+                    Err(e) => panic!("cannot create fixture: {e}"),
+                }
+            }
+        }
+    }
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    #[test]
+    fn starts_at_zero_and_advances_only_by_actual_length() {
+        let backend = Script::new(b"abcdef", &[Action::Chunk(1), Action::Chunk(2)]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        let mut out = [0; 4];
+        assert_eq!(reader.read(&mut out).unwrap(), 1);
+        assert_eq!(out[0], b'a');
+        assert_eq!(reader.read(&mut out).unwrap(), 2);
+        assert_eq!(&out[..2], b"bc");
+        assert_eq!(reader.stream_position().unwrap(), 3);
+        assert_eq!(*backend.requests.borrow(), vec![(0, 4), (1, 4)]);
+    }
+
+    #[test]
+    fn read_exact_retries_short_reads_and_interrupted_at_same_offset() {
+        let backend = Script::new(
+            b"abcdef",
+            &[
+                Action::Error(io::ErrorKind::Interrupted),
+                Action::Chunk(1),
+                Action::Chunk(2),
+                Action::Chunk(3),
+            ],
+        );
+        let mut reader = PositionalReader::new(&backend, 6);
+        let mut out = [0; 6];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"abcdef");
+        assert_eq!(reader.stream_position().unwrap(), 6);
+        assert_eq!(*backend.requests.borrow(), vec![(0, 6), (0, 6), (1, 5), (3, 3)]);
+    }
+
+    #[test]
+    fn repeated_interrupted_is_retried_by_read_exact() {
+        let backend = Script::new(
+            b"x",
+            &[
+                Action::Error(io::ErrorKind::Interrupted),
+                Action::Error(io::ErrorKind::Interrupted),
+                Action::Chunk(1),
+            ],
+        );
+        let mut reader = PositionalReader::new(&backend, 1);
+        let mut out = [0];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"x");
+        assert_eq!(*backend.requests.borrow(), vec![(0, 1), (0, 1), (0, 1)]);
+    }
+
+    #[test]
+    fn interrupted_error_does_not_advance_cursor() {
+        let backend =
+            Script::new(b"abcdef", &[Action::Error(io::ErrorKind::Interrupted)]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        reader.seek(SeekFrom::Start(2)).unwrap();
+        let mut out = [0; 2];
+        assert_eq!(reader.read(&mut out).unwrap_err().kind(), io::ErrorKind::Interrupted);
+        assert_eq!(reader.stream_position().unwrap(), 2);
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"cd");
+        assert_eq!(*backend.requests.borrow(), vec![(2, 2), (2, 2)]);
+    }
+
+    #[test]
+    fn denied_error_preserves_position_after_successful_read() {
+        let backend = Script::new(
+            b"abcdef",
+            &[
+                Action::Chunk(2),
+                Action::Error(io::ErrorKind::PermissionDenied),
+                Action::Chunk(1),
+            ],
+        );
+        let mut reader = PositionalReader::new(&backend, 6);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(
+            reader.read(&mut out).unwrap_err().kind(),
+            io::ErrorKind::PermissionDenied
+        );
+        assert_eq!(reader.stream_position().unwrap(), 2);
+        assert_eq!(reader.read(&mut out).unwrap(), 1);
+        assert_eq!(out[0], b'c');
+        assert_eq!(*backend.requests.borrow(), vec![(0, 2), (2, 2), (2, 2)]);
+    }
+
+    #[test]
+    fn read_exact_preserves_other_error_without_retry() {
+        let backend = Script::new(
+            b"abcdef",
+            &[Action::Chunk(2), Action::Error(io::ErrorKind::Other), Action::Chunk(4)],
+        );
+        let mut reader = PositionalReader::new(&backend, 6);
+        let mut out = [0; 6];
+        assert_eq!(reader.read_exact(&mut out).unwrap_err().kind(), io::ErrorKind::Other);
+        assert_eq!(reader.stream_position().unwrap(), 2);
+        assert_eq!(backend.requests.borrow().len(), 2);
+    }
+
+    #[test]
+    fn early_eof_is_not_fabricated_success() {
+        let backend = Script::new(b"abcdef", &[Action::Chunk(2), Action::Eof]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        let mut out = [0x55; 6];
+        assert_eq!(
+            reader.read_exact(&mut out).unwrap_err().kind(),
+            io::ErrorKind::UnexpectedEof
+        );
+        assert_eq!(&out[..2], b"ab");
+        assert_eq!(&out[2..], &[0x55; 4]);
+        assert_eq!(reader.stream_position().unwrap(), 2);
+    }
+
+    #[test]
+    fn empty_reads_never_call_backend() {
+        let backend = Script::new(b"abcdef", &[Action::Error(io::ErrorKind::Other)]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        reader.seek(SeekFrom::Start(3)).unwrap();
+        assert_eq!(reader.read(&mut []).unwrap(), 0);
+        reader.read_exact(&mut []).unwrap();
+        assert_eq!(reader.stream_position().unwrap(), 3);
+        assert!(backend.requests.borrow().is_empty());
+    }
+
+    #[test]
+    fn excessive_backend_length_is_rejected_without_cursor_advance() {
+        let backend = Script::new(b"abcdef", &[Action::Excessive]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        reader.seek(SeekFrom::Start(2)).unwrap();
+        assert!(reader.read(&mut [0; 2]).is_err());
+        assert_eq!(reader.stream_position().unwrap(), 2);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"cd");
+    }
+
+    #[test]
+    fn excessive_backend_length_is_not_accepted_by_read_exact() {
+        let backend = Script::new(b"abcdef", &[Action::Excessive]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        assert!(reader.read_exact(&mut [0; 2]).is_err());
+        assert_eq!(reader.stream_position().unwrap(), 0);
+    }
+
+    #[test]
+    fn eof_after_complete_data_preserves_end_position() {
+        let backend = Script::new(b"ab", &[]);
+        let mut reader = PositionalReader::new(&backend, 2);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(reader.read(&mut out).unwrap(), 0);
+        assert_eq!(reader.stream_position().unwrap(), 2);
+    }
+
+    #[test]
+    fn seek_start_changes_only_logical_position() {
+        let backend = Script::new(b"abcdef", &[]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        assert_eq!(reader.seek(SeekFrom::Start(4)).unwrap(), 4);
+        assert!(backend.requests.borrow().is_empty());
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"ef");
+        assert_eq!(backend.requests.borrow()[0].0, 4);
+    }
+
+    #[test]
+    fn seek_current_can_move_backwards() {
+        let backend = Script::new(b"abcdef", &[]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        reader.seek(SeekFrom::Start(4)).unwrap();
+        assert_eq!(reader.seek(SeekFrom::Current(-3)).unwrap(), 1);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"bc");
+    }
+
+    #[test]
+    fn negative_current_seek_preserves_previous_position() {
+        let backend = Script::new(b"abcdef", &[]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        reader.seek(SeekFrom::Start(2)).unwrap();
+        assert_eq!(
+            reader.seek(SeekFrom::Current(-3)).unwrap_err().kind(),
+            io::ErrorKind::InvalidInput
+        );
+        assert_eq!(reader.stream_position().unwrap(), 2);
+    }
+
+    #[test]
+    fn overflowing_current_seek_preserves_previous_position() {
+        let backend = Script::new(b"", &[]);
+        let mut reader = PositionalReader::new(&backend, 0);
+        reader.seek(SeekFrom::Start(u64::MAX)).unwrap();
+        assert_eq!(
+            reader.seek(SeekFrom::Current(1)).unwrap_err().kind(),
+            io::ErrorKind::InvalidInput
+        );
+        assert_eq!(reader.stream_position().unwrap(), u64::MAX);
+    }
+
+    #[test]
+    fn seek_end_uses_captured_size() {
+        let backend = Script::new(b"abcdef", &[]);
+        let mut reader = PositionalReader::new(&backend, 6);
+        assert_eq!(reader.seek(SeekFrom::End(-2)).unwrap(), 4);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"ef");
+    }
+
+    #[test]
+    fn negative_end_seek_preserves_position() {
+        let backend = Script::new(b"abc", &[]);
+        let mut reader = PositionalReader::new(&backend, 3);
+        reader.seek(SeekFrom::Start(1)).unwrap();
+        assert_eq!(
+            reader.seek(SeekFrom::End(-4)).unwrap_err().kind(),
+            io::ErrorKind::InvalidInput
+        );
+        assert_eq!(reader.stream_position().unwrap(), 1);
+    }
+
+    #[test]
+    fn end_seek_overflow_is_rejected() {
+        let backend = Script::new(b"", &[]);
+        let mut reader = PositionalReader::new(&backend, u64::MAX);
+        assert_eq!(
+            reader.seek(SeekFrom::End(1)).unwrap_err().kind(),
+            io::ErrorKind::InvalidInput
+        );
+        assert_eq!(reader.stream_position().unwrap(), 0);
+    }
+
+    #[test]
+    fn seek_beyond_end_is_allowed_but_read_returns_eof() {
+        let backend = Script::new(b"abc", &[]);
+        let mut reader = PositionalReader::new(&backend, 3);
+        assert_eq!(reader.seek(SeekFrom::Start(10)).unwrap(), 10);
+        assert_eq!(reader.read(&mut [0; 2]).unwrap(), 0);
+        assert_eq!(reader.stream_position().unwrap(), 10);
+    }
+
+    #[test]
+    fn read_cursor_cannot_wrap() {
+        struct AnyByte;
+        impl Backend for AnyByte {
+            fn read_at(&self, buf: &mut [u8], _offset: u64) -> io::Result<usize> {
+                if buf.is_empty() {
+                    return Ok(0);
+                }
+                buf[0] = b'x';
+                Ok(1)
+            }
+        }
+        let backend = AnyByte;
+        let mut reader = PositionalReader::new(&backend, u64::MAX);
+        reader.seek(SeekFrom::Start(u64::MAX)).unwrap();
+        assert!(reader.read(&mut [0]).is_err());
+        assert_eq!(reader.stream_position().unwrap(), u64::MAX);
+    }
+
+    #[test]
+    fn independent_readers_do_not_share_logical_position() {
+        let backend = Script::new(b"abcdef", &[]);
+        let mut a = PositionalReader::new(&backend, 6);
+        let mut b = PositionalReader::new(&backend, 6);
+        let mut out = [0; 2];
+        a.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"ab");
+        a.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"cd");
+        b.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"ab");
+        assert_eq!(*backend.requests.borrow(), vec![(0, 2), (2, 2), (0, 2)]);
+    }
+
+    #[test]
+    fn positional_reads_preserve_physical_file_cursor() {
+        let dir = TempDir::new();
+        let path = dir.0.join("cursor.bin");
+        fs::write(&path, b"abcdef").unwrap();
+        let mut file = fs::File::open(&path).unwrap();
+        file.seek(SeekFrom::Start(3)).unwrap();
+        let mut reader = PositionalReader::new(&file, 6);
+        let mut out = [0; 2];
+        reader.read_exact(&mut out).unwrap();
+        assert_eq!(&out, b"ab");
+        assert_eq!(file.stream_position().unwrap(), 3);
+    }
+
+    fn sfnt_fixture() -> Vec<u8> {
+        let mut data = vec![0; 32];
+        data[0..4].copy_from_slice(&[0, 1, 0, 0]);
+        data[4..6].copy_from_slice(&1u16.to_be_bytes());
+        data[12..16].copy_from_slice(b"head");
+        data[20..24].copy_from_slice(&28u32.to_be_bytes());
+        data[24..28].copy_from_slice(&4u32.to_be_bytes());
+        data[28..32].copy_from_slice(b"DATA");
+        data
+    }
+
+    #[test]
+    fn projector_accepts_correct_bytes_with_short_reads_and_interrupted() {
+        let data = sfnt_fixture();
+        let backend = Script::new(
+            &data,
+            &[
+                Action::Chunk(3),
+                Action::Error(io::ErrorKind::Interrupted),
+                Action::Chunk(1),
+                Action::Chunk(8),
+            ],
+        );
+        let mut reader = PositionalReader::new(&backend, data.len() as u64);
+        let (projected, requested) = project(&mut reader, data.len() as u64, 0).unwrap();
+        assert_eq!(projected, data);
+        assert_eq!(requested, 32);
+        assert_eq!(&backend.requests.borrow()[..4], &[(0, 12), (3, 9), (3, 9), (4, 8)]);
+    }
+
+    #[test]
+    fn projector_rejects_noninterrupted_error_in_directory() {
+        let data = sfnt_fixture();
+        let backend = Script::new(
+            &data,
+            &[Action::Chunk(12), Action::Error(io::ErrorKind::PermissionDenied)],
+        );
+        let mut reader = PositionalReader::new(&backend, data.len() as u64);
+        assert!(project(&mut reader, data.len() as u64, 0).is_none());
+        assert_eq!(backend.requests.borrow().len(), 2);
+    }
+
+    #[test]
+    fn projector_rejects_partial_table_followed_by_eof() {
+        let data = sfnt_fixture();
+        let backend = Script::new(
+            &data,
+            &[Action::Chunk(12), Action::Chunk(16), Action::Chunk(2), Action::Eof],
+        );
+        let mut reader = PositionalReader::new(&backend, data.len() as u64);
+        assert!(project(&mut reader, data.len() as u64, 0).is_none());
+        assert_eq!(reader.stream_position().unwrap(), 30);
+    }
+
+    #[test]
+    fn projector_rejects_excessive_backend_return() {
+        let data = sfnt_fixture();
+        let backend = Script::new(&data, &[Action::Excessive]);
+        let mut reader = PositionalReader::new(&backend, data.len() as u64);
+        assert!(project(&mut reader, data.len() as u64, 0).is_none());
+        assert_eq!(reader.stream_position().unwrap(), 0);
+    }
+
+    #[test]
+    fn real_font_projection_matches_generic_file_reader() {
+        let data = include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NotoSans-Regular.ttf"
+        ));
+        let dir = TempDir::new();
+        let path = dir.0.join("font.ttf");
+        fs::write(&path, data).unwrap();
+        let mut original = fs::File::open(&path).unwrap();
+        let (expected, original_requested) =
+            project(&mut original, data.len() as u64, 0).unwrap();
+        let positional_file = fs::File::open(&path).unwrap();
+        let mut reader = PositionalReader::new(&positional_file, data.len() as u64);
+        let (actual, requested) = project(&mut reader, data.len() as u64, 0).unwrap();
+        assert_eq!(actual, expected);
+        assert_eq!(requested, original_requested);
     }
 }

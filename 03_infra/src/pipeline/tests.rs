@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 3ea4489a
+//! @prompt-hash 911e6cd4
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -2522,6 +2522,7 @@ fn p1481_ua1_imagem_real_exige_alt_artifact_nao() {
     use typst_core::entities::elements::pdf_artifact::ArtifactKind;
     use typst_core::entities::layout_types::{SemanticKind, SemanticPlacement};
     let image = FrameItem::Image {
+        format: None,
         pos: Point::ZERO,
         data: Arc::new(vec![0xff, 0xd8, 0xff]),
         alt: None,
@@ -5121,5 +5122,595 @@ fn issue8583_rectangle_keeps_relative_corners_and_side_strokes() {
         });
         assert_eq!(has_round, rounded, "relative corner lost: {source}");
         assert_eq!(has_red, red, "side stroke lost: {source}");
+    }
+}
+
+#[test]
+fn issue_8935_nonrepeating_table_note_reference_compiles() {
+    let source = "#set page(width:200pt,height:150pt,margin:10pt)\n#set text(size:10pt)\n#table(columns:1,rows:20pt,inset:2pt,table.header(repeat:false,[H#footnote[NOTE]<note-foo>]),..range(10).map(i=>[body #i]))\nfoo@note-foo";
+    let world = mock_world(source);
+    let mut timings = Timings::default();
+    let doc =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect("one nonrepeating note must resolve its reference");
+    let text = doc.plain_text();
+    assert_eq!(text.matches("NOTE").count(), 1, "{text:?}");
+    assert!(text.contains("foo"), "reference prefix must remain visible: {text:?}");
+    assert!(doc.pages.len() > 1, "source must exercise pagination");
+}
+
+#[test]
+fn issue_8935_repeated_table_note_has_one_logical_member() {
+    for second in [false, true] {
+        let tail = if second { "after#footnote[SECOND]<second> @second" } else { "" };
+        let count = if second { 2 } else { 1 };
+        let source = format!("#set page(width:200pt,height:150pt,margin:10pt)\n#set text(size:10pt)\n#table(columns:1,rows:20pt,inset:2pt,table.header([H#footnote[NOTE]<note-foo>]),..range(10).map(i=>[body #i]))\nfoo@note-foo\n{tail}\n#context {{ assert.eq(query(<note-foo>).len(), 1); assert.eq(query(footnote).len(), {count}); assert.eq(counter(footnote).final(), ({count},)); [] }}");
+        let world = mock_world(&source);
+        let mut timings = Timings::default();
+        let doc = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        )
+        .0
+        .expect("repeated paint must retain one labeled logical note");
+        let text = doc.plain_text();
+        assert!(text.matches('H').count() > 1, "header must repeat: {text:?}");
+        assert!(text.contains("NOTE") && text.contains("foo"), "{text:?}");
+        if second {
+            assert_eq!(text.matches("SECOND").count(), 1, "{text:?}");
+        }
+    }
+}
+
+#[test]
+fn issue_8935_distinct_note_declarations_still_reject_duplicate_labels() {
+    let world = mock_world("a#footnote[b]<same> c#footnote[d]<same>\n\n@same");
+    let mut timings = Timings::default();
+    let errors =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings)
+            .0
+            .expect_err("two actual source notes are still ambiguous");
+    assert!(
+        errors
+            .iter()
+            .any(|e| e.message == "label `<same>` occurs multiple times in the document"),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn png_bytes_pipeline_preserves_source_alias_show_and_geometry() {
+    use std::io::Cursor;
+    let rgba = image::RgbaImage::from_raw(
+        2,
+        2,
+        vec![255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 128],
+    )
+    .unwrap();
+    let mut data = Cursor::new(Vec::new());
+    image::DynamicImage::ImageRgba8(rgba)
+        .write_to(&mut data, image::ImageOutputFormat::Png)
+        .unwrap();
+    let bytes = data.into_inner();
+    let literal = bytes.iter().map(u8::to_string).collect::<Vec<_>>().join(",");
+    let source = format!(
+        r#"#set page(width:100pt,height:100pt,margin:10pt)
+#let b=bytes(({literal},))
+#let i=image(b,width:40pt,height:20pt,fit:"stretch",alt:"PNG byte source")
+#assert.eq(i.func(),image)
+#assert(i.has("source"))
+#assert.eq(i.source,b)
+#assert.eq(i.fields().source,b)
+#let alias=i
+#show image: it => {{ assert.eq(it.source,b); it }}
+#alias
+#alias"#
+    );
+    let world = mock_world(&source);
+    let mut timings = Timings::default();
+    let (document, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let document = document.expect("PNG byte source and reflection compile");
+    fn collect<'a>(items: &'a [FrameItem], images: &mut Vec<&'a FrameItem>) {
+        for item in items {
+            match item {
+                FrameItem::Image { .. } => images.push(item),
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. } => collect(items, images),
+                FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Shape { .. } => {}
+            }
+        }
+    }
+    let mut images = Vec::new();
+    for page in &document.pages {
+        collect(&page.items, &mut images);
+    }
+    assert_eq!(images.len(), 2);
+    for image in images {
+        let FrameItem::Image {
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            alt,
+            ..
+        } = image
+        else {
+            unreachable!()
+        };
+        assert_eq!(data.as_slice(), bytes.as_slice());
+        assert_eq!((width.0, height.0), (40.0, 20.0));
+        assert_eq!((*intrinsic_width, *intrinsic_height), (2, 2));
+        assert_eq!(alt.as_deref(), Some("PNG byte source"));
+    }
+}
+
+#[test]
+fn png_bytes_pipeline_truncation_is_not_success() {
+    let world = mock_world("#image(bytes((137,80,78,71,13,10,26,10)))");
+    let mut timings = Timings::default();
+    let (document, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let errors = document.expect_err("signature-only PNG must fail deep decoding");
+    assert!(
+        errors
+            .iter()
+            .any(|e| e.message.starts_with("failed to decode image (")),
+        "{errors:?}"
+    );
+}
+
+#[cfg(test)]
+mod raster_bytes_pipeline_tests {
+    use super::*;
+    const JPEG: &[u8] = &[
+        255, 216, 255, 224, 0, 16, 74, 70, 73, 70, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 255,
+        219, 0, 67, 0, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 4, 3, 2, 2, 2, 2, 5,
+        4, 4, 3, 4, 6, 5, 6, 6, 6, 5, 6, 6, 6, 7, 9, 8, 6, 7, 9, 7, 6, 6, 8, 11, 8, 9,
+        10, 10, 10, 10, 10, 6, 8, 11, 12, 11, 10, 12, 9, 10, 10, 10, 255, 219, 0, 67, 1,
+        2, 2, 2, 2, 2, 2, 5, 3, 3, 5, 10, 7, 6, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 255, 192, 0, 17, 8, 0, 8, 0, 16, 3, 1, 17, 0, 2, 17, 1, 3, 17, 1, 255, 196,
+        0, 31, 0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 255, 196, 0, 181, 16, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1,
+        125, 1, 2, 3, 0, 4, 17, 5, 18, 33, 49, 65, 6, 19, 81, 97, 7, 34, 113, 20, 50,
+        129, 145, 161, 8, 35, 66, 177, 193, 21, 82, 209, 240, 36, 51, 98, 114, 130, 9,
+        10, 22, 23, 24, 25, 26, 37, 38, 39, 40, 41, 42, 52, 53, 54, 55, 56, 57, 58, 67,
+        68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86, 87, 88, 89, 90, 99, 100, 101, 102,
+        103, 104, 105, 106, 115, 116, 117, 118, 119, 120, 121, 122, 131, 132, 133, 134,
+        135, 136, 137, 138, 146, 147, 148, 149, 150, 151, 152, 153, 154, 162, 163, 164,
+        165, 166, 167, 168, 169, 170, 178, 179, 180, 181, 182, 183, 184, 185, 186, 194,
+        195, 196, 197, 198, 199, 200, 201, 202, 210, 211, 212, 213, 214, 215, 216, 217,
+        218, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 241, 242, 243, 244, 245,
+        246, 247, 248, 249, 250, 255, 196, 0, 31, 1, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+        0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 255, 196, 0, 181, 17, 0, 2, 1,
+        2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 119, 0, 1, 2, 3, 17, 4, 5, 33, 49, 6, 18, 65,
+        81, 7, 97, 113, 19, 34, 50, 129, 8, 20, 66, 145, 161, 177, 193, 9, 35, 51, 82,
+        240, 21, 98, 114, 209, 10, 22, 36, 52, 225, 37, 241, 23, 24, 25, 26, 38, 39, 40,
+        41, 42, 53, 54, 55, 56, 57, 58, 67, 68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86,
+        87, 88, 89, 90, 99, 100, 101, 102, 103, 104, 105, 106, 115, 116, 117, 118, 119,
+        120, 121, 122, 130, 131, 132, 133, 134, 135, 136, 137, 138, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 162, 163, 164, 165, 166, 167, 168, 169, 170, 178, 179,
+        180, 181, 182, 183, 184, 185, 186, 194, 195, 196, 197, 198, 199, 200, 201, 202,
+        210, 211, 212, 213, 214, 215, 216, 217, 218, 226, 227, 228, 229, 230, 231, 232,
+        233, 234, 242, 243, 244, 245, 246, 247, 248, 249, 250, 255, 218, 0, 12, 3, 1, 0,
+        2, 17, 3, 17, 0, 63, 0, 252, 209, 255, 0, 134, 170, 255, 0, 169, 15, 255, 0, 42,
+        159, 253, 170, 191, 170, 63, 226, 153, 127, 245, 85, 255, 0, 229, 143, 255, 0,
+        126, 31, 218, 159, 241, 80, 207, 250, 166, 127, 242, 247, 255, 0, 189, 15, 232,
+        123, 254, 29, 215, 255, 0, 85, 135, 255, 0, 45, 255, 0, 254, 232, 175, 249, 175,
+        255, 0, 136, 161, 255, 0, 80, 159, 249, 83, 255, 0, 180, 63, 199, 255, 0, 248,
+        145, 127, 250, 168, 127, 242, 211, 255, 0, 190, 79, 255, 217,
+    ];
+    const GIF: &[u8] = &[
+        71, 73, 70, 56, 57, 97, 16, 0, 8, 0, 129, 0, 0, 255, 255, 0, 0, 255, 0, 255, 0,
+        0, 0, 0, 255, 33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0,
+        0, 0, 33, 249, 4, 0, 10, 0, 0, 0, 44, 0, 0, 0, 0, 16, 0, 8, 0, 0, 8, 48, 0, 5, 8,
+        28, 40, 48, 128, 193, 131, 6, 9, 18, 68, 136, 80, 225, 64, 134, 7, 29, 22, 132,
+        24, 96, 128, 197, 139, 22, 1, 104, 220, 168, 17, 35, 70, 142, 28, 61, 94, 4, 185,
+        81, 100, 70, 146, 0, 2, 2, 0, 33, 249, 4, 1, 10, 0, 1, 0, 44, 0, 0, 0, 0, 16, 0,
+        8, 0, 129, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 21, 0, 1, 8, 28, 72, 176,
+        160, 193, 131, 8, 19, 42, 92, 200, 176, 161, 195, 135, 8, 3, 2, 0, 59,
+    ];
+    const WEBP_LOSSLESS: &[u8] = &[
+        82, 73, 70, 70, 58, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 76, 46, 0, 0, 0, 47, 15,
+        192, 1, 16, 31, 32, 16, 72, 222, 31, 58, 141, 249, 23, 16, 20, 249, 63, 154, 128,
+        160, 232, 186, 229, 34, 79, 14, 2, 97, 182, 209, 36, 39, 57, 201, 251, 29, 67,
+        68, 255, 163, 244, 195, 246, 1,
+    ];
+    const WEBP_LOSSY: &[u8] = &[
+        82, 73, 70, 70, 144, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 88, 10, 0, 0, 0, 16, 0,
+        0, 0, 15, 0, 0, 7, 0, 0, 65, 76, 80, 72, 23, 0, 0, 0, 1, 15, 240, 192, 255, 136,
+        136, 160, 32, 109, 3, 102, 254, 77, 255, 121, 136, 232, 255, 4, 224, 115, 1, 0,
+        86, 80, 56, 32, 82, 0, 0, 0, 144, 3, 0, 157, 1, 42, 16, 0, 8, 0, 1, 64, 38, 37,
+        168, 2, 116, 186, 1, 38, 3, 248, 7, 226, 5, 223, 253, 216, 7, 244, 0, 95, 26, 7,
+        168, 230, 192, 0, 254, 246, 137, 223, 128, 37, 251, 122, 31, 188, 37, 143, 254,
+        102, 233, 188, 20, 63, 252, 142, 120, 224, 15, 255, 75, 131, 255, 77, 155, 255,
+        164, 243, 88, 190, 15, 230, 53, 190, 185, 114, 99, 128, 0, 0,
+    ];
+    const WEBP_OPAQUE: &[u8] = &[
+        82, 73, 70, 70, 94, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 32, 82, 0, 0, 0, 144, 3,
+        0, 157, 1, 42, 16, 0, 8, 0, 1, 64, 38, 37, 168, 2, 116, 186, 1, 38, 3, 248, 7,
+        226, 5, 223, 253, 216, 7, 244, 0, 95, 26, 7, 168, 230, 192, 0, 254, 246, 137,
+        223, 128, 37, 251, 122, 31, 188, 37, 143, 254, 102, 233, 188, 20, 63, 252, 142,
+        120, 224, 15, 255, 75, 131, 255, 77, 155, 255, 164, 243, 88, 190, 15, 230, 53,
+        190, 185, 114, 99, 128, 0, 0,
+    ];
+    const WEBP_ANIMATED: &[u8] = &[
+        82, 73, 70, 70, 162, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 88, 10, 0, 0, 0, 18, 0,
+        0, 0, 15, 0, 0, 7, 0, 0, 65, 78, 73, 77, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 65, 78,
+        77, 70, 70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 7, 0, 0, 100, 0, 0, 2, 86, 80,
+        56, 76, 45, 0, 0, 0, 47, 15, 192, 1, 16, 31, 176, 255, 2, 130, 130, 255, 163, 19,
+        16, 20, 249, 63, 154, 128, 160, 232, 57, 211, 35, 251, 22, 0, 97, 182, 209, 36,
+        39, 57, 201, 251, 29, 67, 68, 255, 99, 171, 175, 112, 1, 0, 65, 78, 77, 70, 40,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 7, 0, 0, 100, 0, 0, 0, 86, 80, 56, 76, 16,
+        0, 0, 0, 47, 15, 192, 1, 0, 7, 208, 255, 232, 127, 255, 3, 17, 209, 255, 0,
+    ];
+    fn verify_source(data: &[u8]) {
+        let literal = data.iter().map(u8::to_string).collect::<Vec<_>>().join(",");
+        let source = format!(
+            r#"#set page(width:120pt,height:120pt,margin:10pt)
+#let s=bytes(({literal},))
+#let i=image(s,width:40pt,height:20pt,alt:"raster bytes")
+#assert.eq(i.source,s)
+#assert(i.has("source"))
+#assert.eq(i.fields().source,s)
+#assert.eq(i.func(),image)
+#show image: it=>{{assert.eq(it.source,s);it}}
+#let alias=i
+#alias
+#alias"#
+        );
+        let world = mock_world(&source);
+        let mut timings = Timings::default();
+        let (doc, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        let doc = doc.expect("raster bytes source and reflection must compile");
+        fn collect<'a>(items: &'a [FrameItem], out: &mut Vec<&'a FrameItem>) {
+            for item in items {
+                match item {
+                    FrameItem::Image { .. } => out.push(item),
+                    FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => collect(items, out),
+                    FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        let mut images = Vec::new();
+        for page in &doc.pages {
+            collect(&page.items, &mut images);
+        }
+        assert_eq!(images.len(), 2);
+        for item in images {
+            let FrameItem::Image {
+                data: actual,
+                width,
+                height,
+                intrinsic_width,
+                intrinsic_height,
+                alt,
+                ..
+            } = item
+            else {
+                unreachable!()
+            };
+            assert_eq!(actual.as_slice(), data);
+            assert_eq!((width.0, height.0), (40.0, 20.0));
+            assert_eq!((*intrinsic_width, *intrinsic_height), (16, 8));
+            assert_eq!(alt.as_deref(), Some("raster bytes"));
+        }
+    }
+    #[test]
+    fn raster_bytes_jpeg_source_alias_and_geometry() {
+        verify_source(JPEG);
+    }
+    #[test]
+    fn raster_bytes_gif_first_frame_source_alias_and_geometry() {
+        verify_source(GIF);
+    }
+    #[test]
+    fn raster_bytes_webp_lossless_source_alias_and_geometry() {
+        verify_source(WEBP_LOSSLESS);
+    }
+    #[test]
+    fn raster_bytes_webp_lossy_source_alias_and_geometry() {
+        verify_source(WEBP_LOSSY);
+    }
+    #[test]
+    fn raster_bytes_webp_opaque_source_alias_and_geometry() {
+        verify_source(WEBP_OPAQUE);
+    }
+    #[test]
+    fn raster_bytes_webp_animated_first_frame_source_alias_and_geometry() {
+        verify_source(WEBP_ANIMATED);
+    }
+    #[test]
+    fn raster_bytes_truncated_payloads_are_decode_errors() {
+        for data in [vec![255, 216, 255], b"GIF89a".to_vec(), b"RIFF0000WEBP".to_vec()] {
+            let literal = data.iter().map(u8::to_string).collect::<Vec<_>>().join(",");
+            let world = mock_world(&format!("#image(bytes(({literal},)))"));
+            let mut timings = Timings::default();
+            let (doc, _) = compile_to_paged_document_full_error(
+                &world,
+                &world.source,
+                false,
+                &mut timings,
+            );
+            let errors = doc.expect_err("truncated raster cannot succeed");
+            assert!(
+                errors
+                    .iter()
+                    .any(|e| e.message.starts_with("failed to decode image (")),
+                "{errors:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn issue_8935_residual_header_entry_stays_on_each_call_page() {
+    let source = r##"#set page(width:200pt,height:150pt,margin:10pt)
+#set text(size:10pt)
+#table(columns:1,rows:20pt,inset:2pt,
+ table.header([H#footnote(numbering:"a")[NOTE]<n>]),
+ ..range(10).map(i=>[ROW#i]))
+REF:@n
+#context { assert.eq(query(<n>).len(),1); assert.eq(query(footnote).len(),1); assert.eq(counter(footnote).final(),(1,)); [] }
+"##;
+    let world = mock_world(source);
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("repeated header reference must compile");
+    let text: Vec<_> =
+        doc.pages.iter().map(|page| frame_items_text(&page.items)).collect();
+    assert_eq!(text.len(), 3, "{text:?}");
+    assert_eq!(
+        text.iter().map(|s| s.matches("NOTE").count()).collect::<Vec<_>>(),
+        [1, 1, 1],
+        "each physical header needs its entry: {text:?}"
+    );
+    assert!(text.concat().contains("REF:a"), "original note pattern: {text:?}");
+}
+
+#[test]
+fn issue_8935_residual_box_entry_stays_with_its_call() {
+    let source = format!("#set page(width:200pt,height:150pt,margin:10pt)\n#set text(size:10pt)\n#box(width:30pt)[H#footnote[NOTE]]\n{}", (0..10).map(|i| format!("body {i}")).collect::<Vec<_>>().join("\n\n"));
+    let world = mock_world(&source);
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("ordinary narrow Box note must compile");
+    let text: Vec<_> =
+        doc.pages.iter().map(|page| frame_items_text(&page.items)).collect();
+    assert_eq!(text.len(), 2, "{text:?}");
+    assert_eq!(
+        text.iter().map(|s| s.matches("NOTE").count()).collect::<Vec<_>>(),
+        [1, 0],
+        "note must remain on its call page: {text:?}"
+    );
+}
+
+#[test]
+fn issue_8935_residual_ordinary_reference_uses_original_pattern() {
+    for (pattern, marker) in [("a", "a"), ("I", "I"), ("1", "1")] {
+        let source = format!("H#footnote(numbering:\"{pattern}\")[NOTE]<n>\n\nREF:@n");
+        let world = mock_world(&source);
+        let doc = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        )
+        .0
+        .expect("ordinary note reference must compile");
+        let text = doc
+            .pages
+            .iter()
+            .map(|page| frame_items_text(&page.items))
+            .collect::<String>();
+        assert_eq!(text.matches("NOTE").count(), 1, "{text:?}");
+        assert!(text.contains(&format!("REF:{marker}")), "{pattern}: {text:?}");
+    }
+}
+
+#[test]
+fn svg_input_fractional_source_alias_and_paint() {
+    let source = r##"#set page(width:100pt,height:100pt,margin:10pt)
+#let b=bytes("<svg xmlns='http://www.w3.org/2000/svg' width='10.5' height='5.25'><rect width='10.5' height='5.25' fill='red'/></svg>")
+#let i=image(b)
+#assert.eq(i.source,b)
+#assert.eq(i.fields().source,b)
+#show image: it => { assert.eq(it.source,b); it }
+#i"##;
+    let world = mock_world(source);
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("SVG byte image compiles");
+    let image = doc.pages[0]
+        .items
+        .iter()
+        .find(|i| matches!(i, FrameItem::Image { .. }))
+        .expect("painted image");
+    let FrameItem::Image { width, height, data, .. } = image else { unreachable!() };
+    assert!((width.0 - 7.875).abs() < 0.001);
+    assert!((height.0 - 3.9375).abs() < 0.001);
+    assert!(String::from_utf8_lossy(data).contains("path"));
+}
+
+#[test]
+fn footnote_columns_global_numbering_and_original_references() {
+    let source = r##"#let f=footnote
+#set f(numbering:"a")
+A#f[FIRST]<n>
+#{ set footnote(numbering:"I"); [B#footnote[SECOND]<m>] }
+C#footnote[THIRD]<p>
+N:@n M:@m P:@p
+#context { assert.eq(query(footnote).map(n=>n.numbering),("a","I","a")); assert.eq(counter(footnote).final(),(3,)); [] }
+"##;
+    let w = mock_world(source);
+    let doc = compile_to_paged_document_full_error(
+        &w,
+        &w.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("global and local numbering must resolve");
+    let text = doc
+        .pages
+        .iter()
+        .map(|p| frame_items_text(&p.items))
+        .collect::<String>();
+    for expected in ["Aa", "BII", "Cc", "N:a", "M:II", "P:c"] {
+        assert!(text.contains(expected), "{expected}: {text}");
+    }
+}
+
+fn footnote_columns_document(page_columns: bool, boxed: bool) -> PagedDocument {
+    let call =
+        if boxed { "#box(width:30pt)[A#footnote[NOTE-A]]" } else { "A#footnote[NOTE-A]" };
+    let rows = (0..12).map(|i| format!("ROW{i}")).collect::<Vec<_>>().join("\n\n");
+    let tail = if boxed { "" } else { "\n#colbreak()\nB#footnote[NOTE-B]" };
+    let body = format!("{call}\n\n{rows}{tail}");
+    let source = if page_columns {
+        format!("#set page(width:200pt,height:150pt,margin:10pt,columns:2)\n#set text(size:10pt)\n{body}")
+    } else {
+        format!("#set page(width:200pt,height:150pt,margin:10pt)\n#set text(size:10pt)\n#columns(2)[{body}]")
+    };
+    let w = mock_world(&source);
+    compile_to_paged_document_full_error(&w, &w.source, false, &mut Timings::default())
+        .0
+        .expect("column note source must compile")
+}
+
+#[test]
+fn footnote_columns_explicit_break_follows_overflow() {
+    let doc = footnote_columns_document(false, false);
+    let text = doc
+        .pages
+        .iter()
+        .map(|p| frame_items_text(&p.items))
+        .collect::<Vec<_>>();
+    assert_eq!(text.len(), 2, "{text:?}");
+    assert!(!text[0].contains("ROW11"), "{text:?}");
+    assert!(
+        text[0].contains("NOTE-A")
+            && text[1].contains("ROW11")
+            && text[1].contains("NOTE-B"),
+        "{text:?}"
+    );
+}
+#[test]
+fn footnote_columns_physical_page_break_follows_overflow() {
+    let doc = footnote_columns_document(true, false);
+    let text = doc
+        .pages
+        .iter()
+        .map(|p| frame_items_text(&p.items))
+        .collect::<Vec<_>>();
+    assert_eq!(text.len(), 2, "{text:?}");
+    assert!(
+        text[0].contains("ROW11")
+            && text[0].contains("NOTE-A")
+            && text[1].contains("NOTE-B"),
+        "{text:?}"
+    );
+    assert!(
+        footnote_columns_text_x(&doc, "ROW5") > 100.0,
+        "the note area must move ROW5 into the second column"
+    );
+}
+fn footnote_columns_text_x(doc: &PagedDocument, needle: &str) -> f64 {
+    use typst_core::entities::layout_types::FrameVisitor;
+    struct Entry<'a>(&'a str, Vec<f64>);
+    impl FrameVisitor for Entry<'_> {
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { pos, text, .. } = item {
+                if text.contains(self.0) {
+                    self.1.push(pos.x.0);
+                }
+            }
+        }
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { pos, text, .. } = item {
+                if text.contains(self.0) {
+                    self.1.push(pos.x.0);
+                }
+            }
+        }
+    }
+    let mut entry = Entry(needle, vec![]);
+    entry.visit_items(&doc.pages[0].items);
+    *entry.1.first().expect("entry belongs to call page")
+}
+#[test]
+fn footnote_columns_box_in_standalone_container() {
+    let doc = footnote_columns_document(false, true);
+    assert_eq!(doc.pages.len(), 2);
+    let text = frame_items_text(&doc.pages[0].items);
+    assert!(!text.contains("ROW11") && text.contains("NOTE-A"), "{text}");
+    assert!(
+        footnote_columns_text_x(&doc, "NOTE-A") < 100.0,
+        "entry belongs to first logical column origin"
+    );
+}
+#[test]
+fn footnote_columns_box_in_physical_columns() {
+    let doc = footnote_columns_document(true, true);
+    assert_eq!(doc.pages.len(), 1);
+    assert!(
+        footnote_columns_text_x(&doc, "NOTE-A") < 100.0,
+        "entry belongs to call column"
+    );
+}
+
+#[test]
+fn svg_fallback_context_rejects_invalid_boolean() {
+    for source in [
+        r#"#set text(fallback: "bad")
+OK"#,
+        r#"#text(fallback: "bad")[OK]"#,
+    ] {
+        let world = mock_world(source);
+        let mut timings = Timings::default();
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut timings,
+        );
+        assert!(result.is_err(), "fallback must be a boolean");
     }
 }

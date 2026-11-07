@@ -1,11 +1,12 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: b075edae
+Hash do Código: 1666a043
 
 
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
@@ -225,3 +226,81 @@ forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
 target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
 remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
 require a new gate; the approved fields are not inferred from diagnostics.
+
+## Issue 8935 — measurement isolation (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-2026-10-31/` retains
+baseline-{tekt,vanilla}.json.gz and stage1-before.json.gz with exact source/L0,
+HEAD, UTC, dirty stat/status and binary identities. On HEAD3c6b0ce7 the official
+case and repeat:false controls fail contextual stability; ordinary footnote
+outside Table succeeds. Without a reference, the original non-repeated first
+header already emits extra copies of its note body. These are observed language
+errors/text, not upstream intent or an obligation to copy its duplicate-label
+defect. Pinned footnote.rs:42–48 documents multiple references to one labeled
+note; #8954's ratified Table contract retains one logical selected member.
+
+Source tracks.rs:234 and573 measures through layout_sub_frame on the live
+Layouter; footnote.rs:203–219 enqueues body/plan/frame. Ordinary subframe restores
+reservation but retains queues/positions. The hypothesis is speculative Note
+effects leaking into actual emission; a note-free finish after track measurement
+and one NOTE after actual Table rendering are independent language refuters.
+
+Classification: ADR-0127 continuous internal correction within existing
+measurement/layout and source-owned transactions. No public entity/trait/API,
+product mode/default, phase/order, compatibility or source re-evaluation change.
+Only the named consumer is authorized by this amendment.
+
+### Exclusive obligation
+
+For physical Auto-column and Auto-row subframe probes whose selected static
+subtree contains Footnote, discard the complete speculative causal transaction
+through the existing checkpoint owner. Detect presence with the existing borrowed
+selected-content visitor; hidden originals remain hidden. Preserve all geometry
+products and existing last-subframe result slots for column bounds/cache capture.
+Keep pure-text/static measurement and cache eligibility/consumption unchanged;
+no new semantic admission, queue, Location or note paint may escape a discarded
+measurement. Actual cell emission retains its normal note behavior. A private
+helper in this owner may bracket those probes, using the same causal Layouter,
+not a fresh engine or copied semantic reconstruction. Do not wrap accepted emission.
+
+L0 and restricted reseal precede behavioral module RED, implementation and GREEN.
+Revalidate native original/height/repeat/reference controls and visible note
+counts, source coverage, #8954/#8777, prior footnote/cache/checkpoint suites, full
+build/tests/lint/forward/reverse seals. Compilation/tests use only the unique
+/dev/shm/typst-crystalline-8935-01a191de target, one job,12GiB ceiling,debug0,
+incremental0,swap0. All unrelated preexisting/concurrent work stays unchanged;
+no commit/push/new branch. Other footnote/layout debts remain explicit.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Use the paragraph-owned lexical resolver in the existing RTL exterior track anchoring branch. Preserve logical column order, widths, measurements, cache, row/span policies and explicit alignment.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.

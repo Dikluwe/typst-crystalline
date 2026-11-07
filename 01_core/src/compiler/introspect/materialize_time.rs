@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash 0e8c0da8
+//! @prompt-hash e1d4cf6a
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -109,6 +109,8 @@ pub(super) fn materialize_time(
         // Keep lexical origins and the prepared occurrence snapshot intact.
         Content::Figure(e) => Content::Figure(std::sync::Arc::new(
             crate::entities::elements::figure::FigureElem {
+                placement: e.placement,
+                resolved_placement: e.resolved_placement,
                 body: materialize_time(&e.body, intr, location),
                 caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
                 kind: e.kind.clone(),
@@ -495,5 +497,34 @@ mod figure_grid_carrier_tests {
         assert_eq!(result.vlines, [vertical]);
         assert_eq!(result.source_order, grid.source_order);
         assert_eq!(result.cells[0].plain_text(), "cell");
+    }
+}
+
+#[cfg(test)]
+mod issue_8890_time_tests {
+    #[test]
+    fn issue_8890_time_freezing_preserves_lexical_and_resolved_placement() {
+        use crate::entities::{
+            content::Content, elements::figure::FigurePlacement,
+            introspector::TagIntrospector, location::Location,
+        };
+        use std::sync::Arc;
+        let Content::Figure(mut e) =
+            Content::figure(Content::text("body"), None, None, None)
+        else {
+            unreachable!()
+        };
+        let f = Arc::make_mut(&mut e);
+        f.placement = Some(FigurePlacement::Auto);
+        f.resolved_placement = Some(FigurePlacement::Top);
+        let frozen = super::materialize_time(
+            &Content::Figure(e),
+            &TagIntrospector::empty(),
+            Location::from_raw(123),
+        );
+        let Content::Figure(e) = frozen else { panic!("Figure") };
+        assert_eq!(e.placement, Some(FigurePlacement::Auto));
+        assert_eq!(e.resolved_placement, Some(FigurePlacement::Top));
+        assert_eq!(e.body.plain_text(), "body");
     }
 }

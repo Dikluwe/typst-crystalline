@@ -1,12 +1,14 @@
 # L0 — footnote
-Hash do Código: 70c67f9f
+Hash do Código: 30d581cf
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/footnote.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
 - 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
+- 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 ## Evidence before specification
@@ -236,3 +238,38 @@ R12 separator-origin falsification: red-origin.log is a passing height control, 
 
 
 R12 additional source boundary: further-scope/receipt.json under the R12 diagnostic group refutes retaining this private shared snapshot across the already-existing SetPage new_page transition after material. The set_page owner now exclusively invalidates it after flushing the old flow; this owner keeps its existing prefix/resolution logic and captured settings. Initial configuration and automatic pagination remain as received. Two new module REDs precede the hook, and final acceptance expands to58 positive PDF/SVG sources per build with fresh complete validation; first-scope-attempt retains the earlier valid source state.
+
+
+## Issue 8935 residual — physical entry scope and original note marker
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-residual-2026-10-31/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,reference-geometry-before.json.gz}` preserves HEAD3c6b0ce7, the exact concurrent uncommitted changed-file list, UTC, source/L0 bytes, argv and executable SHA-256. Current oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Compact repeated headers retain one logical member from approved #8954, but entries distribute 0/1/2 while the oracle's unreferenced control has one per page. Narrow Box reproduces deferred/narrow entry outside Table, unlike ordinary prose. Alphabetic call/entry a has decimal ref:1 outside Table; vanilla ref:a. Footnote marker styling is language morphology, not a demand to copy upstream mechanics.
+
+`footnote_fragments.rs:690-695` subtracts page margins from the local cell region. `sub_frame.rs:373-374,813` zeros/restores reserve while new captured notes remain queued, and refresh refuses is_sub_frame. `references.rs:376-382` formats other counters as decimal without consulting Footnote; pinned model/reference.rs:281-282 clones the original note into a reference and model/footnote.rs:117-121,148-154 uses its pattern/superscript display. These observations support a shared physical-scope loss for Table/Box and a distinct generic-projection loss for references; one arithmetic cause for both is not inferred. Correct text but wrong page/entry line or marker styling, repeated effects, changed counters or measurements refute closure.
+
+### Exclusive internal obligation
+
+Own a private usable entry-region width helper: page_config.width minus physical margins for ordinary pages and standalone columns, existing column_width minus those margins for physical page-columns. A local cell/Box/subframe width must not narrow a page-owned entry. Use it for finite separator probing; preserve shared-flow entry styles, same settings/units/clearance/gap, defaults and opaque-body handling. Do not add fields, export rules or public signatures.
+
+ADR-0127 continuous flow: this restores measured note semantics/pagination/morphology within existing layout, without public entity/trait/signature, new mode/default, pipeline phase or compatibility change. Preserve all approved #8935 identity/measurement/header replay work and concurrent Figure/math changes. L0 first, scoped reseal after V15/V26, minimal module/integrated RED before implementation, then GREEN. Revalidate all seven original #8935 tests, ordinary/Table/Box, repeat:false, later real note/query/counter/duplicate/hidden controls, general note/column/continuation pagination and complete PDF text plus PDF/SVG painting. Existing one-logical-member semantics intentionally differ from vanilla's repeated-header counter defect. Use exclusively the residual task's RAM target, one compilation job, 12GiB ceiling; leave combined workspace qualification to the coordinator.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+Use lexical string numbering when the note has no explicit pattern for the actual marker and finite carrier preflight. For the preflight copy the actual physical column width/scope into its isolated probe. Permit certified carriers in active continuous columns; preserve opacity and bounded progress. The entry width is column-wide only for page_column_notes, page-wide for standalone columns and ordinary pages.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+This measured amendment supersedes the prior use of page_columns presence alone to choose note width: that field describes the physical allocator for both column forms. Existing page_column_notes is the actual note-area discriminator. Preserve the raw declaration and its lexical style transport.
+
+
+### Page-column common-style prefix refinement
+
+Measurement before decision: final-paint.json.gz under footnote-columns-numbering-2026-11-01 exposes a0.85pt x offset for both short page-column entries, while all four long/Box column scenes and numbering glyphs match. The source orders set page(columns:2) before set text(size:10pt). prepare_entry_scope stops at the generated physical Columns wrapper and captures11pt defaults rather than the common10pt body style, yielding9.35pt instead of8.5pt indent. This does not authorize substituting local call styles for shared flow settings. Add a direct common-prefix RED. Treat only ColumnsElem.page_columns=true as transparent while finding the common Source/Styled prefix; standalone Columns remains a material boundary. No new style, callback, field or phase. Preserve existing local/shared/late entry-setting controls and exact short/long PDF/SVG positions.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/image.md
-//! @prompt-hash c9732ff0
+//! @prompt-hash bb1d073d
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -19,7 +19,10 @@ use crate::entities::value::Value;
 /// Imagem. `data` partilhado via `PtrEqArc` (clone O(1), eq por ponteiro).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImageElem {
-    pub path: String,
+    pub format: Option<crate::entities::image_format::ImageFormat>,
+    pub svg: Option<crate::entities::svg_image::SvgSource>,
+    pub path: Option<String>,
+    pub source: Option<Value>,
     pub alt: Option<EcoString>,
     pub data: PtrEqArc<Vec<u8>>,
     pub width: Option<Box<Value>>,
@@ -36,6 +39,13 @@ impl std::hash::Hash for ImageElem {
 }
 
 impl Element for ImageElem {
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "source" => self.source.clone(),
+            _ => None,
+        }
+    }
+
     fn plain_text(&self) -> String {
         String::new()
     }
@@ -63,7 +73,10 @@ mod tests {
 
     fn ex() -> ImageElem {
         ImageElem {
-            path: "a.png".into(),
+            format: None,
+            svg: None,
+            path: Some("a.png".into()),
+            source: None,
             alt: None,
             data: PtrEqArc(Arc::new(vec![1, 2, 3])),
             width: None,
@@ -87,7 +100,7 @@ mod tests {
     fn hash_path_diferente_difere() {
         let a = ex();
         let mut b = a.clone();
-        b.path = "b.png".into();
+        b.path = Some("b.png".into());
         assert_ne!(h(&a), h(&b));
         assert_eq!(h(&a), h(&a.clone()));
     }

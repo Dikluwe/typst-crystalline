@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash 78301f9b
+//! @prompt-hash c9e459a5
 //! @layer L1
-//! @updated 2026-10-16
+//! @updated 2026-11-06
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -77,6 +77,7 @@ pub(crate) mod bindings;
 mod markup;
 mod modules;
 pub(crate) mod repr;
+mod stdlib_snapshot;
 mod syntax_diagnostics;
 pub(crate) mod table;
 
@@ -296,6 +297,7 @@ use observation::{ObservationEq, ObservationRelation};
 /// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext {
     context_reads: RefCell<ContextReads>,
+    stdlib_snapshot: RefCell<Option<Arc<stdlib_snapshot::StdlibSnapshot>>>,
     pub target: EvalTarget,
     pub features: crate::entities::compiler_features::Features,
     // ADR-0036 Regra 4: contador monotónico global — limite de segurança
@@ -421,6 +423,7 @@ impl EvalContext {
     pub fn new() -> Self {
         Self {
             context_reads: RefCell::new(ContextReads::new()),
+            stdlib_snapshot: RefCell::new(None),
             target: EvalTarget::Paged,
             features: crate::entities::compiler_features::Features::default(),
             loop_iterations: 0,

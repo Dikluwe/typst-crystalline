@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text/style.md
-//! @prompt-hash 5e546e94
+//! @prompt-hash 5a4d2573
 //! @layer L1
-//! @updated 2026-10-24
+//! @updated 2026-11-01
 
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -116,6 +116,7 @@ fn resolve_parts(
     };
     let ns_dir = match cs("text.dir") {
         Some(Value::Dir(dir)) => Some(*dir),
+        Some(Value::Auto) => Some(super::super::paragraph::chain_direction(chain)),
         _ => None,
     };
     let ns_font = match cs("text.font") {
@@ -297,7 +298,11 @@ fn resolve_parts(
         } else {
             ns_font.or(style.font.clone())
         },
-        dir: style.dir.or(ns_dir),
+        dir: if style.math {
+            ns_dir.or(style.dir)
+        } else {
+            Some(super::super::paragraph::chain_direction(chain))
+        },
         subscript: style.subscript,
         superscript: style.superscript,
         superscript_native: style.superscript_native,

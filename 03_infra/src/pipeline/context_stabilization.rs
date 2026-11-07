@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 7007af54
+//! @prompt-hash 16bb2325
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -554,6 +554,8 @@ mod ordered_blocks_tests {
     fn figure_with_context_template(caption: bool) -> Content {
         use typst_core::entities::elements::figure::{FigureElem, FigureKind};
         Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: block(1),
             caption: caption.then(|| block(3)),
             kind: None,

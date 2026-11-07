@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/bidi_origin.md
-//! @prompt-hash 32762c87
+//! @prompt-hash d09d12ec
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -59,10 +59,7 @@ fn collect(
         {
             return None;
         }
-        let dir = chain
-            .custom("text.dir")
-            .and_then(|v| if let Value::Dir(d) = v { Some(*d) } else { None })
-            .unwrap_or(Dir::LTR);
+        let dir = super::paragraph::chain_direction(chain);
         if !dir.is_horizontal() {
             return None;
         }

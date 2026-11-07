@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/image_sizer.md
-//! @prompt-hash 7a6ef390
+//! @prompt-hash 5bdf3a60
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -9,6 +9,17 @@
 /// Implementado em L3 com imagesize ou equivalente.
 /// L1 define apenas o contrato — zero dependências externas.
 pub trait ImageSizer {
+    /// Prepare an SVG occurrence in L3 using its effective source and font context.
+    fn prepare_svg(
+        &self,
+        _data: &[u8],
+        _source: &crate::entities::svg_image::SvgSource,
+        _families: Option<&crate::entities::font_list::FontList>,
+        _fallback: bool,
+    ) -> Result<crate::entities::svg_image::PreparedSvg, String> {
+        Err("SVG preparation is unavailable in this image provider".into())
+    }
+
     /// Retorna (largura_px, altura_px) ou None se os bytes forem inválidos.
     fn size(&self, data: &[u8]) -> Option<(u32, u32)>;
 

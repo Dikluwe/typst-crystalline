@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash eac4713e
+//! @prompt-hash 5c1cbf98
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -520,7 +520,15 @@ fn render_image(
     height: Pt,
     _orientation: u32,
 ) {
-    let Some(texture) = build_texture(data, width.0 as f32, height.0 as f32) else {
+    let (sample_w, sample_h) = if detect_image_format(data) == ImageFormat::Svg {
+        (
+            width.0 as f32 * state.sample_scale.0.abs().max(1.0),
+            height.0 as f32 * state.sample_scale.1.abs().max(1.0),
+        )
+    } else {
+        (width.0 as f32, height.0 as f32)
+    };
+    let Some(texture) = build_texture(data, sample_w, sample_h) else {
         return;
     };
 
@@ -549,7 +557,23 @@ fn build_texture(data: &[u8], view_width: f32, view_height: f32) -> Option<sk::P
         return None;
     }
 
-    let img = image::load_from_memory(data).ok()?;
+    if format == ImageFormat::Svg {
+        let mut opts = svg2pdf::usvg::Options::default();
+        opts.image_href_resolver.resolve_string = Box::new(|_, _| None);
+        let tree = svg2pdf::usvg::Tree::from_data(data, &opts).ok()?;
+        let sx = view_width.max(1.0) / tree.size().width();
+        let sy = view_height.max(1.0) / tree.size().height();
+        let w = view_width.ceil().max(1.0) as u32;
+        let h = view_height.ceil().max(1.0) as u32;
+        let mut pixels = resvg::tiny_skia::Pixmap::new(w, h)?;
+        resvg::render(
+            &tree,
+            resvg::tiny_skia::Transform::from_scale(sx, sy),
+            &mut pixels.as_mut(),
+        );
+        return sk::Pixmap::from_vec(pixels.data().to_vec(), sk::IntSize::from_wh(w, h)?);
+    }
+    let img = super::images::decode_raster_image(data).ok()?;
     let aspect = img.width() as f32 / img.height().max(1) as f32;
     let w = (view_width.max(aspect * view_height)).ceil().max(1.0) as u32;
     let h = ((w as f32 / aspect).ceil().max(1.0)) as u32;
@@ -1719,6 +1743,7 @@ mod mask_regressions {
         let mut texture = sk::Pixmap::new(8, 4).unwrap();
         texture.fill(sk::Color::from_rgba8(255, 0, 0, 255));
         let image = FrameItem::Image {
+            format: None,
             pos: Point::ZERO,
             data: Arc::new(encode_png(&texture)),
             alt: None,
@@ -2019,5 +2044,32 @@ mod affine_glyph_regressions {
             }
         }
         assert!(retained && removed, "the clip must cut actual transformed ink");
+    }
+}
+
+#[cfg(test)]
+mod raster_bytes_webp_tests {
+    use super::*;
+    const WEBP_LOSSY: &[u8] = &[
+        82, 73, 70, 70, 144, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 88, 10, 0, 0, 0, 16, 0,
+        0, 0, 15, 0, 0, 7, 0, 0, 65, 76, 80, 72, 23, 0, 0, 0, 1, 15, 240, 192, 255, 136,
+        136, 160, 32, 109, 3, 102, 254, 77, 255, 121, 136, 232, 255, 4, 224, 115, 1, 0,
+        86, 80, 56, 32, 82, 0, 0, 0, 144, 3, 0, 157, 1, 42, 16, 0, 8, 0, 1, 64, 38, 37,
+        168, 2, 116, 186, 1, 38, 3, 248, 7, 226, 5, 223, 253, 216, 7, 244, 0, 95, 26, 7,
+        168, 230, 192, 0, 254, 246, 137, 223, 128, 37, 251, 122, 31, 188, 37, 143, 254,
+        102, 233, 188, 20, 63, 252, 142, 120, 224, 15, 255, 75, 131, 255, 77, 155, 255,
+        164, 243, 88, 190, 15, 230, 53, 190, 185, 114, 99, 128, 0, 0,
+    ];
+    #[test]
+    fn raster_bytes_webp_bitmap_texture_keeps_colors() {
+        let texture = build_texture(WEBP_LOSSY, 16.0, 8.0).unwrap();
+        let p = texture.pixel(2, 2).unwrap();
+        assert!(
+            p.red() > 240 && p.green() < 15 && p.blue() < 15,
+            "lossy WebP red became {:?}",
+            p
+        );
+        let alpha = texture.pixel(14, 6).unwrap();
+        assert_eq!(alpha.alpha(), 128);
     }
 }

@@ -1,5 +1,5 @@
 # L0 — infra/shaper/tests
-Hash do Código: 94ec9918
+Hash do Código: 0bac476a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -215,3 +215,69 @@ native-target/parity slices (historical T1c/T2/T3) stay incomplete until integra
 verification, no production/parity claim from a successful build. L0 first,
 RED→GREEN/scoped resealing; preserve source→PDF/SVG text/geometry and revalidate
 suite/build/doc/check/fmt/lineage.
+
+
+## Direct-emission traversal regression contract
+
+### Baseline evidence
+
+`03_infra/src/shaper/traversal.rs:57-72` drains each page layer into a distinct
+output in background/items/foreground order. `:96-112` distinguishes successful
+empty shaping from unresolved text and protects authored identity only outside an
+existing replacement; `:188` preserves the original when no match returns early.
+`:114-164` preserves Group/Link/TextReplacement/Semantic wrappers and their
+definitive children. `:165-176` shapes independent fill/stroke paint cells through
+copy-on-write (`:169`) with fresh replacement/bidi context (`:173`). These are local source
+anchors, not a new numerical or upstream parity measurement.
+
+### Owned acceptance
+
+Add permanent functional controls for ordered zero/one/many expansion among
+unchanged sentinels, empty page layers, failed font loading despite declared
+coverage, missing fonts, whitespace fallback and bidi-only successful emptiness.
+Use mandatory embedded or repository fonts without skip paths. Preserve every
+existing test. Check wrapper metadata and child ownership through nested mixed
+Group/Link/Semantic/TextReplacement fixtures, including empty wrappers and a
+previously shaped sentinel; do not flatten children or nest authored-identity
+replacement beneath an existing replacement. SHY and mixed bidi occurrences retain
+identity outside the replacement. Shared fill/stroke tiling source must stay
+unmodified while both produced cells shape their children in order; a paint cell
+inside an outer replacement still establishes independent identity context.
+
+These tests authorize no public API, performance threshold, global allocator,
+clock, new owner or nucleus. The private append-only emitter remains private;
+its capability and allocation properties require the separate scoped gate and
+are not inferred from output equality. Existing shape_item test adapter preserves
+its Vec-returning signature. Internal continuous flow under ADR-0127; reseal only
+this existing owner/consumer pair after integration, preserving all nucleus pins.
+
+
+## Owned shape-cache isolation regressions
+
+### Existing source evidence
+
+`03_infra/src/shaper/cache.rs:38-60` constructs the current seven-argument key;
+`03_infra/src/shaper/shaping.rs:413-443` resolves native superscript and extends
+that key only under the existing superscript condition. The existing versioned
+axis controls in `cache.rs` and language/tracking controls in this consumer
+establish discriminating fresh versus shared-cache comparisons. These are local
+source anchors, not a new performance or upstream parity measurement.
+
+### Owned acceptance
+
+Preserve all current helpers and regressions. Add shared-document versus fresh-
+document controls using repository font fixtures for text, language, tracking,
+direction, selected face, math script level and native superscript. Compare exact
+text, glyph identity, clusters, advances, units per em and effective font bytes,
+recursing through TextReplacement and wrapper children. Require real glyphs and
+exact authored SHY envelopes. Include mixed-cluster bidi controls and existing
+replacement envelopes, preserving their visual children without nested identity.
+Versioned Ubuntu Sans and Cantarell adjacent-coordinate fixtures must retain their
+existing discriminating advances. Exercise both orders and repeated inputs, so
+a shared cache cannot mask a distinct fresh result.
+
+The private structured-key identity contract and its unit tests remain owned by
+`00_nucleo/prompts/infra/shaper/cache.md`; this owner governs only the existing
+shaper test consumer. No public API, default, phase, fixture, dependency or
+allocator change is authorized. Allocation validation stays outside the permanent
+suite and cannot be inferred from functional equality.

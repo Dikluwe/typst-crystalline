@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/slicing.md
-//! @prompt-hash 2475f69f
+//! @prompt-hash f3de03fe
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -128,6 +128,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             }
         }
         FrameItem::Image {
+            format,
             pos,
             data,
             alt,
@@ -138,6 +139,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             orientation,
             ..
         } => FrameItem::Image {
+            format,
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             alt,
             data,

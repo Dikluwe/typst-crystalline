@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/figure_image.md
-//! @prompt-hash 7931e164
+//! @prompt-hash d4b8fef0
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -301,7 +301,7 @@ fn native_image_formato_desconhecido_gera_erro() {
 }
 
 #[test]
-fn native_image_svg_gera_erro_nao_suportado() {
+fn svg_input_file_admits_original_source_and_resolved_origin() {
     let mut world = NullWorld::default();
     world.files.insert(
         "test.svg".to_string(),
@@ -309,8 +309,16 @@ fn native_image_svg_gera_erro_nao_suportado() {
     );
     let mut ctx = EvalContext::new();
     let args = p(vec![Value::Str("test.svg".into())]);
-    let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
-    assert_eq!(err[0].message, "SVG images are not supported yet");
+    let value = native_image(&mut ctx, &args, &world, test_file_id()).unwrap();
+    let Value::Content(Content::Image(image)) = value else { panic!("image expected") };
+    assert_eq!(image.source, Some(Value::Str("test.svg".into())));
+    assert_eq!(image.path.as_deref(), Some("/test.svg"));
+    assert_eq!(image.format, Some(crate::entities::image_format::ImageFormat::Svg));
+    assert!(matches!(
+        image.svg.as_ref().map(|s| &s.origin),
+        Some(crate::entities::svg_image::SvgOrigin::File(_))
+    ));
+    assert_eq!(image.data.0.as_slice(), world.files["test.svg"].as_slice());
 }
 
 #[test]
@@ -373,4 +381,270 @@ fn native_image_rejeita_named_arg_invalido() {
     null_ctx!(ctx);
     let args = pn(vec![Value::Str("foto.png".into())], "cor", Value::Str("red".into()));
     assert!(native_image(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+}
+
+#[test]
+fn issue_8890_figure_accepts_each_placement_alternative() {
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::{Align2D, VAlign};
+    for placement in [
+        Value::Auto,
+        Value::None,
+        Value::Align(Align2D { h: None, v: Some(VAlign::Top) }),
+        Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }),
+    ] {
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Content(Content::text("BODY"))],
+            "placement",
+            placement.clone(),
+        );
+        let result = native_figure(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(result.is_ok(), "placement={placement:?}: {result:?}");
+    }
+}
+
+#[test]
+fn issue_8890_figure_placement_retains_lexical_presence_and_cast_errors() {
+    use crate::entities::{
+        content::Content,
+        elements::{figure::FigurePlacement, Element},
+        layout_types::{Align2D, HAlign, VAlign},
+    };
+    for (value, expected) in [
+        (Value::Auto, FigurePlacement::Auto),
+        (Value::None, FigurePlacement::InFlow),
+        (Value::Align(Align2D { h: None, v: Some(VAlign::Top) }), FigurePlacement::Top),
+        (
+            Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }),
+            FigurePlacement::Bottom,
+        ),
+    ] {
+        null_ctx!(ctx);
+        let args =
+            pn(vec![Value::Content(Content::text("X"))], "placement", value.clone());
+        let Value::Content(Content::Figure(e)) =
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap()
+        else {
+            panic!("Figure")
+        };
+        assert_eq!(e.placement, Some(expected));
+        assert_eq!(e.resolved_placement, None);
+        assert_eq!(e.get_field("placement"), Some(value));
+    }
+    for (value, message) in [
+        (
+            Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }),
+            "vertical floating placement must be `auto`, `top`, or `bottom`",
+        ),
+        (
+            Value::Align(Align2D { h: Some(HAlign::Left), v: None }),
+            "expected `top`, `horizon`, or `bottom`, found left",
+        ),
+        (Value::Int(1), "expected alignment, auto, or none, found integer"),
+        (Value::Str("top".into()), "expected alignment, auto, or none, found string"),
+    ] {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Content(Content::text("X"))], "placement", value);
+        let errors =
+            native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        assert_eq!(errors[0].message, message);
+    }
+    null_ctx!(ctx);
+    let args = p(vec![Value::Content(Content::text("X"))]);
+    let Value::Content(Content::Figure(e)) =
+        native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap()
+    else {
+        panic!("Figure")
+    };
+    assert_eq!(e.placement, None);
+    assert_eq!(e.get_field("placement"), None);
+}
+
+#[cfg(test)]
+mod png_bytes_source_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::bytes::Bytes as ValueBytes;
+
+    struct NoImageIo(NullWorld);
+    impl World for NoImageIo {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            self.0.library()
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            self.0.book()
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            test_file_id()
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            panic!("Image bytes must not read source")
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            panic!("Image bytes must not read a file")
+        }
+        fn resolve_path(
+            &self,
+            _: crate::entities::file_id::FileId,
+            _: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            panic!("Image bytes must not resolve a path")
+        }
+        fn read_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            panic!("Image bytes must not load a path")
+        }
+        fn read_bytes(
+            &self,
+            _: crate::entities::file_id::FileId,
+            _: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            panic!("Image bytes must not use a legacy path")
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+    #[test]
+    fn svg_input_svg_bytes_preserve_source_without_io() {
+        assert_raster_bytes_source(&[
+            60, 115, 118, 103, 32, 120, 109, 108, 110, 115, 61, 34, 104, 116, 116, 112,
+            58, 47, 47, 119, 119, 119, 46, 119, 51, 46, 111, 114, 103, 47, 50, 48, 48,
+            48, 47, 115, 118, 103, 34, 32, 119, 105, 100, 116, 104, 61, 34, 49, 48, 46,
+            53, 34, 32, 104, 101, 105, 103, 104, 116, 61, 34, 53, 46, 50, 53, 34, 62, 60,
+            114, 101, 99, 116, 32, 119, 105, 100, 116, 104, 61, 34, 49, 48, 46, 53, 34,
+            32, 104, 101, 105, 103, 104, 116, 61, 34, 53, 46, 50, 53, 34, 32, 102, 105,
+            108, 108, 61, 34, 114, 101, 100, 34, 47, 62, 60, 47, 115, 118, 103, 62,
+        ]);
+    }
+    #[test]
+    fn svg_input_svgz_bytes_preserve_source_without_io() {
+        assert_raster_bytes_source(&[
+            31, 139, 8, 0, 0, 0, 0, 0, 2, 3, 125, 204, 219, 13, 128, 32, 12, 0, 192, 85,
+            72, 7, 104, 81, 195, 143, 1, 150, 17, 4, 18, 124, 4, 26, 235, 248, 234, 2,
+            254, 95, 206, 246, 43, 169, 123, 171, 123, 119, 144, 153, 207, 153, 72, 68,
+            80, 38, 60, 90, 162, 81, 107, 77, 175, 0, 37, 37, 112, 118, 48, 104, 52, 160,
+            114, 44, 41, 179, 3, 131, 163, 1, 111, 91, 92, 248, 7, 168, 181, 212, 234,
+            160, 197, 0, 228, 237, 215, 249, 7, 250, 154, 167, 24, 118, 0, 0, 0,
+        ]);
+    }
+    const HEADER: &[u8] = b"\x89PNG\r\n\x1a\n";
+
+    #[test]
+    fn png_bytes_constructor_preserves_source_without_image_io() {
+        let world = NoImageIo(NullWorld::default());
+        let source = Value::Bytes(ValueBytes::new(HEADER.to_vec()));
+        let value = native_image(
+            &mut EvalContext::new(),
+            &p(vec![source.clone()]),
+            &world,
+            test_file_id(),
+        )
+        .expect("PNG bytes admitted without IO");
+        let Value::Content(Content::Image(image)) = value else {
+            panic!("expected image content")
+        };
+        assert_eq!(image.path, None, "Image bytes must not invent a file origin");
+        assert_eq!(image.source.as_ref(), Some(&source));
+        assert_eq!(image.data.0.as_slice(), HEADER);
+        let content = Content::Image(image);
+        assert_eq!(content.get_field("source"), Some(source.clone()));
+        let cloned = content.map_text(&mut |text: &str| text.to_string());
+        assert_eq!(cloned.get_field("source"), Some(source));
+    }
+
+    #[test]
+    fn png_bytes_file_source_keeps_lexical_value() {
+        let mut world = NullWorld::default();
+        world
+            .files
+            .insert("foto.png".to_string(), std::sync::Arc::new(HEADER.to_vec()));
+        let rooted = world.resolve_path(test_file_id(), "foto.png").unwrap();
+        for source in [Value::Str("./foto.png".into()), Value::Path(rooted)] {
+            let result = native_image(
+                &mut EvalContext::new(),
+                &p(vec![source.clone()]),
+                &world,
+                test_file_id(),
+            )
+            .unwrap();
+            let Value::Content(content) = result else { panic!("expected image") };
+            assert_eq!(content.get_field("source"), Some(source));
+        }
+    }
+
+    #[test]
+    fn png_bytes_empty_and_unknown_fail_without_image_io() {
+        let world = NoImageIo(NullWorld::default());
+        for data in [vec![], b"unknown".to_vec()] {
+            let errors = native_image(
+                &mut EvalContext::new(),
+                &p(vec![Value::Bytes(ValueBytes::new(data))]),
+                &world,
+                test_file_id(),
+            )
+            .unwrap_err();
+            assert_eq!(errors[0].message, "unknown image format");
+        }
+    }
+
+    fn assert_raster_bytes_source(data: &[u8]) {
+        let world = NoImageIo(NullWorld::default());
+        let source = Value::Bytes(ValueBytes::new(data.to_vec()));
+        let result = native_image(
+            &mut EvalContext::new(),
+            &p(vec![source.clone()]),
+            &world,
+            test_file_id(),
+        )
+        .expect("recognized raster bytes admitted");
+        let Value::Content(Content::Image(image)) = result else {
+            panic!("expected image")
+        };
+        assert_eq!(image.path, None);
+        assert_eq!(image.source.as_ref(), Some(&source));
+        assert_eq!(image.data.0.as_slice(), data);
+        assert_eq!(Content::Image(image).get_field("source"), Some(source));
+    }
+    #[test]
+    fn raster_bytes_jpeg_admits_source_without_image_io() {
+        assert_raster_bytes_source(&[0xff, 0xd8, 0xff]);
+    }
+    #[test]
+    fn raster_bytes_gif_admits_source_without_image_io() {
+        assert_raster_bytes_source(b"GIF89a");
+    }
+    #[test]
+    fn raster_bytes_webp_admits_source_without_image_io() {
+        assert_raster_bytes_source(b"RIFF0000WEBP");
+    }
+}
+
+#[test]
+fn png_bytes_invalid_source_diagnostic_includes_bytes() {
+    let errors = native_image(
+        &mut EvalContext::new(),
+        &p(vec![Value::Int(1)]),
+        &null_world(),
+        test_file_id(),
+    )
+    .unwrap_err();
+    assert_eq!(errors[0].message, "expected path, string, or bytes, found integer");
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash b532d53b
+//! @prompt-hash 81ba67f2
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -952,6 +952,8 @@ mod v16_d_tests {
         for cell in [
             image(),
             Content::Figure(Arc::new(FigureElem {
+                placement: None,
+                resolved_placement: None,
                 body: shape(),
                 caption: None,
                 kind: None,

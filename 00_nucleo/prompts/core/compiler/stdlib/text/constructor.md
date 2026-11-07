@@ -1,9 +1,10 @@
 # L0 — stdlib/text/constructor
-Hash do Código: 262c4afc
+Hash do Código: 0648ac73
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 Layer: L1
@@ -44,3 +45,42 @@ Only text.costs.hyphenation/runt/widow/orphan enter preparer's glyph-neutral Sty
 ## Acceptance and limits
 
 Preserve all constructor forms/recognized validation/unimplemented known-field explicit limitations, errors/hints/spans/body/fields/native identities and public signatures/default/phase/compatibility. Meaningful RED→GREEN tests before code for hyphenate type/transport, overhang/body, all Ratio costs/empty/invalid/fold/error priorities and typed size/cast permutations/signed-zero/negative/restoration/Raw/Heading/math/capture/show/duplicate spans. Runtime regional tests certify only owner-approved subset; constructor success alone is no effect/geometry proof. Valid 1:1/pins before restricted reseal/full suites/build/lint/Clippy/Rustdoc/fmt/reverse lineage. Existing Fill Gradient/Tiling/other accepted-without-effect fields/equality debts remain separately inventoried, never erased by full-size completion.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Transport Value::Auto at canonical text.dir in the returned Styles. Keep horizontal Dir validation, errors, argument evaluation, body and all other properties unchanged; resolve only at layout after lexical composition.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Capture the existing boolean text.fallback property in the existing custom style channel for the approved SVG preparation context, including alias/set/constructor scopes. Invalid values report expected boolean; no public field or signature is added. Ordinary text fallback remains outside this SVG feature and is not silently certified. Preserve all other text casts and behavior.

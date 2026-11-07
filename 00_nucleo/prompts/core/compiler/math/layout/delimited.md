@@ -1,5 +1,5 @@
 # L0 — math/layout/delimited
-Hash do Código: 42fdaaa7
+Hash do Código: 75bc4a27
 
 
 **Layer:** L1
@@ -155,3 +155,81 @@ body/size/presence. No extra terminal empty row or crossed opaque scope.
 Recollect official, single-line, unequal-row, percentage/mixed and nested
 render probes. No parity claim for previously uncertified general math
 layout/wrapping or inline math containing an explicit linebreak.
+
+
+## 8973 recheck at 3c6b0ce7 — direct nested Equation and shared boundaries
+
+### Fresh measurement before decision
+
+The clean HEAD is3c6b0ce7b7632cc74b004cea6681e4746e63d28d on Tekt.
+`lab/results/construction/diagnostics/issue-8973-recheck-3c6b0ce7-2026-10-31/`
+contains before.json.gz, before-receipt.json and oracle-receipt.json with exact
+source/L0/configuration bytes, HEAD/status/diffstat/UTC, binary hashes, commands
+and independent SVG raster geometry. The original issue literal is healthy in
+Tekt: explicit3em retains73.25pt ink height with set1em; pinned vanilla shrinks
+to29.25pt. Therefore its inherited-size regression must not be copied.
+A separate Tekt failure exists: lr whose complete body is an Equation cuts
+single-row ink to2.75pt and loses multiline text. Healthy unset vanilla and
+unwrapped-body controls retain33pt single-row or73.25pt two-row ink. Both inline
+and block Equation wrappers fail in Tekt. Consecutive complete lr wrappers also
+ignore an outer absolute3em on a single-row paired fence, while healthy vanilla
+uses33pt. Genuine nested groups inside an outer bracket pair are separate.
+
+Pinned `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:859-869`
+explicitly projects the complete Equation body; :891-925 retargets the boundary
+fences of a single fenced component with the surrounding lr size.
+Current delimited.rs:489-532 treats Equation as an ordinary external box and
+returns a nested lr's unchanged box for non-leaf bodies. The former protocol's
+lr_multiline_body also cannot see markers behind that complete Equation.
+Physical content, rows, fence size and authored body/presence are language;
+private projection/IR/glyph IDs/byte equality are mechanics. The inference that
+a complete shared-boundary wrapper may reuse the outer absolute target is
+refuted by resizing independent inner fences, lost rows, changed no-wrap peers,
+source/callback effects or modified authored content.
+
+### Classification and bounded exclusive correction
+
+Continuous internal parity correction under ADR-0127: no public field, trait,
+signature, default mode, compatibility break or eval/layout phase movement.
+Keep the original MathLrElem and EquationElem unchanged for eval, queries,
+source identity, hashes/repr and callbacks. No native-constructor unwrapping.
+
+Provide a private transient lr layout-body view used before both the multiline
+marker decision and ordinary lr composition. Project only a COMPLETE direct
+Equation body, including its Source origin, through the existing math-default
+transform. Do not project Equation descendants inside genuine groups, fractions,
+Styled/MathStyled, attachments or other opaque bodies. Its block flag does not
+change the surrounding mathematical context. This narrowly supersedes the old
+blanket Equation opacity only at this complete lr-body boundary.
+
+For an outer absolute target only, consecutive complete lr wrappers whose
+body has a certified paired boundary (existing MathDelimited or the current
+positional fence classifier) may expose that same body to the outer size.
+One-item MathSequence transport may expose only such a complete wrapper or
+Equation. Preserve all genuinely interior lr groups and nearest-mid scopes;
+never cross a non-paired body such as a bare mid wrapper. This refines the old
+nondefault-nesting clause only for redundant wrappers around the exact same
+boundary fences and an absolute outer target. Relative consecutive-wrapper
+retargeting remains outside this bounded repair and keeps its old route.
+
+Return a temporary MathLrElem/view with the original outer size and explicit
+presence, preserving source spans and every original row/align marker. No
+source reevaluation, reparented Location, new carrier, public API or new phase.
+Reuse existing row splitting, sizing probes and accepted callback pass exactly.
+
+### Acceptance and refuters
+
+Functional module RED must show lost row/fences for an Equation body and ignored
+outer absolute size for a complete paired lr body. GREEN requires inline/block
+Equation parity with the same unwrapped body, two real EquationExtent rows,
+explicit3em over inherited1em, unchanged authored body/size/presence and normal
+nonbreaking/relative/mixed controls. Genuine interior2em groups, mid scopes and
+source-wrapped bodies remain intact. Recollect the literal and nested cases in
+PDF, SVG and raster against healthy controls; the known multiline vanilla
+precedence defect is not the oracle. Preserve existing callback/cancel/source
+regressions; add the direct Equation callback control without extra evaluation.
+Build and tests remain in the exclusive tmpfs target with MemoryMax12GiB,
+MemoryHigh8GiB, MemorySwapMax0 and one job. V15/V26 and restricted seals precede
+code; require full lint/reverse lineage, build and proportional tests. No commit
+or push. Other math breadth, inline linebreak layout and relative redundant-lr
+retargeting are not certified by these absolute-target fixtures.

@@ -1,7 +1,8 @@
 # L0 — compiler/layout/columns/flow
-Hash do Código: 42426644
+Hash do Código: 1160d3bd
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
@@ -46,3 +47,18 @@ Classification: private parity/correctness, ADR-0127 continuous flow; no public 
 Exclusive owning obligation: Save/install/restore page_column_notes from the actual ColumnsElem page_columns argument. Only for that scope with a certified pending first note, restore the actual final causal carrier baseline after flush_line (as terminal finish does), flush pending notes and invoke the feature drain while column offsets/widths and original source scope remain active. Close/merge columns only after this finite certified drain; opaque/container paths remain unchanged. Do not materialize source content twice.
 
 Require actual carrier-column RED→GREEN before implementation, the wider68-case PDF/SVG contract at unchanged0.001pt, original R8 and A–H/R1–R7 controls, unchanged effects, resources, full workspace validation, both lineage gates and preservation audits.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+Accept a private note-flow intent from this owner. Track actual source flow ends for that scope, preserve page-wide queues through sibling closes, and return the actual deepest final-page end for following flow and note fitting. Keep existing page-column certified drain and non-note output behavior. Save/restore private tracking intent; no phase, callback or public method is introduced.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+Clippy refinement measured in clippy-libs.json.gz: the added eighth flow argument exceeds the existing seven-argument limit. Carry the same private note-flow intent through the already owned optional flow-end accumulator: the Columns caller installs/restores it, and flow derives the intent from presence. Remove the extra boolean argument without changing behavior or suppressing the warning.

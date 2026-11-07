@@ -1,5 +1,5 @@
 # L0 — Bounded selective acquisition of font catalog metadata
-Hash do Código: 46567d65
+Hash do Código: 4f0ed48c
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fontdb/selective.rs`
@@ -11,6 +11,8 @@ Hash do Código: 46567d65
 
 ttf-parser0.25.1 lib.rs:1102–1111,1230–1233 requires head/hhea/maxp; 1433–1482 style/weight/width read OS2, monospace post. post.rs:334–379 validates32-byte header/version and34+2×count for v2, not glyph-name tail. `03_infra/src/fonts.rs:339–405` consults names/OS2/post and delegates coverage to its current owner. fontdb0.23.0 lib.rs:721–727,900–920 exposes fresh File reads but retained SharedFile bytes; helper must never substitute a path read for SharedFile's memory.
 
+`00_nucleo/diagnostics/read-at-pipeline-2026-11-04.md` records the frozen working-tree experiment: 70 pairs preserved extracted text, page geometry and font names; the positional backend removed 11,180 physical seeks without reducing metadata observations. CPU decreased in 35/35 CLI pairs and 34/35 watch-startup pairs, with dispersion exceeding 3% in four of ten groups. These observations support testing an internal backend substitution, not a universal precise speedup or a change to warm-watch freshness.
+
 ## Classification and decision
 
 Observable selectable font metadata, exact coverage, family/fallback and rendering preserve language behavior (ADR0107/0108). Buffer/table order, bytes read, mapping and DTO equality are mechanism controls. No claim of upstream intent. Hypothesis of lower acquisition cost is refuted by semantic/corpus divergences or absence of repeatable combined benefit. This helper is not a final-font reader, parser replacement, discovery owner or cache. The default acquisition path requires ADR-0127 §2.2/§5 package ratification; the approval recorded below satisfies that prerequisite.
@@ -19,7 +21,9 @@ Observable selectable font metadata, exact coverage, family/fallback and renderi
 
 Own a private `acquire(path:&Path,index:u32)->Option<FontInfo>` facade accessible to its parent only. None always declines optimization, never instructs dropping a font; parent falls back under `00_nucleo/prompts/infra/fontdb.md`. Accept only regular Source::File inputs provided by parent; Unix identity required; unsupported platforms decline. No new public types/APIs, unsafe, mutable globals, feature flags or I/O in L1.
 
-Open one File and capture its metadata. Read sfnt/TTC with Read+Seek/read_exact and checked arithmetic. Supported sfnt signatures are0x00010000/OTTO/true and TTC v1/v2; original face index/array/directory/table offsets must be valid. Collection offsets are absolute to original bytes. Unsupported signatures/layouts/indices decline; do not fabricate validity or broaden accepted input. A private generic reader may enable deterministic fault/cap tests without exposing it publicly.
+Open one File and capture its metadata. For eligible Unix files, use a private positional backend over `FileExt::read_at`, exposing logical Read+Seek/read_exact to the unchanged generic projector. Read advances the logical cursor by the actual returned length only; errors, including Interrupted, leave it unchanged. read_exact retries Interrupted, completes short reads and rejects premature EOF or other errors. Empty reads do not call the backend. Cursor addition and signed seeks are checked; rejected seeks preserve the cursor. SeekFrom::End uses the captured size, and the projector uses Start only; do not generalize this adapter to readers requiring live external size. Independent readers must not share a logical cursor or modify the File's physical cursor. No backend return may exceed the requested slice length.
+
+Read sfnt/TTC with checked arithmetic. Supported sfnt signatures are0x00010000/OTTO/true and TTC v1/v2; original face index/array/directory/table offsets must be valid. Collection offsets are absolute to original bytes. Unsupported signatures/layouts/indices decline; do not fabricate validity or broaden accepted input. Keep the private generic reader for deterministic fault/cap tests without exposing it publicly. Do not retain files, projected bytes or identities across acquisitions, add cross-face sharing, or change the existing fallback, metadata/coverage derivation or placement of the post-derivation identity guards.
 
 Budget before every operation: at most4, 096 sfnt records, 8MiB complete projected buffer and16MiB cumulative requested bytes (including headers, directory, prefixes/rereads). Validate offset+full declared length against actual original length. Bound all allocations and use try_reserve; any overflow, budget/error/reserve failure declines. No attacker-controlled full-file allocation or eager fallback introduced. These caps cause fallback, never truncation of needed metadata; audit demonstrates all measured faces within them but does not promise host/font universality.
 
@@ -30,6 +34,8 @@ Use current `font_info_from_bytes(buffer,0)` and current `extract_coverage` on a
 Before returning Some, verify handle and current path identify the initial regular file: dev/ino, len, mtime/mtime_nsec, ctime/ctime_nsec. Unsupported identity/metadata failure/path replacement/changed length or timestamps decline. This is best-effort change detection, not atomic snapshot guarantee under concurrent writers; unstable sources cannot certify measurements. Do not mutate files/metadata or retain handles across acquisitions. No SharedFile/Binary/embedded path substitution; no sorting/dedup; no altered final mmap/loading failure policy.
 
 ## Tests and acceptance
+
+Positional transport tests cover short reads, repeated Interrupted, early EOF, other errors, empty buffers, excessive backend lengths, cursor/seek overflow and negative seeks, physical File cursor independence and independent logical readers. Mutation checks must reject incorrect offset, requested-length advancement, advancement on error, ineffective seeks, fabricated EOF success and loss of Interrupted retry. Revalidate complete CLI and watch startup against a frozen pre-change baseline with paired CPU/wall/RSS and text/page geometry/font controls; isolated projector timing does not establish product benefit. No warm-watch acceleration is implied.
 
 Inline tests precede implementation and demonstrate runtime RED for valid projection/membership/limits/omitted payload; no compile-only RED or performance threshold. Reuse existing licensed fixtures and independent expected name/style/pitch/coverage controls, plus original metadata callback as an additional reference. Include TTF/OTF/variable, original TTC indices/absolute offsets, post valid/invalid versions/prefix/indices/tails, optional/required bounds, duplicate order, corrupt headers/counts/overflow, exact budget edges and early failure before excess allocation/read. Reader injection tests Read/Seek faults deterministically; identity predicate tests detect modified/replaced files. Parent integration tests prove fallback and retained SharedFile behavior, complete ordering and paired slot/book indices.
 

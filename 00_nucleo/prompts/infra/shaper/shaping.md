@@ -1,5 +1,5 @@
 # L0 — infra/shaper/shaping
-Hash do Código: 8e919a9a
+Hash do Código: f51cce9b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
@@ -363,3 +363,65 @@ provider primary chain, use its actual selected font metadata in a local style
 copy, then query the existing shaping candidates. Preserve the input font=None,
 size, variant/axes and all widths/costs. Decline explicit non-LTR directions
 before loading a default face. No new public/pipeline/default font policy.
+
+## Already-resolved horizontal direction — #8990 residual (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before-state.json and before receipts bind HEAD 3c6b0ce7, concurrent dirty inputs,
+UTC, pinned oracle and RAM binary. Explicit text(dir:ltr)[אבג.] and
+text(dir:rtl)[p.v.] inside math.op are accepted yet paint the unqualified
+first-strong order. Candidate-1-state.json, green-first.log and after receipts
+prove that merely forwarding the property into TextStyle does not correct
+visible order. shaping.rs:189,326 calls bidi_runs with no direction even when
+TextStyle.dir is already Some. Existing font_metrics/caches.rs width keys
+already distinguish dir. Pinned text/mod.rs:517-543 documents explicit base
+direction; this is observable bidi semantics/geometry, not a requirement to
+copy upstream IR, font IDs or byte output.
+
+### Exclusive correction and boundaries
+Forward TextStyle.dir to the optional-direction helper owned exclusively by
+00_nucleo/prompts/infra/shaper/bidi.md on the existing local width, terminal
+overhang and unregistered emission paths. Keep certified full-paragraph
+resolved-context runs authoritative without fragment redetection. Reuse all
+existing font selection, language/feature setup, cluster and cache policies;
+add no new field or cache and no font-specific workaround. None follows the
+identical automatic-base algorithm; do not implement a language-derived base
+or impose an unqualified math.op base here. Preserve default #8990 and scope
+restoration. Verify consistent actual width and painted glyph placement for
+explicit Latin/Hebrew bases, plus existing shaper and math regression tests.
+
+This is internal completion of an already declared direction, not authorization
+for the pending automatic-language or unqualified-math default changes.
+L0 precedes code, followed by RED→GREEN and bilateral observable checks,
+RAM-only builds/tests and paired lineage with a valid V15/V26 graph.
+
+
+## Structured private run-key integration
+
+### Evidence before decision
+
+The frozen `03_infra/src/shaper/shaping.rs:413–443` computes effective
+native_sups before constructing the key, then appends its true/false marker only
+when superscript is active, subscript is inactive and superscript_native is not
+Some(false). `:444` performs the unchanged cached-run lookup. Those operations
+establish existing cache separation, not a new language feature or parity claim.
+
+### Exclusive contract
+
+Consume the owned structured key specified only by
+`00_nucleo/prompts/infra/shaper/cache.md`. Replace the string suffix append with
+`cache_key.set_native_sups(native_sups)` inside exactly the same condition. Keep
+the seven key arguments, their evaluation order, effective native-sups
+calculation, lookup/insert order, glyph production and CachedRun cloning intact.
+Do not move decisions across phases or change font resolution, language,
+tracking, axis merging, feature selection, source font, bidi/SHY identity,
+wrappers, fallback, successful empty output or failure behavior. All prior
+owned obligations remain in force. No further kernel optimization is authorized.
+
+This private integration follows continuous ADR-0127 with L0 first and scoped
+resealing after V15/V26 validation; no public signature, default, dependency,
+unsafe or pipeline-phase addition. Verify native-sups None/false/true separation
+and repeated/shared versus fresh observable shaping alongside existing controls.
+This representation change supplies no new vanilla parity certification.

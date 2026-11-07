@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/figure_demands.md
-//! @prompt-hash c73fa5f5
+//! @prompt-hash 48b2077c
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -565,6 +565,8 @@ mod tests {
 
     fn prepared(body: Content) -> Content {
         Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body,
             caption: Some(Content::text("caption")),
             kind: None,

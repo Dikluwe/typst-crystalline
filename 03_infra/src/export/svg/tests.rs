@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/tests.md
-//! @prompt-hash 8857f6ce
+//! @prompt-hash a1e9b2ef
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -1022,6 +1022,7 @@ fn p1248_image(
     clip_rect: Option<typst_core::entities::layout_types::Rect>,
 ) -> FrameItem {
     FrameItem::Image {
+        format: None,
         alt: None,
         pos: Point { x: Pt(7.0), y: Pt(11.0) },
         data: std::sync::Arc::new(data.to_vec()),
@@ -1210,6 +1211,7 @@ fn p1248_orientacao_seis_rasteriza_landmarks_assimetricos_uma_vez() {
         .write_to(&mut encoded, RasterFormat::Jpeg)
         .unwrap();
     let item = FrameItem::Image {
+        format: None,
         alt: None,
         pos: Point { x: Pt(20.0), y: Pt(20.0) },
         data: std::sync::Arc::new(encoded.into_inner()),

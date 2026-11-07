@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/external_bridge.md
-//! @prompt-hash 3c3cf62a
+//! @prompt-hash ad2200b3
 //! @layer L1
-//! @updated 2026-10-01
+//! @updated 2026-11-01
 
 use super::*;
 
@@ -34,7 +34,11 @@ pub(super) fn external_styles(style: &TextStyle) -> crate::entities::style::Styl
     if let Some(f) = &style.font {
         styles.push(Style::Font(f.clone()));
     }
-    Styles::from_iter(styles)
+    let mut styles = Styles::from_iter(styles);
+    if let Some(dir) = style.dir.filter(|dir| dir.is_horizontal()) {
+        styles = styles.push_custom("text.dir", crate::entities::value::Value::Dir(dir));
+    }
+    styles
 }
 
 fn geometry_items(items: &[FrameItem]) -> Vec<FrameItem> {

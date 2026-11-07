@@ -1,5 +1,5 @@
 # L0 — infra/shaper/traversal
-Hash do Código: 83be52a8
+Hash do Código: 836b5a5f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -138,7 +138,7 @@ Integration tests retain scope/cache-hit proof under pinned text-replacement.
 source/owner/HEAD/dirty tree/UTC/diffstat/calls/imports/modules/references/test list,
 hash-checked previous suite/inventory at :77. Private-call compilation was audited,
 not dead_code-alone inference. Only shape_item is cfg(test): it is pub(super)
-inside private traversal, not public L3 API. shape_item_inner/shape_document remain
+inside private traversal, not public L3 API. shape_item_into/shape_document remain
 productive with their contexts/invariants; production never reenters a contextless
 wrapper. Preserve all tests/delegation. Internal continuous ADR-0127 changes no
 public/default/phase/dependency/suppression; selected RED→GREEN and unchanged
@@ -174,3 +174,58 @@ target/Solid/Gradient/page semantics and full suite/build/doc/fmt/lineage. The
 prepared transport, native-target integration and parity slices recorded as
 T1c/T2/T3 are complete only after integrated verification; broken/partial states
 are no production certificate. T4 and publication remain out of scope.
+
+
+## Private append-only item traversal
+
+### Evidence before decision
+
+The received `03_infra/src/shaper/traversal.rs:59,117,131,145,154,172`
+consumes each private per-item result immediately with `extend`, and `:188`
+builds `vec![item]` for preserved items and rebuilt wrappers. No productive
+caller retains or examines that returned collection. The cfg(test) adapter at
+`:77` is the sole single-item testing facade. This source inspection concerns
+internal transport mechanics, not a new upstream language measurement or a
+measured performance gain. A caller retaining or inspecting the per-item
+collection would refute the organizational premise.
+
+### Owned organizational contract
+
+The productive private helper `shape_item_into` consumes one FrameItem and
+appends accepted results in order to the caller-owned destination. It receives
+`&mut impl Extend<FrameItem>` and returns no per-item collection. It cannot
+read, replace, truncate or otherwise alter the accepted prefix, and does not
+retain the destination. Use safe Rust and static dispatch through the existing
+Extend interface; introduce no trait, public API, dynamic dispatch or unsafe.
+
+Layers and containers retain distinct drained input and definitive output Vecs.
+Group, Link, Semantic and TextReplacement transform their own children, then
+emit the rebuilt wrapper exactly once; never flatten children into the parent.
+Preserve wrapper metadata, positions, source identity and child order.
+Prepared tiling cells retain Arc::make_mut and local context `(false, None)`,
+with the existing document-local caches; shared source cells remain untouched.
+Background, items and foreground retain their existing processing order.
+
+The collection returned by try_shape_context remains the existing transaction:
+None emits the unchanged source item; Some(empty) emits nothing and must not
+fall back; accepted runs extend the destination in order. Apply the existing
+protect_authored_identity helper only after successful shaping and outside an
+existing TextReplacement. Preserve replacement suppression throughout ordinary
+nested wrappers. Preserved nontext/TextShaped items and fallback Text emit once.
+No shaping, glyph, cache, font or identity certification logic moves into this
+walker.
+
+The cfg(test) shape_item facade retains its Vec-returning signature and creates
+a local destination for the productive helper. Public document/context facades,
+all existing bidi, morphology, native-target and authored identity obligations
+remain in force. Ownership and nucleus pins remain unchanged. This is the
+permanent productive organization under continuous flow ADR-0127, without a
+public contract, default behavior, pipeline phase or compatibility change.
+
+### Verification boundary
+
+Require controls for destination prefix/order, zero/one/many accepted results,
+fallback versus valid-empty results, nested wrappers, existing replacement
+suppression, SHY/bidi identity, already-shaped items and shared tiling origin.
+Acceptance preserves language semantics, syntax and morphology; output bytes
+are not a parity criterion. This restriction promises no performance percentage.

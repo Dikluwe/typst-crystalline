@@ -1,7 +1,8 @@
 # L0 — references
-Hash do Código: eb38f683
+Hash do Código: dfd2cd50
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:1f0c020521a9654478f7ba3325005ba621fe5f26b307b56dc49e8c526fceb59f
@@ -193,3 +194,48 @@ NBSP and numeric suffix stay generated/unplanned. Unprepared legacy fallback
 retains no borrowed source cursor. Preserve existing number/supplement precedence,
 empty handling, chain, destination, link fragments and geometry. Do not infer a
 new target, traverse a dormant target template or execute a callback in layout.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Migrate only existing Figure fixture literals/destructures for the approved two-field addition: absent placement/resolved_placement for all legacy in-flow inputs. Preserve every prior expected language result and all unrelated implementation. No behavior redesign is authorized in this owner.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+
+## Issue 8935 residual — physical entry scope and original note marker
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-residual-2026-10-31/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,reference-geometry-before.json.gz}` preserves HEAD3c6b0ce7, the exact concurrent uncommitted changed-file list, UTC, source/L0 bytes, argv and executable SHA-256. Current oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Compact repeated headers retain one logical member from approved #8954, but entries distribute 0/1/2 while the oracle's unreferenced control has one per page. Narrow Box reproduces deferred/narrow entry outside Table, unlike ordinary prose. Alphabetic call/entry a has decimal ref:1 outside Table; vanilla ref:a. Footnote marker styling is language morphology, not a demand to copy upstream mechanics.
+
+`footnote_fragments.rs:690-695` subtracts page margins from the local cell region. `sub_frame.rs:373-374,813` zeros/restores reserve while new captured notes remain queued, and refresh refuses is_sub_frame. `references.rs:376-382` formats other counters as decimal without consulting Footnote; pinned model/reference.rs:281-282 clones the original note into a reference and model/footnote.rs:117-121,148-154 uses its pattern/superscript display. These observations support a shared physical-scope loss for Table/Box and a distinct generic-projection loss for references; one arithmetic cause for both is not inferred. Correct text but wrong page/entry line or marker styling, repeated effects, changed counters or measurements refute closure.
+
+### Exclusive internal obligation
+
+For an already validated ordinary reference whose unique target is an actual Footnote and whose existing label-counter snapshot is available, format that snapshot with the original note's numbering pattern (default 1), and render the generated marker as the existing superscript Content inside the existing destination link. This reference creates no Footnote, note body, counter action, Location or source child. Preserve Page-form/bibliography routing, missing/duplicate errors and other reference kinds. Preserve the existing generic fallback if the synthetic/legacy target has no counter snapshot; do not invent a number. Explicit Ref supplement cannot replace/add to a Footnote marker, as measured upstream's into_ref path. Require pattern/control/morphology REDs and actual outside-Table/Table references.
+
+ADR-0127 continuous flow: this restores measured note semantics/pagination/morphology within existing layout, without public entity/trait/signature, new mode/default, pipeline phase or compatibility change. Preserve all approved #8935 identity/measurement/header replay work and concurrent Figure/math changes. L0 first, scoped reseal after V15/V26, minimal module/integrated RED before implementation, then GREEN. Revalidate all seven original #8935 tests, ordinary/Table/Box, repeat:false, later real note/query/counter/duplicate/hidden controls, general note/column/continuation pagination and complete PDF text plus PDF/SVG painting. Existing one-logical-member semantics intentionally differ from vanilla's repeated-header counter defect. Use exclusively the residual task's RAM target, one compilation job, 12GiB ceiling; leave combined workspace qualification to the coordinator.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+For actual Footnote references prefer the existing original-occurrence resolved-label marker snapshot. Keep the existing explicit-pattern/counter formatting fallback for synthetic introspectors without that snapshot. Render the same superscript/link and no note or effect. Preserve all #8935 identity/duplicate and other reference routes.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.

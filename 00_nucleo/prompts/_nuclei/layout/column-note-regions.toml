@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "column-note-regions"
+title = "Footnote ownership of physical column regions"
+
+[[claims]]
+id = "area"
+level = "must"
+statement = "Page columns own their notes per referencing physical column. A standalone columns block owns page-wide entries shared by its sibling columns. These existing scopes choose entry width, reservation, separator width and queue flushing consistently."
+
+[[claims]]
+id = "flow"
+level = "must"
+statement = "For actual note-bearing content or existing pending notes, explicit colbreak and automatic overflow advance through the existing physical column flow. Source children and effects remain once, with no guessed packet identity. Existing non-note segmented fractional/line-number paths remain unchanged."
+
+[[claims]]
+id = "progress"
+level = "must"
+statement = "Page-owned notes survive sibling column closes and are painted after merging at the physical page boundary. Per-column notes flush before translating their column. Capture/source cursors are retained, not reexecuted. Reservations constrain following main flow and final container height uses tracked actual flow ends rather than a guessed page bottom. New private state participates in rollback."

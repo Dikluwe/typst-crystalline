@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 9d3574f0
+//! @prompt-hash 84f2e16f
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-06
 
-use super::bidi::bidi_runs;
+use super::bidi::bidi_runs_with_direction;
 use super::cache::{CachedRun, FaceCache, ShapeCache};
 use super::font_selection::{primary_candidates, split_run_by_font, CandidateSet};
 use crate::font_metrics::ssty_eligible_text;
@@ -72,7 +72,7 @@ pub(crate) fn terminal_in_face(
     {
         return None;
     }
-    let paragraphs = bidi_runs(text);
+    let paragraphs = bidi_runs_with_direction(text, style.dir);
     if paragraphs.len() != 1 || paragraphs[0].iter().any(|run| run.rtl) {
         return None;
     }
@@ -121,7 +121,7 @@ pub(crate) fn shaped_trailing_overhang(
     {
         return None;
     }
-    let paragraphs = bidi_runs(text);
+    let paragraphs = bidi_runs_with_direction(text, style.dir);
     if paragraphs.len() != 1 || paragraphs[0].iter().any(|run| run.rtl) {
         return None;
     }
@@ -186,7 +186,7 @@ pub(crate) fn shaped_width(
     let mut candidates = CandidateSet::new(world, primary, face_cache, like, variant);
 
     // P845 — runs agrupados por parágrafo bidi (texto com `\n` interno).
-    let paragraphs = bidi_runs(text);
+    let paragraphs = bidi_runs_with_direction(text, style.dir);
     if paragraphs.iter().all(|p| p.is_empty()) {
         return Some(Pt(0.0));
     }
@@ -323,7 +323,7 @@ pub(super) fn try_shape_context(
             })
             .collect()]
     } else {
-        bidi_runs(text.as_str())
+        bidi_runs_with_direction(text.as_str(), style.dir)
     };
     if paragraphs.iter().all(|p| p.is_empty()) {
         return if bidi_only && !primary.is_empty() { Some(Vec::new()) } else { None };
@@ -435,11 +435,7 @@ pub(super) fn try_shape_context(
                     && !style.subscript
                     && style.superscript_native != Some(false)
                 {
-                    cache_key.push_str(if native_sups {
-                        "|sups:true"
-                    } else {
-                        "|sups:false"
-                    });
+                    cache_key.set_native_sups(native_sups);
                 }
                 let cached = cache.map.get(&cache_key).cloned();
                 let (run_glyphs, _run_width, source_font) = if let Some(cached) = cached {

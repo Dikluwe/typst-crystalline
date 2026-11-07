@@ -1,7 +1,8 @@
 # L0 — stdlib/visualize — tiling constructor
-Hash do Código: 4fe030af
+Hash do Código: 7201e9b8
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:d6e2fba3d2143daec23bcf7a8d959ce59600f3b8ccc5fa35a853c4f6831e51e0
 
 **Layer:** L1
@@ -26,3 +27,48 @@ Eval validates/builds only, no frame/raster/Auto-size resolution/exporter import
 ## Acceptance and limits
 
 Preserve callable type/identity, arbitrary Content body and declared fields/defaults, Auto versus explicit/pitch-relative geometry and diagnostic distinctions. Superseded Color-fallback/Gradient-body-rejection tests remain archival witnesses, not current acceptance. Meaningful RED→GREEN/restricted reseal/build/suites/lineage follow L0 first. No public/phase change from offset wording correction. Real patterns/Parent resources/Stroke/other targets require current layout/export owners' independently approved integrated gates, never early Color fallback or successful fill SVG as production proof. Do not copy oracle PDF defect as desired language.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Migrate only existing ImageElem literals to the approved optional file path and explicit source absence for legacy synthetic/test images. Preserve the previous path presence/value as Some, unless it is already a known synthetic empty path, which becomes None. Keep every render/layout/tiling/flow behavior and foreign change. Clones retain the original source; do not add a source from a fabricated filename.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+## Approved image-body storage adaptation — 2026-11-06
+
+The owner explicitly authorized TilingBody::Image(Box<ImageElem>) in this
+chat, as specified by the entity owner. Adapt existing construction sites
+with Box::new and borrow/clone the contained ImageElem at the legacy bridge.
+Preserve every image field, data/source/origin/format, body selection, existing
+assertion, layout and export behavior. Do not change the old admitted-input
+set, source acquisition, phases or defaults as part of this storage repair.
+This clause authorizes only this consumer's mechanical adaptation; entity
+representation is exclusively owned by core/entities/tiling.md.

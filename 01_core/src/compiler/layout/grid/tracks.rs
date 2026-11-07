@@ -1,12 +1,46 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash 3614d9c1
+//! @prompt-hash 41ae2d4a
 //! @layer L1
-//! @updated 2026-10-07
+//! @updated 2026-11-01
 
 use super::*;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
+    fn measure_grid_sub_frame(
+        &mut self,
+        content: &Content,
+        region: super::super::sub_frame::SubLayoutRegion,
+    ) -> measurement_cache::Product {
+        let mut note = false;
+        content.visit_content_static(&mut |node| {
+            if matches!(node, Content::Footnote(_)) {
+                note = true;
+            }
+            !note
+        });
+        let checkpoint = note.then(|| self.capture_flow_suffix_checkpoint());
+        let product = self.layout_sub_frame(content, region);
+        if let Some(checkpoint) = checkpoint {
+            let results = (
+                self.last_sub_frame_width,
+                self.last_sub_frame_bottom,
+                self.last_sub_frame_flow_width,
+                self.last_sub_frame_baseline,
+                self.last_sub_frame_inline_extents,
+            );
+            self.restore_measurement_checkpoint(checkpoint);
+            (
+                self.last_sub_frame_width,
+                self.last_sub_frame_bottom,
+                self.last_sub_frame_flow_width,
+                self.last_sub_frame_baseline,
+                self.last_sub_frame_inline_extents,
+            ) = results;
+        }
+        product
+    }
+
     /// Resolve larguras e origens das colunas antes de medir linhas.
     pub(super) fn resolve_grid_columns(
         &mut self,
@@ -231,7 +265,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                             Ok(None)
                         });
                         let (w, _) = if nested_table || composed_visual(&visual) {
-                            let product = self.layout_sub_frame(
+                            let product = self.measure_grid_sub_frame(
                                 &visual,
                                 super::super::sub_frame::SubLayoutRegion {
                                     origin_x: 0.0,
@@ -290,8 +324,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             let offset = if (num_cols == 1 || self.explicit_line_alignment.is_some())
                 && available_width.is_finite()
             {
-                use crate::entities::{dir::Dir, layout_types::HAlign, value::Value};
-                let rtl = self.chain.custom("text.dir") == Some(&Value::Dir(Dir::RTL));
+                use crate::entities::{dir::Dir, layout_types::HAlign};
+                let rtl =
+                    super::super::paragraph::chain_direction(&self.chain) == Dir::RTL;
                 let free =
                     (available_width - resolved_widths.iter().sum::<f64>()).max(0.0);
                 match self.explicit_line_alignment.unwrap_or(HAlign::Start) {
@@ -570,7 +605,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         let saved_alignment = self.cell_align;
                         self.cell_align =
                             measurement.alignment_at(col_idx, saved_alignment);
-                        let product = self.layout_sub_frame(
+                        let product = self.measure_grid_sub_frame(
                             item,
                             super::super::sub_frame::SubLayoutRegion {
                                 origin_x: cell_x + inset_l,
@@ -1011,5 +1046,73 @@ mod v16_d_boundaries {
             "projection must not extract or reconstruct nested table cells"
         );
         assert_eq!(output.resolved.as_ref().unwrap().cells[0].elem_name(), "cell");
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+    };
+    use comemo::Track;
+
+    fn note_cell() -> Content {
+        Content::sequence(vec![
+            Content::text("a"),
+            Content::footnote(Content::text("NOTE")),
+        ])
+    }
+
+    #[test]
+    fn issue_8935_intrinsic_measurement_cannot_emit_a_note() {
+        for columns in [true, false] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            let body = note_cell();
+            let input = GridMeasurementInput::uniform(Sides::uniform(Length::ZERO));
+            if columns {
+                l.resolve_grid_columns(&[TrackSizing::Auto], &[body], input, 120.0);
+            } else {
+                l.resolve_grid_rows(
+                    &[TrackSizing::Auto],
+                    &[body],
+                    1,
+                    &[120.0],
+                    &[10.0],
+                    input,
+                );
+            }
+            let text = l.finish().plain_text();
+            assert!(
+                !text.contains("NOTE"),
+                "measurement painted a note (columns={columns}): {text:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn issue_8935_actual_table_note_is_emitted_once() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![note_cell(), Content::text("c"), Content::text("d")],
+        ));
+        let text = l.finish().plain_text();
+        assert_eq!(text.matches("NOTE").count(), 1, "actual emission: {text:?}");
     }
 }

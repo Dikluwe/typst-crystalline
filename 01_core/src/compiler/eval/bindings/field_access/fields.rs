@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 8f7b73df
+//! @prompt-hash 8ba2641e
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -614,7 +614,8 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
     }
     use crate::entities::content::Content;
     match content {
-        Content::SmartQuote(_)
+        Content::Image(_)
+        | Content::SmartQuote(_)
         | Content::HSpace(_)
         | Content::VSpace(_)
         | Content::Boxed(_)
@@ -688,7 +689,6 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::OutlineEntry(..)
         | Content::Figure(..)
         | Content::FigureCaption(..)
-        | Content::Image(..)
         | Content::Shape(..)
         | Content::Curve(..)
         | Content::Grid(..)

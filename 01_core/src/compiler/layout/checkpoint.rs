@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash 58d03a0a
+//! @prompt-hash 61de3de6
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -11,6 +11,7 @@ use super::*;
 /// prefixo confirmado são representados somente pelos seus comprimentos; a
 /// restauração trunca a cauda e nunca copia ou recompõe o prefixo.
 pub(in crate::compiler) struct FlowSuffixCheckpoint {
+    page_running_generation: u64,
     page_running_pass: Option<page_running_requests::PlannedPass>,
     style: TextStyle,
     text_horizontal_offset: Pt,
@@ -111,6 +112,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     column_mode: bool,
     column_origin_x: f64,
     column_width: f64,
+    column_flow_end: Option<f64>,
     page_column_notes: bool,
     page_columns: Option<usize>,
     current_column: usize,
@@ -185,6 +187,16 @@ impl RegionTailCheckpoint {
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    /// Discard an intrinsic probe without rejecting its accepted enclosing packet.
+    pub(in crate::compiler::layout) fn restore_measurement_checkpoint(
+        &mut self,
+        checkpoint: FlowSuffixCheckpoint,
+    ) {
+        let generation = checkpoint.page_running_generation;
+        self.restore_flow_suffix_checkpoint(checkpoint);
+        self.page_running_generation = generation;
+    }
+
     /// Captura estado lógico e comprimentos de cauda na fronteira pós-marker.
     /// Campos de capacidade imutável (`metrics`, `sizer`, `introspector` e
     /// callbacks) não participam; prefixos de buffers permanecem no estado
@@ -193,6 +205,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         &self,
     ) -> FlowSuffixCheckpoint {
         FlowSuffixCheckpoint {
+            page_running_generation: self.page_running_generation,
             page_running_pass: self.page_running_pass.clone(),
             style: self.style.clone(),
             text_horizontal_offset: self.text_horizontal_offset,
@@ -293,6 +306,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_mode: self.column_mode,
             column_origin_x: self.column_origin_x,
             column_width: self.column_width,
+            column_flow_end: self.column_flow_end,
             page_column_notes: self.page_column_notes,
             page_columns: self.page_columns,
             current_column: self.current_column,
@@ -455,6 +469,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.column_mode = checkpoint.column_mode;
         self.column_origin_x = checkpoint.column_origin_x;
         self.column_width = checkpoint.column_width;
+        self.column_flow_end = checkpoint.column_flow_end;
         self.page_column_notes = checkpoint.page_column_notes;
         self.page_columns = checkpoint.page_columns;
         self.current_column = checkpoint.current_column;

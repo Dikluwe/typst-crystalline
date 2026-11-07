@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/modules.md
-//! @prompt-hash cb3a895c
+//! @prompt-hash 844fa6f7
 //! @layer L1
-//! @updated 2026-07-16
+//! @updated 2026-11-06
 //!
 //! Armos `ModuleImport` e `ModuleInclude` do eval — detecção de ciclos e
 //! recursão em Route. Extraído do dispatcher no Passo 96.2 conforme
@@ -57,7 +57,9 @@ fn eval_imported_file(
     let mut global = Scope::new();
     // P694 — `make_stdlib` precisa de `SysInputs` (vêm do `World`); módulos
     // importados vêem os mesmos `sys.inputs` do documento principal.
-    let stdlib = super::make_stdlib_with_features(&engine.world.inputs(), ctx.features);
+    let inputs = engine.world.inputs();
+    let (stdlib, stdlib_snapshot) =
+        super::stdlib_snapshot::resolve(&ctx.stdlib_snapshot, &inputs, ctx.features);
     // P709 — `std` também tem de existir aqui: um ficheiro importado (ex.
     // `cetz`) que sombreia um builtin (`#let length = ...`) precisa de
     // `std.length` para aceder à versão não-sombreada, exactamente como o
@@ -102,6 +104,7 @@ fn eval_imported_file(
     // Contexto local: herda `full_error`, features e target, mas corre sem
     // aplicar show-rules: o conteúdo é descartado e só os bindings interessam.
     let mut local_ctx = EvalContext::new();
+    local_ctx.stdlib_snapshot = std::cell::RefCell::new(stdlib_snapshot);
     local_ctx.full_error = ctx.full_error;
     local_ctx.features = ctx.features;
     local_ctx.target = ctx.target;

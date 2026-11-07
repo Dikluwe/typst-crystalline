@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash b234db04
+//! @prompt-hash 9f12d877
 //! @layer L3
-//! @updated 2026-10-03
+//! @updated 2026-11-06
 
 use super::bidi::bidi_runs;
 use super::cache::{FaceCache, ShapeCache};
@@ -1956,5 +1956,504 @@ fn bidi_occurrence_preserves_real_shape_and_does_not_nest_on_cache_hit() {
         assert!(shape_item(&world, ordinary, &mut cache, &mut face_cache)
             .iter()
             .all(|item| matches!(item, FrameItem::TextShaped { .. })));
+    }
+}
+
+// Direct-emission behavioral controls: fixtures are mandatory and versioned.
+fn c07_shape(world: &dyn World, item: FrameItem) -> Vec<FrameItem> {
+    shape_item(world, item, &mut ShapeCache::new(), &mut FaceCache::new())
+}
+
+fn c07_debug(items: &[FrameItem]) -> String {
+    format!("{items:?}")
+}
+
+#[test]
+fn c07_layers_preserve_prefix_order_zero_one_many_and_empty_layers() {
+    let world = contract_fix_world();
+    let prefix = text_item("prefix stays first");
+    let suffix = text_item("suffix stays last");
+    let one = text_item_with_font("ab", "Libertinus Serif");
+    let many = text_item_with_font("abαβ", "Libertinus Serif");
+    let zero = text_item_with_font("\u{200f}", "Libertinus Serif");
+    let one_result = c07_shape(&world, one.clone());
+    let many_result = c07_shape(&world, many.clone());
+    assert_eq!(one_result.len(), 1);
+    assert_eq!(many_result.len(), 2);
+    assert!(c07_shape(&world, zero.clone()).is_empty());
+    let mut expected = vec![prefix.clone()];
+    expected.extend(one_result);
+    expected.extend(many_result);
+    expected.push(suffix.clone());
+    let input = vec![prefix, zero.clone(), one, many, zero, suffix];
+    for layer in 0..3 {
+        let mut doc = doc_with(Vec::new());
+        match layer {
+            0 => doc.pages[0].background = input.clone(),
+            1 => doc.pages[0].items = input.clone(),
+            _ => doc.pages[0].foreground = input.clone(),
+        }
+        let shaped = shape_document(&world, doc);
+        let page = &shaped.pages[0];
+        for (index, actual) in [&page.background, &page.items, &page.foreground]
+            .into_iter()
+            .enumerate()
+        {
+            if index == layer {
+                assert_eq!(c07_debug(actual), c07_debug(&expected));
+            } else {
+                assert!(actual.is_empty(), "empty layer gained another layer's items");
+            }
+        }
+    }
+    let mut doc = doc_with(vec![text_item("body")]);
+    doc.pages[0].background = vec![text_item("background")];
+    doc.pages[0].foreground = vec![text_item("foreground")];
+    let expected = format!("{:?}", doc.pages);
+    assert_eq!(format!("{:?}", shape_document(&world, doc).pages), expected);
+}
+
+#[test]
+fn c07_fallback_and_successful_empty_do_not_erase_adjacent_items() {
+    let world = language_fixture();
+    let mut declared = FontBook::new();
+    declared.push(world.book.infos()[0].clone());
+    let broken = FontWorld { book: declared, fonts: vec![None] };
+    for (world, source) in [
+        (&world as &dyn World, text_item_with_font(" \t\n", "Noto Sans")),
+        (&broken as &dyn World, text_item_with_font("ABC", "Noto Sans")),
+        (&empty_world() as &dyn World, text_item_with_font("ABC", "Noto Sans")),
+    ] {
+        let expected = vec![text_item("left"), source, text_item("right")];
+        let shaped = shape_document(world, doc_with(expected.clone()));
+        assert_eq!(c07_debug(&shaped.pages[0].items), c07_debug(&expected));
+    }
+    for text in ["\u{200f}", "\u{202a}\u{202c}", "\u{2066}\u{2069}"] {
+        let control = text_item_with_font(text, "Noto Sans");
+        let items = vec![text_item("left"), control.clone(), text_item("right")];
+        let shaped = shape_document(&world, doc_with(items.clone()));
+        assert_eq!(
+            c07_debug(&shaped.pages[0].items),
+            c07_debug(&[text_item("left"), text_item("right")])
+        );
+        let absent = shape_document(&empty_world(), doc_with(items.clone()));
+        assert_eq!(c07_debug(&absent.pages[0].items), c07_debug(&items));
+    }
+}
+
+fn c07_wrapper(depth: usize, items: Vec<FrameItem>) -> FrameItem {
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::layout_types::{
+        LinkTarget, SemanticKind, SemanticPlacement, Size, TransformMatrix,
+    };
+    match depth % 4 {
+        0 => FrameItem::Group {
+            paint_root: true,
+            pos: Point { x: Pt(7.0), y: Pt(-3.0) },
+            matrix: TransformMatrix::identity(),
+            clip_mask: Some(ShapeKind::Rect),
+            inner_width: 123.0,
+            inner_height: 47.0,
+            items,
+        },
+        1 => FrameItem::Link {
+            target: LinkTarget::Url("https://example.test/c07?x=7".into()),
+            pos: Point { x: Pt(13.0), y: Pt(19.0) },
+            size: Size { width: Pt(71.0), height: Pt(29.0) },
+            items,
+        },
+        2 => FrameItem::Semantic {
+            kind: SemanticKind::TableDataCell {
+                table_id: 73,
+                row: 4,
+                column: 9,
+                rowspan: 2,
+                colspan: 3,
+            },
+            placement: SemanticPlacement::Block,
+            alt: Some("semantic metadata".into()),
+            items,
+        },
+        _ => {
+            FrameItem::TextReplacement { text: "external author identity".into(), items }
+        }
+    }
+}
+
+#[test]
+fn c07_nested_wrappers_keep_metadata_empty_children_and_shaped_sentinel() {
+    let world = language_fixture();
+    let sentinel =
+        c07_shape(&world, text_item_with_font("sentinel", "Noto Sans")).remove(0);
+    let mut source = vec![sentinel.clone()];
+    let mut expected = vec![sentinel];
+    for text in ["a\u{ad}b", "\u{200e}ABC", "\u{2069}ABC"] {
+        let original = text_item_with_font(text, "Noto Sans");
+        let FrameItem::Text { pos, text, style, .. } = &original else { unreachable!() };
+        let raw = super::shaping::try_shape(
+            &world,
+            pos,
+            text,
+            style,
+            &mut ShapeCache::new(),
+            &mut FaceCache::new(),
+        )
+        .unwrap();
+        let authored = c07_shape(&world, original.clone());
+        assert!(
+            matches!(&authored[0], FrameItem::TextReplacement { text: identity, .. } if identity == text)
+        );
+        source.push(original);
+        expected.extend(raw);
+    }
+    source.push(text_item_with_font("\u{200f}", "Noto Sans"));
+    for depth in 0..24 {
+        source = vec![c07_wrapper(depth, source), c07_wrapper(depth, vec![])];
+        expected = vec![c07_wrapper(depth, expected), c07_wrapper(depth, vec![])];
+    }
+    // The outer replacement applies through all descendant containers.
+    let input = FrameItem::TextReplacement { text: "outer".into(), items: source };
+    let expected = FrameItem::TextReplacement { text: "outer".into(), items: expected };
+    let actual = c07_shape(&world, input);
+    assert_eq!(c07_debug(&actual), c07_debug(&[expected]));
+}
+
+#[test]
+fn c07_shared_tiling_fill_and_stroke_keep_source_and_independent_identity() {
+    use std::sync::Arc;
+    use typst_core::entities::frame_paint::{FramePaint, FrameStroke, TilingFrame};
+    use typst_core::entities::geometry::{FillRule, ShapeKind};
+    use typst_core::entities::gradient::RelativeTo;
+    use typst_core::entities::layout_types::{Angle, Frame, Size};
+    let world = language_fixture();
+    let original = text_item_with_font("a\u{ad}b", "Noto Sans");
+    let cell = Arc::new(TilingFrame {
+        frame: Frame {
+            size: Size { width: Pt(19.0), height: Pt(23.0) },
+            items: vec![
+                text_item("cell prefix"),
+                original.clone(),
+                text_item_with_font("\u{200f}", "Noto Sans"),
+                text_item("cell suffix"),
+            ],
+        },
+        spacing: Size { width: Pt(-2.0), height: Pt(3.0) },
+        offset: Point { x: Pt(5.0), y: Pt(-7.0) },
+        angle: Angle::deg(31.0),
+        relative: RelativeTo::Parent,
+    });
+    let source_debug = format!("{cell:?}");
+    let shape = FrameItem::Shape {
+        pos: Point { x: Pt(17.0), y: Pt(29.0) },
+        kind: ShapeKind::Rect,
+        width: 101.0,
+        height: 67.0,
+        fill: Some(FramePaint::Tiling(cell.clone())),
+        stroke: Some(FrameStroke {
+            paint: FramePaint::Tiling(cell.clone()),
+            thickness: 2.25,
+            overhang: true,
+            ..Default::default()
+        }),
+        fill_rule: FillRule::NonZero,
+        parent_bbox_at_emit: None,
+    };
+    let actual = c07_shape(
+        &world,
+        FrameItem::TextReplacement { text: "outside paint".into(), items: vec![shape] },
+    );
+    assert_eq!(format!("{cell:?}"), source_debug, "shared source cell was modified");
+    let FrameItem::TextReplacement { text, items } = &actual[0] else {
+        panic!("outer identity lost")
+    };
+    assert_eq!(text.as_str(), "outside paint");
+    let FrameItem::Shape {
+        pos,
+        width,
+        height,
+        fill: Some(FramePaint::Tiling(fill)),
+        stroke: Some(stroke),
+        ..
+    } = &items[0]
+    else {
+        panic!("shape paint lost")
+    };
+    assert_eq!(*pos, Point { x: Pt(17.0), y: Pt(29.0) });
+    assert_eq!(
+        (*width, *height, stroke.thickness, stroke.overhang),
+        (101.0, 67.0, 2.25, true)
+    );
+    let FramePaint::Tiling(stroke) = &stroke.paint else { panic!("stroke cell lost") };
+    let mut expected = cell.as_ref().clone();
+    expected.frame.items = vec![text_item("cell prefix")];
+    expected.frame.items.extend(c07_shape(&world, original));
+    expected.frame.items.push(text_item("cell suffix"));
+    assert!(matches!(&expected.frame.items[1], FrameItem::TextReplacement { .. }));
+    for actual in [fill, stroke] {
+        assert_eq!(format!("{actual:?}"), format!("{expected:?}"));
+        assert!(!Arc::ptr_eq(actual, &cell), "shaping must detach shared source");
+    }
+}
+
+mod shared_cache_regressions {
+    use super::*;
+    use typst_core::entities::font_variations::FontVariations;
+    #[derive(Clone)]
+    struct Run {
+        text: String,
+        style: TextStyle,
+    }
+    #[derive(Debug, PartialEq)]
+    enum Snapshot {
+        Shaped(String, Vec<ShapedGlyph>, u16, Option<Vec<u8>>),
+        Replacement(String, Vec<Snapshot>),
+        Wrapper(String, Vec<Snapshot>),
+        Other(String),
+    }
+    type Shape = Vec<Snapshot>;
+    fn snapshot(item: FrameItem) -> Snapshot {
+        match item {
+ FrameItem::TextShaped{text,glyphs,units_per_em,font,..} => Snapshot::Shaped(text.to_string(),glyphs,units_per_em,font.map(|f|f.as_slice().to_vec())),
+ FrameItem::TextReplacement{text,items} => Snapshot::Replacement(text.to_string(),items.into_iter().map(snapshot).collect()),
+ FrameItem::Group{paint_root,pos,matrix,clip_mask,inner_width,inner_height,items} => Snapshot::Wrapper(format!("Group {paint_root:?} {pos:?} {matrix:?} {clip_mask:?} {inner_width:?} {inner_height:?}"),items.into_iter().map(snapshot).collect()),
+ FrameItem::Link{target,items,pos,size} => Snapshot::Wrapper(format!("Link {target:?} {pos:?} {size:?}"),items.into_iter().map(snapshot).collect()),
+ FrameItem::Semantic{kind,placement,alt,items} => Snapshot::Wrapper(format!("Semantic {kind:?} {placement:?} {alt:?}"),items.into_iter().map(snapshot).collect()),
+ FrameItem::Text{text,..} => panic!("unshaped fixture: {text}"),
+ other @ (FrameItem::TextSeparator { .. }
+ | FrameItem::Line { .. }
+ | FrameItem::Glyph { .. }
+ | FrameItem::Image { .. }
+ | FrameItem::Shape { .. }) => Snapshot::Other(format!("{other:?}")),
+}
+    }
+    fn has_authored_replacement(shape: &[Snapshot], text: &str) -> bool {
+        shape.iter().any(|item| match item {
+            Snapshot::Replacement(authored, children) => {
+                authored == text || has_authored_replacement(children, text)
+            }
+            Snapshot::Wrapper(_, children) => has_authored_replacement(children, text),
+            Snapshot::Shaped(..) | Snapshot::Other(..) => false,
+        })
+    }
+    fn first_glyph(shape: &[Snapshot]) -> Option<&ShapedGlyph> {
+        for item in shape {
+            match item {
+                Snapshot::Shaped(_, glyphs, _, _) => {
+                    if let Some(g) = glyphs.first() {
+                        return Some(g);
+                    }
+                }
+                Snapshot::Replacement(_, children) | Snapshot::Wrapper(_, children) => {
+                    if let Some(g) = first_glyph(children) {
+                        return Some(g);
+                    }
+                }
+                Snapshot::Other(_) => {}
+            }
+        }
+        None
+    }
+    fn cache_fixture_page(run: &Run) -> Page {
+        page_with(vec![FrameItem::Text {
+            pos: Point::ZERO,
+            text: run.text.as_str().into(),
+            style: run.style.clone(),
+            bidi: None,
+        }])
+    }
+    fn shape(world: &dyn World, runs: &[Run]) -> Vec<Shape> {
+        shape_document(
+            world,
+            PagedDocument::new(runs.iter().map(cache_fixture_page).collect()),
+        )
+        .pages
+        .into_iter()
+        .map(|p| p.items.into_iter().map(snapshot).collect())
+        .collect()
+    }
+    fn cache_fixture_world() -> FontWorld {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures/fonts");
+        let paths: Vec<_> = [
+            "DejaVuSans.ttf",
+            "NotoSans-Regular.ttf",
+            "UbuntuSans-Variable.ttf",
+            "Cantarell-VF.otf",
+            "NewCMMath-Book.otf",
+        ]
+        .iter()
+        .map(|n| root.join(n))
+        .collect();
+        let names: Vec<_> = paths.iter().map(|p| p.to_str().unwrap()).collect();
+        let world = font_world_with(&names);
+        assert!(world.is_complete(), "mandatory cache fixtures must load");
+        world
+    }
+    fn base() -> Run {
+        Run {
+            text: "office affine AV αβγ Ж б |langNone|sups1".into(),
+            style: TextStyle {
+                size: Pt(12.),
+                font: Some(FontList::single("DejaVu Sans".into())),
+                ..Default::default()
+            },
+        }
+    }
+    fn verify(runs: Vec<Run>) {
+        let w = cache_fixture_world();
+        let expected: Vec<_> = runs
+            .iter()
+            .map(|r| shape(&w, std::slice::from_ref(r)).remove(0))
+            .collect();
+        assert!(
+            expected.iter().all(|s| first_glyph(s).is_some()),
+            "controls require real shaped output, recursively through wrappers"
+        );
+        for (run, observed) in runs.iter().zip(&expected) {
+            if run.text.contains('\u{ad}') {
+                assert!(
+                    has_authored_replacement(observed, &run.text),
+                    "SHY replacement must retain exact authored text"
+                );
+            }
+        }
+        let indices: Vec<_> = (0..runs.len())
+            .chain((0..runs.len()).rev())
+            .chain(0..runs.len())
+            .collect();
+        let shared: Vec<_> = indices.iter().map(|&i| runs[i].clone()).collect();
+        let actual = shape(&w, &shared);
+        for (n, &i) in indices.iter().enumerate() {
+            assert_eq!(
+                actual[n], expected[i],
+                "shared/fresh contamination at page {n}, run {i}"
+            );
+        }
+    }
+    #[test]
+    fn shared_cache_preserves_full_shaping_observations() {
+        let b = base();
+        let mut runs = vec![b.clone()];
+        for text in [
+            "office affine AV",
+            "Ж б αβγ",
+            "a\u{ad}b",
+            "\u{200e}ABC",
+            "\u{2069}ABC",
+            "A🙂B",
+            "a|0|false||0|sstyNone|langNone",
+            "العربية abc",
+        ] {
+            let mut r = b.clone();
+            r.text = text.into();
+            runs.push(r);
+        }
+        for lang in ["en", "ru", "sr"] {
+            let mut r = b.clone();
+            r.style.lang = Some(lang.parse().unwrap());
+            runs.push(r);
+        }
+        for tracking in [-0.125, 0., 0.125, 10.] {
+            let mut r = b.clone();
+            r.style.tracking = Some(Length::pt(tracking));
+            runs.push(r);
+        }
+        for dir in [Dir::LTR, Dir::RTL] {
+            let mut r = b.clone();
+            r.style.dir = Some(dir);
+            runs.push(r);
+        }
+        for family in ["Noto Sans", "Ubuntu Sans", "Cantarell"] {
+            let mut r = b.clone();
+            r.style.font = Some(FontList::single(family.into()));
+            runs.push(r);
+        }
+        for native in [None, Some(false), Some(true)] {
+            let mut r = b.clone();
+            r.text = "123".into();
+            r.style.superscript = true;
+            r.style.superscript_native = native;
+            runs.push(r);
+        }
+        for size in [MathSize::Text, MathSize::Script, MathSize::ScriptScript] {
+            let mut r = b.clone();
+            r.text = "1".into();
+            r.style.font = Some(FontList::single("New Computer Modern Math".into()));
+            r.style.math = true;
+            r.style.math_size = size;
+            runs.push(r);
+        }
+        verify(runs);
+    }
+    #[test]
+    fn shared_cache_preserves_discriminating_variable_font_coordinates() {
+        for (family, text, a, b, expected) in [
+            ("Ubuntu Sans", "A", 1120998658, 1120998659, (617, 618)),
+            ("Cantarell", "x", 1122114658, 1122114659, (446, 447)),
+        ] {
+            let mut runs = vec![];
+            for bits in [a, b] {
+                let mut r = base();
+                r.text = text.into();
+                r.style.font = Some(FontList::single(family.into()));
+                r.style.variations =
+                    Some(FontVariations(vec![(*b"wght", f32::from_bits(bits))]));
+                runs.push(r);
+            }
+            let w = cache_fixture_world();
+            let shapes = shape(&w, &runs);
+            assert_eq!(first_glyph(&shapes[0]).unwrap().x_advance, expected.0);
+            assert_eq!(first_glyph(&shapes[1]).unwrap().x_advance, expected.1);
+            assert_ne!(shapes[0], shapes[1], "VF controls must discriminate");
+            verify(runs);
+        }
+    }
+
+    #[test]
+    fn shared_cache_preserves_existing_authored_envelopes_and_visual_children() {
+        let world = cache_fixture_world();
+        let style = language_style(Some("en"));
+        let originals: Vec<_> = ["a\u{ad}b", "\u{200e}ABC", "\u{2069}ABC", "ABC"]
+            .iter()
+            .map(|text| FrameItem::TextReplacement {
+                text: "outer author identity".into(),
+                items: vec![FrameItem::Text {
+                    pos: Point::ZERO,
+                    text: (*text).into(),
+                    style: style.clone(),
+                    bidi: None,
+                }],
+            })
+            .collect();
+        let expected: Vec<_> = originals
+            .iter()
+            .map(|item| {
+                shape_document(&world, doc_with(vec![item.clone()]))
+                    .pages
+                    .remove(0)
+                    .items
+                    .into_iter()
+                    .map(snapshot)
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        let mut cache = ShapeCache::new();
+        let mut faces = FaceCache::new();
+        for index in [0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, 3] {
+            let actual =
+                shape_item(&world, originals[index].clone(), &mut cache, &mut faces);
+            let FrameItem::TextReplacement { text, items } = &actual[0] else {
+                panic!("lost existing envelope")
+            };
+            assert_eq!(text.as_str(), "outer author identity");
+            assert!(
+                items.iter().all(|item| matches!(item, FrameItem::TextShaped { .. })),
+                "must not nest identity replacement inside existing envelope"
+            );
+            assert!(first_glyph(&expected[index]).is_some());
+            assert_eq!(
+                actual.into_iter().map(snapshot).collect::<Vec<_>>(),
+                expected[index]
+            );
+        }
     }
 }

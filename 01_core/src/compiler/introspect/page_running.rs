@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/page_running.md
-//! @prompt-hash 5a9ac2c3
+//! @prompt-hash 0cc1fa2c
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -2981,8 +2981,14 @@ mod source_plan_tests {
         }
     }
 
-    #[test]
-    fn page_running_prepared_table_figure_captioned_paint_has_unique_source_phases() {
+    struct TableTrace {
+        body: PageRunningBody,
+        trace: PageRunningTrace,
+        store: SealedPageRunning,
+        document: Option<crate::entities::layout_types::PagedDocument>,
+    }
+
+    fn prepared_table_trace(source: &str) -> TableTrace {
         use crate::compiler::layout::{
             layout_with_page_running, FixedMetrics, PageRunningLayoutInputs,
         };
@@ -2992,9 +2998,8 @@ mod source_plan_tests {
             world_types::{Library, Route, Routines, Sink, Traced},
         };
         use comemo::Track;
-        let source = crate::entities::source::Source::detached(
-            "#table(columns:1,[#figure([FIRST],caption:[C1]) <first>],[#figure([SECOND],caption:[C2]) <second>])",
-        ).expect("valid Source test fixture");
+        let source = crate::entities::source::Source::detached(source)
+            .expect("valid Source test fixture");
         let world = PlanTestWorld {
             source,
             library: Library::new(),
@@ -3047,10 +3052,18 @@ mod source_plan_tests {
             PageRunningLayoutInputs { math: None, par_line: None, running: Some(&empty) },
         )
         .into_result();
-        let trace = match outcome {
-            Ok(document) => document.trace,
-            Err(pending) => pending.trace,
+        let (trace, document) = match outcome {
+            Ok(document) => (document.trace, Some(document.document)),
+            Err(pending) => (pending.trace, None),
         };
+        TableTrace { body, trace, store: empty, document }
+    }
+
+    #[test]
+    fn page_running_prepared_table_figure_captioned_paint_has_unique_source_phases() {
+        let TableTrace { body, trace, store: empty, .. } = prepared_table_trace(
+            "#table(columns:1,[#figure([FIRST],caption:[C1]) <first>],[#figure([SECOND],caption:[C2]) <second>])"
+        );
         let mut missing = Vec::new();
         for (index, node) in body.plan.nodes.iter().enumerate() {
             for phase in [PlanPhase::Root, PlanPhase::PostChildren] {
@@ -3095,6 +3108,43 @@ mod source_plan_tests {
             })
             .is_ok(),
             "prepared Table transcript must construct the incremental index"
+        );
+    }
+
+    #[test]
+    fn issue_8935_repeated_table_header_has_one_source_dispatch() {
+        let TableTrace { body, trace, store, document } = prepared_table_trace(
+            "#set page(width:200pt,height:150pt,margin:10pt)\n#set text(size:10pt)\n#table(columns:1,rows:20pt,inset:2pt,table.header([H#footnote[NOTE]<note-foo>]),..range(10).map(i=>[body #i]))"
+        );
+        let document = document.expect("the fixed-height fixture must paint");
+        assert!(document.pages.len() > 1);
+        assert!(
+            document.plain_text().matches('H').count() > 1,
+            "the header must actually repeat"
+        );
+        let mut duplicate = Vec::new();
+        for (index, event) in trace.data.admissions.iter().enumerate() {
+            if trace.data.admissions[..index].iter().any(|prior| {
+                Arc::ptr_eq(&prior.plan, &event.plan)
+                    && prior.packet == event.packet
+                    && prior.phase == event.phase
+            }) {
+                duplicate.push(format!("{:?} {:?}", event.packet, event.phase));
+            }
+        }
+        assert!(
+            duplicate.is_empty(),
+            "physical header copies readmitted source: {duplicate:?}"
+        );
+        assert!(trace.data.complete, "required raw source coverage must stay complete");
+        assert!(
+            scheduled_document(&PageRunningIndexInput {
+                body: &body,
+                target: EvalTarget::Paged,
+                running: Some((&trace, &store)),
+            })
+            .is_ok(),
+            "strict source construction must accept the actual transcript"
         );
     }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 7d6322d3
+//! @prompt-hash e1cb3bf3
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -1236,7 +1236,7 @@ fn layout_with_realized_math_callbacks_from_with_metrics(
                 super::tests::record_uncached_layout_metrics();
                 FallbackFontMetrics::new(world)
             }),
-            ImageSizeImageSizer,
+            crate::svg_image::SvgImageSizer::new(world),
             11.0,
             math_store.as_ref(),
             par_line_store.as_ref(),

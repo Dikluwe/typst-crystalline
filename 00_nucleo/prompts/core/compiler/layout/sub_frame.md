@@ -1,5 +1,5 @@
 # L0 — sub frame
-Hash do Código: 699a2faa
+Hash do Código: fd6aa217
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -620,3 +620,18 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+
+## Issue 8935 residual — physical entry scope and original note marker
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-residual-2026-10-31/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,reference-geometry-before.json.gz}` preserves HEAD3c6b0ce7, the exact concurrent uncommitted changed-file list, UTC, source/L0 bytes, argv and executable SHA-256. Current oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Compact repeated headers retain one logical member from approved #8954, but entries distribute 0/1/2 while the oracle's unreferenced control has one per page. Narrow Box reproduces deferred/narrow entry outside Table, unlike ordinary prose. Alphabetic call/entry a has decimal ref:1 outside Table; vanilla ref:a. Footnote marker styling is language morphology, not a demand to copy upstream mechanics.
+
+`footnote_fragments.rs:690-695` subtracts page margins from the local cell region. `sub_frame.rs:373-374,813` zeros/restores reserve while new captured notes remain queued, and refresh refuses is_sub_frame. `references.rs:376-382` formats other counters as decimal without consulting Footnote; pinned model/reference.rs:281-282 clones the original note into a reference and model/footnote.rs:117-121,148-154 uses its pattern/superscript display. These observations support a shared physical-scope loss for Table/Box and a distinct generic-projection loss for references; one arithmetic cause for both is not inferred. Correct text but wrong page/entry line or marker styling, repeated effects, changed counters or measurements refute closure.
+
+### Exclusive internal obligation
+
+Retain zero/install/restore of the exterior footnote reserve and capture in LIFO. Track the pending-note count at entry. After restoring the complete parent region/state, if this actual subframe enqueued notes, refresh its parent's reservation through the existing footnote owner. Nested subframes still cannot reserve the wrong local region; refresh retains the existing guards for nested/column/page-column contexts. Discarded intrinsic Table probes remain enclosed by their existing complete measurement checkpoint, so no note or reserve may leak from measurement. Do not change return tuples, source admissions, body execution, or local dimensions. Require an actual nested note RED for restored-parent reserve and the original measurement/isolation controls.
+
+ADR-0127 continuous flow: this restores measured note semantics/pagination/morphology within existing layout, without public entity/trait/signature, new mode/default, pipeline phase or compatibility change. Preserve all approved #8935 identity/measurement/header replay work and concurrent Figure/math changes. L0 first, scoped reseal after V15/V26, minimal module/integrated RED before implementation, then GREEN. Revalidate all seven original #8935 tests, ordinary/Table/Box, repeat:false, later real note/query/counter/duplicate/hidden controls, general note/column/continuation pagination and complete PDF text plus PDF/SVG painting. Existing one-logical-member semantics intentionally differ from vanilla's repeated-header counter defect. Use exclusively the residual task's RAM target, one compilation job, 12GiB ceiling; leave combined workspace qualification to the coordinator.

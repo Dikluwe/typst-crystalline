@@ -1,10 +1,12 @@
 # L0 — region progress
-Hash do Código: ec911e08
+Hash do Código: 203545fb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
+- 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:029c2929c9e294efceb796a5358a6f425f02ae91c519314080f413374f4f4403
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/finite-block-text-region.toml sha256:a3eded1b7fa5a4981a4797650774f976cc7f56fc9d1073e642feac63765583a1
 - 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -152,3 +154,60 @@ Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete 
 ### Measured lexical horizontal scope refinement
 
 The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+After ordinary page/column successor geometry and reservations are installed, before any continuation text, ask Place's private owner to admit its leading deferred Figure prefix. Retain existing close/commit/column/body ordering and Block inline restoration. Do not re-layout already emitted pages or apply old-page origins/heights to successors.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+
+### Successor reduced during admission — issue8890 refinement
+
+The green-final.json/log and final/receipt.json in issue-8890-placement-2026-10-31
+refute closure after Cursor's initial hook: isolated already-committed float
+admission passes, but full Block emits E at92pt and captioned native Source
+still loses E outside the canvas. admit_next_text_line at:155-178 advances only
+once. next_region installs a pending Figure in that successor before returning;
+its baseline can therefore still exceed the accepted bottom. This source/geometry
+measurement precedes the following internal correction, not a claim about intent.
+
+Add a RED with a pending75pt Figure reservation and a full preceding region:
+actual Text/KnownTop demand must advance past both the preceding region and the
+newly reserved successor before emitting text. Admit repeatedly while the actual
+baseline still cannot fit and the region contains material, using the same owner
+transition and preserving empty-region oversized progress. Stop if page/column
+identity did not change (suffix rejection), never loop without progress. No source
+re-evaluation, new field, default, public API or phase change. Preserve fitting,
+local subframe, Generic and no-following-text behavior; keep all prior guards.
+Existing full Block/link and captioned PDF/SVG refuters must pass, without bounds
+relaxation. This is ADR-0127 continuous formula/control correction under this owner.
+
+## Finite Block text admission
+
+Evidence before decision: current text guards in cursor.rs:162,
+line_commit.rs:600-646 and region_progress.rs:133-178 distinguish generic
+subframes but not a declared finite Block region. Pinned vanilla
+`typst-layout/src/flow/block.rs:310-338` gives a fitting fixed height no
+repeatable continuation; Auto inherits outer continuation. The existing nested
+flush test is correct against the current ratified oracle. Neutral top-float
+controls refute removing clearance, and height-exceeding-entry controls refute
+using declared height alone as a universal terminal witness. This is a scoped
+internal text-admission correction, not certification of multi-region fixed
+height or nested no-flush scheduling.
+
+Text pre-admission and post-line overflow guards consult the Block-owned
+terminal text-region query before implicit page progress or suffix rejection.
+Do not change next_region itself, explicit pagebreak/column/float-prefix drains,
+root/Auto continuation, or material-line and empty-region safeguards.

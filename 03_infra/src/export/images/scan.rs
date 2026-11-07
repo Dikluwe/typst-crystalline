@@ -1,30 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images/scan.md
-//! @prompt-hash 35b14166
+//! @prompt-hash 6200212f
 //! @layer L3
-//! @updated 2026-10-26
+//! @updated 2026-11-05
 
 use super::jpeg::jpeg_is_rgb;
 use super::png::process_png_for_pdf;
-use super::{detect_image_format, ImageFormat, ImageRef, ImageXObject, PdfImagePayload};
+use super::{detect_image_format, ImageFormat, ImageRef, ImageXObject};
 use crate::export::tiling::walk_resources as walk_frame_items;
 mod reader;
 
-use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 use typst_core::entities::frame_visitor::FrameVisitor;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_core::entities::span::Span;
-
-// P876 — cache thread-local de `PdfImagePayload` processados, indexado pelo
-// ponteiro do `Arc<Vec<u8>>` original. Como `PagedDocument` mantém os Arcs
-// vivos durante o export, o endereço é uma chave estável e segura.
-thread_local! {
-    static PAYLOAD_CACHE: RefCell<HashMap<usize, PdfImagePayload>> =
-        RefCell::new(HashMap::new());
-}
 
 struct ImageScanCursor {
     next_id: usize,
@@ -58,7 +49,14 @@ pub(crate) fn validate_document_images(doc: &PagedDocument) -> Result<(), String
             if self.result.is_err() {
                 return;
             }
-            if let FrameItem::Image { data, .. } = item {
+            if let FrameItem::Image { data, format, .. } = item {
+                if format.is_some_and(|selected| selected != detect_image_format(data)) {
+                    self.result = Err(
+                        "failed to decode image (format does not match file extension)"
+                            .into(),
+                    );
+                    return;
+                }
                 // The document keeps every Arc alive for this invocation.
                 let identity = Arc::as_ptr(data) as usize;
                 if self.validated.contains(&identity) {
@@ -123,6 +121,9 @@ fn validate_image_data(data: &[u8]) -> Result<(), String> {
         }
         // Unknown: a avaliação (`native_image`) já rejeita com
         // "unknown image format" antes de chegar aqui — nada a validar.
+        ImageFormat::Svg => super::svg::prepare(data, 1)
+            .map(|_| ())
+            .map_err(|e| format!("failed to decode image ({e})")),
         ImageFormat::Unknown => Ok(()),
     }
 }
@@ -477,6 +478,18 @@ fn process_image_item(
     cursor.counter += 1;
 
     match detect_image_format(data) {
+        ImageFormat::Svg => match super::svg::prepare(data, cursor.next_id) {
+            Ok(bundle) => {
+                cursor.next_id = bundle.next;
+                refs.push(ImageRef { main_obj_id: bundle.root, name });
+                xobjects.push(ImageXObject::Svg { objects: bundle.objects });
+                ptr_to_idx.insert(ptr, idx);
+            }
+            Err(e) => warnings.push(SourceDiagnostic::warning(
+                Span::detached(),
+                format!("failed to prepare SVG PDF ({e})"),
+            )),
+        },
         ImageFormat::Jpeg => {
             let main_id = cursor.next_id;
             cursor.next_id += 1;
@@ -492,18 +505,9 @@ fn process_image_item(
             ptr_to_idx.insert(ptr, idx);
         }
         ImageFormat::Png | ImageFormat::Gif | ImageFormat::WebP => {
-            // P876 — cache de payload por ponteiro Arc. A deduplicação via
-            // `ptr_to_idx` já evita XObjects duplicados; o cache evita
-            // reprocessar/decomprimir a mesma imagem raster mais do que uma vez.
-            let payload: Result<PdfImagePayload, String> = PAYLOAD_CACHE.with(|c| {
-                if let Some(p) = c.borrow().get(&ptr).cloned() {
-                    return Ok(p);
-                }
-                let p = process_png_for_pdf(data)?;
-                c.borrow_mut().insert(ptr, p.clone());
-                Ok(p)
-            });
-            match payload {
+            // A identidade Arc só vale nesta varredura: `ptr_to_idx` já evita
+            // reprocessar ocorrências do mesmo buffer dentro do documento.
+            match process_png_for_pdf(data) {
                 Ok(payload) => {
                     // Alocar ID do /SMask antes do ID principal para que smask
                     // apareça primeiro no ficheiro PDF (xref em ordem crescente).
@@ -599,6 +603,7 @@ pub(in crate::export) fn xobject_resources_for_page(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::export::images::PdfImagePayload;
     use typst_core::entities::content::Content;
     use typst_core::entities::layout_types::{Point, Pt, TransformMatrix};
 
@@ -1217,6 +1222,7 @@ mod tests {
 
     fn image_item(data: Arc<Vec<u8>>) -> FrameItem {
         FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point::ZERO,
             data,
@@ -1276,8 +1282,6 @@ mod tests {
 
     #[test]
     fn scan_allocates_mask_before_rgb_and_validates_nested_images() {
-        // Keep payload cache isolated in this thread; no cache policy change.
-        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
         let image = image::RgbaImage::from_raw(1, 1, vec![20, 40, 60, 128]).unwrap();
         let mut encoded = std::io::Cursor::new(Vec::new());
         image.write_to(&mut encoded, image::ImageFormat::Png).unwrap();
@@ -1298,13 +1302,10 @@ mod tests {
         assert!(validate_document_images(&broken)
             .unwrap_err()
             .starts_with("failed to decode image ("));
-        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
     }
 
     #[test]
     fn public_pdf_export_returns_image_omission_warnings() {
-        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
-
         let unknown = document(vec![image_item(Arc::new(b"not an image".to_vec()))]);
         let unknown_export =
             crate::export::export_pdf(&unknown, crate::export::StreamMode::Verbose);
@@ -1325,7 +1326,232 @@ mod tests {
             .message
             .starts_with("failed to decode image ("));
         assert!(malformed_export.warnings[0].message.ends_with("— imagem omitida"));
+    }
 
-        PAYLOAD_CACHE.with(|cache| cache.borrow_mut().clear());
+    fn identity_png(width: u32, height: u32, rgba: [u8; 4]) -> Vec<u8> {
+        let image = image::RgbaImage::from_pixel(width, height, image::Rgba(rgba));
+        let mut encoded = std::io::Cursor::new(Vec::new());
+        image.write_to(&mut encoded, image::ImageFormat::Png).unwrap();
+        encoded.into_inner()
+    }
+
+    fn identity_inflate(bytes: &[u8]) -> Vec<u8> {
+        use std::io::Read;
+        let mut pixels = Vec::new();
+        flate2::read::ZlibDecoder::new(bytes)
+            .read_to_end(&mut pixels)
+            .unwrap();
+        pixels
+    }
+
+    fn identity_payload(source: &Arc<Vec<u8>>) -> PdfImagePayload {
+        let doc = document(vec![image_item(source.clone())]);
+        let mut warnings = Vec::new();
+        let (refs, pointers, mut objects) =
+            scan_all_images(&doc, 20, None, &mut warnings);
+        assert!(warnings.is_empty());
+        assert_eq!((refs.len(), pointers.len(), objects.len()), (1, 1, 1));
+        let ImageXObject::Png { payload, main_obj_id, smask_obj_id } =
+            objects.pop().unwrap()
+        else {
+            panic!("PNG source must produce its own raster payload");
+        };
+        if payload.alpha_data_compressed.is_some() {
+            assert_eq!((smask_obj_id, main_obj_id), (Some(20), 21));
+        } else {
+            assert_eq!((smask_obj_id, main_obj_id), (None, 20));
+        }
+        payload
+    }
+
+    #[test]
+    fn identity_raster_scans_use_current_pixels_dimensions_and_alpha() {
+        let mut source = Arc::new(identity_png(2, 2, [17, 89, 201, 255]));
+        let address = Arc::as_ptr(&source);
+        for (width, height, rgba) in [
+            (2, 2, [17, 89, 201, 255]),
+            (3, 1, [203, 41, 7, 73]),
+            (1, 4, [3, 107, 211, 255]),
+        ] {
+            *Arc::get_mut(&mut source)
+                .expect("a completed scan must release source ownership") =
+                identity_png(width, height, rgba);
+            assert_eq!(Arc::as_ptr(&source), address);
+            let payload = identity_payload(&source);
+            assert_eq!((payload.width, payload.height), (width, height));
+            assert_eq!(payload.color_space, "/DeviceRGB");
+            assert_eq!(
+                identity_inflate(&payload.rgb_data_compressed),
+                rgba[..3].repeat((width * height) as usize)
+            );
+            if rgba[3] == 255 {
+                assert!(payload.alpha_data_compressed.is_none());
+            } else {
+                assert_eq!(
+                    identity_inflate(payload.alpha_data_compressed.as_ref().unwrap()),
+                    vec![rgba[3]; (width * height) as usize]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn identity_raster_failed_export_does_not_reuse_previous_success() {
+        let mut source = Arc::new(identity_png(2, 2, [17, 89, 201, 255]));
+        identity_payload(&source);
+        *Arc::get_mut(&mut source).unwrap() = b"\x89PNG\r\n\x1a\ninvalid".to_vec();
+        {
+            let doc = document(vec![image_item(source.clone())]);
+            assert!(validate_document_images(&doc).is_err());
+            let exported =
+                crate::export::export_pdf(&doc, crate::export::StreamMode::Verbose);
+            assert_eq!(
+                exported.warnings.len(),
+                1,
+                "defensive public exporter must not serve an old valid payload"
+            );
+            assert!(exported.warnings[0].message.starts_with("failed to decode image ("));
+            assert!(exported.warnings[0].message.ends_with("— imagem omitida"));
+            let mut warnings = Vec::new();
+            let (refs, pointers, objects) =
+                scan_all_images(&doc, 20, None, &mut warnings);
+            assert_eq!((refs.len(), pointers.len(), objects.len()), (0, 0, 0));
+            assert_eq!(warnings.len(), 1);
+        }
+        *Arc::get_mut(&mut source).unwrap() = identity_png(1, 3, [9, 111, 237, 149]);
+        let payload = identity_payload(&source);
+        assert_eq!((payload.width, payload.height), (1, 3));
+        assert_eq!(
+            identity_inflate(&payload.rgb_data_compressed),
+            [9, 111, 237].repeat(3)
+        );
+        assert_eq!(
+            identity_inflate(payload.alpha_data_compressed.as_ref().unwrap()),
+            vec![149; 3]
+        );
+    }
+
+    #[test]
+    fn identity_raster_failed_first_scan_recovers_on_same_arc() {
+        let mut source = Arc::new(b"\x89PNG\r\n\x1a\ninvalid".to_vec());
+        let address = Arc::as_ptr(&source);
+        {
+            let doc = document(vec![image_item(source.clone())]);
+            let mut warnings = Vec::new();
+            let (refs, pointers, objects) =
+                scan_all_images(&doc, 30, None, &mut warnings);
+            assert_eq!((refs.len(), pointers.len(), objects.len()), (0, 0, 0));
+            assert_eq!(warnings.len(), 1);
+        }
+        *Arc::get_mut(&mut source).unwrap() = identity_png(2, 1, [19, 51, 83, 255]);
+        assert_eq!(Arc::as_ptr(&source), address);
+        let payload = identity_payload(&source);
+        assert_eq!(
+            identity_inflate(&payload.rgb_data_compressed),
+            [19, 51, 83].repeat(2)
+        );
+    }
+
+    #[test]
+    fn identity_raster_shared_nested_multipage_and_distinct_arcs() {
+        let shared = Arc::new(identity_png(2, 1, [37, 91, 155, 123]));
+        let distinct = Arc::new(shared.as_ref().clone());
+        let mut doc = document(vec![group(vec![
+            image_item(shared.clone()),
+            image_item(distinct.clone()),
+        ])]);
+        doc.pages[0].background.push(image_item(shared.clone()));
+        doc.pages[0].foreground.push(image_item(shared.clone()));
+        let mut second = doc.pages[0].clone();
+        second.items = vec![group(vec![group(vec![image_item(shared.clone())])])];
+        second.background.clear();
+        second.foreground.clear();
+        doc.pages.push(second);
+        let mut warnings = Vec::new();
+        let (refs, pointers, objects) = scan_all_images(&doc, 40, None, &mut warnings);
+        assert!(warnings.is_empty());
+        assert_eq!((refs.len(), pointers.len(), objects.len()), (2, 2, 2));
+        assert_eq!((refs[0].main_obj_id, refs[1].main_obj_id), (41, 43));
+        for object in objects {
+            let ImageXObject::Png { payload, smask_obj_id, .. } = object else {
+                panic!("raster object")
+            };
+            assert!(smask_obj_id.is_some());
+            assert_eq!(
+                identity_inflate(&payload.rgb_data_compressed),
+                [37, 91, 155].repeat(2)
+            );
+            assert_eq!(
+                identity_inflate(payload.alpha_data_compressed.as_ref().unwrap()),
+                vec![123; 2]
+            );
+        }
+        assert_eq!(
+            xobject_resources_for_page(&doc.pages[0], &pointers, &refs),
+            "/XObject << /Im1 41 0 R /Im2 43 0 R >>"
+        );
+        assert_eq!(
+            xobject_resources_for_page(&doc.pages[1], &pointers, &refs),
+            "/XObject << /Im1 41 0 R >>"
+        );
+        drop(doc);
+        assert_eq!(Arc::strong_count(&shared), 1);
+        assert_eq!(Arc::strong_count(&distinct), 1);
+    }
+
+    fn identity_public_pdf_rgb(pdf: &[u8]) -> Vec<Vec<u8>> {
+        let marker = b"/Subtype /Image";
+        let mut cursor = 0;
+        let mut images = Vec::new();
+        while let Some(relative) =
+            pdf[cursor..].windows(marker.len()).position(|w| w == marker)
+        {
+            let start = cursor + relative;
+            let stream = start
+                + pdf[start..].windows(7).position(|w| w == b"stream\n").unwrap()
+                + 7;
+            let header = std::str::from_utf8(&pdf[start..stream]).unwrap();
+            assert!(header.contains("/Width 2 /Height 2"));
+            assert!(header.contains("/ColorSpace /DeviceRGB"));
+            assert!(header.contains("/Filter /FlateDecode"));
+            let length: usize = header
+                .split("/Length ")
+                .nth(1)
+                .unwrap()
+                .split_whitespace()
+                .next()
+                .unwrap()
+                .parse()
+                .unwrap();
+            let end = stream.checked_add(length).unwrap();
+            images.push(identity_inflate(&pdf[stream..end]));
+            cursor = end;
+        }
+        assert!(!images.is_empty(), "public exporter omitted all images");
+        images
+    }
+
+    #[test]
+    fn identity_public_pdf_after_same_arc_mutation_has_current_pixels() {
+        let mut source = Arc::new(identity_png(2, 2, [17, 89, 201, 255]));
+        let address = Arc::as_ptr(&source);
+        let export = |source: &Arc<Vec<u8>>| {
+            let doc = document(vec![image_item(source.clone())]);
+            let result =
+                crate::export::export_pdf(&doc, crate::export::StreamMode::Verbose);
+            assert!(result.warnings.is_empty());
+            assert!(result.output.starts_with(b"%PDF-1.7"));
+            result.output
+        };
+        let first = export(&source);
+        assert_eq!(identity_public_pdf_rgb(&first), vec![[17, 89, 201].repeat(4)]);
+        *Arc::get_mut(&mut source).expect("no exporter may retain the source Arc") =
+            identity_png(2, 2, [203, 41, 7, 255]);
+        assert_eq!(Arc::as_ptr(&source), address);
+        assert_eq!(
+            identity_public_pdf_rgb(&export(&source)),
+            vec![[203, 41, 7].repeat(4)]
+        );
+        assert_eq!(identity_public_pdf_rgb(&first), vec![[17, 89, 201].repeat(4)]);
     }
 }

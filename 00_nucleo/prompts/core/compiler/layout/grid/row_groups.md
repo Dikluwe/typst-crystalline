@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/row_groups
-Hash do Código: 11a24651
+Hash do Código: c0b3cea3
 
 
 Núcleos Tekt:
@@ -114,3 +114,11 @@ on its old constructor path until separately measured; do not silently drop line
 Footer remains unique/final under current controls. Reject malformed groups
 through SourceDiagnostic, never panic. No callback/Engine/layout here.
 L0/reseal precede RED/code; preserve all prior approvals and source origins.
+
+## Test-module placement
+
+`01_core/src/compiler/layout/grid/row_groups.rs:856-1011` places the test module
+before OrderedGroup and ordered_groups. Keep productive declarations before
+the terminal test module. Move that module unchanged; preserve declaration
+visibility, ordering logic, assertions and diagnostics. This is a mechanical
+Clippy correction with no public contract or language change.

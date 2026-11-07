@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running_requests.md
-//! @prompt-hash 74426301
+//! @prompt-hash 170d182e
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -393,6 +393,7 @@ pub(super) struct CausalAnchor {
 
 #[derive(Debug, Clone)]
 pub(in crate::compiler) struct Cursor {
+    pub(super) paint_only: bool,
     pub(super) plan: Arc<SourcePlan>,
     pub(super) packet: PacketId,
     pub(super) section: TraceSection,
@@ -445,6 +446,9 @@ impl PlannedPass {
         phase: PlanPhase,
         page: NonZeroUsize,
     ) {
+        if cursor.paint_only {
+            return;
+        }
         let causal_order = self.causal_order(cursor.anchor.as_ref());
         self.trace.data.admissions.push(Admission {
             plan: cursor.plan.clone(),
@@ -522,9 +526,75 @@ impl PlannedPass {
 impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
     super::Layouter<'a, M, S>
 {
+    /// Repaint an already emitted prepared header cell without a second source call.
+    pub(super) fn table_header_replay_cursor(
+        &self,
+        cursor: &Cursor,
+    ) -> SourceResult<Cursor> {
+        use crate::compiler::introspect::page_running::PlanEdge;
+        let span = cursor
+            .plan
+            .node(cursor.packet)
+            .map_or(self.current_source_span, |node| node.span);
+        let invalid = || {
+            vec![SourceDiagnostic::error(
+                span,
+                "table header replay requires its completed source occurrence",
+            )]
+        };
+        let pass = self.page_running_pass.as_ref().ok_or_else(invalid)?;
+        let parent = pass.cursor.as_ref().ok_or_else(invalid)?;
+        if !Arc::ptr_eq(&parent.plan, &cursor.plan)
+            || !parent.generated_edges.is_empty()
+            || !cursor.generated_edges.is_empty()
+        {
+            return Err(invalid());
+        }
+        let parent_node = parent.plan.node(parent.packet).ok_or_else(invalid)?;
+        let Content::Table(table) = &parent_node.content else { return Err(invalid()) };
+        let table = table
+            .resolved
+            .as_ref()
+            .filter(|table| table.complete)
+            .ok_or_else(invalid)?;
+        if !parent_node.children.iter().any(|(edge, packet)| {
+            matches!(edge, PlanEdge::TableResolvedCell(_)) && *packet == cursor.packet
+        }) {
+            return Err(invalid());
+        }
+        let node = cursor.plan.node(cursor.packet).ok_or_else(invalid)?;
+        let Content::TableCell(cell) = &node.content else { return Err(invalid()) };
+        let cell = cell.resolved.as_ref().ok_or_else(invalid)?;
+        if !matches!(
+            cell.stage,
+            crate::entities::elements::table_cell::TableCellStage::Complete
+        ) || !table
+            .header_groups
+            .iter()
+            .any(|group| group.start <= cell.y && cell.y < group.end)
+        {
+            return Err(invalid());
+        }
+        let root = pass
+            .trace
+            .unique_phase_index(&cursor.plan, cursor.packet, PlanPhase::Root)
+            .ok_or_else(invalid)?;
+        let post = pass
+            .trace
+            .unique_phase_index(&cursor.plan, cursor.packet, PlanPhase::PostChildren)
+            .ok_or_else(invalid)?;
+        if root >= post {
+            return Err(invalid());
+        }
+        let mut replay = cursor.clone();
+        replay.paint_only = true;
+        Ok(replay)
+    }
+
     pub(super) fn admit_planned_phase(&mut self, phase: PlanPhase, page: NonZeroUsize) {
         let event = self.page_running_pass.as_mut().and_then(|pass| {
-            if !pass.cursor.as_ref()?.generated_edges.is_empty() {
+            let cursor = pass.cursor.as_ref()?;
+            if cursor.paint_only || !cursor.generated_edges.is_empty() {
                 return None;
             }
             let event = pass.trace.data.admissions.len();
@@ -552,6 +622,7 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
             plan: body.plan.clone(),
             packet: body.plan.root,
             section,
+            paint_only: false,
             generated_edges: vec![],
             anchor: None,
         };
@@ -821,6 +892,7 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
             plan: body.plan.clone(),
             packet: body.plan.root,
             section: slot.into(),
+            paint_only: false,
             generated_edges: vec![],
             anchor: None,
         };
@@ -1253,6 +1325,7 @@ mod tests {
             plan: Arc::new(plan),
             packet: PacketId(0),
             section: TraceSection::Body,
+            paint_only: false,
             generated_edges: vec![],
             anchor: None,
         };
@@ -1322,6 +1395,7 @@ mod tests {
             plan: source.plan.clone(),
             packet: PacketId(0),
             section: TraceSection::Body,
+            paint_only: false,
             generated_edges: vec![],
             anchor: None,
         };
@@ -1637,6 +1711,7 @@ mod repeat_activity_tests {
             plan: body.plan.clone(),
             packet: body.plan.root,
             section: TraceSection::Body,
+            paint_only: false,
             generated_edges: vec![],
             anchor: None,
         };

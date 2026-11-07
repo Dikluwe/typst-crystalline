@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote.md
-//! @prompt-hash 7d0175d4
+//! @prompt-hash 82c1ea77
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -34,6 +34,35 @@ pub(super) struct EntrySettings {
     pub(super) separator_height: Option<f64>,
     pub(super) chain: crate::entities::style_chain::StyleChain,
     pub(super) style: crate::entities::layout_types::TextStyle,
+}
+
+pub(super) fn entry_region_width<M: FontMetrics, S: ImageSizer>(
+    l: &Layouter<M, S>,
+) -> f64 {
+    let width = if l.column_mode && l.page_column_notes {
+        l.column_width
+    } else {
+        l.page_config.width
+    };
+    width - l.page_config.margin.horizontal()
+}
+
+fn numbering<'a>(
+    note: &'a FootnoteElem,
+    chain: &'a crate::entities::style_chain::StyleChain,
+) -> &'a str {
+    note.numbering
+        .as_deref()
+        .or_else(|| {
+            if let Some(crate::entities::value::Value::Str(pattern)) =
+                chain.custom("footnote.numbering")
+            {
+                Some(pattern.as_str())
+            } else {
+                None
+            }
+        })
+        .unwrap_or("1")
 }
 
 // Only the common source prefix establishes flow settings. Local note/call
@@ -70,6 +99,12 @@ pub(super) fn prepare_entry_scope<M: FontMetrics, S: ImageSizer>(
             chain = chain.push_styles(&e.styles);
             source = &e.body;
             continue;
+        }
+        if let Content::Columns(e) = source {
+            if e.page_columns {
+                source = &e.body;
+                continue;
+            }
         }
         if let Content::Sequence(parts) = source {
             let mut material = parts
@@ -143,7 +178,7 @@ pub(super) fn entry_settings<M: FontMetrics, S: ImageSizer>(
             probe.style = style.clone();
             probe.footnote_entry_scope = Some(chain.clone());
             probe.page_config = l.page_config.clone();
-            let width = l.regions.current.width - l.page_config.margin.horizontal();
+            let width = entry_region_width(l);
             let (height, ..) = probe.layout_sub_frame_at_geometric_origin(
                 content,
                 super::sub_frame::SubLayoutRegion {
@@ -189,7 +224,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .unwrap_or(1);
     // **P1020** — marcador formatado pelo pattern `e.numbering` (default "1")
     // e envolvido em superscript, em vez do literal `[N]`.
-    let pattern = e.numbering.as_deref().unwrap_or("1");
+    let pattern = numbering(e, &layouter.chain);
     let marker_text = format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
     let marker = Content::superscript(Content::text(marker_text));
     layouter.layout_content(&marker);
@@ -536,7 +571,7 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
     parts: &[Content],
 ) {
     if l.is_sub_frame
-        || ((l.column_mode || l.page_columns.is_some()) && !l.page_column_notes)
+        || (l.column_mode && l.page_columns.is_none())
         || l.bidi_cursor.is_some()
         || l.regions.cell.is_some()
         || !l.pending_footnote_bodies.is_empty()
@@ -589,7 +624,7 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
         let n = location
             .and_then(|loc| l.introspector.flat_counter_at(&key, loc))
             .unwrap_or(1);
-        let marker_text = format_counter(&[n], note.numbering.as_deref().unwrap_or("1"))
+        let marker_text = format_counter(&[n], numbering(note, &l.chain))
             .unwrap_or_else(|| n.to_string());
         let mut script = style.clone();
         script.superscript = true;
@@ -618,6 +653,10 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
             probe.style = style.clone();
             probe.page_config = l.page_config.clone();
             probe.regions.current.width = l.regions.current.width;
+            probe.column_mode = l.column_mode;
+            probe.page_columns = l.page_columns;
+            probe.page_column_notes = l.page_column_notes;
+            probe.column_width = l.column_width;
             let frame = probe.capture_footnote_frame(&prefix, &note.body, None);
             if l.page_column_notes {
                 if !frame.source_lines {
@@ -1122,5 +1161,127 @@ mod r12_entry_tests {
         );
         assert_eq!(doc.pages.len(), 3, "{doc:?}");
         position(&doc, "FIRST");
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_residual_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer, introspector::TagIntrospector,
+        layout_types::PageMargins, value::Value,
+    };
+    use comemo::Track;
+
+    #[test]
+    fn issue_8935_residual_separator_uses_physical_entry_width() {
+        let intr = TagIntrospector::empty();
+        let mut heights = Vec::new();
+        for width in [200.0, 30.0] {
+            let mut l = Layouter::new(
+                super::super::FixedMetrics,
+                NullImageSizer,
+                10.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.page_config.width = 200.0;
+            l.page_config.margin = PageMargins::uniform(10.0);
+            l.regions.current.width = width;
+            l.is_sub_frame = width == 30.0;
+            l.footnote_entry_scope = Some(l.chain.push_custom(
+                "footnote.entry.separator",
+                Value::Content(Content::text("SEPARATOR WORDS")),
+            ));
+            heights.push(entry_settings(&l).separator_height.unwrap());
+        }
+        assert_eq!(
+            heights[0], heights[1],
+            "local call width must not wrap a page-owned separator"
+        );
+    }
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+        value::Value,
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_call_resolves_lexical_pattern() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        l.chain = l.chain.push_custom("footnote.numbering", Value::Str("a".into()));
+        l.layout_content(&Content::footnote(Content::text("NOTE")));
+        let text = l.finish().plain_text();
+        assert_eq!(
+            text.matches('a').count(),
+            2,
+            "call and entry must use the same lexical pattern: {text}"
+        );
+    }
+    #[test]
+    fn footnote_columns_entry_width_follows_note_ownership() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        l.column_mode = true;
+        l.page_columns = Some(2);
+        l.column_width = 106.4;
+        assert_eq!(super::entry_region_width(&l), 180.0);
+        l.page_column_notes = true;
+        assert!((super::entry_region_width(&l) - 86.4).abs() < 1e-8);
+    }
+    #[test]
+    fn footnote_columns_page_transport_keeps_common_entry_style() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        let body = Content::styled(
+            Content::text("A"),
+            crate::entities::style::Styles::from_iter([
+                crate::entities::style::Style::Size(
+                    crate::entities::layout_types::Length::pt(10.0),
+                ),
+            ]),
+        );
+        let page = Content::Columns(std::sync::Arc::new(
+            crate::entities::elements::columns::ColumnsElem {
+                count: 2,
+                gutter: None,
+                page_columns: true,
+                body,
+            },
+        ));
+        l.chain = crate::entities::style_chain::StyleChain::default_chain();
+        super::prepare_entry_scope(&mut l, &page);
+        assert!(
+            (super::entry_settings(&l).indent - 8.5).abs() < 1e-8,
+            "common page-column text style owns default indent"
+        );
     }
 }

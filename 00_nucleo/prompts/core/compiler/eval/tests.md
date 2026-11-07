@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 974996a9
+Hash do Código: c1656fc9
 
 
 
@@ -776,3 +776,30 @@ a prepared scalar is compared to its declarative source, explicitly resolve
 that source with the fixture font; do not relax expected geometry or tolerance.
 This test migration implements only the approved field representation change;
 existing non-stroke obligations and prior approvals remain intact.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Migrate only the existing eval_image_le_ficheiro_para_content assertion to optional path via as_deref()==Some("/foto.png"). Preserve the same virtual path and constructor integration expectation; do not alter unrelated eval tests or their expectations.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.

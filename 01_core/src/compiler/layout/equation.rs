@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/equation.md
-//! @prompt-hash 77ab6f7f
+//! @prompt-hash aa79c9ae
 //! @layer L1
-//! @updated 2026-10-06
+//! @updated 2026-11-01
 //!
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
@@ -675,10 +675,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 })
                 .unwrap_or(Content::Empty);
             let formatted = number_content.plain_text();
-            let rtl = matches!(
-                self.chain.custom("text.dir"),
-                Some(crate::entities::value::Value::Dir(crate::entities::dir::Dir::RTL))
-            );
+            let rtl = super::paragraph::chain_direction(&self.chain)
+                == crate::entities::dir::Dir::RTL;
             let physical_h = match number_align.h.unwrap_or(HAlign::End) {
                 HAlign::Start => {
                     if rtl {

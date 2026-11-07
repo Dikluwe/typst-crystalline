@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/bidi.md
-//! @prompt-hash b1f01cce
+//! @prompt-hash ffd7da98
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-31
 
 use unicode_bidi::BidiInfo;
 
@@ -28,10 +28,32 @@ pub(super) struct BidiRun {
 /// interno na primeira linha (achado #55 de P831).
 /// API unicode-bidi 0.3: `BidiInfo::new`, `visual_runs(para, range)`.
 pub(super) fn bidi_runs(text: &str) -> Vec<Vec<BidiRun>> {
+    bidi_runs_at_level(text, None)
+}
+
+pub(super) fn bidi_runs_with_direction(
+    text: &str,
+    direction: Option<typst_core::entities::dir::Dir>,
+) -> Vec<Vec<BidiRun>> {
+    let base = match direction {
+        Some(typst_core::entities::dir::Dir::LTR) => unicode_bidi::Level::ltr(),
+        Some(typst_core::entities::dir::Dir::RTL) => unicode_bidi::Level::rtl(),
+        Some(
+            typst_core::entities::dir::Dir::TTB | typst_core::entities::dir::Dir::BTT,
+        )
+        | None => return bidi_runs(text),
+    };
+    bidi_runs_at_level(text, Some(base))
+}
+
+fn bidi_runs_at_level(
+    text: &str,
+    base: Option<unicode_bidi::Level>,
+) -> Vec<Vec<BidiRun>> {
     if text.is_empty() {
         return vec![];
     }
-    let bidi = BidiInfo::new(text, None);
+    let bidi = BidiInfo::new(text, base);
     if bidi.paragraphs.is_empty() {
         return vec![vec![BidiRun { text: text.to_owned(), rtl: false, byte_start: 0 }]];
     }
@@ -69,6 +91,56 @@ pub(super) fn bidi_runs(text: &str) -> Vec<Vec<BidiRun>> {
                 .collect()
         })
         .collect()
+}
+
+#[cfg(test)]
+mod explicit_direction_tests {
+    use super::*;
+    use typst_core::entities::dir::Dir;
+
+    fn visual_runs(text: &str, dir: Option<Dir>) -> Vec<(String, bool, usize)> {
+        bidi_runs_with_direction(text, dir)
+            .into_iter()
+            .flatten()
+            .map(|run| (run.text, run.rtl, run.byte_start))
+            .collect()
+    }
+
+    #[test]
+    fn issue_8990_resolved_base_controls_neutral_punctuation() {
+        assert_eq!(
+            visual_runs("p.v.", Some(Dir::RTL)),
+            vec![(".".into(), true, 3), ("p.v".into(), false, 0)]
+        );
+        assert_eq!(
+            visual_runs("אבג.", Some(Dir::LTR)),
+            vec![("אבג".into(), true, 0), (".".into(), false, 6)]
+        );
+    }
+
+    #[test]
+    fn issue_8990_unresolved_and_empty_paragraphs_preserve_existing_behavior() {
+        assert_eq!(visual_runs("p.v.", None), vec![("p.v.".into(), false, 0)]);
+        assert_eq!(visual_runs("אבג.", None), vec![("אבג.".into(), true, 0)]);
+        let paragraphs: Vec<Vec<_>> = bidi_runs("אבג.\n\np.v.\r\n")
+            .into_iter()
+            .map(|runs| {
+                runs.into_iter()
+                    .map(|run| (run.text, run.rtl, run.byte_start))
+                    .collect()
+            })
+            .collect();
+        assert_eq!(
+            paragraphs,
+            vec![
+                vec![("אבג.".into(), true, 0)],
+                vec![],
+                vec![("p.v.".into(), false, 9)],
+                vec![],
+            ]
+        );
+        assert!(bidi_runs_with_direction("", Some(Dir::RTL)).is_empty());
+    }
 }
 
 // ── fim P484 ─────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure.md
-//! @prompt-hash 43b35d3d
+//! @prompt-hash 3c1f3a0b
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -8,7 +8,9 @@ use crate::compiler::eval::{call_dispatch, value_to_display_content, EvalContext
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::content::{Content, LocatedContent};
-use crate::entities::elements::figure::{FigureElem, FigureKind, FigureSupplement};
+use crate::entities::elements::figure::{
+    FigureElem, FigureKind, FigurePlacement, FigureSupplement,
+};
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -55,7 +57,7 @@ pub(super) fn is_captionless(mut content: &Content) -> bool {
         } else if let Content::Styled(e) = content {
             content = &e.body;
         } else {
-            return matches!(content, Content::Figure(e) if e.caption.is_none());
+            return matches!(content, Content::Figure(e) if e.caption.is_none() && e.resolved_placement.or(e.placement).unwrap_or(FigurePlacement::InFlow) == FigurePlacement::InFlow);
         }
     }
 }
@@ -96,6 +98,8 @@ pub(in crate::compiler) fn preview(
         }
         let mut prepared = (**e).clone();
         prepared.resolved_kind = Some(resolve_kind(e, styles, content.source_span())?);
+        prepared.resolved_placement =
+            Some(resolve_placement(e, styles, content.source_span())?);
         return Ok(Content::Figure(Arc::new(prepared)));
     }
     Ok(content.clone())
@@ -241,6 +245,8 @@ pub(in crate::compiler) fn prepare(
     };
     let mut prepared = (**e).clone();
     prepared.resolved_kind = Some(kind);
+    prepared.resolved_placement =
+        Some(resolve_placement(e, engine.styles, content.source_span())?);
     prepared.resolved_supplement = Some(resolved);
     Ok(Content::Figure(Arc::new(prepared)))
 }
@@ -251,7 +257,13 @@ pub(super) fn realize_children(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    if figure.caption.is_none() && ctx.target == crate::compiler::eval::EvalTarget::Paged
+    if figure.caption.is_none()
+        && figure
+            .resolved_placement
+            .or(figure.placement)
+            .unwrap_or(FigurePlacement::InFlow)
+            == FigurePlacement::InFlow
+        && ctx.target == crate::compiler::eval::EvalTarget::Paged
     {
         let joined = crate::compiler::eval::operators::join(
             Value::Content(figure.body.clone()),
@@ -301,11 +313,67 @@ pub(super) fn realize_children(
     Ok(Content::Figure(Arc::new(rebuilt)))
 }
 
+pub(in crate::compiler) fn placement_from_value(
+    value: &Value,
+    span: Span,
+) -> SourceResult<FigurePlacement> {
+    use crate::entities::layout_types::{Align2D, VAlign};
+    match value {
+        Value::None => Ok(FigurePlacement::InFlow),
+        Value::Auto => Ok(FigurePlacement::Auto),
+        Value::Align(Align2D { h: None, v: Some(VAlign::Top) }) => {
+            Ok(FigurePlacement::Top)
+        }
+        Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }) => {
+            Ok(FigurePlacement::Bottom)
+        }
+        Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }) => {
+            Err(vec![SourceDiagnostic::error(
+                span,
+                "vertical floating placement must be `auto`, `top`, or `bottom`",
+            )])
+        }
+        Value::Align(_) => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected `top`, `horizon`, or `bottom`, found {}",
+                crate::compiler::eval::repr::repr_value(value)
+            ),
+        )]),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected alignment, auto, or none, found {}",
+                crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                    other
+                )
+            ),
+        )]),
+    }
+}
+
+fn resolve_placement(
+    figure: &FigureElem,
+    styles: &StyleChain,
+    span: Span,
+) -> SourceResult<FigurePlacement> {
+    if let Some(placement) = figure.placement {
+        return Ok(placement);
+    }
+    styles
+        .custom("figure.placement")
+        .map(|v| placement_from_value(v, span))
+        .transpose()
+        .map(|value| value.unwrap_or(FigurePlacement::InFlow))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     fn raw_figure() -> Content {
         Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::raw("body", None, false),
             caption: None,
             kind: None,

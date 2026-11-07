@@ -1,7 +1,8 @@
 # L0 — images/scan
-Hash do Código: 4b754dfd
+Hash do Código: 4d0a1278
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
@@ -24,9 +25,9 @@ validation path. Successful validation is deduplicated only within the current
 invocation by shared Arc identity, under the contract below; payload caching
 does not imply validation caching.
 
-Scan by encounter order, deduplicating the same Arc data pointer into ImN. Preserve
-the existing thread-local payload cache lifetime/key behavior; do not promise new
-document-scoped invalidation or merge distinct pointers by equal bytes. RGB JPEG
+Scan by encounter order, deduplicating the same Arc data pointer into ImN.
+Payload reuse is invocation-local under the identity correction below; do not
+merge distinct pointers by equal bytes. RGB JPEG
 references the supplied ICC; gray/CMYK keep their own space and JPEG dimensions
 retain the existing frame-derived behavior. Raster alpha mask IDs precede main IDs.
 Keep the next object ID and image-name counter together in a private scan cursor so
@@ -124,7 +125,8 @@ distinct validations. Never hash/compare image contents or keep the set after
 returning. Preserve the first error and stop later validation, including after
 repeated valid occurrences. Unknown-format acceptance remains unchanged.
 Every later call/export starts fresh, including after failure or byte mutation
-between calls. Do not change payload caches, resources or decoder behavior.
+between calls. This validation clause does not itself change payload caches, resources or
+decoder behavior; the later identity correction independently governs payloads.
 
 First demonstrate RED by counting actual full RGB decode-output allocations
 in an isolated test child: shared occurrences across page/group/tiling roots
@@ -571,3 +573,73 @@ R6 size/RSS/repeatability/math-time, all12 validation gates and integral lint
 with zero warnings/errors. Preserve all received files, rejected controls and
 historical seals; record every state/source/binary/UTC and scoped resealing after
 V15/V26. No commit/push or dependency/oracle resync is part of this change.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Validate and register prepared SVG alongside existing raster payloads, preserving nested traversal/resource identity/alt/clip and error propagation. Do not omit a recognized SVG under the Unknown branch or accept exit-success with missing paint. Do not reprepare against another origin or font catalog.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Validate selected image format against the prepared frame payload before export. Validate SVG PDF form conversion as well as parsing so an unsupported/failed form conversion fails compilation instead of silently omitting paint. No World or font IO in this validation.
+
+
+## Invocation-local raster payload identity (2026-11-05)
+
+### Measurement before decision
+
+The uncommitted tree at HEAD `3c6b0ce7b7632cc74b004cea6681e4746e63d28d`
+was measured in `00_nucleo/diagnostics/code-performance-tests-2026-11-05.md`.
+`scan.rs:25` retains a TLS payload map beyond the document; `:481` uses the
+Arc address and `:520` returns a previous payload without checking its content.
+The public PDF regression `lab/experiments/catalog-tests/tests/c01_image_identity.rs`
+changes a PNG through safe unique Arc access between documents and observes
+old pixels. Within one scan, `ptr_to_idx` already skips a successfully processed
+identity before decoding. Thus a pointer is valid only while this invocation's
+document owns the source; the document does not justify process/TLS reuse.
+
+### Classification and contract
+
+Current pixels, alpha and dimensions are language/render observables. Cache
+lifetime and pointer identity are mechanics. This is an internal correctness
+correction with unchanged public signatures, pipeline, modes and dependencies;
+continuous flow under ADR-0127. No cross-document speedup is claimed. Refute the
+repair if a later export can observe stale pixels/errors or if resource order,
+ID allocation or shared-image dedup within a scan changes.
+
+Remove cross-invocation raster payload retention in this owner. Process the
+current PNG/GIF/WebP data on the first successful encounter of that Arc within
+each scan; subsequent occurrences use the existing pointer-to-resource map.
+No replacement global cache, content hash, retained source Arc or new public
+carrier is authorized. A later scan, including a different document, must
+start fresh after previous success or failure. Preserve JPEG and prepared SVG
+handling, full validation, warnings, encounter order, distinct-Arc treatment,
+ICC routing and alpha-before-main IDs. Never retain payloads in a TLS map after
+return. Remove obsolete test-only cache clearing; do not weaken decoder tests.
+
+Before materialization demonstrate RED with current→modified raster bytes in
+one Arc, dimensions/alpha changes, a failed intervening export and a subsequent
+valid export. GREEN must preserve successful shared-Arc dedup, distinct sources,
+nested/multipage resources, warnings and current-pixel PDF output. Run these
+regressions, existing image/decoder/export tests, actual watch cycles and build/
+lineage checks in RAM. Mutate the fix back to cross-call pointer reuse and
+require the stale-image regression to reject it. All received edits stay intact.

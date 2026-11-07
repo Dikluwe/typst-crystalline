@@ -35,6 +35,7 @@ time          = { workspace = true }  # ADR-0021 — today() em SystemWorld
 # P753 — fontes embutidas do vanilla (Libertinus Serif, New Computer Modern, ...)
 typst-assets  = { workspace = true }
 toml          = { workspace = true }  # P681 — parse do manifesto typst.toml (entrypoint) em resolve_package
+image-webp = "=0.2.4" # Bounded WebP decode preserves RGB/alpha; private L3 raster route.
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg", "gif", "webp"] }  # P833 (#17) — gif/webp (paridade vanilla)
 # Conservative JPEG scanlines; image remains the authoritative legacy fallback.
@@ -60,6 +61,12 @@ tar         = { workspace = true }  # extracção de pacotes .tar.gz
 fastrand    = { workspace = true }  # nomes de directórios temporários atómicos
 serde       = { workspace = true }  # deserialização do índice de pacotes
 serde_json  = { workspace = true }  # índice de pacotes remoto em JSON
+
+svg2pdf = { version = "=0.13.0", default-features = false, features = ["image", "filters"] }
+resvg = { version = "=0.45.1", default-features = false, features = ["text", "raster-images"] }
+pdf-writer = "=0.12.1"
+# Feature unification for svg2pdf embedded WebP; main raster decoder remains image 0.24.
+image-svg-codecs = { package = "image", version = "=0.25.10", default-features = false, features = ["webp"] }
 
 [dev-dependencies]
 # (P207D 2026-05-12: `ecow` promovido a `[dependencies]` porque

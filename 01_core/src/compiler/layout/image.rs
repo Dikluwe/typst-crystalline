@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/image.md
-//! @prompt-hash 49df88d1
+//! @prompt-hash 0bc288bd
 //! @layer L1
 //! @updated 2026-09-27
 
@@ -221,13 +221,64 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_y += top;
         layouter.initial_baseline_pending = false;
     }
-    let dims = calculate_dimensions(
-        &e.data.0, // &[u8] via PtrEqArc → Arc → deref
-        e.width.as_deref(),
-        e.height.as_deref(),
-        &e.fit,
-        &layouter.sizer,
-    );
+    let (render_data, dims) = if let Some(source) = &e.svg {
+        match layouter.sizer.prepare_svg(
+            &e.data.0,
+            source,
+            layouter.style.font.as_ref(),
+            layouter.chain.custom("text.fallback") != Some(&Value::Bool(false)),
+        ) {
+            Ok(prepared) => {
+                layouter.layout_warnings.extend(prepared.warnings);
+                let natural_w = prepared.width_px * 0.75;
+                let natural_h = prepared.height_px * 0.75;
+                let aspect = natural_w / natural_h;
+                let rw = e.width.as_deref().and_then(extract_pt);
+                let rh = e.height.as_deref().and_then(extract_pt);
+                let (w, h, tw, th) = match (rw, rh) {
+                    (Some(w), Some(h)) => {
+                        let (iw, ih) = apply_fit(w, h, aspect, &e.fit);
+                        (iw, ih, Some(w), Some(h))
+                    }
+                    (Some(w), None) => (w, w / aspect, None, None),
+                    (None, Some(h)) => (h * aspect, h, None, None),
+                    (None, None) => (natural_w, natural_h, None, None),
+                };
+                (
+                    prepared.data,
+                    ImageDimensions {
+                        width_pt: w,
+                        height_pt: h,
+                        target_width: tw,
+                        target_height: th,
+                        intrinsic_width: None,
+                        intrinsic_height: None,
+                        orientation: 1,
+                    },
+                )
+            }
+            Err(error) => {
+                layouter.layout_errors.push(
+                    crate::entities::source_result::SourceDiagnostic::error(
+                        source.span,
+                        format!("failed to decode image ({error})"),
+                    ),
+                );
+                return;
+            }
+        }
+    } else {
+        (
+            Arc::clone(&e.data.0),
+            calculate_dimensions(
+                &e.data.0,
+                e.width.as_deref(),
+                e.height.as_deref(),
+                &e.fit,
+                &layouter.sizer,
+            ),
+        )
+    };
 
     // P771 — altura que conta para overflow de página e avanço de cursor:
     // a do target quando ambos os eixos são fornecidos; caso contrário, a da
@@ -321,9 +372,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
 
     layouter.regions.current.current_items.push(FrameItem::Image {
+        format: e.format,
         pos,
         alt: e.alt.clone(),
-        data: Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
+        data: render_data,
         width: Pt(dims.width_pt),
         height: Pt(dims.height_pt),
         intrinsic_width: intrinsic_w,
@@ -592,7 +644,10 @@ mod initial_nontext_block_regressions {
         layouter.initial_baseline_pending = !subframe;
         let origin = layouter.regions.current.cursor_y.0;
         let elem = crate::entities::elements::image::ImageElem {
-            path: String::new(),
+            format: None,
+            svg: None,
+            path: None,
+            source: None,
             alt: None,
             data: crate::entities::ptr_eq_arc::PtrEqArc(Arc::new(vec![])),
             width: Some(Box::new(Value::Float(80.0))),
@@ -703,7 +758,10 @@ mod image_flow_regressions {
     }
     pub(super) fn photo(height: f64) -> Content {
         Content::Image(Arc::new(ImageElem {
-            path: String::new(),
+            format: None,
+            svg: None,
+            path: None,
+            source: None,
             alt: None,
             data: crate::entities::ptr_eq_arc::PtrEqArc(Arc::new(vec![])),
             width: Some(Box::new(Value::Float(30.0))),

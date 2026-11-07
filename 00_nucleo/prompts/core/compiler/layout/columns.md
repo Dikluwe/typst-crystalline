@@ -1,7 +1,8 @@
 # L0 — columns
-Hash do Código: 7c33258b
+Hash do Código: 6f8bfb70
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
@@ -104,10 +105,12 @@ below the container's deepest consumed content at the first logical column
 offset. That offset need not mean the physical left edge in RTL.
 Preserve the exterior pending-note buffer when entering/leaving sibling regions.
 
-Continuous flow currently flushes per physical column through
-close_current_column, for both forms. Do not turn the old intention to make
-explicit continuous containers stack all notes at the end into an implemented
-contract. The body flush accepts optional bottom_y; its fitting policy,
+The received continuous flow flushed per physical column through
+close_current_column for both forms. The measured 2026-11-01 correction below
+supersedes that policy for actual note-bearing continuous flow: standalone
+columns retain page-owned notes until the physical page closes, while page
+columns retain per-column note ownership. Non-note segmented behavior remains
+under its existing contract. The body flush accepts optional bottom_y; its fitting policy,
 warnings and remainder handling are child-owned by the overflow L0.
 
 ## Marginal line-number consolidation
@@ -228,3 +231,50 @@ Classification: private parity/correctness, ADR-0127 continuous flow; no public 
 Exclusive owning obligation: Pass the existing source e.page_columns boolean to the private continuous layout_flow function. Preserve segmented dispatch, original source plan and container behavior.
 
 Require actual carrier-column RED→GREEN before implementation, the wider68-case PDF/SVG contract at unchanged0.001pt, original R8 and A–H/R1–R7 controls, unchanged effects, resources, full workspace validation, both lineage gates and preservation audits.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Approved A supersedes Only Value::Dir participates for automatic lexical resolution. Use body-direction discovery under the active chain and otherwise the paragraph-owned resolver. Preserve first relevant visible child and inner-style precedence, region order and all other column geometry.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+Detect selected Footnote content or existing queued notes. Route that note-bearing body, including explicit colbreak, through the existing continuous ColumnsBody source route and physical column allocator. Do not use a generated split segment as the original body. Preserve existing segmented strategy and source-route/fraction/line-number behavior for non-note content. This supersedes only the old unconditional segmented choice for note-bearing content.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+Clippy refinement measured in clippy-libs.json.gz: the added eighth flow argument exceeds the existing seven-argument limit. Carry the same private note-flow intent through the already owned optional flow-end accumulator: the Columns caller installs/restores it, and flow derives the intent from presence. Remove the extra boolean argument without changing behavior or suppressing the warning.

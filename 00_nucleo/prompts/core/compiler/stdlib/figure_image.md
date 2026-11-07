@@ -1,9 +1,12 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: f8b06e48
+Hash do Código: 50757b4b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
+- 00_nucleo/prompts/_nuclei/image-source-provenance.toml sha256:19a4e9d6333f8000f9f64a3520c15a82f052dca270a845a38c727e630a512b5e
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/figure_image.rs`
@@ -20,7 +23,7 @@ tekt-v16-figure-casts-2026-10-17/before/before-expanded-measurement preserves di
 
 ## Exclusive current image contract
 
-native_image(path,width?,height?,fit?,page?,alt?) reads only through injected World abstraction, no direct filesystem/global state. First source Value::Path|Str: rooted helper resolves Str once in caller context, preserves resolved Path, reads World::read_path. Use normalized vpath for extension/loaded bytes for signature, preserve portable virtual identity only, never physical PathBuf/sandbox bypass. Keep dimensions/fit default cover with contain|cover|stretch.
+native_image(path,width?,height?,fit?,page?,alt?) reads only through injected World abstraction, no direct filesystem/global state. File source Value::Path|Str (approved PNG Bytes branch is specified below): rooted helper resolves Str once in caller context, preserves resolved Path, reads World::read_path. Use normalized vpath for extension/loaded bytes for signature, preserve portable virtual identity only, never physical PathBuf/sandbox bypass. Keep dimensions/fit default cover with contain|cover|stretch.
 
 page optional positive Int is validated no-op while PDF source unsupported;0/negative exact `number must be positive`, wrong `expected integer, found {tipo}`. alt optional Str→Option<EcoString>, absent remains observable for later PDF/UA-specific validation, never paint/text/size/fit/MIME/read behavior; other targets unchanged. Entity public-field gate was separately confirmed, no arbitrary new metadata.
 
@@ -97,3 +100,83 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Preserve the selected raw Symbol as Content::Symbol when casting a content argument; preserve quoted/numeric/manual legacy carriers and argument diagnostics. Matrix comma syntax recognizes the native Symbol comma without altering the payload.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Validate named placement with the existing source value span after current Figure arguments and before excess validation. Accept none/auto/pure vertical top/bottom Align; reject horizontal/horizon and other values without coercion. Store typed lexical placement, resolved absent. Omission retains the current in-flow default. Preserve kind/supplement/numbering order/effects and all image behavior.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Own recognized JPEG/PNG/GIF/WebP Bytes admission without any World resolve/read call, path None, payload copied into the existing Arc and original source captured. Existing Path/Str keeps Some(normalized vpath), rooted loading and original value. Named arguments and legacy raster format behavior stay; reject empty/unknown bytes with unknown image format. Continue SVG/PDF exclusions. Do not inspect SVG or change format precedence. Native construction attaches the captured source to the approved entity; the unchanged Content::image adapter remains for legacy internal callers. No fake path is created for bytes.
+
+The invalid source type diagnostic includes admitted Bytes: exact measured
+`expected path, string, or bytes, found {vanilla_type_name}` from the preceding
+image-input-scope matrix invalid-type case. No change in named-argument order.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+Update the current native image source documentation to describe raster bytes
+versus rooted files and real ImageSizer layout, replacing historical placeholder
+claims without changing behavior.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Supersede only the previous SVG/SVGZ rejection and scope-out. Admit file and byte SVG candidates while preserving original Value::Path/Str/Bytes, original raw payload, selected format, resolved RootedPath for files and caller FileId for bytes, plus source span. Loading SVG bytes must not read an image file. Referenced SVG resources may subsequently be acquired only through injected World in L3. Do not prepare fonts, XML, gzip or render in eval. Keep public native_image signature, existing raster behavior and PDF scope-out.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Transport the approved selected image format and SVG provenance through existing constructors/clones without changing raster behavior or inventing source. Legacy literals use explicit absence; reconstruction preserves the existing format.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+The full-suite RED native_image_formato_desconhecido_gera_erro shows extension-selected raster formats bypassed the existing unknown-signature refusal. Preserve early unknown image format for unrecognized raster payloads even when the path has a recognized raster extension. Explicit SVG/SVGZ extensions still reach SVG validation; retain selected-format authority for recognized signatures and all original-source semantics.

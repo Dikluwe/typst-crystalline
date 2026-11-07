@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "raster-decode"
+title = "Decoded raster samples across PDF and bitmap targets"
+
+[[claims]]
+id = "samples-and-alpha"
+level = "must"
+statement = "Raster preparation preserves decoded dimensions and straight RGB/RGBA samples, including partial alpha. Target composition applies premultiplication or alpha separation once as required by its existing renderer."
+
+[[claims]]
+id = "static-first-frame"
+level = "must"
+statement = "The existing static image surface uses the first decoded frame of GIF and animated WebP. It does not introduce playback, new animation settings or later-frame substitution."
+
+[[claims]]
+id = "bounded-no-false-success"
+level = "must"
+statement = "Check decoded output size against the existing raster allocation limit and propagate malformed payload or allocation failures. Source metadata or a recognized signature does not certify successful decoding."
+
+[[claims]]
+id = "prepared-target-input"
+level = "must-not"
+statement = "Raster decode adds layout, file or network access, font discovery or changes to public image source identity. PDF and bitmap targets consume the same format-correct raster preparation without reinterpreting file paths."

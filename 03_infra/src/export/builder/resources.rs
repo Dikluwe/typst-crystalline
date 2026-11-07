@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/resources.md
-//! @prompt-hash 21b4ff2f
+//! @prompt-hash ce468d52
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -626,6 +626,11 @@ impl PdfBuilder {
     pub(super) fn emit_image_xobjects(&mut self, xobjects: Vec<ImageXObject>) {
         for xobj in xobjects {
             match xobj {
+                ImageXObject::Svg { objects } => {
+                    for (id, bytes) in objects {
+                        self.add_bytes(id, bytes);
+                    }
+                }
                 ImageXObject::Jpeg { data, main_obj_id, iw, ih, icc_profile_id } => {
                     let cs = jpeg_color_space(&data);
                     self.add_bytes(

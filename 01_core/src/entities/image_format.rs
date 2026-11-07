@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/image_format.md
-//! @prompt-hash ce6cc031
+//! @prompt-hash 9fc9c110
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -18,6 +18,7 @@ pub enum ImageFormat {
     Gif,
     /// **P833** (#17) — WebP.
     WebP,
+    Svg,
     Unknown,
 }
 
@@ -32,6 +33,12 @@ pub fn detect_image_format(data: &[u8]) -> ImageFormat {
         ImageFormat::Gif
     } else if data.len() >= 12 && data.starts_with(b"RIFF") && &data[8..12] == b"WEBP" {
         ImageFormat::WebP
+    } else if data.starts_with(&[0x1f, 0x8b])
+        || data[..data.len().min(2048)]
+            .windows(b"http://www.w3.org/2000/svg".len())
+            .any(|w| w == b"http://www.w3.org/2000/svg")
+    {
+        ImageFormat::Svg
     } else {
         ImageFormat::Unknown
     }

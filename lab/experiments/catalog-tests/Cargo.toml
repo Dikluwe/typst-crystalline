@@ -1,0 +1,25 @@
+[package]
+name = "catalog_tests"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = ["."]
+exclude = ["probe"]
+
+[dependencies]
+typst-core = { path = "../../../01_core" }
+typst-infra = { path = "../../../03_infra" }
+typst-shell = { path = "../../../02_shell" }
+image = { version = "0.24", default-features = false, features = ["png"] }
+flate2 = "1.0"
+comemo = "0.4"
+ecow = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = "thin"
+codegen-units = 1
+
+[profile.release.package.zune-jpeg]
+opt-level = 3

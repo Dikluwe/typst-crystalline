@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 65a87a9a
+//! @prompt-hash cbadabc5
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-11-01
 //!
 //! Atomização (ADR-0109, P376): o layout de `Block` movido do monólito
 //! `layout_content` para o arquivo da feature. Content-preserving — a lógica
@@ -22,6 +22,7 @@ pub(super) struct InlineRegion {
     width: f64,
     unbreakable: bool,
     stack_bottom: Option<StackBoundary>,
+    terminal_text_region: Option<(usize, usize)>,
 }
 
 #[derive(Clone, Copy)]
@@ -40,6 +41,16 @@ pub(super) fn stack_region_bottom<M: FontMetrics, S: ImageSizer>(
         && boundary.column == layouter.current_column
         && boundary.bottom.is_finite())
     .then_some(boundary.bottom)
+}
+
+/// Whether the active local text region has no implicit outer continuation.
+pub(super) fn text_region_is_terminal<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+) -> bool {
+    layouter
+        .block_inline_region
+        .and_then(|region| region.terminal_text_region)
+        == Some((layouter.pages.len(), layouter.current_column))
 }
 
 /// Whether ordinary flow may fragment in the current Block context.
@@ -243,10 +254,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let saved_line_start = layouter.regions.current.line_start_x;
     let saved_width = layouter.regions.current.width;
     let saved_height = layouter.regions.current.height;
-    let is_rtl = layouter.chain.custom("text.dir").and_then(|value| match value {
-        Value::Dir(dir) => Some(*dir),
-        _ => None,
-    }) == Some(Dir::RTL);
+    let terminal_text_region = (text_region_is_terminal(layouter)
+        || resolved_height.is_some_and(|height| {
+            let bottom = start_y + height;
+            bottom.is_finite() && bottom <= layouter.page_bottom_limit()
+        }))
+    .then_some((layouter.pages.len(), layouter.current_column));
+    let is_rtl = super::paragraph::chain_direction(&layouter.chain) == Dir::RTL;
     let container_alignment = layouter.explicit_line_alignment.unwrap_or(if is_rtl {
         crate::entities::layout_types::HAlign::Right
     } else {
@@ -360,6 +374,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         width: inner_w,
         unbreakable: inherited_unbreakable || !*breakable,
         stack_bottom,
+        terminal_text_region,
     });
     let previous_indent = super::paragraph_indent::enter_fragment(layouter, body);
     let previous_planning =
@@ -1453,5 +1468,232 @@ mod issue_8790_tests {
             bars(&doc),
             vec![(0, 98.0), (0, 76.0), (0, 54.0), (0, 32.0), (0, 10.0)]
         );
+    }
+}
+
+#[cfg(test)]
+mod finite_block_text_region_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, PagedDocument},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn block(body: Content, height: Option<f64>) -> Content {
+        let Content::Block(mut element) = Content::block(
+            body,
+            Some(Length::pt(100.0)),
+            height.map(Length::pt),
+            Sides::uniform(Length::ZERO),
+            true,
+        ) else {
+            unreachable!()
+        };
+        let element_mut = Arc::make_mut(&mut element);
+        element_mut.above = Some(Length::ZERO);
+        element_mut.below = Some(Length::ZERO);
+        Content::Block(element)
+    }
+
+    fn document(
+        height: Option<f64>,
+        inner_auto: bool,
+        outside_long: bool,
+    ) -> PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 100.0;
+        l.page_config.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = 100.0;
+        l.regions.current.cursor_x = Pt(0.0);
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_y = Pt(0.0);
+        let body = Content::text(format!("FIRST {} LAST", "word ".repeat(80)));
+        let body = if inner_auto { block(body, None) } else { body };
+        l.layout_content(&block(body, height));
+        l.layout_content(&Content::text(" OUTSIDE"));
+        if outside_long {
+            l.layout_content(&Content::text(format!(" {} ROOT_END", "word ".repeat(80))));
+        }
+        l.finish()
+    }
+
+    fn token_pages(doc: &PagedDocument, token: &str) -> Vec<usize> {
+        doc.pages
+            .iter()
+            .enumerate()
+            .flat_map(|(page, frame)| {
+                super::super::tests::frame_items_recursive(&frame.items)
+                    .into_iter()
+                    .filter_map(move |item| match item {
+                        FrameItem::Text { text, .. }
+                            if text.split_whitespace().any(|word| word == token) =>
+                        {
+                            Some(page + 1)
+                        }
+                        _ => None,
+                    })
+            })
+            .collect()
+    }
+
+    #[test]
+    fn finite_fitting_block_retains_wrapped_text_overflow_locally() {
+        for height in [30.0, 40.0, 60.0] {
+            for inner_auto in [false, true] {
+                let doc = document(Some(height), inner_auto, false);
+                assert_eq!(
+                    doc.pages.len(),
+                    1,
+                    "height={height}, inner_auto={inner_auto}"
+                );
+                for token in ["FIRST", "LAST", "OUTSIDE"] {
+                    assert_eq!(token_pages(&doc, token), vec![1], "{token}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn finite_block_terminal_witness_does_not_leak_to_parent_text() {
+        let doc = document(Some(40.0), true, true);
+        assert!(doc.pages.len() > 1);
+        assert_eq!(token_pages(&doc, "FIRST"), vec![1]);
+        assert_eq!(token_pages(&doc, "LAST"), vec![1]);
+        let end = token_pages(&doc, "ROOT_END");
+        assert_eq!(end.len(), 1);
+        assert!(end[0] > 1);
+    }
+
+    #[test]
+    fn auto_and_declared_height_requiring_backlog_keep_continuation() {
+        for height in [None, Some(150.0)] {
+            let doc = document(height, false, false);
+            assert!(doc.pages.len() > 1, "height={height:?}");
+            assert_eq!(token_pages(&doc, "FIRST"), vec![1]);
+            let last = token_pages(&doc, "LAST");
+            assert_eq!(last.len(), 1);
+            assert!(last[0] > 1);
+        }
+    }
+}
+
+#[cfg(test)]
+mod active_finite_block_epoch_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, PagedDocument},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    // Direct L1 events exercise context lifetime. This does not authorize
+    // pagebreak syntax inside a source-language container.
+    fn after_explicit_transition(columns: bool) -> PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = if columns { 210.0 } else { 100.0 };
+        l.page_config.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = 100.0;
+        l.regions.current.cursor_x = Pt(0.0);
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_y = Pt(0.0);
+        if columns {
+            l.column_mode = true;
+            l.page_columns = Some(2);
+            l.column_width = 100.0;
+            l.column_origin_x = 0.0;
+            l.column_x_offsets = vec![0.0, 110.0];
+        }
+        let transition = if columns {
+            Content::colbreak(false)
+        } else {
+            Content::pagebreak(false, None)
+        };
+        let body = Content::sequence(vec![
+            Content::text("BEFORE"),
+            transition,
+            Content::text(format!("AFTER_BEGIN {} LAST", "word ".repeat(80))),
+        ]);
+        let Content::Block(mut element) = Content::block(
+            body,
+            Some(Length::pt(100.0)),
+            Some(Length::pt(40.0)),
+            Sides::uniform(Length::ZERO),
+            true,
+        ) else {
+            unreachable!()
+        };
+        let element_mut = Arc::make_mut(&mut element);
+        element_mut.above = Some(Length::ZERO);
+        element_mut.below = Some(Length::ZERO);
+        l.layout_content(&Content::Block(element));
+        l.finish()
+    }
+
+    fn positions(doc: &PagedDocument, token: &str) -> Vec<(usize, f64)> {
+        doc.pages
+            .iter()
+            .enumerate()
+            .flat_map(|(page, frame)| {
+                super::super::tests::frame_items_recursive(&frame.items)
+                    .into_iter()
+                    .filter_map(move |item| match item {
+                        FrameItem::Text { text, pos, .. }
+                            if text.split_whitespace().any(|word| word == token) =>
+                        {
+                            Some((page + 1, pos.x.0))
+                        }
+                        _ => None,
+                    })
+            })
+            .collect()
+    }
+
+    #[test]
+    fn explicit_page_event_expires_active_finite_block_text_witness() {
+        let doc = after_explicit_transition(false);
+        assert_eq!(positions(&doc, "BEFORE"), vec![(1, 0.0)]);
+        assert_eq!(positions(&doc, "AFTER_BEGIN"), vec![(2, 0.0)]);
+        let last = positions(&doc, "LAST");
+        assert_eq!(last.len(), 1);
+        assert!(last[0].0 > 2, "successor text must retain ordinary continuation");
+    }
+
+    #[test]
+    fn explicit_column_event_expires_active_finite_block_text_witness() {
+        let doc = after_explicit_transition(true);
+        assert_eq!(positions(&doc, "BEFORE"), vec![(1, 0.0)]);
+        assert_eq!(positions(&doc, "AFTER_BEGIN"), vec![(1, 110.0)]);
+        let last = positions(&doc, "LAST");
+        assert_eq!(last.len(), 1);
+        assert!(last[0].0 > 1, "successor column must retain ordinary continuation");
     }
 }

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 89d71fd8
+Hash do Código: 06a8a850
 
 
 
@@ -9,6 +9,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/image-source-provenance.toml sha256:19a4e9d6333f8000f9f64a3520c15a82f052dca270a845a38c727e630a512b5e
 - 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
@@ -651,3 +652,51 @@ No new public Rust field/signature/trait method, default mode or phase change.
 Preserve other semantics and all received changes. Record source-bound builds,
 full workspace tests/build/fmt/Clippy/Rustdoc, lineage and full lint zero; replay
 A–H and R1–R3 without reclassifying their existing limitations as parity.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Migrate only existing Figure fixture literals/destructures for the approved two-field addition: absent placement/resolved_placement for all legacy in-flow inputs. Preserve every prior expected language result and all unrelated implementation. No behavior redesign is authorized in this owner.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+The approved placement projection also extends this owner's Figure field-name filter
+and field enumeration. Delegate its lexical/resolved value to FigureElem's getter,
+retaining Unset for raw omission. No other content field semantics change.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+For Image, source is declared; Some captured Value is Set and missing internal source is Unset. fields() includes only captured source; has()/at()/source preserve original Path/Str/Bytes and distinguish absence from unknown fields. Keep existing transparent wrappers and all foreign schemas unchanged.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tiling.md
-//! @prompt-hash e367e6ca
+//! @prompt-hash 73b584d9
 //! @layer L1
 
 use std::sync::Arc;
@@ -115,7 +115,7 @@ pub(super) fn prepare_cell<M: FontMetrics, S: ImageSizer>(
     let body = match &tiling.body {
         TilingBody::Content(body) => body.as_ref(),
         TilingBody::Image(image) => {
-            bridged = Content::Image(Arc::new(image.clone()));
+            bridged = Content::Image(Arc::new(image.as_ref().clone()));
             &bridged
         }
         TilingBody::Color(_) | TilingBody::Gradient(_) => {
@@ -485,7 +485,10 @@ mod preparation_regressions {
         );
         let bytes = Arc::new(vec![1, 2, 3]);
         let image = crate::entities::elements::image::ImageElem {
-            path: "cell.png".into(),
+            format: None,
+            svg: None,
+            path: Some("cell.png".into()),
+            source: None,
             alt: Some("cell".into()),
             data: crate::entities::ptr_eq_arc::PtrEqArc(bytes.clone()),
             width: None,
@@ -493,7 +496,8 @@ mod preparation_regressions {
             fit: "cover".into(),
         };
         let cell =
-            prepare_cell(&mut layout, &Tiling::new(TilingBody::Image(image))).unwrap();
+            prepare_cell(&mut layout, &Tiling::new(TilingBody::Image(Box::new(image))))
+                .unwrap();
         assert_eq!(layout.sizer.0.get(), 1);
         assert_eq!(cell.frame.size, Size { width: Pt(8.0), height: Pt(6.0) });
         let FrameItem::Image { data, pos, intrinsic_width, intrinsic_height, .. } =
@@ -524,14 +528,17 @@ mod preparation_regressions {
         let intr: &dyn Introspector = &intr;
         let mut layout = Layouter::new(FixedMetrics, UntouchedImage, 12.0, intr.track());
         let image = crate::entities::elements::image::ImageElem {
-            path: "cell.png".into(),
+            format: None,
+            svg: None,
+            path: Some("cell.png".into()),
+            source: None,
             alt: None,
             data: crate::entities::ptr_eq_arc::PtrEqArc(Arc::new(vec![1, 2, 3])),
             width: None,
             height: None,
             fit: "cover".into(),
         };
-        let original = sized(TilingBody::Image(image));
+        let original = sized(TilingBody::Image(Box::new(image)));
         type InvalidPlacementCase = (fn(&mut Tiling), &'static str);
         let cases: [InvalidPlacementCase; 6] = [
             (

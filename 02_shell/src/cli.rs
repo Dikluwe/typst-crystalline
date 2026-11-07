@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 17ab8bea
+//! @prompt-hash 26e99805
 //! @layer L2
 //! @updated 2026-10-17
 //!
@@ -3089,6 +3089,8 @@ mod tests {
             "fig",
             Content::Figure(std::sync::Arc::new(
                 typst_core::entities::elements::figure::FigureElem {
+                    placement: None,
+                    resolved_placement: None,
                     body: rect,
                     caption: Some(Content::text("Cap")),
                     kind: Some(Some(

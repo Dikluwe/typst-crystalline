@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/region_progress.md
-//! @prompt-hash 8508ea21
+//! @prompt-hash edea8aa4
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -32,6 +32,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
             reset_closed_region_flow(layouter);
             super::paragraph_indent::reopen(layouter);
             layouter.refresh_footnote_reservation();
+            super::place::admit_deferred_figures(layouter);
             return;
         }
         // Última coluna da página: juntar items de todas as colunas
@@ -122,6 +123,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     }
     super::paragraph_indent::reopen(layouter);
     layouter.refresh_footnote_reservation();
+    super::place::admit_deferred_figures(layouter);
 }
 
 pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(
@@ -131,6 +133,7 @@ pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(
 ) {
     if had_items
         && !layouter.is_sub_frame
+        && !super::block::text_region_is_terminal(layouter)
         && layouter.regions.current.cursor_y.0 > layouter.page_bottom_limit()
         && !effective_line_committed
     {
@@ -154,7 +157,8 @@ pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     admission: Admission,
 ) {
-    if !layouter.is_sub_frame
+    while !layouter.is_sub_frame
+        && !super::block::text_region_is_terminal(layouter)
         && layouter.page_config.height.is_finite()
         && layouter.regions.current.cursor_y.0 > layouter.page_bottom_limit()
         && !super::html_frame::items_have_material(&layouter.regions.current.current_line)
@@ -171,8 +175,14 @@ pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
             layouter.regions.current.cursor_y.0 + top
                 - layouter.line_assumed_ascent.unwrap_or(top)
         });
-        if candidate > layouter.page_bottom_limit() {
-            layouter.new_page();
+        if candidate <= layouter.page_bottom_limit() {
+            break;
+        }
+        let before = (layouter.pages.len(), layouter.current_column);
+        layouter.new_page();
+        if before == (layouter.pages.len(), layouter.current_column) {
+            // A rejected suffix owns rollback; do not spin without a transition.
+            break;
         }
     }
 }
@@ -303,5 +313,75 @@ mod face_region_regressions {
             })
             .collect();
         assert_eq!(ys, vec![7.0]);
+    }
+}
+
+#[cfg(test)]
+mod issue_8890_successor_tests {
+    use crate::compiler::layout::{DeferredFloat, FixedMetrics, Layouter};
+    use crate::entities::{
+        frame_paint::FramePaint,
+        geometry::{FillRule, ShapeKind},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{
+            Align2D, Color, FrameItem, Length, PageMarginSpec, PageMargins, Point, Pt,
+            TextStyle, VAlign,
+        },
+        style::{Style, Styles},
+    };
+    use comemo::Track;
+    fn shape(height: f64) -> FrameItem {
+        FrameItem::Shape {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            kind: ShapeKind::Rect,
+            width: 40.0,
+            height,
+            fill: Some(FramePaint::Solid(Color::rgb(11, 22, 33))),
+            stroke: None,
+            fill_rule: FillRule::NonZero,
+            parent_bbox_at_emit: None,
+        }
+    }
+    #[test]
+    fn issue_8890_text_demand_rechecks_successor_reduced_by_pending_figure() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l
+            .chain
+            .push_styles(&Styles::from_iter([Style::Size(Length::pt(10.0))]));
+        l.style = TextStyle::from(&l.chain);
+        l.page_config.width = 100.0;
+        l.page_config.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = 100.0;
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(100.0);
+        l.initial_baseline_pending = false;
+        l.line_assumed_ascent = Some(7.0);
+        l.regions.current.current_items.push(shape(10.0));
+        l.floats_pending.push(DeferredFloat {
+            figure: true,
+            alignment: Align2D { h: None, v: Some(VAlign::Top) },
+            body_items: vec![shape(60.0)],
+            body_height: 60.0,
+            body_width: 40.0,
+            clearance: 15.0,
+            deco_segments: vec![],
+            orphaned_align_x: vec![],
+            orphaned_align_y: vec![],
+        });
+        l.ensure_line_baseline(7.0);
+        assert_eq!(l.pages.len(), 2, "preceding region then reserved successor");
+        assert_eq!(l.regions.current.cursor_y, Pt(17.0));
+        assert!(l.floats_pending.is_empty());
     }
 }

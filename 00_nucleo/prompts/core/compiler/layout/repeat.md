@@ -1,5 +1,5 @@
 # L0 — repeat
-Hash do Código: f934c8b7
+Hash do Código: 7b2b2ce4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -344,3 +344,35 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Use the paragraph-owned lexical resolver for the existing implicit horizontal alignment; preserve complete-frame repetition, gaps, admitted widths and all copies/effects.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.

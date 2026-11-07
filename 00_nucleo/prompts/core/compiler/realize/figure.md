@@ -1,5 +1,8 @@
 # L0 — compiler/realize/figure
-Hash do Código: 79fa9e7b
+Hash do Código: 20ec1bc8
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/realize/figure.rs`.
 
@@ -238,3 +241,30 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+
+## Approved issue8890 Figure placement — 2026-10-31
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-2026-10-31/{analysis.json,svg-geometry.json,report.md}` preserves the exact HEAD3c6b0ce7, UTC, clean/dirty state, pinned vanilla64c5e8c0 executable/source/inputs and PDF/SVG measurements. Original Figure placement is rejected in Tekt at stdlib/figure_image.rs:342-360; vanilla loses D after deferring the float. The supported Place control preserves A–E but puts its float on page3 after continuation text, so it does not certify the original trigger. Current source/owner bytes and concurrent dirty state before this amendment are preserved under `lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/before/` and before.json. Geometry/presence/positions are language; queue/carrier mechanics need not copy vanilla.
+
+The user explicitly approved the concrete public-contract proposal with “Aprovo” in this chat; approval.json binds its exact scope. This satisfies ADR-0127 for FigurePlacement and the two public fields only, with existing layout phase/default in-flow behavior retained. The prior placement scope-out is superseded only for this approved subset.
+
+### Exclusive responsibility
+
+Resolve lexical placement before inherited figure.placement, default InFlow, in preview/preparation without choosing a physical page or executing callbacks. Validate inherited values with existing source diagnostics. Preserve the floating Figure envelope in captionless actual-view realization instead of lowering it to an ordinary in-flow Block; ordinary captionless in-flow lowering remains exactly as before. Existing prepared aliases and maps retain the resolved placement. Child source edges and Location identity remain unchanged.
+
+### Gates and limits
+
+L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+The pinned cast-* native probes in issue-8890-placement-2026-10-31/vanilla/receipt.json
+measure Horizon rejection `vertical floating placement must be auto/top/bottom`,
+horizontal rejection expecting top/horizon/bottom, and scalar errors expecting
+alignment/auto/none. Preserve those exact observable messages and value spans;
+rejecting Horizon remains within the approved four-alternative carrier.
+
+Final declaration-order review: keep the new placement/admission helper definitions
+before this owner's cfg(test) modules. Move their identical bodies within the
+same file/module only; no interface, branch, callback or geometry changes.

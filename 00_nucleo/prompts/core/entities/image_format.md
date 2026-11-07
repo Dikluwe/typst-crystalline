@@ -1,9 +1,12 @@
 # Prompt L0 — entities/image_format
-Hash do Código: 62666c00
+Hash do Código: 3fc66830
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/image_format.rs`
 **References:** ADR-0107, ADR-0108.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 ## Evidence before scope decision
 
@@ -51,3 +54,24 @@ responsibilities separate.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/image_format.md`. Historical observations are not a new parity certification.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Add ImageFormat::Svg for uncompressed SVG or SVGZ candidates. Signature recognition remains pure and does not certify XML or gzip integrity. Recognized file extension takes precedence over byte sniffing; malformed declared SVG is a decode error, not a raster fallback. Preserve existing raster signatures. No PDF or explicit format/raw API in this task.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Transport the approved selected image format and SVG provenance through existing constructors/clones without changing raster behavior or inventing source. Legacy literals use explicit absence; reconstruction preserves the existing format.

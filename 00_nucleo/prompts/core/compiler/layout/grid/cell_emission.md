@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_emission
-Hash do Código: d3f9337f
+Hash do Código: 4786fa49
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -288,3 +288,96 @@ owner's page path. Keep cell body/fill/selected-source layout unchanged. Other
 borders keep the existing fallback. No product flag, new geometry owner, public
 contract or phase change. Require local border-coverage RED→GREEN, original
 #8777 coverage controls, native raster review and unchanged language acceptance.
+
+## Issue 8935 — proven prepared-header paint replay
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/issue-8935-2026-10-31/stage2-red.json.gz records an actual planned,
+multipage fixed-row Table with a labeled Footnote. The header paints repeatedly;
+the test fails on duplicate Root/PostChildren events for the same Arc plan and
+packets. The original measurement-isolation tests are GREEN in stage1-green;
+stage1-tekt records repeat:false and the original source now compiling, while
+the compact genuinely repeated source still fails. stage2-before.json.gz retains
+the exact pre-edit owners/consumers; receipts bind HEAD/UTC/dirty state/binary.
+
+cell_emission.rs reuses original header cell cursors for recursive physical paint;
+page_running_requests.rs:441–466 admits those same packet phases again. This is
+a source-protocol defect under #8954's ratified one-logical-member prepared alias
+contract, not a reason to copy vanilla's duplicate-label bug. The pinned native
+footnote documentation permits several references to a labeled note; real source
+duplicate declarations must still reject. Data/trace representation is mechanics;
+reference resolution, membership, counter values and visible paint are language.
+
+Classification: ADR-0127 continuous private correction inside the existing layout
+source protocol. No public API/entity/trait/signature, allocation rule, phase/order,
+mode/default, compatibility break or evaluation in layout. Do not add a second
+Context solver, replace source authority, or infer identity from paint/equality.
+
+### Exclusive obligation
+
+Keep all original cell emission, physical replay, row/track/header replacement,
+repeat:false, region progress and uniform compound border behavior. At the exact
+existing header-recursion boundary, convert each present original cell route
+through the source-protocol owner's private proven prepared-header replay
+constructor. Keep absent generated/padding routes absent. On invalid authority
+retain the error and stop this emission; do not fall back to an unplanned cell,
+allocate Location or weaken completeness. Retain the same selected visual, body
+layout, inset/style, Note queue and physical page behavior. Deferred descendants
+carry the cursor's replay selection, so a later Note flush cannot readmit it.
+No source plan/index mutation, public field, frame-copy approximation or global
+duplicate suppression belongs here.
+
+Require actual-header phase RED→GREEN, original/compact/repeat:false/reference
+controls, logical note query/counter tests, #8954/#8777/raster and all prior source
+corruption gates. Native render/geometry debts remain separate; this is not a
+claim of general Footnote call/body placement or Table context parity. Preserve
+unique RAM target/resources and restricted 1:1 lineage resealing.
+
+### Issue 8935 — legacy allocation diagnostic test
+
+Stage2-tekt.json.gz still records contextual instability in the compact repeated
+source. The explicit-source protocol correction is under its phase regression;
+ordinary unplanned layout has no cursor at all. mod.rs:1275–1299 allocates each
+unlocated locatable with Locator.next, and the recursive header reuses prepared
+visuals without retaining a legacy source allocation frontier. Add a focused
+unplanned Complete-Table control: same one logical Footnote header, repeat:false
+versus repeat:true, fixed small page and rows. Prove actual multipage/header paint
+and compare sealed source-position cardinality. This is an internal diagnostic
+for ghost allocations, supplementary to the real source reference/query/counter
+gates, not an oracle for language parity by integer IDs. No productive correction
+is authorized by this test amendment; measure the RED before deciding it.
+
+### Issue 8935 — retain actual first-paint legacy allocation scope
+
+Measurement before decision: legacy-red.json.gz and legacy-red-state.json.gz in
+issue-8935-2026-10-31 preserve exact code/owner/UTC/HEAD/dirty stat. The same one
+logical Note produces two sealed positions without repeat and four with repeat.
+Stage2-green proves unique raw planned phases, but the ordinary compact source
+still fails; the legacy path has no source cursor. mod.rs:1286 calls next() for
+unplanned unlocated Footnote paints. Locator's current owning contract explicitly
+authorizes checkpoint/from_seed to replay the SAME canonical body and keeps the
+seed opaque. This supports preserving the first selected prepared header's actual
+allocation scope, not generating IDs or changing identity/allocation policy.
+
+Capture each original header group's actual start/end LocatorSeed with its
+existing completed-group capture. On physical replay ONLY when no source routes
+exist, temporarily resume that exact first-paint start through Locator::from_seed,
+render the same prepared visual through the unchanged engine, then restore the
+live outer seed. Require the replay end to equal the recorded original end;
+mismatch/missing authority returns a controlled error, never guessed IDs or an
+unplanned fallback. Do not infer seeds from tags/pages/hashes/packet intervals.
+Preserve the live current_location and transported_root_location across physical
+repaint in both planned and legacy paths. Physical alias position carriers and
+Note paint remain actual; no new logical source member or semantic frontier is
+created. Planned replay continues through its proven source cursor and needs no
+legacy allocator reset. Keep all ordinary allocations, raw repeated declarations,
+page-margin occurrences, source coverage and strict corruption checks unchanged.
+
+ADR-0127 continuous internal alias-preservation correction under ratified #8954;
+no public API/entity, product default/mode, compatibility or pipeline/phase change.
+Require legacy module RED→GREEN plus real compact reference/query/counter controls
+and later distinct-note counter2, all earlier stages and #8954/#8777. All build,
+test and generated render artifacts use only
+/dev/shm/typst-crystalline-8935-01a191de with the recorded resource limits.
+Do not claim general Table context, call/body-page, Note width or rich-float parity.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/traversal.md
-//! @prompt-hash 4c94029e
+//! @prompt-hash 0894668d
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-11-06
 
 use super::cache::{FaceCache, ShapeCache};
 use super::shaping::try_shape_context;
@@ -56,14 +56,15 @@ fn shape_page(
     ) {
         let mut shaped = Vec::with_capacity(items.len());
         for item in items.drain(..) {
-            shaped.extend(shape_item_inner(
+            shape_item_into(
                 world,
                 item,
                 cache,
                 face_cache,
                 false,
                 Some(resolved),
-            ));
+                &mut shaped,
+            );
         }
         *items = shaped;
     }
@@ -72,8 +73,8 @@ fn shape_page(
     shape_layer(world, &mut page.foreground, cache, face_cache, resolved);
 }
 
-/// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por
-/// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
+/// Adaptador de teste que coleta os itens emitidos pelo walker produtivo.
+/// Um `Text` pode gerar zero, um ou vários itens consecutivos.
 #[cfg(test)]
 pub(super) fn shape_item(
     world: &dyn World,
@@ -81,17 +82,23 @@ pub(super) fn shape_item(
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
 ) -> Vec<FrameItem> {
-    shape_item_inner(world, item, cache, face_cache, false, None)
+    let mut output = Vec::new();
+    shape_item_into(world, item, cache, face_cache, false, None, &mut output);
+    output
 }
 
-fn shape_item_inner(
+/// Consome um item e acrescenta seus resultados em ordem ao destino do caller.
+/// A capacidade de extensão não permite consultar ou alterar o prefixo aceito.
+/// Contêineres reconstroem seus próprios filhos antes de emitir o wrapper.
+fn shape_item_into(
     world: &dyn World,
     mut item: FrameItem,
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
     inside_replacement: bool,
     resolved: Option<&crate::bidi_context::Resolved<'_>>,
-) -> Vec<FrameItem> {
+    output: &mut impl Extend<FrameItem>,
+) {
     match &mut item {
         FrameItem::Text { pos, text, style, bidi } if style.font.is_some() => {
             if let Some(shaped) = try_shape_context(
@@ -104,61 +111,73 @@ fn shape_item_inner(
                 bidi.as_ref(),
                 resolved,
             ) {
-                return if inside_replacement {
-                    shaped
+                if inside_replacement {
+                    output.extend(shaped);
                 } else {
-                    super::text_identity::protect_authored_identity(shaped)
-                };
+                    output
+                        .extend(super::text_identity::protect_authored_identity(shaped));
+                }
+                // Some(empty) também conclui a transação, sem fallback.
+                return;
             }
         }
         FrameItem::Group { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item_inner(
+                shape_item_into(
                     world,
                     child,
                     cache,
                     face_cache,
                     inside_replacement,
                     resolved,
-                ));
+                    &mut new_children,
+                );
             }
             *items = new_children;
         }
         FrameItem::Link { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item_inner(
+                shape_item_into(
                     world,
                     child,
                     cache,
                     face_cache,
                     inside_replacement,
                     resolved,
-                ));
+                    &mut new_children,
+                );
             }
             *items = new_children;
         }
         FrameItem::TextReplacement { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item_inner(
-                    world, child, cache, face_cache, true, resolved,
-                ));
+                shape_item_into(
+                    world,
+                    child,
+                    cache,
+                    face_cache,
+                    true,
+                    resolved,
+                    &mut new_children,
+                );
             }
             *items = new_children;
         }
         FrameItem::Semantic { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item_inner(
+                shape_item_into(
                     world,
                     child,
                     cache,
                     face_cache,
                     inside_replacement,
                     resolved,
-                ));
+                    &mut new_children,
+                );
             }
             *items = new_children;
         }
@@ -169,9 +188,15 @@ fn shape_item_inner(
                     let cell = std::sync::Arc::make_mut(cell);
                     let mut shaped = Vec::new();
                     for child in cell.frame.items.drain(..) {
-                        shaped.extend(shape_item_inner(
-                            world, child, cache, face_cache, false, None,
-                        ));
+                        shape_item_into(
+                            world,
+                            child,
+                            cache,
+                            face_cache,
+                            false,
+                            None,
+                            &mut shaped,
+                        );
                     }
                     cell.frame.items = shaped;
                 }
@@ -185,5 +210,5 @@ fn shape_item_inner(
         | FrameItem::Glyph { .. }
         | FrameItem::Image { .. } => {}
     }
-    vec![item]
+    output.extend(std::iter::once(item));
 }

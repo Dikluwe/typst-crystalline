@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/figure.md
-//! @prompt-hash 124c6ac8
+//! @prompt-hash 44399e02
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -146,9 +146,20 @@ pub enum FigureSupplement {
     Func { function: crate::entities::func::Func, span: crate::entities::span::Span },
 }
 
+/// Lexical placement, resolved to a physical region only during layout.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum FigurePlacement {
+    InFlow,
+    Auto,
+    Top,
+    Bottom,
+}
+
 /// Lexical arguments and one occurrence's prepared Figure values.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct FigureElem {
+    pub placement: Option<FigurePlacement>,
+    pub resolved_placement: Option<FigurePlacement>,
     pub body: Content,
     pub caption: Option<Content>,
     pub kind: Option<Option<FigureKind>>,
@@ -179,6 +190,8 @@ impl Element for FigureElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Figure(Arc::new(FigureElem {
+            placement: self.placement,
+            resolved_placement: self.resolved_placement,
             body: self.body.map_content(transform)?,
             caption: self
                 .caption
@@ -217,6 +230,8 @@ impl Element for FigureElem {
         F: FnMut(&str) -> String,
     {
         Content::Figure(Arc::new(FigureElem {
+            placement: self.placement,
+            resolved_placement: self.resolved_placement,
             body: self.body.map_text(transform),
             caption: self.caption.as_ref().map(|c| c.map_text(transform)),
             kind: self.kind.clone(),
@@ -246,6 +261,19 @@ impl Element for FigureElem {
     fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match field {
+            "placement" => self.resolved_placement.or(self.placement).map(|placement| {
+                use crate::entities::layout_types::{Align2D, VAlign};
+                match placement {
+                    FigurePlacement::InFlow => Value::None,
+                    FigurePlacement::Auto => Value::Auto,
+                    FigurePlacement::Top => {
+                        Value::Align(Align2D { h: None, v: Some(VAlign::Top) })
+                    }
+                    FigurePlacement::Bottom => {
+                        Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) })
+                    }
+                }
+            }),
             "body" => Some(Value::Content(self.body.clone())),
             "kind" => {
                 let kind = self
@@ -311,6 +339,8 @@ mod tests {
 
     fn ex() -> FigureElem {
         FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("img"),
             caption: Some(Content::text("Fig 1")),
             kind: Some(Some(FigureKind::Name("image".into()))),
@@ -328,6 +358,8 @@ mod tests {
     #[test]
     fn plain_text_sem_caption() {
         let f = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("img"),
             caption: None,
             kind: None,
@@ -342,6 +374,8 @@ mod tests {
     fn is_empty_body_e_caption_vazios() {
         assert!(!ex().is_empty());
         let vazia = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::Empty,
             caption: None,
             kind: None,
@@ -387,6 +421,8 @@ mod tests {
     fn is_counted_placeholder_does_not_depend_on_caption() {
         // Caption presence does not decide automatic count eligibility.
         let f = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("x"),
             caption: None,
             kind: None,
@@ -438,6 +474,8 @@ mod figure_kind_contract_tests {
     #[test]
     fn figure_v16_no_caption_payload_keeps_automatic_count_eligibility() {
         let element = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: None,
             kind: None,
@@ -456,6 +494,8 @@ mod figure_kind_contract_tests {
 
     fn lexical() -> FigureElem {
         FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: Some(Content::text("caption")),
             kind: Some(None),
@@ -702,5 +742,42 @@ mod figure_kind_contract_tests {
         assert_ne!(values[0], closure());
         assert_ne!(values[1], plugin());
         assert_ne!(values[2], with());
+    }
+}
+
+#[cfg(test)]
+mod issue_8890_presence_tests {
+    use super::*;
+    #[test]
+    fn issue_8890_figure_maps_keep_lexical_and_resolved_placement_distinct() {
+        let Content::Figure(raw) =
+            Content::figure(Content::text("body"), None, None, None)
+        else {
+            unreachable!()
+        };
+        let mut figure = (*raw).clone();
+        figure.placement = Some(FigurePlacement::Auto);
+        figure.resolved_placement = Some(FigurePlacement::Top);
+        assert_ne!(figure, *raw);
+        for mapped in [
+            figure.map_text(&mut |s| s.to_uppercase()),
+            figure.map_content(&mut |_| Ok(None)).unwrap(),
+            Content::Figure(Arc::new(figure.clone()))
+                .map_content_pre(&mut |_| Ok(None))
+                .unwrap(),
+        ] {
+            let Content::Figure(e) = mapped else { panic!("Figure") };
+            assert_eq!(e.placement, Some(FigurePlacement::Auto));
+            assert_eq!(e.resolved_placement, Some(FigurePlacement::Top));
+            assert_eq!(
+                e.get_field("placement"),
+                Some(crate::entities::value::Value::Align(
+                    crate::entities::layout_types::Align2D {
+                        h: None,
+                        v: Some(crate::entities::layout_types::VAlign::Top)
+                    }
+                ))
+            );
+        }
     }
 }

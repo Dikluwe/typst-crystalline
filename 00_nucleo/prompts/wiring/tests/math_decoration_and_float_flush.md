@@ -1,5 +1,5 @@
 # L0 — wiring/tests/math_decoration_and_float_flush
-Hash do Código: 9a14f202
+Hash do Código: 2d9eca08
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/math_decoration_and_float_flush.rs`
@@ -106,3 +106,22 @@ indexes, strict V1/V5/V15/V26/reverse lineage and diff --check. L0 first; reseal
 limited to authorized owners/code. Heavy jobs sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1; freeze sources/L0/configuration during commands.
 No import-syntax mirror tests, unmeasured RAM/AI-gain claims or release publication.
+
+## Nested finite-region text regression
+
+The existing nested flush expectation is retained unchanged. The ratified
+vanilla source `typst-layout/src/flow/block.rs:310-338` distinguishes fixed
+height's finite backlog from Auto's inherited repeatable regions. Neutral
+root/top/default-clearance controls refute removing clearance: its spacing
+is language geometry. Local top and bottom floats instead expose spurious
+outer page creation by the ordinary text guards.
+
+Add black-box controls for explicit Block heights 30pt, 40pt and 60pt, top
+and bottom, default and zero clearance, duplicate flush, no float, Auto
+wrapping and a marker after the Block. Keep original assertions and the
+0.002pt bbox tolerance. Compare root top default/zero controls separately
+to retain their distinct positions. Check root/Auto continuation and explicit
+pagebreak to prevent terminal-region state leaking outside its context.
+The current oracle is commit64c5e8c02fe0394d913ead36e42ef8c1334d2107,
+verified by the repository's ratified executable SHA. Nested no-flush
+scheduling remains outside this text-admission correction's certification.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/segmented.md
-//! @prompt-hash d7943369
+//! @prompt-hash 8678d7b5
 //! @layer L1
-//! @updated 2026-10-24
+//! @updated 2026-11-01
 
 use super::*;
 
@@ -83,26 +83,29 @@ pub(super) fn split_with_source_indices(content: &Content, count: usize) -> Spli
 /// invocado), por isso percorremos o body procurando o `Styled` mais interno
 /// que defina a propriedade sobre conteúdo visível. Recursão limitada a
 /// `Sequence` e `Styled` — elementos estruturais transparentes são ignorados.
-pub(super) fn body_dir(content: &Content) -> Option<Dir> {
+pub(super) fn body_dir(
+    content: &Content,
+    chain: &crate::entities::style_chain::StyleChain,
+) -> Option<Dir> {
     match content.source_body() {
         Content::Styled(styled) => {
             let body = &styled.body;
-            let styles = &styled.styles;
+            let next = chain.push_styles(&styled.styles);
             // Preferir a direcção mais interna (top-wins semântico); só usar a
             // direcção deste `Styled` se o body tiver conteúdo visível, para
             // não ficar preso a estilos vazios (ex.: `parbreak` embrulhado).
-            if let Some(dir) = body_dir(body) {
+            if let Some(dir) = body_dir(body, &next) {
                 return Some(dir);
             }
             if has_visible_content(body) {
-                styles_dir(styles)
+                Some(super::super::paragraph::chain_direction(&next))
             } else {
                 None
             }
         }
         Content::Sequence(seq) => {
             for child in seq.iter() {
-                if let Some(dir) = body_dir(child) {
+                if let Some(dir) = body_dir(child, chain) {
                     return Some(dir);
                 }
             }
@@ -110,19 +113,6 @@ pub(super) fn body_dir(content: &Content) -> Option<Dir> {
         }
         _ => None, // neutro: N16[β] — Content sem direcção textual explícita retorna None (projeção de propriedade)
     }
-}
-
-/// Lê `"text.dir"` de um `Styles`, se presente.
-fn styles_dir(styles: &Styles) -> Option<Dir> {
-    styles
-        .delta()
-        .custom
-        .iter()
-        .find(|(k, _)| k.as_str() == "text.dir")
-        .and_then(|(_, v)| match v {
-            Value::Dir(dir) => Some(*dir),
-            _ => None,
-        })
 }
 
 /// `true` se o content tiver algum conteúdo visível (texto, imagem, etc.),

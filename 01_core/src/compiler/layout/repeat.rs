@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/repeat.md
-//! @prompt-hash 53e6aa70
+//! @prompt-hash 10fb7a49
 //! @layer L1
-//! @updated 2026-10-22
+//! @updated 2026-11-01
 //!
 //! Repeat owns one planned source piece and a full-width prepared flow frame.
 
@@ -176,8 +176,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let gap = e.gap.map_or(0.0, |value| value.resolve_pt(layouter.style.size.val()));
     let (origin, fill) = super::block::admit_prepared_frame(layouter);
     let inherited_alignment = layouter.explicit_line_alignment;
-    let rtl = layouter.chain.custom("text.dir")
-        == Some(&crate::entities::value::Value::Dir(crate::entities::dir::Dir::RTL));
+    let rtl = super::paragraph::chain_direction(&layouter.chain)
+        == crate::entities::dir::Dir::RTL;
     let alignment =
         inherited_alignment.unwrap_or(if rtl { HAlign::Right } else { HAlign::Left });
     let planned = layouter.planned_child_cursor(

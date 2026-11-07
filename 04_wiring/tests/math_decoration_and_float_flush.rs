@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md
-//! @prompt-hash c042006c
+//! @prompt-hash 22cb09c6
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -791,4 +791,160 @@ fn p1292_d_flush_prefix_suffix_clearance_nested_and_noop() {
     assert_close(nested_float.1, 7.404, 0.002, "NESTED_FLOAT yMin");
     assert_eq!(nested_after.0, 1);
     assert_close(nested_after.1, 4.642, 0.002, "NESTED_AFTER yMin");
+}
+
+#[test]
+fn nested_flush_preserves_local_height_and_parent_restoration() {
+    for height in [30, 40, 60] {
+        for align in ["top", "bottom"] {
+            for (clearance, after_y) in [("", 51.142), ("clearance:0pt,", 34.642)] {
+                for duplicate in [false, true] {
+                    let flushes = if duplicate {
+                        "#place.flush() #place.flush()"
+                    } else {
+                        "#place.flush()"
+                    };
+                    let source = format!(
+                        "#set page(width:100pt,height:100pt,margin:0pt)\n#block(height:{height}pt)[#place({align},float:true,{clearance}block(width:100pt,height:30pt)[#place([NESTED_FLOAT])]) {flushes} after #place([NESTED_AFTER])] OUTSIDE",
+                    );
+                    let actual = compile_pdf_bbox(
+                        &format!(
+                            "flush-local-{height}-{align}-{}-{duplicate}",
+                            clearance.is_empty()
+                        ),
+                        &source,
+                    );
+                    assert_eq!(bbox_page_count(&actual), 1);
+                    let after = bbox_word(&actual, "NESTED_AFTER");
+                    assert_eq!(after.0, 1);
+                    assert_close(
+                        after.1,
+                        if align == "top" { after_y } else { 4.642 },
+                        0.002,
+                        "nested AFTER yMin",
+                    );
+                    let float = bbox_word(&actual, "NESTED_FLOAT");
+                    assert_eq!(float.0, 1);
+                    assert_close(
+                        float.1,
+                        if align == "top" { -2.596 } else { f64::from(height) - 32.596 },
+                        0.002,
+                        "nested FLOAT yMin",
+                    );
+                    let outside = bbox_word(&actual, "OUTSIDE");
+                    assert_eq!(outside.0, 1);
+                    assert_close(
+                        outside.1,
+                        f64::from(height) + 10.604,
+                        0.002,
+                        "OUTSIDE yMin",
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn root_top_float_keeps_default_and_zero_clearance_geometry() {
+    for (clearance, after_y) in [("", 51.142), ("clearance:0pt,", 34.642)] {
+        let source = format!(
+            "#set page(width:100pt,height:100pt,margin:0pt)\n#place(top,float:true,{clearance}block(width:100pt,height:30pt)[#place([FLOAT])]) #place.flush() after #place([AFTER])"
+        );
+        let actual = compile_pdf_bbox(
+            &format!("root-clearance-{}", clearance.is_empty()),
+            &source,
+        );
+        assert_eq!(bbox_page_count(&actual), 1);
+        let float = bbox_word(&actual, "FLOAT");
+        assert_eq!(float.0, 1);
+        assert_close(float.1, -2.596, 0.002, "root FLOAT yMin");
+        let after = bbox_word(&actual, "AFTER");
+        assert_eq!(after.0, 1);
+        assert_close(after.1, after_y, 0.002, "root AFTER yMin");
+    }
+}
+
+#[test]
+fn finite_block_auto_inner_and_no_float_restore_parent_geometry() {
+    for inner in [false, true] {
+        for has_float in [false, true] {
+            let float = if has_float {
+                "#place(bottom,float:true,block(width:100pt,height:30pt)[#place([FLOAT])])"
+            } else {
+                ""
+            };
+            let body = format!("{float} #place.flush() after #place([AFTER])");
+            let body = if inner { format!("#block[{body}]") } else { body };
+            let source = format!(
+                "#set page(width:100pt,height:100pt,margin:0pt)\n#block(height:40pt)[{body}] OUTSIDE"
+            );
+            let actual =
+                compile_pdf_bbox(&format!("finite-auto-{inner}-{has_float}"), &source);
+            assert_eq!(bbox_page_count(&actual), 1);
+            let after = bbox_word(&actual, "AFTER");
+            assert_eq!(after.0, 1);
+            assert_close(after.1, 4.642, 0.002, "auto inner AFTER yMin");
+            let outside = bbox_word(&actual, "OUTSIDE");
+            assert_eq!(outside.0, 1);
+            assert_close(outside.1, 50.604, 0.002, "auto inner OUTSIDE yMin");
+            if has_float {
+                let float = bbox_word(&actual, "FLOAT");
+                assert_eq!(float.0, 1);
+                assert_close(float.1, 7.404, 0.002, "auto inner FLOAT yMin");
+            }
+        }
+    }
+}
+
+#[test]
+fn finite_block_state_restores_before_explicit_pagebreak_and_root_continuation() {
+    let prefix = "#set page(width:100pt,height:100pt,margin:0pt)\n#block(height:40pt)[#place(bottom,float:true,block(width:100pt,height:30pt)[#place([FLOAT])]) #place.flush() after #place([AFTER])]";
+    let actual = compile_pdf_bbox(
+        "finite-explicit-break",
+        &format!("{prefix} #pagebreak() #place([NEXT])"),
+    );
+    assert_eq!(bbox_page_count(&actual), 2);
+    assert_eq!(bbox_word(&actual, "AFTER").0, 1);
+    assert_eq!(bbox_word(&actual, "NEXT").0, 2);
+    for auto in [false, true] {
+        let long =
+            if auto { "#block[#lorem(160) ROOT_END]" } else { "#lorem(160) ROOT_END" };
+        let actual = compile_pdf_bbox(
+            &format!("finite-root-continues-{auto}"),
+            &format!("{prefix} {long}"),
+        );
+        assert!(bbox_page_count(&actual) > 1);
+        assert_eq!(bbox_word(&actual, "AFTER").0, 1);
+        assert!(bbox_word(&actual, "ROOT_END").0 > 1);
+    }
+}
+
+#[test]
+fn finite_block_state_restores_before_column_continuation() {
+    // Parent column flow must keep progressing after the local Block ends.
+    let rows = (0..30)
+        .map(|index| format!("ROW{index}#linebreak()"))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let source = format!(
+        "#set page(width:200pt,height:100pt,margin:0pt,columns:2)\n#block(height:30pt)[short] #colbreak() NEXT_COLUMN#linebreak() {rows} COLUMN_END",
+    );
+    let actual = compile_pdf_bbox("finite-column-continues", &source);
+    assert_eq!(bbox_word(&actual, "NEXT_COLUMN").0, 1);
+    for index in 0..30 {
+        bbox_word(&actual, &format!("ROW{index}"));
+    }
+    let last_row = bbox_word(&actual, "ROW29");
+    let end = bbox_word(&actual, "COLUMN_END");
+    assert!(bbox_page_count(&actual) > 1);
+    assert!(end.0 > 1);
+    assert_eq!(end.0, last_row.0);
+    assert!(end.1 > last_row.1);
+    let words = bbox_words(&actual);
+    let last_row = words
+        .iter()
+        .find(|(_, token, _, _)| token == "ROW29")
+        .expect("last row");
+    assert!(last_row.2.parse::<f64>().expect("row xMin") > 100.0);
 }

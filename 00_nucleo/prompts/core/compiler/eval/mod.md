@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: f61a52ca
+Hash do Código: 6cb692bb
 
 
 **Layer:** L1
@@ -77,6 +77,37 @@ Private make_stdlib wrappers delegate composition to
 00_nucleo/prompts/core/compiler/stdlib/registry/mod.md and its family owners. Global
 registration, namespace membership, color aliases, native PDF/HTML/asset identity
 and compatibility math globals remain normative there, not copied into this hub.
+
+## Compilation-local delayed stdlib reuse
+
+### Evidence before decision
+
+At HEAD `3c6b0ce7b7632cc74b004cea6681e4746e63d28d`, uncommitted
+tree, `01_core/src/compiler/eval/mod.rs:640,848` compose the root/expression
+stdlib and `modules.rs:60` composes it again per imported file.
+`lab/experiments/stdlib-qualification/snapshot.rs:71` qualifies a delayed seed;
+`00_nucleo/diagnostics/stdlib-qualification-2026-11-06.md` records real packages,
+large inputs and identity guards, and `stdlib-cli-residual-2026-11-06.md`
+records the subsequent nominal/A-A/crossover controls. Measurements are
+mechanics, not a change to language equality or phase boundaries.
+
+### Owned storage and delegation
+
+Keep a private `stdlib_snapshot` field in EvalContext with type
+`RefCell<Option<Arc<stdlib_snapshot::StdlibSnapshot>>>`, initialized to None.
+The root and expression paths retain their original builder calls and owned
+Scope/Library construction. Do not eagerly capture their scopes, clone their
+inputs into a seed or allocate an Arc snapshot when there are no file imports.
+Each new evaluation/context starts empty; no process/global/cross-compilation
+cache, new World method, env/clock access, policy selector or public API.
+
+Declare the private `stdlib_snapshot` child owned by
+`00_nucleo/prompts/core/compiler/eval/stdlib_snapshot.md`. It alone owns the
+guard, seed lifetime and per-file identity re-instantiation; the imports owner
+owns the call and transfer into its isolated child context. Do not move work
+to layout or memoize evaluated modules. Preserve all other context storage,
+defaults and entrypoint contracts. Internal mechanism authorized for integration
+by the owner on 2026-11-06; continuous ADR-0127, L0 before code and resealing.
 
 The legacy string expression facades build a numbered parse_code Source from
 world.main() and the complete expression; the Source-based facade below preserves

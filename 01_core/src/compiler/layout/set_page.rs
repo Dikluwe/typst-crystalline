@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/set_page.md
-//! @prompt-hash 03574bea
+//! @prompt-hash f73b38ec
 //! @layer L1
-//! @updated 2026-10-25
+//! @updated 2026-11-01
 //!
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
@@ -28,17 +28,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         || delta.height.is_some()
         || delta.margin.is_some()
     {
-        let dir = layouter
-            .chain
-            .custom("text.dir")
-            .and_then(|v| {
-                if let crate::entities::value::Value::Dir(d) = v {
-                    Some(*d)
-                } else {
-                    None
-                }
-            })
-            .unwrap_or(crate::entities::dir::Dir::LTR);
+        let dir = super::paragraph::chain_direction(&layouter.chain);
         super::page_geometry::apply(
             &mut new_config,
             dir,

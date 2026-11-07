@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/place.md
-//! @prompt-hash 8ffb7a2a
+//! @prompt-hash f1b0d7c5
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -73,6 +73,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .unwrap_or(0.0);
 
         layouter.floats_pending.push(DeferredFloat {
+            figure: false,
             alignment: effective_alignment,
             body_items,
             body_height,
@@ -158,7 +159,16 @@ pub(super) fn fitting_float_prefix_len<M: FontMetrics, S: ImageSizer>(
             || super::html_frame::items_have_material(
                 &layouter.regions.current.current_line,
             );
-    let used_height = if region_has_flow {
+    let figure = layouter.floats_pending.first().is_some_and(|float| float.figure);
+    let logical_start = layouter.page_config.margin.top
+        + if layouter.initial_baseline_pending {
+            0.0
+        } else {
+            layouter.metrics.text_edges(layouter.style.size, &layouter.style).0 .0
+        };
+    let has_figure_prefix_space =
+        figure && layouter.regions.current.cursor_y.0 > logical_start + 1e-9;
+    let used_height = if region_has_flow || has_figure_prefix_space {
         (layouter.regions.current.cursor_y.0 - layouter.page_config.margin.top).max(0.0)
     } else {
         0.0
@@ -167,9 +177,15 @@ pub(super) fn fitting_float_prefix_len<M: FontMetrics, S: ImageSizer>(
     let mut count = 0usize;
 
     for float in &layouter.floats_pending {
-        let clearance = if region_has_flow || count > 0 { float.clearance } else { 0.0 };
+        let clearance = if float.figure || region_has_flow || count > 0 {
+            float.clearance
+        } else {
+            0.0
+        };
         let need = float.body_height + clearance;
-        if need <= remaining || (count == 0 && !region_has_flow) {
+        if need <= remaining
+            || (count == 0 && !region_has_flow && !has_figure_prefix_space)
+        {
             count += 1;
             remaining = (remaining - need).max(0.0);
         } else {
@@ -220,8 +236,19 @@ fn realize_float_prefix<M: FontMetrics, S: ImageSizer>(
 
     let mut y_top = margin.top + layouter.cursor_y_top_reserve;
     for float in top_floats.drain(..) {
-        let avail = if width_auto { float.body_width } else { avail_w };
-        layouter.translate_deferred_float(&float, y_top, margin.left, avail);
+        let left = if float.figure {
+            layouter.regions.current.line_start_x.0
+        } else {
+            margin.left
+        };
+        let avail = if width_auto {
+            float.body_width
+        } else if float.figure {
+            (page_w - margin.right - left).max(0.0)
+        } else {
+            avail_w
+        };
+        layouter.translate_deferred_float(&float, y_top, left, avail);
         y_top += float.body_height + float.clearance;
     }
 
@@ -230,7 +257,17 @@ fn realize_float_prefix<M: FontMetrics, S: ImageSizer>(
             physical_page_h - margin.bottom - layouter.cursor_y_bottom_reserve;
         for float in bottom_floats {
             y_bottom -= float.body_height;
-            layouter.translate_deferred_float(&float, y_bottom, margin.left, avail_w);
+            let left = if float.figure {
+                layouter.regions.current.line_start_x.0
+            } else {
+                margin.left
+            };
+            let available = if float.figure {
+                (page_w - margin.right - left).max(0.0)
+            } else {
+                avail_w
+            };
+            layouter.translate_deferred_float(&float, y_bottom, left, available);
             y_bottom -= float.clearance;
         }
     }
@@ -462,6 +499,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     orientation,
                     ..
                 } => FrameItem::Image {
+                    format: None,
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     alt,
                     data,
@@ -528,6 +566,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 }
 
+/// Admit only the Figure prefix; unrelated Place entries keep their existing boundary.
+pub(super) fn admit_deferred_figures<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+) {
+    let figures = l.floats_pending.iter().take_while(|frame| frame.figure).count();
+    if figures == 0 {
+        return;
+    }
+    let fitting = fitting_float_prefix_len(l).min(figures);
+    if fitting > 0 {
+        realize_float_prefix(l, fitting);
+    }
+}
+
 #[cfg(test)]
 mod p1504_tests {
     #[test]
@@ -577,6 +629,7 @@ mod v16_d_tests {
                     // A preceding item verifies orphan indices are rebased.
                     l.regions.current.current_items.push(body_item.clone());
                     let f = DeferredFloat {
+                        figure: false,
                         alignment: Align2D { h, v: Some(v) },
                         body_items: vec![body_item],
                         body_height: 12.0,

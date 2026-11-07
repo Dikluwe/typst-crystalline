@@ -1,5 +1,5 @@
 # L0 — Source plans and incremental physical-page introspection
-Hash do Código: 1479d645
+Hash do Código: 1efa11a3
 
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/page_running.rs`.
@@ -482,3 +482,24 @@ forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
 target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
 remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
 require a new gate; the approved fields are not inferred from diagnostics.
+
+## Issue 8935 — actual repeated Table source trace regression
+
+Measurement first: issue-8935-2026-10-31/stage1-tekt.json.gz, source/L0
+stage2-before.json.gz and exact HEAD/dirty stat/UTC under
+lab/results/construction/diagnostics/ show original/repeat:false now compiling
+after measurement isolation; the genuinely multipage compact header still fails
+contextual stability. cell_emission.rs:221–257 reuses exact header source cursors
+in recursive paint, while page_running_requests.rs:441–466 appends phases for
+each such dispatch. Hypothesis: repeated raw admissions, to be verified before
+productive protocol decisions; preserve the source validator's strict rejection.
+
+Add an actual planned-table layout test with a labeled Footnote in a repeated
+header and fixed small page/row heights. Prove header paint on multiple pages,
+required source phases present exactly once, and successful scheduled source
+construction. Raw missing/duplicate/foreign corruption tests stay unchanged.
+Factor only the existing evaluated-table fixture setup into a private test helper
+if needed; preserve every old captioned-table assertion and expected source.
+This amendment authorizes test code only, no productive source-index change or
+phase/API/default/compatibility change. L0/seal first, meaningful module RED and
+then owner-specific productive corrections; unique RAM target/resources preserved.

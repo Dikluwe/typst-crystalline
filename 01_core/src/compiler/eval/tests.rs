@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash b9704b1f
+//! @prompt-hash 3475cb18
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -12869,7 +12869,7 @@ mod regressions {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
         assert!(
-            matches!(&content, Content::Image(e) if e.path == "/foto.png"),
+            matches!(&content, Content::Image(e) if e.path.as_deref() == Some("/foto.png")),
             "image() deve produzir Content::Image: {:?}",
             content
         );

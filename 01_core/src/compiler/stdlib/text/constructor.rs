@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/text/constructor.md
-//! @prompt-hash 621e2a65
+//! @prompt-hash 9eeee0dc
 //! @layer L1
-//! @updated 2026-09-28
+//! @updated 2026-11-01
 //!
 //! `text(...)` — constructor de elemento de texto e os seus validadores.
 //!
@@ -165,6 +165,20 @@ pub fn native_text(
                 let lang = parse_text_lang(value, args.span)?;
                 styles.push(Style::Lang(lang));
             }
+            "fallback" => {
+                if !matches!(value, Value::Bool(_)) {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected boolean, found {}",
+                            crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                                value
+                            )
+                        ),
+                    )]);
+                }
+                styles = styles.push_custom("text.fallback", value.clone());
+            }
             "font" => {
                 let font_list = parse_text_font(value, args.span)?;
                 styles.push(Style::Font(font_list));
@@ -249,6 +263,8 @@ pub fn native_text(
                         )]);
                     }
                     styles = styles.push_custom("text.dir", Value::Dir(*dir));
+                } else if matches!(value, Value::Auto) {
+                    styles = styles.push_custom("text.dir", Value::Auto);
                 }
             }
             "bold" | "italic" => {

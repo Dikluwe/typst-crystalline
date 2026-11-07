@@ -1,5 +1,5 @@
 # L0 — Page configuration adapter
-Hash do Código: 52d99a23
+Hash do Código: 9c18cfa8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/footnote-entry-settings.toml sha256:69e358bd5dd06f821f96981bef9ab5c6b6d35b3bc592d2ee41d9f7ecf767698a
@@ -74,3 +74,35 @@ Measurement before decision: `lab/results/construction/diagnostics/footnote-entr
 Classification: private parity correction under ADR-0127 continuous flow; no public entity/trait/signature/default mode or phase changes. Own only invalidating the existing private shared footnote-entry snapshot after that genuine source-triggered page transition, outside subframes. Initial page configuration transport must retain the already measured common root prefix; automatic pagination and unchanged page configuration do not acquire new behavior. Pending frames keep their original captured settings while the old page is flushed. Never reset counters, source cursors, original note bodies or page-running plans.
 
 Require two new source-bound assertional module RED witnesses for new and inherited entry configurations across this SetPage transition before implementation. Then58 positive PDF/SVG documents per build at unchanged0.001pt, original32 refuters with unrelated outcomes preserved, all R8–R11 and A–H/R1–R7 controls, a new complete workspace/lint/lineage validation on final inputs, resource/stress gates and received evidence preservation. Retain the earlier passing first validation as historical evidence of its own input state only.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Delegate only the direction input to page_geometry::apply to the paragraph-owned lexical resolver. Preserve all existing geometry formulas, binding/margin field precedence and page effects.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.

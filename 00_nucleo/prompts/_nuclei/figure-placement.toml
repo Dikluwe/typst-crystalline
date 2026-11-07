@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "figure-placement"
+title = "Lexical Figure placement and deferred physical admission"
+
+[[claims]]
+id = "presence"
+level = "must"
+statement = "Figure placement distinguishes lexical omission from explicit in-flow none, Auto, Top and Bottom. Explicit arguments override inherited styles. Prepared occurrences retain lexical presence and resolve styles without selecting a physical page during evaluation."
+
+[[claims]]
+id = "once"
+level = "must"
+statement = "A floating Figure captures its actual body/caption once through the existing layout source edges and retains every completed child, link and occurrence marker until physical admission. It cannot discard or re-evaluate already emitted block text when the successor region is reduced by the float."
+
+[[claims]]
+id = "admission"
+level = "must"
+statement = "Admit a floating Figure only where its logical frame and clearance fit, preserving the pending order. A deferred Figure reserves its accepted successor region before continuation text is placed. An oversized first frame may overflow an empty region to guarantee progress; ordinary fitting cases keep text and float within their accepted regions. Existing nonfloating Figure and Place contracts remain unchanged."

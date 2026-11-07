@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/layout_types.md
-//! @prompt-hash cbafa45d
+//! @prompt-hash 3bb66dc3
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -489,6 +489,7 @@ pub enum FrameItem {
     ///   transformação correspondente via matriz `cm`, preservando os bytes
     ///   originais do JPEG/PNG (P776).
     Image {
+        format: Option<crate::entities::image_format::ImageFormat>,
         pos: Point,
         data: Arc<Vec<u8>>,
         alt: Option<ecow::EcoString>,
@@ -1498,6 +1499,7 @@ mod tests {
             line.clone(),
             glyph.clone(),
             FrameItem::Image {
+                format: None,
                 pos: Point::ZERO,
                 data: std::sync::Arc::new(vec![]),
                 alt: None,

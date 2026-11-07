@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/cursor.md
-//! @prompt-hash 19bc93ec
+//! @prompt-hash b5233dd0
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -105,6 +105,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.line_assumed_ascent = Some(top.0);
             self.initial_baseline_pending = false;
             self.prev_margin_is_parbreak = false;
+            match admission {
+                super::region_progress::Admission::Generic => {}
+                super::region_progress::Admission::Text
+                | super::region_progress::Admission::KnownTop(_) => {
+                    super::region_progress::admit_next_text_line(self, admission);
+                }
+            }
         } else if self.block_chain_active {
             let top = match admission {
                 super::region_progress::Admission::KnownTop(top) => Pt(top),
@@ -151,6 +158,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 && next_baseline >= page_bottom
                 && next_baseline <= page_bottom + tail_boundary + 0.001;
             if !self.is_sub_frame
+                && !super::block::text_region_is_terminal(self)
                 && self.page_config.height.is_finite()
                 && next_baseline >= page_bottom
                 && !snap_fractional_tail
@@ -530,6 +538,72 @@ mod rtl_literal_prefix_tests {
             assert!((word.x.0 - (word_x + 92.0 - content_right - prefix)).abs() < 1e-9);
             assert!((first.x.0 - (92.0 - prefix)).abs() < 1e-9);
             assert!((second.x.0 + advance.0 - 92.0).abs() < 1e-9);
+        }
+    }
+}
+
+#[cfg(test)]
+mod issue_8890_initial_text_tests {
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        geometry::{FillRule, ShapeKind},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{
+            Color, FrameItem, Length, PageMarginSpec, PageMargins, Point, Pt, TextStyle,
+        },
+        style::{Style, Styles},
+    };
+    use comemo::Track;
+    #[test]
+    fn issue_8890_initial_text_admits_after_reservation_and_keeps_local_subframes() {
+        let intr = TagIntrospector::empty();
+        for (reserve, local, expected_pages, expected_y) in
+            [(75.0, false, 1, 17.0), (60.0, false, 0, 77.0), (75.0, true, 0, 92.0)]
+        {
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                10.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.chain = l
+                .chain
+                .push_styles(&Styles::from_iter([Style::Size(Length::pt(10.0))]));
+            l.style = TextStyle::from(&l.chain);
+            l.page_config.width = 100.0;
+            l.page_config.height = 100.0;
+            l.page_config.margin = PageMargins::uniform(10.0);
+            l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+            l.regions.current.width = 100.0;
+            l.regions.current.height = 100.0;
+            l.regions.current.line_start_x = Pt(10.0);
+            l.regions.current.cursor_x = Pt(10.0);
+            l.regions.current.cursor_y = Pt(10.0 + reserve);
+            l.cursor_y_top_reserve = reserve;
+            l.initial_baseline_pending = true;
+            l.line_assumed_ascent = None;
+            l.is_sub_frame = local;
+            l.regions.current.current_items.push(FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(10.0) },
+                kind: ShapeKind::Rect,
+                width: 40.0,
+                height: 60.0,
+                fill: Some(crate::entities::frame_paint::FramePaint::Solid(Color::rgb(
+                    11, 22, 33,
+                ))),
+                stroke: None,
+                fill_rule: FillRule::NonZero,
+                parent_bbox_at_emit: None,
+            });
+            l.ensure_line_baseline(7.0);
+            assert_eq!(l.pages.len(), expected_pages, "reserve={reserve} local={local}");
+            assert!(
+                (l.regions.current.cursor_y.0 - expected_y).abs() < 1e-8,
+                "reserve={reserve} local={local}: {}",
+                l.regions.current.cursor_y.0
+            );
+            assert_eq!(l.line_assumed_ascent, Some(7.0));
         }
     }
 }

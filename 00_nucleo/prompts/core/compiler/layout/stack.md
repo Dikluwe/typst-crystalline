@@ -1,5 +1,5 @@
 # L0 — stack
-Hash do Código: d7697968
+Hash do Código: 9efbb2f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:029c2929c9e294efceb796a5358a6f425f02ae91c519314080f413374f4f4403
@@ -15,6 +15,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 
 **Layer:** L1
@@ -366,3 +367,69 @@ issue8790/Stack tests. Recompile and repeat the bilateral source PDF/SVG control
 using the exclusive fresh RAM target. Preserve page count, five child occurrences
 and vertical placement/clip structure. Record exact code-state provenance.
 This scoped closure does not assert global repository qualification.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Migrate only existing ImageElem literals to the approved optional file path and explicit source absence for legacy synthetic/test images. Preserve the previous path presence/value as Some, unless it is already a known synthetic empty path, which becomes None. Keep every render/layout/tiling/flow behavior and foreign change. Clones retain the original source; do not add a source from a fabricated filename.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Use the paragraph-owned lexical resolver for the existing exterior RTL anchoring condition only. Preserve explicit alignment, stack direction, tracks, spacing and regions.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.

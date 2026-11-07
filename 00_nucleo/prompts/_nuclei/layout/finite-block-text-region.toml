@@ -1,0 +1,8 @@
+tekt = 1
+kind = "nucleus"
+id = "finite-block-text-region"
+title = "Terminal finite Block region for text admission"
+[[claims]]
+id = "local-exhaustion"
+level = "must"
+statement = "A declared finite Block body whose declared bottom fits the active outer region at entry has no implicit outer text continuation. Retain this terminal witness through Auto/nested bodies, qualify it by physical page and column, and restore it through existing context routes. Text admission/closure must retain local overflow instead of creating a page or rejecting an exterior suffix transaction merely because this local region was exhausted. Preserve clearance, anchors, explicit transitions, generic subframe identity, Stack policy and ordinary root/Auto continuation. Declared heights requiring an outer backlog are not certified by the initial-fit witness."

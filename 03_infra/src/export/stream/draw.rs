@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/draw.md
-//! @prompt-hash 16c84440
+//! @prompt-hash ec6f8350
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -2079,6 +2079,7 @@ mod tests {
         let patterns = std::collections::HashMap::new();
         let ctx = PageContext::type1(&images, &refs, &patterns, &[], StreamMode::Verbose);
         let item = |clip_rect| FrameItem::Image {
+            format: None,
             pos: Point { x: Pt(8.0), y: Pt(8.0) },
             data: Arc::clone(&data),
             width: Pt(80.0),

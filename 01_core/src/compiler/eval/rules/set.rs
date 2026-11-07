@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 90a54498
+//! @prompt-hash 75feb1c2
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -133,6 +133,36 @@ pub(crate) fn eval_set_rule(
         }
     }
     let native_target = target_function.as_ref().and_then(|f| f.native_fn_addr());
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_footnote as fn(_, _, _, _) -> _,
+        )
+    }) {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            if arg.name.as_deref() != Some("numbering")
+                || matches!(arg.value, Value::Func(_))
+            {
+                let target = set.target().to_untyped().text_str().to_owned();
+                let target_span = set.target().to_untyped().span();
+                let (message, hint) = unsupported_target_warn(&target);
+                engine.sink.warn_note(target_span, &message, &hint);
+                return Ok(Value::None);
+            }
+            if !matches!(arg.value, Value::Str(_) | Value::None) {
+                return Err(vec![type_mismatch(
+                    "string or none",
+                    &arg.value,
+                    arg.value_span,
+                )]);
+            }
+            styles = styles.push_custom("footnote.numbering", arg.value);
+        }
+        *engine.styles = styles;
+        return Ok(Value::None);
+    }
     if native_target.is_some_and(|call| {
         std::ptr::fn_addr_eq(
             call,
@@ -1136,12 +1166,17 @@ pub(crate) fn eval_set_rule(
             if let Arg::Named(named) = arg {
                 let name = named.name();
                 let name = name.as_str();
-                if !matches!(name, "kind" | "supplement" | "numbering") {
+                if !matches!(name, "kind" | "supplement" | "numbering" | "placement") {
                     continue;
                 }
                 let value = eval_expr(named.expr(), scopes, ctx, engine)?;
                 let span = named.expr().span();
                 match name {
+                    "placement" => {
+                        crate::compiler::realize::figure::placement_from_value(
+                            &value, span,
+                        )?;
+                    }
                     "kind" => {
                         crate::compiler::realize::figure_kind::kind_from_value(
                             &value, span,
@@ -1488,5 +1523,20 @@ mod v16_c_structural_tests {
                     .unwrap_err();
             assert_eq!(errors[0].message, expected);
         }
+    }
+    #[test]
+    fn footnote_columns_set_retains_lexical_pattern() {
+        use crate::entities::{content::Content, style_chain::StyleChain, value::Value};
+        let w = TestWorld::new("#let f=footnote\n#set f(numbering:\"a\")\nH#f[NOTE]");
+        let m = crate::compiler::eval::tests::eval_for_test(&w, &w.source).unwrap();
+        let mut found = false;
+        m.content().expect("ordinary test module has content").visit_content_static(&mut |c| {
+            if let Content::Styled(styled) = c {
+                let chain = StyleChain::default_chain().push_styles(&styled.styles);
+                found |= matches!(chain.custom("footnote.numbering"), Some(Value::Str(s)) if s.as_str()=="a");
+            }
+            true
+        });
+        assert!(found, "native alias set must retain its lexical pattern");
     }
 }

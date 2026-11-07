@@ -1,13 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/figure.md
-//! @prompt-hash 47b06284
+//! @prompt-hash 1eefadc9
 //! @layer L1
 //! @updated 2026-06-26
 
 use crate::compiler::lang::figure_supplement::figure_supplement_for_lang;
 use crate::entities::content::Content;
 use crate::entities::counter_format::format_counter;
-use crate::entities::elements::figure::FigureElem;
+use crate::entities::elements::figure::{FigureElem, FigurePlacement};
 use crate::entities::introspector::Introspector;
 use crate::entities::value::Value;
 
@@ -27,6 +27,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     e: &FigureElem,
 ) {
     let (body, caption) = (&e.body, &e.caption);
+    let placement = if let Some(placement) = e.resolved_placement.or(e.placement) {
+        placement
+    } else if let Some(value) = layouter.chain.custom("figure.placement") {
+        match crate::compiler::realize::figure::placement_from_value(
+            value,
+            layouter.current_source_span,
+        ) {
+            Ok(placement) => placement,
+            Err(errors) => {
+                layouter.layout_errors.extend(errors);
+                return;
+            }
+        }
+    } else {
+        FigurePlacement::InFlow
+    };
     let location = layouter.current_location;
     let enabled = !matches!(layouter.chain.custom("figure.numbering"), Some(Value::None));
     let pattern = match layouter.chain.custom("figure.numbering") {
@@ -105,12 +121,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     match caption_prefix {
         Some(prefix @ CaptionPrefix::Prepared { .. }) => {
-            layout_figure_prefix(layouter, body, caption, Some(prefix))
+            layout_figure_prefix(layouter, body, caption, Some(prefix), placement)
         }
-        Some(CaptionPrefix::Generated(prefix)) => {
-            layout_figure(layouter, body, caption, Some(prefix))
+        Some(CaptionPrefix::Generated(prefix)) => layout_figure_prefix(
+            layouter,
+            body,
+            caption,
+            Some(CaptionPrefix::Generated(prefix)),
+            placement,
+        ),
+        None => {
+            if placement == FigurePlacement::InFlow {
+                layout_figure(layouter, body, caption, None);
+            } else {
+                layout_figure_prefix(layouter, body, caption, None, placement);
+            }
         }
-        None => layout_figure(layouter, body, caption, None),
     }
 }
 
@@ -131,6 +157,7 @@ pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
         body,
         caption,
         caption_prefix.map(CaptionPrefix::Generated),
+        FigurePlacement::InFlow,
     );
 }
 
@@ -139,10 +166,11 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
     body: &Content,
     caption: &Option<Content>,
     caption_prefix: Option<CaptionPrefix>,
+    placement: FigurePlacement,
 ) {
     use crate::compiler::introspect::page_running::PlanEdge;
     use crate::entities::layout_types::{Align2D, FrameItem, Point, Pt, TransformMatrix};
-    if caption.is_none() {
+    if caption.is_none() && placement == FigurePlacement::InFlow {
         super::parbreak::layout(layouter);
         layouter.layout_planned_child(PlanEdge::FigureBody, body);
         super::parbreak::layout(layouter);
@@ -171,7 +199,10 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
     let saved_line_alignment = layouter
         .explicit_line_alignment
         .replace(crate::entities::layout_types::HAlign::Center);
+    let floating = placement != FigurePlacement::InFlow;
     let body_cursor = layouter.planned_child_cursor(PlanEdge::FigureBody);
+    let body_cursor =
+        if floating { layouter.defer_planned_cursor(body_cursor) } else { body_cursor };
     let mut body_piece = layouter.layout_intrinsic_piece(
         std::slice::from_ref(body),
         &[body_cursor],
@@ -204,6 +235,11 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
         }
         caption_parts.push(caption.clone());
         caption_routes.push(layouter.planned_child_cursor(PlanEdge::FigureCaption));
+    }
+    if floating {
+        for route in &mut caption_routes {
+            *route = layouter.defer_planned_cursor(route.take());
+        }
     }
     let mut caption_piece =
         layouter.layout_intrinsic_piece(&caption_parts, &caption_routes, region());
@@ -263,6 +299,41 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
             inner_height: piece.height,
             items: piece.items,
         });
+    }
+    if floating {
+        use crate::entities::layout_types::{HAlign, VAlign};
+        let side = match placement {
+            FigurePlacement::Top => VAlign::Top,
+            FigurePlacement::Bottom => VAlign::Bottom,
+            FigurePlacement::Auto => {
+                let used = origin.y.0 - layouter.page_config.margin.top;
+                let usable = layouter.regions.current.height
+                    - layouter.page_config.margin.vertical();
+                if !usable.is_finite() || used <= usable / 2.0 {
+                    VAlign::Top
+                } else {
+                    VAlign::Bottom
+                }
+            }
+            FigurePlacement::InFlow => unreachable!("floating placement was checked"),
+        };
+        let clearance = match layouter.chain.custom("place.clearance") {
+            Some(Value::Length(length)) => length.resolve_pt(layouter.style.size.0),
+            _ => 1.5 * layouter.style.size.0,
+        };
+        layouter.floats_pending.push(super::DeferredFloat {
+            figure: true,
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(side) },
+            body_items: groups,
+            body_height: height,
+            body_width: width,
+            clearance,
+            deco_segments: decorations,
+            orphaned_align_x: Vec::new(),
+            orphaned_align_y: Vec::new(),
+        });
+        super::place::admit_deferred_figures(layouter);
+        return;
     }
     let final_origin = super::block::commit_prepared_frame(
         layouter,
@@ -451,6 +522,8 @@ mod tests {
 
     fn prepared() -> FigureElem {
         FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: Some(Content::text("caption")),
             kind: None,
@@ -619,6 +692,8 @@ mod paragraph_boundary_tests {
             Content::Located(Arc::new(LocatedContent {
                 location: Location::from_raw(number),
                 body: Content::Figure(Arc::new(FigureElem {
+                    placement: None,
+                    resolved_placement: None,
                     body: Content::text(text),
                     caption: None,
                     kind: None,
@@ -819,6 +894,8 @@ mod readiness_frame_geometry {
         let left = l.page_config.margin.left;
         let available = l.available_width();
         let figure = Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body,
             caption: Some(caption),
             kind: None,
@@ -1044,5 +1121,154 @@ mod readiness_frame_geometry {
         assert_eq!(out.shapes.len(), 1, "{out:?}");
         assert!((out.shapes[0].0 - (center - 57.0)).abs() < 1e-8, "{out:?}");
         assert!((word(&out, "BODY").1 - (center - 57.0)).abs() < 1e-8, "{out:?}");
+    }
+}
+
+#[cfg(test)]
+mod issue_8890_tests {
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        elements::figure::FigurePlacement,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageMarginSpec, PageMargins, Pt},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn figure(placement: FigurePlacement) -> Content {
+        let body = Content::block(
+            Content::Empty,
+            Some(Length::pt(40.0)),
+            Some(Length::pt(60.0)),
+            Sides::uniform(Length::ZERO),
+            false,
+        );
+        let Content::Block(mut body) = body else { unreachable!() };
+        Arc::make_mut(&mut body).fill =
+            Some(crate::entities::layout_types::Color::rgb(11, 22, 33));
+        let Content::Figure(mut e) =
+            Content::figure(Content::Block(body), None, None, None)
+        else {
+            unreachable!()
+        };
+        Arc::make_mut(&mut e).placement = Some(placement);
+        Content::Figure(e)
+    }
+    fn document(
+        placement: FigurePlacement,
+        link: bool,
+    ) -> crate::entities::layout_types::PagedDocument {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push_styles(&crate::entities::style::Styles::from_iter([
+            crate::entities::style::Style::Size(Length::pt(10.0)),
+        ]));
+        l.style = crate::entities::layout_types::TextStyle::from(&l.chain);
+        l.page_config.width = 100.0;
+        l.page_config.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = 100.0;
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        let mut lines = Vec::new();
+        for (index, letter) in ["A", "B", "C", "D", "E"].iter().enumerate() {
+            if index > 0 {
+                lines.push(Content::linebreak());
+            }
+            let text = Content::text(*letter);
+            lines.push(if link && *letter == "D" {
+                Content::link("https://example.com".to_string(), text)
+            } else {
+                text
+            });
+        }
+        let block = Content::block(
+            Content::sequence(lines),
+            None,
+            None,
+            Sides::uniform(Length::ZERO),
+            true,
+        );
+        l.layout_content(&Content::sequence(vec![
+            Content::v_space(Length::pt(30.0), false),
+            figure(placement),
+            block,
+        ]));
+        l.finish()
+    }
+    #[test]
+    fn issue_8890_deferred_figure_precedes_continuation_without_losing_a_line() {
+        for placement in [FigurePlacement::Auto, FigurePlacement::Top] {
+            for link in [false, true] {
+                let doc = document(placement, link);
+                assert!(doc.pages.len() <= 6, "finite progress");
+                let mut letters = Vec::new();
+                let mut floats = Vec::new();
+                for (page, frame) in doc.pages.iter().enumerate() {
+                    for item in super::super::tests::frame_items_recursive(&frame.items) {
+                        match item {
+                            FrameItem::Shape {
+                                pos,
+                                width,
+                                height,
+                                fill: Some(_),
+                                ..
+                            } if (*height - 60.0).abs() < 1e-8 => {
+                                assert!((pos.y.0 - 10.0).abs() < 1e-8);
+                                assert!((*width - 40.0).abs() < 1e-8);
+                                floats.push(page);
+                            }
+                            FrameItem::Text { text, pos, .. }
+                            | FrameItem::TextShaped { text, pos, .. }
+                                if ["A", "B", "C", "D", "E"].contains(&text.as_str()) =>
+                            {
+                                assert!(
+                                    pos.y.0 >= 10.0 && pos.y.0 <= 90.0,
+                                    "text inside page: {text} {}",
+                                    pos.y.0
+                                );
+                                if text.as_str() == "A" {
+                                    assert_eq!(
+                                        page, 0,
+                                        "text fills original region while Figure waits"
+                                    );
+                                }
+                                letters.push(text.to_string());
+                                if page == 1 {
+                                    assert!(
+                                        pos.y.0 >= 85.0,
+                                        "reserved float region before continuation"
+                                    );
+                                }
+                            }
+                            FrameItem::Text { .. }
+                            | FrameItem::TextShaped { .. }
+                            | FrameItem::Shape { .. }
+                            | FrameItem::TextSeparator { .. }
+                            | FrameItem::Glyph { .. }
+                            | FrameItem::Image { .. }
+                            | FrameItem::Line { .. }
+                            | FrameItem::Group { .. }
+                            | FrameItem::Link { .. }
+                            | FrameItem::Semantic { .. }
+                            | FrameItem::TextReplacement { .. } => {}
+                        }
+                    }
+                }
+                assert_eq!(floats, vec![1], "float admitted once on the successor");
+                assert_eq!(letters, vec!["A", "B", "C", "D", "E"]);
+            }
+        }
     }
 }

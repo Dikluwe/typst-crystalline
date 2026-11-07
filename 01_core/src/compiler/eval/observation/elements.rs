@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash 64814ed5
+//! @prompt-hash e71594d0
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -568,7 +568,10 @@ impl ObservationEq for crate::entities::elements::context_block::ContextBlockEle
 impl ObservationEq for crate::entities::elements::image::ImageElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            format: _,
+            svg: _,
             path: _,
+            source: _,
             alt: _,
             data: _,
             width: _,
@@ -577,6 +580,7 @@ impl ObservationEq for crate::entities::elements::image::ImageElem {
         } = self;
         ObservationRelation::Same
             .and(self.path.observation_relation(&other.path))
+            .and(self.source.observation_relation(&other.source))
             .and(self.alt.observation_relation(&other.alt))
             .and(self.data.observation_relation(&other.data))
             .and(self.width.observation_relation(&other.width))
@@ -996,6 +1000,8 @@ impl ObservationEq for crate::entities::elements::figure::FigureSupplement {
 impl ObservationEq for crate::entities::elements::figure::FigureElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            placement: _,
+            resolved_placement: _,
             body: _,
             caption: _,
             kind: _,
@@ -1003,16 +1009,22 @@ impl ObservationEq for crate::entities::elements::figure::FigureElem {
             supplement: _,
             resolved_supplement: _,
         } = self;
-        ObservationRelation::Same
-            .and(self.body.observation_relation(&other.body))
-            .and(self.caption.observation_relation(&other.caption))
-            .and(self.kind.observation_relation(&other.kind))
-            .and(self.resolved_kind.observation_relation(&other.resolved_kind))
-            .and(self.supplement.observation_relation(&other.supplement))
-            .and(
-                self.resolved_supplement
-                    .observation_relation(&other.resolved_supplement),
-            )
+        (if self.placement == other.placement
+            && self.resolved_placement == other.resolved_placement
+        {
+            ObservationRelation::Same
+        } else {
+            ObservationRelation::Different
+        })
+        .and(self.body.observation_relation(&other.body))
+        .and(self.caption.observation_relation(&other.caption))
+        .and(self.kind.observation_relation(&other.kind))
+        .and(self.resolved_kind.observation_relation(&other.resolved_kind))
+        .and(self.supplement.observation_relation(&other.supplement))
+        .and(
+            self.resolved_supplement
+                .observation_relation(&other.resolved_supplement),
+        )
     }
 }
 // P1473 — `figure.caption(...)`, escopo reduzido (construção sem síntese).

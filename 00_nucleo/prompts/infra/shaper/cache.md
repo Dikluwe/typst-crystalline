@@ -1,5 +1,5 @@
 # L0 — infra/shaper/cache
-Hash do Código: f8a8d92b
+Hash do Código: a03de5c1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -35,7 +35,7 @@ This is an internal cache representation correction, not a public API change.
 ## Owned contract
 
 - Own ShapeCache/CachedRun and FaceCache/CachedFace. Run cache is local to a document; face cache is per instance/compilation and may be shared by the metrics facade.
-- Preserve exact textual run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), effective tracking increment as an exact i32 in font units, calculated by the shaping owner before lookup effective ssty level, and optional explicit normalized language code. Keep absent language distinct from every explicit code, including explicit English. Values retain glyphs and i32 width in font units.
+- Preserve exact owned structured run keys: text, slot, direction, axis variations identified by their exact f32 bit patterns (no decimal rounding), effective tracking increment as an exact i32 in font units, calculated by the shaping owner before lookup effective ssty level, and optional explicit normalized language code. Keep absent language distinct from every explicit code, including explicit English. Values retain glyphs and i32 width in font units.
 - Cache faces by slot including absence. Owned Font bytes keep parsed face borrows valid while CachedFace exists; preserve face index zero and existing encapsulated unsafe. No global cache or new eviction is authorized. The tracking key must identify the actual increment applied to cached glyphs; raw decimal lengths must not be rounded into a key. This correction covers explicit language identity; sufficiency of untested script dimensions remains unproved.
 
 ## Verification and boundary
@@ -100,3 +100,55 @@ Clippy RED→GREEN/unfulfilled_lint_expectations as error; workspace suite/build
 fmt/Rustdoc/lineage under 12 GiB, zero swap, one job. No derive/Entry/module-
 placement mirror tests. Any historical bbox control still requires actual
 observation in its own scope; other controls preserve fixtures/expectations.
+
+
+## Owned structured run identity
+
+### Evidence before decision
+
+The frozen source at `03_infra/src/shaper/cache.rs:22` stores run entries in
+`HashMap<String, CachedRun>`; `:45–55` formats axes and every input into an owned
+string before each lookup. `03_infra/src/shaper/shaping.rs:425–443` supplies the
+same seven inputs and appends an effective native-sups decision conditionally.
+This is observed private representation, not language semantics or upstream
+intent. The approved representation changes these private construction and
+lookup mechanics. Any cache contamination or changed observable shaping refutes
+preservation; key microcosts alone do not establish an end-to-end benefit.
+
+### Exclusive contract
+
+Replace only the private run-key representation with an owned `ShapeKey` deriving
+`PartialEq`, `Eq`, `Hash` and `Debug`. Retain the existing standard HashMap and
+its default RandomState; do not add a hasher, cache, intern table, arena, borrowed
+lookup, dependency or unsafe. `ShapeCache::key` retains its seven arguments and
+returns this key. The key has private fields containing exact UTF-8 text as
+String, slot as usize, rtl as bool, an ordered Vec of (raw tag u32, value.to_bits()
+u32), tracking_fu as i32, ssty level as Option<u8>, explicit language as
+Option<String>, and effective native-sups as Option<bool>, initially None.
+Equality and hashing use every complete field, never only a digest. Preserve axis
+order, repeated tags, adjacent bits, signed zero and every NaN payload without
+normalization or rounding. Language None, Some(""), Some("en") and every other
+code remain distinct. Sups None, Some(false), Some(true) remain distinct.
+
+Construct owned text and optional language by exact copies, without intermediate
+formatting or serialization. Construct the ordered axis vector directly from
+the supplied slice; do not grow serialization buffers. Key construction for
+zero, one and four axes must perform no reallocations under the System allocator;
+allocations required by the owned fields remain permitted.
+
+Expose only a pub(super) `set_native_sups(bool)` method on the key, recording
+Some of the supplied effective decision. Field visibility stays private to this
+cache owner. The shaping owner calls this method under the identical previous
+suffix condition. No other shaping logic, CachedRun/CachedFace/FaceCache,
+document lifetime, font load, carrier, clone, fallback, style, glyph or cluster
+behavior changes. The existing tests remain intact.
+
+This approved private representation follows continuous ADR-0127 flow:
+no public contract, default behavior, compatibility or pipeline-phase change.
+L0 precedes both consumer changes; validate V15/V26 before scoped resealing.
+Require independent complete-field identity and fresh/shared shaping controls,
+targeted field-loss mutations and existing infra regressions. Verify the
+construction reallocation boundary for zero, one and four axes with a disposable
+System-allocator gate; do not add a global allocator to productive tests.
+Hash/key microcosts do not certify eval/layout/shaping/export or close existing
+language-parity debts.

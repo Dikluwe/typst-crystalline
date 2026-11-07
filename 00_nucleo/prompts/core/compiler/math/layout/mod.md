@@ -1,5 +1,5 @@
 # L0 — core/compiler/math/layout/mod
-Hash do Código: 38e4b06f
+Hash do Código: f87646fa
 
 
 
@@ -19,6 +19,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -183,8 +184,9 @@ advance semantics.
 Route Equation/Boxed/Align/Pad/Block and recursive content requiring normal
 layout through the existing pure sub-layout bridge. Typed text deltas
 (size, fill, weight, font, tracking, leading, lang, bold, italic) also require
-that bridge; custom-only style transport and plain markup remain on the
-baseline-aligned text path. Preserve lexical/effective style as far as the
+that bridge. An explicit horizontal `text.dir` in the local Styled delta also
+requires the same bridge; other custom-only transport and plain markup remain
+on the baseline-aligned text path. Preserve lexical/effective style as far as the
 existing bridge represents it, without claiming unsupported contextual access.
 
 Use the first declared text/glyph baseline where present; only baseline-less
@@ -621,3 +623,76 @@ The feature child owns all expansion/sizing logic; no business logic is
 added to this coordinator. Require actual line-count/endpoint/prefix-suffix
 RED, then core/math/cancel/source controls, build, fmt, reverse lineage and
 full crystalline-lint. No new MatLayouter field, public API or phase.
+
+## Explicit text direction in math — #8990 residual (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/before-state.json`
+binds HEAD 3c6b0ce7 and the exact concurrent dirty inputs. The before receipts
+bind the separately compiled RAM binary, current oracle, UTC and source hashes.
+In en-inner-rtl-latin the oracle paints .p.v while Tekt paints p.v.; in
+en/he-inner-ltr-hebrew the oracle keeps the final point on the right while
+Tekt keeps it on the left. text/constructor.rs:241-252 preserves explicit Dir
+in custom text.dir; this owner's needs_external_layout:643-654 discards it
+because it tests only typed text deltas. Text direction is a documented
+language property (pinned text/mod.rs:517-543), not a request to copy bidi IR.
+
+### Exclusive internal correction
+
+Recognize only a local explicit horizontal Value::Dir at canonical text.dir
+as requiring the existing external text bridge. Delegate layout, style
+resolution, shaping and baseline placement to their existing owners. Preserve
+recursive Styled/Sequence and Source-origin behavior, all other property
+checks, natural/default operator direction and the existing #8990 Latin
+operator under inherited RTL. Do not infer direction from lang or a first
+strong character here, add Unicode controls, mutate authored text, create
+public types/signatures, change pipeline phase or introduce a default mode.
+Value::Auto and absent/other properties retain their current path; automatic
+language direction and unqualified Hebrew operator policy require separate
+ADR-0127 approval and are not authorized by this correction.
+
+Require RED for effective explicit ltr/rtl text style within MathOp, then
+GREEN and bilateral glyph positions/paint for native Hebrew and Latin text,
+with unchanged default/other-custom/nested and original #8990 controls.
+Revalidate focused tests/build/lint/lineage in exclusive RAM. The function
+remains a classifier delegating geometry, not a new text-layout implementation.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Accept local text.dir Value::Auto as well as existing horizontal Dir in needs_external_layout. This approved A/B clause supersedes the earlier scope-out that Auto kept the old route. Delegate all resolution and geometry; preserve unrelated custom keys, None/other values, Source and recursive content, math class/limits and L1 purity.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.

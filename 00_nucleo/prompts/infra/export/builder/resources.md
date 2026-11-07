@@ -1,11 +1,12 @@
 # L0 — builder/resources
-Hash do Código: 0f11047f
+Hash do Código: e775b9be
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml sha256:27b85cbce9a73d495cf7b2d9fe13c4ce3f8cba9e555970b86c9f919ae02db232
 - 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml sha256:3d2d44a53e9fb6a6c8d59ddee7b362412ae0ab05fac0e37e50ddf731d987c132
 - 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:afd5a809b6e3f2ac1f9a752fb1f6c6d704139eb1f71b085d430d9417f826b04e
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -128,3 +129,15 @@ package, no API/phase/flag/default; L0 first/RED→GREEN/analytic/simple-nested-
 text-image/page-selection controls, build/workspace suite/fmt/Rustdoc/lineage.
 Variable-gradient alpha/PNG quality stay incomplete; no production certificate
 while open.
+
+
+## Approved SVG form composition — 2026-11-01
+
+Approval and measurement: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json` and `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. Emit the prepared SVG child object bundle at its already allocated IDs through existing add_bytes. No parsing, layout, font or resource resolution here; preserve raster and all prior resources.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Emit each preallocated private SVG Form object bundle through existing add_bytes; preserve raster resources, unique IDs and all existing emission behavior.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/content.md
-//! @prompt-hash ea26da74
+//! @prompt-hash ecbc28f4
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -515,7 +515,15 @@ pub fn repr_content(c: &Content) -> String {
         Content::FigureCaption(fc) => {
             format!("figure.caption[{}]", repr_content(&fc.body))
         }
-        Content::Image(i) => format!("image(\"{}\")", i.path),
+        Content::Image(image) => {
+            if let Some(source) = &image.source {
+                format!("image(source: {})", repr_value(source))
+            } else if let Some(path) = &image.path {
+                format!("image(\"{}\")", path)
+            } else {
+                "image".to_string()
+            }
+        }
         Content::Shape(_) => "shape".to_string(),
         Content::Curve(_) => "curve".to_string(),
         Content::Transform(t) => {

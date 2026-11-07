@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: 248e09fa
+Hash do Código: 83f8cc5d
 
 
 **Layer:** L1
@@ -13,6 +13,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 ## Evidence before specification
@@ -290,3 +291,48 @@ Resolve rect_radius after real dimensions and font are known; preserve flow
 and emit its decoration through a child render-layer module. rect_stroke Some
 may produce fill plus distinct resolved border paths, superseding one-Shape
 emission only in that new case. None preserves every existing route.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Migrate only existing ImageElem literals to the approved optional file path and explicit source absence for legacy synthetic/test images. Preserve the previous path presence/value as Some, unless it is already a known synthetic empty path, which becomes None. Keep every render/layout/tiling/flow behavior and foreign change. Clones retain the original source; do not add a source from a fabricated filename.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+## Approved image-body storage adaptation — 2026-11-06
+
+The owner explicitly authorized TilingBody::Image(Box<ImageElem>) in this
+chat, as specified by the entity owner. Adapt existing construction sites
+with Box::new and borrow/clone the contained ImageElem at the legacy bridge.
+Preserve every image field, data/source/origin/format, body selection, existing
+assertion, layout and export behavior. Do not change the old admitted-input
+set, source acquisition, phases or defaults as part of this storage repair.
+This clause authorizes only this consumer's mechanical adaptation; entity
+representation is exclusively owned by core/entities/tiling.md.

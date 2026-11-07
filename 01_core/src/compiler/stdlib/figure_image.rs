@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
-//! @prompt-hash 47dfafc4
+//! @prompt-hash c640a5ef
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -339,10 +339,23 @@ pub fn native_figure(
             )]);
         }
     };
+    let placement = args
+        .named
+        .get("placement")
+        .map(|value| {
+            crate::compiler::realize::figure::placement_from_value(
+                value,
+                value_span(Some("placement")),
+            )
+        })
+        .transpose()?;
     let mut positional = 0usize;
     for occurrence in args.occurrence_sequence() {
         if let Some(name) = occurrence.name {
-            if !matches!(name.as_str(), "caption" | "kind" | "supplement" | "numbering") {
+            if !matches!(
+                name.as_str(),
+                "caption" | "kind" | "supplement" | "numbering" | "placement"
+            ) {
                 let diagnostic = if name.as_str() == "body" {
                     SourceDiagnostic::error(
                         occurrence.span.or(args.span),
@@ -368,6 +381,8 @@ pub fn native_figure(
         }
     }
     let figure = Content::Figure(std::sync::Arc::new(FigureElem {
+        placement,
+        resolved_placement: None,
         body,
         caption,
         kind,
@@ -469,12 +484,12 @@ pub fn native_figure_caption(
 
 // ── `image()` — carregamento de imagens do disco (Passo 71, DEBT-24) ─────────
 
-/// `image(path, width?, height?)` → `Content::Image`.
+/// `image(source, width?, height?)` → `Content::Image`.
 ///
-/// Lê os bytes do ficheiro através de `world.read_bytes(path)` (Passo 109:
-/// `world` passou do `EvalContext` para o ABI directo, ADR-0044).
-/// `width` e `height` são preservados no AST para o Passo 72 (dimensões reais).
-/// O layouter usa placeholder 100×100 pt neste passo (DEBT-24b).
+/// Path/Str is loaded through the injected World; recognized raster bytes stay
+/// in RAM without file access. The original source is retained independently
+/// of the payload. Layout resolves intrinsic and explicit dimensions through
+/// its ImageSizer port.
 pub fn native_image(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -520,12 +535,15 @@ pub fn native_image(
         }
     }
 
-    let path_value = match args.items.first() {
-        Some(value @ (Value::Str(_) | Value::Path(_))) => value,
+    let source_value = match args.items.first() {
+        Some(value @ (Value::Str(_) | Value::Path(_) | Value::Bytes(_))) => value,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("image() requer path ou string, recebeu {}", other.type_name()),
+                format!(
+                    "expected path, string, or bytes, found {}",
+                    vanilla_type_name(other)
+                ),
             )]);
         }
         None => {
@@ -536,8 +554,30 @@ pub fn native_image(
         }
     };
 
-    let (rooted, data) =
-        match crate::compiler::stdlib::read_path_value(path_value, world, current_file) {
+    let (path, data, origin) = if let Value::Bytes(bytes) = source_value {
+        match detect_image_format(bytes.as_slice()) {
+            ImageFormat::Jpeg
+            | ImageFormat::Png
+            | ImageFormat::Gif
+            | ImageFormat::WebP
+            | ImageFormat::Svg => (
+                None,
+                std::sync::Arc::new(bytes.as_slice().to_vec()),
+                crate::entities::svg_image::SvgOrigin::Inline(current_file),
+            ),
+            ImageFormat::Unknown => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "unknown image format",
+                )]);
+            }
+        }
+    } else {
+        let (rooted, data) = match crate::compiler::stdlib::read_path_value(
+            source_value,
+            world,
+            current_file,
+        ) {
             Ok(pair) => pair,
             Err(msg) => {
                 return Err(vec![SourceDiagnostic::error(
@@ -546,6 +586,12 @@ pub fn native_image(
                 )]);
             }
         };
+        (
+            Some(rooted.vpath().get_with_slash().to_string()),
+            data,
+            crate::entities::svg_image::SvgOrigin::File(rooted),
+        )
+    };
 
     // P772p — antes: formato não reconhecido/corrompido era omitido em
     // silêncio na exportação PDF (L3, `eprintln!`), sem erro de compilação
@@ -556,14 +602,23 @@ pub fn native_image(
     // corrupção mais funda que a assinatura é apanhada em L3 por
     // `validate_document_images` no pipeline (P833/#18 — erro de compilação
     // no formato do vanilla), e GIF/WebP são aceites desde P833/#17.
-    let path = rooted.vpath().get_with_slash().to_string();
-    let lower_path = path.to_lowercase();
-    if lower_path.ends_with(".svg") || lower_path.ends_with(".svgz") {
+    let lower_path = path.as_ref().map(|path| path.to_lowercase());
+    let format = match path.as_deref().and_then(|p| p.rsplit('.').next()) {
+        Some("svg" | "svgz") => ImageFormat::Svg,
+        Some("png") => ImageFormat::Png,
+        Some("jpg" | "jpeg") => ImageFormat::Jpeg,
+        Some("gif") => ImageFormat::Gif,
+        Some("webp") => ImageFormat::WebP,
+        _ => detect_image_format(&data),
+    };
+    if format != ImageFormat::Svg && detect_image_format(&data) == ImageFormat::Svg {
         return Err(vec![SourceDiagnostic::error(
             args.span,
-            "SVG images are not supported yet".to_string(),
+            "failed to decode image (format does not match file extension)",
         )]);
     }
+    let svg = (format == ImageFormat::Svg)
+        .then_some(crate::entities::svg_image::SvgSource { origin, span: args.span });
     // P781 — vanilla SUPORTA `#image("ficheiro.pdf")` (embute uma página do
     // PDF fonte via `hayro`/`hayro-syntax` + `krilla::draw_pdf_page` como
     // Form XObject). Cristalino não tem motor de renderização/parsing PDF
@@ -573,13 +628,16 @@ pub fn native_image(
     // incl. `vello_common`/`vello_cpu`), não implementado. Mensagem
     // dedicada, mesmo padrão de SVG — antes seria "unknown image format"
     // (menos específico, mas já era um erro claro, não omissão silenciosa).
-    if lower_path.ends_with(".pdf") {
+    if lower_path.as_ref().is_some_and(|path| path.ends_with(".pdf")) {
         return Err(vec![SourceDiagnostic::error(
             args.span,
             "PDF images are not supported yet".to_string(),
         )]);
     }
-    if detect_image_format(&data) == ImageFormat::Unknown {
+    if format == ImageFormat::Unknown
+        || (format != ImageFormat::Svg
+            && detect_image_format(&data) == ImageFormat::Unknown)
+    {
         return Err(vec![SourceDiagnostic::error(
             args.span,
             "unknown image format".to_string(),
@@ -618,11 +676,19 @@ pub fn native_image(
         }
         None => None,
     };
-    let mut content = Content::image(path, PtrEqArc(data), width, height, fit);
-    if let Content::Image(image) = &mut content {
-        std::sync::Arc::make_mut(image).alt = alt;
-    }
-    Ok(Value::Content(content))
+    Ok(Value::Content(Content::Image(std::sync::Arc::new(
+        crate::entities::elements::image::ImageElem {
+            format: Some(format),
+            svg,
+            path,
+            source: Some(source_value.clone()),
+            alt,
+            data: PtrEqArc(data),
+            width,
+            height,
+            fit,
+        },
+    ))))
 }
 
 /// P1473 (Agente B) — contrato RED de `figure.caption` (escopo reduzido:
@@ -1167,6 +1233,8 @@ mod p1473_tests {
             crate::compiler::stdlib::native_table,
         ));
         let inner = Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::strong(Content::text("BODY")),
             caption: Some(Content::text("CAPTION")),
             kind: Some(Some(kind.clone())),

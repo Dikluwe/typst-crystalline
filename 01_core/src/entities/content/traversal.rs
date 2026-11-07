@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash f1709c97
+//! @prompt-hash f38ade93
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -913,6 +913,8 @@ impl Content {
         })))),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Figure(Arc::new(FigureElem {
+            placement: e.placement,
+            resolved_placement: e.resolved_placement,
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             caption: e
                 .caption

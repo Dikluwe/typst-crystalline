@@ -1,14 +1,17 @@
 # L0 — infra/pipeline/tests
-Hash do Código: 7789b388
+Hash do Código: 19f5e791
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
+- 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 
 
@@ -828,3 +831,123 @@ side dictionaries. These are language geometry/paint losses.
 Add source-level RED tests for the official rectangle, independent relative
 radius and side stroke controls, aliases/fonts, None/default and mixed lengths.
 Observe prepared geometry/paint, not XML tag choice. Keep all prior tests.
+
+## Issue 8935 — measurement isolation (2026-10-31)
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8935-2026-10-31/` retains
+baseline-{tekt,vanilla}.json.gz and stage1-before.json.gz with exact source/L0,
+HEAD, UTC, dirty stat/status and binary identities. On HEAD3c6b0ce7 the official
+case and repeat:false controls fail contextual stability; ordinary footnote
+outside Table succeeds. Without a reference, the original non-repeated first
+header already emits extra copies of its note body. These are observed language
+errors/text, not upstream intent or an obligation to copy its duplicate-label
+defect. Pinned footnote.rs:42–48 documents multiple references to one labeled
+note; #8954's ratified Table contract retains one logical selected member.
+
+Source tracks.rs:234 and573 measures through layout_sub_frame on the live
+Layouter; footnote.rs:203–219 enqueues body/plan/frame. Ordinary subframe restores
+reservation but retains queues/positions. The hypothesis is speculative Note
+effects leaking into actual emission; a note-free finish after track measurement
+and one NOTE after actual Table rendering are independent language refuters.
+
+Classification: ADR-0127 continuous internal correction within existing
+measurement/layout and source-owned transactions. No public entity/trait/API,
+product mode/default, phase/order, compatibility or source re-evaluation change.
+Only the named consumer is authorized by this amendment.
+
+### Exclusive obligation
+
+Add source-level regression for a referenced footnote in a nonrepeating Table
+header, on a small multipage document. Require compilation, one visible NOTE and
+resolved reference, without relaxing contextual stability or source coverage.
+The failing baseline CLI source is independently frozen. Also preserve ordinary
+note/duplicate-label controls and later qualify the genuinely repeated header.
+This test owner authorizes tests only, not a pipeline algorithm.
+
+L0 and restricted reseal precede behavioral module RED, implementation and GREEN.
+Revalidate native original/height/repeat/reference controls and visible note
+counts, source coverage, #8954/#8777, prior footnote/cache/checkpoint suites, full
+build/tests/lint/forward/reverse seals. Compilation/tests use only the unique
+/dev/shm/typst-crystalline-8935-01a191de target, one job,12GiB ceiling,debug0,
+incremental0,swap0. All unrelated preexisting/concurrent work stays unchanged;
+no commit/push/new branch. Other footnote/layout debts remain explicit.
+
+### Issue 8935 — genuinely repeated header and later logical note
+
+The same stage1-tekt.json.gz records the compact repeated-header source still
+failing while repeat:false compiles. Add integrated source regressions with the
+small fixed page/row fixture and a reference to its labeled note. Require visible
+header paint on multiple pages, resolved reference, one logical query member and
+footnote counter1. A later distinct note must remain a second member/counter2;
+ordinary duplicate declarations retain their sourced error. This is language
+identity/counter/reference acceptance, not PDF bytes or private flags. Keep the
+nonrepeating test and every prior assertion intact; production remains outside
+this test owner. No new public contract/phase/default.
+
+
+## Approved PNG byte source — first raster subset
+
+Evidence: `lab/results/construction/diagnostics/image-input-scope-2026-10-31/`
+contains bilateral source/format/reflection/render probes before this decision.
+`lab/results/construction/diagnostics/png-bytes-2026-10-31/approval.json` binds
+the explicit human approval and exact public proposal. ADR-0127 public/compatibility
+gate is satisfied only for path:Option<String>, source:Option<Value> and PNG bytes
+with original source. Raster phases, defaults and public constructor signatures
+remain. SVG/PDF and format/raw pixels stay pending. JPEG/GIF/WebP byte admission and the measured WebP decode correction are completed by the subsequent explicit user request below.
+The partial constructor is incomplete: temporary task admissao-png-bytes owns this
+subset; admissao-demais-raster-bytes and cor-webp-pdf complete the named remaining
+raster subsets. No claim of full image parity or #8996 closure.
+
+Add actual-source integration tests before implementation: PNG bytes, func/has/fields/source reflection, alias/show callback and two actual Image frames with exact original payload, physical geometry and alt. Truncated PNG must fail deep validation rather than emit success. Existing backend/suite and external PDF/SVG landmarks must remain required.
+
+
+## JPEG, GIF and WebP byte admission — completion
+
+Evidence and explicit user request: `lab/results/construction/diagnostics/raster-bytes-2026-10-31/`.
+The original ImageElem schema gate remains ratified. This extension adds no public
+field, signature, trait, default, phase or compatibility change. ADR-0127 continuous
+flow covers raster admission and the measured internal WebP color correction.
+PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
+
+Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+
+## Issue 8935 residual integrated acceptance
+
+Measurement before decision: the baseline paired receipts and original source/L0 snapshot under lab/results/construction/diagnostics/issue-8935-residual-2026-10-31 bind HEAD3c6b0ce7, dirty list, UTC and current oracle64c5e8c0 bytes. Table entries occur 0/1/2 instead of one per physical header region; a narrow Box note also misses the first page, while ordinary prose does not. Alphabetic references display decimal outside Table too. Require fixed page membership/entry multiplicity for the actual compact repeated Table and a narrow Box outside Table, preserving real note/query/counter/duplicate/hidden contracts and all seven original regressions. Assert alphabetic/roman/default references and no added note body; inspect actual PDF/SVG marker/style/entry positions separately. No whitespace normalization may conceal entry line/pagination errors. These tests own only this existing test consumer; production responsibilities remain the layout owners. L0 first then genuine RED→GREEN in exclusive RAM target, one job/12GiB; no public API/default/phase/compatibility change, no global combined qualification or edits to concurrent tasks.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Before implementation add executable RED controls for SVG/SVGZ by file/bytes, gzip errors, fractional/CSS-unit geometry, fit, relative resource origin, per-occurrence fonts after alias/show, PDF/SVG/PNG paint and legacy raster controls. Distinguish blank-valid SVG from missing paint. Verify semantic source separately from pixels and inspect PDF/SVG/PNG landmarks rather than exit codes alone.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+
+## Footnote column and lexical-numbering correction — 2026-11-01
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/footnote-columns-numbering-2026-11-01/{before.json.gz,baseline-build.json.gz,baseline-tekt.json.gz,baseline-vanilla.json.gz,general-before.json.gz}` binds HEAD3c6b0ce7, uncommitted tree/exact diffstat and source/L0 bytes, UTC, argv and executable SHA. Oracle commit64c5e8c02fe0394d913ead36e42ef8c1334d2107/tree483bd6f1d8ac8810db47b65336d402647955fd17, binary22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34. Global/alias/local set is ignored at the call (H1/ref1 instead of Ha/refa); query numbering field is missing. Short standalone columns already match; long explicit columns use three product pages versus two oracle pages, and Box notes occupy the wrong column while main rows ignore note area. Existing pending queues and page_column_notes distinguish ownership, but refresh refuses columns, flow selects fixed segments on any colbreak and final flow guesses page bottom. Native physical text/coordinates and lexical values govern acceptance; buffer/match shape is mechanics. No intent is inferred from source inspection alone.
+
+### Exclusive obligation
+
+Add source-bound REDs for global/aliased/local Footnote numbering, original reference style and query field, plus standalone/page columns with explicit breaks and narrow Box calls. Require expected page membership, first logical column entry position, once-only counters/bodies, short controls and preserved #8935 tests. Validate full extracted PDF words and independent SVG geometry against the current pinned oracle. Keep earlier tests intact unless bilateral evidence proves an expectation obsolete; document such a decision first.
+
+This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.

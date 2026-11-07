@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/mod.md
-//! @prompt-hash cfba9f64
+//! @prompt-hash d59a04a4
 //! @layer L1
-//! @updated 2026-10-31
+//! @updated 2026-11-01
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::cell::Cell;
@@ -532,6 +532,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             orientation,
             ..
         } => FrameItem::Image {
+            format: None,
             pos: Point {
                 x: Pt(pos.x.val() + dx.val()),
                 y: Pt(pos.y.val() + dy.val()),
@@ -651,6 +652,11 @@ fn needs_external_layout(content: &Content) -> bool {
                 || d.lang.is_some()
                 || d.bold.is_some()
                 || d.italic.is_some()
+                || d.custom.iter().any(|(key, value)| {
+                    key.as_str() == "text.dir"
+                        && (matches!(value, crate::entities::value::Value::Auto)
+                            || matches!(value, crate::entities::value::Value::Dir(dir) if dir.is_horizontal()))
+                })
                 || needs_external_layout(&styled.body)
         }
         Content::Source(_)

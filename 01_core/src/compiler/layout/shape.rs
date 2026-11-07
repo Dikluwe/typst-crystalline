@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape.md
-//! @prompt-hash 9cdf037c
+//! @prompt-hash 5032cb31
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -140,14 +140,17 @@ mod prepared_paint_regressions {
                 intr.track(),
             );
             layouter.is_sub_frame = true;
-            let mut tile = Tiling::new(TilingBody::Image(ImageElem {
-                path: "cell.png".into(),
+            let mut tile = Tiling::new(TilingBody::Image(Box::new(ImageElem {
+                format: None,
+                svg: None,
+                path: Some("cell.png".into()),
+                source: None,
                 alt: None,
                 data: PtrEqArc(Arc::new(vec![1, 2, 3])),
                 width: None,
                 height: None,
                 fit: "cover".into(),
-            }));
+            })));
             tile.size = Some(Size { width: Pt(8.0), height: Pt(6.0) });
             let paint = Paint::Tiling(tile);
             let elem = ShapeElem {

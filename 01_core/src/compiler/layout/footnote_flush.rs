@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_flush.md
-//! @prompt-hash 1e4f74ab
+//! @prompt-hash e7881feb
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -179,12 +179,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // "locais da coluna" (origem no canto superior-esquerdo útil da
         // coluna, i.e. `margin` de offset). O arquivo `columns.rs` depois
         // translada todos os items da coluna para `column_origin_x`.
-        let (avail_w, left_x) = if self.column_mode {
+        let (avail_w, left_x) = if self.column_mode && self.page_column_notes {
             // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             (self.column_width - margin.horizontal(), margin.left)
         } else {
             // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            (page_w - margin.horizontal(), margin.left)
+            (
+                if self.column_mode { self.page_config.width } else { page_w }
+                    - margin.horizontal(),
+                margin.left,
+            )
         };
         let area_bot = bottom_y.unwrap_or(page_h - margin.bottom);
 
@@ -634,6 +638,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         orientation,
                         ..
                     } => FrameItem::Image {
+                        format: None,
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         alt,
                         data,
@@ -787,6 +792,66 @@ mod r12_separator_origin_tests {
         assert!(
             (baseline - 7.7).abs() < 1e-8,
             "baseline={baseline}; geometric cap edge7.7pt"
+        );
+    }
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_page_owned_separator_spans_page_area() {
+        use crate::entities::layout_types::{FrameItem, FrameVisitor};
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        l.column_mode = true;
+        l.page_columns = Some(2);
+        l.column_width = 106.4;
+        l.regions.current.width = 106.4;
+        l.layout_content(&Content::footnote(Content::text("NOTE")));
+        l.flush_pending_footnote_bodies(None);
+        struct Rule(Vec<f64>);
+        impl FrameVisitor for Rule {
+            fn visit_line(&mut self, item: &FrameItem) {
+                if let FrameItem::Line { start, end, .. } = item {
+                    self.0.push(end.x.0 - start.x.0);
+                }
+            }
+        }
+        let mut rules = Rule(vec![]);
+        rules.visit_items(&l.regions.current.current_items);
+        assert!(
+            rules.0.iter().any(|w| (*w - 54.0).abs() < 1e-8),
+            "page-wide rule: {:?}",
+            rules.0
         );
     }
 }

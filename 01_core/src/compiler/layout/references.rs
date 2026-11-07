@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash 260d4326
+//! @prompt-hash 0bf8d009
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -311,6 +311,35 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
                         false,
                     ),
                 }
+                return;
+            }
+        }
+    }
+
+    if let Some(location) = layouter.introspector.query_by_label(&target_label) {
+        if let Some(Content::Footnote(note)) = layouter.introspector.element_at(location)
+        {
+            if let Some(number) = layouter
+                .introspector
+                .counter_key_for_label(&target_label)
+                .and_then(|key| layouter.introspector.flat_counter_at(key, location))
+            {
+                let marker = layouter
+                    .introspector
+                    .resolved_label_for(&target_label)
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| {
+                        format_counter(
+                            &[number],
+                            note.numbering.as_deref().unwrap_or("1"),
+                        )
+                        .unwrap_or_else(|| number.to_string())
+                    });
+                layouter.layout_link_capture(
+                    &Content::superscript(Content::text(marker)),
+                    LinkTarget::Destination(target_label),
+                    false,
+                );
                 return;
             }
         }
@@ -760,6 +789,8 @@ mod figure_morphology_tests {
         intr.figure_counter_snapshots
             .push(FigureCounterSnapshot { key, history: vec![(location, vec![3])] });
         let figure = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::Empty,
             caption: None,
             kind: None,
@@ -801,5 +832,113 @@ mod figure_morphology_tests {
             .collect::<Vec<_>>()
             .join(" ")
             .contains("Figure 3"));
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_residual_tests {
+    use super::*;
+    use crate::entities::{
+        elements::footnote::FootnoteElem,
+        image_sizer::NullImageSizer,
+        layout_types::{FrameItem, FrameVisitor},
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    #[test]
+    fn issue_8935_residual_reference_keeps_original_numbering_and_superscript() {
+        struct MarkerStyle(bool);
+        impl FrameVisitor for MarkerStyle {
+            fn visit_text(&mut self, item: &FrameItem) {
+                if let FrameItem::Text { style, .. } = item {
+                    self.0 = true;
+                    assert!(
+                        style.superscript,
+                        "note reference must preserve marker morphology"
+                    );
+                }
+            }
+        }
+        for (pattern, expected) in [("a", "b"), ("I", "II"), ("1", "2")] {
+            let body = Content::sequence(vec![
+                Content::footnote(Content::text("FIRST")),
+                Content::label_auto(
+                    "n".to_owned(),
+                    Content::Footnote(Arc::new(FootnoteElem {
+                        body: Content::text("SECOND"),
+                        numbering: Some(pattern.into()),
+                    })),
+                ),
+            ]);
+            let intr = crate::compiler::introspect::introspect(&body);
+            let mut l = Layouter::new(
+                super::super::FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.layout_content(&Content::reference("n"));
+            assert!(l.layout_errors.is_empty(), "{:?}", l.layout_errors);
+            assert!(
+                l.pending_footnote_bodies.is_empty(),
+                "a reference is not another declaration"
+            );
+            let doc = l.finish();
+            assert_eq!(doc.plain_text(), expected);
+            let mut style = MarkerStyle(false);
+            for page in &doc.pages {
+                style.visit_items(&page.items);
+            }
+            assert!(style.0, "actual reference paint required");
+        }
+    }
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+        style_chain::StyleChain,
+        value::Value,
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_reference_uses_original_scope_not_reference_scope() {
+        let chain = StyleChain::default_chain()
+            .push_custom("footnote.numbering", Value::Str("a".into()));
+        let body = Content::styled(
+            Content::label_auto("n".to_owned(), Content::footnote(Content::text("NOTE"))),
+            crate::entities::style::Styles::from_delta(chain.collapse()),
+        );
+        let intr = crate::compiler::introspect::introspect(&body);
+        let mut l = make(&intr);
+        l.layout_content(&Content::reference("n"));
+        assert_eq!(l.finish().plain_text(), "a");
     }
 }

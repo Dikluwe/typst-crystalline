@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access.md
-//! @prompt-hash c209326d
+//! @prompt-hash e6795e76
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -1754,6 +1754,8 @@ mod figure_kind_field_projection_tests {
     #[test]
     fn figure_kind_direct_getter_distinguishes_raw_auto_and_prepared_empty_supplement() {
         let mut figure = FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: None,
             kind: Some(None),

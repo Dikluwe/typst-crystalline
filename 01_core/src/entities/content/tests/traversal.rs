@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/tests/traversal.md
-//! @prompt-hash 4c40a54f
+//! @prompt-hash 864b9e35
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -786,6 +786,8 @@ fn table_footer_map_text_recurse_e_preserva_repeat() {
 fn figure_v16_preorder_map_preserves_prepared_supplement_origin_and_presence() {
     use crate::entities::elements::figure::{FigureElem, FigureKind, FigureSupplement};
     let element = FigureElem {
+        placement: None,
+        resolved_placement: None,
         body: Content::text("body"),
         caption: Some(Content::text("caption")),
         kind: Some(None),

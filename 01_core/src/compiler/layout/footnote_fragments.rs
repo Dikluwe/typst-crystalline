@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_fragments.md
-//! @prompt-hash 252d8d1a
+//! @prompt-hash d2f2958f
 //! @layer L1
 //! @updated 2026-10-26
 
@@ -682,11 +682,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
         let certified = profile.scan(body, &self.chain);
         let combined = Content::sequence(vec![prefix.clone(), body.clone()]);
         let margin = self.page_config.margin;
-        let width = if self.column_mode && self.page_columns.is_none() {
-            self.page_config.width - margin.horizontal()
-        } else {
-            self.regions.current.width - margin.horizontal()
-        };
+        let width = super::footnote::entry_region_width(self);
         let ascender = self.metrics.vertical_metrics(self.style.size, &self.style).0 .0;
         let top = self.metrics.text_edges(self.style.size, &self.style).0 .0;
         let saved_capture = self.footnote_capture.take();
@@ -764,7 +760,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
     }
 
     pub(super) fn refresh_footnote_reservation(&mut self) {
-        if self.is_sub_frame || self.column_mode || self.page_columns.is_some() {
+        if self.is_sub_frame || (self.column_mode && self.page_columns.is_none()) {
             return;
         }
         let margin = self.page_config.margin;
@@ -1590,5 +1586,94 @@ mod tests {
             heads[0].height,
             heads[1].height
         );
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_residual_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::PageMargins,
+    };
+    use comemo::Track;
+
+    #[test]
+    fn issue_8935_residual_entry_uses_page_width_in_narrow_subframe() {
+        let intr = TagIntrospector::empty();
+        let mut heights = Vec::new();
+        for width in [200.0, 30.0] {
+            let mut l = Layouter::new(
+                super::super::FixedMetrics,
+                NullImageSizer,
+                10.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.page_config.width = 200.0;
+            l.page_config.margin = PageMargins::uniform(10.0);
+            l.regions.current.width = width;
+            l.is_sub_frame = width == 30.0;
+            let frame = l.capture_footnote_frame(
+                &Content::text("1 "),
+                &Content::text("NOTE"),
+                None,
+            );
+            heights.push(frame.height);
+        }
+        assert_eq!(
+            heights[0], heights[1],
+            "the same page entry must not acquire a second line inside a cell/Box"
+        );
+    }
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_active_region_reserves_entry() {
+        for page_owned in [true, false] {
+            let intr = TagIntrospector::empty();
+            let mut l = make(&intr);
+            l.column_mode = true;
+            l.page_columns = Some(2);
+            l.page_column_notes = !page_owned;
+            l.column_width = 106.4;
+            l.regions.current.width = 106.4;
+            l.layout_content(&Content::footnote(Content::text("NOTE")));
+            assert!(
+                l.footnote_reserved_height > 0.0,
+                "active physical column must reserve its pending note"
+            );
+        }
     }
 }

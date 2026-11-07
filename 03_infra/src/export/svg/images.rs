@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/images.md
-//! @prompt-hash bb2c5014
+//! @prompt-hash 2ea0531f
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -30,8 +30,10 @@ pub(super) fn render_image(
         ImageFormat::Png => "image/png",
         ImageFormat::Gif => "image/gif",
         ImageFormat::WebP => "image/webp",
-        ImageFormat::Unknown if self_contained_svg(data) => "image/svg+xml",
-        ImageFormat::Unknown => {
+        ImageFormat::Svg | ImageFormat::Unknown if self_contained_svg(data) => {
+            "image/svg+xml"
+        }
+        ImageFormat::Svg | ImageFormat::Unknown => {
             write_image_fallback(xml, pos, width, height, "unknown-format");
             return;
         }

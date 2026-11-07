@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/stack.md
-//! @prompt-hash 9afb0a7f
+//! @prompt-hash f0dcc829
 //! @layer L1
-//! @updated 2026-08-21
+//! @updated 2026-11-01
 //!
 //! Layout dinâmico do container compositivo `Stack` (Passo 1121).
 
@@ -192,7 +192,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let frame_start = l.regions.current.current_items.len();
         let exterior_rtl = !vertical
             && l.explicit_line_alignment.is_none()
-            && matches!(l.chain.custom("text.dir"), Some(Value::Dir(dir)) if *dir == crate::entities::dir::Dir::RTL);
+            && super::paragraph::chain_direction(&l.chain)
+                == crate::entities::dir::Dir::RTL;
         let regional_width =
             l.regions.current.width - l.page_config.margin.right - base_x;
         let exterior_x =
@@ -282,7 +283,10 @@ mod stack_image_tests {
 
     fn photo(w: f64, h: f64) -> Content {
         Content::Image(Arc::new(ImageElem {
-            path: String::new(),
+            format: None,
+            svg: None,
+            path: None,
+            source: None,
             alt: None,
             data: PtrEqArc(Arc::new(vec![])),
             width: Some(Box::new(Value::Float(w))),
@@ -474,7 +478,10 @@ mod stack_image_tests {
     fn stack_image_clip_target_width_does_not_use_drawing_width() {
         let cover = || {
             Content::Image(Arc::new(ImageElem {
-                path: String::new(),
+                format: None,
+                svg: None,
+                path: None,
+                source: None,
                 alt: None,
                 data: PtrEqArc(Arc::new(vec![])),
                 width: Some(Box::new(Value::Float(10.0))),

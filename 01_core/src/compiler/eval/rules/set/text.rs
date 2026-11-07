@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/text.md
-//! @prompt-hash 58b0842a
+//! @prompt-hash 61dff5f4
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-11-01
 //!
 //! Branch `#set text`.
 
@@ -422,6 +422,13 @@ pub(super) fn eval_set_text(
                     *engine.styles =
                         engine.styles.push_custom("text.font", Value::Array(arr));
                 }
+                "fallback" => {
+                    if !matches!(val, Value::Bool(_)) {
+                        return Err(vec![SourceDiagnostic::error(value_span,format!("expected boolean, found {}",crate::compiler::eval::operators::error_formatting::vanilla_type_name(&val)))]);
+                    }
+                    *engine.styles = engine.styles.push_custom("text.fallback", val);
+                    engine.sink.warn_note(name_span,"text.fallback affects SVG images; ordinary text fallback remains unsupported","");
+                }
                 "top-edge" => {
                     // P837 (achados #22/#23 de P831) — paridade do cast
                     // `TopEdge` do vanilla (`text/mod.rs:1169-1177`):
@@ -508,6 +515,9 @@ pub(super) fn eval_set_text(
                         }
                         *engine.styles =
                             engine.styles.push_custom("text.dir", Value::Dir(dir));
+                    } else if matches!(val, Value::Auto) {
+                        *engine.styles =
+                            engine.styles.push_custom("text.dir", Value::Auto);
                     }
                 }
                 _ => {
@@ -601,6 +611,34 @@ mod v16_c_structural_tests {
         ) -> Result<Source, String> {
             panic!("refused include accessed World")
         }
+    }
+
+    #[test]
+    fn issue8990_ab_auto_is_preserved_by_set_and_constructor() {
+        let mut missing = Vec::new();
+        for source in ["#set text(dir: auto)\nA", "#text(dir: auto)[A]"] {
+            let world = TestWorld::new(source);
+            let (module, sink) = crate::compiler::eval::tests::eval_for_test_keep_sink(
+                &world,
+                &world.source,
+            );
+            assert!(sink.into_diagnostics().is_empty());
+            let module = module.unwrap();
+            let mut found = false;
+            module.content().unwrap().visit_content_static(&mut |node| {
+                if let crate::entities::content::Content::Styled(styled) = node {
+                    found |= styled.styles.delta().custom.iter().any(|(key, value)| {
+                        key.as_str() == "text.dir"
+                            && matches!(value, crate::entities::value::Value::Auto)
+                    });
+                }
+                true
+            });
+            if !found {
+                missing.push(source);
+            }
+        }
+        assert!(missing.is_empty(), "Auto lost from Styles: {missing:?}");
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash 8cd14566
+//! @prompt-hash f8d2124e
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -14,12 +14,14 @@ mod icc;
 mod jpeg;
 mod png;
 mod scan;
+mod svg;
 mod xobjects;
 
 pub(super) use icc::{build_icc_profile_stream, srgb_icc_profile_for_version};
 #[allow(unused_imports)] // Preserve the existing export-private getter paths.
 pub(super) use icc::{srgb_icc_profile_bytes, srgb_v2_icc_profile_bytes};
 pub(super) use jpeg::{jpeg_color_space, jpeg_is_rgb};
+pub(super) use png::decode_raster_image;
 pub use png::process_png_for_pdf;
 pub(crate) use scan::validate_document_images;
 pub(super) use scan::{scan_all_images, xobject_resources_for_page};
@@ -55,6 +57,9 @@ pub(crate) struct ImageRef {
 }
 /// Dados para emissão de XObjects no PDF.
 pub(super) enum ImageXObject {
+    Svg {
+        objects: Vec<(usize, Vec<u8>)>,
+    },
     Jpeg {
         data: Arc<Vec<u8>>,
         main_obj_id: usize,

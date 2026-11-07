@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash 0728ceb2
+//! @prompt-hash c3aa2cfc
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -876,6 +876,7 @@ fn pipeline_jpeg_gera_pdf_com_xobject() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
@@ -919,6 +920,7 @@ fn pipeline_png_invalido_ignorado_graciosamente() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&png_bytes),
@@ -958,6 +960,7 @@ fn doc_com_imagem(data: Vec<u8>) -> typst_core::entities::layout_types::PagedDoc
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::new(data),
@@ -1060,6 +1063,7 @@ fn p833_validate_imagem_dentro_de_group() {
     let mut data = vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
     data.extend_from_slice(b"lixo");
     let inner = FrameItem::Image {
+        format: None,
         alt: None,
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         data: Arc::new(data),
@@ -1203,6 +1207,7 @@ fn pipeline_jpeg_usa_jpeg_color_space() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&data),
@@ -1240,6 +1245,7 @@ fn jpeg_deduplicado_por_arc_ptr() {
         foreground: vec![],
         items: vec![
             FrameItem::Image {
+                format: None,
                 alt: None,
                 pos: Point { x: Pt(72.0), y: Pt(72.0) },
                 data: Arc::clone(&jpeg_bytes),
@@ -1251,6 +1257,7 @@ fn jpeg_deduplicado_por_arc_ptr() {
                 orientation: 1,
             },
             FrameItem::Image {
+                format: None,
                 alt: None,
                 pos: Point { x: Pt(72.0), y: Pt(200.0) },
                 data: Arc::clone(&jpeg_bytes),
@@ -7847,6 +7854,7 @@ fn p279_mk_doc_image_em_group(
     };
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let inner_image = FrameItem::Image {
+        format: None,
         alt: None,
         pos: image_pos,
         data: Arc::clone(&jpeg_bytes),
@@ -7918,6 +7926,7 @@ fn p279_image_em_group_preserva_xobject_dedup() {
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let mk_image_in_group = |gx: f64, gy: f64| -> FrameItem {
         let inner = FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             data: Arc::clone(&jpeg_bytes),
@@ -7974,6 +7983,7 @@ fn p279_image_em_nested_groups() {
     };
     let jpeg_bytes = Arc::new(vec![0xFFu8, 0xD8, 0xFF, 0xE0]);
     let inner_image = FrameItem::Image {
+        format: None,
         alt: None,
         pos: Point { x: Pt(5.0), y: Pt(5.0) },
         data: Arc::clone(&jpeg_bytes),
@@ -8042,6 +8052,7 @@ fn p279_image_top_level_preserved() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Image {
+            format: None,
             alt: None,
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
@@ -9338,6 +9349,8 @@ fn pdf_label_auto_e_user_geram_dests() {
     let fig = Content::styled(
         Box::new(Content::Figure(std::sync::Arc::new(
             typst_core::entities::elements::figure::FigureElem {
+                placement: None,
+                resolved_placement: None,
                 body: Content::text("Corpo"),
                 caption: Some(Content::text("Legenda")),
                 kind: Some(Some(

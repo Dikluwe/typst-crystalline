@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/flush.md
-//! @prompt-hash f642ce3c
+//! @prompt-hash 04f99e0e
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -30,6 +30,7 @@ mod tests {
 
     fn deferred() -> DeferredFloat {
         DeferredFloat {
+            figure: false,
             alignment: Align2D::default(),
             body_items: Vec::new(),
             body_height: 1.0,

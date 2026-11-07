@@ -1,8 +1,9 @@
 # L0 — line commit
-Hash do Código: 835dbb45
+Hash do Código: 9c653286
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/finite-block-text-region.toml sha256:a3eded1b7fa5a4981a4797650774f976cc7f56fc9d1073e642feac63765583a1
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -321,3 +322,21 @@ records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
 without changing executable tokens, fixtures, expectations or assertions.
 Preserve all behavioral obligations above; reseal both directions and rerun
 the unchanged gates against the final frozen source. Internal ADR-0127 flow.
+
+## Finite Block text admission
+
+Evidence before decision: current text guards in cursor.rs:162,
+line_commit.rs:600-646 and region_progress.rs:133-178 distinguish generic
+subframes but not a declared finite Block region. Pinned vanilla
+`typst-layout/src/flow/block.rs:310-338` gives a fitting fixed height no
+repeatable continuation; Auto inherits outer continuation. The existing nested
+flush test is correct against the current ratified oracle. Neutral top-float
+controls refute removing clearance, and height-exceeding-entry controls refute
+using declared height alone as a universal terminal witness. This is a scoped
+internal text-admission correction, not certification of multi-region fixed
+height or nested no-flush scheduling.
+
+Both reduced-region and ordinary-root text admission guards consult the
+Block-owned terminal text-region query before implicit page progress or suffix
+rejection. Preserve actual ink metrics, clearances, reserves, line publication
+and every existing guard outside that active context.

@@ -1,5 +1,5 @@
 # L0 — Physical page running-content request protocol
-Hash do Código: f14b94e1
+Hash do Código: fb60c8f8
 
 
 **Layer:** L1
@@ -360,3 +360,54 @@ initialize that private field false. Keep every existing test expectation,
 source authority, raw phase and layout/runtime field unchanged. No productive
 trace/renderer/public contract change is authorized here. Actual data ownership
 and measured parity remain in introspect/page_running.md and its pinned nuclei.
+
+## Issue 8935 — proven prepared-header paint replay
+
+### Measurement before decision
+
+lab/results/construction/diagnostics/issue-8935-2026-10-31/stage2-red.json.gz records an actual planned,
+multipage fixed-row Table with a labeled Footnote. The header paints repeatedly;
+the test fails on duplicate Root/PostChildren events for the same Arc plan and
+packets. The original measurement-isolation tests are GREEN in stage1-green;
+stage1-tekt records repeat:false and the original source now compiling, while
+the compact genuinely repeated source still fails. stage2-before.json.gz retains
+the exact pre-edit owners/consumers; receipts bind HEAD/UTC/dirty state/binary.
+
+cell_emission.rs reuses original header cell cursors for recursive physical paint;
+page_running_requests.rs:441–466 admits those same packet phases again. This is
+a source-protocol defect under #8954's ratified one-logical-member prepared alias
+contract, not a reason to copy vanilla's duplicate-label bug. The pinned native
+footnote documentation permits several references to a labeled note; real source
+duplicate declarations must still reject. Data/trace representation is mechanics;
+reference resolution, membership, counter values and visible paint are language.
+
+Classification: ADR-0127 continuous private correction inside the existing layout
+source protocol. No public API/entity/trait/signature, allocation rule, phase/order,
+mode/default, compatibility break or evaluation in layout. Do not add a second
+Context solver, replace source authority, or infer identity from paint/equality.
+
+### Exclusive obligation
+
+A compiler-private cursor may retain a paint-only bit, false for every ordinary
+document/slot/test factory. Descending typed edges, generated paths, deferred
+Note cursors and checkpoint clones preserve it. Only a private prepared-Table
+header replay constructor turns it on: require the current Table source parent
+and same Arc plan, its exact TableResolvedCell child, complete resolved Table/Cell,
+canonical row within a declared header range, no unconsumed generated edges, and
+exactly one prior completed Root/PostChildren pair in the existing accepted raw
+trace. Missing/foreign/uncompleted authority returns a sourced controlled error.
+
+Such a proven physical alias retains canonical planned locations/typed routes and
+all ordinary geometry/style/callback handling. It appends neither a second semantic
+phase nor a packet marker naming a nonexistent event. Both regular admission and
+source-only descendant registration respect this bit; queued deferred children
+retain the same selection. Never filter or deduplicate events already admitted.
+The ordinary cursor path and strict full raw-trace validator remain unchanged;
+missing/duplicate/foreign corruption still rejects, and actual Page marginal
+occurrences still start ordinary distinct cursors. Source occurrence/counter/label
+membership is not inferred from the absence of ink.
+
+Require actual-header phase RED→GREEN plus language reference/query/counter1 and
+later distinct-note counter2 controls. Keep all original alias, inactive Repeat,
+raw corruption, checkpoint, deferred-note, source-marker, page-running and style
+tests, builds and lint/lineage gates. Unique RAM target/resources unchanged.

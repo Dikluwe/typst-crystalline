@@ -1,5 +1,5 @@
 # L0 — compiler/layout/columns/segmented
-Hash do Código: b4a9aefd
+Hash do Código: aece4f47
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -133,3 +133,35 @@ parent line; begin the local line without outer policy, then restore it with the
 original line at the existing LIFO exit. Preserve all cursor, source, fraction,
 alignment, hidden paint and regional formulas. Do not extend all-state isolation
 to the separate inline-tail helper, which contributes its actual terminal text.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+Pass the lexical StyleChain through existing Styled/Sequence body direction discovery; push the actual Styled values and delegate direction to paragraph.chain_direction. This private helper may receive the chain argument; no public API changes. Preserve first relevant visible child, ignore empty wrappers, preserve explicit override/Auto reset/language inheritance and original child segmentation. Remove only the obsolete private styles_dir decoder after delegating; no duplicate language table.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.

@@ -1,8 +1,9 @@
 # L0 — cursor
-Hash do Código: 8e04cf2a
+Hash do Código: 7cb4bd6d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
+- 00_nucleo/prompts/_nuclei/layout/finite-block-text-region.toml sha256:a3eded1b7fa5a4981a4797650774f976cc7f56fc9d1073e642feac63765583a1
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-literal-width.toml sha256:49b2cc837799c63414a2f68dfd25375d2238543b9bd1d502adadfc78a8df6ab1
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
@@ -207,3 +208,59 @@ Do not change FontMetrics.line_content_right. For retained final/explicit lines
 combine actual text and Literal extents; normal continued lines retain existing
 trimming. Use the optical owner's retained-tail proof only for the former,
 preserving current soft-wrap justification, RTL literal-prefix and every policy.
+
+
+## Issue8890 — admission of the initial text baseline after float reservation
+
+### Measurement before decision
+
+`lab/results/construction/diagnostics/issue-8890-placement-2026-10-31/green.json`
+and green.log retain UTC/HEAD/dirty stat/exact source hashes and the corrected
+Size(10pt) fixture: complete E is emitted at baseline92pt beyond the90pt region
+bottom. cursor.rs:94-108 installs the initial top and bypasses the regional
+admission invoked at:178. region_progress.rs:155-179 already owns actual
+Text/KnownTop admission; reserved-line protocols do not run ordinary root's
+settled-line guard in line_commit.rs:638-653. This is observed geometry and
+an internal missing delegation, not an upstream algorithm requirement.
+
+### Exclusive bounded correction
+
+After installing the initial Text or KnownTop baseline, ask the existing
+region_progress admission owner to validate that actual baseline before any
+text item is emitted. Generic/nontext baseline calls keep the prior behavior.
+Preserve Some(top), zero top, local is_sub_frame guard, fitting/empty/oversize
+progress and block-chain/fractional/suffix protocols. Do not predict demand at
+float insertion or manufacture a terminal page if no text follows. No public
+field/signature/default/phase change: ADR-0127 continuous internal correction.
+
+Add a direct declared-metric RED: region100/margins10, committed60pt float,
+reserved75pt, geometric cursor85 and pending top7; demanding the actual first
+text baseline must advance to a successor with baseline17 instead of emitting
+at92. Fitting reservation and a local subframe remain on their current region;
+no text demand alone must not advance. Existing issue8890 full-block/link RED
+and actual Source PDF/SVG are also required GREEN. Use this task's RAM target,
+one job,12GiB/swap0; preserve all prior contracts and foreign changes. Scoped
+reseal follows valid V15/V26 and code-state receipts; no commit/global claim.
+
+The pre-correction Source candidate/receipt.json also refutes closure: the
+captioned100pt-page control loses E in PDF extraction while preserving A–D
+and the caption; main original/link already retain all five. Do not close
+the issue from the main case alone or relax the first-text bounds.
+
+## Finite Block text admission
+
+Evidence before decision: current text guards in cursor.rs:162,
+line_commit.rs:600-646 and region_progress.rs:133-178 distinguish generic
+subframes but not a declared finite Block region. Pinned vanilla
+`typst-layout/src/flow/block.rs:310-338` gives a fitting fixed height no
+repeatable continuation; Auto inherits outer continuation. The existing nested
+flush test is correct against the current ratified oracle. Neutral top-float
+controls refute removing clearance, and height-exceeding-entry controls refute
+using declared height alone as a universal terminal witness. This is a scoped
+internal text-admission correction, not certification of multi-region fixed
+height or nested no-flush scheduling.
+
+Before the existing block-chain baseline guard requests implicit outer page
+progress, consult the Block-owned terminal text-region query. Keep baseline
+resolution and spacing, KnownTop admission, explicit pagebreaks and marker
+float-drain transitions unchanged.

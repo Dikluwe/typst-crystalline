@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns/transitions.md
-//! @prompt-hash 1076fade
+//! @prompt-hash 08a76f20
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -21,10 +21,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// posição horizontal absoluta correcta e guarda-os no buffer de
     /// colunas da página.
     pub(in crate::compiler::layout) fn close_current_column(&mut self) {
+        if let Some(end) = &mut self.column_flow_end {
+            if super::super::html_frame::items_have_material(
+                &self.regions.current.current_items,
+            ) || super::super::html_frame::items_have_material(
+                &self.regions.current.current_line,
+            ) {
+                *end = (*end)
+                    .max(self.last_block_descent_y.unwrap_or(0.0))
+                    .max(self.prev_line_baseline + self.prev_block_equation_descent);
+            }
+        }
         // Flush das footnotes no fundo da coluna actual.
         let prev_column_mode = self.column_mode;
         self.column_mode = true;
-        self.flush_pending_footnote_bodies(None);
+        if self.page_column_notes {
+            self.flush_pending_footnote_bodies(None);
+        }
         self.column_mode = prev_column_mode;
 
         // P1418 — o fluxo contínuo fecha a região física aqui. Patterns são
@@ -85,6 +98,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // A coluna actual já foi fechada e está em column_page_items;
         // limpar current_items por segurança e repor merged.
         self.regions.current.current_items = merged;
+        if let Some(end) = self.column_flow_end {
+            self.regions.current.cursor_y = Pt(end);
+            self.last_block_descent_y = Some(end);
+            self.column_flow_end = Some(self.page_config.margin.top);
+        }
         self.open_link_items();
     }
 
@@ -99,6 +117,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.merge_column_items();
         // Restaurar estado de página normal.
         self.page_columns = None;
+        self.column_flow_end = None;
         self.current_column = 0;
         self.column_page_items.clear();
         self.column_x_offsets.clear();
@@ -146,4 +165,53 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins, Pt},
+    };
+    use comemo::Track;
+    fn make(intr: &TagIntrospector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.initial_baseline_pending = true;
+        l
+    }
+
+    #[test]
+    fn footnote_columns_sibling_close_preserves_page_queue() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        l.column_mode = true;
+        l.page_columns = Some(2);
+        l.column_width = 106.4;
+        l.regions.current.width = 106.4;
+        l.layout_content(&Content::footnote(Content::text("NOTE")));
+        l.close_current_column();
+        assert_eq!(
+            l.pending_footnote_bodies.len(),
+            1,
+            "sibling close cannot consume a page-owned entry"
+        );
+    }
 }

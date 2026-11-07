@@ -114,6 +114,7 @@ fn bench_builder(c: &mut Criterion) {
     resource_doc.pages[0]
         .items
         .extend((0..32).map(|index| FrameItem::Image {
+            format: None,
             pos: Point { x: Pt(36.0 + index as f64 * 4.0), y: Pt(80.0) },
             data: image.clone(),
             alt: None,

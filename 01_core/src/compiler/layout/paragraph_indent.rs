@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_indent.md
-//! @prompt-hash fd6ce251
+//! @prompt-hash 8a838fe8
 //! @layer L1
-//! @updated 2026-10-18
+//! @updated 2026-11-01
 
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -259,10 +259,7 @@ fn start_chain<M: FontMetrics, S: ImageSizer>(
         Spec {
             first: 0.0,
             continuation: amount,
-            dir: match chain.custom("text.dir") {
-                Some(Value::Dir(dir)) => *dir,
-                _ => style.dir.unwrap_or(Dir::LTR),
-            },
+            dir: super::paragraph::chain_direction(chain),
         }
     });
     l.paragraph_indent.spec = Some(spec);

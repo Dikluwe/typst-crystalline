@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash 91e7359b
+//! @prompt-hash 48f0e987
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -372,6 +372,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             (!preserve_footnote_capture).then(|| self.footnote_capture.take());
         let saved_footnote_reserve =
             std::mem::replace(&mut self.footnote_reserved_height, 0.0);
+        let pending_footnotes_before = self.pending_footnote_bodies.len();
 
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
@@ -814,6 +815,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if let Some(saved) = saved_footnote_capture {
             self.footnote_capture = saved;
         }
+        if self.pending_footnote_bodies.len() > pending_footnotes_before {
+            self.refresh_footnote_reservation();
+        }
         (cell_height, cell_items, deco_segments, orphaned_align_x, orphaned_align_y)
     }
 
@@ -843,6 +847,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_footnote_capture = self.footnote_capture.take();
         let saved_footnote_reserve =
             std::mem::replace(&mut self.footnote_reserved_height, 0.0);
+        let pending_footnotes_before = self.pending_footnote_bodies.len();
         // A variante inline opera sobre a linha horizontal do pai e não usa
         // região geométrica própria. Se estes campos vierem preenchidos, o
         // caller provavelmente queria `layout_sub_frame`.
@@ -928,6 +933,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.text_horizontal_offset = saved_horizontal_offset;
         self.literal_script_break_pending = saved_literal_script_break;
         self.pending_horizontal_paragraph = saved_horizontal_paragraph;
+        if self.pending_footnote_bodies.len() > pending_footnotes_before {
+            self.refresh_footnote_reservation();
+        }
         (height, aligned_body_tail)
     }
 }
@@ -1375,5 +1383,52 @@ mod inline_allocation_scope_tests {
             .inline_allocation
             .as_ref()
             .is_some_and(|saved| Arc::ptr_eq(saved, &node)));
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_residual_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMargins, Pt},
+    };
+    use comemo::Track;
+
+    #[test]
+    fn issue_8935_residual_subframe_reserves_queued_note_in_restored_parent() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            10.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 200.0;
+        l.page_config.height = 150.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.regions.current.width = 200.0;
+        l.regions.current.height = 150.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.layout_sub_frame(
+            &Content::sequence(vec![
+                Content::text("H"),
+                Content::footnote(Content::text("NOTE")),
+            ]),
+            SubLayoutRegion {
+                origin_x: 10.0,
+                width: 30.0,
+                height: None,
+                align_rtl: true,
+                unconstrained_height: true,
+            },
+        );
+        assert_eq!(l.pending_footnote_bodies.len(), 1);
+        assert_eq!(l.regions.current.width, 200.0);
+        assert!(!l.is_sub_frame);
+        assert!(l.footnote_reserved_height > 0.0, "a queued entry must reserve the restored physical parent before following flow");
     }
 }

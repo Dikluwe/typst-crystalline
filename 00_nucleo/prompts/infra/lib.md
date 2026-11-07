@@ -1,8 +1,9 @@
 # L0 — Infrastructure crate root
-Hash do Código: 9b5648a3
+Hash do Código: 4cb07337
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 
 **Layer:** L3
@@ -75,3 +76,17 @@ prior None fallback. Require RED→GREEN for `456 789` refutation, overrides/neu
 no auxiliary controls in extracted text and bilateral measurements. Registry
 implementation is exclusively owned by `00_nucleo/prompts/infra/bidi_context.md`;
 reordering and shaping remain with their own canonical owners.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Register the private svg_image preparation module. Keep all external SVG/backend types private to L3 and outside public domain contracts.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.

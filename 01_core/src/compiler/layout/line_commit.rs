@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 4977471f
+//! @prompt-hash 5de9700c
 //! @layer L1
 //! @updated 2026-10-26
 //!
@@ -602,6 +602,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut effective_line_committed = false;
         if had_items
             && !self.is_sub_frame
+            && !super::block::text_region_is_terminal(self)
             && self.page_config.height.is_finite()
             && self.regions.current.height + f64::EPSILON < self.page_config.height
         {
@@ -638,6 +639,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Reserved regions and suffix transactions retain their own protocol.
         let ordinary_root = had_items
             && !self.is_sub_frame
+            && !super::block::text_region_is_terminal(self)
             && self.page_config.height.is_finite()
             && self.regions.current.height == self.page_config.height
             && !self.column_mode

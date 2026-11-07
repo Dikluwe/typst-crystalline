@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash 2b7a2ccc
+//! @prompt-hash 87a58730
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-11-01
 //!
 //! Braços `Content::Align` e `Content::Place` do `layout_content`.
 //! Extraídos de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
@@ -270,10 +270,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             && (textual || independent_block(body));
         let saved_alignment = self.explicit_line_alignment;
         if flow_aligned || intrinsic_piece {
-            let rtl = self.chain.custom("text.dir")
-                == Some(&crate::entities::value::Value::Dir(
-                    crate::entities::dir::Dir::RTL,
-                ));
+            let rtl = super::paragraph::chain_direction(&self.chain)
+                == crate::entities::dir::Dir::RTL;
             self.explicit_line_alignment = alignment
                 .h
                 .map(|h| match h {

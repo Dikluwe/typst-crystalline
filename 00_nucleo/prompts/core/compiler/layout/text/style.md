@@ -1,5 +1,5 @@
 # L0 — Effective inline text style
-Hash do Código: 12660f32
+Hash do Código: cb1a0936
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
@@ -185,3 +185,35 @@ Classification: approved public method plus private parity integration under ADR
 ### Exclusive owning obligation
 
 Expose a private unscaled actual-script request resolver using current field/chain precedence and no legacy script scaling. Keep existing actual-run resolver as fallback. A positively authenticated mandatory-break script scope supplies Some(false) to the new run method, so covered prefixes cannot regain native sups. Ordinary/subscript/empty effective-style paths remain unchanged.
+
+## Ratified A/B direction defaults — 2026-11-01
+
+### Measurement and approval before code
+
+Source anchors and runtime counterexamples are preserved in
+`lab/results/construction/diagnostics/issue-8990-residuals-2026-10-31/`
+before receipts, pinned-documentation.json and gate-default-direction-proposal.md.
+Current source/owner bytes, exact concurrent diffstat and UTC are fixed in
+`lab/results/construction/diagnostics/issue-8990-ab-2026-11-01/before-state.json`.
+The same causal paths still read only explicit text.dir or discard Auto; the
+operator delegate does not establish a local mathematical base. Those are
+language defaults/semantic bidi inputs; font IDs/IR/byte equality are mechanics.
+The human explicitly approved A and B on 2026-11-01, preserved in approval.json,
+for proposal SHA-256 a2a9737c7960cb400b2899ac60c3b02e04f0823f6a9cc388ceee385663f214ca.
+ADR-0127 default gate is satisfied for this bounded package only.
+
+### Exclusive responsibility
+
+For ordinary text obtain dir from the paragraph-owned lexical resolver, not a stale cached TextStyle.dir. Keep style.lang absence and all other fields unchanged (do not fabricate English language/hyphenation). In mathematical external text, a locally supplied Dir or Auto wins over the already-resolved incoming style.dir; absent local direction preserves that incoming math base. Auto uses the same paragraph resolver. No font selection or layout is added here.
+
+### Acceptance and limits
+
+Require tests first and functional RED before implementation, then GREEN;
+measure he/ar/en/absent language, explicit LTR/RTL, Auto reset, inherited
+language and scope restoration, geometry/paint and existing RTL #8990 controls.
+Keep the six prior physical RTL-Hebrew punctuation negatives separate; this
+package does not ratify a new fallback-font policy or general RTL mathematics.
+Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
+with exact source/UTC/diffstat provenance and restricted resealing after a
+valid V15/V26 graph. Preserve all concurrent changes and every other owner
+responsibility; no commit/push, new public API, Nucleus or phase is authorized.

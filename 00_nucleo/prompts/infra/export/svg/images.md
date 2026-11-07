@@ -1,9 +1,12 @@
 # L0 — svg/images
-Hash do Código: a5a33112
+Hash do Código: 4d8c8dc8
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/images.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 ## Consumer evidence
 
@@ -80,3 +83,17 @@ needs another ADR-0127 gate. Validate build/fmt/strict/reverse lineage/Tekt no n
 errors/warnings, existing Counter/coverage tests under 12 GiB, zero swap, one job.
 Prior full suite is evidence for identical executable code, not a fresh run;
 no lint-attribute mirror tests or new performance comparison for metadata.
+
+
+## Approved SVG/SVGZ extension — 2026-11-01
+
+Human ADR-0127 approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Exact contract and phase: `lab/results/construction/diagnostics/svg-image-gate-2026-10-31/proposal.md`. This scoped extension supersedes earlier SVG scope-out/prohibitions only for this feature; preserve unrelated contracts.
+
+Supersede the conservative SVG recognition escape and prohibition on prepared SVG payloads for admitted SVG images only. Embed the self-contained prepared SVG render representation with resolved physical box/cover clips; preserve alpha and gradients. No downstream font selection, filesystem/resource fetch, layout or raw SVGZ embedding. Original language source remains on ImageElem. Raster data URLs and EXIF behavior remain.
+
+
+## Approved SVG/SVGZ materialization — 2026-11-01
+
+Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
+
+Apply the approved SVG extension while preserving original source and existing raster behavior.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/columns.md
-//! @prompt-hash a941dee6
+//! @prompt-hash d5436b9d
 //! @layer L1
-//! @updated 2026-10-24
+//! @updated 2026-11-01
 //!
 //! Atomização (ADR-0109, P377): o layout de `Columns` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -25,7 +25,6 @@ use crate::entities::counter_format::format_counter;
 use crate::entities::dir::Dir;
 use crate::entities::elements::columns::ColumnsElem;
 use crate::entities::layout_types::{Align2D, FrameItem, HAlign, Point, Pt, TextStyle};
-use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 use super::helpers::{item_pos, translate_frame_item};
@@ -207,20 +206,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // `start_next_column` avance para a esquerda.
     // A direcção do texto é lida do `Content::Styled` que envolve o body,
     // porque a chain activa do `Layouter` ainda não incluiu esses estilos.
-    let effective_dir = body_dir(&e.body).or_else(|| {
-        layouter.chain.custom("text.dir").and_then(|value| match value {
-            Value::Dir(dir) => Some(*dir),
-            _ => None,
-        })
-    });
-    let is_rtl = effective_dir == Some(Dir::RTL);
+    let effective_dir = body_dir(&e.body, &layouter.chain)
+        .unwrap_or_else(|| super::paragraph::chain_direction(&layouter.chain));
+    let is_rtl = effective_dir == Dir::RTL;
     let column_x_offsets: Vec<f64> = if is_rtl {
         column_x_offsets.into_iter().rev().collect()
     } else {
         column_x_offsets
     };
 
-    if had_colbreak {
+    let mut note_flow = !layouter.pending_footnote_bodies.is_empty();
+    e.body.visit_content_static(&mut |content| {
+        note_flow |= matches!(content, Content::Footnote(_));
+        !note_flow
+    });
+    if had_colbreak && !note_flow {
         let routes = source_segment_routes(layouter, &split);
         layout_segmented(
             layouter,
@@ -239,15 +239,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             }
         }
     } else {
+        let saved_column_end = layouter.column_flow_end;
+        layouter.column_flow_end =
+            note_flow.then_some(layouter.regions.current.cursor_y.0);
         layout_flow(
             layouter,
-            if layouter.page_running_pass.is_some() { &e.body } else { &segments[0] },
+            if note_flow || layouter.page_running_pass.is_some() {
+                &e.body
+            } else {
+                &segments[0]
+            },
             count,
             &column_x_offsets,
             column_region_width,
             margins.left,
             e.page_columns,
         );
+        layouter.column_flow_end = saved_column_end;
     }
 
     leave_flow_block(layouter);

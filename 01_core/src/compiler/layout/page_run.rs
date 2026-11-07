@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_run.md
-//! @prompt-hash 12838397
+//! @prompt-hash 6968274d
 //! @layer L1
-//! @updated 2026-08-24
+//! @updated 2026-11-01
 //!
 //! Layout lexical de `PageRunElem`: aplica configuração local e restaura.
 
@@ -40,17 +40,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .as_ref()
         .map(|pass| (pass.slots.clone(), pass.environment.clone(), pass.chain.clone()));
     let mut local = previous.clone();
-    let dir = layouter
-        .chain
-        .custom("text.dir")
-        .and_then(|v| {
-            if let crate::entities::value::Value::Dir(d) = v {
-                Some(*d)
-            } else {
-                None
-            }
-        })
-        .unwrap_or(crate::entities::dir::Dir::LTR);
+    let dir = super::paragraph::chain_direction(&layouter.chain);
     super::page_geometry::apply(
         &mut local, dir, e.paper, e.flipped, e.binding, e.width, e.height, e.margin,
     );

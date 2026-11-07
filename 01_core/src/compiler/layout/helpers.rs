@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/helpers.md
-//! @prompt-hash f4b99348
+//! @prompt-hash 48ccad71
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -206,6 +206,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             }
         }
         FrameItem::Image {
+            format,
             pos,
             clip_rect,
             data,
@@ -217,6 +218,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             orientation,
             ..
         } => FrameItem::Image {
+            format,
             pos: Point { x: new_x, y: new_y },
             alt,
             data,
@@ -805,6 +807,7 @@ mod image_clip_transport_tests {
     #[test]
     fn cover_clip_tracks_every_translation_without_changing_extent() {
         let mut item = FrameItem::Image {
+            format: None,
             pos: Point { x: Pt(3.0), y: Pt(5.0) },
             data: std::sync::Arc::new(vec![]),
             alt: None,

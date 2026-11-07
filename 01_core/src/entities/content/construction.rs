@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction.md
-//! @prompt-hash 2261741c
+//! @prompt-hash 1927fd9a
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -181,7 +181,10 @@ impl Content {
         fit: impl Into<EcoString>,
     ) -> Self {
         Self::Image(Arc::new(ImageElem {
-            path: path.into(),
+            format: None,
+            svg: None,
+            path: Some(path.into()),
+            source: None,
             alt: None,
             data,
             width,
@@ -413,6 +416,8 @@ impl Content {
         numbering: Option<String>,
     ) -> Self {
         let fig = Self::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body,
             caption,
             kind: kind.map(|name| {

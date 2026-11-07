@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/walk.md
-//! @prompt-hash aa700960
+//! @prompt-hash 91d9578d
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -1180,6 +1180,41 @@ pub(super) fn walk_at(
         // `Introspector::element_at` — `query()` devolve o elemento
         // (paridade vanilla), não só a Location.
         let fields = match content {
+            Content::Footnote(note) => {
+                let pattern = note
+                    .numbering
+                    .clone()
+                    .or_else(|| {
+                        if let Some(Value::Str(pattern)) =
+                            chain.custom("footnote.numbering")
+                        {
+                            Some(pattern.clone())
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap_or_else(|| "1".into());
+                let mut fields = indexmap::IndexMap::default();
+                fields.insert("body".into(), Value::Content(note.body.clone()));
+                if let Some(label) = label_from_parent {
+                    fields.insert("label".into(), Value::Label(label.clone()));
+                    let key = crate::entities::counter::CounterKey::Selector(
+                        crate::entities::selector::Selector::Kind(
+                            crate::entities::element_kind::ElementKind::Footnote,
+                        ),
+                    );
+                    if let Some(number) = intr.flat_counter_at(&key, loc) {
+                        let marker = crate::entities::counter_format::format_counter(
+                            &[number],
+                            pattern.as_str(),
+                        )
+                        .unwrap_or_else(|| number.to_string());
+                        intr.resolved_labels.insert(label.clone(), marker);
+                    }
+                }
+                fields.insert("numbering".into(), Value::Str(pattern));
+                Some(fields)
+            }
             Content::Strong(e) => {
                 let mut fields = indexmap::IndexMap::default();
                 fields.insert("delta".into(), Value::Int(300));
@@ -1300,7 +1335,6 @@ pub(super) fn walk_at(
             | Content::TableCell(_)
             | Content::Bibliography(_)
             | Content::Cite(_)
-            | Content::Footnote(_)
             | Content::FootnoteEntry(_)
             | Content::TableHeader(_)
             | Content::TableFooter(_)
@@ -2405,5 +2439,36 @@ mod readiness_equation_membership_tests {
         }));
         let shown = Content::Realized(Arc::new(RealizedContent { original, visual }));
         assert_eq!(index(&shown).query_by_kind(ElementKind::Metadata), vec![actual]);
+    }
+}
+
+#[cfg(test)]
+mod footnote_columns_tests {
+    use crate::entities::{
+        content::Content, introspector::Introspector, style_chain::StyleChain,
+        value::Value,
+    };
+
+    #[test]
+    fn footnote_columns_original_occurrence_keeps_numbering_snapshot() {
+        let chain = StyleChain::default_chain()
+            .push_custom("footnote.numbering", Value::Str("a".into()));
+        let body = Content::styled(
+            Content::label_auto("n".to_owned(), Content::footnote(Content::text("NOTE"))),
+            crate::entities::style::Styles::from_delta(chain.collapse()),
+        );
+        let intr = crate::compiler::introspect::introspect(&body);
+        let loc = intr
+            .query_by_label(&crate::entities::label::Label("n".to_owned()))
+            .unwrap();
+        let fields = intr.elements.get(&loc).and_then(|v| v.fields());
+        assert_eq!(
+            fields.and_then(|v| v.get("numbering")),
+            Some(&Value::Str("a".into()))
+        );
+        assert_eq!(
+            intr.resolved_label_for(&crate::entities::label::Label("n".to_owned())),
+            Some("a")
+        );
     }
 }

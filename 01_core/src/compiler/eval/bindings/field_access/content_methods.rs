@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash e1a08b81
+//! @prompt-hash df0af4fc
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -85,8 +85,16 @@ pub(super) fn content_field(
                 content_field(child, field)
             }
         }
+        Content::Image(image) => match field {
+            "source" => image
+                .source
+                .clone()
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
         Content::Figure(_) => match field {
-            "body" | "caption" | "kind" | "supplement" => c
+            "body" | "caption" | "kind" | "supplement" | "placement" => c
                 .get_field(field)
                 .map(ContentField::Set)
                 .unwrap_or(ContentField::Unset),
@@ -311,7 +319,6 @@ pub(super) fn content_field(
         | Content::CounterUpdate(..)
         | Content::Outline(..)
         | Content::FigureCaption(..)
-        | Content::Image(..)
         | Content::Shape(..)
         | Content::Curve(..)
         | Content::Grid(..)
@@ -384,7 +391,8 @@ pub(super) fn content_set_fields(
         Content::ShowRecipe(e) => return content_set_fields(&e.body),
         Content::Located(e) => return content_set_fields(&e.body),
         Content::Realized(e) => return content_set_fields(&e.visual),
-        Content::Figure(_) => &["body", "caption", "kind", "supplement"],
+        Content::Figure(_) => &["body", "caption", "kind", "supplement", "placement"],
+        Content::Image(_) => &["source"],
         Content::Metadata(_) => &["value"],
         Content::OutlineEntry(_) => &["level", "element", "fill"],
         Content::Empty | Content::Sequence(_) => &["children"],
@@ -531,7 +539,6 @@ pub(super) fn content_set_fields(
         | Content::CounterDisplay(..)
         | Content::CounterUpdate(..)
         | Content::Outline(..)
-        | Content::Image(..)
         | Content::Shape(..)
         | Content::Curve(..)
         | Content::Grid(..)
@@ -1805,6 +1812,8 @@ mod v16_e_reflection_tests {
         use crate::entities::elements::{figure::FigureElem, metadata::MetadataElem};
         for caption in [Content::Empty, Content::text("caption")] {
             let figure = Content::Figure(Arc::new(FigureElem {
+                placement: None,
+                resolved_placement: None,
                 body: Content::text("body"),
                 caption: Some(caption.clone()),
                 kind: None,
@@ -1825,6 +1834,8 @@ mod v16_e_reflection_tests {
             assert_eq!(value.body, caption);
         }
         let absent = Content::Figure(Arc::new(FigureElem {
+            placement: None,
+            resolved_placement: None,
             body: Content::text("body"),
             caption: None,
             kind: None,

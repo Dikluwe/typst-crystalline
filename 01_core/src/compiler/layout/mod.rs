@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash d3bcc2d6
+//! @prompt-hash b3b8f954
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -643,6 +643,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) column_origin_x: f64,
     /// **P537** — largura útil da coluna actual.
     pub(super) column_width: f64,
+    pub(super) column_flow_end: Option<f64>,
     /// **P538c** — número de colunas da página actual em fluxo contínuo.
     /// `None` significa layout de página normal (uma coluna).
     pub(super) page_column_notes: bool,
@@ -862,6 +863,8 @@ pub(super) struct FootnoteCapture {
 /// no flush da página actual.
 #[derive(Debug, Clone)]
 pub(super) struct DeferredFloat {
+    /// Figure frames reserve a successor before its continuation text.
+    pub figure: bool,
     /// Alignment per eixo. `alignment.y == Top` → topo da página;
     /// `Bottom`/`Horizon` → fundo (paridade vanilla default bottom).
     /// `alignment.x` aplica-se à largura útil da página para
@@ -1098,6 +1101,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             column_mode: false,
             column_origin_x: 0.0,
             column_width: 0.0,
+            column_flow_end: None,
             // P538c — fluxo contínuo multi-coluna inactivo por default.
             page_column_notes: false,
             page_columns: None,

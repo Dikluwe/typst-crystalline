@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md
-//! @prompt-hash c72dd9f1
+//! @prompt-hash a4133669
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -124,7 +124,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             return emitted_row_starts;
         }
         let mut active: Vec<usize> = Vec::new();
-        let mut capture: Option<(usize, usize)> = None;
+        let mut capture: Option<(usize, usize, crate::entities::locator::LocatorSeed)> =
+            None;
+        let mut header_seeds = vec![None; header_groups.len()];
         for row_idx in 0..num_rows_produced_final {
             let row_h = row_heights[row_idx];
 
@@ -234,12 +236,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     for (i, cell) in repeated.iter().enumerate() {
                         by_row[cell.row].push(i);
                     }
-                    let repeated_routes = routes.map(|routes| {
-                        source_indices
-                            .iter()
-                            .map(|i| routes[*i].clone())
-                            .collect::<Vec<_>>()
-                    });
+                    let repeated_routes = if let Some(routes) = routes {
+                        let mut replay = Vec::with_capacity(source_indices.len());
+                        for index in &source_indices {
+                            let cursor = if let Some(cursor) = &routes[*index] {
+                                match self.table_header_replay_cursor(cursor) {
+                                    Ok(cursor) => Some(cursor),
+                                    Err(errors) => {
+                                        self.layout_errors.extend(errors);
+                                        return emitted_row_starts;
+                                    }
+                                }
+                            } else {
+                                None
+                            };
+                            replay.push(cursor);
+                        }
+                        Some(replay)
+                    } else {
+                        None
+                    };
+                    let legacy = if routes.is_none() {
+                        let Some((start, end)) = header_seeds[*index] else {
+                            self.layout_errors.push(crate::entities::source_result::SourceDiagnostic::error(
+                                self.current_source_span, "table header replay has no original allocation scope"));
+                            return emitted_row_starts;
+                        };
+                        let live = self.locator.checkpoint();
+                        self.locator =
+                            crate::entities::locator::Locator::from_seed(start);
+                        Some((live, end))
+                    } else {
+                        None
+                    };
+                    let location = self.current_location;
+                    let transported = self.transported_root_location;
                     let starts = self.emit_grid_cells_planned(GridEmissionInput {
                         paint_borders: uniform_stroke.is_none(),
                         header_groups: &[],
@@ -258,6 +289,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         fill,
                         routes: repeated_routes.as_deref(),
                     });
+                    self.current_location = location;
+                    self.transported_root_location = transported;
+                    if let Some((live, expected)) = legacy {
+                        let end = self.locator.checkpoint();
+                        self.locator = crate::entities::locator::Locator::from_seed(live);
+                        if end != expected {
+                            self.layout_errors.push(crate::entities::source_result::SourceDiagnostic::error(
+                                self.current_source_span, "table header replay changed its source allocation footprint"));
+                            return emitted_row_starts;
+                        }
+                    }
                     if uniform_stroke.is_some() {
                         for (offset, start) in starts.iter().enumerate() {
                             if border_boundaries.is_empty() {
@@ -278,7 +320,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 );
             }
             if let Some(index) = starting {
-                capture = Some((index, self.pages.len()));
+                capture = Some((index, self.pages.len(), self.locator.checkpoint()));
             }
 
             let row_start_y = self.regions.current.cursor_y.0;
@@ -365,9 +407,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
 
             if capture
                 .as_ref()
-                .is_some_and(|(index, _)| header_groups[*index].end == row_idx + 1)
+                .is_some_and(|(index, _, _)| header_groups[*index].end == row_idx + 1)
             {
-                let (index, page) = capture.take().unwrap();
+                let (index, page, start) = capture.take().unwrap();
                 if page != self.pages.len() {
                     self.layout_errors.push(
                         crate::entities::source_result::SourceDiagnostic::error(
@@ -384,6 +426,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     num_cols,
                     self,
                 );
+                header_seeds[index] = Some((start, self.locator.checkpoint()));
                 if header_groups[index].repeat {
                     active.push(index);
                 }
@@ -677,5 +720,107 @@ mod intersection_tests {
                 "the bottom horizontal border must remain visible"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod issue_8935_legacy_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::elements::{
+        table::{TableGridResolved, TableHeaderRange},
+        table_cell::{TableCellResolved, TableCellStage},
+    };
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMarginSpec, PageMargins},
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    #[test]
+    fn issue_8935_legacy_header_copies_do_not_allocate_new_source_positions() {
+        let mut counts = Vec::new();
+        for repeat in [false, true] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.page_config.width = 200.0;
+            l.page_config.height = 150.0;
+            l.regions.current.width = 200.0;
+            l.regions.current.height = 150.0;
+            l.page_config.margin = PageMargins::uniform(10.0);
+            l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+            l.regions.current.cursor_x = Pt(10.0);
+            l.regions.current.line_start_x = Pt(10.0);
+            l.regions.current.cursor_y = Pt(10.0);
+            l.initial_baseline_pending = true;
+            let cells = (0..11)
+                .map(|row| {
+                    let body = if row == 0 {
+                        Content::sequence(vec![
+                            Content::text("H"),
+                            Content::footnote(Content::text("NOTE")),
+                        ])
+                    } else {
+                        Content::text("body")
+                    };
+                    let mut cell =
+                        Content::table_cell(body.clone(), None, None, None, None);
+                    let Content::TableCell(value) = &mut cell else { unreachable!() };
+                    Arc::make_mut(value).resolved = Some(Arc::new(TableCellResolved {
+                        x: 0,
+                        y: row,
+                        colspan: 1,
+                        rowspan: 1,
+                        fill: None,
+                        stroke: None,
+                        align: None,
+                        inset: Sides::uniform(Length::pt(2.0)),
+                        breakable: false,
+                        visual: body,
+                        stage: TableCellStage::Complete,
+                        guards: vec![],
+                    }));
+                    cell
+                })
+                .collect();
+            let mut table = Content::table(
+                vec![TrackSizing::Fixed(100.0)],
+                vec![TrackSizing::Fixed(20.0)],
+                vec![],
+            );
+            let Content::Table(value) = &mut table else { unreachable!() };
+            Arc::make_mut(value).resolved = Some(Arc::new(TableGridResolved {
+                cells,
+                num_cols: 1,
+                num_rows: 11,
+                header_rows: 1,
+                footer_start: 11,
+                complete: true,
+                header_groups: vec![TableHeaderRange {
+                    start: 0,
+                    end: 1,
+                    level: 1,
+                    repeat,
+                }],
+            }));
+            l.layout_content(&table);
+            let doc = l.finish();
+            assert!(doc.pages.len() > 1);
+            if repeat {
+                assert!(doc.plain_text().matches('H').count() > 1);
+            }
+            counts.push(doc.extracted_positions.len());
+        }
+        assert_eq!(
+            counts[1], counts[0],
+            "physical header aliases created extra source positions: {counts:?}"
+        );
     }
 }
