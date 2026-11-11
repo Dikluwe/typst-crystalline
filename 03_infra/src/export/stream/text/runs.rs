@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash 07c1c351
+//! @prompt-hash 54b1db4c
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 
 use super::super::{FontScenario, PageContext};
 use super::{push_shaped_spacing, remap_glyph_id, shaped_tr_ops, verbose_block_prefix};
@@ -258,7 +258,7 @@ mod tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: 'A',
-                }],
+                }].into(),
                 style: style.clone(),
                 units_per_em: 2048,
                 bidi: None,
@@ -315,7 +315,7 @@ mod readiness_unicode_tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: ch,
-                }],
+                }].into(),
             })
             .collect();
         let page = Page {

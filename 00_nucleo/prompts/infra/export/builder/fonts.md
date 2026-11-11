@@ -1,5 +1,5 @@
 # L0 — builder/fonts
-Hash do Código: 497f4ade
+Hash do Código: a095e899
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/builder/fonts.rs`
@@ -324,3 +324,10 @@ Link/Semantic nesting inside the optional Group. The exact authored words and
 translated bounds must agree with the bare case in both modes/font scenarios;
 ALT remains authoritative. This verifies recursive tail transport, not a new
 public link/tag behavior or a claim of general accessibility conformance.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.

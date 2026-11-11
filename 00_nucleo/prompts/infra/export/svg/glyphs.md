@@ -1,5 +1,5 @@
 # L0 — svg/glyphs
-Hash do Código: 88c4c45a
+Hash do Código: 2125a523
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/glyphs.rs`
@@ -172,3 +172,10 @@ the PNG renderer and existing users; SVG's separate original view changes no
 public signature, compiler phase or font selection. The original table index
 remains complete variant/axes identity, so the existing per-export GID/scale
 cache key remains valid. Preserve missing/ambiguous behavior and raster fallback.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.

@@ -1,5 +1,7 @@
 # Candidatos de investigação de desempenho no código atual
 
+> **Estado da fila em 10/11/2026:** este documento é histórico. A [decisão consolidada](performance-integration-decisions-2026-11-10.md) rege a fila atual: manter as melhorias incorporadas, integrar somente C28 e arquivar os demais candidatos atuais. As recomendações e falhas abaixo descrevem seu snapshot; não reabrem campanhas nem substituem o código atual. Arquivado/inconclusivo não significa refutado.
+
 **Resultado:** varredura estática de **1011 arquivos Rust** nas quatro camadas, seguida de leitura dirigida de tipos, callers, limites de cache, cfgs, L0 e resultados anteriores. Catálogo de **28 testes possíveis**, com âncora de fonte, hipótese, critério, esforço relativo e gate. Isso não equivale à revisão semântica manual de cada função nem a 28 gargalos ou defeitos confirmados. Nenhum ganho novo foi medido; hotspots e percentuais permanecem **Unknown** onde falta perfil.
 
 Nenhum código produtivo, teste, L0, dependência ou experimento anterior foi alterado. Não houve build ou execução de testes nesta auditoria: trata-se de localizar e delimitar os próximos experimentos. Este diagnóstico não é L0 nem autoriza materialização.

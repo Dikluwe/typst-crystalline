@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash c3aa2cfc
+//! @prompt-hash fc7872ae
 //! @layer L3
-//! @updated 2026-09-22
+//! @updated 2026-11-07
 //!
 //! Testes agregadores E2E do exporter PDF. Ficheiro único per
 //! ADR-0037 Regra 5 Ajuste C (testes E2E cross-cutting) +
@@ -9630,7 +9630,7 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
             x: typst_core::entities::layout_types::Pt(10.0),
             y: typst_core::entities::layout_types::Pt(20.0),
         },
-        glyphs: vec![glyph],
+        glyphs: vec![glyph].into(),
         style: style.clone(),
         text: ecow::EcoString::from("W"),
         units_per_em: 1000,
@@ -9771,7 +9771,7 @@ mod p979_tests {
     ) -> FrameItem {
         FrameItem::TextShaped {
             pos: Point { x: Pt(x), y: Pt(y) },
-            glyphs,
+            glyphs: glyphs.into(),
             style: style.clone(),
             text: EcoString::from("a"),
             units_per_em: 1000,
@@ -9953,7 +9953,7 @@ mod p983_tests {
     fn shaped_math(x: f64, id: u16) -> FrameItem {
         FrameItem::TextShaped {
             pos: Point { x: Pt(x), y: Pt(700.0) },
-            glyphs: vec![glyph(id, 600)],
+            glyphs: vec![glyph(id, 600)].into(),
             style: TextStyle { math: true, ..TextStyle::regular(Pt(12.0)) },
             text: EcoString::from("a"),
             units_per_em: 1000,
@@ -9965,7 +9965,7 @@ mod p983_tests {
     fn shaped_prosa(x: f64, id: u16) -> FrameItem {
         FrameItem::TextShaped {
             pos: Point { x: Pt(x), y: Pt(700.0) },
-            glyphs: vec![glyph(id, 600)],
+            glyphs: vec![glyph(id, 600)].into(),
             style: TextStyle::regular(Pt(12.0)),
             text: EcoString::from("a"),
             units_per_em: 1000,

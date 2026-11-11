@@ -1,5 +1,5 @@
 # L0 — Domain entity facade
-Hash do Código: 5e2ef274
+Hash do Código: 40a9a523
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
@@ -58,3 +58,10 @@ Apply the approved SVG extension while preserving original source and existing r
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Transport the approved selected image format and SVG provenance through existing constructors/clones without changing raster behavior or inventing source. Legacy literals use explicit absence; reconstruction preserves the existing format.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Declare the public shared_glyphs entity module. No other module topology changes.

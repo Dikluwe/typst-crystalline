@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/stdlib_snapshot
-Hash do Código: d7cb756c
+Hash do Código: c5340d03
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/stdlib_snapshot.rs`
@@ -20,6 +20,19 @@ ordered inputs, Features and real registries precedes this decision in
 `00_nucleo/diagnostics/stdlib-qualification-2026-11-06.md`.
 `stdlib-cli-residual-2026-11-06.md` lifts only the specific +0.74% blocker;
 the productive ELF still needs its own acceptance measurements.
+
+At received HEAD `0a15ccebf861e3cc0ea16d0397d55dc057664556`, before this reservation change,
+the productive source at
+`01_core/src/compiler/eval/stdlib_snapshot.rs:80-85` borrows an immutable
+original Scope, creates a private empty destination and fills it once in
+original declaration order. `01_core/src/entities/scope.rs:96-97` supplies the
+original's stable binding length; module and function namespace instantiation
+descend through this same scope routine. This source evidence qualifies an
+initial reservation using each original's own length, rather than its map
+capacity or another scope's length. The choice concerns RAM construction
+mechanics (ADR-0029/0030), not language parity (ADR-0107). The preservation
+inference is refuted by changes to values, order, diagnostics, authority,
+aliases, occurrences, input/feature guards or per-instance identities.
 
 ## Private contract
 
@@ -55,6 +68,20 @@ This is not a generic cloning API for evaluated Modules, closures, plugins,
 contexts or arbitrary dynamic constructors. It is limited to the current pure,
 acyclic builtin registry plus string-valued sys.inputs. The registry tests must
 inspect all feature profiles and reject expansion outside the qualified domain.
+
+Every `Instance::scope` must initially construct its private destination with
+`Scope::with_capacity(original.len())`, using that invocation's immutable
+original. This applies uniformly to the root graph, module namespaces and
+function namespaces. Keep the existing declaration-order loop and value
+instantiation unchanged. Empty, small, large, nested and large-then-small
+original scopes must preserve their semantics; the destination may grow past
+its initial reservation if later used for further bindings. Do not reserve
+seed construction, root registries, first clones, builders or the Module/Func
+identity vectors, reuse scratch capacity, eliminate clones or share new
+identity-bearing wrappers. Do not introduce a helper bridge or observer port.
+The constructor contract belongs to
+`00_nucleo/prompts/core/entities/scope.md`; this owner specifies its own
+known-length use without a new shared nucleus.
 
 For each instance, use local identity maps. Recursively recreate Modules and
 their scopes, retaining Std/Format authority, public names, all existing content,

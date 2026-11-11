@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/optical_margin.md
-//! @prompt-hash e483aef9
+//! @prompt-hash d6b33c51
 //! @layer L1
-//! @updated 2026-10-28
+//! @updated 2026-11-07
 
 pub(super) const RATIOS: &[(char, f64)] = &[
     ('–', 0.2),
@@ -342,7 +342,7 @@ mod tests {
         };
         let mut items = vec![FrameItem::TextShaped {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
-            glyphs: vec![glyph.clone(), glyph],
+            glyphs: vec![glyph.clone(), glyph].into(),
             style: TextStyle::regular(Pt(12.0)),
             text: "A.".into(),
             units_per_em: 6,

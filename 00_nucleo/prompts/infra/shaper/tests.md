@@ -1,5 +1,5 @@
 # L0 — infra/shaper/tests
-Hash do Código: 0bac476a
+Hash do Código: 21d5ffa4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -281,3 +281,11 @@ The private structured-key identity contract and its unit tests remain owned by
 shaper test consumer. No public API, default, phase, fixture, dependency or
 allocator change is authorized. Allocation validation stays outside the permanent
 suite and cannot be inferred from functional equality.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.
+Declare cfg-test child shared_glyphs, governed by its canonical separate owner.

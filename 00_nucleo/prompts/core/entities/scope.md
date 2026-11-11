@@ -1,9 +1,22 @@
 # Prompt L0 — entities/scope
-Hash do Código: 66d436dc
+Hash do Código: 89d41084
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/scope.rs`
 **References:** ADR-0023, ADR-0017, ADR-0018.
+
+## Evidence before decision
+
+At received HEAD `0a15ccebf861e3cc0ea16d0397d55dc057664556`, before this reservation change,
+`01_core/src/entities/scope.rs:63-69` stores an ordered
+`IndexMap<String, Binding, FxBuildHasher>` and constructs an empty map;
+`:74-75` inserts bindings and `:96-97` exposes its current length.
+`01_core/src/compiler/eval/stdlib_snapshot.rs:80-85` receives an immutable
+original Scope and fills a fresh destination in declaration order. Its known
+cardinality permits an initial RAM reservation under ADR-0029/0030. This is
+construction mechanics, not a language-parity criterion under ADR-0107.
+The inference that reservation preserves language behavior is refuted by any
+change to values, declaration order, replacement, aliases or identities.
 
 ## Domain contract
 
@@ -18,6 +31,16 @@ Preserve Scope::new()->Self, Default, define(&mut self,name:impl Into<String>,
 value:Value), get(&self,&str)->Option<&Value>,
 get_binding(&self,&str)->Option<&Binding>,
 iter(&self)->impl Iterator<Item=(&str,&Binding)>, len()->usize and is_empty()->bool.
+
+Add public `Scope::with_capacity(capacity: usize) -> Self` as an additive
+constructor for an empty Scope. Construct the same map with
+`IndexMap::with_capacity_and_hasher(capacity, FxBuildHasher)`, reserving room
+for at least the requested number of distinct bindings. A zero request has
+zero allocated capacity. The reservation is an initial provision, never a
+binding limit; later insertions may grow it. Preserve declaration order,
+in-place replacement, lookup, mutable lookup, cloning and growth semantics.
+Keep every existing production method and Default behavior unchanged. Do not
+add a capacity field, capacity getter, observer or public test portal.
 
 Capturer is a Debug/Clone/Copy/PartialEq/Eq enum with Function and Context.
 It records why a scope was captured, enabling the distinct mutation diagnostics
@@ -44,6 +67,19 @@ the original faster-than-SipHash rationale is historical, not a fresh benchmark.
 An empty Scope returns None from get, is_empty true and len 0. A defined x
 returns its Value. Insertion [z,a,m] iterates [z,a,m]; redefining a after [a,b]
 keeps [a,b], not [b,a]. Preserve both Capturer variants and diagnostic distinction.
+
+Independent inline regressions must preserve all existing tests and inspect
+private map capacity only from this entity's test module. Cover zero capacity
+without allocation and empty length, then requests 1, 3, 4, 7, 8, 17, 257 and
+4096 using unsorted owned keys. Initial capacity must be at least the request;
+it must stay unchanged while inserting that many distinct names. Do not
+assume exact capacity or an IndexMap growth factor. Check replacement position,
+get_mut and capacity preservation, lawful growth beyond actual initial
+capacity with order/values intact, clone independence, and fresh small scopes
+after a large scope using the current small length. Use pure primitive Values;
+no I/O, clock, globals, unsafe or allocator instrumentation. These assertions
+verify the reservation contract mechanically; language acceptance remains
+values, ordering and scope behavior.
 
 ## Historical record
 

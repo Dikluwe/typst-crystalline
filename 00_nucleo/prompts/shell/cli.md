@@ -1,5 +1,5 @@
 # L0 — Shell CLI parsing and semantic serialization
-Hash do Código: d91e1280
+Hash do Código: a8a4930b
 
 
 **Layer:** L2
@@ -170,6 +170,48 @@ Legacy Content projection preserves func and its public recursive fields. Label 
 Heading supplement policy belongs to its L1 owner, not an English successor literal in L2. The pinned content-snapshot and math-slot nuclei remain authoritative; this prompt must not weaken them to bless legacy fallback gaps.
 
 Query projects the same public values. With --one, require exactly one element before looking up --field; otherwise `expected exactly one element, found {N}`. A missing field for that single result is `no such field found for element`. Without --one, a field request filters out elements lacking the field and emits the remaining values as an array; without field, emit an array of projected elements. Apply JSON/YAML serialization after cardinality/field selection.
+
+## Borrowed JSON emission from the immutable projection
+
+At received HEAD `0a15ccebf861e3cc0ea16d0397d55dc057664556` with the
+working-tree changes identified by `performance-integration-decisions-2026-11-10.md`,
+`02_shell/src/cli.rs:1085-1163` projects and selects semantic values before
+`:2051-2096` constructs a second recursive serde_json::Value tree. The C28 lab
+comparison in `c28-direct-json-lab/medidas.md` measured less temporary heap and
+CPU in the public emission calls for compiled query and evaluated values.
+Those measurements do not describe complete CLI latency. These are internal
+storage mechanics; JSON/YAML presentation and diagnostics are observables.
+
+Serialize JSON through a private borrowed `SemanticJson<'a>(&'a SemanticValue)`
+implementing serde::Serialize, directly into the final Vec via the existing
+serde_json::to_vec/to_vec_pretty backend, followed by exactly one LF. Do not
+construct another recursive JSON tree, clone strings/keys/subtrees, add caches,
+unsafe, dependencies, product flags, public APIs or a new pipeline phase.
+The private view must not retain borrowed data after serialization.
+
+Preserve first occurrence order and last value for equal object keys, including
+nonadjacent and nested duplicates. Arbitrary private Object projections need
+not have unique keys. A shallow, object-local index of borrowed keys/values is
+permitted; count its allocation cost. Use expected-linear or loglinear work,
+never pairwise rescanning of wide objects. Preserve i64 through serialize_i64,
+finite f64/-0.0 with the same serde_json backend, and all nonfinite floats as
+JSON null. Strings, Unicode, escapes, empty arrays/objects and compact/pretty
+must keep their existing presentation. Propagate every child/serializer error;
+the public error prefix remains `failed to serialize result: `.
+
+Do not change SemanticValue, projection, snapshot authority, query field
+selection/cardinality/drop behavior, YAML, Raw, deprecation or callers. The old
+semantic_to_json converter may remain only under cfg(test) as a regression
+oracle, never in the productive JSON path. Keep independent regression goldens
+and serializer failure tests in the private cfg(test) child
+`cli/semantic_json_tests.rs`, owned by
+`00_nucleo/prompts/shell/cli/semantic_json_tests.md`.
+
+This is an internal, reversible implementation change under ADR-0127 continuous
+flow: signatures, defaults, phases and compatibility remain unchanged. Refute
+acceptance on changed semantic values/presentation/errors, escaped references,
+or cost merely shifted outside the measured public call. Any measured timing
+claim must distinguish emission from the complete product and report dispersion.
 
 ## Exhaustive content projection boundaries
 

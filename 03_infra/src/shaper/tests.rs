@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash 9f12d877
+//! @prompt-hash 5ca49991
 //! @layer L3
-//! @updated 2026-11-06
+//! @updated 2026-11-07
 
 use super::bidi::bidi_runs;
 use super::cache::{FaceCache, ShapeCache};
@@ -896,7 +896,7 @@ fn make_textshaped(
 ) -> FrameItem {
     FrameItem::TextShaped {
         pos: Point { x: Pt(x), y: Pt(y) },
-        glyphs,
+        glyphs: glyphs.into(),
         style: TextStyle { size: Pt(size), ..TextStyle::default() },
         text: ecow::EcoString::from(""),
         units_per_em: upem,
@@ -1359,7 +1359,7 @@ fn contract_fix_glyphs(
         .items
         .iter()
         .map(|item| match item {
-            FrameItem::TextShaped { glyphs, .. } => glyphs.clone(),
+            FrameItem::TextShaped { glyphs, .. } => glyphs.to_vec(),
             _ => panic!("regression fixture did not shape"),
         })
         .collect()
@@ -1584,7 +1584,7 @@ fn language_emission_shared_cache_matches_fresh_in_both_orders() {
                     assert_eq!(glyphs.len(), 1);
                     assert_eq!(glyphs[0].cluster, 0);
                     assert_eq!(glyphs[0].char_code, 'б');
-                    glyphs.clone()
+                    glyphs.to_vec()
                 }
                 _ => panic!("mandatory language fixture did not shape"),
             })
@@ -2213,7 +2213,7 @@ mod shared_cache_regressions {
     type Shape = Vec<Snapshot>;
     fn snapshot(item: FrameItem) -> Snapshot {
         match item {
- FrameItem::TextShaped{text,glyphs,units_per_em,font,..} => Snapshot::Shaped(text.to_string(),glyphs,units_per_em,font.map(|f|f.as_slice().to_vec())),
+ FrameItem::TextShaped{text,glyphs,units_per_em,font,..} => Snapshot::Shaped(text.to_string(),glyphs.to_vec(),units_per_em,font.map(|f|f.as_slice().to_vec())),
  FrameItem::TextReplacement{text,items} => Snapshot::Replacement(text.to_string(),items.into_iter().map(snapshot).collect()),
  FrameItem::Group{paint_root,pos,matrix,clip_mask,inner_width,inner_height,items} => Snapshot::Wrapper(format!("Group {paint_root:?} {pos:?} {matrix:?} {clip_mask:?} {inner_width:?} {inner_height:?}"),items.into_iter().map(snapshot).collect()),
  FrameItem::Link{target,items,pos,size} => Snapshot::Wrapper(format!("Link {target:?} {pos:?} {size:?}"),items.into_iter().map(snapshot).collect()),
@@ -2457,3 +2457,5 @@ mod shared_cache_regressions {
         }
     }
 }
+
+mod shared_glyphs;

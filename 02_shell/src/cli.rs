@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 26e99805
+//! @prompt-hash b88b71e6
 //! @layer L2
-//! @updated 2026-10-17
+//! @updated 2026-11-10
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -2054,7 +2054,7 @@ fn serialize_semantic(
     pretty: bool,
 ) -> Result<Vec<u8>, String> {
     if json {
-        let json = semantic_to_json(value);
+        let json = SemanticJson(value);
         let mut bytes = if pretty {
             serde_json::to_vec_pretty(&json)
         } else {
@@ -2073,6 +2073,55 @@ fn serialize_semantic(
     }
 }
 
+/// Borrowed JSON view of the immutable semantic projection.
+struct SemanticJson<'a>(&'a SemanticValue);
+
+impl serde::Serialize for SemanticJson<'_> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::{SerializeMap, SerializeSeq};
+
+        match self.0 {
+            SemanticValue::Null => serializer.serialize_unit(),
+            SemanticValue::Bool(value) => serializer.serialize_bool(*value),
+            SemanticValue::Int(value) => serializer.serialize_i64(*value),
+            SemanticValue::Float(value) if value.is_finite() => {
+                serializer.serialize_f64(*value)
+            }
+            SemanticValue::Float(_) => serializer.serialize_unit(),
+            SemanticValue::String(value) => serializer.serialize_str(value),
+            SemanticValue::Array(values) => {
+                let mut sequence = serializer.serialize_seq(Some(values.len()))?;
+                for value in values {
+                    sequence.serialize_element(&SemanticJson(value))?;
+                }
+                sequence.end()
+            }
+            SemanticValue::Object(fields) => {
+                // Borrow the last value for each key, then emit it at the first
+                // occurrence to preserve insertion-ordered duplicate replacement.
+                let mut last_values = std::collections::HashMap::with_capacity(fields.len());
+                for (key, value) in fields {
+                    last_values.insert(key.as_str(), value);
+                }
+                let mut object = serializer.serialize_map(Some(last_values.len()))?;
+                for (key, _) in fields {
+                    if let Some(value) = last_values.remove(key.as_str()) {
+                        object.serialize_entry(key, &SemanticJson(value))?;
+                    }
+                }
+                object.end()
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod semantic_json_tests;
+
+#[cfg(test)]
 fn semantic_to_json(value: &SemanticValue) -> serde_json::Value {
     match value {
         SemanticValue::Null => serde_json::Value::Null,

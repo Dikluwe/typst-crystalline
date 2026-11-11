@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/glyphs.md
-//! @prompt-hash 348940e6
+//! @prompt-hash 0be34903
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 
 use super::serialization::{color_to_css, fmt_num};
 use super::{FontKey, GlyphFontIdentity};
@@ -479,7 +479,7 @@ mod r10_fractional_tracking_tests {
             for tracking in [0.2, -0.2, 0.333] {
                 let q = (tracking * upem / size).round() as i32;
                 let mut nominal = Vec::new();
-                let glyphs = ['A', 'B', 'C']
+                let glyphs: Vec<_> = ['A', 'B', 'C']
                     .into_iter()
                     .enumerate()
                     .map(|(i, c)| {
@@ -514,7 +514,7 @@ mod r10_fractional_tracking_tests {
                     foreground: vec![],
                     items: vec![FrameItem::TextShaped {
                         pos: Point { x: Pt(0.0), y: Pt(20.0) },
-                        glyphs,
+                        glyphs: glyphs.into(),
                         style,
                         text: "ABC".into(),
                         units_per_em: face.units_per_em(),

@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/resources
-Hash do Código: 96969b85
+Hash do Código: 4d45f19d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -10,13 +10,16 @@ Núcleos Tekt:
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/resources.rs`
 
-## Current evidence
+## Source evidence before owned-table transfer
 
-- `03_infra/src/pipeline/resources.rs:33` — `resolve_and_instantiate_fonts`.
-- `03_infra/src/pipeline/resources.rs:93` — `collect_fonts_from_doc`.
-- `03_infra/src/pipeline/resources.rs:123` — `collect_fonts_in_items`.
-- `03_infra/src/pipeline/resources.rs:172` — `resolve_fonts`.
-- `03_infra/src/pipeline/resources.rs:195` — `first_font_from_doc`.
+Anchors at HEAD `0a15ccebf861e3cc0ea16d0397d55dc057664556`, before C22:
+
+- `03_infra/src/pipeline/resources.rs:56` — `resolve_export_fonts`.
+- `03_infra/src/pipeline/resources.rs:107` — `collect_fonts_from_doc`.
+- `03_infra/src/pipeline/resources.rs:137` — `collect_fonts_in_items`.
+- `03_infra/src/pipeline/resources.rs:201` — `resolve_fonts`.
+- `03_infra/src/pipeline/resources.rs:224` — `first_font_from_doc`.
+- `03_infra/src/pipeline/resources.rs:278` — `resolve_font`.
 
 These are local source anchors, not a new upstream parity measurement.
 Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pipeline/resources.rs`.
@@ -152,3 +155,48 @@ values-order/dedup counts; remaining ..Type::default(), no new type/builder/API/
 suppression. L0 first/scoped seals/selected RED→GREEN/same names-input-expected-
 tolerances/all-target Clippy/workspace suite/build/fmt/Rustdoc/lineage, no initializer
 syntax tests. These Rust maintenance measurements prove no new parity/default change.
+
+## Owned export resource table
+
+### Evidence and classification
+
+Before this change, `03_infra/src/pipeline/resources.rs:61–63` at HEAD
+`0a15ccebf861e3cc0ea16d0397d55dc057664556` bound a freshly resolved owned table
+by reference and called `into_owned`. A complete borrowed result copied the table
+and its font byte buffers. `03_infra/src/export/font_binding.rs:135–146`
+already distinguishes a complete borrowed prefix from an owned table with appended
+actual faces. This is an ownership/copying mechanism, not a language change.
+The C22 laboratory comparison established allocation savings without a lower global
+peak; preserving spare capacity can slightly increase peak live storage. Do not
+promise universal CPU or peak-memory improvement.
+
+### Contract
+
+Use a private `bind_owned_export_fonts(doc, supplied: Vec<FontKey>)` boundary in
+`resolve_export_fonts`. Invoke the unchanged document binder. If it returns
+Borrowed, return the supplied Vec itself, including its allocation, capacity and
+all font byte buffers. If it returns Owned, return that entire table, preserving
+its prefix and every appended actual face. Never return the old prefix in place
+of an extended result. Do not compact capacity or change the incomplete-table
+copy policy as part of this change.
+
+Preserve complete face/variant/axes identity, existing float equality including
+NaN and signed zero, first-occurrence append order, supplied order and indices,
+and the distinction between missing Some and legacy None. The document is not
+mutated. Retain per-export lifetime, fallback, the lazy instancer dependency gate
+and its first diagnostic after binding. Keep original/prepared identity separate.
+No new unsafe, public API/FontKey change, cache, global state, PDF helper change,
+default or pipeline phase change. Existing callers of this SVG/PNG resource
+boundary inherit the ownership transfer without changing their output contract.
+
+### Regression and validation
+
+Keep inline `owned_export_font_tests` in this consumer: empty/full tables with
+spare capacity transfer all buffers; incomplete tables retain the ordered prefix
+and append missing faces through layers/containers; preserve complete variants,
+axes/order/NaN/signed-zero and Some/None rules, alias metadata, input immutability
+and independent large–small–large exports. Verify RED against the old copying
+expression before GREEN with transfer. Check the existing instancer/collection
+and font-binding tests, real SVG/PNG outputs and PDF negative controls, including
+variable-font and unavailable-instancer diagnostics. Reseal this owner only;
+builds and disposable tests remain in an exclusive RAM directory.

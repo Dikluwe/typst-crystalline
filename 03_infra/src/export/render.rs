@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash 5c1cbf98
+//! @prompt-hash ae4dc9f6
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-11-07
 //!
 //! Rasterizador de páginas Typst para PNG.
 //!
@@ -1866,7 +1866,7 @@ mod mask_regressions {
                 y_offset: 0,
                 cluster: 0,
                 char_code: 'M',
-            }],
+            }].into(),
             style: style.clone(),
             text: "M".into(),
             units_per_em: face.units_per_em(),

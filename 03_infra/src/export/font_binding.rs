@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_binding.md
-//! @prompt-hash b9f983f2
+//! @prompt-hash e4e7404a
 //! @layer L3
-//! @updated 2026-10-08
+//! @updated 2026-11-07
 
 use super::render::FontKey;
 use crate::export::tiling::walk_resources as walk_frame_items;
@@ -402,7 +402,7 @@ mod tests {
             foreground: vec![],
             items: vec![FrameItem::TextShaped {
                 pos: Point { x: Pt(20.), y: Pt(40.) },
-                glyphs,
+                glyphs: glyphs.into(),
                 style,
                 text: "مرحبا".into(),
                 units_per_em: upem,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/stdlib_snapshot/tests.md
-//! @prompt-hash a4b75d45
+//! @prompt-hash a3e819c1
 //! @layer L1
 
 #![cfg(test)]
@@ -1322,4 +1322,148 @@ fn full_error_diagnostics_and_causal_trace_survive_repeated_fresh_roots() {
         previous = Some(errors);
     }
     assert_eq!(world.input_calls.load(Ordering::SeqCst), 9);
+}
+
+// Cardinality controls use the real private instantiator; capacity remains
+// private to Scope's own inline tests.
+fn known_cardinality_primitive_scope(count: usize) -> Scope {
+    let mut scope = Scope::new();
+    for index in 0..count {
+        scope.define(format!("key-{:05}", count - index), Value::Int(index as i64));
+    }
+    scope
+}
+
+fn known_cardinality_assert_primitives(scope: &Scope, count: usize) {
+    assert_eq!(scope.len(), count);
+    assert_eq!(scope.is_empty(), count == 0);
+    for (index, (name, binding)) in scope.iter().enumerate() {
+        assert_eq!(name, format!("key-{:05}", count - index));
+        assert_eq!(binding.value(), &Value::Int(index as i64));
+    }
+}
+
+#[test]
+fn known_cardinality_instances_preserve_sizes_order_and_immutable_sources() {
+    let mut instance = Instance::default();
+    for count in [0usize, 1, 17, 257, 4096, 3, 0] {
+        let original = known_cardinality_primitive_scope(count);
+        let mut fresh = instance.scope(&original);
+        known_cardinality_assert_primitives(&original, count);
+        known_cardinality_assert_primitives(&fresh, count);
+        if count > 0 {
+            let first = format!("key-{count:05}");
+            *fresh.get_mut(&first).unwrap() = Value::Bool(false);
+            assert_eq!(original.get(&first), Some(&Value::Int(0)));
+        }
+        fresh.define("fresh-only", Value::None);
+        assert!(original.get("fresh-only").is_none());
+        known_cardinality_assert_primitives(&original, count);
+    }
+    // This source's capacity exceeds its actual length. Only binding semantics
+    // are asserted here; the reservation expression is reviewed independently.
+    let mut sparse = Scope::with_capacity(4096);
+    sparse.define("z", Value::Int(3));
+    sparse.define("a", Value::Bool(true));
+    let fresh = instance.scope(&sparse);
+    for scope in [&sparse, &fresh] {
+        assert_eq!(scope.len(), 2);
+        assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(), ["z", "a"]);
+        assert_eq!(scope.get("z"), Some(&Value::Int(3)));
+        assert_eq!(scope.get("a"), Some(&Value::Bool(true)));
+    }
+    assert!(instance.scope(&Scope::new()).is_empty());
+}
+
+#[test]
+fn known_cardinality_nested_unequal_scopes_keep_aliases_and_fresh_identity() {
+    let mut root = Scope::new();
+    for count in [0usize, 1, 17, 257] {
+        let module = Module::new(format!("module-{count}"),
+            known_cardinality_primitive_scope(count));
+        root.define(format!("module-{count}"), Value::Module(module.clone()));
+        root.define(format!("alias-{count}"), Value::Module(module));
+    }
+    let outer = Module::new("outer", root);
+    let mut template = Scope::new();
+    template.define("z", Value::Module(outer.clone()));
+    template.define("a", Value::Module(outer.clone()));
+    let first = Instance::default().scope(&template);
+    let second = Instance::default().scope(&template);
+    for fresh in [&first, &second] {
+        assert_eq!(fresh.iter().map(|(name, _)| name).collect::<Vec<_>>(), ["z", "a"]);
+        assert_eq!(fresh.get("z"), fresh.get("a"));
+        assert_ne!(fresh.get("z"), template.get("z"));
+        let Value::Module(copied_outer) = fresh.get("z").unwrap() else {
+            panic!("outer module");
+        };
+        assert_eq!(copied_outer.name(), outer.name());
+        assert_eq!(copied_outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>(),
+            outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>());
+        for count in [0usize, 1, 17, 257] {
+            let name = format!("module-{count}");
+            let alias = format!("alias-{count}");
+            assert_eq!(copied_outer.scope().get(&name), copied_outer.scope().get(&alias));
+            assert_ne!(copied_outer.scope().get(&name), outer.scope().get(&name));
+            let Value::Module(child) = copied_outer.scope().get(&name).unwrap() else {
+                panic!("nested module");
+            };
+            assert_eq!(child.name(), name);
+            known_cardinality_assert_primitives(child.scope(), count);
+            let Value::Module(original_child) = outer.scope().get(&name).unwrap() else {
+                panic!("source child");
+            };
+            known_cardinality_assert_primitives(original_child.scope(), count);
+        }
+    }
+    assert_ne!(first.get("z"), second.get("z"));
+    let Value::Module(first_outer) = first.get("z").unwrap() else { panic!("first") };
+    let Value::Module(second_outer) = second.get("z").unwrap() else { panic!("second") };
+    for count in [0usize, 1, 17, 257] {
+        let name = format!("module-{count}");
+        assert_ne!(first_outer.scope().get(&name), second_outer.scope().get(&name));
+    }
+}
+
+#[test]
+fn known_cardinality_native_namespaces_and_with_aliases_survive_root_size_changes() {
+    use crate::entities::args::Args;
+    use crate::entities::func::FuncRepr;
+    let registry = make_stdlib_with_features(&SysInputs::default(), Features::empty());
+    let Value::Func(raw) = registry.get("raw").unwrap() else { panic!("raw") };
+    let Value::Func(line) = raw_line(&registry) else { panic!("raw.line") };
+    let bound = line.clone().with(Args::positional(vec![Value::Func(line.clone())]));
+    let source_namespace = raw.namespace().expect("qualified raw namespace");
+    let mut instance = Instance::default();
+    for padding in [257usize, 1, 17, 0] {
+        let mut template = known_cardinality_primitive_scope(padding);
+        template.define("raw", Value::Func(raw.clone()));
+        template.define("bound", Value::Func(bound.clone()));
+        template.define("bound-alias", Value::Func(bound.clone()));
+        let fresh = instance.scope(&template);
+        let separate = Instance::default().scope(&template);
+        for scope in [&fresh, &separate] {
+            assert_eq!(scope.len(), padding + 3);
+            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                template.iter().map(|(name, _)| name).collect::<Vec<_>>());
+            let Value::Func(copied_raw) = scope.get("raw").unwrap() else { panic!("raw") };
+            let namespace = copied_raw.namespace().expect("copied raw namespace");
+            assert_eq!(namespace.len(), source_namespace.len());
+            assert_eq!(namespace.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                source_namespace.iter().map(|(name, _)| name).collect::<Vec<_>>());
+            assert_eq!(scope.get("bound"), scope.get("bound-alias"));
+            assert_ne!(scope.get("bound"), template.get("bound"));
+            assert_ne!(raw_line(scope), Value::Func(line.clone()));
+            let Value::Func(copied_bound) = scope.get("bound").unwrap() else {
+                panic!("bound");
+            };
+            let FuncRepr::With(pair) = copied_bound.repr() else { panic!("With") };
+            assert_eq!(Value::Func(pair.0.clone()), raw_line(scope));
+            assert_eq!(pair.1.items, vec![raw_line(scope)]);
+        }
+        assert_ne!(fresh.get("bound"), separate.get("bound"));
+        assert_ne!(raw_line(&fresh), raw_line(&separate));
+        assert_eq!(template.get("bound"), Some(&Value::Func(bound.clone())));
+        assert_eq!(raw_line(&template), Value::Func(line.clone()));
+    }
 }

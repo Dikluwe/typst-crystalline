@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/fonts.md
-//! @prompt-hash 4eba9d7e
+//! @prompt-hash 54973449
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 
 use super::navigation::PageIndexConverter;
 use super::resources::{colorspace_resource_entry, has_rgb_jpeg, merge_bitmap_xobjects};
@@ -1666,7 +1666,7 @@ mod r10_bitmap_text_tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: '☃',
-                }],
+                }].into(),
                 units_per_em: 1000,
                 bidi: None,
                 font: Some(Font::from_data(bytes.to_vec())),
@@ -1827,7 +1827,7 @@ mod readiness_unicode_tests {
                         char_code: ch,
                     }
                 })
-                .collect(),
+                .collect::<Vec<_>>().into(),
             units_per_em: upem,
             bidi: None,
             font: Some(font.clone()),
@@ -1985,7 +1985,7 @@ mod readiness_unicode_tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: ch,
-                }],
+                }].into(),
                 units_per_em: upem,
                 bidi: None,
                 font: Some(font.clone()),

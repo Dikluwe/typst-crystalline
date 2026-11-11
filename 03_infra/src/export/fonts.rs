@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash 6de68ac4
+//! @prompt-hash a38167ae
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-11-07
 //!
 //! Helpers do caminho CIDFont + `escape_pdf_string`.
 //!
@@ -527,7 +527,7 @@ mod tests {
                         cluster: 5,
                         char_code: 'ú',
                     },
-                ],
+                ].into(),
                 style: typst_core::entities::layout_types::TextStyle::default(),
                 text: ecow::EcoString::from("Conteúdo"),
                 units_per_em: 1000,

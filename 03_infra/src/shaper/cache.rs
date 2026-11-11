@@ -1,14 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
-//! @prompt-hash cdbf99c0
+//! @prompt-hash 41ca2644
 //! @layer L3
-//! @updated 2026-11-06
+//! @updated 2026-11-07
 
 use super::font_selection::FontCandidate;
 use std::collections::HashMap;
 use std::sync::Arc;
 use typst_core::contracts::world::World;
-use typst_core::entities::layout_types::ShapedGlyph;
+use typst_core::entities::layout_types::SharedGlyphs;
 use typst_core::entities::world_types::Font;
 use typst_core::entities::{font_book::FontVariant, font_list::FontList};
 
@@ -43,7 +43,7 @@ impl ShapeKey {
 
 #[derive(Clone)]
 pub(super) struct CachedRun {
-    pub(super) glyphs: Vec<ShapedGlyph>,
+    pub(super) glyphs: SharedGlyphs,
     pub(super) width: i32,
     pub(super) font: Font,
 }
@@ -212,7 +212,7 @@ mod axis_key_regressions {
             .items
             .iter()
             .map(|item| match item {
-                FrameItem::TextShaped { glyphs, .. } => glyphs.clone(),
+                FrameItem::TextShaped { glyphs, .. } => glyphs.to_vec(),
                 _ => panic!("variable-font fixture did not shape"),
             })
             .collect()

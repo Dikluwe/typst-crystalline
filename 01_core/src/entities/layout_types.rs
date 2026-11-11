@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/layout_types.md
-//! @prompt-hash 3bb66dc3
+//! @prompt-hash aed2f888
 //! @layer L1
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 //!
 //! Excepção Regra 6 da ADR-0037: agrega tipos geométricos e
 //! estruturais fundamentais do layout (`Pt`, `Point`, `FrameItem`,
@@ -309,6 +309,7 @@ impl TextStyle {
 // ── Frame e FrameItem ──────────────────────────────────────────────────────
 
 pub use crate::entities::shaped_glyph::ShapedGlyph;
+pub use crate::entities::shared_glyphs::SharedGlyphs;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticKind {
@@ -408,7 +409,7 @@ pub enum FrameItem {
     TextShaped {
         pos: Point,
         /// Glifos shaped por rustybuzz.
-        glyphs: Vec<ShapedGlyph>,
+        glyphs: SharedGlyphs,
         style: TextStyle,
         /// Texto original (ToUnicode CMap + plain_text + fallback).
         text: EcoString,
@@ -1489,7 +1490,7 @@ mod tests {
             },
             FrameItem::TextShaped {
                 pos: Point::ZERO,
-                glyphs: vec![],
+                glyphs: vec![].into(),
                 style,
                 text: "shaped".into(),
                 units_per_em: 1000,
@@ -2060,7 +2061,7 @@ mod tests {
     fn p485_textshaped_tem_units_per_em() {
         let item = FrameItem::TextShaped {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
-            glyphs: vec![],
+            glyphs: vec![].into(),
             style: TextStyle::default(),
             text: EcoString::from("A"),
             units_per_em: 1000,

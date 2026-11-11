@@ -1,5 +1,5 @@
 # L0 — stream/text
-Hash do Código: ac4d28b7
+Hash do Código: b27adaad
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
@@ -405,3 +405,10 @@ actual suffix at81.391pt instead of the regional right edge; four actual Entry
 query tests and one real static-font emitter fail in infra. The hidden Entry
 control and all prior readiness tests remain green. Preserve those logs rather
 than treating later tests as historical RED.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.

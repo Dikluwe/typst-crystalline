@@ -1,5 +1,7 @@
 # Testes do catálogo de desempenho
 
+> **Estado da fila em 10/11/2026:** este documento é histórico. A [decisão consolidada](performance-integration-decisions-2026-11-10.md) rege a fila atual: manter as melhorias incorporadas, integrar somente C28 e arquivar os demais candidatos atuais. As recomendações e falhas abaixo descrevem seu snapshot; não reabrem campanhas nem substituem o código atual. Arquivado/inconclusivo não significa refutado.
+
 Foram exercitados os candidatos aplicáveis do [catálogo de 28 investigações](code-performance-candidates-2026-11-05.md), com testes públicos, ciclos reais de CLI/watch, perfil de CPU, contagem de alocações e testes internos. **Duas falhas de correção foram reproduzidas: identidade do cache de imagens e namespace do cache de plugins.** Não foram integradas otimizações nem correções ao produto. Cobertura de uma hipótese não significa comparação de uma implementação alternativa: arenas, índices u32, World genérico e persistência continuam sem candidato autorizado ou ganho demonstrado.
 
 ## Estado e método

@@ -1,5 +1,5 @@
 # L0 — Effective inline text style
-Hash do Código: cb1a0936
+Hash do Código: e5d25e77
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
@@ -217,3 +217,43 @@ Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
 with exact source/UTC/diffstat provenance and restricted resealing after a
 valid V15/V26 graph. Preserve all concurrent changes and every other owner
 responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+
+## Ambient font fallback allocation policy
+
+### Evidence before policy
+
+`01_core/src/compiler/layout/text/style.rs:262–273` chooses the nearest typed
+or custom font declaration, with typed precedence within one delta. The custom
+branch at lines296–300 evaluates `style.font.clone()` as an eager argument to
+`Option::or`, including when the already-decoded `ns_font` is present. The
+[completed comparison](/home/dikluwe/.codex/visualizations/2026/11/06/01a1b22c-8a18-7c32-af10-ecc4c2846e4d/c12-lazy-font-fallback-comparison-lab/relatorio.md)
+records the exact received HEAD, uncommitted changes and UTC provenance. It
+observed fewer allocations when a valid custom font wins, and no saving in the
+no-custom control where the ambient clone is returned. It found no reduction
+in pipeline live peak or retention and established no general CPU acceleration.
+Allocation scheduling is mechanics under ADR-0107; font precedence and complete
+font identity remain semantic obligations.
+
+### Exclusive responsibility and refuters
+
+In the existing custom branch, use `ns_font.or_else(|| style.font.clone())`:
+clone the entire ambient `Option<FontList>` only when the decoded result is
+absent. Keep the typed branch, nearest-declaration traversal and same-node typed
+priority unchanged. Keep custom decoding eager, including when typed wins, and
+preserve every existing filter and normalization. Preserve ordered literal/regex
+families, variants, optional variant/weight/style/covers, and ambient fallback
+for missing, invalid, empty or nonarray custom values, including ambient None.
+Return an independently owned result without mutating either input. Keep every
+other field, query, clone and script resolution unchanged; introduce no helper,
+cache, instrumentation, dependency, public contract, default or pipeline change.
+
+Require regressions for precedence, complete identity, invalid/empty/absent
+fallback, input preservation, owned independence and unrelated style fields.
+Loss of any of these refutes correctness; no promised CPU or memory-peak gain
+is part of this policy. ADR-0127 continuous internal flow applies. The existing
+StyleChain collapse discrepancy that drops explicit highlight clear presence
+is outside this owner and remains open; do not ratify that loss or correct it
+here. The known outline semantic divergence against vanilla pin
+`64c5e8c02fe0394d913ead36e42ef8c1334d2107` also remains open. Baseline/candidate
+preservation does not certify new vanilla parity.

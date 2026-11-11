@@ -1,5 +1,5 @@
 # L0 — Bounded selective acquisition of font catalog metadata
-Hash do Código: 4f0ed48c
+Hash do Código: fddc2a6e
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fontdb/selective.rs`
@@ -42,3 +42,58 @@ Inline tests precede implementation and demonstrate runtime RED for valid projec
 Final acceptance is language selection/fallback/metadatas and equivalent text/font/page/geometry/PDF/errors, not a demand for Rust or PDF byte equality with vanilla. Per-face equality/book/slots and raster against previous are additional controls. Measure combined acquisition with current interval coverage, full CLI and process RSS against frozen previous and the ratified vanilla oracle. The original package used historical pin `9f2b6e8715237cb086899a42873660fe744622e8`; its measurements do not certify the current resynced pin. Record source/HEAD/dirty/UTC/argv/asset/bin hashes and all samples, caps/fallback diagnostics outside productive APIs. Three rounds, quiet/monitor/stable hashes, repeatability<3% for precise performance claims. No gain promise from historical experiment; no loss of unsupported input through fast-path rejection. Scope-only seals; build/tests/lint without errors and owners without V5/V6/V15/V26; preserve received tree and negative results, no commit.
 
 Approval: the owner confirmed `catalogo-seletivo-2026-10-07` with `confirmo` on 2026-10-07, manifesto SHA-256 `045ef18d7a16143e640669cf5923db1a213eb677b6c278d4ee4a0bf542973c2e`. This satisfies the earlier ratification prerequisite for this package; it grants no other scope.
+
+## Single reservation of the projected buffer
+
+### Evidence and authorization
+
+The received `selective.rs:202/239` reserves output for the directory and again
+for every selected table. The completed C23 comparison is retained at
+`/home/dikluwe/.codex/visualizations/2026/11/06/01a1b22c-8a18-7c32-af10-ecc4c2846e4d/c23-single-reserve-lab/README.md`,
+with the exact received dirty state, paired samples and independent tests.
+It supports fewer requested bytes/reallocations, a small scenario-dependent CPU
+benefit and no general reduction of heap peak or RSS. The owner explicitly
+authorized integration after that comparison. This is an internal organization
+change under ADR-0127; no public API, default, dependency or pipeline change.
+
+### Organization and preserved boundaries
+
+After the existing header/TTC/directory reads, construct a fallibly reserved plan
+bounded by the validated record count. Retain selected records in original order,
+including duplicates and zero-length records; omitted records retain their place
+with zero offset/length and acquire no new payload validation. Store each selected
+record's directory position, source offset and chosen length. Validate complete
+declared bounds before shortening post. Read each existing post prefix once during
+planning and retain its current shortening decision for emission.
+
+Checked header + directory + selected lengths must fit MAX_BUFFER before reserving
+output. Track the original logical prefix/payload budget during planning and reject
+before the associated read/reservation if MAX_READ would be exceeded; keep Reader's
+actual checks unchanged. Reuse the original header as output and call its
+try_reserve_exact once for the final additional size. Append directory and payloads
+without further output growth, retaining the existing per-table read buffers and
+checked rebased offsets. Drop the plan before returning. Never reserve by full file
+size, persist a plan or introduce cross-face sharing.
+
+All earlier caps, signatures, indices, fallible failure paths, identity fields and
+post-derivation guards remain. Stable inputs preserve projected bytes and requested
+counts. Prefix reads now precede payload emission: this is read-order mechanics,
+not a stronger snapshot guarantee. Failure remains conservative None; no change to
+parent fallback, retained SharedFile bytes, Binary omission, exact eager system
+coverage or final lazy font loading. Outline semantics are outside this change.
+
+### Durable regression boundary
+
+Keep existing acquisition/transport tests. A private cfg(test) generic
+project_for_test forwarding facade may expose project only to its parent test
+module; no such facade exists in normal builds. Declare cfg(test) child
+single_reserve_tests, whose sole owner is
+`00_nucleo/prompts/infra/fontdb/selective/single_reserve_tests.md`.
+The separate allocation executable is owned by
+`00_nucleo/prompts/infra/tests/projected_buffer_reserve.md`; its allocator does not
+replace the library test executable's existing image allocator. Test sources must
+use repository fixtures and temporary directories, never lab absolute paths.
+Preserve semantic controls and demonstrate the single-reservation assertion RED
+on the received implementation, GREEN after integration. Directed bounds/post/
+offset/count mutations must be rejected. Build, focused regressions, output
+qualification and strict lineage must pass, preserving all received changes.

@@ -1,5 +1,5 @@
 # L0 — accepted-line optical margin policy
-Hash do Código: 3149cf26
+Hash do Código: bec92219
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/optical_margin.rs`
@@ -127,3 +127,10 @@ records a genuine formatting RED. Apply Rust 1.92.0 rustfmt to this consumer
 without changing executable tokens, fixtures, expectations or assertions.
 Preserve all behavioral obligations above; reseal both directions and rerun
 the unchanged gates against the final frozen source. Internal ADR-0127 flow.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
-//! @prompt-hash 5dbb3016
+//! @prompt-hash 3f3dac23
 //! @layer L3
-//! @updated 2026-10-10
+//! @updated 2026-11-07
 //!
 //! Possui todas as fachadas PDF, os resolvedores documentais e o dispatch font-aware. Conserva os wrappers de compatibilidade, DocumentID, StreamMode, tagged, pretty, pages, standard, diagnósticos UA-1, attachments e oráculo. Recebe o documento paginado pelo owner próprio.
 
@@ -1104,7 +1104,7 @@ mod font_buffer_transfer_tests {
             foreground: vec![],
             items: vec![FrameItem::TextShaped {
                 pos: Point { x: Pt(20.), y: Pt(40.) },
-                glyphs: vec![],
+                glyphs: vec![].into(),
                 style,
                 text: "face".into(),
                 units_per_em: 1000,

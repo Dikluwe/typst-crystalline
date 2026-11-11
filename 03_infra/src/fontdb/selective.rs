@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb/selective.md
-//! @prompt-hash 8c91b5e1
+//! @prompt-hash 914757a8
 //! @layer L3
-//! @updated 2026-11-04
+//! @updated 2026-11-10
 
 use std::io::{Read, Seek};
 use std::path::Path;
@@ -197,10 +197,16 @@ fn project<R: Read + Seek>(
     if count > MAX_TABLES {
         return None;
     }
-    let directory = input.get(offset.checked_add(12)?, count.checked_mul(16)?)?;
-    let mut out = header;
-    out.try_reserve_exact(directory.len()).ok()?;
-    out.extend_from_slice(&directory);
+    let mut directory = input.get(offset.checked_add(12)?, count.checked_mul(16)?)?;
+    let mut total = header.len().checked_add(directory.len())?;
+    if total > MAX_BUFFER {
+        return None;
+    }
+    let mut plan = Vec::new();
+    plan.try_reserve_exact(count).ok()?;
+    // Prefixes are read while planning, before payload emission. Charge the
+    // original logical prefix/payload sequence as well as Reader's actual reads.
+    let mut logical_requested = input.requested;
     for i in 0..count {
         let entry = i.checked_mul(16)?;
         let at = 12usize.checked_add(entry)?;
@@ -212,7 +218,9 @@ fn project<R: Read + Seek>(
             tag,
             b"head" | b"hhea" | b"maxp" | b"name" | b"OS/2" | b"post" | b"cmap"
         ) {
-            out.get_mut(at.checked_add(8)?..at.checked_add(16)?)?.fill(0);
+            directory
+                .get_mut(entry.checked_add(8)?..entry.checked_add(16)?)?
+                .fill(0);
             continue;
         }
         // Validate the full declaration before using any shortened post prefix.
@@ -221,7 +229,13 @@ fn project<R: Read + Seek>(
         }
         let mut take = original_len;
         if tag == b"post" {
-            let prefix = input.get(original_offset, take.min(34))?;
+            let prefix_len = take.min(34);
+            logical_requested =
+                logical_requested.checked_add(u64::try_from(prefix_len).ok()?)?;
+            if logical_requested > MAX_READ {
+                return None;
+            }
+            let prefix = input.get(original_offset, prefix_len)?;
             take = if u32_at(&prefix, 0) == Some(0x00020000) {
                 u16_at(&prefix, 32)
                     .map(|n| 34 + usize::from(n) * 2)
@@ -231,12 +245,23 @@ fn project<R: Read + Seek>(
                 take.min(32)
             };
         }
-        let total = out.len().checked_add(take)?;
+        total = total.checked_add(take)?;
         if total > MAX_BUFFER {
             return None;
         }
+        logical_requested = logical_requested.checked_add(u64::try_from(take).ok()?)?;
+        if logical_requested > MAX_READ {
+            return None;
+        }
+        plan.push((at, original_offset, take));
+    }
+
+    let additional = total.checked_sub(header.len())?;
+    let mut out = header;
+    out.try_reserve_exact(additional).ok()?;
+    out.extend_from_slice(&directory);
+    for (at, original_offset, take) in plan {
         let bytes = input.get(original_offset, take)?;
-        out.try_reserve_exact(take).ok()?;
         let new_offset = u32::try_from(out.len()).ok()?;
         let new_len = u32::try_from(bytes.len()).ok()?;
         out.get_mut(at.checked_add(8)?..at.checked_add(12)?)?
@@ -247,6 +272,19 @@ fn project<R: Read + Seek>(
     }
     Some((out, input.requested))
 }
+
+#[cfg(test)]
+pub(super) fn project_for_test<R: Read + Seek>(
+    reader: &mut R,
+    size: u64,
+    index: u32,
+) -> Option<(Vec<u8>, u64)> {
+    project(reader, size, index)
+}
+
+#[cfg(test)]
+#[path = "selective/single_reserve_tests.rs"]
+mod single_reserve_tests;
 
 #[cfg(test)]
 mod tests {

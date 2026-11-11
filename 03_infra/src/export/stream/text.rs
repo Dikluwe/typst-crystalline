@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 03b9a41d
+//! @prompt-hash cf7707fd
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 
 use super::PageContext;
 use super::{
@@ -1328,7 +1328,7 @@ mod tests {
             .into_iter()
             .map(|x| FrameItem::TextShaped {
                 pos: Point { x: Pt(x), y: Pt(20.0) },
-                glyphs: glyphs.clone(),
+                glyphs: glyphs.clone().into(),
                 style: style.clone(),
                 text: "H".into(),
                 units_per_em: 1000,
@@ -1417,7 +1417,7 @@ mod tests {
             .into_iter()
             .map(|x| FrameItem::TextShaped {
                 pos: Point { x: Pt(x), y: Pt(20.0) },
-                glyphs: glyphs.clone(),
+                glyphs: glyphs.clone().into(),
                 style: style.clone(),
                 text: "H".into(),
                 units_per_em: 1000,
@@ -1705,7 +1705,7 @@ mod tests {
                     pos: Point { x: Pt(x), y: Pt(20.0) },
                     text: "AA".into(),
                     style: style.clone(),
-                    glyphs: glyphs.clone(),
+                    glyphs: glyphs.clone().into(),
                     units_per_em: 1000,
                     bidi: None,
                     font: None,
@@ -1827,7 +1827,7 @@ mod tests {
                 .into_iter()
                 .map(|x| FrameItem::TextShaped {
                     pos: Point { x: Pt(x), y: Pt(0.0) },
-                    glyphs: glyphs.clone(),
+                    glyphs: glyphs.clone().into(),
                     style: style.clone(),
                     text: "AAA".into(),
                     units_per_em: 1000,

@@ -1,5 +1,5 @@
 # L0 — infra/export/font_binding
-Hash do Código: 5abb72ae
+Hash do Código: 8777c2df
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -158,3 +158,10 @@ controls with unchanged inputs, but compilation warns that PreparedFonts::fonts
 has no remaining callers. Keep prepared storage and get for PNG; remove only
 this unused private slice accessor. This supersedes retaining that accessor,
 not the prepared resource behavior. Require warning-strict revalidation.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` uses Vec glyph storage at this baseline. Fixture constructions in this consumer require adaptation to the newly authorized SharedGlyphs field. Wrapper ownership remains `00_nucleo/prompts/core/entities/shared_glyphs.md`; no other productive behavior change is authorized here.
+
+
+Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: ef14341a
+Hash do Código: 9d7c7391
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -47,7 +47,7 @@ FrameVisitor keeps its signature, callbacks/defaults, order and recursion. Resou
 
 `FrameItem::Text { pos, text, style, bidi }` is permanent pre-shaping L1 data. L3 converts it to TextShaped when a face is loaded; Text remains the Type1/unloaded-font fallback. The old deprecated annotation (including the intermediate semver correction) is historical and is removed, along with local allow(deprecated) used solely to compensate for it. Preserve the permanent role and existing exporter preference for shaped text; do not make L1 fabricate glyphs or move shaping out of L3. No carrier field, algorithm, default or phase changes through that metadata correction. A deny(deprecated) construction/read control must fail before and pass afterward; compare Rust bodies/data excluding comments and explicitly removed metadata, and retain fallback/shaping tests with and without fonts.
 
-`ShapedGlyph` carries glyph_id:u16, x_advance:i32, x_offset:i32, y_offset:i32, cluster:u32 and char_code:char. `TextShaped` carries pos, glyphs:Vec<ShapedGlyph>, style, original text:EcoString, units_per_em:u16, bidi and font as specified below. Original text supports fallback/CMap and diagnostic extraction. L3 try_shape supplies `rb_face.units_per_em().max(1) as u16`; shaped PDF TJ uses `-(x_advance / upm * 1000)`. Exhaustive matches decide explicitly on TextShaped, using `..` only where a field is irrelevant.
+`ShapedGlyph` carries glyph_id:u16, x_advance:i32, x_offset:i32, y_offset:i32, cluster:u32 and char_code:char. `TextShaped` carries pos, glyphs:SharedGlyphs, style, original text:EcoString, units_per_em:u16, bidi and font as specified below. Original text supports fallback/CMap and diagnostic extraction. L3 try_shape supplies `rb_face.units_per_em().max(1) as u16`; shaped PDF TJ uses `-(x_advance / upm * 1000)`. Exhaustive matches decide explicitly on TextShaped, using `..` only where a field is irrelevant.
 
 Add only to TextShaped `font: Option<crate::entities::world_types::Font>`. Some is a clone of the loaded source face that produced glyphs and units_per_em, including productive cache hits and variable fonts. The entity already uses Arc; no mmap/read/OpenType parsing/World reference is introduced here. Persist no catalog slot, path, family name or World pointer as identity. It remains valid in another World/after the session with the same source bytes. Current normalized face index 0 is supported; new collection/nonzero-index support is outside scope. None preserves manual/legacy resolution; Text/TextSeparator get no font field and math Glyph remains outside this correction. Add no unsafe or global state.
 
@@ -288,3 +288,10 @@ Transport the approved selected image format and SVG provenance through existing
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.rs:411` transports glyphs in Vec; `shaper/shaping.rs:545` clones them. The user explicitly authorizes changing this public field to SharedGlyphs under ADR-0127. Replace only glyphs storage, retaining every occurrence field and glyph semantics. This supersedes the previous Vec storage clause; wrapper behavior belongs to `00_nucleo/prompts/core/entities/shared_glyphs.md`.
+
+
+Reexport SharedGlyphs beside ShapedGlyph. Change only TextShaped.glyphs storage.

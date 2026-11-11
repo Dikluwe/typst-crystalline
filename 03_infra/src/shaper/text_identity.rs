@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/text_identity.md
-//! @prompt-hash e94f1db2
+//! @prompt-hash 1aae656b
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-11-07
 
 use typst_core::entities::layout_types::FrameItem;
 
@@ -80,7 +80,7 @@ mod tests {
                     y_offset: 0,
                     char_code: 'A',
                 })
-                .collect(),
+                .collect::<Vec<_>>().into(),
         }
     }
 

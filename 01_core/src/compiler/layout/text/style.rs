@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text/style.md
-//! @prompt-hash 5a4d2573
+//! @prompt-hash fef65c5a
 //! @layer L1
-//! @updated 2026-11-01
+//! @updated 2026-11-08
 
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -296,7 +296,7 @@ fn resolve_parts(
         font: if typed_font_is_nearest {
             style.font.clone()
         } else {
-            ns_font.or(style.font.clone())
+            ns_font.or_else(|| style.font.clone())
         },
         dir: if style.math {
             ns_dir.or(style.dir)
@@ -503,3 +503,6 @@ mod v16_d_tests {
         }
     }
 }
+
+#[cfg(test)]
+mod font_fallback_tests;

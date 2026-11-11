@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/draw.md
-//! @prompt-hash ec6f8350
+//! @prompt-hash 3746993e
 //! @layer L3
-//! @updated 2026-10-24
+//! @updated 2026-11-07
 
 use super::{
     emit_fill_paint, emit_glyph_pdf, emit_glyph_pdf_marked, emit_glyph_pdf_verbose,
@@ -1762,7 +1762,7 @@ mod tests {
                     cluster: 3,
                     char_code: '1',
                 },
-            ],
+            ].into(),
             units_per_em: face.units_per_em(),
             bidi: None,
             font: Some(Font::from_data(bytes.to_vec())),
@@ -1813,13 +1813,14 @@ mod tests {
             else {
                 unreachable!()
             };
+            let mut mutable_glyphs = glyphs.to_vec();
             match case {
                 "zero-space" => *advance = Pt(0.0),
                 "infinite-space" => *advance = Pt(f64::INFINITY),
-                "advance" => glyphs[0].x_advance = 1,
-                "x-offset" => glyphs[0].x_offset = 1,
-                "y-offset" => glyphs[0].y_offset = 1,
-                "ink" => glyphs[0].glyph_id = face.glyph_index('A').unwrap().0,
+                "advance" => mutable_glyphs[0].x_advance = 1,
+                "x-offset" => mutable_glyphs[0].x_offset = 1,
+                "y-offset" => mutable_glyphs[0].y_offset = 1,
+                "ink" => mutable_glyphs[0].glyph_id = face.glyph_index('A').unwrap().0,
                 "no-face" => *font = None,
                 "invalid-face" => *font = Some(Font::from_data(vec![0])),
                 "x" => pos.x += Pt(1.0),
@@ -1845,6 +1846,7 @@ mod tests {
                 }
                 _ => unreachable!("closed eligibility cases"),
             }
+            *glyphs = mutable_glyphs.into();
             assert!(joiner_pair(&first, &second, &ctx).is_none(), "unproved {case}");
         }
         let items = [separator, word];

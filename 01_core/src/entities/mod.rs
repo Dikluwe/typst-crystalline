@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/mod.md
-//! @prompt-hash a1accab0
+//! @prompt-hash 14a336f3
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-11-07
 
 pub mod args;
 pub mod ast;
@@ -83,6 +83,7 @@ pub mod region;
 pub mod sealed_positions;
 pub mod selector;
 pub mod shaped_glyph;
+pub mod shared_glyphs;
 pub mod state;
 pub mod state_registry;
 pub mod state_update;

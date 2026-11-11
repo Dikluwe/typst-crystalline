@@ -1,5 +1,5 @@
 # L0 — infra/shaper/cache
-Hash do Código: a03de5c1
+Hash do Código: a434296e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -152,3 +152,10 @@ construction reallocation boundary for zero, one and four axes with a disposable
 System-allocator gate; do not add a global allocator to productive tests.
 Hash/key microcosts do not certify eval/layout/shaping/export or close existing
 language-parity debts.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `shaper/cache.rs:45` stores CachedRun glyphs as Vec and derives Clone. Use SharedGlyphs so cached clones retain the frozen payload. Preserve full structured key, width, source Font and document lifetime. No global interning or key change. This supersedes storage/clone exclusions only for glyph payloads.
+
+
+CachedRun.glyphs uses SharedGlyphs; derived Clone shares it. Preserve all other cache behavior. Test helpers may explicitly copy to Vec.

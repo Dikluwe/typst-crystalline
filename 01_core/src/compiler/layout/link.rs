@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link.md
-//! @prompt-hash ee56dc4b
+//! @prompt-hash 4cc130db
 //! @layer L1
-//! @updated 2026-06-23
+//! @updated 2026-11-07
 //!
 //! P422 — Layout de `Content::Link`. Renderiza o body e envolve os itens
 //! resultantes em `FrameItem::Link`, preservando o URL como metadado.
@@ -142,7 +142,7 @@ mod tests {
             text: "AB".into(),
             style: TextStyle::regular(Pt(10.0)),
             bidi: None,
-            glyphs: vec![],
+            glyphs: vec![].into(),
             units_per_em: 1000,
             font: None,
         };

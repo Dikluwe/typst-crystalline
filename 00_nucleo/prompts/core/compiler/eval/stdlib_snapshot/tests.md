@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/stdlib_snapshot/tests
-Hash do Código: 33d47d17
+Hash do Código: f6e29445
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/eval/stdlib_snapshot/tests.rs`
@@ -56,3 +56,32 @@ Keep tests normal/adversarial in this consumer. In disposable RAM, deliberately
 share identities, ignore inputs or ignore features and confirm real assertion
 failures; no compile-failure credit. Cold legacy builder behavior must provide
 a RED control for the newly specified seed invariant before implementation.
+
+## Known-cardinality instantiation regressions
+
+Source evidence at received HEAD `0a15ccebf861e3cc0ea16d0397d55dc057664556`, before this reservation change:
+`01_core/src/compiler/eval/stdlib_snapshot.rs:80-85` constructs
+one fresh destination from an immutable Scope and fills it in declaration order;
+recursive module and native-function namespaces use this same private boundary.
+`01_core/src/entities/scope.rs:96-102` exposes cardinality and emptiness without
+exposing map capacity. Reservation is an internal RAM policy (ADR-0029/0030),
+not a new language-parity criterion. Observable binding order, values, aliases
+and fresh identities remain the semantic regression contract.
+
+Append pure descendant tests prefixed `known_cardinality_`, keeping all existing
+tests and helpers. Exercise the actual private Instance scope boundary with
+0/1/17/257/4096 bindings and a large→small→empty sequence on one Instance;
+owned unsorted keys must retain declaration order, values and immutable source
+bindings even when a returned scope is mutated. A source with excess reserved
+capacity and few actual bindings is a semantic control, not proof of the
+allocation choice. Test nested modules of unequal sizes including empty scopes,
+local aliases and separate identities across instantiations. Exercise the
+qualified real raw native namespace and raw.line With wrapper with aliases in
+small and larger roots. Keep source identity intact and aliases local; reuse
+existing registry controls for the wider representation/metadata contract.
+
+Do not expose Scope capacity or a new public test portal here. Inline Scope
+tests owned by `00_nucleo/prompts/core/entities/scope.md` independently check
+initial reservation, no growth through the known cardinality and lawful growth
+past actual capacity. These descendant tests establish semantic preservation;
+they do not alone prove which initial reservation was selected.

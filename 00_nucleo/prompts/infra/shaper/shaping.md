@@ -1,5 +1,5 @@
 # L0 — infra/shaper/shaping
-Hash do Código: f51cce9b
+Hash do Código: 9e10e940
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
@@ -425,3 +425,10 @@ resealing after V15/V26 validation; no public signature, default, dependency,
 unsafe or pipeline-phase addition. Verify native-sups None/false/true separation
 and repeated/shared versus fresh observable shaping alongside existing controls.
 This representation change supplies no new vanilla parity certification.
+
+## C06: immutable glyph storage
+
+Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `shaper/shaping.rs:504–551` finishes and clones a local mutable Vec. After all glyph/tracking adjustments freeze once to SharedGlyphs before insertion; cache and occurrence receive shared handles. Preserve full-key lookup, source Font/width, per-occurrence position/style/text/bidi/UPM, None versus successful empty, and pipeline phase. No buffer pooling or walker change. This supersedes earlier storage/clone exclusions only for the glyph payload, preserving the glyph production algorithm.
+
+
+Freeze the completed local run Vec before cache insertion; share the frozen handle between cache and carrier. Test helpers may explicitly copy to Vec.

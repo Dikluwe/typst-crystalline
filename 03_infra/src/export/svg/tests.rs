@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/tests.md
-//! @prompt-hash a1e9b2ef
+//! @prompt-hash e6cc3a9e
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-11-07
 
 use super::super::gradients::svg_adaptive_stops;
 use super::geometry::rounded_rect_path_data;
@@ -855,7 +855,7 @@ fn text_shaped_emits_glyph_paths_not_text() {
                 y_offset: 0,
                 cluster: 0,
                 char_code: ' ',
-            }],
+            }].into(),
             style,
             text: EcoString::from(" "),
             units_per_em: 1000,
@@ -1738,7 +1738,7 @@ mod readiness_variable_contours {
                 y_offset: 0,
                 cluster: 0,
                 char_code: 'A',
-            }],
+            }].into(),
             style,
             text: "A".into(),
             units_per_em: face.units_per_em(),

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 84f2e16f
+//! @prompt-hash d1634494
 //! @layer L3
-//! @updated 2026-11-06
+//! @updated 2026-11-07
 
 use super::bidi::bidi_runs_with_direction;
 use super::cache::{CachedRun, FaceCache, ShapeCache};
@@ -13,7 +13,7 @@ use rustybuzz::{Direction, UnicodeBuffer};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{
-    FrameItem, MathSize, Point, Pt, ShapedGlyph, TextStyle,
+    FrameItem, MathSize, Point, Pt, ShapedGlyph, SharedGlyphs, TextStyle,
 };
 
 /// Nível OpenType `ssty` solicitado para um sub-run matemático.
@@ -539,6 +539,7 @@ pub(super) fn try_shape_context(
                         run_width += pos_g.x_advance + extra;
                     }
 
+                    let run_glyphs = SharedGlyphs::from(run_glyphs);
                     cache.map.insert(
                         cache_key,
                         CachedRun {
@@ -642,7 +643,7 @@ mod r8_script_cache_tests {
         items
             .into_iter()
             .filter_map(|item| match item {
-                FrameItem::TextShaped { glyphs, .. } => Some(glyphs),
+                FrameItem::TextShaped { glyphs, .. } => Some(glyphs.to_vec()),
                 _ => None,
             })
             .collect()

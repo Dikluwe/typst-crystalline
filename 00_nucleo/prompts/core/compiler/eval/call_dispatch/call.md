@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/call
-Hash do Código: b0358632
+Hash do Código: 17e11be5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -111,3 +111,58 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+
+## Borrowed collection length: evidence and contract
+
+Source audit of the frozen received working tree at HEAD
+`0a15ccebf861e3cc0ea16d0397d55dc057664556`, retaining C06/C12/C14:
+`01_core/src/compiler/eval/expression_dispatch.rs:121–161` resolves identifiers
+through `Scopes::get` then clones their Value;
+`01_core/src/compiler/scopes.rs:154–171` exposes the same local/captured/base
+lookup as an immutable reference. `01_core/src/compiler/eval/call_dispatch/instance_methods.rs:18–22`
+acquires the owned receiver before collection dispatch.
+`01_core/src/compiler/stdlib/collections/array_access.rs:11–14` and
+`01_core/src/compiler/stdlib/collections/dictionary.rs:97–99` return only
+`Value::Int(len as i64)` for length. `01_core/src/entities/ast/expr.rs:1033–1053`
+exposes syntactic argument items, including spreads. The existing owner
+`00_nucleo/prompts/core/entities/value.md` retains owned Array/Dict storage and
+independent mutation. This source evidence makes no new runtime measurement.
+
+Classification follows the evidence: receiver cloning is execution mechanics
+under ADR-0107; scalar length, lookup, mutation independence, argument effects,
+feature gates and causal diagnostics are language behavior. Under ADR-0127
+continuous flow, authorize private
+`borrowed_collection_len(call: FuncCallNode<'_>, scopes: &Scopes<'_>) -> Option<Value>`
+in this sole consumer, invoked at the start of `eval_func_call` before any owned
+receiver acquisition. Eligible syntax is only direct `Expr::FieldAccess` with
+field exactly `len`, target directly `Expr::Ident`, and no syntactic argument
+items. Reject positional, named and spread items even when a spread is empty.
+Exclude both `html` and `asset`, preserving their existing identifier policies.
+Resolve with `Scopes::get` and recognize actual borrowed `Value::Array` or
+`Value::Dict`, never names/native identity. Return `Value::Int(len as i64)`
+without a size threshold. The Value match is exhaustive with explicit
+noncollection alternatives and no wildcard, requiring review of future variants.
+
+The short immutable borrow ends before evaluation, arguments, callbacks or
+mutable scope operations; only the detached scalar escapes. All other syntax,
+unresolved/reserved names, values and methods take the existing route, caches,
+feature checks, once-only effects and diagnostics. This includes expression,
+parenthesized, chained-field and module receivers and strings. A dictionary key
+named `len` cannot override the builtin. Preserve `b=a` deep cloning, nested
+mutation independence, lexical snapshots, defaults/callbacks, Value/Scopes and
+stdlib contracts. No public API, dependency, unsafe code, representation,
+sharing, pipeline phase or module split is authorized. The pinned call-once
+nucleus and all existing fallback obligations remain in force.
+
+Inference to validate: this pure read can avoid a collection clone while
+preserving language behavior; a changed value, effect, diagnostic or fallback
+refutes it. Co-located independent tests must cover empty/small/large Array/Dict,
+outer length, scalar detachment, lexical shadow/capture, mutation independence,
+receiver-once, argument-effect fallbacks, empty spreads, reserved names, method
+and actual-type discrimination, and error followed by valid evaluation. Require
+RED before implementation and GREEN afterward, directed helper mutations,
+public-pipeline regressions and isolated allocation evidence without a universal
+speedup threshold. Preserve the known outline divergence from vanilla pin
+`64c5e8c02fe0394d913ead36e42ef8c1334d2107` and StyleChain presence debt
+`highlight=Some(None)`; this local optimization certifies no new vanilla parity.

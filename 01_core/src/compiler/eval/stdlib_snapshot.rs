@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/stdlib_snapshot.md
-//! @prompt-hash 26160b61
+//! @prompt-hash 0eef863b
 //! @layer L1
-//! @updated 2026-11-06
+//! @updated 2026-11-08
 //!
 //! Compilation-local seed for delayed builtin stdlib instantiation.
 
@@ -78,7 +78,7 @@ struct Instance {
 
 impl Instance {
     fn scope(&mut self, original: &Scope) -> Scope {
-        let mut scope = Scope::new();
+        let mut scope = Scope::with_capacity(original.len());
         for (name, binding) in original.iter() {
             scope.define(name, self.value(binding.value()));
         }

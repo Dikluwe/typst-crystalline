@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/scope.md
-//! @prompt-hash d70bc8e5
+//! @prompt-hash c25317a8
 //! @layer L1
-//! @updated 2026-04-02
+//! @updated 2026-11-08
 
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
@@ -67,6 +67,11 @@ pub struct Scope {
 impl Scope {
     pub fn new() -> Self {
         Self { map: IndexMap::with_hasher(FxBuildHasher) }
+    }
+
+    /// Cria um scope vazio com espaço para pelo menos `capacity` bindings.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self { map: IndexMap::with_capacity_and_hasher(capacity, FxBuildHasher) }
     }
 
     /// Define um binding. Se o nome já existe, substitui no lugar
@@ -173,4 +178,98 @@ mod tests {
         let mut scope = Scope::new();
         assert!(scope.get_mut("missing").is_none());
     }
+
+    #[test]
+    fn known_cardinality_zero_is_empty_without_allocation() {
+        for scope in [Scope::with_capacity(0), Scope::new(), Scope::default()] {
+            assert!(scope.is_empty());
+            assert_eq!(scope.len(), 0);
+            assert_eq!(scope.map.capacity(), 0);
+            assert_eq!(scope.iter().count(), 0);
+            assert!(scope.get("missing").is_none());
+        }
+    }
+
+    #[test]
+    fn known_cardinality_fill_and_replace_keep_initial_capacity_and_order() {
+        for count in [1usize, 3, 4, 7, 8, 17, 257, 4096] {
+            let mut scope = Scope::with_capacity(count);
+            assert!(scope.is_empty());
+            assert_eq!(scope.len(), 0);
+            let capacity = scope.map.capacity();
+            assert!(capacity >= count, "reservation must cover {count} bindings");
+            let names: Vec<String> = (0..count)
+                .map(|index| format!("key-{:05}", count - index))
+                .collect();
+            for (index, name) in names.iter().enumerate() {
+                scope.define(name.clone(), Value::Int(index as i64));
+                assert_eq!(scope.map.capacity(), capacity, "insert {index}/{count}");
+            }
+            assert_eq!(scope.len(), count);
+            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                names.iter().map(String::as_str).collect::<Vec<_>>());
+            for (index, name) in names.iter().enumerate() {
+                assert_eq!(scope.get(name), Some(&Value::Int(index as i64)));
+                assert_eq!(scope.get_binding(name).unwrap().value(),
+                    &Value::Int(index as i64));
+            }
+            let replaced = &names[count / 2];
+            scope.define(replaced.clone(), Value::Bool(true));
+            assert_eq!(scope.get(replaced), Some(&Value::Bool(true)));
+            *scope.get_mut(replaced).unwrap() = Value::Str("changed".into());
+            assert_eq!(scope.get(replaced), Some(&Value::Str("changed".into())));
+            assert!(scope.get_mut("missing").is_none());
+            assert_eq!(scope.len(), count);
+            assert_eq!(scope.map.capacity(), capacity);
+            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                names.iter().map(String::as_str).collect::<Vec<_>>());
+        }
+    }
+
+    #[test]
+    fn known_cardinality_growth_past_actual_capacity_preserves_all_bindings() {
+        let mut scope = Scope::with_capacity(3);
+        let initial_capacity = scope.map.capacity();
+        assert!(initial_capacity >= 3);
+        for index in 0..=initial_capacity {
+            scope.define(format!("descending-{}", initial_capacity - index),
+                Value::Int(index as i64));
+        }
+        assert_eq!(scope.len(), initial_capacity + 1);
+        assert!(scope.map.capacity() > initial_capacity);
+        for (index, (name, binding)) in scope.iter().enumerate() {
+            assert_eq!(name, format!("descending-{}", initial_capacity - index));
+            assert_eq!(binding.value(), &Value::Int(index as i64));
+        }
+    }
+
+    #[test]
+    fn known_cardinality_clone_and_large_to_small_scopes_are_independent() {
+        let mut original = Scope::with_capacity(4096);
+        original.define("z", Value::Int(41));
+        original.define("a", Value::None);
+        let original_capacity = original.map.capacity();
+        let mut cloned = original.clone();
+        cloned.define("z", Value::Int(99));
+        cloned.define("clone-only", Value::Bool(true));
+        assert_eq!(original.get("z"), Some(&Value::Int(41)));
+        assert!(original.get("clone-only").is_none());
+        assert_eq!(original.map.capacity(), original_capacity);
+        assert_eq!(original.len(), 2);
+        let mut small = Scope::with_capacity(original.len());
+        let small_capacity = small.map.capacity();
+        assert!(small_capacity >= original.len());
+        for (name, binding) in original.iter() {
+            small.define(name.to_owned(), binding.value().clone());
+            assert_eq!(small.map.capacity(), small_capacity);
+        }
+        assert_eq!(small.iter().map(|(name, _)| name).collect::<Vec<_>>(), ["z", "a"]);
+        *small.get_mut("z").unwrap() = Value::Bool(false);
+        assert_eq!(original.get("z"), Some(&Value::Int(41)));
+        assert_eq!(cloned.get("z"), Some(&Value::Int(99)));
+        let empty = Scope::with_capacity(Scope::new().len());
+        assert_eq!(empty.len(), 0);
+        assert_eq!(empty.map.capacity(), 0);
+    }
+
 }

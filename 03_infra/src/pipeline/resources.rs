@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
-//! @prompt-hash 63943c71
+//! @prompt-hash e399205f
 //! @layer L3
-//! @updated 2026-10-08
+//! @updated 2026-11-09
 //!
 //! Possui coleta ordenada e resolução das fontes do documento, fallback por família, variações explícitas e instanciação de fontes variáveis. Recursa pelos containers e pelas camadas marginais existentes, preservando a chave completa e os diagnósticos vigentes.
 
@@ -58,9 +58,7 @@ pub(super) fn resolve_export_fonts(
     world: &dyn World,
 ) -> Result<Vec<FontKey>, SourceDiagnostic> {
     let combos = collect_fonts_from_doc(doc, world);
-    let resolved =
-        crate::export::font_binding::bind_document(doc, &resolve_fonts(&combos, world))
-            .into_owned();
+    let resolved = bind_owned_export_fonts(doc, resolve_fonts(&combos, world));
 
     if let Some(diag) =
         missing_font_instancer_diagnostic(&resolved, variable_font_instancer_available)
@@ -69,6 +67,14 @@ pub(super) fn resolve_export_fonts(
     }
 
     Ok(resolved)
+}
+
+/// Bind an owned export resource table without changing document binding policy.
+fn bind_owned_export_fonts(doc: &PagedDocument, supplied: Vec<FontKey>) -> Vec<FontKey> {
+    match crate::export::font_binding::bind_document(doc, &supplied) {
+        std::borrow::Cow::Borrowed(_) => supplied,
+        std::borrow::Cow::Owned(bound) => bound,
+    }
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)
@@ -448,5 +454,362 @@ mod textual_key_tests {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod owned_export_font_tests {
+    // Synthetic bytes isolate resource-table binding from font parsing.
+    use super::bind_owned_export_fonts;
+    use crate::export::FontKey;
+    use typst_core::entities::{
+        content::Content,
+        font_book::{FontStretch, FontStyle, FontVariant, FontWeight},
+        font_list::FontList,
+        font_variations::FontVariations,
+        frame_paint::{FramePaint, TilingFrame},
+        geometry::{FillRule, ShapeKind},
+        gradient::RelativeTo,
+        layout_types::*,
+        world_types::Font,
+    };
+
+    fn style() -> TextStyle {
+        TextStyle {
+            font: Some(FontList::single("Independent C22".into())),
+            size: Pt(11.),
+            ..Default::default()
+        }
+    }
+    fn variant(s: &TextStyle) -> FontVariant {
+        FontVariant {
+            style: if s.italic { FontStyle::Italic } else { FontStyle::Normal },
+            weight: FontWeight::from_number(s.weight.unwrap_or(if s.bold {
+                700
+            } else {
+                400
+            })),
+            stretch: FontStretch::NORMAL,
+        }
+    }
+    fn key(s: &TextStyle, bytes: &[u8]) -> FontKey {
+        (
+            (
+                s.font.clone().unwrap(),
+                variant(s),
+                s.variations.clone().unwrap_or_default(),
+            ),
+            bytes.to_vec(),
+        )
+    }
+    fn leaf(s: TextStyle, font: Option<Font>, text: &str) -> FrameItem {
+        FrameItem::TextShaped {
+            pos: Point { x: Pt(12.), y: Pt(23.) },
+            glyphs: vec![ShapedGlyph {
+                glyph_id: 7,
+                x_advance: 400,
+                x_offset: 9,
+                y_offset: -2,
+                cluster: 0,
+                char_code: 'a',
+            }]
+            .into(),
+            style: s,
+            text: text.into(),
+            units_per_em: 1000,
+            font,
+            bidi: None,
+        }
+    }
+    fn face(s: &TextStyle, b: u8, t: &str) -> FrameItem {
+        leaf(s.clone(), Some(Font::from_data(vec![b])), t)
+    }
+    fn page(items: Vec<FrameItem>) -> Page {
+        Page {
+            width: 123.,
+            height: 234.,
+            logical_number: 7,
+            numbering: None,
+            supplement: Content::text("supplement"),
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items,
+        }
+    }
+    fn group(items: Vec<FrameItem>) -> FrameItem {
+        FrameItem::Group {
+            paint_root: false,
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 12.,
+            inner_height: 20.,
+            items,
+        }
+    }
+    fn wrapped(items: Vec<FrameItem>) -> FrameItem {
+        group(vec![FrameItem::Link {
+            target: LinkTarget::Url("https://example.test/".into()),
+            pos: Point::ZERO,
+            size: Size { width: Pt(10.), height: Pt(10.) },
+            items: vec![FrameItem::Semantic {
+                kind: SemanticKind::Formula,
+                placement: SemanticPlacement::Inline,
+                alt: Some("not a resource".into()),
+                items: vec![FrameItem::TextReplacement {
+                    text: "replacement".into(),
+                    items,
+                }],
+            }],
+        }])
+    }
+    fn tiling(items: Vec<FrameItem>) -> FrameItem {
+        let mut frame = Frame::new(Size { width: Pt(10.), height: Pt(10.) });
+        frame.items = items;
+        FrameItem::Shape {
+            pos: Point::ZERO,
+            kind: ShapeKind::Rect,
+            width: 20.,
+            height: 20.,
+            fill: Some(FramePaint::Tiling(std::sync::Arc::new(TilingFrame {
+                frame,
+                spacing: Size { width: Pt(0.), height: Pt(0.) },
+                offset: Point::ZERO,
+                angle: Angle::deg(0.),
+                relative: RelativeTo::Self_,
+            }))),
+            stroke: None,
+            fill_rule: FillRule::NonZero,
+            parent_bbox_at_emit: None,
+        }
+    }
+    fn dump(d: &PagedDocument) -> String {
+        format!("{d:?}")
+    }
+
+    // Preserve f32 payload/sign/order without relying on NaN's nonreflexive equality.
+    fn snapshot(
+        table: &[FontKey],
+    ) -> Vec<(String, FontVariant, Vec<([u8; 4], u32)>, Vec<u8>)> {
+        table
+            .iter()
+            .map(|((family, variant, axes), bytes)| {
+                (
+                    format!("{family:?}"),
+                    *variant,
+                    axes.0.iter().map(|(tag, v)| (*tag, v.to_bits())).collect(),
+                    bytes.clone(),
+                )
+            })
+            .collect()
+    }
+    fn assert_transferred(doc: &PagedDocument, table: Vec<FontKey>) {
+        let pointer = table.as_ptr();
+        let capacity = table.capacity();
+        let expected = snapshot(&table);
+        let buffers: Vec<_> =
+            table.iter().map(|x| (x.1.as_ptr(), x.1.capacity())).collect();
+        let before = dump(doc);
+        let actual = bind_owned_export_fonts(doc, table);
+        assert_eq!(snapshot(&actual), expected, "complete key/value identity");
+        assert_eq!(dump(doc), before, "binder must not mutate document");
+        assert_eq!(
+            actual.as_ptr(),
+            pointer,
+            "complete table must transfer its allocation"
+        );
+        assert_eq!(actual.capacity(), capacity, "spare capacity must survive transfer");
+        assert_eq!(
+            actual
+                .iter()
+                .map(|x| (x.1.as_ptr(), x.1.capacity()))
+                .collect::<Vec<_>>(),
+            buffers,
+            "all byte buffers must transfer"
+        );
+    }
+    #[test]
+    fn transfer_empty_spare_capacity() {
+        assert_transferred(&PagedDocument::new(vec![]), Vec::with_capacity(19));
+    }
+    #[test]
+    fn transfer_empty_zero_capacity() {
+        assert_transferred(&PagedDocument::new(vec![]), Vec::new());
+    }
+    #[test]
+    fn transfer_one_complete_face_with_spare_capacity() {
+        let s = style();
+        let mut table = Vec::with_capacity(17);
+        let mut k = key(&s, &[1, 2, 3]);
+        k.1.reserve(53);
+        table.push(k);
+        let mut p = page(vec![
+            wrapped(vec![leaf(
+                s.clone(),
+                Some(Font::from_data(vec![1, 2, 3])),
+                "nested",
+            )]),
+            tiling(vec![leaf(s.clone(), Some(Font::from_data(vec![1, 2, 3])), "tile")]),
+        ]);
+        p.background = vec![leaf(s.clone(), Some(Font::from_data(vec![1, 2, 3])), "bg")];
+        p.foreground = vec![leaf(s, Some(Font::from_data(vec![1, 2, 3])), "fg")];
+        assert_transferred(&PagedDocument::new(vec![p]), table);
+    }
+    #[test]
+    fn transfer_plural_complete_faces_preserves_supplied_order_and_buffers() {
+        let s = style();
+        let mut bold = s.clone();
+        bold.weight = Some(700);
+        let mut axes = s.clone();
+        axes.variations = Some(FontVariations(vec![(*b"ZZZZ", 4.)]));
+        let mut table = Vec::with_capacity(31);
+        for (st, b) in [(&s, 7), (&bold, 2), (&axes, 9), (&s, 1)] {
+            let mut k = key(st, &[b, b + 1]);
+            k.1.reserve(37);
+            table.push(k);
+        }
+        let d = PagedDocument::new(vec![page(vec![
+            leaf(axes, Some(Font::from_data(vec![9, 10])), "axes"),
+            leaf(bold, Some(Font::from_data(vec![2, 3])), "bold"),
+            leaf(s, Some(Font::from_data(vec![1, 2])), "last"),
+        ])]);
+        assert_transferred(&d, table);
+    }
+    #[test]
+    fn missing_nested_faces_append_in_document_resource_order() {
+        let s = style();
+        let mut prefix = Vec::with_capacity(12);
+        prefix.push(key(&s, &[90]));
+        prefix.push(key(&s, &[91]));
+        let mut p = page(vec![
+            wrapped(vec![face(&s, 2, "wrapped")]),
+            tiling(vec![face(&s, 3, "fill")]),
+            face(&s, 2, "repeat"),
+        ]);
+        p.background = vec![face(&s, 1, "background")];
+        p.foreground = vec![face(&s, 4, "foreground")];
+        let d = PagedDocument::new(vec![p, page(vec![face(&s, 5, "next page")])]);
+        let before = dump(&d);
+        let actual = bind_owned_export_fonts(&d, prefix);
+        let expected: Vec<_> =
+            [90, 91, 1, 2, 3, 4, 5].into_iter().map(|n| key(&s, &[n])).collect();
+        assert_eq!(snapshot(&actual), snapshot(&expected));
+        assert_eq!(dump(&d), before);
+    }
+    #[test]
+    fn missing_same_bytes_distinct_variant_axes_and_axis_order_append_complete_keys() {
+        let s = style();
+        let mut bold = s.clone();
+        bold.weight = Some(700);
+        let mut italic = s.clone();
+        italic.italic = true;
+        let mut a = s.clone();
+        a.variations = Some(FontVariations(vec![(*b"AAAA", 1.), (*b"BBBB", 2.)]));
+        let mut b = s.clone();
+        b.variations = Some(FontVariations(vec![(*b"BBBB", 2.), (*b"AAAA", 1.)]));
+        let styles = vec![bold, italic, a, b];
+        let d = PagedDocument::new(vec![page(
+            styles
+                .iter()
+                .flat_map(|s| [face(s, 8, "first"), face(s, 8, "again")])
+                .collect(),
+        )]);
+        let actual = bind_owned_export_fonts(&d, vec![key(&s, &[8])]);
+        let expected: Vec<_> = std::iter::once(&s)
+            .chain(styles.iter())
+            .map(|s| key(s, &[8]))
+            .collect();
+        assert_eq!(snapshot(&actual), snapshot(&expected));
+    }
+    #[test]
+    fn signed_zero_and_none_empty_axes_use_unchanged_binder_equality() {
+        let s = style();
+        let mut empty = s.clone();
+        empty.variations = Some(FontVariations(vec![]));
+        let mut minus = s.clone();
+        minus.variations = Some(FontVariations(vec![(*b"ZZZZ", -0.)]));
+        let mut plus = s.clone();
+        plus.variations = Some(FontVariations(vec![(*b"ZZZZ", 0.)]));
+        let mut table = Vec::with_capacity(21);
+        table.push(key(&s, &[8]));
+        table.push(key(&minus, &[8]));
+        let d = PagedDocument::new(vec![page(vec![
+            face(&empty, 8, "empty"),
+            face(&plus, 8, "zero"),
+        ])]);
+        assert_transferred(&d, table);
+    }
+    #[test]
+    fn nan_never_deduplicates_and_keeps_payload_bits() {
+        let mut s = style();
+        s.variations = Some(FontVariations(vec![(*b"ZZZZ", f32::from_bits(0x7fc01234))]));
+        let d = PagedDocument::new(vec![page(vec![
+            face(&s, 8, "first"),
+            face(&s, 8, "again"),
+        ])]);
+        let actual = bind_owned_export_fonts(&d, vec![key(&s, &[8])]);
+        let expected = vec![key(&s, &[8]), key(&s, &[8]), key(&s, &[8])];
+        assert_eq!(
+            snapshot(&actual),
+            snapshot(&expected),
+            "existing NaN entry cannot satisfy either request"
+        );
+    }
+    #[test]
+    fn legacy_none_does_not_append_but_missing_some_does() {
+        let s = style();
+        let d = PagedDocument::new(vec![page(vec![
+            leaf(s.clone(), None, "legacy"),
+            face(&s, 2, "some"),
+        ])]);
+        let actual = bind_owned_export_fonts(&d, vec![key(&s, &[1])]);
+        assert_eq!(snapshot(&actual), snapshot(&[key(&s, &[1]), key(&s, &[2])]));
+        let legacy = PagedDocument::new(vec![page(vec![leaf(s, None, "legacy only")])]);
+        assert_transferred(&legacy, Vec::with_capacity(13));
+    }
+    #[test]
+    fn unavailable_family_with_invalid_bytes_does_not_invent_a_resource() {
+        let d = PagedDocument::new(vec![page(vec![leaf(
+            TextStyle::default(),
+            Some(Font::from_data(vec![0, 1, 2])),
+            "unknown",
+        )])]);
+        assert_transferred(&d, Vec::with_capacity(11));
+    }
+    #[test]
+    fn independent_exports_large_small_large_keep_local_tables() {
+        let s = style();
+        for n in [24, 1, 24] {
+            let d = PagedDocument::new(vec![page(
+                (0..n).map(|i| face(&s, i, "face")).collect(),
+            )]);
+            let mut table = Vec::with_capacity(50);
+            table.extend((0..n).rev().map(|i| key(&s, &[i])));
+            assert_transferred(&d, table);
+        }
+    }
+
+    #[test]
+    fn complete_actual_face_matching_keeps_original_family_metadata() {
+        let s = style();
+        let mut alias = s.clone();
+        alias.font = Some(FontList::single("alias family".into()));
+        let d = PagedDocument::new(vec![page(vec![face(&alias, 8, "actual same face")])]);
+        let mut table = Vec::with_capacity(16);
+        table.push(key(&s, &[8]));
+        assert_transferred(&d, table);
+    }
+    #[test]
+    fn unused_nonreflexive_keys_transfer_without_normalization() {
+        let mut s = style();
+        s.variations = Some(FontVariations(vec![
+            (*b"ZZZZ", f32::from_bits(0xffc01234)),
+            (*b"AAAA", -0.),
+        ]));
+        let mut table = Vec::with_capacity(14);
+        table.push(key(&s, &[5]));
+        assert_transferred(&PagedDocument::new(vec![]), table);
     }
 }
