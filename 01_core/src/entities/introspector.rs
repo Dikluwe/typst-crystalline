@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/introspector.md
-//! @prompt-hash b0892dd8
+//! @prompt-hash 18396406
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -12,6 +12,7 @@
 //! sub-stores expostos como fields públicos (composição visível).
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::bib_store::BibStore;
@@ -378,8 +379,30 @@ pub(crate) struct FigureCounterSnapshot {
     pub(crate) history: Vec<(Location, Vec<usize>)>,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct TagIntrospector {
+/// A shared immutable introspection snapshot with isolated mutation.
+#[derive(Clone, Default)]
+pub struct TagIntrospector(Arc<TagIntrospectorData>);
+
+impl std::ops::Deref for TagIntrospector {
+    type Target = TagIntrospectorData;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl std::ops::DerefMut for TagIntrospector {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        Arc::make_mut(&mut self.0)
+    }
+}
+impl std::fmt::Debug for TagIntrospector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self.0.as_ref(), f)
+    }
+}
+
+/// Stores owned by one introspection snapshot generation.
+#[derive(Clone, Default)]
+pub struct TagIntrospectorData {
     pub(crate) original_walk_depth: usize,
     pub(crate) figure_counter_snapshots: Vec<FigureCounterSnapshot>,
     pub labels: LabelRegistry,
@@ -540,6 +563,53 @@ pub struct TagIntrospector {
     /// **P506** — mapa `ContextBlock id → Location` para expansão
     /// pós-introspecção. Populado durante o walk.
     pub context_block_locations: HashMap<u64, Location>,
+}
+
+impl std::fmt::Debug for TagIntrospectorData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TagIntrospector")
+            .field("original_walk_depth", &self.original_walk_depth)
+            .field("figure_counter_snapshots", &self.figure_counter_snapshots)
+            .field("labels", &self.labels)
+            .field("counters", &self.counters)
+            .field("kind_index", &self.kind_index)
+            .field("elements", &self.elements)
+            .field("figure_label_numbers", &self.figure_label_numbers)
+            .field("label_to_counter_key", &self.label_to_counter_key)
+            .field("heading_numbering", &self.heading_numbering)
+            .field("equation_numbering", &self.equation_numbering)
+            .field("equation_numberings", &self.equation_numberings)
+            .field("equation_numbering_pattern", &self.equation_numbering_pattern)
+            .field("equation_numbering_callbacks", &self.equation_numbering_callbacks)
+            .field("equation_numbering_contents", &self.equation_numbering_contents)
+            .field("equation_supplements", &self.equation_supplements)
+            .field("equation_supplement_langs", &self.equation_supplement_langs)
+            .field("equation_supplement_contents", &self.equation_supplement_contents)
+            .field("equation_number_aligns", &self.equation_number_aligns)
+            .field("equation_alts", &self.equation_alts)
+            .field("unreferencable_labels", &self.unreferencable_labels)
+            .field("metadata", &self.metadata)
+            .field("state", &self.state)
+            .field("bib_store", &self.bib_store)
+            .field("resolved_labels", &self.resolved_labels)
+            .field("headings_for_toc", &self.headings_for_toc)
+            .field("outline_elements", &self.outline_elements)
+            .field("outlined_heading_locations", &self.outlined_heading_locations)
+            .field("outline_prefix_widths", &self.outline_prefix_widths)
+            .field("headings_for_bookmarks", &self.headings_for_bookmarks)
+            .field("positions", &self.positions)
+            .field("html_positions", &self.html_positions)
+            .field("page_store", &self.page_store)
+            .field("page_counter_values", &self.page_counter_values)
+            .field("page_counter_final_values", &self.page_counter_final_values)
+            .field("state_displays", &self.state_displays)
+            .field("counter_displays", &self.counter_displays)
+            .field("figures_for_lof", &self.figures_for_lof)
+            .field("tables_for_lot", &self.tables_for_lot)
+            .field("parent_locations", &self.parent_locations)
+            .field("context_block_locations", &self.context_block_locations)
+            .finish()
+    }
 }
 
 impl TagIntrospector {
@@ -1388,5 +1458,85 @@ mod p1493_tests {
             intr.html_position_of(first),
             Some(HtmlPosition { point: Point { x: Pt(40.0), y: Pt(25.0) } })
         );
+    }
+}
+
+#[cfg(test)]
+mod shared_snapshot_tests {
+    use super::*;
+    use crate::entities::layout_types::{Point, Pt};
+    use crate::entities::position::HtmlPosition;
+    use std::num::NonZeroUsize;
+    #[test]
+    fn snapshot_clone_shares_nonempty_storage_until_either_owner_mutates() {
+        let key = ElementKind::Heading;
+        let first = Location::from_raw(1);
+        let second = Location::from_raw(2);
+        let mut original = TagIntrospector::empty();
+        original.kind_index.insert(key, vec![first]);
+        let mut cloned = original.clone();
+        assert_eq!(
+            original.kind_index[&key].as_ptr(),
+            cloned.kind_index[&key].as_ptr(),
+            "snapshot clone copied the immutable index"
+        );
+        cloned.kind_index.get_mut(&key).unwrap().push(second);
+        assert_eq!(original.kind_index[&key], vec![first]);
+        assert_eq!(cloned.kind_index[&key], vec![first, second]);
+        let owned = cloned.kind_index[&key].as_ptr();
+        cloned.figure_label_numbers.insert(Label("x".into()), 7);
+        assert_eq!(
+            cloned.kind_index[&key].as_ptr(),
+            owned,
+            "unique-owner unrelated write must not copy index"
+        );
+        assert!(original.figure_label_numbers.is_empty());
+        let held = original.clone();
+        original.kind_index.clear();
+        assert_eq!(held.kind_index[&key], vec![first]);
+        assert!(original.kind_index.is_empty());
+    }
+    #[test]
+    fn snapshot_clone_keeps_page_and_html_injection_isolated() {
+        let mut original = TagIntrospector::empty();
+        original.inject_pages(PageStore::from_total_pages(NonZeroUsize::new(2).unwrap()));
+        let mut cloned = original.clone();
+        cloned.inject_pages(PageStore::from_total_pages(NonZeroUsize::new(5).unwrap()));
+        let location = Location::from_raw(9);
+        cloned.inject_html_positions(HashMap::from([(
+            location,
+            HtmlPosition { point: Point { x: Pt(3.0), y: Pt(7.0) } },
+        )]));
+        assert_eq!(original.page_store.total_pages().unwrap().get(), 2);
+        assert_eq!(cloned.page_store.total_pages().unwrap().get(), 5);
+        assert!(original.html_positions.is_empty());
+        assert_eq!(cloned.html_positions.len(), 1);
+        original.inject_pages(PageStore::empty());
+        assert_eq!(cloned.page_store.total_pages().unwrap().get(), 5);
+    }
+    #[test]
+    fn snapshot_clone_keeps_physical_position_injection_isolated() {
+        use crate::entities::{position::Position, sealed_positions::SealedPositions};
+        let location = Location::from_raw(13);
+        let old = Position {
+            page: NonZeroUsize::new(1).unwrap(),
+            point: Point { x: Pt(2.0), y: Pt(4.0) },
+        };
+        let new = Position {
+            page: NonZeroUsize::new(3).unwrap(),
+            point: Point { x: Pt(8.0), y: Pt(9.0) },
+        };
+        let mut original = TagIntrospector::empty();
+        original.inject_positions(SealedPositions::from_runtime(HashMap::from([(
+            location, old,
+        )])));
+        let mut cloned = original.clone();
+        cloned.inject_positions(SealedPositions::from_runtime(HashMap::from([(
+            location, new,
+        )])));
+        assert_eq!(original.positions.position_of(location), Some(old));
+        assert_eq!(cloned.positions.position_of(location), Some(new));
+        original.inject_positions(SealedPositions::empty());
+        assert_eq!(cloned.positions.position_of(location), Some(new));
     }
 }

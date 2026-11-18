@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/control_flow.md
-//! @prompt-hash ab26b7d9
+//! @prompt-hash d7c2e160
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -141,6 +141,18 @@ fn run_for_loop(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
+    let iterations = items.len();
+    let memo = ctx.subtree_memo.clone();
+    let key = memo.as_ref().and_then(|_| {
+        super::subtree_session::key(loop_expr, &items, scopes, ctx, engine)
+    });
+    if let Some(key) = key.as_ref() {
+        if let Some(value) = memo.as_ref().and_then(|memo| memo.borrow_mut().lookup(key))
+        {
+            ctx.loop_iterations += iterations;
+            return Ok(value);
+        }
+    }
     let flow = ctx.flow.take();
     // **P729** — o valor do `for` é o `join` dos valores dos corpos de
     // todas as iterações (paridade vanilla `typst-eval/src/flow.rs:120,
@@ -180,6 +192,9 @@ fn run_for_loop(
     }
     if flow.is_some() {
         ctx.flow = flow;
+    }
+    if let (Some(memo), Some(key)) = (memo, key) {
+        memo.borrow_mut().store(key, output.clone());
     }
     Ok(output)
 }

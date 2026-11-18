@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
-//! @prompt-hash 41ca2644
+//! @prompt-hash 9d1f1ddd
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -86,6 +86,59 @@ pub(super) struct PrimaryResolution {
     pub(super) candidates: Vec<FontCandidate>,
 }
 
+/// First-readable query only; not eligible as a complete primary chain.
+pub(super) struct FirstResolution {
+    pub(super) font_list: FontList,
+    pub(super) variant: FontVariant,
+    pub(super) candidate: FontCandidate,
+}
+
+pub(super) type BidiParagraphs = Arc<Vec<Vec<super::bidi::BidiRun>>>;
+
+/// Positive proof identity; family selection and authored cmap checks precede lookup.
+#[derive(PartialEq, Eq, Hash)]
+pub(super) struct PrimaryProofKey {
+    owner: (u8, usize),
+    slot: usize,
+    text: String,
+    axes: Vec<(u32, u32)>,
+    direction: Option<u8>,
+    language: Option<String>,
+}
+impl PrimaryProofKey {
+    pub(super) fn new(
+        text: &str,
+        slot: usize,
+        font: &Font,
+        axes: &[rustybuzz::Variation],
+        direction: Option<typst_core::entities::dir::Dir>,
+        language: Option<&str>,
+    ) -> Self {
+        use typst_core::entities::dir::Dir;
+        Self {
+            owner: match font {
+                Font::Vec(owner) => (0, Arc::as_ptr(owner) as usize),
+                Font::Mmap(owner) => (1, Arc::as_ptr(owner) as usize),
+            },
+            slot,
+            text: text.to_owned(),
+            axes: axes
+                .iter()
+                .map(|axis| {
+                    (u32::from_be_bytes(axis.tag.to_bytes()), axis.value.to_bits())
+                })
+                .collect(),
+            direction: direction.map(|direction| match direction {
+                Dir::LTR => 1,
+                Dir::RTL => 2,
+                Dir::TTB => 3,
+                Dir::BTT => 4,
+            }),
+            language: language.map(str::to_owned),
+        }
+    }
+}
+
 /// Cache de faces `ttf-parser` por `slot_idx` dentro de um documento.
 ///
 /// Evita re-parsear a mesma fonte milhares de vezes durante a fase de
@@ -93,13 +146,43 @@ pub(super) struct PrimaryResolution {
 /// `Font` owned; a struct vive dentro de `Arc` para que o slice `'static`
 /// seja válido enquanto a face existir.
 pub(crate) struct FaceCache {
+    pub(super) products: Option<super::complete_session::ShapeSession>,
     pub(super) map: HashMap<usize, Option<Arc<CachedFace>>>,
     pub(super) primary_resolution: Option<PrimaryResolution>,
+    pub(super) first_resolution: Option<FirstResolution>,
+    pub(super) primary_proofs: HashMap<PrimaryProofKey, (Font, BidiParagraphs)>,
+    raw: RawShapeStore,
 }
 
 impl FaceCache {
+    pub(crate) fn attach_products(
+        &mut self,
+        products: &super::complete_session::ShapeSession,
+    ) {
+        self.products = Some(products.clone());
+    }
+    pub(crate) fn product_session(
+        &self,
+    ) -> Option<super::complete_session::ShapeSession> {
+        self.products.clone()
+    }
     pub(crate) fn new() -> Self {
-        Self { map: HashMap::new(), primary_resolution: None }
+        Self::with_raw_store(Arc::new(std::sync::Mutex::new(RawShapeCache::default())))
+    }
+
+    pub(crate) fn raw_store(&self) -> RawShapeStore {
+        Arc::clone(&self.raw)
+    }
+
+    pub(super) fn with_raw_store(raw: RawShapeStore) -> Self {
+        Self {
+            products: None,
+            map: HashMap::new(),
+            primary_resolution: None,
+            first_resolution: None,
+            primary_proofs: HashMap::new(),
+            raw,
+        }
     }
 
     pub(crate) fn get(
@@ -118,6 +201,7 @@ pub(crate) struct CachedFace {
     #[allow(dead_code)]
     data: Font,
     face: ttf_parser::Face<'static>,
+    raw_engine: Option<Box<rustybuzz::Face<'static>>>,
 }
 
 impl CachedFace {
@@ -126,7 +210,22 @@ impl CachedFace {
             std::slice::from_raw_parts(data.as_slice().as_ptr(), data.as_slice().len())
         };
         let face = ttf_parser::Face::parse(slice, 0).ok()?;
-        Some(Arc::new(Self { data, face }))
+        Some(Arc::new(Self { data, face, raw_engine: None }))
+    }
+
+    // The existing owned-byte enclosure keeps both parsed views alive. The
+    // configured engine is immutable and cannot outlive this CachedFace.
+    fn for_raw(data: Font, axes: &[rustybuzz::Variation]) -> Option<Arc<Self>> {
+        let mut cached = Self::new(data)?;
+        let inner = Arc::get_mut(&mut cached)?;
+        let mut engine = rustybuzz::Face::from_face(inner.face.clone());
+        engine.set_variations(axes);
+        inner.raw_engine = Some(Box::new(engine));
+        Some(cached)
+    }
+
+    fn raw_engine(&self) -> Option<&rustybuzz::Face<'_>> {
+        self.raw_engine.as_deref()
     }
 
     pub(crate) fn face(&self) -> &ttf_parser::Face<'_> {
@@ -433,5 +532,426 @@ mod structured_key_regressions {
             no.sups = Some(false);
             assert_eq!(key, key!(&no));
         }
+    }
+}
+
+/// Closed raw engine request: caller policies stay distinct; no opaque buffers enter.
+pub(super) struct RawShapeInput<'a> {
+    pub text: &'a str,
+    pub slot: usize,
+    pub font: &'a Font,
+    pub axes: &'a [rustybuzz::Variation],
+    pub rtl: bool,
+    pub language: Option<&'a str>,
+    pub script: Option<rustybuzz::Script>,
+    pub features: &'a [rustybuzz::Feature],
+}
+#[derive(PartialEq, Eq, Hash)]
+struct RawShapeKey {
+    owner: (u8, usize),
+    slot: usize,
+    text: String,
+    axes: Vec<(u32, u32)>,
+    rtl: bool,
+    language: Option<String>,
+    script: Option<u32>,
+    features: Vec<(u32, u32, u32, u32)>,
+}
+pub(crate) type RawShapeStore = Arc<std::sync::Mutex<RawShapeCache>>;
+#[derive(Default)]
+pub(crate) struct RawShapeCache {
+    last_face: Option<LastRawFace>,
+    #[cfg(test)]
+    face_builds: usize,
+    // The owning Font prevents address-token reuse for the whole entry lifetime.
+    map: HashMap<RawShapeKey, (Font, Arc<rustybuzz::GlyphBuffer>)>,
+}
+// One configured engine, bounded independently of the raw-result map.
+struct LastRawFace {
+    owner: (u8, usize),
+    axes: Vec<(u32, u32)>,
+    face: Arc<CachedFace>,
+}
+impl RawShapeCache {
+    pub(super) fn shape(
+        &mut self,
+        input: RawShapeInput<'_>,
+    ) -> Option<Arc<rustybuzz::GlyphBuffer>> {
+        let owner = match input.font {
+            Font::Vec(a) => (0, Arc::as_ptr(a) as usize),
+            Font::Mmap(a) => (1, Arc::as_ptr(a) as usize),
+        };
+        let key = RawShapeKey {
+            owner,
+            slot: input.slot,
+            text: input.text.to_owned(),
+            axes: input
+                .axes
+                .iter()
+                .map(|a| (u32::from_be_bytes(a.tag.to_bytes()), a.value.to_bits()))
+                .collect(),
+            rtl: input.rtl,
+            language: input.language.map(str::to_owned),
+            script: input.script.map(|s| u32::from_be_bytes(s.tag().to_bytes())),
+            features: input
+                .features
+                .iter()
+                .map(|f| (u32::from_be_bytes(f.tag.to_bytes()), f.value, f.start, f.end))
+                .collect(),
+        };
+        if let Some((_, run)) = self.map.get(&key) {
+            return Some(Arc::clone(run));
+        }
+        let matches = self
+            .last_face
+            .as_ref()
+            .is_some_and(|entry| entry.owner == owner && entry.axes == key.axes);
+        if !matches {
+            let face = CachedFace::for_raw(input.font.clone(), input.axes)?;
+            #[cfg(test)]
+            {
+                self.face_builds += 1;
+            }
+            self.last_face = Some(LastRawFace { owner, axes: key.axes.clone(), face });
+        }
+        let face = self.last_face.as_ref()?.face.raw_engine()?;
+        let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.push_str(input.text);
+        super::text_identity::configure_authored_ignorables_buffer(
+            &mut buffer,
+            input.text,
+        );
+        buffer.set_direction(if input.rtl {
+            rustybuzz::Direction::RightToLeft
+        } else {
+            rustybuzz::Direction::LeftToRight
+        });
+        if let Some(language) = input.language {
+            buffer.set_language(language.parse().expect("Lang is nonempty"));
+        }
+        if let Some(script) = input.script {
+            buffer.set_script(script);
+        }
+        #[cfg(test)]
+        super::tests::raw_reuse::record_backend();
+        let run = Arc::new(rustybuzz::shape(face, input.features, buffer));
+        self.map.insert(key, (input.font.clone(), Arc::clone(&run)));
+        Some(run)
+    }
+}
+
+#[cfg(test)]
+mod configured_engine_tests {
+    use super::*;
+    fn font(file: &str) -> Font {
+        Font::from_data(
+            std::fs::read(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("fixtures/fonts")
+                    .join(file),
+            )
+            .unwrap(),
+        )
+    }
+    fn run(cache: &mut RawShapeCache, input: RawShapeInput<'_>) -> Option<String> {
+        cache
+            .shape(input)
+            .map(|x| format!("{:?}{:?}", x.glyph_infos(), x.glyph_positions()))
+    }
+    #[test]
+    fn different_texts_reuse_one_configured_engine() {
+        let f = font("NotoSans-Regular.ttf");
+        let mut cache = RawShapeCache::default();
+        for text in ["Alpha", "Beta", "Gamma", "Alpha"] {
+            let a = run(
+                &mut cache,
+                RawShapeInput {
+                    font: &f,
+                    slot: 0,
+                    text,
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[],
+                },
+            );
+            let b = run(
+                &mut RawShapeCache::default(),
+                RawShapeInput {
+                    font: &f,
+                    slot: 0,
+                    text,
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[],
+                },
+            );
+            assert!(a.is_some());
+            assert_eq!(a, b);
+        }
+        assert_eq!(
+            cache.face_builds, 1,
+            "one immutable engine for one exact owner/axis request"
+        );
+    }
+    #[test]
+    fn owner_axes_and_failure_preserve_fresh_raw_glyphs() {
+        let fonts = [
+            font("UbuntuSans-Variable.ttf"),
+            font("NimbusSans-Regular.otf"),
+            font("UbuntuSans-Variable.ttf"),
+        ];
+        let mut cache = RawShapeCache::default();
+        let w = rustybuzz::ttf_parser::Tag::from_bytes(b"wght");
+        let axes: Vec<Vec<_>> = vec![
+            vec![],
+            vec![rustybuzz::Variation { tag: w, value: f32::from_bits(1120998658) }],
+            vec![rustybuzz::Variation { tag: w, value: f32::from_bits(1120998659) }],
+            vec![rustybuzz::Variation { tag: w, value: 900.0 }],
+            vec![
+                rustybuzz::Variation { tag: w, value: 400.0 },
+                rustybuzz::Variation { tag: w, value: 900.0 },
+            ],
+            vec![
+                rustybuzz::Variation { tag: w, value: 900.0 },
+                rustybuzz::Variation { tag: w, value: 400.0 },
+            ],
+        ];
+        let mut distinct = std::collections::HashSet::new();
+        for &i in &[0, 1, 2, 0] {
+            for a in axes.iter().chain(axes.iter().rev()) {
+                for text in ["A", "WWW", "éffi", "б"] {
+                    let got = run(
+                        &mut cache,
+                        RawShapeInput {
+                            font: &fonts[i],
+                            slot: 0,
+                            text,
+                            axes: a,
+                            rtl: false,
+                            language: Some("en"),
+                            script: Some(rustybuzz::script::LATIN),
+                            features: &[],
+                        },
+                    );
+                    let fresh = run(
+                        &mut RawShapeCache::default(),
+                        RawShapeInput {
+                            font: &fonts[i],
+                            slot: 0,
+                            text,
+                            axes: a,
+                            rtl: false,
+                            language: Some("en"),
+                            script: Some(rustybuzz::script::LATIN),
+                            features: &[],
+                        },
+                    );
+                    assert!(got.is_some());
+                    assert_eq!(got, fresh);
+                    if i == 0 && text == "A" {
+                        distinct.insert(got.unwrap());
+                    }
+                }
+            }
+        }
+        assert!(distinct.len() > 1, "variable font must discriminate axes");
+        let invalid = Font::from_data(vec![0, 1, 2]);
+        assert!(run(
+            &mut cache,
+            RawShapeInput {
+                font: &invalid,
+                slot: 0,
+                text: "invalid",
+                axes: &[],
+                rtl: false,
+                language: None,
+                script: None,
+                features: &[]
+            }
+        )
+        .is_none());
+        assert!(run(
+            &mut cache,
+            RawShapeInput {
+                font: &invalid,
+                slot: 0,
+                text: "invalid",
+                axes: &[],
+                rtl: false,
+                language: None,
+                script: None,
+                features: &[]
+            }
+        )
+        .is_none());
+        assert_eq!(
+            run(
+                &mut cache,
+                RawShapeInput {
+                    font: &fonts[0],
+                    slot: 0,
+                    text: "recovered",
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[]
+                }
+            ),
+            run(
+                &mut RawShapeCache::default(),
+                RawShapeInput {
+                    font: &fonts[0],
+                    slot: 0,
+                    text: "recovered",
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[]
+                }
+            )
+        );
+    }
+    #[test]
+    fn request_policies_do_not_mutate_retained_face() {
+        let f = font("NotoSans-Regular.ttf");
+        let mut cache = RawShapeCache::default();
+        let feature = [rustybuzz::Feature::new(
+            rustybuzz::ttf_parser::Tag::from_bytes(b"liga"),
+            0,
+            ..,
+        )];
+        for slot in [0, 7, 0] {
+            for rtl in [false, true, false] {
+                for lang in [None, Some("en"), Some("sr")] {
+                    for script in [
+                        None,
+                        Some(rustybuzz::script::LATIN),
+                        Some(rustybuzz::script::ARABIC),
+                    ] {
+                        for features in [&[][..], &feature[..]] {
+                            assert_eq!(
+                                run(
+                                    &mut cache,
+                                    RawShapeInput {
+                                        font: &f,
+                                        slot,
+                                        text: "ffi б A\u{ad}B",
+                                        axes: &[],
+                                        rtl,
+                                        language: lang,
+                                        script,
+                                        features
+                                    }
+                                ),
+                                run(
+                                    &mut RawShapeCache::default(),
+                                    RawShapeInput {
+                                        font: &f,
+                                        slot,
+                                        text: "ffi б A\u{ad}B",
+                                        axes: &[],
+                                        rtl,
+                                        language: lang,
+                                        script,
+                                        features
+                                    }
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        assert_eq!(cache.face_builds, 1, "buffer policy is not mutable face state");
+    }
+
+    #[test]
+    fn distinct_owners_with_equal_axes_force_fresh_face_on_raw_miss() {
+        let a = font("UbuntuSans-Variable.ttf");
+        let b = font("NimbusSans-Regular.otf");
+        let mut cache = RawShapeCache::default();
+        let first = run(
+            &mut cache,
+            RawShapeInput {
+                font: &a,
+                slot: 0,
+                text: "AV",
+                axes: &[],
+                rtl: false,
+                language: None,
+                script: None,
+                features: &[],
+            },
+        )
+        .unwrap();
+        let second = run(
+            &mut cache,
+            RawShapeInput {
+                font: &b,
+                slot: 0,
+                text: "AV",
+                axes: &[],
+                rtl: false,
+                language: None,
+                script: None,
+                features: &[],
+            },
+        )
+        .unwrap();
+        let expected = run(
+            &mut RawShapeCache::default(),
+            RawShapeInput {
+                font: &b,
+                slot: 0,
+                text: "AV",
+                axes: &[],
+                rtl: false,
+                language: None,
+                script: None,
+                features: &[],
+            },
+        )
+        .unwrap();
+        assert_ne!(first, expected, "font pair must discriminate the face owner");
+        assert_eq!(
+            second, expected,
+            "same slot/axes cannot authorize another owner's face"
+        );
+        assert_eq!(cache.face_builds, 2);
+        assert_eq!(
+            run(
+                &mut cache,
+                RawShapeInput {
+                    font: &a,
+                    slot: 0,
+                    text: "fresh text",
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[]
+                }
+            ),
+            run(
+                &mut RawShapeCache::default(),
+                RawShapeInput {
+                    font: &a,
+                    slot: 0,
+                    text: "fresh text",
+                    axes: &[],
+                    rtl: false,
+                    language: None,
+                    script: None,
+                    features: &[]
+                }
+            )
+        );
+        assert_eq!(cache.face_builds, 3, "return to A on a raw miss replaces B");
     }
 }

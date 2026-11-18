@@ -8,6 +8,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
+
+
 **Layer:** L1. **Exclusive consumer:** `01_core/src/entities/layout_types.rs`.
 This owner defines pure layout data: coordinates, text styles, frame items, pages and the paginated document. It performs no I/O, font parsing, rendering or compiler imports. Each adapter/shaper/exporter owns its implementation under its own canonical L0; shared invariants belong only to the pinned nuclei above.
 
@@ -295,3 +297,36 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.r
 
 
 Reexport SharedGlyphs beside ShapedGlyph. Change only TextShaped.glyphs storage.
+
+## Contract categories — review 2026-11-13
+
+This review changes documentation scope, not executable behavior. Existing public
+signatures, phases, cache lifetimes and fallback behavior remain the current
+implementation contract. Restrictions attached to a named correction delimit
+that correction; they are not universal prohibitions on a separately specified
+future design. Reuse requires complete relevant dependency validation, immutable
+or independently owned results, and preservation of geometry, causal identity,
+effects, warnings and errors. A storage pointer, equal output, or matching page
+count is not sufficient. No laboratory candidate is integrated by this review.
+
+The permanent role of Text means it remains a supported pre-shaping and fallback
+carrier, not that every future compilation must construct it and convert it again.
+Current producers and phases remain unchanged. Shaped-face identity, glyphs,
+lexical text and geometry are invariants; the number of intermediate materializations
+is a mechanism. Reusing a complete result needs its own producer/consumer contract.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

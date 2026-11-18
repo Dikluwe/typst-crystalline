@@ -1,13 +1,15 @@
 # L0 — certified inline fractional allocation
-Hash do Código: 5d0238ad
+Hash do Código: 622dd2d0
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/outline-inline-budget.toml sha256:7995dc5e028bf26ac3bd89a9dd751f8522530af98c627211825f9b55e551a9c1
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/sequence/inline_allocation.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130, ADR-0131.
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
-- 00_nucleo/prompts/_nuclei/layout/outline-inline-budget.toml sha256:7995dc5e028bf26ac3bd89a9dd751f8522530af98c627211825f9b55e551a9c1
 
 
 ## Measurement before specification
@@ -576,3 +578,79 @@ Non-Latin directional text, controls and other whitespace stay refused;
 bidi_origin.rs:142 documents why style.dir=None alone does not certify such
 text as LTR. This limits the new positive class and leaves old single words
 unchanged. No generic Unicode or wrapping claim follows from the Latin probe.
+
+
+## Laboratory demand-driven fractional measurement — 2026-11-13
+
+### Evidence before decision
+
+metric-epoch/metric-epoch-deep-stacks/structural-summary.json and its source/ELF
+freeze record 273 of1839 inclusive samples in inline_allocation::prepare for
+100 paragraphs (about14.8%). These overlap layout and metric work; they are not
+self time or a promise of speedup. sequence.rs:174-181 invokes this preparatory
+walk before ordinary dispatch. This owner at:664-714 unconditionally measures a
+certificate; close at:225-250 only publishes widths when valid and boxes>0.
+walk at:278-554 determines a private routing tree independently of measured
+widths whenever no reachable fractional Box exists. H-fr alone never gets an
+assignment from this certificate. Box bodies are opaque and independent; an
+unsupported Styled transport is Blocked, including when its body is a flow
+boundary. Therefore removing the entire plan or substituting None is invalid.
+These are execution mechanics; acceptance still requires unchanged language
+geometry, content, effects and diagnostics. The user authorizes lab work without
+approval stops, and forbids integration. No public/default/phase change is needed.
+
+The runtime demand-red.log bound by red-source.json/red-checks.json confirms
+900 width queries in the100-paragraph fraction-free unit witness; fixed-Box/H-fr
+and opaque-style controls issue1 and2 respectively. The nested reachable Box
+control already passes. These are observed query counts, not nominal CPU times.
+
+### Exclusive experiment and refutation
+
+Before constructing a metric certificate, attempt a private nominal exhaustive
+routing projection. It may succeed only if no fractional Box can be reached
+through the existing admitted transport grammar. Preserve the exact Sequence
+child correspondence, Blocked leaves and Independent flow boundaries. Transparent
+Source/Located/Realized visual/Link/Underline/Strong/Emph wrappers keep their actual
+body route; Styled descends only under the existing styles_supported predicate.
+An opaque Styled returns Blocked, never its body's Independent route. Every Box
+with width_fraction Some, including zero, negative or nonfinite values, declines
+the shortcut and invokes the unchanged complete measured path. A nonfractional
+Box remains Blocked without entering its independent body. HSpace, including
+fractional H without Box, remains Blocked in the shortcut. Unknown content stays
+exactly as conservative as the current exhaustive walk; no unknown-as-zero rule.
+
+On projection success, use the original finishing representation with no metric
+queries, style resolution, occupancy arithmetic, callbacks, source replay or
+state mutation. On failure, run the complete existing certificate from original
+inputs; never continue with a partial tree or inferred widths. Preserve every
+formula, rounding guard, scope transition, independent boundary and fractional
+geometry. Keep public signatures, enums, callers, diagnostics and cache lifetimes.
+This owner alone implements the private scheduling change; no shared nucleus or
+other productive consumer needs modification.
+
+Tests first must observe actual width queries on a large fraction-free scope and
+preserve its assignment capabilities; nested fractional boxes must still demand
+measurements and receive their original exterior budget. Refute mistaking H-fr
+for an assigned zero, entering a fixed Box body, or turning opaque styles into
+independent scopes. Retain existing signed/zero/nonfinite, wrapped, nested,
+page-style and source/effect geometry tests. External counts in the real release
+fixtures must establish whether preparatory queries disappear where expected.
+Require one paired release campaign versus metric-epoch and pinned vanilla,
+full core/infra suites, strict lint/Clippy/docs/fmt/build and all existing PDF/SVG,
+watch and font controls. No timing gain or vanilla parity is assumed.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

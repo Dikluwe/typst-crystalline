@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md
-//! @prompt-hash 7f3c8c2d
+//! @prompt-hash a174a7d7
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -24,6 +24,19 @@ pub(super) struct Hyphenation {
     lengths: Vec<(usize, usize)>,
     widths: Vec<f64>,
     dash_width: f64,
+}
+impl Hyphenation {
+    pub(super) fn retained_payload(&self) -> Option<usize> {
+        self.offsets
+            .len()
+            .checked_mul(std::mem::size_of::<usize>())?
+            .checked_add(
+                self.lengths
+                    .len()
+                    .checked_mul(std::mem::size_of::<(usize, usize)>())?,
+            )?
+            .checked_add(self.widths.len().checked_mul(std::mem::size_of::<f64>())?)
+    }
 }
 /// Fail closed for mixed policies/styles inside a word, not for missing patterns.
 pub(super) fn prepare<M: FontMetrics>(

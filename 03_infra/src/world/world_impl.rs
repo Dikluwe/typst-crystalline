@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/world_impl.md
-//! @prompt-hash d93092a6
+//! @prompt-hash 81361bfe
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -9,13 +9,18 @@ use std::sync::Arc;
 use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::file_id::FileId;
-use typst_core::entities::font_book::FontBook;
+use typst_core::entities::font_book::{FontBook, FontInfo, FontVariant};
+use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::package_spec::PackageSpec;
 use typst_core::entities::path::RootedPath;
 use typst_core::entities::source::Source;
 use typst_core::entities::world_types::{Bytes, Datetime, FileResult, Font, Library};
 
 impl World for SystemWorld {
+    fn font_query_epoch(&self) -> Option<Arc<()>> {
+        self.world_font_query_epoch()
+    }
+
     fn library(&self) -> &Library {
         &self.library
     }
@@ -24,12 +29,29 @@ impl World for SystemWorld {
         &self.font_catalog().1
     }
 
+    fn select_font(
+        &self,
+        pattern: &FontNamePattern,
+        variant: &FontVariant,
+    ) -> Option<usize> {
+        self.world_select_font(pattern, variant)
+    }
+
+    fn font_info(&self, index: usize) -> Option<&FontInfo> {
+        self.world_font_info(index)
+    }
+
     fn main(&self) -> FileId {
         self.main
     }
 
     fn source(&self, id: FileId) -> FileResult<Source> {
         self.world_source(id)
+    }
+
+    fn immutable_source(&self, id: FileId) -> Option<Source> {
+        // Successful SourceSlot results are OnceLock-owned and never replaced.
+        self.world_source(id).ok()
     }
 
     fn file(&self, id: FileId) -> FileResult<Bytes> {

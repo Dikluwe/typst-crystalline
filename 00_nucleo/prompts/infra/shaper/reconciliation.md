@@ -8,6 +8,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 
 
+
+
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/reconciliation.rs`
 
@@ -147,3 +149,36 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+## Contract categories — review 2026-11-13
+
+This review changes documentation scope, not executable behavior. Existing public
+signatures, phases, cache lifetimes and fallback behavior remain the current
+implementation contract. Restrictions attached to a named correction delimit
+that correction; they are not universal prohibitions on a separately specified
+future design. Reuse requires complete relevant dependency validation, immutable
+or independently owned results, and preservation of geometry, causal identity,
+effects, warnings and errors. A storage pointer, equal output, or matching page
+count is not sufficient. No laboratory candidate is integrated by this review.
+
+The baseline grouping, nonrecursive scope and estimated-to-real correction above
+specify the current corrective algorithm and its tested limits. They are not
+language requirements or proof that a correction pass must always exist. A future
+replacement must prove correct advances, anchors, gaps and wrapper behavior before
+bypassing it. This review neither removes the pass nor extends its certification.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

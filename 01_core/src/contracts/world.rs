@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/contracts/world.md
-//! @prompt-hash 889e6868
+//! @prompt-hash a70a1b08
 //! @layer L1
 //! @updated 2026-07-10
 
@@ -10,7 +10,8 @@ use rustc_hash::FxBuildHasher;
 
 use crate::contracts::plugin_host::PluginHost;
 use crate::entities::file_id::FileId;
-use crate::entities::font_book::FontBook;
+use crate::entities::font_book::{FontBook, FontInfo, FontVariant};
+use crate::entities::font_list::FontNamePattern;
 use crate::entities::package_spec::PackageSpec;
 use crate::entities::path::RootedPath;
 use crate::entities::source::Source;
@@ -31,17 +32,45 @@ pub type SysInputs = IndexMap<EcoString, EcoString, FxBuildHasher>;
 /// o contrato puro declara *o quê*; `TrackedWorld` adiciona *como*
 /// o pipeline incremental rastreia as dependências.
 pub trait World: Send + Sync {
+    /// Immutable font-query domain; an outside query must revoke before returning.
+    /// Equal owned tokens certify equal font-query answers and immutable owners,
+    /// including across World instances sharing the same domain.
+    fn font_query_epoch(&self) -> Option<std::sync::Arc<()>> {
+        None
+    }
+
     /// A biblioteca de funções e valores padrão do Typst.
     fn library(&self) -> &Library;
 
     /// O catálogo de fontes disponíveis.
     fn book(&self) -> &FontBook;
 
+    /// Select the same face as the complete current catalog for this query.
+    fn select_font(
+        &self,
+        pattern: &FontNamePattern,
+        variant: &FontVariant,
+    ) -> Option<usize> {
+        self.book().select_pattern(pattern, variant)
+    }
+
+    /// Metadata for a stable index in this World's complete catalog.
+    fn font_info(&self, index: usize) -> Option<&FontInfo> {
+        self.book().infos().get(index)
+    }
+
     /// O ficheiro principal a compilar.
     fn main(&self) -> FileId;
 
     /// Obter o source de um ficheiro pelo seu id.
     fn source(&self, id: FileId) -> FileResult<Source>;
+
+    /// Laboratory capability: a successful immutable revision whose source(id)
+    /// answer remains this exact revision, without new observable source-query
+    /// effects, for this World's lifetime. None grants no stability authority.
+    fn immutable_source(&self, _id: FileId) -> Option<Source> {
+        None
+    }
 
     /// Obter o conteúdo binário de um ficheiro pelo seu id.
     fn file(&self, id: FileId) -> FileResult<Bytes>;
@@ -240,5 +269,43 @@ mod tests {
         let w = mock();
         let _ = World::library(&w);
         let _ = World::book(&w);
+    }
+    #[test]
+    fn selective_font_defaults_preserve_full_book_queries() {
+        use crate::entities::font_book::{
+            Coverage, FontFlags, FontInfo, FontVariant, FontWeight,
+        };
+        use crate::entities::font_list::FontNamePattern;
+        let mut w = mock();
+        for weight in [400, 700] {
+            w.book.push(FontInfo {
+                family: "Lab Family".into(),
+                variant: FontVariant { weight: FontWeight(weight), ..Default::default() },
+                flags: FontFlags::default(),
+                coverage: Coverage::new(),
+            });
+        }
+        for weight in [100, 400, 650, 900] {
+            let variant =
+                FontVariant { weight: FontWeight(weight), ..Default::default() };
+            let pattern = FontNamePattern::Literal("LAB FAMILY".into());
+            assert_eq!(
+                w.select_font(&pattern, &variant),
+                w.book.select_pattern(&pattern, &variant)
+            );
+        }
+        assert!(w
+            .select_font(
+                &FontNamePattern::Literal("missing".into()),
+                &FontVariant::default()
+            )
+            .is_none());
+        for i in 0..4 {
+            assert_eq!(w.font_info(i), w.book.infos().get(i));
+        }
+    }
+    #[test]
+    fn metric_epoch_default_world_is_uncertified() {
+        assert!(mock().font_query_epoch().is_none());
     }
 }

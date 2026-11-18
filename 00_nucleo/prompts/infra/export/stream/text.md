@@ -1,7 +1,8 @@
 # L0 — stream/text
-Hash do Código: b27adaad
+Hash do Código: 180fda71
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/shaped-text-products.toml sha256:f856f51068f7a213d8eca2c9d609bfad9338c169650af1388ec939ee0c9a99b3
 - 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml sha256:d286c7b15a39f05d3792706ade43933abbab24ec298e92998fe3151f41c7c340
@@ -9,6 +10,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:afd5a809b6e3f2ac1f9a752fb1f6c6d704139eb1f71b085d430d9417f826b04e
+
+
 
 
 
@@ -412,3 +415,74 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.r
 
 
 Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.
+
+
+## Laboratory complete shaped-operator products — 2026-11-13
+
+### Evidence before decision
+
+text-products-validation/prepared.json binds HEAD, dirty checkout list, source
+and binary freeze, exact UTC and audited file hashes. Pure-loop removes repeated
+outline evaluation, but its single twelve-pair main-edit campaign still costs
+13.698ms for100paragraphs versus vanilla3.766ms. Its independent1418-sample
+layout profile has39.21% inclusive PDF builder; direct samples include70verbose
+prefix,56TJ entry formatting and49font-size formatting. These overlapping samples
+are not exclusive timings or a promised gain. Frame-preserve only improves the
+outline and regresses simple text, so the base remains frozen pure-loop.
+
+text.rs:1008-1151 appends a complete verbose shaped leaf suffix and returns a
+pending-Q bit. Nonbitmap CIDFont/Multifont use only current resource selection,
+per-used-glyph remapping/nominal metrics, the full glyph sequence, position,
+units, size/tracking, RGBA/opacity and shaped_tr_ops. text.rs:416-478 converts
+nonspot fill to RGBA and derives render mode from actual current font bytes and
+requested weight; tracking.rs:9-27 reads cluster boundaries, size and tracking.
+ActualText/tag/occurrence wrappers stay outside this inner function. This supports
+a reusable operator-product boundary, not equivalence of fonts or resources.
+Changed resource indices/maps, actual font weight, numeric bits, missing Q,
+changed extraction/geometry/raster or equal-key unequal cold suffixes refute it.
+Laboratory work is authorized without another approval; integration is excluded.
+
+### Exclusive wiring contract
+
+Declare descendant products and preserve every existing entry signature. Extract
+the current verbose shaped inner body into a private fresh function receiving
+the descendant's borrowed Input bundle; it performs the original emission. The
+existing inner entry builds Input and delegates to products::emit. No arithmetic,
+operator ordering, bitmap/Type1, coalescing, compact, tagging, ActualText or
+resource-building changes. The fresh body must be recoverable unchanged apart
+from unpacking the same inputs. Products never decides occurrence policy.
+
+The child computes current nonspot RGBA bits, actual shaped_tr_ops result, font
+resource selection and per-used-GID dependencies before lookup. Thus it holds no
+font/resource table and never assumes font equality from names or same GIDs.
+The previous no-globals clause on face association is superseded ONLY for the
+child's bounded private L3 operator cache; association remains export-local and
+current. No mutable global is added in L1. Revalidate the shared certificate when
+any fresh-emission dependency changes. Existing C057 arity expectation remains
+on the unchanged entry; the fresh bundle helper requires no arity exception.
+
+### Acceptance
+
+Child tests first invoke the actual current kernel with explicit local caches,
+prove repeated completed emission is still recomputed, then require GREEN.
+After wiring, verify complete current outputs and actual release prefix/TJ
+entry reduction, not only debug cache hits. Keep all source/lexical/font/axis/
+ActualText/Unicode/UA1/bitmap/error/raster controls, full infra/core/workspace
+gates and one paired release campaign with pinned vanilla. Byte suffix equality
+is a mechanical regression guard; language and geometry remain acceptance.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

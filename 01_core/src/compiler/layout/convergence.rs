@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/convergence.md
-//! @prompt-hash a4cb9132
+//! @prompt-hash 0321cd4a
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -188,6 +188,7 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     sizer: S,
     font_size: f64,
     inputs: PageRunningLayoutInputs<'_>,
+    journal: Option<&super::physical_memo::Journal>,
 ) -> PageRunningPassOutcome {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -217,7 +218,16 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
         .unwrap_or(&introspector.page_store)
         .clone();
     let has_injected_page_store = !known_page_store.is_empty();
-    let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
+    let recording = journal.map(|journal| {
+        super::physical_memo::introspection::RecordingIntrospector {
+            input: &introspector,
+            journal,
+        }
+    });
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = match &recording {
+        Some(recording) => recording,
+        None => &introspector,
+    };
     let intr_tracked = intr_dyn.track();
 
     // P418/P420/P429 — Pré-renderização CSL: descobre style/locale do primeiro
@@ -592,4 +602,11 @@ mod a2_csl_tests {
         )
         .is_none());
     }
+}
+
+pub(super) fn has_bibliography(
+    content: &Content,
+    input: &crate::entities::introspector::TagIntrospector,
+) -> bool {
+    find_first_bibliography_style(content, input).is_some()
 }

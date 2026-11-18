@@ -1,0 +1,35 @@
+{
+  "utc_start": "2026-11-18T02:13:18.105670+00:00",
+  "kind": "standalone diagnostic glue only; no productive code or crate rebuild",
+  "command": [
+    "rustc",
+    "--edition=2024",
+    "-O",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "link-arg=-Wl,--threads=1,--thinlto-jobs=1,--lto-O0",
+    "/repos/Antigravity/typst-crystalline/lab/results/construction/diagnostics/incremental-profile-product-2026-11-17/paragraph-observer.rs",
+    "--extern",
+    "typst_core=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_core-182725636e650b66.rlib",
+    "--extern",
+    "typst_infra=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_infra-e514031be82dc256.rlib",
+    "--extern",
+    "comemo=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libcomemo-ef761bdb2d4fcd89.rlib",
+    "-L",
+    "dependency=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps",
+    "-o",
+    "/repos/Antigravity/typst-crystalline/lab/experiments/incremental-profile-product-2026-11-17/paragraph-observer"
+  ],
+  "source_sha256": "5e079f8551a8982096134d0a46007bcf68e74deda0e5529cdd8fc93051e98b60",
+  "rlib_sha256": {
+    "/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_core-182725636e650b66.rlib": "9d05e800e8452f057b70632568b31c577cacd0c729af1fc972195c2b9d43aaf1",
+    "/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_infra-e514031be82dc256.rlib": "0ddfa543faf9fde1bf00d6a2e51ce6fb6705947288581ed38516f08245b828fb"
+  },
+  "as_limit_bytes": 2147483648,
+  "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "utc_end": "2026-11-18T02:14:38.444611+00:00",
+  "exit_code": 0,
+  "peak_children_rss_kib": 1207312,
+  "binary_sha256": "55b1ae660811a3afd0910e779231d221770f0fbda9f03d4f9fcb7a9e790d5b68"
+}

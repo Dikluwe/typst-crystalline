@@ -1,8 +1,10 @@
 # L0 — introspect/outline_entries
-Hash do Código: bef9c380
+Hash do Código: fecefcf5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
+
 
 ## Ownership and evidence
 
@@ -111,3 +113,32 @@ allocation callback and final ordering for every unrealized Outline. Do not
 remove actual body traversal, merge entries by payload, filter query results or
 alter ordinary pre-realization indices. The public facade must expose the one
 real actual Entry without a second synthesized compatibility object.
+
+
+## Laboratory shared-snapshot borrow adaptation — 2026-11-13
+
+Evidence: snapshot-share-validation/initial-all-targets.log reports E0502 at
+outline_entries.rs:83-85 after the owner-authorized Arc/COW snapshot change.
+The final sort simultaneously reads counters and mutates the separate kind
+index. Borrow the current mutable payload once for those two disjoint fields,
+then run the unchanged sort key/order. Do not clone counters, synthesize entries,
+change source allocation or weaken the existing index authority. This private
+mechanical adaptation belongs only here; the snapshot representation is owned
+by core/entities/introspector. Existing sort/causal tests and full gates apply.
+Laboratory only; no integration.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

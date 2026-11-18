@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/font_session.md
-//! @prompt-hash d5ce9939
+//! @prompt-hash 268a012e
 //! @layer L3
 //! @updated 2026-10-09
 
@@ -18,6 +18,7 @@ struct Cached {
 /// Resources eligible for reuse across fresh compilation worlds.
 pub struct FontCatalogSession {
     cached: Mutex<Option<Cached>>,
+    pub(super) prefix: Arc<super::fonts::EmbeddedPrefix>,
 }
 impl std::default::Default for FontCatalogSession {
     fn default() -> Self {
@@ -27,7 +28,10 @@ impl std::default::Default for FontCatalogSession {
 
 impl FontCatalogSession {
     pub fn new() -> Self {
-        Self { cached: Mutex::new(None) }
+        Self {
+            cached: Mutex::new(None),
+            prefix: Arc::new(super::fonts::EmbeddedPrefix::default()),
+        }
     }
     pub(super) fn catalog(&self, paths: &[PathBuf]) -> Arc<Catalog> {
         self.catalog_with_fast(

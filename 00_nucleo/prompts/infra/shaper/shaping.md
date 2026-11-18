@@ -1,14 +1,19 @@
 # L0 — infra/shaper/shaping
-Hash do Código: 9e10e940
+Hash do Código: 2ca36903
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
+- 00_nucleo/prompts/_nuclei/fonts/primary-selection-proof.toml sha256:5a0fb32f391d73057b0b38d83c211b834b23ce2f8055ffee25ee3be671b5adef
+- 00_nucleo/prompts/_nuclei/fonts/raw-shaping-cache.toml sha256:ba89868d23ef2304111b39efef27f781b39b74141f68b4abdc048c0088e0ae61
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml sha256:283876383094ef7a2af90ad0598b9ca3ca5cbe0f7fc7714546cc8758da40878d
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/shaping.rs`
@@ -432,3 +437,154 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `shaper/shaping
 
 
 Freeze the completed local run Vec before cache insertion; share the frozen handle between cache and carrier. Test helpers may explicitly copy to Vec.
+
+## Raw shaping reuse: evidence before decision
+
+The shaping-input-overlap-lab-20261111 census on clean HEAD 48e5a2570159c6fc325babe883bac7d1c1fbd4b2 compared complete inputs and independently replayed 3,788 calls. In layout.typ, 111/111 emission misses had an earlier equal measurement among 113 measurement calls; math admitted only 2/9. Tracking coincidence applied to raw buffers, not final adjusted carriers. Counts do not prove CPU/memory benefit. See the preserved external census and the correction's measurements for exact states/times/ELFs.
+
+Internal correction authorized by the owner; ADR-0127 continuous flow, no public/default/phase/compatibility change. The pinned raw-shaping-cache nucleus supplies shared invariants; this owner authorizes only its following responsibility.
+
+Use the closed raw owner from shaped_width and emission misses only. Resolve full-text native-superscript eligibility and existing ssty/forced-Math policies before lookup. Keep terminal/basic callers, segmentation, width sums, tracking/scale, actual source Font and final CachedRun/occurrence construction unchanged.
+
+Keep regression tests first and preserve source/frame/glyph/position/font/fallback semantics. Directed missing-key and bypass-reuse mutants must fail; compare allocation traffic, peak and CPU in the real pipeline including retention/key costs, without an arbitrary target. Compile only in own /dev/shm and preserve all existing checkout changes. Outline's semantic divergence and prior identity debts remain explicit. The retained eval/font-session prototype is a lab measurement base, not integrated by this correction.
+
+
+## Ratified selective-font consumers — 2026-11-12T19:19:44.102371+00:00
+
+Measurement before decision: structural/repeat2/receipt.json isolates about 13ms
+of catalog freshness work, not a safe optimization. selection-proof/receipt.json
+checks actual prefix metadata/bytes/indices and minimum-score winners; impact.json
+identifies eager chain and late PDF requests. Source font_metrics/resolution.rs:95
+and shaper/font_selection.rs:73 construct unused later families; shaping.rs:302,542
+and pipeline/resources.rs:214 demand full book for individual selection/metadata.
+The approved World query contract now has default-method GREEN; foundation RED
+proved ordinary prefix selection unnecessarily invoked the full loader, and GREEN
+removes that demand with stable paired immutable data. No new performance is yet
+claimed. User explicitly authorizes this candidate only in RAM, no integration.
+
+Selective queries preserve complete current selection/metadata/bytes. A private
+first-primary lookup follows the unchanged ordered declared-family/readability
+policy; if none resolves, use the existing class fallback then common list. It
+is NOT a complete-chain result and never enters a PrimaryResolution cache.
+Existing complete functions/caches remain the fallback and regression oracle.
+No family-name/phrase/fixture/paragraph-count special case, negative memoization,
+cache lifetime extension, new public method, dependency, unsafe, phase or mode.
+This narrowly supersedes previous mandatory eager full-chain query order only
+where the result is proven unchanged, not source font/fallback/script semantics.
+
+For ordinary metrics that use only the first readable face (vertical/edge/cap
+properties), query that face directly. For direct ordinary text advance, a first
+face with nonzero cmap coverage of every authored character already wins the
+existing per-character covering_text rule. Math/native scripts/uncertain coverage
+keep the full route. This proof concerns the unchanged direct-metric operation;
+it is not certification of a raw shaping result.
+
+Shaping may use a one-face primary vector only when non-math, non-superscript,
+non-subscript and not a resolved BidiSpan occurrence. Prove full authored-text
+nonzero cmap coverage in the first readable face; then run the EXISTING bidi and
+script segmentation with that sole candidate and the existing raw owner, actual
+ordered axes, language, direction, script=None/features=[] policies. Require
+nonempty raw results and no zero glyph. Actual emission/measurement uses the same
+unchanged segmentation and raw inputs and can hit the exact current-compilation
+raw store. Any failure/uncertainty uses the unchanged full primary chain before
+producing output. No partial primary result is cached as complete. No adjusted
+glyph/position/width/cache-key changes. This certificate covers each original
+sub-run, not a whole-text shape used to bypass script segmentation. Terminal
+measurement keeps its current output algorithm; using the raw store for the
+additional ordinary certificate does not replace its existing terminal policy.
+
+RED first: complete ordinary PDF compilation must not invoke a full-catalog
+loader, including metrics, shaping, metadata and export-resource resolution.
+Verify full path on uncertain/default/regex/mutable/missing/longest-run cases;
+keep existing snowman, scripts, math, axes, raw identity, missing-face and cache
+controls. A successful prefix followed by a fallback request must match a fresh
+full result and not poison complete caches. Full source/font-update/PDF/SVG/raster
+controls and paired release CPU/allocation measurements remain required.
+
+Exclusive owning obligation: Own the ordinary complete-text-plus-raw certificate described above, using first_candidate and the unchanged bidi/script split functions/raw owner. Apply it at shaped_width, ordinary trailing-overhang, and try_shape_context only when no BidiSpan is supplied. Full-chain fallback remains unchanged; all single-record metadata lookups use font_info. No new raw store or lifetime, native-feature/script policy, pre-shaped occurrence reuse or public signature.
+
+
+## Additional selective-chain refuter
+
+The existing R8 fixture proves Nimbus Sans lacks snowman and DejaVu Sans covers it. Add an ordinary (non-superscript) counterpart: warm ASCII in the first font, then require the unchanged longest covering run for ASCII plus snowman and equality with cold shaping. This refuses partial-chain poisoning after certified primary use. Preserve the original native-feature test.
+
+
+## Laboratory first-face proof for control-only input, 2026-11-12
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/watch-residual-2026-11-12/fontdemand-v2-cpu-stacks/analysis.json` records catalog validation below advance_shaped/inline_allocation::Certificate::walk. The independent breakpoint in `loremlocal-catalog-trace2/{receipt.json,trace.log}` confirms the first full loader comes from that same path; the earlier breakpoint selected the watch-only loader during compile and did not fire. Each receipt binds UTC/source/ELF. `core/compiler/stdlib/structural/outline.rs:273` inserts a standalone U+2060 before the page; `shaper/font_selection.rs:474-481` sends the existing is_p1404_format_control class directly to candidate zero without cmap/global fallback. `shaper/shaping.rs:47-52` nevertheless requires cmap coverage before accepting the first face. Mixed text is DIFFERENT: best_covering_run compares actual cmap coverage and a later face can win a longer run across a control. This refutes extending the all-character proof by simply ignoring controls inside mixed text. Code evidence motivates a measured RED, not an unmeasured performance claim.
+
+### Exclusive internal correction
+
+Laboratory only, no integration; ADR-0127 continuous flow. Preserve current public signatures, phases, defaults, capture identity, font selection and authored Unicode. No new control category, cache/lifetime, dependency, unsafe, source rewrite, glyph filtering or special outline/fixture/family path.
+For nonempty ordinary non-math/non-superscript/non-subscript horizontal text consisting ENTIRELY of the existing is_p1404_format_control set, the existing segmentation itself proves that only candidate zero is consulted. Resolve exactly the first readable primary using the existing helper, then return that one-face primary vector without demanding cmap/raw nonzero evidence that this policy does not use. This distinct control-only lemma also applies to a supplied BidiSpan: actual supplied-context run construction, validation and direction remain untouched, and every subrun still contains only those controls. Retain existing empty-result behavior, authored-ignorable buffer flags, glyph/width/position construction and fallback on first-face resolution failure. Never publish a partial chain as complete.
+
+For every mixed input retain the prior full authored-character nonzero cmap plus raw-output certificate; no skipping controls within mixed words, no broad format/whitespace shortcut, and no ordinary mixed BidiSpan admission. Keep ZWJ, ZWNJ, soft hyphen, zero-width space, variation selectors and arbitrary missing glyphs outside the control-only lemma. Existing longest-covering-run/refusal and all source-font/axes/native-feature regressions remain mandatory. The preceding 'not a resolved BidiSpan' and raw/cmap requirements are superseded ONLY for this exact control-only selection lemma; they remain unchanged for ordinary authored text.
+
+
+## Current-compilation positive primary proof reuse (laboratory only)
+
+Evidence precedes decision. controlprimary-segmentation-counts/receipt.json
+(2026-11-12T21:39:58.227369Z–21:40:16.650035Z) binds frozen ELF/source and
+observes 1115 certificate calls plus 2230 bidi analyses per hundred-paragraph
+compilation: 1115 inside the proof and 1115 in consumers. There is one compile
+entry per cycle; the same work recurs on unchanged-byte rewrites. The separate
+CPU profile attributes about12% inclusive nearest-project-frame samples to the
+proof (not exclusive CPU or guaranteed savings). The external allocator records
+116764 requests/40837726 requested bytes for this workload; bidi is the largest
+sampled request-count origin. Sources: evidence/freeze-controlprimary.json,
+controlprimary-cpu-stacks/ and familyshare-allocation-before/. These measurements
+are mechanisms, not language requirements; nominal benefit remains unproved.
+
+Internal reversible reuse under ADR-0127 continuous flow: update L0 before tests
+and code, reseal, no public/default/phase/compatibility change, no integration.
+The pinned primary-selection-proof nucleus fixes the shared exact key, guard,
+positive-only result, lifetime and immutable partition obligations. Preserve all
+existing raw-cache/face/selection/axes/language/source-identity controls, fresh
+fallback after success, late font demand/replacement, PDF/SVG/query/raster, and
+strict workspace gates. Measure CPU and allocation traffic separately; retain
+negative results, RSS and retained-memory costs. No performance claim from counts.
+
+Exclusive responsibility: lookup only after current guards/cmap/current-font retrieval; compute and publish the original proof on miss. Return its immutable bidi partition for shaped_width and ordinary no-BidiSpan try_shape_context, preserving full-chain refusals and control-only/supplied-context routes. Add a test-build-only observation at actual proof computation, before bidi analysis, never on hits.
+
+
+## Laboratory complete shaping products — 2026-11-13
+
+### Evidence before decision
+
+The frozen fraction-demand release (f34f54de100fc63587f7611d042dc3d836b484f95283a2f5fc029c8afadce65e)
+and fraction-demand-work-shift/causal-summary.json record 112 backend executions
+per100-paragraph compilation and64 peroutline, unchanged by removing2004/2172
+width queries. All three cycle kinds repeat this work. structural-summary.json
+attributes18.39% inclusive samples to emitted shaping and5.31% to raw shaping
+in100 paragraphs; these groups overlap and are not a speedup prediction.
+font_metrics.rs:100-106 shares only raw buffers within a compilation;
+shaper/traversal.rs:30-49 reconstructs faces/selection/output caches;
+shaping.rs:262-346 rebuilds measured widths and:363-679 rebuilds emitted products.
+world/fonts.rs:21,35-39,291 retains one immutable prefix owner across a font
+session and revokes before full-catalog exposure. Current PdfCompileSession
+at pipeline/pdf.rs:1133 has no shaping products. These are execution mechanics,
+not a change to language semantics. The user explicitly authorizes laboratory
+implementation/testing without further stops, including experimental APIs;
+integration remains prohibited. No performance benefit is presumed.
+
+### Exclusive responsibility
+
+Wrap existing successful shaped_width and try_shape_context products in the exact request/lookup/publication protocol. Preserve the existing cold algorithms and failure behavior. Record original relative subrun ranges with successful emitted carriers so hits use current bidi input. Check token again after original computation; never publish partial failures or expired proofs. Preserve arithmetic order and exact positions; different positions miss.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

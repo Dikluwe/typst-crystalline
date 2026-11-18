@@ -1,10 +1,14 @@
 # L0 — metrics
-Hash do Código: ddeb191e
+Hash do Código: 431b7e07
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/metrics.rs`
@@ -323,3 +327,53 @@ Tests cover default, direct and borrowed override and actual consumer dispatch.
 
 Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
 PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+
+## Laboratory paragraph products — 2026-11-12
+
+Evidence: subtree-layout-admission/receipt.json binds actual repeated preparation
+and refusal counts; paragraph_prepare.rs:234–337 constructs the product using
+current metrics; paragraph_emit.rs:30–57 places it using fresh region state.
+subtree-validation/layout-boundary-audit.json binds source identities and limits.
+This is a mechanics experiment; user waived lab approvals, no integration.
+
+
+Add default paragraph_session(&self)->Option<paragraph_session::ParagraphSession> and paragraph_identity(&self,text:&str,style:&TextStyle)->Option<paragraph_session::MetricIdentity>, both None. Forward both through the existing borrowed dyn provider. An identity is a guarantee of equivalent horizontal measurement for the supplied text, spaces and possible hyphen prefixes under the full keyed style. Unknown/custom providers remain cold unless they explicitly certify. No default font assumption.
+
+
+## Laboratory immutable metric epoch — 2026-11-13
+
+Evidence before decision: physical-retain/conclusion.json and its exact release
+freeze record six-to-three physical execution reduction but only about5% CPU gain
+on the outline. physical-retain-deep-stacks/structural-summary.json measures
+11.5% inclusive samples in Journal::validates, with additional metric request
+recording/style copying. These are execution mechanics, not language semantics.
+Source world/fonts.rs:168-216 routes every query beyond the immutable prefix
+through font_catalog(); world.rs stores the full catalog in OnceLock. FontSlot
+get at fonts.rs:179-216 keeps embedded bytes in owned Vec and disk fonts may be
+Mmap. Fallback metrics and transitive shaper queries use only the font-facing
+World methods. Therefore a still-uninitialized full catalog plus the owned
+embedded-prefix identity can certify this restricted domain; full-catalog or
+arbitrary provider identity alone cannot. Runtime tests must refute expiry,
+provider replacement and a falsely complete journal. No performance gain is
+assumed. The user explicitly waives approval stops for laboratory work; this
+additive experiment supersedes prior no-new-API clauses only for named methods.
+Integration remains excluded. Follow the pinned immutable-metric-epoch nucleus.
+
+Exclusive owner obligation: Own public Clone MetricEpoch with private provider/dependency Arc<()> owners; new(provider,dependency) constructs it and same(&self,&Self) uses exact Arc::ptr_eq on both. Own FontMetrics::physical_epoch()->Option<MetricEpoch>, default None, and explicit borrowed dyn forwarding. FixedMetrics does not implicitly certify subclasses or overrides.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

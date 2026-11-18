@@ -1,13 +1,15 @@
 # L0 — images
-Hash do Código: c168c91b
+Hash do Código: 5f2ea8e6
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/raster-decode.toml sha256:2f0f61bd281ffb77a1c9b62a8b40733e248ef55dff4bf2b81104c3c0d6ce5d0f
+- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/images.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/raster-decode.toml sha256:2f0f61bd281ffb77a1c9b62a8b40733e248ef55dff4bf2b81104c3c0d6ce5d0f
-- 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 
 ## Consumer evidence
 
@@ -59,3 +61,31 @@ Dispatch already-prepared Svg payloads to the owning private SVG PDF child, keep
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Apply the approved SVG extension while preserving original source and existing raster behavior.
+
+
+## Laboratory immutable compression delegation — 2026-11-12
+
+Measurement: images.rs:47–51 repeats default-zlib construction; frozen
+primaryproof-stream-reuse/receipt.json verifies identical input byte payloads
+between edits. These are mechanics, not a language parity definition. Delegate
+compress_zlib unchanged to private images/compression.rs with its exclusive
+owner 00_nucleo/prompts/infra/export/images/compression.md. The facade adds no
+cache policy: the child owns bounded exact-byte retention, failure fallback and
+concurrency. Preserve every reexport, signature, image carrier, fallback caller,
+compression default and phase. Internal continuous ADR0127; laboratory only.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

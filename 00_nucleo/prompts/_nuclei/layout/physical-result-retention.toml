@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "physical-result-retention"
+title = "Exact dependencies for complete physical results"
+[[claims]]
+id = "owned-source"
+level = "must"
+statement = "Retain a complete document and trace only under the identical owned immutable source plan, exact scalar page snapshot, font size bits and callback channel conditions. Never authorize reuse with Content/Value hashes, Debug output or generic Content equality."
+[[claims]]
+id = "current-dependencies"
+level = "must"
+statement = "Revalidate actual introspection calls with owned arguments and complete certified return observations against current inputs. Revalidate provider calls likewise unless the immutable-metric-epoch contract supplies an unchanged owned provider/dependency certificate surrounding computation and lookup. Preserve every provider override. Unknown complex observations, nonempty callback channels, image queries or bibliography dependencies decline complete-result reuse."
+[[claims]]
+id = "bounded-local"
+level = "must"
+statement = "Keep one complete result in an explicit compilation-local session, no World/provider references or mutable globals. Bound the journal to16384 checks and32MiB charged payload, each font owner to16MiB, observations to64KiB, and the document to128 pages and32768 visited frame items. Do not claim cross-compilation layout reuse."
+[[claims]]
+id = "closed-output"
+level = "must"
+statement = "Initial output admission allows text/separator, semantic, replacement, link, unclipped group, ordinary line and bounded geometric shape frames with absent or ordinary solid fill/stroke only. Limit shape paths to8192 segments and dash arrays to1024 entries; refuse spot colors, gradients and tiling paints. Other carriers, attachments, extracted heading payloads and nonempty layout diagnostics decline retention, while the original layout result remains available."
+[[claims]]
+id = "preserve-protocol"
+level = "must"
+statement = "Store no Pending or failed candidate. Preserve discovery/replay coordination, source coverage, callback budgets, semantic index construction, diagnostics and invalidation. Require reflexive dependencies before storing. Cached output cloning must isolate later mutations. Counts alone never certify CPU gains or language parity."

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "immutable-metric-epoch"
+title = "Scoped immutable font dependency certificate"
+[[claims]]
+id = "optional-proof"
+level = "must"
+statement = "World font_query_epoch defaults to None. A present owned token certifies that every font query executed while that same token remains available depends exclusively on immutable memory. Equal owned tokens across World instances certify identical answers to equal previously in-domain font queries, including selection, metadata and immutable byte ownership. A query outside that domain must revoke or replace the token before exposing its answer. Absence, revocation or generation change never certifies reuse."
+[[claims]]
+id = "provider-owner"
+level = "must"
+statement = "FontMetrics physical_epoch defaults to None. Its MetricEpoch combines an owned provider-instance identity and an owned immutable dependency identity. Equal tokens promise stable metric answers for fixed immutable arguments. Match both Arc owners exactly; no bare pointers, Content hashes, family names or mapped-font ownership substitute for this promise."
+[[claims]]
+id = "prefix-boundary"
+level = "must"
+statement = "SystemWorld may certify only its existing immutable embedded-text prefix while the complete catalog OnceLock is still uninitialized. Reading the certificate must not initialize either catalog or alter font demand. Complete catalog acquisition, external or uncertain selection, book and candidate scans revoke the certificate. Installed catalogs and arbitrary Worlds stay uncertified. Preserve selection, metadata, byte owners, fallback and file freshness."
+[[claims]]
+id = "whole-pass-validation"
+level = "must"
+statement = "Physical layout may omit recording and replay of metric answers only when the same provider/dependency epoch surrounds the complete pass and remains current on lookup. If the epoch expires during computation, do not retain that incomplete journal. Introspection queries, exact source and page snapshots, dynamic-channel exclusions, unsupported metric/image queries, external-frame carriers and output bounds retain their current checks. Unknown providers keep full metric replay."
+[[claims]]
+id = "laboratory"
+level = "must"
+statement = "Require runtime RED, changed/revoked/independent epoch and default-provider refuters, late-font controls, full suites and one paired release campaign. This certificate itself retains no products. Separately specified independently owned shaping products may consume its stable-query guarantee; no new global state or pipeline phase change follows from this certificate."

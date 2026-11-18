@@ -1,9 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: 34878872
-
-
-**Layer:** L3
-**Exclusive consumer:** `03_infra/src/pipeline.rs`
+Hash do Código: 7ab90917
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -11,6 +7,13 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+
+
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/pipeline.rs`
+
 
 
 ## Current evidence
@@ -274,3 +277,97 @@ In this owner's existing traversal/certificate use Complete visual cells, else
 authoritative Some(items), else legacy children/header/footer, and caption once.
 No parallel visitation, new allocation, context evaluation, phase or public API.
 Retain existing policies and negative certificates for all other carriers.
+
+
+## Selective font resource import — laboratory
+
+Source pipeline.rs:32 imports FontBook solely for the productive private resources::resolve_font explicit-book parameter; tests.rs:12 imports its own FontBook. The ratified selective-query consumer removes that private parameter after full-PDF acquisition RED. Remove only the now-unused facade FontBook import, preserving FontVariant, every export/API/timing/phase and all other behavior. Continuous internal ADR-0127; validate graph/seals/build/lint with the owning consumer changes.
+
+
+## Laboratory subtree evaluation connection — 2026-11-12
+
+Measured source: pipeline.rs:295–344 evaluates and validates assets; paged.rs:765
+starts root evaluation; pdf.rs:385–416 carries PDF options into paged compilation;
+compile.rs:126/469 and watch.rs:65–85 establish session lifetime and dispatch.
+These are mechanics, not language requirements. Source freeze in subtree-validation.
+User explicitly waives approval for laboratory experiments; no integration.
+
+Expose the PDF session facade/options by explicit reexport. An optional session is used only for root evaluation; preserve the common non-Bundle asset rejection and warning handling after either cold or retained evaluation.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Explicitly reexport PdfCompileSession beside existing session options/facade.
+Keep root evaluation adapter typed SubtreeSession; no eval-to-layout coupling
+and no change to common asset/warning validation.
+
+
+## Laboratory stable heading origin across indices — 2026-11-16
+
+Evidence BEFORE decision: element-origin-stability-2026-11-16/origin-trace.json
+classifies actual element_at owner misses as replacement, after unchanged source
+plan/page/epoch gates. pipeline.rs substitute_context_blocks_in_chain body!
+unconditionally clones HeadingElem and allocates Arc, including a closed textual
+body with no ContextBlock; outline_state_content and physical preparation call
+this transformer repeatedly before source-plan/index production. queries.rs
+returns the stored Content borrow and walk.rs stores the actual plan root clone.
+This is allocation/origin mechanics, not language equality or Bidi/shaping.
+
+Internal isolated laboratory refinement (ADR-0127 continuous flow): a PRIVATE
+bounded closed-body certificate may bypass only Heading substitution when its
+body is Empty, Text, Space, SpaceFromNewline, Parbreak, Sequence, Strong or Emph
+recursively, depth<=8, nodes<=128, logical Content+text payload<=16KiB. Exhaustive
+negative catalogue refuses all other Content variants. This structural proof
+means no substitution operand, callback, style carrier, source/located wrapper
+or effectful child is reachable in that subtree. Return the actual input Content
+clone, preserving its original Arc and EVERY heading field, without value
+equality, hashing, Debug, interning, matching unrelated origins or manufacturing
+identity. No generalized tree cache. Unknown/oversized/complex bodies continue
+through exactly the existing substitution with the actual resolution map/chain.
+
+The stable certificate is at the reconstruction boundary: unchanged closed source
+retains the original immutable owner. The existing Weak element_at certificate
+and all SourcePlan/PageStore/provider epoch/font/channel/output/journal budget
+gates remain unmodified and strictly reject a different actual owner. Distinct
+source allocations even with equal text remain distinct; changed contextual body,
+resolution, origin, variant, fields or current reads must invalidate as before.
+No index retention, origin metadata added to language values, new public API,
+phase/default/compatibility change, integration or commits. Preserve input tree,
+canonical source ancestry, styles, labels, counter/state effects, selected
+original/visual semantics, errors/warnings and discovery/replay protocol.
+
+Tests first: exact original Heading Arc survives repeated certified substitution
+with irrelevant resolutions; two equal origins are never coalesced; every scalar
+field and nested morphology survives; actual ContextBlock resolutions A/B must
+change body through fallback, leaving original unmodified; unsupported carriers
+and all size/depth/node bounds decline the shortcut. Pipeline watch must compare
+fresh/warm/cache-off to frozen prior candidate with edits and includes/effects/
+errors/recovery, native links/bookmarks and PDF/SVG modes. Census logs actual
+producer/hit counts and optional object addresses for diagnosis only; never use
+addresses as keys. Nominal timing excludes all opt-in census; balanced paired
+A/B and A/A plus no-retain ablation distinguish old/new reuse. Record exact
+source manifest/UTC/ELF/HEAD/dirty state, preserve prior artifacts and root.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

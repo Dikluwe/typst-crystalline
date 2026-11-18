@@ -1,16 +1,13 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: 6cb692bb
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/eval/mod.rs`
-**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+Hash do Código: ad863add
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
+- 00_nucleo/prompts/_nuclei/builtin-root-retention.toml sha256:08e9f23ba773c1fd5ed43bf67a985c2593f0c002b0fb6084ef9f883a0ef020c7
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/eval/lorem-chain.toml sha256:99b63160c9d2306e1be6dac120c3b856572140f907af893724409093422bd6ee
 - 00_nucleo/prompts/_nuclei/eval/selectorless-lexical-tail.toml sha256:71ad860813663f018ea800aa8b0da87299a4b48e5b91ff70238a1cfc5769c471
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
@@ -19,6 +16,13 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
 - 00_nucleo/prompts/_nuclei/show-occurrence.toml sha256:fcd0b9d9148567685d6ad281d549bdcaf1008d151f9de8afc320f76e05ca371c
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/mod.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
 
 ## Source evidence
 
@@ -78,7 +82,7 @@ Private make_stdlib wrappers delegate composition to
 registration, namespace membership, color aliases, native PDF/HTML/asset identity
 and compatibility math globals remain normative there, not copied into this hub.
 
-## Compilation-local delayed stdlib reuse
+## Historical delayed stdlib design — superseded by laboratory graph contract
 
 ### Evidence before decision
 
@@ -95,11 +99,11 @@ mechanics, not a change to language equality or phase boundaries.
 
 Keep a private `stdlib_snapshot` field in EvalContext with type
 `RefCell<Option<Arc<stdlib_snapshot::StdlibSnapshot>>>`, initialized to None.
-The root and expression paths retain their original builder calls and owned
-Scope/Library construction. Do not eagerly capture their scopes, clone their
-inputs into a seed or allocate an Arc snapshot when there are no file imports.
-Each new evaluation/context starts empty; no process/global/cross-compilation
-cache, new World method, env/clock access, policy selector or public API.
+The ordinary cold root and expression paths retain their original builder calls.
+The explicit caller-owned root session follows the laboratory builtin-root-retention
+contract below. Each new EvalContext keeps its delayed import slot empty; this
+slot remains compilation-local and independent of the retained root seed.
+No process/global cache, new World method, env/clock access or policy selector.
 
 Declare the private `stdlib_snapshot` child owned by
 `00_nucleo/prompts/core/compiler/eval/stdlib_snapshot.md`. It alone owns the
@@ -311,7 +315,7 @@ Final document Value match keeps sole Content body and explicitly enumerates oth
 
 html-feature-identity-2026-10-17/before.json.gz preserves HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b/tree/UTC/status/diffstat/full source/L0/hashes; 2123 prior hashes checked. before-probe.json.gz records fixtures/argv/outputs/binaries, historical9f2b6e8715237cb086899a42873660fe744622e8 oracle7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea. fields.rs:39–52 gates format.html but not std; identity.rs:84–101 authenticates names/bindings. Proper-import probes show disabled std.html direct/alias/closure/reexport accepted and ordinary global.typ(type/format/document/asset)/format.typ(svg/png/pdf/html) wrongly gated. Invalid let m=import probe returns none and is archived candidate-probe-syntax, no evidence credit. Upstream module.rs:138–154/code.rs:347–368 reads binding guard/field span; language semantics/diagnostics, not required BindingGuard/addresses. field_access.md:61–62 already forbids binding-comparison std recognition.
 
-At both productive std constructions(expression/Source and document), use Module::stdlib(stdlib.clone()), preserving scopes/global names/phases/features/entrypoints/defaults; never mark final document Module std. Pinned builtin-module-identity governs private marker; Module public opaque API gains no external fields/methods, compare signatures. Internal parity continuous flow. RED→GREEN direct/alias/closure/import/homonym gates across eight profiles with exact message/hints/span/causal precedence; disabled cases gain no active MATCH/Preserved. Keep prior cross-file std equality divergence, no Module Eq/global parity change. Full previous disabled-path matrix+active controls, no publish/commit/release; workspace/build/strict Clippy/Rustdoc/fmt/V1/V5/V15/V26/reverse/global differential no new warning, error; only six owner seals after graph validation, 12GiB/High10GiB/swap0/jobs1/sequential.
+At both productive std constructions(expression/Source and document), use Module::stdlib(stdlib.clone()), preserving scopes/global names/phases/features/entrypoints/defaults; never mark final document Module std. Pinned builtin-module-identity governs private marker; Module public opaque API gains no external fields/methods, compare signatures. Internal parity continuous flow. RED→GREEN direct/alias/closure/import/homonym gates across eight profiles with exact message/hints/span/causal precedence; disabled cases gain no active MATCH/Preserved. Cross-file builtin identity is superseded by the laboratory graph contract below; Module Eq itself remains unchanged. Full previous disabled-path matrix+active controls, no publish/commit/release; workspace/build/strict Clippy/Rustdoc/fmt/V1/V5/V15/V26/reverse/global differential no new warning, error; only six owner seals after graph validation, 12GiB/High10GiB/swap0/jobs1/sequential.
 
 candidate-1/validation-green.log passes four approved controls then fails: std.html(panic(...)) executes panic before gate. before-set-probe.json.gz freezes same HEAD/tree/UTC/hashes/source/bilateral outputs: called std.html/format.html/std.asset/format.bundle evaluate args too early; set std.html/std.format.html/alias erases target error/ignores arguments; missing variable/field set wrongly succeeds, condition false short-circuits; active alias HTML set ignores panic locally versus upstream executes it. collection_methods.rs:36 evaluates arguments before module authentication, set.rs:44 uses ok(), :326 literal-syntax HTML identification.
 
@@ -497,3 +501,107 @@ operator is specified here without authorizing eager selected-child application.
 Declare only the private child whole_recipe. Its own owner defines capture/application and tests. Preserve all EvalContext fields/public facades/defaults, selected-recipe capture, single source execution and realization selection. No helper algorithm migrates into this hub.
 
 Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.
+
+
+## Laboratory structural reuse, 2026-11-12
+
+### Evidence before decision
+
+`lab/results/construction/diagnostics/watch-residual-2026-11-12/fontdemand-v2-cpu-stacks/analysis.json` and its freeze bind the source, observer and UTC. Native lorem owns 247/1190 and 205/976 direct outline samples; these are sample shares, not exact exclusive CPU times. `compiler/stdlib/text/lorem.rs:80-83` reconstructs identical training on every positive call; the pinned upstream text/lorem.rs:45-52 retains training globally. Generated text is language-observable; the training lifetime is mechanics.
+
+### Decision and exclusive responsibility
+
+Laboratory only, no integration. Internal RAM correction under ADR-0030 and ADR-0127 continuous flow; no public field, function, trait, default, phase or compatibility change.
+
+
+
+This owner declares `pub(in crate::compiler) lorem_chain: Option<Box<lipsum::MarkovChain<'static>>>` and initializes it to None in new(). It owns only storage; text/lorem owns training and generation. No new public field or accessor, no propagation between contexts and no change to any evaluation phase or context read transaction.
+
+
+## Laboratory subtree session — 2026-11-12
+
+Evidence in incremental-source-validation/reuse-boundary-audit.json: current
+root entry creates context at849 and calls eval_markup at906 each compilation;
+preserved Source identities alone do not reuse results. User instructed
+"Para o laboratório não precisa autorização"; scope remains laboratory only.
+Declare public child subtree_session with its exclusive owner. Add private
+optional Rc<RefCell<subtree_session::Memo>> to EvalContext, initialized absent.
+An internal entrypoint accepts an optional explicit SubtreeSession and the
+existing world/sink/source/registry/options, binds it only to the ordinary
+evaluation context. Existing public signatures delegate with None. Preserve
+fresh stdlib, inputs acquisition, syntax validation, realization and all
+existing flags/limits/diagnostics; never retain an Engine or whole root result.
+The child owns admission/storage/keys, control_flow owns body execution and
+budget replay. This does not broaden compilation-local stdlib_snapshot reuse.
+
+## Previous builtin root experiment — superseded by laboratory graph contract
+
+### Measurement before decision
+
+Frozen line-products source at2026-11-13T06:46:29.065697+00:00 (exact UTC/hash in
+freeze-line-products.json), HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+uncommitted lab composition. Its single twelve-pair campaign records plain
+3.381ms vs vanilla1.706ms,100paragraphs14.820vs3.764,outline24.697vs4.208.
+Twelve raw profiles show evaluation42.8% inclusive of264plain samples,
+11.67% of1508layout samples and20.99% of2630outline samples. Counts overlap
+and are not exact time nor promised savings. Scope::define, symbol_from_codex,
+emoji registration and symbol destruction appear directly in plain samples.
+eval/mod.rs:877-917 builds builtin stdlib each root compilation;
+stdlib_snapshot.rs:42-65 only reuses an import-tree seed and80-248 rebuilds
+scopes/modules/identity-bearing functions; scope.rs:64-66 owns and deeply
+clones its ordered map. module.rs:65-69 uses Module allocation identity;
+func.rs:407-432 preserves Element/With identity. Reusing those wrappers would
+change observable identity. Pure namespace storage sharing is mechanics;
+ordered bindings, values, diagnostics and per-file identities are language.
+User authorizes all laboratory experiments without another approval, no integration.
+
+### Owned responsibility
+
+In the explicit session document path only, select session.stdlib after current World.inputs query; absent session calls original builder. Keep fresh read-only Library/global, lexical std wrapper, current registry and all root evaluation/realization behavior. Expression and ordinary cold eval remain unchanged. Do not seed or reuse the separate delayed-import slot from the root template.
+
+## Measurement before decision — laboratory builtin graph, 2026-11-13
+
+Base is frozen builtin-root, HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+uncommitted laboratory composition. freeze-builtin-root.json records exact
+UTC/source/binary hashes. Its census still observes1411 Scope::define calls
+per plain/layout warm compilation despite zero registry builder calls.
+stdlib_snapshot.rs:42,80-248 recreates Modules/functions; eval/mod.rs:877-917
+and modules.rs:60-87 repeat global composition. This is construction mechanics.
+
+builtin-identity-audit/receipt.json records pinned vanilla64c5e8c0 queries at
+2026-11-13T07:16:50Z and negative controls at07:19:05Z, source/fixture hashes,
+argv, HEAD and checkout diffstat. Language comparisons root/import sym,std,
+calc,raw.line return true upstream and false in line-products. Local aliases
+stay equal and a user module named calc remains unequal in both. Upstream
+typst-library/src/lib.rs:231-247 constructs one Library graph, and typst-eval/
+src/lib.rs:42,67,105,151 gives each file that library. This corroborates observed
+language behavior, not an assertion of upstream intent from behavior alone.
+Sharing the immutable builtin graph is an inference supported by these probes;
+stale inputs/features, authority leakage, changed diagnostics or failed negative
+homonym/registry tests refute it. Separately created raw.line.with() equality
+is a known independent debt and is outside this experiment.
+
+User authorizes experiments without another permission, laboratory only.
+The current contract below supersedes the old per-file builtin instantiation
+requirement, including the prior deliberate cross-file std equality debt.
+No changes to Module/Func/Value equality or user-module evaluation are authorized.
+
+## Current exclusive laboratory graph contract
+
+At the current inputs boundary, obtain the graph from explicit session if present, otherwise resolve through the initially empty context slot. Both paths bind that graph to the fresh EvalContext before user evaluation. Build Library from graph.global(), then apply the current root registry overlay in original order. The expression/Source facade owns a fresh graph shared with its imports, preserving its introspector, syntax diagnostics and all options. Root does not copy the registry/colors/text or recreate std on a warm hit. std remains the raw unshadowed registry view, with no new bindings or authority changes. Keep user scopes/results fresh; no eval/layout phase change or new World query.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

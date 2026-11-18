@@ -81,3 +81,35 @@ those handoffs complete.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/region.md`. Historical observations are not a new parity certification.
+
+## Contract categories — review 2026-11-13
+
+This review changes documentation scope, not executable behavior. Existing public
+signatures, phases, cache lifetimes and fallback behavior remain the current
+implementation contract. Restrictions attached to a named correction delimit
+that correction; they are not universal prohibitions on a separately specified
+future design. Reuse requires complete relevant dependency validation, immutable
+or independently owned results, and preservation of geometry, causal identity,
+effects, warnings and errors. A storage pointer, equal output, or matching page
+count is not sufficient. No laboratory candidate is integrated by this review.
+
+The owned Vec buffers describe the current mutable region builder. Single
+Layouter ownership does not establish that completed results can never be shared.
+Keep cursor/reset/order semantics; a future storage contract must distinguish
+builder mutation from retained snapshots and test isolation on modified paths.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

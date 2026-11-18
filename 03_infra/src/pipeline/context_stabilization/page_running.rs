@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization/page_running.md
-//! @prompt-hash 75d52aeb
+//! @prompt-hash 38a65ec7
 //! @layer L3
 //! @updated 2026-10-21
 
@@ -10,8 +10,8 @@ use typst_core::compiler::introspect::page_running::{
     introspect_with_page_running, prepare_page_running_body, PageRunningIndexInput,
 };
 use typst_core::compiler::layout::{
-    layout_with_page_running, PageRunningBody, PageRunningKey, PageRunningLayoutInputs,
-    PageRunningRequest, PageRunningResolution, PageRunningTrace, SealedPageRunning,
+    PageRunningBody, PageRunningKey, PageRunningLayoutInputs, PageRunningRequest,
+    PageRunningResolution, PageRunningTrace, SealedPageRunning,
 };
 use typst_core::compiler::realize::page_running::{
     bind_page_running_content, realize_page_running,
@@ -65,6 +65,7 @@ struct OutlineExecution {
 
 #[derive(Default)]
 struct OutlineState {
+    capture: Option<Content>,
     first_frame: Option<ContextOccurrenceFrame>,
     focal_frame: Option<ContextOccurrenceFrame>,
     executions: Vec<OutlineExecution>,
@@ -76,6 +77,7 @@ struct OutlineState {
 
 #[derive(Default)]
 pub(super) struct RunningState {
+    physical: typst_core::compiler::layout::physical_memo::PhysicalLayoutSession,
     generation: u64,
     document_index: Option<usize>,
     body: Option<PageRunningBody>,
@@ -731,7 +733,7 @@ impl Session<'_> {
             self.discard_descendants(index);
             self.nodes[index].active = false;
             if let Some(execution) = self.nodes[index].current.take() {
-                self.retired.push(*execution);
+                self.retired.push(execution);
             }
         }
     }
@@ -789,7 +791,7 @@ impl Session<'_> {
         self.discard_descendants(root);
         self.nodes[root].active = false;
         if let Some(execution) = self.nodes[root].current.take() {
-            self.retired.push(*execution);
+            self.retired.push(execution);
         }
     }
 
@@ -808,14 +810,49 @@ impl Session<'_> {
         OutlineExecution { ctx, input: input.clone(), result, warnings }
     }
 
+    fn reusable_outline_candidate(
+        &self,
+        content: &Content,
+        input: &TagIntrospector,
+    ) -> bool {
+        let state = &self.running.outline;
+        if state.product.is_none()
+            || !state
+                .capture
+                .as_ref()
+                .is_some_and(|capture| same_running_capture(capture, content))
+        {
+            return false;
+        }
+        let [execution] = state.executions.as_slice() else { return false };
+        if execution.result.is_err() {
+            return false;
+        }
+        let valid = self.with_outline_replay_engine(execution, |ctx, engine| {
+            Ok(ctx.context_reads_valid_for(&execution.input, engine)?
+                && ctx.context_reads_valid_for(input, engine)?)
+        });
+        valid.unwrap_or(false)
+    }
+
     fn prepare_outline_candidate(
         &mut self,
         content: &Content,
         input: &Arc<TagIntrospector>,
     ) -> SourceResult<()> {
+        if self.reusable_outline_candidate(content, input) {
+            for root in self.running.outline.roots.clone() {
+                self.realize(root, input);
+                if self.impossible {
+                    return terminal(self.source, self.errors());
+                }
+            }
+            return Ok(());
+        }
         self.occurrences
             .get_or_insert_with(|| ContextOccurrenceArena::new(&self.origin));
         let mut state = std::mem::take(&mut self.running.outline);
+        state.capture = Some(content.clone());
         let had_product = state.product.take().is_some();
         let previous_roots = std::mem::take(&mut state.roots);
         state.retired.append(&mut state.executions);
@@ -850,7 +887,9 @@ impl Session<'_> {
 
         // This scratch view supplies only the established focal-prefix decision.
         // Published stores are built later by the one physical index facade.
-        let observed = introspect_with_introspector(&first_product).outline_prefix_widths;
+        let observed = std::mem::take(
+            &mut introspect_with_introspector(&first_product).outline_prefix_widths,
+        );
         let product = if observed != input.outline_prefix_widths {
             let mut focal_input = input.as_ref().clone();
             focal_input.outline_prefix_widths = observed;
@@ -1595,7 +1634,7 @@ impl Session<'_> {
                 })
                 .transpose()?;
             let body = projected.as_ref().unwrap_or(body);
-            let outcome = layout_with_page_running(
+            let outcome = typst_core::compiler::layout::physical_memo::layout(
                 body,
                 input.as_ref().clone(),
                 self.metrics.clone(),
@@ -1606,6 +1645,7 @@ impl Session<'_> {
                     par_line: callbacks.par_line.as_ref(),
                     running: Some(&sealed),
                 },
+                &self.running.physical,
             )
             .into_result();
             match &outcome {
@@ -1711,5 +1751,166 @@ impl Session<'_> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod outline_retention_tests {
+    use super::super::super::eval_to_module_with_sink_target_features;
+    use super::*;
+
+    #[test]
+    fn outline_retention_same_capture_keeps_actual_transaction_and_generation() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#outline(title:none)\n= One\nBody\n= Two\nEnd".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            Features::default(),
+        )
+        .0
+        .unwrap();
+        let content = module.content().unwrap().clone();
+        let input = Arc::new(introspect_with_introspector(&content));
+        let mut session = Session::new(
+            content.clone(),
+            &input,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        session.prepare_outline_candidate(&content, &input).unwrap();
+        assert_eq!(
+            session.running.outline.executions.len(),
+            1,
+            "fixture must exercise a single run"
+        );
+        assert!(session.running.outline.product.is_some());
+        let (valid, closed) = session.outline_reads_valid(&input).unwrap();
+        assert!(valid && closed, "fixture reads must be proven before retention");
+        let generation = session.running.outline.generation;
+        let retired = session.running.outline.retired.len();
+        let product = session.running.outline.product.clone().unwrap();
+        session.prepare_outline_candidate(&content, &input).unwrap();
+        assert_eq!(
+            session.running.outline.generation, generation,
+            "same proven Outline was regenerated"
+        );
+        assert_eq!(session.running.outline.retired.len(), retired);
+        assert!(same_running_capture(
+            &product,
+            session.running.outline.product.as_ref().unwrap()
+        ));
+    }
+    #[test]
+    fn outline_retention_changed_observation_regenerates_and_matches_fresh() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#outline(title:none)\n= One\nBody\n= Two\nEnd".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            Features::default(),
+        )
+        .0
+        .unwrap();
+        let content = module.content().unwrap().clone();
+        let input = Arc::new(introspect_with_introspector(&content));
+        let mut session = Session::new(
+            content.clone(),
+            &input,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+
+        session.prepare_outline_candidate(&content, &input).unwrap();
+        let generation = session.running.outline.generation;
+        let mut changed = input.as_ref().clone();
+        changed.headings_for_toc[0].1 = Some("9".into());
+        assert!(
+            !session.outline_reads_valid(&changed).unwrap().0,
+            "changed heading input must be observed"
+        );
+        let changed = Arc::new(changed);
+        session.prepare_outline_candidate(&content, &changed).unwrap();
+        assert!(session.running.outline.generation > generation);
+        let mut fresh = Session::new(
+            content.clone(),
+            &changed,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        fresh.prepare_outline_candidate(&content, &changed).unwrap();
+        assert_eq!(
+            session.running.outline.product.as_ref().unwrap().plain_text(),
+            fresh.running.outline.product.as_ref().unwrap().plain_text()
+        );
+        // A focal transaction must not be certified as a single input observation.
+        if session.running.outline.executions.len() == 2 {
+            let generation = session.running.outline.generation;
+            session.prepare_outline_candidate(&content, &changed).unwrap();
+            assert!(session.running.outline.generation > generation);
+        }
+    }
+    #[test]
+    fn outline_retention_changed_capture_regenerates_equal_language_output() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#outline(title:none)\n= One\nBody\n= Two\nEnd".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            Features::default(),
+        )
+        .0
+        .unwrap();
+        let content = module.content().unwrap().clone();
+        let input = Arc::new(introspect_with_introspector(&content));
+        let mut session = Session::new(
+            content.clone(),
+            &input,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+
+        session.prepare_outline_candidate(&content, &input).unwrap();
+        let generation = session.running.outline.generation;
+        let text = session.running.outline.product.as_ref().unwrap().plain_text();
+        let changed =
+            Content::Source(Arc::new(typst_core::entities::content::SourceContent {
+                span: Span::detached(),
+                body: content.clone(),
+            }));
+        assert!(!same_running_capture(&content, &changed));
+        session.prepare_outline_candidate(&changed, &input).unwrap();
+        assert!(
+            session.running.outline.generation > generation,
+            "equal output is not capture authority"
+        );
+        assert_eq!(session.running.outline.product.as_ref().unwrap().plain_text(), text);
     }
 }

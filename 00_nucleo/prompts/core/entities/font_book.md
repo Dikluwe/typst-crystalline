@@ -1,5 +1,5 @@
 # L0 — entities/font_book — exact Unicode coverage and font metadata
-Hash do Código: b5dede98
+Hash do Código: 2252d563
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/font_book.rs`
@@ -130,3 +130,210 @@ metadata/fallback and catalog tests. Shared backing is immutable after source
 drop. Retain only with source-bound full-output preservation and the original
 size/RSS gates, including historical single/plural stress controls; an unchanged
 or worse resource result refutes the performance hypothesis.
+
+
+## Laboratory indexed literal family selection — 2026-11-17
+
+### Measured basis before decision
+
+math-regression-isolation-2026-11-16/{initial,profile-analysis,activity,final}.json
+pin dirty HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2, full sources/ELFs/UTC.
+The two CPU periods997/1237us put37-38% of mathematical samples in
+FontNamePattern::is_match. Direct counts show this workload uses the legacy
+index and does not call the new semantic uniqueness helper. Local instruction
+placement alone changes that workload by about4-6%; this is a confound to
+control, not the optimization proposed here. No earlier NOP overlay is used.
+
+Current font_book.rs:452-476 filters every FontInfo through pattern.is_match,
+collects matching indices into a temporary Vec, then min_by_key ranks weight
+and style. world/fonts.rs:178-194 invokes it on either the existing prefix or
+current full book. infos are private, appended only by push, and exposed by
+immutable slice. These measured boundaries permit a book-local derived lookup
+without extending a World proof/cache or changing font acquisition. The existing
+regex comment incorrectly says first matching face; the observed algorithm
+ranks ALL matches. Preserve that algorithm, not the misleading comment.
+
+### Classification and scope
+
+Internal pure RAM mechanics under ADR0029/0030/0107/0108 and0127 continuous flow.
+Only this owning prompt and its consumer may change in the isolated laboratory.
+No public entity field/signature, trait method, product/default flag, phase,
+shared Nucleus, dependency, unsafe, I/O, clock/environment or global state.
+FontBook is opaque and promises no Rust memory layout. Prior sources, ELFs,
+root edits and receipts remain unchanged; no integration or commits.
+
+### Derived family index and exact selection
+
+Retain infos in original acquisition order and keep every FontInfo/slot index,
+family spelling, variant, flags and exact coverage unchanged. A private Vec of
+slot indices may order entries by ASCII-folded family bytes, with original slot
+order within equal keys. ASCII folding maps only A-Z; every non-ASCII UTF-8 byte
+remains unchanged. Do not use Unicode lowercase, normalization, locale rules,
+font-name aliases, prefixes, hashes, pointer identities or regex grouping as an
+equality substitute. It must coincide exactly with eq_ignore_ascii_case.
+
+new/default start empty. Every push first appends the SAME info and inserts its
+new slot after all previous equal-family entries. No query result is cached;
+no negative result persists. Another book/world/catalog/prefix has its own index.
+No metadata/face/byte acquisition or World epoch behavior changes. An appended
+better variant must be visible immediately, including after a previous miss.
+Construction is O(log N) family comparisons and O(N) index movement per push,
+thus potentially O(N^2) total movement; explicitly measure cold/build cost.
+Index storage is O(N), one slot integer per face plus Vec capacity slack.
+
+Only select_pattern's Literal branch may use lower-bound binary search then
+visit the contiguous equal-family slot range, without allocating a query key
+or candidate vector. Preserve the original min_by_key(weight distance, style
+distance) and FIRST catalog slot on complete tie. Stretch is not a new tiebreak.
+Missing family remains None, including empty/non-ASCII names under the existing
+rules. Keep select, select_family, regex scan/all-match ranking, fallback scoring
+and coverage methods unchanged. Preserve duplicate and mixed-case family entries.
+
+Private derived data never changes public equality or Hash: both remain exactly
+ordered infos, delegating to the same fields as the prior derive. Manual
+implementations may replace those existing derives, not add a public contract.
+No retained physical/shaping result or new invalidation certificate is authorized.
+
+### Tests first and refuters
+
+Scaffold the existing literal scan through a private pure comparison visitor;
+production uses no-op. This is not acceleration. Execute RED: a query in4096
+unique families exceeds a logarithmic comparison budget on that actual path.
+Compile errors and timer thresholds are not RED. After implementation require
+logarithmic range-location work plus the actual matching-family size, for hits
+and misses at several catalog sizes. Keep the old select method as independent
+literal oracle and a test-only old pattern scan for regex/differential controls.
+
+Test catalog append/new/independent books, misses then insertion, better variant
+and ties after insertion, mixed ASCII case, empty names, Unicode byte distinctions,
+raw non-normalized Literal queries, identical/duplicate families, all style/weight/
+stretch combinations, regex expressions matching multiple families and none,
+unchanged info/coverage/order and Eq/Hash-by-infos. Observe actual private table
+capacity within a linear bound; counts/addresses are mechanics, not language proof.
+Preserve all existing core/infra/font/coverage/source tests and refusals.
+
+### Complete-cycle acceptance and resource bounds
+
+Use matched fresh release baseline and candidate recipes, not previous patched
+ELFs. Preserve previous algorithm ELF as provenance/reference only. No global
+alignment/optimization/debug setting changes; opt=s/ThinLTO/one codegen unit and
+existing alignment. Serial builds and no overlap with benchmarks. Counter work
+and paired full cycles distinguish the algorithm improvement from small layout
+effects; do not claim all37-38% recoverable or sum old gains.
+
+Twelve blocks, six orders twice for baseline/candidate/byte-identical baseline
+alias, prior14 inputs, startup/same bytes/two comments/visible edit, PDF default
+with tags and no profiler/debugger/census/timing JSON in nominal. Include seven
+fresh-process rounds (discard first), separate source/style/include restoration,
+state/counter/query/aliases/error publication, literal/regex/Unicode/missing-font
+cases and current pinned oracle controls. Exact fresh/watch input hashes and
+text/style/0.001pt/link/bookmark/tag plus auxiliary pixel comparisons are required.
+Measure catalog construction/index bytes and full startup, not just lookup.
+Retain nonresponses/regressions and exploratory A/A/bootstrap uncertainty.
+
+One job/build;12GiB AS/8GiB process-tree RSS, abort MemAvailable<6GiB. Runtime
+AS1GiB/stack64MiB/files64MiB, disk targets only, never tmpfs. Full manifests,
+dirty changed-file list and UTC at every source transition. No integration/commits.
+
+
+## Laboratory sparse coverage query index — 2026-11-17
+
+### Measurement before decision
+
+unicode-regression-isolation-2026-11-17/{analysis,activity,report}.json/md retain
+source/ELFs/dirty HEAD/UTC: Unicode109.57ms baseline,123.11ms current link candidate,
+108.44ms local placement diagnostic. All four executions make463 ordered candidate
+queries with identical ordered returned slots. Placement is not a Rust improvement.
+world/fonts.rs:220–244 scans catalog slots and calls Coverage::contains; this
+owner's contains at font_book.rs:263–280 linearly scans alternating runs. The
+observed native hotspot contains that inner accumulation loop. No native padding
+or compiler/global alignment change is authorized as this experiment's candidate.
+
+### Exclusive private correction and unchanged semantics
+
+This narrowly supersedes the earlier mandatory linear membership scan, the earlier
+no-coverage-change restriction of the literal-family experiment, and the private
+single-Arc representation only to add one immutable sparse derived index. Retain
+canonical gap/count lengths in the original Arc and preserve all constructors,
+public methods/types, equality, exact Hash writes, Debug, default and ascending
+iteration. Opaque Coverage has no repr/ABI promise; no public field/signature,
+trait, mode/default, phase, compatibility, I/O or dependency change. Internal
+ADR-0127 continuous flow, L0 first; ADR-0029/0030 permit pure shared RAM data.
+
+Each constructed coverage may own a second private Arc<[u32]> of cumulative ends,
+one for each consecutive block of16 runs, including a final partial block.
+Sixteen is even, so each block starts outside. Derive it only after canonical
+construction; the last checkpoint equals the exact last exclusive endpoint.
+Membership rejects beyond that endpoint, chooses the first checkpoint greater
+than the codepoint by binary search (first-block shortcut permitted), then scans
+only that block of at most16 canonical runs from the preceding checkpoint.
+Zero-length first gap, gaps, both boundaries, zero, surrogate integers, Unicode
+maximum, ordinary supported u32 range endpoints, empty/reversed/duplicate and
+unordered inputs retain their exact existing set behavior. Do not broaden the
+unsupported point u32::MAX construction by overflow masking or clamp codepoints.
+
+Index has ceil(run_count/16) u32 entries, plus constant Arc/struct overhead; never
+expand all codepoints or retain per-character results. Clone shares both immutable
+backings in constant time without allocation. Equality/Hash delegate only to the
+original canonical runs, preserving exactly the prior derived Hash behavior;
+Debug retains the original one-field tuple format. Index is not language identity,
+source certificate, font generation/epoch or a new cache authority. No results
+survive a replaced Coverage,book or World except existing owned immutable clones.
+No World, font loader, lazy missing-coverage map or invalidation code changes.
+
+### RED first, refuters and resource acceptance
+
+Scaffold the current real linear scan through a private pure entry-visit callback;
+production uses no-op. This is instrumentation, not acceleration. RED requires
+that the actual lookup on4096 isolated codepoints exceeds a32-entry examination
+budget for late hits/misses/high absent codepoints. Compile errors or timers are
+not RED. GREEN requires logarithmic checkpoint work plus at most16 run entries.
+Keep an independent set oracle and frozen linear reader for semantic differential;
+mechanical reads/pointers are not language parity. No timing thresholds in tests.
+
+Tests precede implementation: both constructors; all boundaries,zero,empty,adjacent,
+large/sparse/unordered/duplicate/reversed ranges, Unicode and larger supported
+u32 values; full ordered iteration/canonical runs; equality/hash/debug parity with
+canonical backing for arbitrary Hasher writes; shared clone backing after source
+drop; independent books and full FontBook candidates ordering with sparse coverages.
+Test bounded actual index storage; no deep-copy regression of R6. Report measured
+catalog-wide extra bytes and complete startup cost, not just lookup work. Keep
+R6's no-copy and existing size/RSS discipline; do not hide memory regression by
+loosening prior thresholds. Retain only with source-bound full-output and full-
+cycle benefit. Query-index memory must remain sparse, never a duplicate full index.
+
+Use matched fresh release baseline/current Rust candidate, one opt=s/ThinLTO/
+codegen1/alignment3 recipe; preserve old byte-identical baseline alias. Include
+12 balanced blocks across14 cases and all5 watch states, seven fresh-process
+rounds (discard first), plus a separate held-out Unicode comparison against the
+prior diagnostic corrected-placement ELF. The Rust candidate contains no overlay.
+Gain only over the regressed ELF is insufficient: show benefit beyond the native
+placement reference and report all regressions/A/A/bootstrap uncertainty.
+
+Run full core/infra suites, focused tests, workspace build, strict production
+Clippy, Rustdoc, owner fmt and unfiltered lineage. Preserve inherited baseline-
+confirmed all-target Clippy/fmt debts without suppression/unrelated repairs; those
+global gates remain open and this experiment authorizes no integration. Preserve
+source/style/include/font mutation and restore, actual query codepoints/ordered
+slots, effects/state/counters/aliases/error publication, physical producer/hit/
+refusal census, text/style/0.001pt/links/bookmarks/tag-presence and auxiliary raster.
+Keep pinned oracle64c5e8c02fe0394d913ead36e42ef8c1334d2107 debts explicit.
+One build job,AS12GiB/tree RSS8GiB,abort MemAvailable<6GiB; runtime AS1GiB/stack64MiB/
+files64MiB,disk only. Source manifests, exact dirty stat, ELFs and UTC at every
+transition; preserve old source/results. No integration and no commits.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

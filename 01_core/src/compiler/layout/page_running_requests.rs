@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running_requests.md
-//! @prompt-hash 170d182e
+//! @prompt-hash 74e10296
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -1206,18 +1206,18 @@ mod tests {
             original: false,
             math: false,
         };
-        let plan = Arc::new(SourcePlan {
-            root: PacketId(0),
-            allocation_start: Locator::new().checkpoint(),
-            allocation_owner: None,
-            document_boundary: None,
-            environments: vec![PlanEnvironment {
+        let plan = Arc::new(SourcePlan::test_source_plan(
+            PacketId(0),
+            vec![root, template],
+            vec![PlanEnvironment {
                 parent: None,
                 origin: EnvironmentOrigin::Root,
                 chain,
             }],
-            nodes: vec![root, template],
-        });
+            Locator::new().checkpoint(),
+            None,
+            None,
+        ));
         PageRunningBody { content, plan, numbering_input: None }
     }
 

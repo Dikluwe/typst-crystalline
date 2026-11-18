@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "primary-selection-proof"
+title = "Positive ordinary selection proof and its immutable bidi partition"
+[[claims]]
+id = "scope"
+level = "must"
+statement = "Keep positive proofs only in the existing FaceCache instance. A new FaceCache starts empty even when it shares a raw store. Never retain proofs in World, watch/eval sessions, the raw store or globals; no public API, phase, dependency or unsafe change."
+[[claims]]
+id = "guard-before-reuse"
+level = "must"
+statement = "Preserve all ordinary eligibility guards, the existing first-readable lookup, every authored-character nonzero cmap check and current World::font retrieval before proof lookup. The exact control-only lemma remains separate and does not enter this cache. A cached proof is not a complete primary chain and cannot populate or replace primary resolution."
+[[claims]]
+id = "exact-key-and-owner"
+level = "must"
+statement = "Identify the proof by complete authored UTF-8, selected slot, actual retained immutable Font variant/owner identity, ordered effective axis tags and exact f32 bits, unresolved base direction including absence, and explicit language including absence. Retain the actual Font with each value to prevent address reuse. No hash-only, family-name, rounded-axis or borrowed-address identity. Family ranking still runs before lookup; size/position/tracking and final features do not belong to this raw nonzero-glyph proof and remain consumer-owned."
+[[claims]]
+id = "positive-proof"
+level = "must"
+statement = "Publish only after the unchanged bidi/script/font splitting and every raw subrun produce nonempty buffers with no zero glyph. Do not cache refusal, missing faces, parse failure or empty results. Preserve the full chain on every refusal. The ordinary non-math/non-sup/non-sub proof uses script=None/features=[] exactly as before."
+[[claims]]
+id = "immutable-partition"
+level = "may"
+statement = "The positive value may share its immutable bidi paragraph/run partition with the ordinary shaped-width and no-BidiSpan emission consumer, avoiding a second analysis of identical input. Keep actual consumer font/script splitting, raw/adjusted glyph handling, offsets, features and carriers unchanged. Supplied BidiSpan occurrences still use their resolved paragraph context; terminal measurement keeps its original early guards and algorithm."

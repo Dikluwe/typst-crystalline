@@ -1,16 +1,18 @@
 # L0 — infra/pipeline/context_stabilization/page_running
-Hash do Código: 91933bab
-
-
-**Layer:** L3
-**Exclusive consumer:** `03_infra/src/pipeline/context_stabilization/page_running.rs`
-**Architecture:** ADR-0107/0108/0109/0127/0129/0130/0131.
+Hash do Código: ce632ba2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 - 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
+
+
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/pipeline/context_stabilization/page_running.rs`
+**Architecture:** ADR-0107/0108/0109/0127/0129/0130/0131.
+
 
 
 ## Evidence and exclusive responsibility
@@ -485,3 +487,113 @@ In this owner's existing traversal/certificate use Complete visual cells, else
 authoritative Some(items), else legacy children/header/footer, and caption once.
 No parallel visitation, new allocation, context evaluation, phase or public API.
 Retain existing policies and negative certificates for all other carriers.
+
+
+## Laboratory retention of a proven Outline transaction — 2026-11-13
+
+Evidence before decision: paragraph-context-layout-boundaries/receipt.json binds
+freeze-paragraph-context and its release ELF,3 outline candidates/6 physical
+steps and6 planned roots on every outline compile. Paired main-edit CPU remains
+40.152ms versus4.026ms vanilla despite direct preparation78->6. Source
+page_running.rs:817-837 retires every prior Outline execution unconditionally;
+:881 increments generation and:906 invalidates surviving generated roots.
+:944-995 already provides reflexive/current contextual read validation.
+This is mechanics and a measured structural hypothesis, not a language parity
+requirement or an established speed saving. User waives laboratory approvals;
+no integration. Existing one-protocol nucleus remains in force.
+
+Retain the successful single-run Outline transaction only within its current
+compilation/document Session and only when the incoming Content is the exact
+same immutable outer capture under same_running_capture (retained owner, never
+pointer alone, value equality, Debug, hash or numeric identity). Record that
+input capture in private OutlineState. Require a retained product, exactly one
+successful execution, reflexive validation against its own input and current
+validation against the proposed input, using existing captured read environments.
+Unproven/error validation declines reuse and follows the original regeneration
+and diagnostic path; it must not promote failed execution. Two-run focal
+transactions stay cold: their intermediate observation is not certified here.
+
+A hit retains product/execution/warnings/generation and their allocation owners;
+visit actual retained Outline roots through existing realize so invalidated
+children still execute. Do not invalidate already-valid children merely because
+an outer attempt occurred. Existing source-plan version checks, physical
+full discovery/index/replay, all root validation, five/eight budgets, positions,
+numbering, warnings and nonconvergence are unchanged. Changed captures, reads,
+failed runs or focal transactions take the complete existing path. No reuse
+crosses compilation, document, target or World lifetime. This narrows only the
+previous unconditional regeneration on a later outer attempt; it never treats
+frame equality or a complete discovery output as replay authority.
+
+Tests first must show actual retained execution/generation is replaced on
+identical source and input, then remains retained after implementation. Negative
+controls must change real heading/page observations and the immutable capture;
+regeneration and fresh language output must remain. Preserve nested contextual
+roots and diagnostics, full infra/core identity audit, technical gates and real
+watch/PDF/font/counter/context controls. No claim of complete layout reuse or
+vanilla speed until paired release evidence.
+
+
+## Laboratory snapshot field extraction — 2026-11-13
+
+Evidence before adaptation: snapshot-share-validation/adjusted-1-all-targets.log
+reports E0507 atpage_running.rs:889 because fields now reside behind the
+Arc/COW payload owned by entities/introspector. These are fresh scratch results,
+not a retained semantic generation. Extract the prefix observation map from the fresh unique scratch snapshot with mem::take. Keep the same observation, focal comparison, candidate input, transaction retention and physical discovery/replay; no map clone or language operation is added.
+L0 precedes this mechanical change. Existing language controls/full gates apply;
+user authorizes laboratory work, no integration.
+
+
+## Laboratory complete physical-result retention — 2026-11-13
+
+Evidence before decision: layout-read-audit/summary.json, observations and source
+freeze bind actual nominal-suffix compilations. Normal/narrower/numbered outlines
+each perform six planned calls; three preserve the source plan, tracked-read
+screen and weak PageStore screen with empty running/math/par.line channels.
+Header controls do not pass the empty-channel screen. The audit's runtime test
+proves comemo Content hashes do not preserve separator origin. Neither that hash
+nor PageStore PartialEq is a reuse certificate. Source evidence:
+layout/convergence.rs:211-250 reads PageStore and bibliography outside tracking;
+metrics.rs:343-400 contains an overridable line geometry method; all overrides
+must survive. This is mechanics, not a new language parity claim. The user
+authorizes laboratory changes without an approval stop; integration is excluded.
+This refinement supersedes no-new-public-API clauses only for its named lab API.
+
+Own one PhysicalLayoutSession field per existing RunningState. Send exactly the
+same planned-call arguments to physical_memo::layout plus that session. Keep
+discovery/replay, outline preparation, body generation, producer realization,
+callback budgeting, warning/retirement/index construction and all gates intact.
+The L1 memo decides eligibility; L3 must not infer semantic sameness from keys,
+frame structure, geometry or counters. A cached Complete undergoes the same
+existing result and index handling. Session lifetime is the current compilation.
+No watch/global caching is introduced here and no integration is authorized.
+
+## Local execution-owner transport — laboratory 2026-11-17
+
+Evidence: page_running.rs:751–752 and809–810 take current boxed Execution and
+move its payload to Session.retired. The parent-owned capture now requires actual
+immutable execution ownership through retirement, rather than addresses or
+versions. Transport the parent's shared local Execution owner into retired in
+those same two places. Preserve exact retirement timing and contents. This is
+only an internal representation adaptation under ADR-0127 continuous flow.
+No other orchestration, same_running_capture, outline/input/read/reflexivity/focal
+predicate, plan guard, layout call, error or sink handling may change. Parent
+owns capture certification; this child acquires no new cache policy. Verify the
+child differs only in lineage and the two ownership transports; existing guards
+must remain byte-identical. L0 first, existing genuine capture RED/GREEN and
+full contextual/physical suites plus cycle and language validation apply.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

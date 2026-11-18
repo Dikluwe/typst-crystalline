@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 08324c54
+Hash do Código: 722975bb
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/heading.rs`
@@ -60,3 +60,59 @@ boundary fails, revisit this L0 before changing its contract.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/heading.md`. Historical observations are not a new parity certification.
+
+
+## Laboratory stable heading origin during generic mapping — 2026-11-16
+
+Evidence before decision: origin-trace.json observes the referenced Location(2)
+with a different live Heading owner at every generation, then first-failed
+"miss element_at replaced". eval/rules/outline.rs:67–111 calls map_content on
+the complete source even when only Outline is replaced. traversal.rs:471
+unconditionally wraps HeadingElem::map_content in Some; heading.rs:136 allocates
+a fresh Arc even if its body had no replacements. pipeline.rs body! is a second
+independent reconstruction boundary addressed by its own owner. These are
+mechanics; no changed language identity/equality rule is authorized.
+
+Continuous internal lab refinement: extend the existing explicit no-replacement
+proof to Heading. HeadingElem privately to entities provides map_content_if_changed
+with the same callback signature, delegating once to body.map_content_if_changed.
+Return None only when that actual traversal reports no replacement. On Some,
+allocate a Heading with with_body, preserving all level/outlined/bookmarked/
+set_fields. Content's exhaustive dispatcher delegates to this owner, reusing its
+actual original Content Arc only on None. No equality/hash/Debug/pointer test
+proves no change; Some with equal value IS a change. Preserve callback execution
+order/count, errors, source/Located/Realized suppression, all metadata and original/
+visual rules. Trait/public map_content signatures and behavior remain compatible;
+map_content_pre/map_text unchanged. Helper visibility is entities descendants
+only, no compiler bridge. No phase/default/API/field/compatibility change.
+
+Tests first in Heading consumer via public Content.map_content: repeated no-op
+retains the exact original owner and nested Strong/Emph; equal leaf replacement
+rebuilds its path and all fields; callback visits are once and ordered; first
+error stops later siblings and does not mutate original; equal independent
+origins remain independent. The unchanged strict Weak certificate still rejects
+a genuinely replaced heading, fields, body, origin or expired owner. Full core
+suite plus existing L3 controls and same source/build/ELF receipts are required.
+No integration or commits. This is a tested source-origin preservation experiment,
+not a certificate synthesized from matching text or Location.
+
+
+Test-observer refinement: the callback records Text and Heading visits with
+conditional observation, without a wildcard match silently classifying Content.
+Keep exactly the same visits, replacement condition and assertions.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

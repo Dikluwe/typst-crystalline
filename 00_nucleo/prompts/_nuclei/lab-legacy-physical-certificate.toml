@@ -1,0 +1,21 @@
+tekt = 1
+kind = "nucleus"
+id = "lab-legacy-physical-certificate"
+title = "Same-compilation complete legacy physical candidate certificate"
+[[claims]]
+id = "complete-generation"
+level = "must"
+statement = "Reuse only a completed physical candidate from the same source, World, original content and producer session; require conservative complete pagination/position stability, actual read replay (reflexive and candidate), identical producer Locations, and independent surrounding/result content. Never use content equality, page count, numeric id or pointer alone as validity."
+[[claims]]
+id = "fail-closed"
+level = "must"
+statement = "Reject ambiguous topology, missing/inactive executions, pending/errors, unknown content/style, numbering and observed source accesses without exact same-input immutable authority, or any file/path/include/package/input/date/plugin World accesses during the producing execution. Preserve actual delegation results and existing fonts/metrics contract. No inferred AST selection or cached validation effects."
+[[claims]]
+id = "lifecycle"
+level = "must"
+statement = "Preserve existing legacy execution, selected-session, target, phase, error/warning and callback policies and five-attempt budget. Certificate only survives until validation failure, next legacy expansion or compilation end. First layout and first snapshot cannot be omitted. No cross-compilation result cache or new default/phase follows. Only the explicitly ratified optional immutable_source capability is permitted, preserving the conservative default for arbitrary Worlds."
+
+[[claims]]
+id = "immutable-source-authority"
+level = "must"
+statement = "World.immutable_source defaults to None. Some owns an immutable successful revision and certifies all later source(id) answers on the same World retain that revision without new observable source-query effects. Permit only exact borrowed compilation-input provenance under this authority; forward every World method and retain all other complete-candidate checks."

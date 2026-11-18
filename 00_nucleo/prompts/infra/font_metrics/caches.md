@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/caches
-Hash do Código: f7b8cb95
+Hash do Código: f6a00c3a
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/caches.rs`
@@ -100,3 +100,37 @@ where its value changes requested features; equal text/font/size with None and
 Some(false) must not share a native width. Keep all existing key components.
 
 Require new field/default/forced-false RED→GREEN, all twelve numbering refuters at0.001pt PDF/SVG, original ten notes, six font controls, warm/cold cache and full preservation/workspace/lineage gates.
+
+
+## Laboratory current metric owner proof — 2026-11-13
+
+Evidence before decision: frozen paragraph source, fallback.rs:72-78 obtains
+first_primary (which caches a parsed face in resolution.rs:62), then reacquires
+World.font and parses its bytes independently. caches.rs:260 keeps the earlier
+face by slot. Inference: a World returning a replacement owner can certify
+measurements made with the previous owner; a changing-World runtime test must
+refute or confirm this before correction. This is local cache mechanics, not
+new language semantics or an upstream requirement. No timing gain is established.
+User permits laboratory changes without a separate gate; no integration.
+
+Own a private retained_font_matches query on CachedFace. It certifies exactly
+the retained immutable Font::Vec Arc owner, never byte equivalence, slot number,
+digest, a borrowed pointer, or Mmap. Retain the owner during comparison. Preserve
+face construction/lifetime, all keys, lock order, loading and clone behavior.
+The method exposes no face or owner beyond existing compilation-local lifetime.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

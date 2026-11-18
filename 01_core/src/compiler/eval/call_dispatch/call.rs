@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md
-//! @prompt-hash 0df8c330
+//! @prompt-hash d5e2f1fa
 //! @layer L1
 //! @updated 2026-11-08
 
@@ -640,13 +640,18 @@ mod borrowed_len_tests {
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
     use crate::entities::value::Value;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
     use std::num::NonZeroU16;
 
     fn apply(source: &str, scopes: &Scopes<'_>) -> Option<Value> {
         let root = parse_code(source);
         assert!(!root.erroneous(), "invalid fixture {source}: {:?}", root.errors());
-        let call = root.children().find_map(FuncCallNode::from_untyped).expect("call fixture");
+        let call = root
+            .children()
+            .find_map(FuncCallNode::from_untyped)
+            .expect("call fixture");
         borrowed_collection_len(call, scopes)
     }
 
@@ -662,30 +667,57 @@ mod borrowed_len_tests {
             Self {
                 library: Library::new(),
                 book: FontBook::new(),
-                main: Source::new(FileId::from_raw(NonZeroU16::new(1).unwrap()), String::new()).unwrap(),
+                main: Source::new(
+                    FileId::from_raw(NonZeroU16::new(1).unwrap()),
+                    String::new(),
+                )
+                .unwrap(),
                 module: Source::new(
                     FileId::from_raw(NonZeroU16::new(2).unwrap()),
                     "#let rows = (8, 9)\n#let len() = 13\n".into(),
-                ).unwrap(),
+                )
+                .unwrap(),
             }
         }
     }
 
     impl World for LenWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { self.main.id() }
-        fn source(&self, id: FileId) -> FileResult<Source> {
-            if id == self.main.id() { Ok(self.main.clone()) }
-            else if id == self.module.id() { Ok(self.module.clone()) }
-            else { Err(FileError::NotFound) }
+        fn library(&self) -> &Library {
+            &self.library
         }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<crate::entities::duration::Duration>) -> Option<Datetime> { None }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main.id()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            if id == self.main.id() {
+                Ok(self.main.clone())
+            } else if id == self.module.id() {
+                Ok(self.module.clone())
+            } else {
+                Err(FileError::NotFound)
+            }
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
         fn include_source(&self, _: FileId, path: &str) -> Result<Source, String> {
-            if path == "rows.typ" { Ok(self.module.clone()) }
-            else { Err(format!("missing fixture: {path}")) }
+            if path == "rows.typ" {
+                Ok(self.module.clone())
+            } else {
+                Err(format!("missing fixture: {path}"))
+            }
         }
     }
 
@@ -696,7 +728,11 @@ mod borrowed_len_tests {
     }
 
     fn check(expression: &str) {
-        assert_eq!(evaluate(&LenWorld::new(), expression), Value::Bool(true), "{expression}");
+        assert_eq!(
+            evaluate(&LenWorld::new(), expression),
+            Value::Bool(true),
+            "{expression}"
+        );
     }
 
     fn error(world: &LenWorld, expression: &str, expected: &str) {
@@ -711,10 +747,17 @@ mod borrowed_len_tests {
     fn actual_collection_variants_have_no_size_threshold() {
         let mut scopes = Scopes::new(None);
         for n in [0usize, 1, 3, 256, 4096] {
-            scopes.define("a", Value::Array((0..n).map(|i| Value::Int(i as i64)).collect()));
+            scopes.define(
+                "a",
+                Value::Array((0..n).map(|i| Value::Int(i as i64)).collect()),
+            );
             assert_eq!(apply("a.len()", &scopes), Some(Value::Int(n as i64)));
-            let Value::Dict(mut d) = Value::Dict(Default::default()) else { unreachable!() };
-            for i in 0..n { d.insert(format!("k{i}").into(), Value::Int(i as i64)); }
+            let Value::Dict(mut d) = Value::Dict(Default::default()) else {
+                unreachable!()
+            };
+            for i in 0..n {
+                d.insert(format!("k{i}").into(), Value::Int(i as i64));
+            }
             scopes.define("d", Value::Dict(d));
             assert_eq!(apply("d.len()", &scopes), Some(Value::Int(n as i64)));
         }
@@ -723,7 +766,13 @@ mod borrowed_len_tests {
     #[test]
     fn outer_length_result_survives_binding_replacement() {
         let mut scopes = Scopes::new(None);
-        scopes.define("a", Value::Array(vec![Value::Array(vec![Value::Int(1); 9]), Value::Dict(Default::default())]));
+        scopes.define(
+            "a",
+            Value::Array(vec![
+                Value::Array(vec![Value::Int(1); 9]),
+                Value::Dict(Default::default()),
+            ]),
+        );
         let result = apply("a.len()", &scopes);
         scopes.define("a", Value::Array(vec![]));
         assert_eq!(result, Some(Value::Int(2)));
@@ -741,10 +790,8 @@ mod borrowed_len_tests {
         assert_eq!(apply("a.len()", &scopes), Some(Value::Int(1)));
         scopes.exit();
         assert_eq!(apply("a.len()", &scopes), Some(Value::Int(3)));
-        let mut closure_scopes = Scopes::with_parent(
-            captured,
-            crate::entities::scope::Capturer::Function,
-        );
+        let mut closure_scopes =
+            Scopes::with_parent(captured, crate::entities::scope::Capturer::Function);
         assert_eq!(apply("a.len()", &closure_scopes), Some(Value::Int(3)));
         closure_scopes.define("a", Value::Dict(Default::default()));
         assert_eq!(apply("a.len()", &closure_scopes), Some(Value::Int(0)));
@@ -755,10 +802,24 @@ mod borrowed_len_tests {
         let mut scopes = Scopes::new(None);
         scopes.define("a", Value::Array(vec![Value::None; 7]));
         for source in [
-            "a.len(1)", "a.len(x: 1)", "a.len(..())", "a.len(..(:))", "a.len(..a)",
-            "a.len(panic(\"x\"))", "a.first()", "a.length()", "a.LEN()", "(a).len()",
-            "((a)).len()", "a.at(0).len()", "a.rows.len()", "{ a }.len()", "f().len()",
-            "len(a)", "array.len(a)", "missing.len()",
+            "a.len(1)",
+            "a.len(x: 1)",
+            "a.len(..())",
+            "a.len(..(:))",
+            "a.len(..a)",
+            "a.len(panic(\"x\"))",
+            "a.first()",
+            "a.length()",
+            "a.LEN()",
+            "(a).len()",
+            "((a)).len()",
+            "a.at(0).len()",
+            "a.rows.len()",
+            "{ a }.len()",
+            "f().len()",
+            "len(a)",
+            "array.len(a)",
+            "missing.len()",
         ] {
             assert_eq!(apply(source, &scopes), None, "must fall through: {source}");
         }
@@ -781,7 +842,9 @@ mod borrowed_len_tests {
     fn names_functions_and_modules_do_not_authenticate_collections() {
         let world = LenWorld::new();
         let mut scopes = Scopes::new(None);
-        for expression in ["none", "true", "9", "2.0", "\"abcd\"", "array", "calc", "(x) => x"] {
+        for expression in
+            ["none", "true", "9", "2.0", "\"abcd\"", "array", "calc", "(x) => x"]
+        {
             scopes.define("a", evaluate(&world, expression));
             assert_eq!(apply("a.len()", &scopes), None, "{expression}");
         }
@@ -812,8 +875,13 @@ mod borrowed_len_tests {
             "{let a=(1,2);a.len(unused:panic(\"len-named\"))}",
             "{let a=(1,2);a.len(..panic(\"len-spread\"))}",
         ] {
-            let marker = if expression.contains("positional") { "len-positional" }
-                else if expression.contains("named") { "len-named" } else { "len-spread" };
+            let marker = if expression.contains("positional") {
+                "len-positional"
+            } else if expression.contains("named") {
+                "len-named"
+            } else {
+                "len-spread"
+            };
             error(&world, expression, &format!("panicked with: {marker}"));
         }
     }
@@ -822,9 +890,21 @@ mod borrowed_len_tests {
     fn invalid_arguments_and_empty_spreads_follow_existing_validation() {
         let world = LenWorld::new();
         for receiver in ["(1,2)", "(x:1)"] {
-            error(&world, &format!("{{let a={receiver};a.len(1)}}"), "unexpected argument");
-            error(&world, &format!("{{let a={receiver};a.len(unused:1)}}"), "unexpected argument: unused");
-            error(&world, &format!("{{let a={receiver};a.len(..(1,))}}"), "unexpected argument");
+            error(
+                &world,
+                &format!("{{let a={receiver};a.len(1)}}"),
+                "unexpected argument",
+            );
+            error(
+                &world,
+                &format!("{{let a={receiver};a.len(unused:1)}}"),
+                "unexpected argument: unused",
+            );
+            error(
+                &world,
+                &format!("{{let a={receiver};a.len(..(1,))}}"),
+                "unexpected argument",
+            );
         }
         check("{let a=(1,2);let d=(x:1);a.len(..())==2 and d.len(..(:))==1}");
         check("{let a=(1,2);let seen=();let n=a.len(..{seen.push(1);()});n==2 and seen.len()==1}");
@@ -833,8 +913,16 @@ mod borrowed_len_tests {
     #[test]
     fn reserved_feature_gates_and_asset_shadow_are_preserved() {
         let world = LenWorld::new();
-        error(&world, "{let html=(1,2);html.len()}", "cannot access variable `html` because the `html` feature is not enabled");
-        error(&world, "asset.len()", "cannot access variable `asset` because the `bundle` feature is not enabled");
+        error(
+            &world,
+            "{let html=(1,2);html.len()}",
+            "cannot access variable `html` because the `html` feature is not enabled",
+        );
+        error(
+            &world,
+            "asset.len()",
+            "cannot access variable `asset` because the `bundle` feature is not enabled",
+        );
         check("{let asset=(1,2);asset.len()==2}");
     }
 
@@ -848,7 +936,11 @@ mod borrowed_len_tests {
     #[test]
     fn unknown_methods_skip_arguments_and_keep_diagnostics() {
         let world = LenWorld::new();
-        error(&world, "{let a=(1,2);a.__missing(panic(\"must not run\"))}", "type array has no method `__missing`");
+        error(
+            &world,
+            "{let a=(1,2);a.__missing(panic(\"must not run\"))}",
+            "type array has no method `__missing`",
+        );
         error(&world, "{let a=7;a.len()}", "type integer has no method `len`");
         error(&world, "missing_c15.len()", "unknown variable `missing_c15`");
     }
@@ -858,7 +950,11 @@ mod borrowed_len_tests {
         let world = LenWorld::new();
         error(&world, "{let a=(1,2);a.len(unused:1)}", "unexpected argument: unused");
         assert_eq!(evaluate(&world, "{let a=(1,2);a.len()}"), Value::Int(2));
-        error(&world, "{let a=(1,2);a.len(panic(\"control\"))}", "panicked with: control");
+        error(
+            &world,
+            "{let a=(1,2);a.len(panic(\"control\"))}",
+            "panicked with: control",
+        );
         assert_eq!(evaluate(&world, "{let d=(:);d.len()}"), Value::Int(0));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_plan.md
-//! @prompt-hash d0721717
+//! @prompt-hash 88242785
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -76,20 +76,19 @@ fn options<M: FontMetrics, S: ImageSizer>(
     }
     Some((strategy, width, font, justify))
 }
-pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
-    l: &mut Layouter<M, S>,
-    body: &Content,
-) -> bool {
-    if defer_integral_styled(body) {
-        return false;
-    }
-    let Some((strategy, width, font, justify)) = options(l) else { return false };
-    let Some(p) = paragraph_prepare::prepare(l, body) else { return false };
-    super::paragraph_indent::start(l);
-    let shape = super::paragraph_indent::shape(l, width);
-    let regional_only = implicit_regional_only(l);
-    let costs = crate::compiler::text_costs::resolve(&l.chain);
-    if p.words.iter().any(|w| w.hyphenation.is_some()) {
+fn select_product(
+    p: paragraph_prepare::Prepared,
+    options: (
+        Strategy,
+        super::paragraph_indent::Shape,
+        f64,
+        bool,
+        crate::compiler::text_costs::LineCosts,
+    ),
+    preserves_atoms: bool,
+) -> std::sync::Arc<super::paragraph_session::Product> {
+    let (strategy, shape, font, justify, costs) = options;
+    let (lines, hyphenated) = if p.words.iter().any(|w| w.hyphenation.is_some()) {
         let lines = if shape.is_uniform() {
             super::paragraph_hyphen::select(
                 &p,
@@ -104,10 +103,7 @@ pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
                 &p, shape, font, justify, strategy, costs,
             )
         };
-        if regional_only && lines.len() < 2 && !single_overlong_word(&p, width) {
-            return false;
-        }
-        paragraph_emit::emit_prepared_lines(l, &lines, width, justify);
+        (Vec::new(), Some(lines))
     } else {
         let lines = if shape.is_uniform() {
             paragraph_select::select(
@@ -121,12 +117,86 @@ pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
         } else {
             paragraph_select::select_shaped(&p, shape, font, justify, strategy, costs)
         };
-        if regional_only && lines.len() < 2 && !single_overlong_word(&p, width) {
-            return false;
-        }
-        paragraph_emit::emit(l, &p, &lines, width, justify);
+        (lines, None)
+    };
+    let no_highlight = |p: &paragraph_prepare::Prepared| {
+        p.words.iter().all(|w| {
+            !w.fragments.is_empty()
+                && w.fragments
+                    .iter()
+                    .all(|f| !f.text.is_empty() && f.style.highlight.is_none())
+        })
+    };
+    let paintable = no_highlight(&p)
+        && hyphenated.as_ref().is_none_or(|lines| lines.iter().all(no_highlight));
+    std::sync::Arc::new(super::paragraph_session::Product {
+        paint_id: std::sync::Arc::new(()),
+        paintable,
+        preserves_atoms,
+        prepared: p,
+        lines,
+        hyphenated,
+    })
+}
+pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    body: &Content,
+) -> bool {
+    if defer_integral_styled(body) {
+        return false;
     }
+    let Some((strategy, width, font, justify)) = options(l) else {
+        return false;
+    };
+    let costs = crate::compiler::text_costs::resolve(&l.chain);
+    let previous_indent = l.paragraph_indent.clone();
+    super::paragraph_indent::start(l);
+    let shape = super::paragraph_indent::shape(l, width);
+    let request = super::paragraph_session::request(
+        l,
+        std::slice::from_ref(body),
+        (strategy, shape, font, justify, costs),
+    );
+    l.paragraph_indent = previous_indent;
+    let product = if let Some(product) = request.as_ref().and_then(|r| r.lookup()) {
+        product
+    } else {
+        let Some(p) = paragraph_prepare::prepare(l, body) else {
+            return false;
+        };
+        let product = select_product(
+            p,
+            (strategy, shape, font, justify, costs),
+            super::paragraph_session::preserves_atom_boundaries(std::slice::from_ref(
+                body,
+            )),
+        );
+        if let Some(request) = request {
+            request.store(product.clone());
+        }
+        product
+    };
+    super::paragraph_indent::start(l);
+    if implicit_regional_only(l)
+        && product.hyphenated.as_ref().map_or(product.lines.len(), Vec::len) < 2
+        && !single_overlong_word(&product.prepared, width)
+    {
+        return false;
+    }
+    paragraph_emit::emit_product(l, &product, width, justify);
     true
+}
+enum Segment<'a> {
+    Planned(std::sync::Arc<super::paragraph_session::Product>),
+    Incremental(&'a [Content]),
+}
+impl Segment<'_> {
+    fn product(&self) -> Option<&super::paragraph_session::Product> {
+        match self {
+            Self::Planned(product) => Some(product),
+            Self::Incremental(_) => None,
+        }
+    }
 }
 pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
@@ -135,7 +205,6 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
     let Some((strategy, width, font, justify)) = options(l) else { return false };
     super::paragraph_indent::start_scope(l, parts);
     let shape = super::paragraph_indent::shape(l, width);
-    let regional_only = implicit_regional_only(l);
     if parts
         .split(|part| matches!(part, Content::Parbreak))
         .any(integral_styled)
@@ -152,53 +221,64 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
             prepared.push(None);
             continue;
         }
-        let Some(p) = paragraph_prepare::prepare_parts(l, segment) else { return false };
         let shape = if !first_material && l.pending_bib_escape.is_some() {
             super::paragraph_indent::Shape::uniform(shape.width(false))
         } else {
             shape
         };
         first_material = false;
-        if p.words.iter().any(|w| w.hyphenation.is_some()) {
-            let lines = if shape.is_uniform() {
-                super::paragraph_hyphen::select(
-                    &p,
-                    shape.width(true),
-                    font,
-                    justify,
-                    strategy,
-                    costs,
-                )
-            } else {
-                super::paragraph_hyphen::select_shaped(
-                    &p, shape, font, justify, strategy, costs,
-                )
-            };
-            prepared.push(Some((p, Vec::new(), Some(lines))));
+        let request = super::paragraph_session::request(
+            l,
+            segment,
+            (strategy, shape, font, justify, costs),
+        );
+        let product = if let Some(product) = request.as_ref().and_then(|r| r.lookup()) {
+            product
         } else {
-            let lines = if shape.is_uniform() {
-                paragraph_select::select(
-                    &p,
-                    shape.width(true),
-                    font,
-                    justify,
-                    strategy,
-                    costs,
-                )
-            } else {
-                paragraph_select::select_shaped(&p, shape, font, justify, strategy, costs)
+            let Some(p) = paragraph_prepare::prepare_parts(l, segment) else {
+                if l.page_running_pass.is_some()
+                    || l.capture_html_context_markers
+                    || l.pending_bib_escape.is_some()
+                    || !super::paragraph_session::preserves_atom_boundaries(segment)
+                {
+                    return false;
+                }
+                prepared.push(Some(Segment::Incremental(segment)));
+                continue;
             };
-            prepared.push(Some((p, lines, None)));
-        }
+            let product = select_product(
+                p,
+                (strategy, shape, font, justify, costs),
+                super::paragraph_session::preserves_atom_boundaries(segment),
+            );
+            if let Some(request) = request {
+                request.store(product.clone());
+            }
+            product
+        };
+        prepared.push(Some(Segment::Planned(product)));
     }
-    if prepared.iter().all(Option::is_none) {
+    if !prepared.iter().flatten().any(|s| matches!(s, Segment::Planned(_))) {
         return false;
     }
-    if regional_only
-        && prepared.iter().flatten().all(|(p, lines, hyphenated)| {
-            hyphenated.as_ref().map_or(lines.len(), Vec::len) < 2
-                && !single_overlong_word(p, width)
+    let mixed = prepared
+        .iter()
+        .flatten()
+        .any(|s| matches!(s, Segment::Incremental(_)));
+    let loses_atoms = prepared
+        .iter()
+        .flatten()
+        .filter_map(Segment::product)
+        .any(|p| !p.preserves_atoms);
+    if mixed && loses_atoms {
+        return false;
+    }
+    if implicit_regional_only(l)
+        && prepared.iter().flatten().filter_map(Segment::product).all(|p| {
+            p.hyphenated.as_ref().map_or(p.lines.len(), Vec::len) < 2
+                && !single_overlong_word(&p.prepared, width)
         })
+        && loses_atoms
     {
         return false;
     }
@@ -206,11 +286,16 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
         if index > 0 {
             super::parbreak::layout(l);
         }
-        if let Some((p, lines, hyphenated)) = segment {
-            if let Some(lines) = hyphenated {
-                paragraph_emit::emit_prepared_lines(l, lines, width, justify);
-            } else {
-                paragraph_emit::emit(l, p, lines, width, justify);
+        let Some(segment) = segment else { continue };
+        match segment {
+            Segment::Planned(product) => {
+                paragraph_emit::emit_product(l, product, width, justify);
+            }
+            Segment::Incremental(parts) => {
+                let previous = l.paragraph_planning_suppressed;
+                l.paragraph_planning_suppressed = true;
+                super::sequence::layout(l, parts);
+                l.paragraph_planning_suppressed = previous;
             }
         }
     }
@@ -286,5 +371,253 @@ mod contiguous_overlong_tests {
         );
         html.capture_html_context_markers = true;
         assert!(!try_parts(&mut html, &parts));
+    }
+}
+
+#[cfg(test)]
+mod retained_route_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, PageMarginSpec, PageMargins, PagedDocument, Pt},
+    };
+    use comemo::Track;
+    fn words(doc: &PagedDocument) -> Vec<(usize, String, u64, u64)> {
+        let mut rows = Vec::new();
+        for (page, p) in doc.pages.iter().enumerate() {
+            for item in &p.items {
+                if let FrameItem::Text { pos, text, .. } = item {
+                    rows.push((
+                        page,
+                        text.to_string(),
+                        pos.x.0.to_bits(),
+                        pos.y.0.to_bits(),
+                    ));
+                }
+            }
+        }
+        rows
+    }
+    #[test]
+    fn retained_route_single_lines_match_incremental_geometry() {
+        let intr = TagIntrospector::empty();
+        for width in [180.0, 400.0] {
+            for size in [10.0, 18.0] {
+                for prefix in [false, true] {
+                    let parts: Vec<_> = (0..100)
+                        .flat_map(|i| {
+                            [
+                                Content::text(format!("Paragraph {i} words.")),
+                                Content::Parbreak,
+                            ]
+                        })
+                        .collect();
+                    let make = || {
+                        let mut l = Layouter::new(
+                            super::super::FixedMetrics,
+                            NullImageSizer,
+                            size,
+                            (&intr as &dyn Introspector).track(),
+                        );
+                        l.chain =
+                            l.chain.push(crate::entities::style_chain::StyleDelta {
+                                size: Some(crate::entities::layout_types::Length::pt(
+                                    size,
+                                )),
+                                ..crate::entities::style_chain::StyleDelta::empty()
+                            });
+                        l.style =
+                            crate::entities::layout_types::TextStyle::from(&l.chain);
+                        l.page_config.width = width;
+                        l.page_config.height = 200.0;
+                        l.page_config.margin = PageMargins::uniform(10.0);
+                        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+                        l.regions.current.width = width;
+                        l.regions.current.height = 200.0;
+                        l.regions.current.cursor_x = Pt(10.0);
+                        l.regions.current.line_start_x = Pt(10.0);
+                        l.regions.current.cursor_y = Pt(10.0);
+                        if prefix {
+                            l.layout_content(&Content::text("Prefix"));
+                            l.layout_content(&Content::Parbreak);
+                        }
+                        l
+                    };
+                    let mut cold = make();
+                    cold.paragraph_planning_suppressed = true;
+                    cold.layout_content(&Content::sequence(parts.clone()));
+                    let cold = cold.finish();
+                    let mut candidate = make();
+                    assert!(
+                        try_parts(&mut candidate, &parts),
+                        "complete single-line plan was discarded"
+                    );
+                    let candidate = candidate.finish();
+                    assert_eq!(candidate.pages.len(), cold.pages.len());
+                    assert_eq!(candidate.plain_text(), cold.plain_text());
+                    assert_eq!(words(&candidate), words(&cold));
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod paragraph_fallback_tests {
+    use super::*;
+    use crate::compiler::layout::{
+        paragraph_session::{MetricIdentity, ParagraphSession},
+        FixedMetrics,
+    };
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{
+            FrameItem, PageMarginSpec, PageMargins, PagedDocument, Pt, TextStyle,
+        },
+        style_chain::StyleDelta,
+    };
+    use comemo::Track;
+    #[derive(Clone)]
+    struct Provider {
+        session: ParagraphSession,
+        identity: MetricIdentity,
+    }
+    impl FontMetrics for Provider {
+        fn paragraph_session(&self) -> Option<ParagraphSession> {
+            Some(self.session.clone())
+        }
+        fn paragraph_identity(&self, _: &str, _: &TextStyle) -> Option<MetricIdentity> {
+            Some(self.identity.clone())
+        }
+        fn advance(&self, t: &str, s: Pt, st: &TextStyle) -> Pt {
+            FixedMetrics.advance(t, s, st)
+        }
+        fn vertical_metrics(&self, s: Pt, st: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(s, st)
+        }
+        fn cap_height(&self, s: Pt, st: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(s, st)
+        }
+        fn text_edges(&self, s: Pt, st: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(s, st)
+        }
+    }
+    fn provider() -> Provider {
+        Provider {
+            session: ParagraphSession::new(),
+            identity: MetricIdentity::new(),
+        }
+    }
+    fn configured<'a>(
+        p: &Provider,
+        intr: &'a dyn Introspector,
+        width: f64,
+        size: f64,
+    ) -> Layouter<'a, Provider, NullImageSizer> {
+        let mut l = Layouter::new(p.clone(), NullImageSizer, size, intr.track());
+        l.page_config.width = width;
+        l.page_config.height = 180.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = width;
+        l.regions.current.height = 180.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        let mut d = StyleDelta::empty();
+        d.size = Some(crate::entities::layout_types::Length::pt(size));
+        l.chain = l.chain.push(d);
+        l.style = TextStyle::from(&l.chain);
+        l
+    }
+    fn parts(tail: Content) -> Vec<Content> {
+        let mut v = Vec::new();
+        for i in 0..12 {
+            v.push(Content::text(format!(
+                "Paragraph {i} with several words to lay out across lines."
+            )));
+            v.push(Content::Parbreak);
+        }
+        v.push(tail);
+        v
+    }
+    fn observed(d: &PagedDocument) -> Vec<(usize, String, u64, u64)> {
+        d.pages
+            .iter()
+            .enumerate()
+            .flat_map(|(page, p)| {
+                super::super::tests::frame_items_recursive(&p.items)
+                    .into_iter()
+                    .filter_map(move |i| {
+                        if let FrameItem::Text { pos, text, .. } = i {
+                            Some((
+                                page,
+                                text.to_string(),
+                                pos.x.0.to_bits(),
+                                pos.y.0.to_bits(),
+                            ))
+                        } else {
+                            None
+                        }
+                    })
+            })
+            .collect()
+    }
+    #[test]
+    fn paragraph_fallback_keeps_prepared_prefix_with_current_geometry() {
+        let p = provider();
+        let intr = TagIntrospector::empty();
+        for (width, size) in [(400.0, 11.0), (180.0, 11.0), (400.0, 16.0)] {
+            let source = parts(Content::text("tail_word"));
+            let mut warm = configured(&p, &intr, width, size);
+            let _ = try_parts(&mut warm, &source);
+            let before = p.session.stats();
+            let mut actual = configured(&p, &intr, width, size);
+            assert!(
+                try_parts(&mut actual, &source),
+                "one refused scalar paragraph discarded the complete prepared prefix"
+            );
+            assert!(
+                p.session.stats().0 > before.0,
+                "intact paragraph products were not reused"
+            );
+            let actual = actual.finish();
+            let mut cold = configured(&p, &intr, width, size);
+            cold.paragraph_planning_suppressed = true;
+            super::super::sequence::layout(&mut cold, &source);
+            let cold = cold.finish();
+            assert_eq!(actual.pages.len(), cold.pages.len());
+            assert_eq!(
+                actual.pages.iter().map(|p| p.plain_text()).collect::<Vec<_>>(),
+                cold.pages.iter().map(|p| p.plain_text()).collect::<Vec<_>>()
+            );
+            assert_eq!(
+                observed(&actual),
+                observed(&cold),
+                "fallback changed language geometry"
+            );
+        }
+    }
+    #[test]
+    fn paragraph_fallback_opaque_tail_still_refuses_before_emission() {
+        let p = provider();
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&p, &intr, 400.0, 11.0);
+        assert!(!try_parts(&mut l, &parts(Content::Symbol("tail".into()))));
+        assert!(l.regions.current.current_line.is_empty());
+        assert!(l.pages.is_empty());
+    }
+    #[test]
+    fn paragraph_fallback_adjacent_unprepared_atoms_still_refuse() {
+        let p = provider();
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&p, &intr, 400.0, 11.0);
+        let mut source = parts(Content::text("tail_"));
+        source.push(Content::text("word"));
+        assert!(!try_parts(&mut l, &source));
+        assert!(l.regions.current.current_line.is_empty());
+        assert!(l.pages.is_empty());
     }
 }

@@ -1,17 +1,21 @@
 # L0 — infra/pipeline/tests
-Hash do Código: 19f5e791
+Hash do Código: fab6198c
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:966b8ac90f477d71d8a442f4139239da77c75c9f3e24e2c097a1609433cd7227
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/lab-legacy-physical-certificate.toml sha256:286d3ec27c85463e62b086abd2df51219197c0502164bac70a631898d7490868
 - 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619
 - 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
+
+
 
 
 
@@ -951,3 +955,280 @@ Migrate legacy image literals to the approved optional format/SVG metadata; do n
 Add source-bound REDs for global/aliased/local Footnote numbering, original reference style and query field, plus standalone/page columns with explicit breaks and narrow Box calls. Require expected page membership, first logical column entry position, once-only counters/bodies, short controls and preserved #8935 tests. Validate full extracted PDF words and independent SVG geometry against the current pinned oracle. Keep earlier tests intact unless bilateral evidence proves an expectation obsolete; document such a decision first.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+
+## Ratified selective-font consumers — 2026-11-12T19:19:44.102371+00:00
+
+Measurement before decision: structural/repeat2/receipt.json isolates about 13ms
+of catalog freshness work, not a safe optimization. selection-proof/receipt.json
+checks actual prefix metadata/bytes/indices and minimum-score winners; impact.json
+identifies eager chain and late PDF requests. Source font_metrics/resolution.rs:95
+and shaper/font_selection.rs:73 construct unused later families; shaping.rs:302,542
+and pipeline/resources.rs:214 demand full book for individual selection/metadata.
+The approved World query contract now has default-method GREEN; foundation RED
+proved ordinary prefix selection unnecessarily invoked the full loader, and GREEN
+removes that demand with stable paired immutable data. No new performance is yet
+claimed. User explicitly authorizes this candidate only in RAM, no integration.
+
+Selective queries preserve complete current selection/metadata/bytes. A private
+first-primary lookup follows the unchanged ordered declared-family/readability
+policy; if none resolves, use the existing class fallback then common list. It
+is NOT a complete-chain result and never enters a PrimaryResolution cache.
+Existing complete functions/caches remain the fallback and regression oracle.
+No family-name/phrase/fixture/paragraph-count special case, negative memoization,
+cache lifetime extension, new public method, dependency, unsafe, phase or mode.
+This narrowly supersedes previous mandatory eager full-chain query order only
+where the result is proven unchanged, not source font/fallback/script semantics.
+
+For ordinary metrics that use only the first readable face (vertical/edge/cap
+properties), query that face directly. For direct ordinary text advance, a first
+face with nonzero cmap coverage of every authored character already wins the
+existing per-character covering_text rule. Math/native scripts/uncertain coverage
+keep the full route. This proof concerns the unchanged direct-metric operation;
+it is not certification of a raw shaping result.
+
+Shaping may use a one-face primary vector only when non-math, non-superscript,
+non-subscript and not a resolved BidiSpan occurrence. Prove full authored-text
+nonzero cmap coverage in the first readable face; then run the EXISTING bidi and
+script segmentation with that sole candidate and the existing raw owner, actual
+ordered axes, language, direction, script=None/features=[] policies. Require
+nonempty raw results and no zero glyph. Actual emission/measurement uses the same
+unchanged segmentation and raw inputs and can hit the exact current-compilation
+raw store. Any failure/uncertainty uses the unchanged full primary chain before
+producing output. No partial primary result is cached as complete. No adjusted
+glyph/position/width/cache-key changes. This certificate covers each original
+sub-run, not a whole-text shape used to bypass script segmentation. Terminal
+measurement keeps its current output algorithm; using the raw store for the
+additional ordinary certificate does not replace its existing terminal policy.
+
+RED first: complete ordinary PDF compilation must not invoke a full-catalog
+loader, including metrics, shaping, metadata and export-resource resolution.
+Verify full path on uncertain/default/regex/mutable/missing/longest-run cases;
+keep existing snowman, scripts, math, axes, raw identity, missing-face and cache
+controls. A successful prefix followed by a fallback request must match a fresh
+full result and not poison complete caches. Full source/font-update/PDF/SVG/raster
+controls and paired release CPU/allocation measurements remain required.
+
+Exclusive owning obligation: Update calls to the private resources::resolve_font helper after removal of its explicit book argument. Keep every existing source/expected result; default World methods still exercise full selection. No tests are deleted, ignored or weakened.
+
+
+## Laboratory subtree evaluation connection — 2026-11-12
+
+Measured source: pipeline.rs:295–344 evaluates and validates assets; paged.rs:765
+starts root evaluation; pdf.rs:385–416 carries PDF options into paged compilation;
+compile.rs:126/469 and watch.rs:65–85 establish session lifetime and dispatch.
+These are mechanics, not language requirements. Source freeze in subtree-validation.
+User explicitly waives approval for laboratory experiments; no integration.
+
+Exercise the public PDF session facade with a real MockWorld Source revision. Cold stub must fail the positive retained-hit assertion at runtime. Verify current-body changes invalidate, warm output remains compilable and the non-Bundle asset guard still rejects after a warm hit. Existing suite supplies PDF option and layout controls.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Adapt earlier subtree facade tests to combined session without weakening any
+assertion. Add real-font PDF/paged tests: preserved paragraphs after prefix edit
+must hit, warm/fresh text/pages/geometry must agree. Changed width/style/axes,
+current font owner and newly available prior font cannot reuse stale products.
+Cold facade connection must fail the positive test at runtime before wiring.
+
+
+## Laboratory direct-body and context product reuse — 2026-11-13
+
+Evidence before decision: paragraph-layout-boundaries/receipt.json, bound to
+freeze-paragraph, records60 refused try_parts calls but78 try_layout calls
+(72 accepted) on each outline compilation. The older statement that all outline
+plans refuse applied only to try_parts and is superseded by this wider census.
+paragraph-native-phases/summary.json records29.509ms elapsed inside context
+preparation, not exclusive CPU or a promised saving. paragraph_plan.rs:89-136
+prepares/selects the direct body without using the product session;
+context_stabilization.rs:923 constructs compilation-local metrics without it.
+This is execution mechanics, not a new language rule. No gain is claimed until
+paired release measurement. User permits laboratory work; no integration.
+
+Add a real-font paginated outline test that fails at runtime because the
+current route records no products. Warm source edits must hit intact body
+products and match cold text/pages/coordinates/destinations. Change page width,
+heading source and actual font owner and compare fresh results; these controls
+do not allow skipping context effects or introspection. Retain all existing
+context/counter/state/position/warning/nonconvergence tests unchanged.
+
+
+## Laboratory independent Block guards — 2026-11-15
+
+Measured detail block record in pipeline-returns-2026-11-15 shows two callback-layout calls and 202 material line commits despite stable numbering snapshot. The paged owner above specifies the exact proof extension; this test owner authorizes only module regressions for its behavior. Add positive complete-candidate count tests with content/logical-page checks for multipage/nested/styled/fixed Blocks; negative numbering/context/math tests retain at least two complete layout calls. Existing tests/expectations remain. No public/default/phase change or production test counter. RED before implementation, GREEN plus family suite and external text/geometry/diagnostic checks.
+
+Test correction before implementation: INITIAL_LAYOUT_CALLS observes only the ordinary callback route (paged.rs:1261), not the approved contextual physical protocol. Existing numbered_table_keeps_second_layout explicitly expects zero. The initial negative test assumption was invalid. Negative guards now check exclusion by the actual proof and visible numbering; external detail probes retain physical pass evidence. First-attempt RED is preserved; no implementation change has occurred.
+
+## Laboratory: Pad complete-document reuse certificate — 2026-11-15
+
+Measurement precedes decision: reuse-certificates-2026-11-15/preflight.json, Pad/detail, binds UTC and exact source. initial.json binds HEAD/dirty files and diagnostic ELF. Plain multipage Pad executes two callback layouts (4052744 and1015561 ns inclusive instrumented, not nominal saving), ordinary snapshot same=true, nine pages. entities/elements/pad.rs:23-26 has only body and physical Sides<Option<Length>>. compiler/layout/pad.rs:24-81 resolves sides against current font size, measures body bbox, dispatches PlanEdge::PadBody and restores geometry. Body measurement is intentional and is NOT removed; no independent query/store/closure field exists outside body. Read owning Pad L0 and preserve its source-edge and parent-bbox semantics.
+
+Internal laboratory-only positive-proof refinement: additionally accept Content::Pad iff its full body is initial_layout_independent. Require BOTH contextual and realized content and absent page numbering exactly as existing guard. Unknown descendants, counters/state/context/math/outline/references and dynamic styles still reject. Reuse the existing complete initial document only within this compilation, after constructing snapshot, warning effects and positions/page injections; retain final binding, bidi, shaping and exports. New source/width/style/font compilation always composes anew; no persistent PagedDocument cache or key. No new API/default/phase or compatibility change.
+
+RED before implementation: multipage Pad with asymmetric physical sides, em padding, nested Block/Pad must report two ordinary callbacks where one is required, while text/logical pages remain correct. Negative proof tests preserve rejection for context, state, math and numbering. GREEN full pipeline:: tests, permanent external counterexamples including known counter/state values and missing-font diagnostics; warm/cold reference controls, negative fallbacks, nominal paired baseline Block-only vs Pad refinement vs vanilla with no observers. No expansion of Align or unrelated variants and no unsound mutation flags. Keep first-pass body measurement intact.
+
+## Laboratory: independent Align complete-document reuse — 2026-11-15
+
+Evidence before classification: reuse-align-2026-11-15/measurement.json records exact source/UTC and original/previous/detail outputs; initial.json binds HEAD, dirty files and ELF SHA. Align40-paragraph document executes two callback layouts,5057441 and2321560ns inclusive instrumented, same ordinary snapshot,3pages. Geometry and extracted words equal in original and previous; empty-page extraction warning is preserved and not repaired by this proposal. No nominal saving inferred.
+
+entities/elements/align.rs:23-26 has only alignment:Align2D and body:Content. compiler/layout/align.rs:10-15 delegates to placement.rs:237-551; it reads current physical regions/style/metrics, dispatches PlanEdge::AlignBody, preserves incoming-line and subframe placement and carries pending coordinate fixups to finish/new_page. Align2D introduces no separate introspection/closure/PageStore dependency; children retain all their own dependencies. Source/L0 equality across product/previous/candidate is checked in source-audit.json. Existing coordinate/physical-source contracts remain authoritative; do not copy or alter formulas or settle Pending early.
+
+Only this laboratory proof is extended: Content::Align is independent iff its complete body passes initial_layout_independent. Supersede prior unlisted-Align exclusion and the Pad amendment's prohibition on expanding Align ONLY for this measured scope. Require BOTH original contextual and realized trees, absent final numbering and the existing fail-closed style/body rules. Every unlisted descendant (including Place, Box, context, references/outline, counter/state, math/callbacks) still rejects. Do not change positional fixups, source plan, ordinary snapshot construction, effects, logical binding, bidi/shaping/export or stability algorithms. Reuse only the complete initial document in the same compilation; every new compilation still performs its initial layout. No persisted document/cache key, no new public API/default/phase/compatibility, no product integration.
+
+RED before implementation: finite centered multiparagraph Align, nested Align/Pad/Block, bottom/horizon, Auto page dimensions observe two ordinary compositions where one required; text and logical numbering intact. Negative tests for context, state/query, math, explicit numbering and unproved Place retain proof rejection. GREEN pipeline:: suite plus all nine permanent counterexamples, warm/cold comparisons including finite/Auto axes, nested styles/regions, contextual callbacks/numbering and references; PDF/SVG/raster guards. Measure original vs previous(Block+Pad) vs cumulative(Block+Pad+Align) vs pinned vanilla, two balanced paired campaigns, with uninstrumented executables. Record adverse controls and distinguish incremental from accumulated benefit. No uniform performance claim or full-pipeline equivalence.
+
+## Laboratory: legacy complete-candidate certificate — 2026-11-15
+
+Evidence before decision: reuse-proof-cost-2026-11-15/profiles.json records Align-context three ordinary physical compositions and about13.6ms inclusive layout vs5.47us proof in tail; final introspective snapshot changes then stabilizes (reuse-align/fallback-route-probe.json). paged.rs:943-1098 always rebuilds after the newly realized snapshot unless initial syntax-only proof passes. context_stabilization.rs:2237 creates a new legacy Session and discards its actual executions immediately after expansion; Execution already contains original ctx/read transcript/input/sink/Location and with_replay_engine validates in isolated sinks. World source contract allows external reads and SystemWorld.today reads a live date; context-read validation alone is insufficient. ContextBlock PartialEq only compares id and MUST NOT be used as a cache key. All evidence has HEAD/dirty/ELF/UTC in prior receipts and this initial.json.
+
+Internal-only classification ADR-0127: add private per-compilation proof/World forwarding records; no exported signature/trait/entity changes, no eval/layout movement or target/default/compatibility changes. Keep existing expand_legacy facade and behavior for all other callers. Only its new private companion may retain a successful Session to certify the document composed from that exact expansion. Do not change Session selection, actual closure evaluation order, budgets, occurrence arena or existing warning/error publication. New World guard is used only in the companion, delegates ALL World methods unchanged, permits the established immutable library/book/main/font/candidate resources and rejects any observed other World operation. Source accesses require the immutable-source authority defined below; file/path/include/package/inputs/today/plugin accesses poison certificate even on error. No guarded value caching. Captured plugin calls remain governed by existing PluginFunc.call memoization; new plugin-host access rejects.
+
+Paged owner generalizes the existing positive predicate internally to a borrowed ContextBlock authorization callback, preserving the old strict facade with callback always false. Only the retained session may authorize exact active producer Arc membership (a provenance check, never standalone validity/deduplication); ambiguous topology and unknown carriers reject. Verify original session content, substituted output and actual final realized content with this predicate. Every active producer must have successful retained execution, no poisoned World guard, matching candidate Location, reflexive actual-read validation and validation against candidate, using existing L1 facilities. Require full conservative pagination_stability(input,candidate) coverage/equality for each execution. Validation errors return false and publish nothing; ordinary path then proceeds unchanged.
+
+No certificate for the initial untracked prepare result. After the ordinary snapshot/PageStore/numbering/position injection, require final pages have no numbering and a prior certificate for the CURRENT complete doc. If valid, preserve doc, intr/format data and existing finalization; skip only the next legacy expansion/introspection/outline/layout cycle. If not valid, drop old certificate BEFORE new expansion. The new companion returns content + opaque private certificate; attach it only after successful physical composition from that content and retain at most one Session. Never use snapshot_same alone, compare newly executed closures or remove Pending loops. Context/state/query outputs with effectful/unknown carriers reject. HTML/Bundle and selected physical discovery/replay remain untouched.
+
+Tests before code: actual final page output correct and ordinary layouts3→2 for plain and Align/Page-final contexts, invalid first snapshot forces recomposition, known initial0 must never survive; negative World date/read bodies retain3 layouts and diagnostics, unknown math/numbering/Place/effect bodies retain fallback, nested/position/location changes do not borrow stale candidates. Full pipeline:: suite, nine permanent regressions, warm/cold edits and source/World invalidation, PDF/SVG/diagnostic guards and paired baseline/candidate/original/A-A nominal with memory. Reject candidate if no gain, output/effect divergence or disproportionate resource cost. No integration/commits.
+
+
+### Measured markup exclusion control — 2026-11-15
+
+Source evidence: compiler/eval/markup_stream.rs:121-134 unconditionally attempts
+World.source for a spanned markup node to recover its content-block origin.
+The laboratory certificate explicitly rejects that observed read. Add a
+negative test for plain/Align/Pad markup total-page contexts: correct final
+text and three ordinary physical layouts are required. This control measures
+the existing conservative exclusion; it does not authorize weakening it or
+claiming that the bare numeric positive test covers markup. Runtime code,
+shared nucleus and public contracts remain unchanged.
+
+## Laboratory immutable source authority — 2026-11-15
+
+Evidence before decision: the rejected legacy-certificate report and World
+forwarding audit bind its ELF to 16/19 forwarded methods. markup_stream.rs:121-134
+calls World.source to recover the current content origin. Source is immutable
+Arc<SourceInner> (source.rs:28-50); reparse produces another immutable revision.
+Source Eq only compares id/hash and is not revision authority. SystemWorld
+source slots cache the first result in OnceLock (world/cache.rs:37-96), allocate
+monotonic ids and never replace a successfully published slot (cache.rs:98-174).
+Generic World has no source stability promise. These are mechanics observations;
+language acceptance remains text/content morphology/geometry/diagnostics.
+
+Authorization/classification: user explicitly requested correcting World and
+testing immutable source certification in the laboratory, without integration
+or commits. The Source owner records the earlier user instruction "Para o
+laboratório não precisa autorização". This ratifies the following laboratory
+capability addition only; no productive contract or phase/default is changed.
+
+Exact laboratory public trait addition:
+    fn immutable_source(&self, id: FileId) -> Option<Source> { None }
+
+Some(source) is an explicit authority promise: source has the requested id,
+is an owned immutable revision, and every subsequent source(id) query on THIS
+World during its lifetime returns that same successful revision without new
+observable source-query effects. No guarantee is inferred from bytes, ids,
+hashes, root addresses or ordinary source() success. None is conservative and
+permits arbitrary World implementations. Never override another World's source
+answer or cache file/date/path/plugin results. SystemWorld may return its
+successful OnceLock-backed world_source(id); the pipeline asks only after a
+successful actual source(id) query. New Worlds have independent source slots.
+
+LegacyWorldGuard must explicitly forward ALL trait methods, including font
+epoch/select/info and immutable_source, preserving owned/reference identity and
+overrides. The source method first delegates exactly once and returns its exact
+result. Permit only the compilation input id, the exact immutable SourceInner
+revision kept alive by the borrowed input, and a matching explicit authority
+from the SAME World. Root-address comparison is provenance under that authority,
+never a standalone semantic key. Different revisions even with same bytes/id,
+other ids/imports, errors, missing authority, date/file/path/plugin/inputs reject.
+Record whether source was observed in each retained execution; recheck its
+authority before candidate reuse. Replay uses the identical guard. No extra
+ordinary source() calls merely to validate, and no queries in unguarded routes.
+
+All existing complete-document pagination/Location/read/structural proofs,
+first-layout/snapshot requirements, budgets, warning/error policies and local
+certificate lifetimes remain. No Unicode cache, cross-compilation context
+result cache or selected/HTML/Bundle changes. Two manifested lab builds may
+toggle a private constant CERTIFY_IMMUTABLE_SOURCE: false is forwarding-only,
+true enables this capability. This is no product mode/flag/default.
+
+RED before implementation: SystemWorld markup totals in plain/Align/Pad retain
+correct text but must drop physical compositions from3 to2; sentinel World
+font overrides must survive wrapping. Negatives: generic World without authority,
+fresh equal-text revision, mutable external reads/date and imports retain fallback.
+Preserve existing tests; run full pipeline tests and lint, permanent regressions,
+warm/cold/export/edit controls and two balanced paired nominal campaigns versus
+prior Block/Pad/Align and forwarding-only, with an identical-ELF A/A alias.
+Record CPU/RSS/HWM and compare all states, including references and context scale.
+
+The exact capability in the latest section supersedes the prior prototype's blanket source rejection and no-trait-change statements, solely in this laboratory tree. Product integration remains excluded.
+
+
+## Laboratory stable heading origin across indices — 2026-11-16
+
+Evidence BEFORE decision: element-origin-stability-2026-11-16/origin-trace.json
+classifies actual element_at owner misses as replacement, after unchanged source
+plan/page/epoch gates. pipeline.rs substitute_context_blocks_in_chain body!
+unconditionally clones HeadingElem and allocates Arc, including a closed textual
+body with no ContextBlock; outline_state_content and physical preparation call
+this transformer repeatedly before source-plan/index production. queries.rs
+returns the stored Content borrow and walk.rs stores the actual plan root clone.
+This is allocation/origin mechanics, not language equality or Bidi/shaping.
+
+Internal isolated laboratory refinement (ADR-0127 continuous flow): a PRIVATE
+bounded closed-body certificate may bypass only Heading substitution when its
+body is Empty, Text, Space, SpaceFromNewline, Parbreak, Sequence, Strong or Emph
+recursively, depth<=8, nodes<=128, logical Content+text payload<=16KiB. Exhaustive
+negative catalogue refuses all other Content variants. This structural proof
+means no substitution operand, callback, style carrier, source/located wrapper
+or effectful child is reachable in that subtree. Return the actual input Content
+clone, preserving its original Arc and EVERY heading field, without value
+equality, hashing, Debug, interning, matching unrelated origins or manufacturing
+identity. No generalized tree cache. Unknown/oversized/complex bodies continue
+through exactly the existing substitution with the actual resolution map/chain.
+
+The stable certificate is at the reconstruction boundary: unchanged closed source
+retains the original immutable owner. The existing Weak element_at certificate
+and all SourcePlan/PageStore/provider epoch/font/channel/output/journal budget
+gates remain unmodified and strictly reject a different actual owner. Distinct
+source allocations even with equal text remain distinct; changed contextual body,
+resolution, origin, variant, fields or current reads must invalidate as before.
+No index retention, origin metadata added to language values, new public API,
+phase/default/compatibility change, integration or commits. Preserve input tree,
+canonical source ancestry, styles, labels, counter/state effects, selected
+original/visual semantics, errors/warnings and discovery/replay protocol.
+
+Tests first: exact original Heading Arc survives repeated certified substitution
+with irrelevant resolutions; two equal origins are never coalesced; every scalar
+field and nested morphology survives; actual ContextBlock resolutions A/B must
+change body through fallback, leaving original unmodified; unsupported carriers
+and all size/depth/node bounds decline the shortcut. Pipeline watch must compare
+fresh/warm/cache-off to frozen prior candidate with edits and includes/effects/
+errors/recovery, native links/bookmarks and PDF/SVG modes. Census logs actual
+producer/hit counts and optional object addresses for diagnosis only; never use
+addresses as keys. Nominal timing excludes all opt-in census; balanced paired
+A/B and A/A plus no-retain ablation distinguish old/new reuse. Record exact
+source manifest/UTC/ELF/HEAD/dirty state, preserve prior artifacts and root.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

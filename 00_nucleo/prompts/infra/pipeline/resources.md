@@ -1,11 +1,13 @@
 # L0 — infra/pipeline/resources
-Hash do Código: 4d45f19d
+Hash do Código: ebf7ac1d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
+
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/resources.rs`
@@ -200,3 +202,84 @@ expression before GREEN with transfer. Check the existing instancer/collection
 and font-binding tests, real SVG/PNG outputs and PDF negative controls, including
 variable-font and unavailable-instancer diagnostics. Reseal this owner only;
 builds and disposable tests remain in an exclusive RAM directory.
+
+
+## Ratified selective-font consumers — 2026-11-12T19:19:44.102371+00:00
+
+Measurement before decision: structural/repeat2/receipt.json isolates about 13ms
+of catalog freshness work, not a safe optimization. selection-proof/receipt.json
+checks actual prefix metadata/bytes/indices and minimum-score winners; impact.json
+identifies eager chain and late PDF requests. Source font_metrics/resolution.rs:95
+and shaper/font_selection.rs:73 construct unused later families; shaping.rs:302,542
+and pipeline/resources.rs:214 demand full book for individual selection/metadata.
+The approved World query contract now has default-method GREEN; foundation RED
+proved ordinary prefix selection unnecessarily invoked the full loader, and GREEN
+removes that demand with stable paired immutable data. No new performance is yet
+claimed. User explicitly authorizes this candidate only in RAM, no integration.
+
+Selective queries preserve complete current selection/metadata/bytes. A private
+first-primary lookup follows the unchanged ordered declared-family/readability
+policy; if none resolves, use the existing class fallback then common list. It
+is NOT a complete-chain result and never enters a PrimaryResolution cache.
+Existing complete functions/caches remain the fallback and regression oracle.
+No family-name/phrase/fixture/paragraph-count special case, negative memoization,
+cache lifetime extension, new public method, dependency, unsafe, phase or mode.
+This narrowly supersedes previous mandatory eager full-chain query order only
+where the result is proven unchanged, not source font/fallback/script semantics.
+
+For ordinary metrics that use only the first readable face (vertical/edge/cap
+properties), query that face directly. For direct ordinary text advance, a first
+face with nonzero cmap coverage of every authored character already wins the
+existing per-character covering_text rule. Math/native scripts/uncertain coverage
+keep the full route. This proof concerns the unchanged direct-metric operation;
+it is not certification of a raw shaping result.
+
+Shaping may use a one-face primary vector only when non-math, non-superscript,
+non-subscript and not a resolved BidiSpan occurrence. Prove full authored-text
+nonzero cmap coverage in the first readable face; then run the EXISTING bidi and
+script segmentation with that sole candidate and the existing raw owner, actual
+ordered axes, language, direction, script=None/features=[] policies. Require
+nonempty raw results and no zero glyph. Actual emission/measurement uses the same
+unchanged segmentation and raw inputs and can hit the exact current-compilation
+raw store. Any failure/uncertainty uses the unchanged full primary chain before
+producing output. No partial primary result is cached as complete. No adjusted
+glyph/position/width/cache-key changes. This certificate covers each original
+sub-run, not a whole-text shape used to bypass script segmentation. Terminal
+measurement keeps its current output algorithm; using the raw store for the
+additional ordinary certificate does not replace its existing terminal policy.
+
+RED first: complete ordinary PDF compilation must not invoke a full-catalog
+loader, including metrics, shaping, metadata and export-resource resolution.
+Verify full path on uncertain/default/regex/mutable/missing/longest-run cases;
+keep existing snowman, scripts, math, axes, raw identity, missing-face and cache
+controls. A successful prefix followed by a fallback request must match a fresh
+full result and not poison complete caches. Full source/font-update/PDF/SVG/raster
+controls and paired release CPU/allocation measurements remain required.
+
+Exclusive owning obligation: Remove the eager book demand from resolve_fonts. Private resolve_font obtains each candidate through World::select_font and world.font, first readable family wins as before. Its explicit FontBook parameter is removed only from this private helper; tests follow its current private call shape. Preserve full FontKey/axes/bytes/order/instancing/binding and every resource index.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Strict test qualification for adoption
+
+Preserve every existing test assertion, reference comparison and negative case.
+Remove redundant cfg/borrows, use a named private snapshot type and array, and
+pass configured raw-shaping inputs as the existing named RawShapeInput value
+instead of a nine-argument helper. Test FontList HashMap/HashSet contracts through
+generic Eq+Hash helpers so immutable regex backend caches do not trigger a
+concrete mutable-key lint; keep actual map lookup, deduplication and field coverage.
+No lint suppression or productive algorithm change is permitted by this cleanup.

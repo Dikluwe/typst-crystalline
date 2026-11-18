@@ -1,11 +1,13 @@
 # L0 — link
-Hash do Código: e4f7c4e0
+Hash do Código: 42df7c90
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+
+
 
 
 **Layer:** L1
@@ -64,3 +66,34 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.r
 
 
 Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.
+
+
+## Laboratory link width follows the injected text-width contract, 2026-11-12
+
+### Measured evidence before decision
+
+The frozen linkscope release and pinned vanilla64c5e8c02fe0394d913ead36e42ef8c1334d2107 in `lab/results/construction/diagnostics/watch-residual-2026-11-12/controlprimary-linkwidth-before/receipt.json` bind source, ELF, input and UTC. At x20pt, a link containing only U+2060 ends at26.60pt versus20pt in vanilla; A+U2060+B ends40.71pt versus34.113pt; AVATAR63.13pt versus59.435pt; ABC with2pt tracking41.22pt versus45.219pt. Ordinary ABC agrees to existing serialization precision. These are wrong clickable horizontal extents, not a byte-parity requirement; vertical extents remain a separate existing difference.
+
+The controlprimary partial implementation makes isolated control measurement catalog-lazy but its whole-outline test remains RED (3passed/1failed). `controlprimary-catalog-trace/{receipt.json,trace.log}` locates the remaining full acquisition below link_bbox→advance→primary_for_text_advance. `compiler/layout/metrics.rs` explicitly defines text_width as the authoritative word-level injected operation, including the default shaped advance/fallback and tracking; `text_measure.rs` implements that formula. `link.rs:54,61` instead calls unshaped advance again, ignoring both shaped width and tracking and querying fallback fonts for a zero-width control. The proposed correction is refuted by bypassing an injected text_width override, changing text/paint/vertical geometry, or changing destination/lexical membership.
+
+### Exclusive bounded parity correction
+
+Laboratory only, no integration. In the existing Text and TextShaped arms of link_bbox, obtain the horizontal extent through metrics.text_width(text, style.size, style) rather than direct advance. Preserve both distinct carriers and all current positional/vertical-metric, Group/Link nominal-bound, Glyph, shape/image/line, wrapper recursion and marker policies. Do not shape/rewrite/move carriers in this owner, inspect font names or Unicode categories, fabricate widths, modify the trait default, change fallback or cache lifetimes, or move phases. A zero-width capture may retain its body without a positive clickable rectangle through the existing wrap guard. Prior instructions to preserve direct advance are superseded only by this authoritative-width dispatch; there is no public API/default/compatibility change. ADR-0127 continuous internal language-parity flow applies.
+
+RED must prove both carrier arms ignore the injected width today; GREEN requires the same assertions after dispatch correction. Include an independent default text_width shaped-plus-tracking result and its None→advance fallback. Preserve all existing bounds/source/pagination/nested/repeat/rollback tests and run full core/infra/build/check/Clippy/docs/fmt/lint. Re-run the unchanged whole-outline loader refuter from the partial candidate. Actual release controls must conserve text/geometry/raster and destination membership, while horizontal hit rectangles may correct the measured kerning/tracking/control defects. Keep preexisting group-transform/footer/outline geometry debts explicit; do not waive unrelated annotation differences. Measure CPU only after exact source/ELF freeze.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

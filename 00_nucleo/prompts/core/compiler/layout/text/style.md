@@ -2,8 +2,11 @@
 Hash do Código: e5d25e77
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/immutable-family-list.toml sha256:f33ff33fa820aa3914d7de26e3abe47e4c453971161347e6c71ab028ebbac468
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+
+
 
 Layer: L1. Exclusive consumer: `01_core/src/compiler/layout/text/style.rs`.
 
@@ -244,7 +247,9 @@ priority unchanged. Keep custom decoding eager, including when typed wins, and
 preserve every existing filter and normalization. Preserve ordered literal/regex
 families, variants, optional variant/weight/style/covers, and ambient fallback
 for missing, invalid, empty or nonarray custom values, including ambient None.
-Return an independently owned result without mutating either input. Keep every
+Return an owned result without mutating either input. Immutable family payload
+sharing is allowed under the pinned immutable-family-list nucleus; ownership is
+proved by input replacement/drop survival, not distinct addresses. Keep every
 other field, query, clone and script resolution unchanged; introduce no helper,
 cache, instrumentation, dependency, public contract, default or pipeline change.
 
@@ -257,3 +262,29 @@ is outside this owner and remains open; do not ratify that loss or correct it
 here. The known outline semantic divergence against vanilla pin
 `64c5e8c02fe0394d913ead36e42ef8c1334d2107` also remains open. Baseline/candidate
 preservation does not certify new vanilla parity.
+
+
+### Laboratory shared ownership — 2026-11-13
+
+shared-font-list full-core found old tests at font_fallback_tests.rs:165,180
+requiring nonalias storage. The owning FontList representation is now shared and
+immutable, so this owner clarifies owned-result lifetime while preserving every
+resolution call and branch. See before-owned-fallback-contract/qualification.json
+for source hashes, UTC and the two runtime failures before this L0 revision.
+Only this consumer's lineage header changes; its resolver body does not.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

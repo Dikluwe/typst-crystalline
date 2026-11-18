@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash b3b8f954
+//! @prompt-hash 9bdc3c9a
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -71,7 +71,7 @@ fn resolve_shape_kind(kind: &ShapeKind<Length>, em: Pt) -> ShapeKind<Pt> {
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
 mod metrics;
 pub use crate::compiler::layout::metrics::{
-    needs_shaped_width, FixedMetrics, FontMetrics,
+    needs_shaped_width, FixedMetrics, FontMetrics, MetricEpoch,
 };
 mod measurement;
 mod realized;
@@ -164,6 +164,7 @@ mod paragraph_emit;
 mod paragraph_hyphen;
 mod paragraph_indent;
 mod paragraph_pagination;
+mod paragraph_paint;
 mod paragraph_plan;
 mod paragraph_prepare;
 mod paragraph_select;
@@ -171,9 +172,11 @@ mod paragraph_select;
 mod paragraph_select_bounded;
 #[cfg(test)]
 mod paragraph_select_forward;
+pub mod paragraph_session;
 mod parbreak;
 mod pdf_artifact;
 mod pdf_attach;
+pub mod physical_memo;
 mod quote;
 mod raw;
 mod sequence;
@@ -2219,7 +2222,7 @@ pub fn layout_with_page_running<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     font_size: f64,
     inputs: PageRunningLayoutInputs<'_>,
 ) -> PageRunningPassOutcome {
-    convergence::run_planned(body, introspector, metrics, sizer, font_size, inputs)
+    convergence::run_planned(body, introspector, metrics, sizer, font_size, inputs, None)
 }
 
 pub fn layout_with_introspector(

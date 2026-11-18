@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash c9e459a5
+//! @prompt-hash b12c0b58
 //! @layer L1
 //! @updated 2026-11-06
 //!
@@ -78,6 +78,7 @@ mod markup;
 mod modules;
 pub(crate) mod repr;
 mod stdlib_snapshot;
+pub mod subtree_session;
 mod syntax_diagnostics;
 pub(crate) mod table;
 
@@ -296,6 +297,8 @@ use observation::{ObservationEq, ObservationRelation};
 /// eliminando o antigo par save/restore sobre um campo partilhado.
 /// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext {
+    subtree_memo: Option<std::rc::Rc<RefCell<subtree_session::Memo>>>,
+    pub(in crate::compiler) lorem_chain: Option<Box<lipsum::MarkovChain<'static>>>,
     context_reads: RefCell<ContextReads>,
     stdlib_snapshot: RefCell<Option<Arc<stdlib_snapshot::StdlibSnapshot>>>,
     pub target: EvalTarget,
@@ -422,6 +425,8 @@ impl std::default::Default for EvalContext {
 impl EvalContext {
     pub fn new() -> Self {
         Self {
+            subtree_memo: None,
+            lorem_chain: None,
             context_reads: RefCell::new(ContextReads::new()),
             stdlib_snapshot: RefCell::new(None),
             target: EvalTarget::Paged,
@@ -639,22 +644,10 @@ pub fn eval_source_with_features_and_introspector(
     introspector: &crate::entities::introspector::TagIntrospector,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
-    let mut global = Scope::new();
-    let stdlib = make_stdlib_with_features(&inputs, features);
-    global.define("std", Value::Module(Module::stdlib(stdlib.clone())));
-    for (name, binding) in stdlib.iter() {
-        global.define(name, binding.value().clone());
-    }
-    for (name, value) in crate::compiler::stdlib::predefined_color_bindings() {
-        global.define(name.as_str(), value);
-    }
-    global.define(
-        "text",
-        Value::Func(Func::native("text", crate::compiler::stdlib::native_text)),
-    );
-    let library = Library::with_global(global);
-    let mut scopes = Scopes::new(Some(&library));
     let mut ctx = EvalContext::new();
+    let (_, seed) = stdlib_snapshot::resolve(&ctx.stdlib_snapshot, &inputs, features);
+    let library = Library::with_global(seed.expect("resolved builtin graph").global());
+    let mut scopes = Scopes::new(Some(&library));
     ctx.features = features;
     ctx.introspector = introspector.clone();
     let mut styles = StyleChain::default_chain();
@@ -777,7 +770,7 @@ pub fn eval_with_full_error_target_and_features(
     _routines: &Routines,
     world: &dyn World,
     _traced: Tracked<Traced>,
-    mut sink: TrackedMut<Sink>,
+    sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
     source: &Source,
     registry: &crate::entities::element_registry::ElementRegistry,
@@ -785,6 +778,25 @@ pub fn eval_with_full_error_target_and_features(
     target: EvalTarget,
     features: crate::entities::compiler_features::Features,
 ) -> SourceResult<Module> {
+    eval_with_subtree_session(
+        world,
+        sink,
+        source,
+        registry,
+        (full_error, target, features),
+        None,
+    )
+}
+
+fn eval_with_subtree_session(
+    world: &dyn World,
+    mut sink: TrackedMut<Sink>,
+    source: &Source,
+    registry: &crate::entities::element_registry::ElementRegistry,
+    options: (bool, EvalTarget, crate::entities::compiler_features::Features),
+    session: Option<&subtree_session::SubtreeSession>,
+) -> SourceResult<Module> {
+    let (full_error, target, features) = options;
     let root = source.root();
 
     // **P786a** — propagação integral de erros de sintaxe (revoga a
@@ -827,6 +839,9 @@ pub fn eval_with_full_error_target_and_features(
                     pass_sink: &mut TrackedMut<Sink>|
      -> SourceResult<EvaluatedPass> {
         let mut ctx = EvalContext::new();
+        if let Some(session) = session {
+            session.bind(&mut ctx);
+        }
         ctx.target = target;
         ctx.features = features;
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
@@ -841,36 +856,16 @@ pub fn eval_with_full_error_target_and_features(
         let mut active_guards: Vec<RuleId> = Vec::new();
         let current_file = source.id();
 
-        // P772n — stdlib/cores/`std`/`text`/elementos de utilizador deixam de
-        // ser achatados em `scopes.top` (o que os tornava mutáveis sem erro,
-        // P772l §2.3). Constrói-se um `Scope` próprio, embrulhado em
-        // `Library::with_global`, e passado como `base` — só alcançável por
-        // leitura (`Scopes::get`), nunca por `Scopes::get_mut`. Ver
-        // `rules/eval.md` §P772n.
-        let mut global = Scope::new();
-        let stdlib = make_stdlib_with_features(&inputs, features);
-        // P709 — `std`: clone independente da stdlib, tirado ANTES de ser
-        // espalhada em `global`, dá acesso à versão não-sombreada mesmo que
-        // o documento redefina `length`/`calc`/etc. (paridade vanilla,
-        // `Library::std = Binding::detached(global.clone())`). Sombreável
-        // como qualquer outro nome (medido: `#let std = "oops"` funciona
-        // no vanilla) — por isso um binding normal, sem mecanismo especial.
-        global.define("std", Value::Module(Module::stdlib(stdlib.clone())));
-        for (name, binding) in stdlib.iter() {
-            global.define(name, binding.value().clone());
-        }
-        // P492 — cores predefinidas (red, blue, green, ...) como atalhos globais.
-        for (name, value) in crate::compiler::stdlib::predefined_color_bindings() {
-            global.define(name.as_str(), value);
-        }
-        // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
-        global.define(
-            "text",
-            Value::Func(crate::entities::func::Func::native(
-                "text",
-                crate::compiler::stdlib::native_text,
-            )),
-        );
+        // Share only the immutable builtin base. Registry overlays are current
+        // and detach their Scope before writing; imports see the original base.
+        let graph = match session {
+            Some(session) => session.stdlib(&inputs, features),
+            None => stdlib_snapshot::resolve(&ctx.stdlib_snapshot, &inputs, features)
+                .1
+                .expect("resolved builtin graph"),
+        };
+        let mut global = graph.global();
+        *ctx.stdlib_snapshot.borrow_mut() = Some(graph);
         // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
         // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
         // Mesmo escopo base que os nativos (document-wide); `#set`/`#show` léxicos

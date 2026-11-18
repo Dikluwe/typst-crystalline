@@ -1,10 +1,13 @@
 # L0 — wiring/watch
-Hash do Código: cea521c7
+Hash do Código: 415f2ecd
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0132d0e50e81227203f577144758a78792358faee644dc236f74e2d6d8b80fa9
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
+
+
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/watch.rs`
@@ -291,3 +294,51 @@ exact written manifests and previous valid destinations, proving cleanup before
 reporting, unchanged successful-report primary text, retained publication/cleanup/
 reporting errors, and no sink retry after reporting failure. Retain every previous
 acceptance condition, runtime measurement and full project validation gate.
+
+
+## Laboratory subtree evaluation connection — 2026-11-12
+
+Measured source: pipeline.rs:295–344 evaluates and validates assets; paged.rs:765
+starts root evaluation; pdf.rs:385–416 carries PDF options into paged compilation;
+compile.rs:126/469 and watch.rs:65–85 establish session lifetime and dispatch.
+These are mechanics, not language requirements. Source freeze in subtree-validation.
+User explicitly waives approval for laboratory experiments; no integration.
+
+Create one SubtreeSession alongside font/source sessions outside the watch loop; lend it to the compile helper per cycle. Session ends with watcher, no global state. The first experiment affects PDF ordinary evaluation only, not other target dispatch or publication.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Own one PdfCompileSession outside the watcher loop instead of its standalone
+SubtreeSession; keep existing font/source sessions and lifetime. No new flag.
+
+## Complete cycle lifetime
+
+Keep only dependency snapshot and scalar status after compile/publication scope;
+drop all other cycle locals before eviction and waiting. Keep PID staging, polling,
+diagnostic/error order and explicit compile/font/source session lifetimes. No
+marker channel or acknowledgement may block product watch.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

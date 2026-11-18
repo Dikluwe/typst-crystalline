@@ -1,11 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: a5b9b5ea
-
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/entities/content/traversal.rs`
-**Governance:** ADR-0107, ADR-0129, ADR-0130.
+Hash do Código: 8000af1a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -15,6 +9,14 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/content/traversal.rs`
+**Governance:** ADR-0107, ADR-0129, ADR-0130.
+
 
 
 ## Contract
@@ -653,3 +655,54 @@ Preserve both approved placement fields in the Figure pre-order reconstruction, 
 ### Gates and limits
 
 L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+
+## Laboratory stable heading origin during generic mapping — 2026-11-16
+
+Evidence before decision: origin-trace.json observes the referenced Location(2)
+with a different live Heading owner at every generation, then first-failed
+"miss element_at replaced". eval/rules/outline.rs:67–111 calls map_content on
+the complete source even when only Outline is replaced. traversal.rs:471
+unconditionally wraps HeadingElem::map_content in Some; heading.rs:136 allocates
+a fresh Arc even if its body had no replacements. pipeline.rs body! is a second
+independent reconstruction boundary addressed by its own owner. These are
+mechanics; no changed language identity/equality rule is authorized.
+
+Continuous internal lab refinement: extend the existing explicit no-replacement
+proof to Heading. HeadingElem privately to entities provides map_content_if_changed
+with the same callback signature, delegating once to body.map_content_if_changed.
+Return None only when that actual traversal reports no replacement. On Some,
+allocate a Heading with with_body, preserving all level/outlined/bookmarked/
+set_fields. Content's exhaustive dispatcher delegates to this owner, reusing its
+actual original Content Arc only on None. No equality/hash/Debug/pointer test
+proves no change; Some with equal value IS a change. Preserve callback execution
+order/count, errors, source/Located/Realized suppression, all metadata and original/
+visual rules. Trait/public map_content signatures and behavior remain compatible;
+map_content_pre/map_text unchanged. Helper visibility is entities descendants
+only, no compiler bridge. No phase/default/API/field/compatibility change.
+
+Tests first in Heading consumer via public Content.map_content: repeated no-op
+retains the exact original owner and nested Strong/Emph; equal leaf replacement
+rebuilds its path and all fields; callback visits are once and ordered; first
+error stops later siblings and does not mutate original; equal independent
+origins remain independent. The unchanged strict Weak certificate still rejects
+a genuinely replaced heading, fields, body, origin or expired owner. Full core
+suite plus existing L3 controls and same source/build/ELF receipts are required.
+No integration or commits. This is a tested source-origin preservation experiment,
+not a certificate synthesized from matching text or Location.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

@@ -1,10 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/page_running.md
-//! @prompt-hash 0cc1fa2c
+//! @prompt-hash bfdfcfce
 //! @layer L1
 //! @updated 2026-10-21
 
 use std::sync::Arc;
+
+use rustc_hash::FxHashSet;
 
 use crate::compiler::eval::{EvalContext, EvalTarget};
 use crate::compiler::layout::{PageRunningBody, PageRunningTrace, SealedPageRunning};
@@ -36,7 +38,7 @@ pub(in crate::compiler) enum PlanPhase {
 }
 
 /// Source edges are chosen by feature owners, never inferred from a child value.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(in crate::compiler) enum PlanEdge {
     SourceBody,
     LocatedBody,
@@ -162,6 +164,10 @@ pub(in crate::compiler) struct SourcePlan {
     pub(in crate::compiler) allocation_start: LocatorSeed,
     pub(in crate::compiler) allocation_owner: Option<Arc<()>>,
     pub(in crate::compiler) document_boundary: Option<(LocatorSeed, Location)>,
+    // Derived only from this immutable plan; never source identity or authority.
+    page_frontiers: Vec<bool>,
+    child_ranges: Vec<(usize, usize)>,
+    child_lookup: Vec<(PlanEdge, PacketId)>,
 }
 
 impl SourcePlan {
@@ -174,14 +180,187 @@ impl SourcePlan {
         parent: PacketId,
         edge: PlanEdge,
     ) -> Option<PacketId> {
-        self.node(parent)?
-            .children
-            .iter()
-            .find_map(|(found, child)| (*found == edge).then_some(*child))
+        self.child_query(parent, edge, || {})
     }
 
-    /// Page-wide style frontiers follow declared source ancestry, never local render style.
+    fn child_query(
+        &self,
+        parent: PacketId,
+        edge: PlanEdge,
+        mut visit: impl FnMut(),
+    ) -> Option<PacketId> {
+        let &(start, end) = self.child_ranges.get(parent.0)?;
+        let children = &self.child_lookup[start..end];
+        let index = children.partition_point(|(found, _)| {
+            visit();
+            *found < edge
+        });
+        children.get(index).and_then(|(found, child)| {
+            visit();
+            (*found == edge).then_some(*child)
+        })
+    }
+
     pub(in crate::compiler) fn page_frontier(&self, packet: PacketId) -> bool {
+        self.frontier_query(packet, || {})
+    }
+
+    fn frontier_query(&self, packet: PacketId, mut visit: impl FnMut()) -> bool {
+        visit();
+        self.page_frontiers.get(packet.0).copied().unwrap_or(false)
+    }
+
+    fn initialize_queries(&mut self) {
+        self.child_ranges = Vec::with_capacity(self.nodes.len());
+        self.child_lookup =
+            Vec::with_capacity(self.nodes.iter().map(|node| node.children.len()).sum());
+        for node in &self.nodes {
+            let start = self.child_lookup.len();
+            self.child_lookup.extend_from_slice(&node.children);
+            // Stable order retains the first original match even for duplicates.
+            self.child_lookup[start..].sort_by_key(|(edge, _)| *edge);
+            self.child_ranges.push((start, self.child_lookup.len()));
+        }
+        self.page_frontiers = vec![false; self.nodes.len()];
+        let mut pending = vec![self.root];
+        while let Some(current) = pending.pop() {
+            let Some(node) = self.node(current) else { continue };
+            if self.page_frontiers[current.0]
+                || node.original
+                || node.conditional_ref.is_some()
+                || matches!(
+                    node.role,
+                    PlanRole::OperationalTemplate | PlanRole::PrunedOriginal
+                )
+            {
+                continue;
+            }
+            self.page_frontiers[current.0] = true;
+            let node = &self.nodes[current.0];
+            for (edge, child) in &node.children {
+                if child.0 > current.0 && Self::continues_frontier(node, edge) {
+                    pending.push(*child);
+                }
+            }
+        }
+    }
+
+    fn continues_frontier(node: &PlanNode, edge: &PlanEdge) -> bool {
+        match edge {
+            PlanEdge::SourceBody
+            | PlanEdge::LocatedBody
+            | PlanEdge::ShowRecipeBody
+            | PlanEdge::RealizedVisual
+            | PlanEdge::SequencePart(_)
+            | PlanEdge::PageRunBody => true,
+            PlanEdge::StyledBody => {
+                if let Content::Styled(styled) = &node.content {
+                    styled.styles.delta().custom.iter().any(|(key, value)| {
+                        key.as_str() == "eval.flow.scope"
+                            && matches!(value, crate::entities::value::Value::Bool(true))
+                    })
+                } else {
+                    false
+                }
+            }
+            PlanEdge::ColumnsBody => {
+                matches!(&node.content, Content::Columns(columns) if columns.page_columns)
+            }
+            PlanEdge::RealizedOriginal
+            | PlanEdge::ParagraphBody
+            | PlanEdge::HeadingBody
+            | PlanEdge::TitleBody
+            | PlanEdge::StrongBody
+            | PlanEdge::EmphBody
+            | PlanEdge::SmallCapsBody
+            | PlanEdge::LabelBody
+            | PlanEdge::ListItemBody
+            | PlanEdge::EnumItemBody
+            | PlanEdge::EquationBody
+            | PlanEdge::FigureBody
+            | PlanEdge::FigureCaption
+            | PlanEdge::FigureSelectedSupplement
+            | PlanEdge::FigureCaptionBody
+            | PlanEdge::FigureCaptionSeparator
+            | PlanEdge::PreparedReferenceSupplement
+            | PlanEdge::CitationSupplement
+            | PlanEdge::GridCell(_)
+            | PlanEdge::GridHeader
+            | PlanEdge::GridFooter
+            | PlanEdge::GridCellBody
+            | PlanEdge::GridHeaderBody
+            | PlanEdge::GridFooterBody
+            | PlanEdge::TableResolvedCell(_)
+            | PlanEdge::TableRawChild(_)
+            | PlanEdge::TableHeader
+            | PlanEdge::TableFooter
+            | PlanEdge::TableCaption
+            | PlanEdge::CellSelectedVisual
+            | PlanEdge::TableHeaderBody
+            | PlanEdge::TableFooterBody
+            | PlanEdge::PageRunBackground
+            | PlanEdge::PageRunHeader
+            | PlanEdge::PageRunFooter
+            | PlanEdge::PageRunForeground
+            | PlanEdge::SetPageBackground
+            | PlanEdge::SetPageHeader
+            | PlanEdge::SetPageFooter
+            | PlanEdge::SetPageForeground
+            | PlanEdge::HtmlFrameBody
+            | PlanEdge::TermsItem(_)
+            | PlanEdge::TermItemTerm
+            | PlanEdge::TermItemDescription
+            | PlanEdge::QuoteBody
+            | PlanEdge::QuoteAttribution
+            | PlanEdge::StackChild(_)
+            | PlanEdge::AlignBody
+            | PlanEdge::PlaceBody
+            | PlanEdge::TransformBody
+            | PlanEdge::PdfArtifactBody
+            | PlanEdge::UnderlineBody
+            | PlanEdge::StrikeBody
+            | PlanEdge::OverlineBody
+            | PlanEdge::PadBody
+            | PlanEdge::HideBody
+            | PlanEdge::BoxedBody
+            | PlanEdge::BlockBody
+            | PlanEdge::RepeatBody
+            | PlanEdge::BibliographyTitle
+            | PlanEdge::FootnoteBody
+            | PlanEdge::FootnoteEntryNote
+            | PlanEdge::FootnoteEntrySeparator
+            | PlanEdge::OutlineRealizedBody
+            | PlanEdge::OutlineEntryBody => false,
+        }
+    }
+
+    #[cfg(test)]
+    pub(in crate::compiler) fn test_source_plan(
+        root: PacketId,
+        nodes: Vec<PlanNode>,
+        environments: Vec<PlanEnvironment>,
+        allocation_start: LocatorSeed,
+        allocation_owner: Option<Arc<()>>,
+        document_boundary: Option<(LocatorSeed, Location)>,
+    ) -> Self {
+        let mut plan = Self {
+            root,
+            nodes,
+            environments,
+            allocation_start,
+            allocation_owner,
+            document_boundary,
+            page_frontiers: Vec::new(),
+            child_ranges: Vec::new(),
+            child_lookup: Vec::new(),
+        };
+        plan.initialize_queries();
+        plan
+    }
+
+    #[cfg(test)]
+    /// Page-wide style frontiers follow declared source ancestry, never local render style.
+    fn reference_frontier(&self, packet: PacketId) -> bool {
         fn reaches(plan: &SourcePlan, current: PacketId, target: PacketId) -> bool {
             let Some(node) = plan.node(current) else { return false };
             if node.original
@@ -277,7 +456,6 @@ impl SourcePlan {
         }
         self.node(packet).is_some() && reaches(self, self.root, packet)
     }
-
     pub(in crate::compiler) fn environment(
         &self,
         id: StyleEnvironmentId,
@@ -1251,14 +1429,19 @@ fn build_body(
             math: false,
         },
     )?;
-    let plan = Arc::new(SourcePlan {
+    let mut plan = SourcePlan {
         root,
         nodes: builder.nodes,
         environments: builder.environments,
         allocation_start,
         allocation_owner,
         document_boundary,
-    });
+        page_frontiers: Vec::new(),
+        child_ranges: Vec::new(),
+        child_lookup: Vec::new(),
+    };
+    plan.initialize_queries();
+    let plan = Arc::new(plan);
     Ok(PageRunningBody {
         content: content.clone(),
         plan,
@@ -2317,6 +2500,26 @@ impl PlanEdge {
     }
 }
 
+// All event Arcs remain alive throughout this invocation. These addresses are
+// exact allocation identity only; they are never dereferenced or retained.
+fn planned_events_are_unique(events: &[PlannedEvent]) -> bool {
+    event_keys_are_unique(
+        events
+            .iter()
+            .map(|event| (Arc::as_ptr(&event.plan), event.packet, event.phase)),
+    )
+}
+
+fn event_keys_are_unique<K: Eq + std::hash::Hash>(
+    mut keys: impl Iterator<Item = K>,
+) -> bool {
+    let mut seen = FxHashSet::with_capacity_and_hasher(
+        keys.size_hint().0,
+        Default::default(),
+    );
+    keys.all(|key| seen.insert(key))
+}
+
 fn scheduled_document(
     input: &PageRunningIndexInput<'_>,
 ) -> SourceResult<Vec<PlannedEvent>> {
@@ -2444,16 +2647,8 @@ fn scheduled_document(
                     }
                 }
             }
-            let mut seen: Vec<(Arc<SourcePlan>, PacketId, PlanPhase)> = Vec::new();
-            for event in &events {
-                if seen.iter().any(|(plan, packet, phase)| {
-                    Arc::ptr_eq(plan, &event.plan)
-                        && *packet == event.packet
-                        && *phase == event.phase
-                }) {
-                    return Err(invalid_plan(Span::detached()));
-                }
-                seen.push((event.plan.clone(), event.packet, event.phase));
+            if !planned_events_are_unique(&events) {
+                return Err(invalid_plan(Span::detached()));
             }
             if !trace.repeat_activity_valid() {
                 return Err(invalid_plan(Span::detached()));
@@ -4141,5 +4336,493 @@ SECOND
                 "inactive contribution cannot conceal {mode} corruption"
             );
         }
+    }
+}
+
+
+#[cfg(test)]
+mod source_plan_query_tests {
+    use super::*;
+    use crate::compiler::realize::context_occurrences::ContextOccurrenceArena;
+    use crate::entities::{elements::columns::ColumnsElem, style::Styles, value::Value};
+
+    fn prepared(content: Content) -> SourcePlan {
+        let mut arena = ContextOccurrenceArena::new(&content);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        let body = arena
+            .evaluate(&mut frame, &mut ctx, |ctx| {
+                prepare_page_running_body(&content, ctx)
+            })
+            .unwrap();
+        (*body.plan).clone()
+    }
+
+    #[test]
+    fn frontier_queries_have_constant_observed_work() {
+        let plan = prepared(Content::sequence(
+            (0..4096).map(|i| Content::text(format!("item {i}"))).collect(),
+        ));
+        let target = PacketId(plan.nodes.len() - 1);
+        let mut work = 0;
+        for _ in 0..32 {
+            assert!(plan.frontier_query(target, || work += 1));
+            assert!(plan.page_frontier(target));
+        }
+        assert!(
+            work <= 32,
+            "frontier query must not traverse the root per packet: {work}"
+        );
+    }
+
+    #[test]
+    fn child_queries_have_logarithmic_observed_work() {
+        let plan = prepared(Content::sequence(
+            (0..4096).map(|i| Content::text(format!("item {i}"))).collect(),
+        ));
+        let expected = plan.nodes[plan.root.0]
+            .children
+            .iter()
+            .find_map(|(e, p)| (*e == PlanEdge::SequencePart(4095)).then_some(*p))
+            .unwrap();
+        let mut work = 0;
+        assert_eq!(
+            plan.child_query(plan.root, PlanEdge::SequencePart(4095), || work += 1),
+            Some(expected)
+        );
+        assert_eq!(plan.child(plan.root, PlanEdge::SequencePart(4095)), Some(expected));
+        assert!(work <= 16, "child query must not scan the whole sibling list: {work}");
+    }
+
+    #[test]
+    fn every_typed_edge_and_frontier_exclusion_matches_the_original_predicate() {
+        let edges = vec![
+            PlanEdge::SourceBody,
+            PlanEdge::LocatedBody,
+            PlanEdge::StyledBody,
+            PlanEdge::ShowRecipeBody,
+            PlanEdge::RealizedOriginal,
+            PlanEdge::RealizedVisual,
+            PlanEdge::SequencePart(1),
+            PlanEdge::ParagraphBody,
+            PlanEdge::HeadingBody,
+            PlanEdge::TitleBody,
+            PlanEdge::StrongBody,
+            PlanEdge::EmphBody,
+            PlanEdge::SmallCapsBody,
+            PlanEdge::LabelBody,
+            PlanEdge::ListItemBody,
+            PlanEdge::EnumItemBody,
+            PlanEdge::EquationBody,
+            PlanEdge::FigureBody,
+            PlanEdge::FigureCaption,
+            PlanEdge::FigureSelectedSupplement,
+            PlanEdge::FigureCaptionBody,
+            PlanEdge::FigureCaptionSeparator,
+            PlanEdge::PreparedReferenceSupplement,
+            PlanEdge::CitationSupplement,
+            PlanEdge::GridCell(1),
+            PlanEdge::GridHeader,
+            PlanEdge::GridFooter,
+            PlanEdge::GridCellBody,
+            PlanEdge::GridHeaderBody,
+            PlanEdge::GridFooterBody,
+            PlanEdge::TableResolvedCell(1),
+            PlanEdge::TableRawChild(1),
+            PlanEdge::TableHeader,
+            PlanEdge::TableFooter,
+            PlanEdge::TableCaption,
+            PlanEdge::CellSelectedVisual,
+            PlanEdge::TableHeaderBody,
+            PlanEdge::TableFooterBody,
+            PlanEdge::PageRunBody,
+            PlanEdge::PageRunBackground,
+            PlanEdge::PageRunHeader,
+            PlanEdge::PageRunFooter,
+            PlanEdge::PageRunForeground,
+            PlanEdge::SetPageBackground,
+            PlanEdge::SetPageHeader,
+            PlanEdge::SetPageFooter,
+            PlanEdge::SetPageForeground,
+            PlanEdge::HtmlFrameBody,
+            PlanEdge::TermsItem(1),
+            PlanEdge::TermItemTerm,
+            PlanEdge::TermItemDescription,
+            PlanEdge::QuoteBody,
+            PlanEdge::QuoteAttribution,
+            PlanEdge::StackChild(1),
+            PlanEdge::AlignBody,
+            PlanEdge::PlaceBody,
+            PlanEdge::TransformBody,
+            PlanEdge::PdfArtifactBody,
+            PlanEdge::UnderlineBody,
+            PlanEdge::StrikeBody,
+            PlanEdge::OverlineBody,
+            PlanEdge::PadBody,
+            PlanEdge::HideBody,
+            PlanEdge::BoxedBody,
+            PlanEdge::BlockBody,
+            PlanEdge::RepeatBody,
+            PlanEdge::ColumnsBody,
+            PlanEdge::BibliographyTitle,
+            PlanEdge::FootnoteBody,
+            PlanEdge::FootnoteEntryNote,
+            PlanEdge::FootnoteEntrySeparator,
+            PlanEdge::OutlineRealizedBody,
+            PlanEdge::OutlineEntryBody,
+        ];
+        let contents = vec![
+            Content::text("root"),
+            Content::styled(
+                Box::new(Content::Empty),
+                Styles::new().push_custom("eval.flow.scope", Value::Bool(true)),
+            ),
+            Content::styled(
+                Box::new(Content::Empty),
+                Styles::new().push_custom("eval.flow.scope", Value::Bool(false)),
+            ),
+            Content::Columns(Arc::new(ColumnsElem {
+                count: 2,
+                gutter: None,
+                body: Content::Empty,
+                page_columns: true,
+            })),
+            Content::Columns(Arc::new(ColumnsElem {
+                count: 2,
+                gutter: None,
+                body: Content::Empty,
+                page_columns: false,
+            })),
+        ];
+        let base =
+            prepared(Content::sequence(vec![Content::text("a"), Content::text("b")]));
+        let roles = [
+            PlanRole::Canonical,
+            PlanRole::OriginalOnly,
+            PlanRole::VisualOnly,
+            PlanRole::OperationalTemplate,
+            PlanRole::PreparedReference,
+            PlanRole::PrunedOriginal,
+        ];
+        for edge in edges {
+            for content in &contents {
+                for role in roles {
+                    for original in [false, true] {
+                        for conditional in [None, Some(PacketId(0))] {
+                            for at in [0, 1] {
+                                let mut plan = base.clone();
+                                plan.root = PacketId(0);
+                                for n in &mut plan.nodes {
+                                    n.children.clear();
+                                    n.original = false;
+                                    n.conditional_ref = None;
+                                    n.role = PlanRole::Canonical;
+                                }
+                                plan.nodes[0].content = content.clone();
+                                plan.nodes[0].children = vec![(edge, PacketId(1))];
+                                plan.nodes[at].role = role;
+                                plan.nodes[at].original = original;
+                                plan.nodes[at].conditional_ref = conditional;
+                                let before = plan
+                                    .nodes
+                                    .iter()
+                                    .map(|n| n.children.clone())
+                                    .collect::<Vec<_>>();
+                                plan.initialize_queries();
+                                assert_eq!(
+                                    before,
+                                    plan.nodes
+                                        .iter()
+                                        .map(|n| n.children.clone())
+                                        .collect::<Vec<_>>()
+                                );
+                                for id in 0..plan.nodes.len() + 2 {
+                                    assert_eq!(plan.page_frontier(PacketId(id)),plan.reference_frontier(PacketId(id)),"edge {edge:?} role {role:?} original {original} conditional {conditional:?} at {at} id {id}");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn child_first_match_missing_edges_and_forward_constraints_are_preserved() {
+        let mut plan =
+            prepared(Content::sequence(vec![Content::text("a"), Content::text("b")]));
+        plan.root = PacketId(0);
+        plan.nodes[0].children = vec![
+            (PlanEdge::SequencePart(2), PacketId(2)),
+            (PlanEdge::SequencePart(1), PacketId(2)),
+            (PlanEdge::SequencePart(1), PacketId(1)),
+            (PlanEdge::SourceBody, PacketId(9999)),
+        ];
+        plan.nodes[1].children = vec![(PlanEdge::SourceBody, PacketId(0))];
+        plan.initialize_queries();
+        for parent in 0..plan.nodes.len() + 2 {
+            for edge in [
+                PlanEdge::SequencePart(1),
+                PlanEdge::SequencePart(2),
+                PlanEdge::SequencePart(3),
+                PlanEdge::SourceBody,
+                PlanEdge::ParagraphBody,
+            ] {
+                let expected = plan.node(PacketId(parent)).and_then(|n| {
+                    n.children.iter().find_map(|(e, p)| (*e == edge).then_some(*p))
+                });
+                assert_eq!(plan.child(PacketId(parent), edge), expected);
+            }
+        }
+        assert_eq!(plan.child(PacketId(0), PlanEdge::SequencePart(1)), Some(PacketId(2)));
+        assert_eq!(plan.child(PacketId(0), PlanEdge::SourceBody), Some(PacketId(9999)));
+        for id in 0..plan.nodes.len() + 2 {
+            assert_eq!(
+                plan.page_frontier(PacketId(id)),
+                plan.reference_frontier(PacketId(id))
+            );
+        }
+        plan.root = PacketId(2);
+        plan.nodes[2].children = vec![(PlanEdge::SourceBody, PacketId(1))];
+        plan.initialize_queries();
+        assert!(!plan.page_frontier(PacketId(1)));
+        plan.root = PacketId(99999);
+        plan.initialize_queries();
+        assert!(!plan.page_frontier(PacketId(0)));
+    }
+
+    #[test]
+    fn different_plans_and_clones_do_not_share_frontier_answers() {
+        let make = |v| {
+            prepared(Content::styled(
+                Box::new(Content::text("child")),
+                Styles::new().push_custom("eval.flow.scope", Value::Bool(v)),
+            ))
+        };
+        let a = make(true);
+        let b = make(false);
+        let ac = a.child(a.root, PlanEdge::StyledBody).unwrap();
+        let bc = b.child(b.root, PlanEdge::StyledBody).unwrap();
+        assert_eq!(ac, bc);
+        for _ in 0..4 {
+            assert!(a.page_frontier(ac));
+            assert!(!b.page_frontier(bc));
+            assert!(a.clone().page_frontier(ac));
+        }
+        assert!(!Arc::ptr_eq(
+            a.allocation_owner.as_ref().unwrap(),
+            b.allocation_owner.as_ref().unwrap()
+        ));
+    }
+    #[test]
+    fn deep_forward_frontiers_do_not_need_a_root_walk_per_query() {
+        let mut plan = prepared(Content::text("node"));
+        let seed = plan.nodes[0].clone();
+        plan.nodes = (0..8192)
+            .map(|i| {
+                let mut n = seed.clone();
+                n.children = if i + 1 < 8192 {
+                    vec![(PlanEdge::SourceBody, PacketId(i + 1))]
+                } else {
+                    vec![]
+                };
+                n.original = false;
+                n.conditional_ref = None;
+                n.role = PlanRole::Canonical;
+                n
+            })
+            .collect();
+        plan.root = PacketId(0);
+        plan.initialize_queries();
+        let mut work = 0;
+        assert!(plan.frontier_query(PacketId(8191), || work += 1));
+        assert!(work <= 1, "deep query must use precomputed provenance: {work}");
+    }
+
+    #[inline(never)]
+    fn query_storage_bytes(plan: &SourcePlan) -> usize {
+        std::mem::size_of_val(&plan.page_frontiers)
+            + std::mem::size_of_val(&plan.child_ranges)
+            + std::mem::size_of_val(&plan.child_lookup)
+            + plan.page_frontiers.capacity() * std::mem::size_of::<bool>()
+            + plan.child_ranges.capacity() * std::mem::size_of::<(usize, usize)>()
+            + plan.child_lookup.capacity() * std::mem::size_of::<(PlanEdge, PacketId)>()
+    }
+
+    #[test]
+    fn private_query_storage_has_a_linear_budget() {
+        for width in [125, 250, 500, 1000, 4096] {
+            let plan = prepared(Content::sequence(
+                (0..width).map(|i| Content::text(format!("item {i}"))).collect(),
+            ));
+            let edges = plan.nodes.iter().map(|n| n.children.len()).sum::<usize>();
+            let bytes = query_storage_bytes(&plan);
+            assert!(
+                bytes <= 64 * (plan.nodes.len() + edges) + 72,
+                "private tables exceed linear storage budget: {bytes}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod event_membership_tests {
+    use super::*;
+    use crate::compiler::realize::context_occurrences::ContextOccurrenceArena;
+    use crate::entities::locator::Locator;
+    use std::cell::Cell;
+    use std::hash::{Hash, Hasher};
+
+    struct Counted<'a> {
+        value: usize,
+        comparisons: &'a Cell<usize>,
+        collide: bool,
+    }
+    impl PartialEq for Counted<'_> {
+        fn eq(&self, other: &Self) -> bool {
+            self.comparisons.set(self.comparisons.get() + 1);
+            self.value == other.value && self.collide == other.collide
+        }
+    }
+    impl Eq for Counted<'_> {}
+    impl Hash for Counted<'_> {
+        fn hash<H: Hasher>(&self, state: &mut H) {
+            if self.collide {
+                0usize.hash(state)
+            } else {
+                self.value.hash(state)
+            }
+        }
+    }
+
+    fn plan() -> Arc<SourcePlan> {
+        let content =
+            Content::sequence(vec![Content::text("same"), Content::text("same")]);
+        let mut arena = ContextOccurrenceArena::new(&content);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        arena
+            .evaluate(&mut frame, &mut ctx, |ctx| {
+                prepare_page_running_body(&content, ctx)
+            })
+            .unwrap()
+            .plan
+    }
+
+    fn old_unique(events: &[PlannedEvent]) -> bool {
+        let mut seen: Vec<(Arc<SourcePlan>, PacketId, PlanPhase)> = Vec::new();
+        for event in events {
+            if seen.iter().any(|(plan, packet, phase)| {
+                Arc::ptr_eq(plan, &event.plan)
+                    && *packet == event.packet
+                    && *phase == event.phase
+            }) {
+                return false;
+            }
+            seen.push((event.plan.clone(), event.packet, event.phase));
+        }
+        true
+    }
+
+    #[test]
+    fn unique_membership_has_linear_observed_equality_work() {
+        for size in [256, 1024, 4096] {
+            let comparisons = Cell::new(0);
+            assert!(event_keys_are_unique((0..size).map(|value| Counted {
+                value,
+                comparisons: &comparisons,
+                collide: false
+            })));
+            assert!(comparisons.get() <= size * 4,
+                "membership must avoid scanning all prior unique events: size={size}, actual Eq calls={}", comparisons.get());
+        }
+    }
+
+    #[test]
+    fn collisions_compare_full_keys_and_reject_duplicates() {
+        let comparisons = Cell::new(0);
+        assert!(event_keys_are_unique((0..64).map(|value| Counted {
+            value,
+            comparisons: &comparisons,
+            collide: true
+        })));
+        assert!(!event_keys_are_unique((0..64).chain([31]).map(|value| Counted {
+            value,
+            comparisons: &comparisons,
+            collide: true
+        })));
+        assert!(comparisons.get() > 64); // Collision control is not a constant-work claim.
+    }
+
+    #[test]
+    fn exact_plan_packet_and_phase_identity_matches_old_validation() {
+        let a = plan();
+        let b = Arc::new((*a).clone());
+        assert!(!Arc::ptr_eq(&a, &b));
+        let event = |plan: &Arc<SourcePlan>, packet, phase| PlannedEvent {
+            plan: plan.clone(),
+            packet: PacketId(packet),
+            phase,
+        };
+        assert!(planned_events_are_unique(&[]));
+        let base = vec![
+            event(&a, 0, PlanPhase::Root),
+            event(&a, 0, PlanPhase::PostChildren),
+            event(&a, 1, PlanPhase::Root),
+            event(&b, 0, PlanPhase::Root),
+        ];
+        assert!(planned_events_are_unique(&base));
+        for index in 0..base.len() {
+            for position in 0..=base.len() {
+                let mut duplicate = base.clone();
+                duplicate.insert(position, base[index].clone());
+                assert!(!planned_events_are_unique(&duplicate));
+                assert_eq!(planned_events_are_unique(&duplicate), old_unique(&duplicate));
+            }
+        }
+        for generation in 0..16 {
+            let fresh = plan();
+            let mut events = Vec::new();
+            for i in 0..128 {
+                let packet = (i * 17 + generation) % 23;
+                let p = if i % 3 == 0 {
+                    &fresh
+                } else if i % 3 == 1 {
+                    &a
+                } else {
+                    &b
+                };
+                events.push(event(
+                    p,
+                    packet,
+                    if i % 2 == 0 { PlanPhase::Root } else { PlanPhase::PostChildren },
+                ));
+                assert_eq!(planned_events_are_unique(&events), old_unique(&events));
+            }
+            assert!(planned_events_are_unique(&base)); // A previous call leaves no retained set.
+        }
+    }
+
+    #[test]
+    fn aliased_locations_do_not_conflate_distinct_packets() {
+        let mut a = (*plan()).clone();
+        let alias = Locator::new().next();
+        a.nodes[0].location = Some(alias);
+        a.nodes[1].location = Some(alias);
+        let a = Arc::new(a);
+        let events = vec![
+            PlannedEvent {
+                plan: a.clone(),
+                packet: PacketId(0),
+                phase: PlanPhase::Root,
+            },
+            PlannedEvent {
+                plan: a,
+                packet: PacketId(1),
+                phase: PlanPhase::Root,
+            },
+        ];
+        assert!(planned_events_are_unique(&events));
+        assert!(old_unique(&events));
     }
 }

@@ -1,0 +1,4 @@
+{
+  "utc": "2026-11-18T01:27:16.578657+00:00",
+  "cause": "The supposed valid heading-reference fixture lacked numbering and correctly failed. Added numbering to both valid and invalid variants; no productive code change. Prior artifacts retained; positive controls resumed from durable results."
+}

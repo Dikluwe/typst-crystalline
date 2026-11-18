@@ -1,9 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text/style/font_fallback_tests.md
-//! @prompt-hash d82e518e
+//! @prompt-hash f4b3160b
 //! @layer L1
 //! @updated 2026-11-08
-#![cfg(test)]
 use super::*;
 use crate::entities::{
     dir::Dir,
@@ -161,9 +160,15 @@ fn invalid_empty_none_nonarray_fallback_is_complete_and_owned() {
             assert_eq!(got.font, before.font, "invalid={invalid:?}");
             assert_eq!(active, before);
             assert_eq!(chain.custom("text.font"), Some(&invalid));
-            if let (Some(a), Some(b)) = (&active.font, &got.font) {
-                assert_ne!(a.as_slice().as_ptr(), b.as_slice().as_ptr());
-            }
+            let expected = before
+                .font
+                .as_ref()
+                .map(|font| FontList::new(font.as_slice().to_vec()).unwrap());
+            active.font = Some(FontList::single("replaced input".into()));
+            assert_eq!(got.font, expected);
+            drop(active);
+            drop(before);
+            assert_eq!(got.font, expected, "result must outlive original owners");
         }
     }
 }
@@ -177,13 +182,16 @@ fn absent_custom_and_none_active_remain_distinct_from_decoded_success() {
     active.font = Some(rich_list());
     let got = from_parts(&chain, &active);
     assert_eq!(got.font, active.font);
-    assert_ne!(
-        got.font.as_ref().unwrap().as_slice().as_ptr(),
-        active.font.as_ref().unwrap().as_slice().as_ptr()
-    );
+    let expected = Some(rich_list());
+    active.font = Some(FontList::single("replaced input".into()));
+    assert_eq!(got.font, expected);
     let custom = chain.push_custom("text.font", rich_value());
     active.font = None;
     assert_eq!(from_parts(&custom, &active).font, Some(custom_expected()));
+    drop(active);
+    drop(custom);
+    drop(chain);
+    assert_eq!(got.font, expected, "result must outlive all resolution inputs");
 }
 #[test]
 fn other_render_and_math_script_fields_are_preserved() {

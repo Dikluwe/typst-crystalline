@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
-//! @prompt-hash e399205f
+//! @prompt-hash 5b859608
 //! @layer L3
 //! @updated 2026-11-09
 //!
@@ -211,11 +211,10 @@ pub(super) fn resolve_fonts(
     if font_combos.is_empty() {
         return Vec::new();
     }
-    let font_book = world.book();
     font_combos
         .iter()
         .filter_map(|(fl, variant, variations)| {
-            resolve_font(fl, variant, font_book, world)
+            resolve_font(fl, variant, world)
                 .map(|bytes| ((fl.clone(), *variant, variations.clone()), bytes))
         })
         .collect()
@@ -265,7 +264,7 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 }
 
 /// Itera `font_list.as_slice()` em ordem. Para cada família,
-/// consulta `font_book.select_pattern(&family.name, variant)`;
+/// consulta `world.select_font(&family.name, variant)`;
 /// se devolve `Some(index)`, chama `world.font(index)`; primeira
 /// família que completa ambos os passos vence. Se nenhuma
 /// completa, devolve `None` (pipeline cai em fallback Helvetica).
@@ -284,11 +283,10 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 pub(super) fn resolve_font(
     font_list: &FontList,
     variant: &FontVariant,
-    font_book: &FontBook,
     world: &dyn World,
 ) -> Option<Vec<u8>> {
     for family in font_list.as_slice() {
-        if let Some(index) = font_book.select_pattern(&family.name, variant) {
+        if let Some(index) = world.select_font(&family.name, variant) {
             if let Some(font) = world.font(index) {
                 return Some(font.as_slice().to_vec());
             }
@@ -590,9 +588,8 @@ mod owned_export_font_tests {
     }
 
     // Preserve f32 payload/sign/order without relying on NaN's nonreflexive equality.
-    fn snapshot(
-        table: &[FontKey],
-    ) -> Vec<(String, FontVariant, Vec<([u8; 4], u32)>, Vec<u8>)> {
+    type FontTableSnapshot = Vec<(String, FontVariant, Vec<([u8; 4], u32)>, Vec<u8>)>;
+    fn snapshot(table: &[FontKey]) -> FontTableSnapshot {
         table
             .iter()
             .map(|((family, variant, axes), bytes)| {
@@ -709,7 +706,7 @@ mod owned_export_font_tests {
         a.variations = Some(FontVariations(vec![(*b"AAAA", 1.), (*b"BBBB", 2.)]));
         let mut b = s.clone();
         b.variations = Some(FontVariations(vec![(*b"BBBB", 2.), (*b"AAAA", 1.)]));
-        let styles = vec![bold, italic, a, b];
+        let styles = [bold, italic, a, b];
         let d = PagedDocument::new(vec![page(
             styles
                 .iter()

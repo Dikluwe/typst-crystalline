@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash 09a51025
+//! @prompt-hash 95c9eb80
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -119,6 +119,7 @@ pub(super) fn run_compile_observed(
         report_status,
         None,
         None,
+        None,
         &mut written_outputs,
     )
 }
@@ -128,6 +129,7 @@ pub(super) fn run_compile_observed_with_sessions(
     report_status: &mut impl FnMut(ExitCode, bool) -> std::io::Result<()>,
     font_session: Option<std::sync::Arc<typst_infra::world::FontCatalogSession>>,
     source_session: Option<std::sync::Arc<typst_infra::world::SourceSession>>,
+    compile_session: Option<&typst_infra::pipeline::PdfCompileSession>,
     written_outputs: &mut Vec<PathBuf>,
 ) -> std::io::Result<(ExitCode, FileResult<Vec<PathBuf>>, Option<Published>)> {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
@@ -479,6 +481,22 @@ pub(super) fn run_compile_observed_with_sessions(
                         standard_override,
                     );
                 (r, w, typst_infra::pipeline::Timings::default())
+            } else if let Some(session) = compile_session {
+                typst_infra::pipeline::compile_pdf_in_session(
+                    &world,
+                    &source,
+                    typst_infra::pipeline::PdfSessionOptions {
+                        full_error,
+                        document_id,
+                        stream_mode,
+                        pdf_tagged_override,
+                        features,
+                        pretty_override,
+                        pages_override: pages.clone(),
+                        standard_override,
+                    },
+                    session,
+                )
             } else if timings_json.is_some() {
                 let (r, w, t) =
                     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(

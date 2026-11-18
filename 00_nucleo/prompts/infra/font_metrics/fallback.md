@@ -1,5 +1,12 @@
 # L0 — infra/font_metrics/fallback
-Hash do Código: d7ff1543
+Hash do Código: 8c5ee149
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
+- 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
+- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/fallback.rs`
@@ -7,9 +14,6 @@ Hash do Código: d7ff1543
 Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
-- 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 ```
 
 ## Current evidence
@@ -288,3 +292,179 @@ provider primary chain, use its actual selected font metadata in a local style
 copy, then query the existing shaping candidates. Preserve the input font=None,
 size, variant/axes and all widths/costs. Decline explicit non-LTR directions
 before loading a default face. No new public/pipeline/default font policy.
+
+
+## Ratified selective-font consumers — 2026-11-12T19:19:44.102371+00:00
+
+Measurement before decision: structural/repeat2/receipt.json isolates about 13ms
+of catalog freshness work, not a safe optimization. selection-proof/receipt.json
+checks actual prefix metadata/bytes/indices and minimum-score winners; impact.json
+identifies eager chain and late PDF requests. Source font_metrics/resolution.rs:95
+and shaper/font_selection.rs:73 construct unused later families; shaping.rs:302,542
+and pipeline/resources.rs:214 demand full book for individual selection/metadata.
+The approved World query contract now has default-method GREEN; foundation RED
+proved ordinary prefix selection unnecessarily invoked the full loader, and GREEN
+removes that demand with stable paired immutable data. No new performance is yet
+claimed. User explicitly authorizes this candidate only in RAM, no integration.
+
+Selective queries preserve complete current selection/metadata/bytes. A private
+first-primary lookup follows the unchanged ordered declared-family/readability
+policy; if none resolves, use the existing class fallback then common list. It
+is NOT a complete-chain result and never enters a PrimaryResolution cache.
+Existing complete functions/caches remain the fallback and regression oracle.
+No family-name/phrase/fixture/paragraph-count special case, negative memoization,
+cache lifetime extension, new public method, dependency, unsafe, phase or mode.
+This narrowly supersedes previous mandatory eager full-chain query order only
+where the result is proven unchanged, not source font/fallback/script semantics.
+
+For ordinary metrics that use only the first readable face (vertical/edge/cap
+properties), query that face directly. For direct ordinary text advance, a first
+face with nonzero cmap coverage of every authored character already wins the
+existing per-character covering_text rule. Math/native scripts/uncertain coverage
+keep the full route. This proof concerns the unchanged direct-metric operation;
+it is not certification of a raw shaping result.
+
+Shaping may use a one-face primary vector only when non-math, non-superscript,
+non-subscript and not a resolved BidiSpan occurrence. Prove full authored-text
+nonzero cmap coverage in the first readable face; then run the EXISTING bidi and
+script segmentation with that sole candidate and the existing raw owner, actual
+ordered axes, language, direction, script=None/features=[] policies. Require
+nonempty raw results and no zero glyph. Actual emission/measurement uses the same
+unchanged segmentation and raw inputs and can hit the exact current-compilation
+raw store. Any failure/uncertainty uses the unchanged full primary chain before
+producing output. No partial primary result is cached as complete. No adjusted
+glyph/position/width/cache-key changes. This certificate covers each original
+sub-run, not a whole-text shape used to bypass script segmentation. Terminal
+measurement keeps its current output algorithm; using the raw store for the
+additional ordinary certificate does not replace its existing terminal policy.
+
+RED first: complete ordinary PDF compilation must not invoke a full-catalog
+loader, including metrics, shaping, metadata and export-resource resolution.
+Verify full path on uncertain/default/regex/mutable/missing/longest-run cases;
+keep existing snowman, scripts, math, axes, raw identity, missing-face and cache
+controls. A successful prefix followed by a fallback request must match a fresh
+full result and not poison complete caches. Full source/font-update/PDF/SVG/raster
+controls and paired release CPU/allocation measurements remain required.
+
+Exclusive owning obligation: Use first_primary only at existing first-face-only vertical/cap/edge and default-overhang lookup sites. Direct advance may use the certified ordinary per-character candidate, otherwise exactly the existing full math/text route. Metadata-only lookups use font_info. All other feature/MATH/fallback logic stays unchanged.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Implement the optional paragraph_session and paragraph_identity ports. Identity
+requires a current first-readable face, real immutable owned Font and positive
+cmap coverage for every supplied character including space/dash. Reject math,
+sub/superscript and unsupported direction. Requery current World font; parse
+these actual bytes and refuse if unreadable. Return named deterministic provider
+identity owning that Font, not a slot, family name, digest or borrowed address.
+
+Dependency proof: resolution.rs:first_primary and shaper/font_selection.rs:
+first_candidate use the same declared-order first-readable policy. Full cmap
+coverage wins direct covering_text and longest-run selection (strictly greater
+length replaces winner, so a full first run cannot lose). All substrings and
+hyphen candidates remain covered; admitted preparation excludes other scripts
+and transformed characters. shaped_width uses that face's raw advances even
+when its preliminary raw proof declines, without replacing zero-glyph outputs
+by another font. This certifies stable horizontal dependency, not a new raw
+shaping shortcut. Size, axes, language, direction and all style fields belong
+to exact L1 key. Current final emission/shaping remains unchanged and fresh.
+
+Require real-font RED/GREEN through fresh metrics and PDF compilation. Current
+font replacement at same slot, newly available earlier family, axis/style/width
+changes must match cold output and invalidate; missing proof stays cold.
+
+Actual-byte immutability boundary: only Font::Vec owners certify retention in
+this first provider. A read-only Mmap may still observe external file writes,
+so its identity alone is not proof across compilations; Mmap remains cold.
+Font Vec ownership is immutable while retained (Arc mutation must replace owner).
+
+
+## Laboratory current metric owner proof — 2026-11-13
+
+Evidence before decision: frozen paragraph source, fallback.rs:72-78 obtains
+first_primary (which caches a parsed face in resolution.rs:62), then reacquires
+World.font and parses its bytes independently. caches.rs:260 keeps the earlier
+face by slot. Inference: a World returning a replacement owner can certify
+measurements made with the previous owner; a changing-World runtime test must
+refute or confirm this before correction. This is local cache mechanics, not
+new language semantics or an upstream requirement. No timing gain is established.
+User permits laboratory changes without a separate gate; no integration.
+
+Supersede the repeated standalone parse in paragraph_identity with validation
+against the actual compilation-local cached face. Requery current World.font,
+obtain existing cached_face, require its retained owner to match exactly, and
+check cmap coverage on that parsed face. A mismatch declines certification;
+never refresh existing metrics selectively or label old measurements with a
+new owner. Only the immutable Font identity and existing pure product may
+cross compilations, never a face/metrics handle. All other admission rules
+and provider name remain.
+
+Tests first: prime metrics with a real font, replace bytes at the same slot,
+then require absent identity despite positive coverage in both fonts. Also
+replace by distinct Arc with identical bytes: conservatively decline. Stable
+same-owner providers and fresh providers for the replacement certify normally.
+Use real metric differences to discriminate the changed-font test. Revalidate
+font/PDF/warm-cold controls and full infra/lineage/build gates.
+
+Runtime evidence: paragraph-proof-validation/owner-red.log and red-source.json
+record both new tests failing at the final identity assertion, after stable
+and fresh-provider positive controls and real changed-metric discrimination.
+This confirms an identity proof gap; it does not claim a general World snapshot
+or arbitrary concurrent-mutation consistency. Correct only this admission.
+
+
+## Laboratory immutable metric epoch — 2026-11-13
+
+Evidence before decision: physical-retain/conclusion.json and its exact release
+freeze record six-to-three physical execution reduction but only about5% CPU gain
+on the outline. physical-retain-deep-stacks/structural-summary.json measures
+11.5% inclusive samples in Journal::validates, with additional metric request
+recording/style copying. These are execution mechanics, not language semantics.
+Source world/fonts.rs:168-216 routes every query beyond the immutable prefix
+through font_catalog(); world.rs stores the full catalog in OnceLock. FontSlot
+get at fonts.rs:179-216 keeps embedded bytes in owned Vec and disk fonts may be
+Mmap. Fallback metrics and transitive shaper queries use only the font-facing
+World methods. Therefore a still-uninitialized full catalog plus the owned
+embedded-prefix identity can certify this restricted domain; full-catalog or
+arbitrary provider identity alone cannot. Runtime tests must refute expiry,
+provider replacement and a falsely complete journal. No performance gain is
+assumed. The user explicitly waives approval stops for laboratory work; this
+additive experiment supersedes prior no-new-API clauses only for named methods.
+Integration remains excluded. Follow the pinned immutable-metric-epoch nucleus.
+
+Exclusive owner obligation: Override physical_epoch by combining the instance owner with current world.font_query_epoch; return None when World lacks proof. Do not change metric algorithms or current-owner checks. Test clone sharing, independent provider identities, immutable actual metrics and immediate revocation after full catalog access.
+
+
+### Test-domain correction from observed refusal
+
+The initial metric-epoch infra run (initial-default-family-refusal receipt,
+2026-11-13) revokes the certificate when TextStyle::regular has no explicit
+family. resolution.rs:38-103 and fallback_fonts.rs:32-33 show that this query
+starts with a system sans family, not the embedded prefix. Preserve that
+revocation as a negative control. The positive real-metric case must explicitly
+request Libertinus Serif, then verify book acquisition revokes it. This corrects
+the test domain; do not change font selection or widen certification.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

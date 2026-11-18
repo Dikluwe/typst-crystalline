@@ -1,9 +1,11 @@
 # L0 — Introspection query contract and stores
-Hash do Código: d1de9ec4
+Hash do Código: 6a96dd8c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+
+
 
 
 **Layer:** L1. **Exclusive consumer:** `01_core/src/entities/introspector.rs`.
@@ -476,3 +478,63 @@ The existing figure_number_for_label public observer remains a scalar projection
 ### Original traversal build scope
 
 `figure-kind-implementation/integration-tests-4/tests.log` observes a hidden ancestor's raw Figure incorrectly indexed; ownership-oracle-2 fixes zero versus one for own-hidden prepared Figure. Add crate-private original_walk_depth:usize, zero by Default and on every returned completed walk. It is transient build scope, not query data, cache, public API or global state. Existing heading/label helpers recurse via walk(), so a flag local only to walk_at would be lost at those owner boundaries; this data-only depth passes through their existing shared candidate without extra owners/signatures. Only the walk owner increments/decrements around Realized.original. Clone is value-copy; no runtime callback executes inside that pure traversal.
+
+
+## Laboratory immutable shared introspection snapshot — 2026-11-13
+
+Evidence before decision: outline-retain-layout-boundaries/receipt.json binds
+frozen ELFs/source/UTC and shows128->178 EvalContext constructions while Outline
+executions decrease3->2, with6 physical layouts unchanged. The paired nominal
+sumário remains39.383->39.563ms versus3.208ms vanilla: no consistent gain.
+context_reads.rs:369-370 constructs EvalContext and clones candidate per read.
+This owner currently derives deep Clone for its complete HashMap/Vec-backed
+store at introspector.rs:381-542. The clone repeats semantic snapshot storage
+although reads treat it as immutable. That is a structural hypothesis, not
+exclusive CPU attribution or a speed claim. ADR-0029/0030 authorize RAM sharing;
+ADR-0107/0108 require language evidence, not copying vanilla implementation.
+The user explicitly waived authorization for laboratory work; no integration.
+
+Within this laboratory copy only, make TagIntrospector a cheap owned Arc-backed
+snapshot whose payload TagIntrospectorData contains the existing fields exactly
+once with the same visibility, types and meaning. The payload is public solely
+to provide Deref target/public field access; there is no competing semantic store.
+Clone shares the immutable payload in O(1). Deref gives read access and DerefMut
+uses Arc::make_mut so the first mutation of a shared snapshot detaches the full
+payload. Unique mutation must not copy; subsequent mutations stay on that
+private generation. Default/empty are empty independent snapshots. No mutable
+global, unsafe sharing, RefCell interior mutation of shared maps, new dependency,
+I/O, query callback, generation inference or relaxed observation relation.
+
+Preserve the Introspector trait, existing inherent signatures and explicit field
+read/write behavior. The experimental representation changes struct-literal
+construction and may require mechanical callers to bind one mutable payload or
+clone/take a formerly movable field; no semantic formula/order changes. Current
+source search finds no external struct literals. Keep Debug output transparent
+with its old TagIntrospector field names/order. Payload/handle/Debug/Deref logic
+remain owned here; no compiler import. Existing snapshot nuclei stay unchanged:
+shared immutable backing is not shared mutable language state.
+
+Tests first require actual allocation sharing of a nonempty cloned store, then
+mutation isolation in either direction, unique-owner mutation, independently
+injected physical/HTML positions and page metadata, and intact query inputs.
+The sharing test must fail at runtime under deep Clone. Retain existing full
+core/infra tests, strict gates and real contextual/counter/position/PDF/watch/font
+controls. Any needed consuming-code adjustment first updates its own L0 and
+keeps that consumer's behavior. Record exact sources/times and paired release
+comparison; no speed, memory or complete incremental-layout claim before it.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

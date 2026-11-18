@@ -1,8 +1,10 @@
 # L0 — compiler/eval/call_dispatch/call
-Hash do Código: 17e11be5
+Hash do Código: b8b71157
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
+
+
 
 ## Ownership and extraction evidence
 
@@ -166,3 +168,19 @@ public-pipeline regressions and isolated allocation evidence without a universal
 speedup threshold. Preserve the known outline divergence from vanilla pin
 `64c5e8c02fe0394d913ead36e42ef8c1334d2107` and StyleChain presence debt
 `highlight=Some(None)`; this local optimization certifies no new vanilla parity.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

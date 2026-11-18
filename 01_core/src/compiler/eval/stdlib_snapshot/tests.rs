@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/stdlib_snapshot/tests.md
-//! @prompt-hash a3e819c1
+//! @prompt-hash e0f1a733
 //! @layer L1
 
 #![cfg(test)]
@@ -233,10 +233,10 @@ fn strings(items: &[&str]) -> Value {
 const EXPORT_MODULES: &str = "#let stdmod = std\n#let calcmod = calc\n#let symmod = sym\n#let emojimod = emoji\n#let mathmod = math\n#let sysmod = sys\n#let formatmod = format\n#let aliases = (std.calc == calc, std.sym == sym, std.emoji == emoji, std.math == math, std.sys == sys, std.format == format, std.pdf == format.pdf)\n";
 
 #[test]
-fn modules_keep_per_file_language_identity_and_within_file_aliases() {
+fn modules_share_builtin_language_identity_and_within_file_aliases() {
     let world = MockWorld::new("#import \"a.typ\" as a\n#import \"b.typ\" as b\n#let out = (a.calcmod == calc, a.symmod == sym, a.emojimod == emoji, a.mathmod == math, a.sysmod == sys, a.formatmod == format, a.stdmod == std, a.calcmod == b.calcmod, a.formatmod == b.formatmod, a.stdmod == b.stdmod)\n#let aaliases = a.aliases\n#let baliases = b.aliases\n", &[("a.typ", EXPORT_MODULES), ("b.typ", EXPORT_MODULES)]);
     let module = successful(&world);
-    assert_eq!(value(&module, "out"), Value::Array(vec![Value::Bool(false); 10]));
+    assert_eq!(value(&module, "out"), Value::Array(vec![Value::Bool(true); 10]));
     assert_eq!(value(&module, "aaliases"), Value::Array(vec![Value::Bool(true); 7]));
     assert_eq!(value(&module, "baliases"), Value::Array(vec![Value::Bool(true); 7]));
     assert_eq!(world.input_calls.load(Ordering::SeqCst), 3);
@@ -247,7 +247,7 @@ fn repeated_imports_are_evaluated_and_keep_fresh_module_identity() {
     let world = MockWorld::new("#import \"a.typ\" as first\n#import \"a.typ\" as second\n#let out = (first == second, first.calcmod == second.calcmod, first.stdmod == second.stdmod)\n", &[("a.typ", EXPORT_MODULES)]);
     assert_eq!(
         value(&successful(&world), "out"),
-        Value::Array(vec![Value::Bool(false); 3])
+        Value::Array(vec![Value::Bool(false), Value::Bool(true), Value::Bool(true)])
     );
     assert_eq!(
         world
@@ -270,8 +270,8 @@ fn nested_and_package_imports_keep_inputs_and_namespace_behavior() {
         Value::Array(vec![
             Value::Int(42),
             Value::Int(41),
-            Value::Bool(false),
-            Value::Bool(false)
+            Value::Bool(true),
+            Value::Bool(true)
         ])
     );
     assert_eq!(world.input_calls.load(Ordering::SeqCst), 4);
@@ -588,10 +588,7 @@ fn empty_inputs_and_ordinary_homonymous_modules_remain_distinct() {
 }
 
 #[test]
-fn element_functions_in_builtin_namespaces_keep_per_file_language_identity() {
-    // raw is native-by-name, but raw.line is an Element function whose
-    // identity is its individual Func Arc. Sharing one finished namespace
-    // across files would change these language-level == results.
+fn element_functions_in_builtin_namespaces_share_library_language_identity() {
     let exports =
         "#let rawline = raw.line\n#let stdline = std.raw.line\n#let alias = rawline\n";
     let world = MockWorld::new(
@@ -605,9 +602,9 @@ fn element_functions_in_builtin_namespaces_keep_per_file_language_identity() {
             Value::Bool(true),
             Value::Bool(true),
             Value::Bool(true),
-            Value::Bool(false),
-            Value::Bool(false),
-            Value::Bool(false),
+            Value::Bool(true),
+            Value::Bool(true),
+            Value::Bool(true),
         ]),
     );
     assert_eq!(world.input_calls.load(Ordering::SeqCst), 4);
@@ -879,8 +876,14 @@ fn distinct_files(first: &Scope, second: &Scope) {
     }
     assert_ne!(raw_line(first), raw_line(second), "per-file raw.line identity");
 }
+fn same_builtins(first: &Scope, second: &Scope) {
+    for name in ["calc", "sym", "emoji", "math", "sys", "format"] {
+        assert_eq!(first.get(name), second.get(name), "shared builtin {name}");
+    }
+    assert_eq!(raw_line(first), raw_line(second));
+}
 #[test]
-fn cold_slot_installs_seed_and_equal_queries_reuse_only_seed_identity() {
+fn cold_slot_installs_seed_and_equal_queries_reuse_graph_identity() {
     let input = qualification_inputs(1);
     let slot = RefCell::new(None);
     assert!(slot.borrow().is_none());
@@ -892,7 +895,7 @@ fn cold_slot_installs_seed_and_equal_queries_reuse_only_seed_identity() {
     assert!(Arc::ptr_eq(&seed, &next.unwrap()));
     helper_inputs(&first, &input);
     helper_inputs(&second, &input);
-    distinct_files(&first, &second);
+    same_builtins(&first, &second);
     helper_features(&first, Features::empty());
     helper_features(&second, Features::empty());
 }
@@ -940,7 +943,7 @@ fn all_ordered_input_pairs_guard_seed_and_mismatch_subtree_ancestry() {
                 resolve(&child_slot, &requested, Features::empty());
             assert!(Arc::ptr_eq(&child, &nested_seed.unwrap()));
             helper_inputs(&nested, &requested);
-            distinct_files(&scope, &nested);
+            same_builtins(&scope, &nested);
             let (back, back_seed) = resolve(&slot, &original, Features::empty());
             assert!(Arc::ptr_eq(&parent, &back_seed.unwrap()));
             helper_inputs(&back, &original);
@@ -967,7 +970,11 @@ fn all_complete_feature_transitions_guard_seed_and_actual_pdf_membership() {
             let (back, back_seed) = resolve(&slot, &input, flags(origin));
             assert!(Arc::ptr_eq(&parent, &back_seed.unwrap()));
             helper_features(&back, flags(origin));
-            distinct_files(&scope, &back);
+            if origin == requested {
+                same_builtins(&scope, &back);
+            } else {
+                distinct_files(&scope, &back);
+            }
         }
     }
 }
@@ -1131,8 +1138,8 @@ fn private_with_fixture_preserves_aliases_occurrences_and_diagnostic_spans() {
         assert_eq!(actual[1].value, Value::Int(1));
         assert_eq!(actual[2].value, Value::Int(2));
     }
-    assert_ne!(first.get("bound"), second.get("bound"));
-    distinct_files(&first, &second);
+    assert_eq!(first.get("bound"), second.get("bound"));
+    same_builtins(&first, &second);
 }
 
 fn inspect_builtin_content(content: &Content, depth: usize) {
@@ -1343,12 +1350,16 @@ fn known_cardinality_assert_primitives(scope: &Scope, count: usize) {
     }
 }
 
+fn snapshot_view(scope: &Scope) -> Scope {
+    StdlibSnapshot::new(SysInputs::default(), Features::empty(), scope.clone())
+        .scope()
+        .clone()
+}
 #[test]
 fn known_cardinality_instances_preserve_sizes_order_and_immutable_sources() {
-    let mut instance = Instance::default();
     for count in [0usize, 1, 17, 257, 4096, 3, 0] {
         let original = known_cardinality_primitive_scope(count);
-        let mut fresh = instance.scope(&original);
+        let mut fresh = snapshot_view(&original);
         known_cardinality_assert_primitives(&original, count);
         known_cardinality_assert_primitives(&fresh, count);
         if count > 0 {
@@ -1360,27 +1371,28 @@ fn known_cardinality_instances_preserve_sizes_order_and_immutable_sources() {
         assert!(original.get("fresh-only").is_none());
         known_cardinality_assert_primitives(&original, count);
     }
-    // This source's capacity exceeds its actual length. Only binding semantics
-    // are asserted here; the reservation expression is reviewed independently.
+    // Excess source capacity must not affect view semantics or declaration order.
     let mut sparse = Scope::with_capacity(4096);
     sparse.define("z", Value::Int(3));
     sparse.define("a", Value::Bool(true));
-    let fresh = instance.scope(&sparse);
+    let fresh = snapshot_view(&sparse);
     for scope in [&sparse, &fresh] {
         assert_eq!(scope.len(), 2);
         assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(), ["z", "a"]);
         assert_eq!(scope.get("z"), Some(&Value::Int(3)));
         assert_eq!(scope.get("a"), Some(&Value::Bool(true)));
     }
-    assert!(instance.scope(&Scope::new()).is_empty());
+    assert!(snapshot_view(&Scope::new()).is_empty());
 }
 
 #[test]
-fn known_cardinality_nested_unequal_scopes_keep_aliases_and_fresh_identity() {
+fn known_cardinality_nested_unequal_scopes_keep_aliases_and_shared_identity() {
     let mut root = Scope::new();
     for count in [0usize, 1, 17, 257] {
-        let module = Module::new(format!("module-{count}"),
-            known_cardinality_primitive_scope(count));
+        let module = Module::new(
+            format!("module-{count}"),
+            known_cardinality_primitive_scope(count),
+        );
         root.define(format!("module-{count}"), Value::Module(module.clone()));
         root.define(format!("alias-{count}"), Value::Module(module));
     }
@@ -1388,23 +1400,25 @@ fn known_cardinality_nested_unequal_scopes_keep_aliases_and_fresh_identity() {
     let mut template = Scope::new();
     template.define("z", Value::Module(outer.clone()));
     template.define("a", Value::Module(outer.clone()));
-    let first = Instance::default().scope(&template);
-    let second = Instance::default().scope(&template);
+    let first = snapshot_view(&template);
+    let second = snapshot_view(&template);
     for fresh in [&first, &second] {
         assert_eq!(fresh.iter().map(|(name, _)| name).collect::<Vec<_>>(), ["z", "a"]);
         assert_eq!(fresh.get("z"), fresh.get("a"));
-        assert_ne!(fresh.get("z"), template.get("z"));
+        assert_eq!(fresh.get("z"), template.get("z"));
         let Value::Module(copied_outer) = fresh.get("z").unwrap() else {
             panic!("outer module");
         };
         assert_eq!(copied_outer.name(), outer.name());
-        assert_eq!(copied_outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>(),
-            outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>());
+        assert_eq!(
+            copied_outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>(),
+            outer.scope().iter().map(|(name, _)| name).collect::<Vec<_>>()
+        );
         for count in [0usize, 1, 17, 257] {
             let name = format!("module-{count}");
             let alias = format!("alias-{count}");
             assert_eq!(copied_outer.scope().get(&name), copied_outer.scope().get(&alias));
-            assert_ne!(copied_outer.scope().get(&name), outer.scope().get(&name));
+            assert_eq!(copied_outer.scope().get(&name), outer.scope().get(&name));
             let Value::Module(child) = copied_outer.scope().get(&name).unwrap() else {
                 panic!("nested module");
             };
@@ -1416,12 +1430,12 @@ fn known_cardinality_nested_unequal_scopes_keep_aliases_and_fresh_identity() {
             known_cardinality_assert_primitives(original_child.scope(), count);
         }
     }
-    assert_ne!(first.get("z"), second.get("z"));
+    assert_eq!(first.get("z"), second.get("z"));
     let Value::Module(first_outer) = first.get("z").unwrap() else { panic!("first") };
     let Value::Module(second_outer) = second.get("z").unwrap() else { panic!("second") };
     for count in [0usize, 1, 17, 257] {
         let name = format!("module-{count}");
-        assert_ne!(first_outer.scope().get(&name), second_outer.scope().get(&name));
+        assert_eq!(first_outer.scope().get(&name), second_outer.scope().get(&name));
     }
 }
 
@@ -1434,26 +1448,31 @@ fn known_cardinality_native_namespaces_and_with_aliases_survive_root_size_change
     let Value::Func(line) = raw_line(&registry) else { panic!("raw.line") };
     let bound = line.clone().with(Args::positional(vec![Value::Func(line.clone())]));
     let source_namespace = raw.namespace().expect("qualified raw namespace");
-    let mut instance = Instance::default();
     for padding in [257usize, 1, 17, 0] {
         let mut template = known_cardinality_primitive_scope(padding);
         template.define("raw", Value::Func(raw.clone()));
         template.define("bound", Value::Func(bound.clone()));
         template.define("bound-alias", Value::Func(bound.clone()));
-        let fresh = instance.scope(&template);
-        let separate = Instance::default().scope(&template);
+        let fresh = snapshot_view(&template);
+        let separate = snapshot_view(&template);
         for scope in [&fresh, &separate] {
             assert_eq!(scope.len(), padding + 3);
-            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
-                template.iter().map(|(name, _)| name).collect::<Vec<_>>());
-            let Value::Func(copied_raw) = scope.get("raw").unwrap() else { panic!("raw") };
+            assert_eq!(
+                scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                template.iter().map(|(name, _)| name).collect::<Vec<_>>()
+            );
+            let Value::Func(copied_raw) = scope.get("raw").unwrap() else {
+                panic!("raw")
+            };
             let namespace = copied_raw.namespace().expect("copied raw namespace");
             assert_eq!(namespace.len(), source_namespace.len());
-            assert_eq!(namespace.iter().map(|(name, _)| name).collect::<Vec<_>>(),
-                source_namespace.iter().map(|(name, _)| name).collect::<Vec<_>>());
+            assert_eq!(
+                namespace.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                source_namespace.iter().map(|(name, _)| name).collect::<Vec<_>>()
+            );
             assert_eq!(scope.get("bound"), scope.get("bound-alias"));
-            assert_ne!(scope.get("bound"), template.get("bound"));
-            assert_ne!(raw_line(scope), Value::Func(line.clone()));
+            assert_eq!(scope.get("bound"), template.get("bound"));
+            assert_eq!(raw_line(scope), Value::Func(line.clone()));
             let Value::Func(copied_bound) = scope.get("bound").unwrap() else {
                 panic!("bound");
             };
@@ -1461,9 +1480,266 @@ fn known_cardinality_native_namespaces_and_with_aliases_survive_root_size_change
             assert_eq!(Value::Func(pair.0.clone()), raw_line(scope));
             assert_eq!(pair.1.items, vec![raw_line(scope)]);
         }
-        assert_ne!(fresh.get("bound"), separate.get("bound"));
-        assert_ne!(raw_line(&fresh), raw_line(&separate));
+        assert_eq!(fresh.get("bound"), separate.get("bound"));
+        assert_eq!(raw_line(&fresh), raw_line(&separate));
         assert_eq!(template.get("bound"), Some(&Value::Func(bound.clone())));
         assert_eq!(raw_line(&template), Value::Func(line.clone()));
+    }
+}
+
+#[test]
+fn builtin_root_reuses_builder_and_graph_identity() {
+    let slot = RefCell::new(None);
+    let input = inputs(&[("x", "one")]);
+    let calls = std::cell::Cell::new(0);
+    let build = || {
+        calls.set(calls.get() + 1);
+        make_stdlib_with_features(&input, flags(0))
+    };
+    let a = root_with(&slot, &input, flags(0), build);
+    let b = root_with(&slot, &input, flags(0), build);
+    helper_inputs(&a, &input);
+    helper_inputs(&b, &input);
+    same_builtins(&a, &b);
+    assert_eq!(calls.get(), 1, "root builder repeated for identical inputs/features");
+}
+#[test]
+fn builtin_root_guards_complete_inputs_order_and_features() {
+    let slot = RefCell::new(None);
+    let calls = std::cell::Cell::new(0);
+    let a = inputs(&[("a", "1"), ("b", "2")]);
+    let b = inputs(&[("b", "2"), ("a", "1")]);
+    let c = inputs(&[("a", "1"), ("b", "3")]);
+    for (input, feature) in
+        [(&a, 0), (&a, 0), (&b, 0), (&c, 0), (&c, 7), (&c, 7), (&a, 0)]
+    {
+        let value = root_with(&slot, input, flags(feature), || {
+            calls.set(calls.get() + 1);
+            make_stdlib_with_features(input, flags(feature))
+        });
+        helper_inputs(&value, input);
+        helper_features(&value, flags(feature));
+    }
+    assert_eq!(calls.get(), 5, "complete ordered input/feature key or reuse is missing");
+}
+#[test]
+fn builtin_root_input_limits_refuse_and_clear_previous_seed() {
+    let slot = RefCell::new(None);
+    let small = inputs(&[("a", "b")]);
+    let large = inputs(&[("a", &"x".repeat(131073))]);
+    let many = qualification_inputs(257);
+    for input in [&small, &large, &small, &many] {
+        let scope = root_with(&slot, input, flags(0), || {
+            make_stdlib_with_features(input, flags(0))
+        });
+        helper_inputs(&scope, input);
+        assert_eq!(
+            slot.borrow().is_some(),
+            input.len() <= 256
+                && input.iter().map(|(k, v)| k.len() + v.len()).sum::<usize>() <= 131072
+        );
+    }
+}
+#[test]
+fn builtin_root_sessions_are_isolated_and_replace_single_seed() {
+    let left = RefCell::new(None);
+    let right = RefCell::new(None);
+    let a = inputs(&[("a", "1")]);
+    let b = inputs(&[("a", "2")]);
+    let first =
+        root_with(&left, &a, flags(0), || make_stdlib_with_features(&a, flags(0)));
+    assert!(right.borrow().is_none());
+    let other =
+        root_with(&right, &a, flags(0), || make_stdlib_with_features(&a, flags(0)));
+    distinct_files(&first, &other);
+    let seed = left.borrow().as_ref().map(Arc::downgrade).expect("owned seed");
+    root_with(&left, &b, flags(0), || make_stdlib_with_features(&b, flags(0)));
+    assert!(seed.upgrade().is_none(), "superseded seed retained");
+    helper_inputs(&first, &a);
+}
+#[test]
+fn builtin_root_leaf_scope_and_module_identity_share() {
+    let input = inputs(&[]);
+    let seed = StdlibSnapshot::new(
+        input.clone(),
+        flags(0),
+        make_stdlib_with_features(&input, flags(0)),
+    );
+    let fresh = seed.scope().clone();
+    let Value::Module(before) = seed.scope().get("emoji").unwrap() else { panic!() };
+    let Value::Module(after) = fresh.get("emoji").unwrap() else { panic!() };
+    assert_eq!(before, after);
+    let name = before.scope().iter().next().unwrap().0;
+    assert!(
+        std::ptr::eq(
+            before.scope().get_binding(name).unwrap(),
+            after.scope().get_binding(name).unwrap()
+        ),
+        "immutable leaf namespace rebuilt"
+    );
+    let mut changed = after.scope().clone();
+    *changed.get_mut(name).unwrap() = Value::Int(123);
+    assert_ne!(changed.get(name), before.scope().get(name));
+    assert_eq!(after.scope().get(name), before.scope().get(name));
+}
+
+#[test]
+fn builtin_root_nested_symbol_modules_share_graph_identity() {
+    let input = inputs(&[]);
+    let seed = StdlibSnapshot::new(
+        input.clone(),
+        flags(0),
+        make_stdlib_with_features(&input, flags(0)),
+    );
+    let fresh = seed.scope().clone();
+    let Value::Module(a) = seed.scope().get("sym").unwrap() else { panic!() };
+    let Value::Module(b) = fresh.get("sym").unwrap() else { panic!() };
+    for name in ["gender", "control"] {
+        assert_eq!(a.scope().get(name), b.scope().get(name));
+        assert!(matches!(a.scope().get(name), Some(Value::Module(_))));
+    }
+}
+
+#[test]
+fn builtin_root_imports_observe_current_inputs_and_distinct_builtins() {
+    let session = super::super::subtree_session::SubtreeSession::new();
+    for child in ["first", "second", "first"] {
+        let world = MockWorld::new(
+            "#import \"child.typ\" as child\n#let out = (sys.inputs.label, child.saved, sym == child.symbols, raw.line == child.element)",
+            &[("child.typ", "#let saved = sys.inputs.label; #let symbols = sym; #let element = raw.line;")]
+        ).scripted(vec![inputs(&[("label", "root")]), inputs(&[("label", child)])]);
+        let (result, warnings) = session.evaluate(
+            &world,
+            &world.main,
+            false,
+            EvalTarget::Paged,
+            Features::empty(),
+        );
+        assert!(warnings.is_empty());
+        assert_eq!(
+            value(&result.unwrap(), "out"),
+            Value::Array(vec![
+                Value::Str("root".into()),
+                Value::Str(child.into()),
+                Value::Bool(false),
+                Value::Bool(false)
+            ])
+        );
+        assert_eq!(world.input_calls.load(Ordering::SeqCst), 2);
+    }
+}
+#[test]
+fn builtin_root_registry_constructors_are_current_not_captured() {
+    let session = super::super::subtree_session::SubtreeSession::new();
+    let world = MockWorld::new("#customprobe()", &[]);
+    for label in ["first", "second", "first"] {
+        let mut registry = ElementRegistry::new();
+        registry.register("customprobe", Arc::new(move |_| Ok(Content::text(label))));
+        let mut sink = Sink::new();
+        let result = super::super::eval_with_subtree_session(
+            &world,
+            sink.track_mut(),
+            &world.main,
+            &registry,
+            (false, EvalTarget::Paged, Features::empty()),
+            Some(&session),
+        )
+        .unwrap();
+        assert!(sink.into_diagnostics().is_empty());
+        assert_eq!(result.content().unwrap().plain_text().trim(), label);
+    }
+}
+
+#[test]
+fn builtin_graph_root_and_import_share_language_identity() {
+    let world=MockWorld::new("#import \"child.typ\" as child\n#let out = (sym == child.symbols, std == child.base, calc == child.calc_module, raw.line == child.element)", &[("child.typ", "#let symbols = sym; #let base = std; #let calc_module = calc; #let element = raw.line;")]);
+    let module = successful(&world);
+    assert_eq!(value(&module, "out"), Value::Array(vec![Value::Bool(true); 4]));
+    assert_eq!(world.input_calls.load(Ordering::SeqCst), 2);
+}
+#[test]
+fn builtin_graph_matching_resolve_shares_binding_storage() {
+    let slot = RefCell::new(None);
+    let input = inputs(&[]);
+    let (a, _) = resolve(&slot, &input, flags(0));
+    let (b, _) = resolve(&slot, &input, flags(0));
+    assert!(
+        std::ptr::eq(a.get_binding("sym").unwrap(), b.get_binding("sym").unwrap()),
+        "matching builtin graph reconstructed bindings"
+    );
+    assert_eq!(a.get("sym"), b.get("sym"));
+    assert_eq!(raw_line(&a), raw_line(&b));
+}
+#[test]
+fn builtin_graph_negative_homonym_and_mutation_are_isolated() {
+    let world=MockWorld::new("#let alias = sym; #let boxed = (item: sym); #import \"calc.typ\" as usercalc; #let out = (alias == sym, boxed.item == sym, usercalc == calc)",&[("calc.typ","#let one=1")]);
+    assert_eq!(
+        value(&successful(&world), "out"),
+        Value::Array(vec![Value::Bool(true), Value::Bool(true), Value::Bool(false)])
+    );
+    let slot = RefCell::new(None);
+    let input = inputs(&[]);
+    let (a, _) = resolve(&slot, &input, flags(0));
+    let (mut b, _) = resolve(&slot, &input, flags(0));
+    b.define("sym", Value::Int(1));
+    assert_ne!(a.get("sym"), b.get("sym"));
+    let (c, _) = resolve(&slot, &input, flags(0));
+    assert!(matches!(c.get("sym"), Some(Value::Module(_))));
+}
+
+#[test]
+fn builtin_graph_composed_global_is_shared_and_overlay_detaches() {
+    let graph = StdlibSnapshot::new(
+        inputs(&[]),
+        flags(0),
+        make_stdlib_with_features(&inputs(&[]), flags(0)),
+    );
+    let a = graph.global();
+    let mut b = graph.global();
+    assert!(std::ptr::eq(a.get_binding("std").unwrap(), b.get_binding("std").unwrap()));
+    assert_eq!(a.get("std"), b.get("std"));
+    assert!(a.get("red").is_some());
+    assert!(matches!(a.get("text"), Some(Value::Func(_))));
+    assert!(graph.scope().get("std").is_none());
+    let original = a.get("text").cloned();
+    b.define("text", Value::Int(99));
+    b.define("custom", Value::Bool(true));
+    assert_eq!(graph.global().get("text"), original.as_ref());
+    assert!(graph.global().get("custom").is_none());
+    assert_eq!(a.get("std"), graph.global().get("std"));
+}
+#[test]
+fn builtin_graph_expression_import_shares_current_graph() {
+    let world = MockWorld::new(
+        "",
+        &[("child.typ", "#let base=std; #let symbol=sym; #let element=raw.line")],
+    );
+    let (result,warnings)=eval_expression_with_features(&world,"import \"child.typ\" as child; (std == child.base, sym == child.symbol, raw.line == child.element)",Features::empty());
+    assert!(warnings.is_empty());
+    assert_eq!(result.unwrap(), Value::Array(vec![Value::Bool(true); 3]));
+    assert_eq!(world.input_calls.load(Ordering::SeqCst), 2);
+}
+#[test]
+fn builtin_graph_oversized_root_shares_import_without_cross_root_retention() {
+    let session = super::super::subtree_session::SubtreeSession::new();
+    let mut previous = None;
+    for _ in 0..2 {
+        let world=MockWorld::new("#import \"child.typ\" as child; #let base=std; #let out=(std == child.base, sym == child.symbol)",&[("child.typ","#let base=std; #let symbol=sym")]).scripted(vec![inputs(&[("large",&"x".repeat(131073))])]);
+        let (result, warnings) = session.evaluate(
+            &world,
+            &world.main,
+            false,
+            EvalTarget::Paged,
+            Features::empty(),
+        );
+        assert!(warnings.is_empty());
+        let module = result.unwrap();
+        assert_eq!(value(&module, "out"), Value::Array(vec![Value::Bool(true); 2]));
+        let base = value(&module, "base");
+        if let Some(old) = previous {
+            assert_ne!(base, old);
+        }
+        previous = Some(base);
+        assert_eq!(world.input_calls.load(Ordering::SeqCst), 2);
     }
 }

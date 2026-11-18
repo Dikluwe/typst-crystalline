@@ -1,0 +1,3983 @@
+{
+  "utc": "2026-11-18T02:13:56.758728+00:00",
+  "nominal": [
+    {
+      "fixture": "math_supported",
+      "mode": "startup",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 167.97420699999998,
+          "compile_cpu_ms": 164.409447,
+          "detection_cpu_ms": 3.414437,
+          "hwm_mib": 34.412109375
+        },
+        "candidate-alias": {
+          "cpu_ms": 167.59040149999998,
+          "compile_cpu_ms": 164.09706599999998,
+          "detection_cpu_ms": 3.5398825,
+          "hwm_mib": 34.396484375
+        }
+      },
+      "aa_median_percent": 0.415826915924411,
+      "aa_range_percent": [
+        -8.470293778599647,
+        1.662233084884801
+      ]
+    },
+    {
+      "fixture": "math_supported",
+      "mode": "comment_a",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 37.0100855,
+          "compile_cpu_ms": 36.942133,
+          "detection_cpu_ms": 0.0693455,
+          "hwm_mib": 34.7734375
+        },
+        "candidate-alias": {
+          "cpu_ms": 37.4631525,
+          "compile_cpu_ms": 37.388447,
+          "detection_cpu_ms": 0.07470550000000001,
+          "hwm_mib": 34.7578125
+        }
+      },
+      "aa_median_percent": 0.2848126676130547,
+      "aa_range_percent": [
+        -4.713173955156713,
+        4.862580782693371
+      ]
+    },
+    {
+      "fixture": "math_supported",
+      "mode": "visible_tail",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 38.107718,
+          "compile_cpu_ms": 38.019287,
+          "detection_cpu_ms": 0.0776165,
+          "hwm_mib": 34.7734375
+        },
+        "candidate-alias": {
+          "cpu_ms": 38.139568999999995,
+          "compile_cpu_ms": 38.059693499999995,
+          "detection_cpu_ms": 0.0733485,
+          "hwm_mib": 34.7578125
+        }
+      },
+      "aa_median_percent": -1.8012735294894833,
+      "aa_range_percent": [
+        -3.8104595129719643,
+        2.6638426166918805
+      ]
+    },
+    {
+      "fixture": "mixed_report",
+      "mode": "startup",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 307.381175,
+          "compile_cpu_ms": 303.84988899999996,
+          "detection_cpu_ms": 3.4862215,
+          "hwm_mib": 45.2421875
+        },
+        "candidate-alias": {
+          "cpu_ms": 304.9729685,
+          "compile_cpu_ms": 301.65978199999995,
+          "detection_cpu_ms": 3.4067775,
+          "hwm_mib": 44.94140625
+        }
+      },
+      "aa_median_percent": -0.5500654871299249,
+      "aa_range_percent": [
+        -5.924783378334109,
+        1.7790860638337014
+      ]
+    },
+    {
+      "fixture": "mixed_report",
+      "mode": "comment_a",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 157.1118515,
+          "compile_cpu_ms": 157.0135325,
+          "detection_cpu_ms": 0.08107700000000001,
+          "hwm_mib": 46.47265625
+        },
+        "candidate-alias": {
+          "cpu_ms": 162.82716399999998,
+          "compile_cpu_ms": 162.7628325,
+          "detection_cpu_ms": 0.0715045,
+          "hwm_mib": 46.486328125
+        }
+      },
+      "aa_median_percent": 2.5882047158076738,
+      "aa_range_percent": [
+        -0.5710574370508592,
+        5.359042317753904
+      ]
+    },
+    {
+      "fixture": "mixed_report",
+      "mode": "visible_tail",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 164.6117275,
+          "compile_cpu_ms": 164.529368,
+          "detection_cpu_ms": 0.08409849999999999,
+          "hwm_mib": 46.62109375
+        },
+        "candidate-alias": {
+          "cpu_ms": 164.079983,
+          "compile_cpu_ms": 163.993175,
+          "detection_cpu_ms": 0.09823,
+          "hwm_mib": 46.59765625
+        }
+      },
+      "aa_median_percent": -1.1437676002467145,
+      "aa_range_percent": [
+        -4.422751736132624,
+        4.39462098585488
+      ]
+    },
+    {
+      "fixture": "outline_100",
+      "mode": "startup",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 62.9361805,
+          "compile_cpu_ms": 59.460914,
+          "detection_cpu_ms": 3.509385,
+          "hwm_mib": 30.603515625
+        },
+        "candidate-alias": {
+          "cpu_ms": 63.34971949999999,
+          "compile_cpu_ms": 59.723323,
+          "detection_cpu_ms": 3.434275,
+          "hwm_mib": 30.568359375
+        }
+      },
+      "aa_median_percent": -0.9290717412057392,
+      "aa_range_percent": [
+        -3.5791469401666,
+        7.546564551710588
+      ]
+    },
+    {
+      "fixture": "outline_100",
+      "mode": "comment_a",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 43.209526999999994,
+          "compile_cpu_ms": 43.126992,
+          "detection_cpu_ms": 0.085395,
+          "hwm_mib": 33.279296875
+        },
+        "candidate-alias": {
+          "cpu_ms": 41.842157,
+          "compile_cpu_ms": 41.7639505,
+          "detection_cpu_ms": 0.0782065,
+          "hwm_mib": 33.099609375
+        }
+      },
+      "aa_median_percent": -2.043385303121931,
+      "aa_range_percent": [
+        -5.110614852414653,
+        1.270543842796723
+      ]
+    },
+    {
+      "fixture": "outline_100",
+      "mode": "visible_tail",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 45.1699265,
+          "compile_cpu_ms": 45.106767500000004,
+          "detection_cpu_ms": 0.06428049999999999,
+          "hwm_mib": 33.46875
+        },
+        "candidate-alias": {
+          "cpu_ms": 44.154823,
+          "compile_cpu_ms": 44.0837645,
+          "detection_cpu_ms": 0.069701,
+          "hwm_mib": 33.263671875
+        }
+      },
+      "aa_median_percent": -3.0073356729478196,
+      "aa_range_percent": [
+        -30.171952656692103,
+        3.5208032476188977
+      ]
+    },
+    {
+      "fixture": "references_500",
+      "mode": "startup",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 413.226363,
+          "compile_cpu_ms": 409.91945799999996,
+          "detection_cpu_ms": 3.3822419999999997,
+          "hwm_mib": 63.3125
+        },
+        "candidate-alias": {
+          "cpu_ms": 413.799224,
+          "compile_cpu_ms": 410.332278,
+          "detection_cpu_ms": 3.465418,
+          "hwm_mib": 63.662109375
+        }
+      },
+      "aa_median_percent": -0.0951314327151509,
+      "aa_range_percent": [
+        -2.875069917740092,
+        2.178256004895629
+      ]
+    },
+    {
+      "fixture": "references_500",
+      "mode": "comment_a",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 372.83948999999996,
+          "compile_cpu_ms": 372.75302750000003,
+          "detection_cpu_ms": 0.086648,
+          "hwm_mib": 69.88671875
+        },
+        "candidate-alias": {
+          "cpu_ms": 371.4072635,
+          "compile_cpu_ms": 371.3350585,
+          "detection_cpu_ms": 0.08331150000000001,
+          "hwm_mib": 70.427734375
+        }
+      },
+      "aa_median_percent": -1.7639897993368736,
+      "aa_range_percent": [
+        -5.033982400861725,
+        0.24763738037576477
+      ]
+    },
+    {
+      "fixture": "references_500",
+      "mode": "visible_tail",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 378.9126845,
+          "compile_cpu_ms": 378.83316,
+          "detection_cpu_ms": 0.0770145,
+          "hwm_mib": 70.01171875
+        },
+        "candidate-alias": {
+          "cpu_ms": 377.890078,
+          "compile_cpu_ms": 377.8230815,
+          "detection_cpu_ms": 0.070307,
+          "hwm_mib": 70.427734375
+        }
+      },
+      "aa_median_percent": 0.019965553328959995,
+      "aa_range_percent": [
+        -6.861660775960932,
+        1.8845861495159877
+      ]
+    },
+    {
+      "fixture": "unicode_repo",
+      "mode": "startup",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 244.6513955,
+          "compile_cpu_ms": 241.10722049999998,
+          "detection_cpu_ms": 3.4371795,
+          "hwm_mib": 109.490234375
+        },
+        "candidate-alias": {
+          "cpu_ms": 247.557468,
+          "compile_cpu_ms": 243.98492399999998,
+          "detection_cpu_ms": 3.4700415,
+          "hwm_mib": 109.25390625
+        }
+      },
+      "aa_median_percent": 0.9993234655015559,
+      "aa_range_percent": [
+        -0.030635189396599483,
+        4.732246118540351
+      ]
+    },
+    {
+      "fixture": "unicode_repo",
+      "mode": "comment_a",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 88.03867299999999,
+          "compile_cpu_ms": 87.926051,
+          "detection_cpu_ms": 0.11328850000000001,
+          "hwm_mib": 110.55859375
+        },
+        "candidate-alias": {
+          "cpu_ms": 90.6540785,
+          "compile_cpu_ms": 90.578461,
+          "detection_cpu_ms": 0.077306,
+          "hwm_mib": 110.28515625
+        }
+      },
+      "aa_median_percent": 1.4244032025282516,
+      "aa_range_percent": [
+        -22.699513941402017,
+        6.363507506255761
+      ]
+    },
+    {
+      "fixture": "unicode_repo",
+      "mode": "visible_tail",
+      "variants": {
+        "candidate": {
+          "cpu_ms": 71.09179800000001,
+          "compile_cpu_ms": 70.9979265,
+          "detection_cpu_ms": 0.08151800000000001,
+          "hwm_mib": 111.0
+        },
+        "candidate-alias": {
+          "cpu_ms": 73.46688750000001,
+          "compile_cpu_ms": 73.360818,
+          "detection_cpu_ms": 0.083577,
+          "hwm_mib": 115.228515625
+        }
+      },
+      "aa_median_percent": 0.03321342044295683,
+      "aa_range_percent": [
+        -5.777280082456581,
+        10.643655105750561
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "case": "1237000-candidate-math_supported",
+      "fixture": "math_supported",
+      "period_ns": 1237000,
+      "samples": 3159,
+      "truncated": 0,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.000001835019897,
+      "stage_percent": {
+        "physical_layout": 73.34599556821779,
+        "other_boundary": 8.135485913263691,
+        "pdf_export": 5.0332383665717,
+        "final_shaping_bidi": 4.46343779677113,
+        "semantic_index": 4.46343779677113,
+        "realize_stabilize": 2.849002849002849,
+        "eval": 1.7094017094017093
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 22.285533396644507,
+        "font_generation_all": 38.7147831592276,
+        "math_primary_resolution": 56.63184552073441,
+        "body_dispatch": 73.21937321937322,
+        "content_clone": 2.8173472617917064,
+        "font_book_select": 16.429249762583098,
+        "bidi": 0.4748338081671415,
+        "line_commit": 0.1899335232668566,
+        "style_lookup": 0.15827793605571383,
+        "positions_final": 0.3798670465337132
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 99.62013295346628,
+        "positions_final": 0.3798670465337132
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1489
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          256
+        ],
+        [
+          "core::slice::<impl [T]>::partition_point",
+          138
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          104
+        ],
+        [
+          "<core::iter::adapters::copied::Copied<I> as core::iter::traits::iterator::Iterator>::try_fold",
+          84
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          67
+        ],
+        [
+          "ttf_parser::tables::cff::cff1::_parse_char_string",
+          62
+        ],
+        [
+          "typst_core::entities::font_book::FontBook::select_pattern",
+          40
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          34
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_children_if_changed",
+          22
+        ],
+        [
+          "<alloc::vec::into_iter::IntoIter<T,A> as core::iter::traits::iterator::Iterator>::try_fold",
+          20
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance",
+          19
+        ],
+        [
+          "ttf_parser::Face::glyph_index",
+          17
+        ],
+        [
+          "hashbrown::rustc_entry::<impl hashbrown::map::HashMap<K,V,S,A>>::rustc_entry",
+          16
+        ],
+        [
+          "ttf_parser::tables::cff::charstring::CharStringParser::parse_curve_to",
+          16
+        ],
+        [
+          "<roxmltree::parse::Context as roxmltree::tokenizer::XmlEvents>::token",
+          15
+        ],
+        [
+          "<typst_core::entities::content::Content as core::clone::Clone>::clone",
+          15
+        ],
+        [
+          "ttf_parser::tables::cmap::Subtables::get",
+          14
+        ],
+        [
+          "typst_core::entities::elements::math_attach::MathAttachElem::map_content_if_changed",
+          13
+        ],
+        [
+          "std::sys::fs::unix::try_statx",
+          12
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3159
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3150
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3141
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3141
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          2810
+        ],
+        [
+          "typst_infra::pipeline::paged::layout_with_realized_math_callbacks_from_with_metrics",
+          2332
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run",
+          2332
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          2313
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content",
+          2313
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          2289
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          2289
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          2289
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          2284
+        ],
+        [
+          "typst_core::compiler::layout::equation::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_equation",
+          2262
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary_with_math_fallback",
+          1789
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          1414
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::math_constants",
+          1254
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary",
+          1246
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          1224
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_equation_measured",
+          956
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_node",
+          934
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_sequence",
+          934
+        ],
+        [
+          "typst_infra::fontdb::generation::ProbeKey::unchanged",
+          712
+        ],
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          704
+        ],
+        [
+          "typst_core::entities::font_book::FontBook::select_pattern",
+          519
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_text_node",
+          477
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_symbol",
+          473
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::text_ink_bounds_signed",
+          431
+        ],
+        [
+          "typst_core::compiler::math::layout::frac::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_frac_with_line",
+          414
+        ],
+        [
+          "typst_core::compiler::math::layout::attach::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_attach",
+          338
+        ],
+        [
+          "typst_core::compiler::math::layout::attach::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_attach_slots",
+          338
+        ],
+        [
+          "typst_infra::world::font_session::FontCatalogSession::catalog::{{closure}}",
+          290
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          288
+        ],
+        [
+          "typst_infra::fontdb::generation::GenerationKey::unchanged",
+          222
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          220
+        ],
+        [
+          "typst_core::compiler::math::layout::root::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_root",
+          209
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          177
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          170
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner::rebuild_bottom_up_node",
+          163
+        ],
+        [
+          "typst_core::entities::elements::equation::EquationElem::map_content_if_changed",
+          160
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_children_if_changed",
+          160
+        ],
+        [
+          "typst_infra::export::export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          148
+        ],
+        [
+          "typst_infra::export::builder::PdfBuilder::build",
+          148
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_document_with_faces",
+          141
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          141
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          684
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          216
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          185
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          138
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::hconcat_spaced",
+          32
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          26
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance",
+          9
+        ],
+        [
+          "typst_infra::watch::ArmedWatch::publish",
+          8
+        ],
+        [
+          "typst_infra::shaper::shaping::try_shape_context",
+          8
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          8
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          8
+        ],
+        [
+          "unresolved",
+          7
+        ],
+        [
+          "typst_infra::export::tiling::walk_resources",
+          7
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary",
+          7
+        ],
+        [
+          "typst_infra::fontdb::generation::ProbeKey::unchanged",
+          6
+        ]
+      ]
+    },
+    {
+      "case": "1237000-candidate-mixed_report",
+      "fixture": "mixed_report",
+      "period_ns": 1237000,
+      "samples": 3217,
+      "truncated": 51,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000006368614889,
+      "stage_percent": {
+        "physical_layout": 73.98197078023003,
+        "semantic_index": 10.941871308672676,
+        "realize_stabilize": 6.185887472800746,
+        "other_boundary": 1.1812247435498913,
+        "pdf_export": 3.9788622940627913,
+        "final_shaping_bidi": 2.113770593720858,
+        "eval": 1.616412806963009
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 4.631644389182468,
+        "font_generation_all": 8.579421821572893,
+        "math_primary_resolution": 11.221635063723966,
+        "body_dispatch": 63.38203294995337,
+        "line_commit": 10.537768106931924,
+        "text_layout": 20.36058439539944,
+        "links_final": 6.092632887783649,
+        "semantic_index": 4.880323282561393,
+        "source_children": 0.9014609884986012,
+        "positions_final": 4.165371464096984,
+        "source_plan_build": 0.8082064034815045,
+        "content_clone": 3.8234379857009637,
+        "style_lookup": 2.6422132421510724,
+        "font_book_select": 3.2639104755983834,
+        "bidi": 0.21759403170655892
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 89.74199564811937,
+        "links_final": 6.092632887783649,
+        "positions_final": 4.165371464096984
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1074
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          112
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          67
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          61
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          60
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          54
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          48
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          47
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          44
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          40
+        ],
+        [
+          "typst_core::compiler::layout::paragraph_session::style_payload",
+          39
+        ],
+        [
+          "core::slice::<impl [T]>::partition_point",
+          37
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::context_marker_id",
+          35
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          30
+        ],
+        [
+          "<core::iter::adapters::copied::Copied<I> as core::iter::traits::iterator::Iterator>::try_fold",
+          29
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          27
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::is_context_marker",
+          26
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          26
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          23
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          22
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3214
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3211
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3209
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3207
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3065
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          2902
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          2519
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          2446
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2422
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          2039
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          2039
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          2039
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1995
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1989
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1987
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          1985
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          1982
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_once",
+          1063
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          655
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          540
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          480
+        ],
+        [
+          "typst_core::compiler::layout::equation::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_equation",
+          439
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary_with_math_fallback",
+          361
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          339
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          331
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          328
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::math_constants",
+          287
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary",
+          280
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          277
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          259
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          213
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          208
+        ],
+        [
+          "typst_core::compiler::layout::sub_frame::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_sub_frame_with_origin",
+          206
+        ],
+        [
+          "typst_core::compiler::layout::realized::layout",
+          198
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          196
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_links",
+          195
+        ],
+        [
+          "typst_core::compiler::layout::table::layout",
+          187
+        ],
+        [
+          "typst_core::compiler::layout::grid::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_grid",
+          182
+        ],
+        [
+          "typst_core::compiler::layout::outline::layout_outline",
+          171
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          166
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_link_body",
+          163
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          157
+        ],
+        [
+          "typst_core::compiler::introspect::page_running::introspect_with_page_running",
+          156
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          153
+        ],
+        [
+          "typst_core::compiler::layout::outline::layout_destination_link",
+          152
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          139
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          82
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::remove_redundant",
+          76
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          76
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          65
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          57
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          41
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          35
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::append_item",
+          32
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          26
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          25
+        ],
+        [
+          "typst_core::compiler::layout::repeat::layout",
+          21
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::Journal::metric",
+          21
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          18
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          18
+        ]
+      ]
+    },
+    {
+      "case": "1237000-candidate-outline_100",
+      "fixture": "outline_100",
+      "period_ns": 1237000,
+      "samples": 3152,
+      "truncated": 3,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000058489644315,
+      "stage_percent": {
+        "physical_layout": 71.60532994923858,
+        "other_boundary": 2.3794416243654823,
+        "pdf_export": 8.407360406091371,
+        "semantic_index": 7.836294416243655,
+        "realize_stabilize": 6.123096446700508,
+        "final_shaping_bidi": 2.3794416243654823,
+        "eval": 1.2690355329949239
+      },
+      "inclusive_percent": {
+        "line_commit": 13.039340101522843,
+        "body_dispatch": 60.184010152284266,
+        "text_layout": 22.11294416243655,
+        "positions_final": 3.7436548223350252,
+        "source_children": 0.6979695431472082,
+        "links_final": 1.8718274111675126,
+        "bidi": 0.6345177664974619,
+        "content_clone": 5.266497461928934,
+        "source_plan_build": 1.0786802030456852,
+        "semantic_index": 4.029187817258883,
+        "style_lookup": 4.631979695431472,
+        "font_book_select": 0.031725888324873094
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 94.38451776649747,
+        "positions_final": 3.7436548223350252,
+        "links_final": 1.8718274111675126
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          774
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          188
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          134
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          122
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          79
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          67
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          66
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          64
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          40
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          35
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          33
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          32
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          29
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::context_marker_id",
+          29
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::collect",
+          27
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          27
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          24
+        ],
+        [
+          "<[A] as core::slice::cmp::SlicePartialEq<B>>::equal",
+          24
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::is_context_marker",
+          22
+        ],
+        [
+          "std::sync::poison::mutex::Mutex<T>::lock",
+          20
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3152
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3144
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3130
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3130
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          2849
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          2666
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          2364
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          2263
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2106
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          1897
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          1895
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          1895
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1877
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1871
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1869
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          1866
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          1864
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          697
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          533
+        ],
+        [
+          "typst_core::compiler::layout::paragraph::close_in_chain",
+          502
+        ],
+        [
+          "typst_core::compiler::layout::parbreak::layout",
+          426
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          411
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          375
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          269
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          261
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          259
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          253
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          234
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          215
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          184
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          181
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          180
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::record_line_width",
+          177
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          159
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::prepare",
+          157
+        ],
+        [
+          "typst_core::compiler::layout::word_segment::word_needs_line_segmentation",
+          149
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          147
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          146
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::is_context_marker",
+          142
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::collect",
+          135
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          130
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          127
+        ],
+        [
+          "typst_core::compiler::introspect::page_running::introspect_with_page_running",
+          124
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          122
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_position_markers",
+          118
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          119
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          83
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          78
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::cloned",
+          48
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          27
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          24
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          23
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          22
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          17
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          16
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          14
+        ],
+        [
+          "unresolved",
+          13
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::append_item",
+          13
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          13
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          13
+        ]
+      ]
+    },
+    {
+      "case": "1237000-candidate-references_500",
+      "fixture": "references_500",
+      "period_ns": 1237000,
+      "samples": 3374,
+      "truncated": 28,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.000000308509345,
+      "stage_percent": {
+        "physical_layout": 65.70835803200949,
+        "pdf_export": 8.150563129816241,
+        "semantic_index": 9.780675755779491,
+        "realize_stabilize": 8.71369294605809,
+        "final_shaping_bidi": 1.7486662714878483,
+        "eval": 4.327208061647895,
+        "other_boundary": 1.5708358032009484
+      },
+      "inclusive_percent": {
+        "line_commit": 10.10669828097214,
+        "body_dispatch": 47.599288678126854,
+        "text_layout": 14.967397747480735,
+        "pdf_compress": 2.015411973918198,
+        "links_final": 6.4908120924718435,
+        "semantic_index": 4.6828689982216956,
+        "content_clone": 7.379964433906343,
+        "positions_final": 4.919976289270895,
+        "source_children": 0.4149377593360996,
+        "source_plan_build": 0.7705986959098993,
+        "bidi": 0.3260225251926497,
+        "style_lookup": 2.6378186129223473
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 88.58921161825727,
+        "links_final": 6.4908120924718435,
+        "positions_final": 4.919976289270895
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          995
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          167
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          98
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          76
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          76
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          75
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          68
+        ],
+        [
+          "miniz_oxide::deflate::core::compress_inner",
+          64
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          61
+        ],
+        [
+          "core::ptr::drop_in_place<typst_core::entities::layout_types::FrameItem>",
+          48
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          46
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::observe_page_environment",
+          43
+        ],
+        [
+          "hashbrown::map::HashMap<K,V,S,A>::insert",
+          40
+        ],
+        [
+          "<typst_core::entities::content::Content as core::clone::Clone>::clone",
+          34
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          33
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          32
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          31
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          28
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::is_context_marker",
+          28
+        ],
+        [
+          "typst_infra::pipeline::substitute_context_blocks_in_chain",
+          27
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3374
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3372
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3372
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3372
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3080
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          2815
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          2319
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          2241
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2057
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          1606
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          1602
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          1602
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1573
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1570
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1570
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          1569
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          1569
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          505
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          395
+        ],
+        [
+          "typst_core::compiler::layout::paragraph::close_in_chain",
+          387
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          385
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          341
+        ],
+        [
+          "typst_core::compiler::layout::parbreak::layout",
+          336
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          287
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          270
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          266
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          231
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          222
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          219
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_links",
+          218
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_once",
+          217
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          211
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          210
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          209
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          181
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::realize",
+          166
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_position_markers",
+          166
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          158
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          158
+        ],
+        [
+          "typst_core::compiler::introspect::page_running::introspect_with_page_running",
+          157
+        ],
+        [
+          "typst_infra::pipeline::substitute_context_blocks_in_chain",
+          155
+        ],
+        [
+          "typst_infra::pipeline::substitute_context_blocks",
+          155
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          153
+        ],
+        [
+          "typst_core::compiler::layout::realized::layout",
+          145
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          141
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          132
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          108
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          75
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::remove_redundant",
+          71
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::cloned",
+          69
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          41
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          31
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          27
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::append_item",
+          26
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          26
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          22
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::collapse",
+          22
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          14
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          14
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          14
+        ]
+      ]
+    },
+    {
+      "case": "1237000-candidate-unicode_repo",
+      "fixture": "unicode_repo",
+      "period_ns": 1237000,
+      "samples": 3193,
+      "truncated": 0,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000016458375958,
+      "stage_percent": {
+        "physical_layout": 43.03163169433135,
+        "pdf_export": 41.55966176010022,
+        "final_shaping_bidi": 10.053241465706233,
+        "other_boundary": 5.261509552145318,
+        "semantic_index": 0.03131850923896023,
+        "realize_stabilize": 0.06263701847792046
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 13.623551518947698,
+        "font_generation_all": 22.893830253679926,
+        "body_dispatch": 42.37394300031318,
+        "bitmap_png": 18.853742561854055,
+        "pdf_compress": 17.068587535233323,
+        "font_candidates": 14.469151268399624,
+        "text_layout": 7.453805198872534,
+        "content_clone": 2.4115252113999373,
+        "bidi": 0.5010961478233636,
+        "line_commit": 0.281866583150642,
+        "positions_final": 0.03131850923896023,
+        "links_final": 0.03131850923896023
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 99.93736298152209,
+        "positions_final": 0.03131850923896023,
+        "links_final": 0.03131850923896023
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1395
+        ],
+        [
+          "miniz_oxide::deflate::core::compress_inner",
+          472
+        ],
+        [
+          "typst_core::entities::font_book::Coverage::contains",
+          421
+        ],
+        [
+          "typst_infra::export::images::png::process_png_for_pdf",
+          72
+        ],
+        [
+          "unicode_segmentation::tables::word::word_category",
+          62
+        ],
+        [
+          "<unicode_segmentation::word::UnicodeWords as core::iter::traits::iterator::Iterator>::next",
+          47
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          40
+        ],
+        [
+          "typst_infra::shaper::font_selection::CandidateSet::best_covering_run",
+          38
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          35
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          26
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::candidates_for_char",
+          25
+        ],
+        [
+          "miniz_oxide::deflate::core::flush_block",
+          25
+        ],
+        [
+          "hashbrown::rustc_entry::<impl hashbrown::map::HashMap<K,V,S,A>>::rustc_entry",
+          21
+        ],
+        [
+          "<rustybuzz::hb::set_digest::hb_set_digest_bits_pattern_t<_> as rustybuzz::hb::set_digest::hb_set_digest_ext>::add_array",
+          17
+        ],
+        [
+          "<image::buffer_::ImageBuffer<FromType,Container> as image::buffer_::ConvertBuffer<image::buffer_::ImageBuffer<ToType,alloc::vec::Vec<<ToType as image::traits::Pixel>::Subpixel>>>>::convert",
+          14
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          14
+        ],
+        [
+          "subsetter::cff::index::VarOffsets::get",
+          12
+        ],
+        [
+          "ttf_parser::tables::cmap::format4::Subtable4::glyph_index",
+          11
+        ],
+        [
+          "subsetter::cff::charstring::Decompiler::decompile_inner",
+          10
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          10
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3193
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3174
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3164
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3164
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          1707
+        ],
+        [
+          "typst_infra::pipeline::paged::layout_with_realized_math_callbacks_from_with_metrics",
+          1357
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run",
+          1357
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          1353
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1353
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1353
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content",
+          1353
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1350
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          1344
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          1344
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped::{{closure}}",
+          1331
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          1254
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          1169
+        ],
+        [
+          "typst_core::compiler::layout::footnote::preflight_carrier",
+          1098
+        ],
+        [
+          "typst_infra::shaper::font_selection::primary_candidates",
+          737
+        ],
+        [
+          "typst_infra::shaper::font_selection::resolve_candidates",
+          734
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          731
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          731
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          723
+        ],
+        [
+          "typst_infra::export::bitmap_glyphs::collect_bitmap_glyphs_for_ids",
+          603
+        ],
+        [
+          "typst_infra::export::images::png::process_png_for_pdf",
+          602
+        ],
+        [
+          "typst_infra::export::images::compress_zlib",
+          554
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::candidates_for_char",
+          462
+        ],
+        [
+          "typst_infra::fontdb::generation::ProbeKey::unchanged",
+          438
+        ],
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          435
+        ],
+        [
+          "typst_core::entities::font_book::Coverage::contains",
+          421
+        ],
+        [
+          "typst_infra::export::font_binding::LookupCache::index",
+          379
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          378
+        ],
+        [
+          "typst_infra::export::tiling::walk_resources",
+          323
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_document_with_faces",
+          317
+        ],
+        [
+          "typst_infra::font_metrics::FallbackFontMetrics::shape_document_with_context",
+          317
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_page::shape_layer",
+          316
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          315
+        ],
+        [
+          "typst_infra::shaper::shaping::try_shape_context",
+          309
+        ],
+        [
+          "typst_infra::shaper::font_selection::CandidateSet::best_covering_run",
+          263
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          238
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          235
+        ],
+        [
+          "typst_infra::world::font_session::FontCatalogSession::catalog::{{closure}}",
+          171
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          169
+        ],
+        [
+          "typst_infra::export::font_binding::bind_document",
+          158
+        ],
+        [
+          "typst_infra::export::font_binding::bind_items_with_seed",
+          158
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          421
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          378
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          127
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          120
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          99
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          71
+        ],
+        [
+          "typst_infra::export::subset::subset_font_inner",
+          27
+        ],
+        [
+          "typst_infra::export::images::compress_zlib",
+          26
+        ],
+        [
+          "typst_infra::shaper::cache::RawShapeCache::shape",
+          21
+        ],
+        [
+          "typst_infra::watch::ArmedWatch::publish",
+          16
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          11
+        ],
+        [
+          "unresolved",
+          10
+        ],
+        [
+          "typst_infra::export::images::png::decode_raster_image",
+          9
+        ],
+        [
+          "typst_infra::export::tiling::walk_resources",
+          6
+        ],
+        [
+          "typst_infra::shaper::shaping::try_shape_context",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "997000-candidate-math_supported",
+      "fixture": "math_supported",
+      "period_ns": 997000,
+      "samples": 3907,
+      "truncated": 0,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000001612054608,
+      "stage_percent": {
+        "physical_layout": 73.25313539800358,
+        "other_boundary": 7.4225748656257995,
+        "final_shaping_bidi": 4.6327105195802405,
+        "pdf_export": 5.144612234450985,
+        "eval": 2.4059380598925006,
+        "realize_stabilize": 3.071410289224469,
+        "semantic_index": 4.069618633222421
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 22.54927054005631,
+        "font_generation_all": 38.67417455848477,
+        "math_primary_resolution": 57.20501663680573,
+        "body_dispatch": 73.1251599692859,
+        "content_clone": 2.764269260302022,
+        "font_book_select": 17.020732019452264,
+        "bidi": 0.6142820578448938,
+        "style_lookup": 0.20476068594829794,
+        "positions_final": 0.15357051446122344,
+        "line_commit": 0.28154594317890963,
+        "links_final": 0.025595085743537242
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 99.82083439979525,
+        "positions_final": 0.15357051446122344,
+        "links_final": 0.025595085743537242
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1793
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          316
+        ],
+        [
+          "core::slice::<impl [T]>::partition_point",
+          182
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          143
+        ],
+        [
+          "<core::iter::adapters::copied::Copied<I> as core::iter::traits::iterator::Iterator>::try_fold",
+          109
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          75
+        ],
+        [
+          "ttf_parser::tables::cff::cff1::_parse_char_string",
+          65
+        ],
+        [
+          "typst_core::entities::font_book::FontBook::select_pattern",
+          51
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          46
+        ],
+        [
+          "hashbrown::rustc_entry::<impl hashbrown::map::HashMap<K,V,S,A>>::rustc_entry",
+          23
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance",
+          23
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::fold",
+          23
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_children_if_changed",
+          22
+        ],
+        [
+          "<roxmltree::parse::Context as roxmltree::tokenizer::XmlEvents>::token",
+          22
+        ],
+        [
+          "typst_core::entities::elements::math_attach::MathAttachElem::map_content_if_changed",
+          21
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          21
+        ],
+        [
+          "roxmltree::parse::Context::append_node",
+          18
+        ],
+        [
+          "<alloc::vec::into_iter::IntoIter<T,A> as core::iter::traits::iterator::Iterator>::try_fold",
+          18
+        ],
+        [
+          "std::sys::fs::unix::try_statx",
+          17
+        ],
+        [
+          "<alloc::vec::Vec<T> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<T,I>>::from_iter",
+          16
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3907
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3898
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3881
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3881
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3491
+        ],
+        [
+          "typst_infra::pipeline::paged::layout_with_realized_math_callbacks_from_with_metrics",
+          2869
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run",
+          2869
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          2857
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content",
+          2857
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          2841
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          2841
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          2841
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          2833
+        ],
+        [
+          "typst_core::compiler::layout::equation::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_equation",
+          2802
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary_with_math_fallback",
+          2235
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          1741
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::math_constants",
+          1565
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary",
+          1538
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          1514
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_equation_measured",
+          1164
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_node",
+          1129
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_sequence",
+          1129
+        ],
+        [
+          "typst_infra::fontdb::generation::ProbeKey::unchanged",
+          886
+        ],
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          881
+        ],
+        [
+          "typst_core::entities::font_book::FontBook::select_pattern",
+          665
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::layout_text_node",
+          601
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_symbol",
+          582
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::text_ink_bounds_signed",
+          544
+        ],
+        [
+          "typst_core::compiler::math::layout::frac::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_frac_with_line",
+          514
+        ],
+        [
+          "typst_core::compiler::math::layout::attach::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_attach_slots",
+          411
+        ],
+        [
+          "typst_core::compiler::math::layout::attach::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_attach",
+          410
+        ],
+        [
+          "typst_infra::world::font_session::FontCatalogSession::catalog::{{closure}}",
+          365
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          362
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          263
+        ],
+        [
+          "typst_infra::fontdb::generation::GenerationKey::unchanged",
+          263
+        ],
+        [
+          "typst_core::compiler::math::layout::root::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_root",
+          252
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          220
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          214
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner::rebuild_bottom_up_node",
+          202
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_children_if_changed",
+          199
+        ],
+        [
+          "typst_core::entities::elements::equation::EquationElem::map_content_if_changed",
+          197
+        ],
+        [
+          "typst_infra::export::export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          186
+        ],
+        [
+          "typst_infra::export::builder::PdfBuilder::build",
+          186
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_document_with_faces",
+          181
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          181
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          862
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          255
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          222
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          145
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          24
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::hconcat_spaced",
+          24
+        ],
+        [
+          "typst_core::entities::content::identity::<impl core::fmt::Debug for typst_core::entities::content::Content>::fmt",
+          16
+        ],
+        [
+          "unresolved",
+          15
+        ],
+        [
+          "typst_infra::shaper::shaping::try_shape_context",
+          14
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary_with_math_fallback",
+          11
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          9
+        ],
+        [
+          "typst_core::compiler::math::layout::sequence_composition::<impl typst_core::compiler::math::layout::MathLayouter<M>>::layout_sequence",
+          9
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance",
+          9
+        ],
+        [
+          "typst_core::compiler::math::layout::MathLayouter<M>::measure_box",
+          8
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_pre_with_origin_inner::rebuild_pre_node",
+          8
+        ]
+      ]
+    },
+    {
+      "case": "997000-candidate-mixed_report",
+      "fixture": "mixed_report",
+      "period_ns": 997000,
+      "samples": 3971,
+      "truncated": 61,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000020574322386,
+      "stage_percent": {
+        "physical_layout": 75.0440695039033,
+        "semantic_index": 9.84638630067993,
+        "pdf_export": 3.676655754218081,
+        "realize_stabilize": 6.5726517250062955,
+        "other_boundary": 1.1835809619743138,
+        "eval": 1.636867287836817,
+        "final_shaping_bidi": 2.039788466381264
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 4.507680684966004,
+        "font_generation_all": 8.461344749433392,
+        "math_primary_resolution": 10.752958952404935,
+        "body_dispatch": 63.63636363636363,
+        "line_commit": 9.59456056408965,
+        "text_layout": 20.574162679425836,
+        "semantic_index": 4.9106018635104505,
+        "links_final": 6.245278267438932,
+        "font_book_select": 3.0470914127423825,
+        "positions_final": 3.7522034751951647,
+        "content_clone": 4.381767816670863,
+        "source_plan_build": 0.7806597834298665,
+        "style_lookup": 2.795265676152103,
+        "source_children": 0.22664316293125158,
+        "bidi": 0.10073029463611181
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 90.0025182573659,
+        "links_final": 6.245278267438932,
+        "positions_final": 3.7522034751951647
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1253
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          121
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          98
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          85
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          83
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          78
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          68
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          65
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          61
+        ],
+        [
+          "typst_core::compiler::layout::paragraph_session::style_payload",
+          60
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          54
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          52
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          42
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          40
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::context_marker_id",
+          38
+        ],
+        [
+          "<core::iter::adapters::copied::Copied<I> as core::iter::traits::iterator::Iterator>::try_fold",
+          37
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::PlannedPass::coverage_complete",
+          33
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::finish_grow",
+          32
+        ],
+        [
+          "<typst_core::entities::content::Content as core::clone::Clone>::clone",
+          31
+        ],
+        [
+          "hashbrown::raw::RawTable<T,A>::reserve_rehash",
+          28
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3968
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3966
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3964
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3962
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3800
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          3587
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          3113
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          3021
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2990
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          2527
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          2522
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          2522
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          2488
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          2480
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          2478
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          2476
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          2474
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_once",
+          1361
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          817
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          654
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          564
+        ],
+        [
+          "typst_core::compiler::layout::equation::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_equation",
+          538
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary_with_math_fallback",
+          427
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          411
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          399
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          381
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::math_constants",
+          350
+        ],
+        [
+          "typst_infra::font_metrics::resolution::<impl typst_infra::font_metrics::FallbackFontMetrics>::resolve_primary",
+          342
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          337
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          298
+        ],
+        [
+          "typst_core::compiler::layout::sub_frame::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_sub_frame_with_origin",
+          298
+        ],
+        [
+          "typst_core::compiler::layout::table::layout",
+          275
+        ],
+        [
+          "typst_core::compiler::layout::grid::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_grid",
+          265
+        ],
+        [
+          "typst_core::compiler::layout::realized::layout",
+          257
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          252
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          248
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_links",
+          241
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          239
+        ],
+        [
+          "typst_core::compiler::layout::outline::layout_outline",
+          226
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_link_body",
+          218
+        ],
+        [
+          "typst_core::compiler::layout::outline::layout_destination_link",
+          208
+        ],
+        [
+          "typst_core::compiler::layout::block::layout",
+          199
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          198
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          195
+        ],
+        [
+          "typst_core::compiler::layout::grid::cell_emission::<impl typst_core::compiler::layout::Layouter<M,S>>::emit_grid_cells_planned",
+          195
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          176
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          97
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::remove_redundant",
+          86
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          82
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          75
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          71
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          49
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          38
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::append_item",
+          36
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::Journal::metric",
+          33
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          27
+        ],
+        [
+          "typst_core::compiler::layout::repeat::layout",
+          24
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          22
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          20
+        ],
+        [
+          "typst_core::compiler::layout::sub_frame::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_sub_frame_with_origin",
+          19
+        ]
+      ]
+    },
+    {
+      "case": "997000-candidate-outline_100",
+      "fixture": "outline_100",
+      "period_ns": 997000,
+      "samples": 3898,
+      "truncated": 1,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000042676745784,
+      "stage_percent": {
+        "physical_layout": 70.57465366854797,
+        "other_boundary": 2.3601847101077476,
+        "semantic_index": 8.337609030271935,
+        "pdf_export": 8.6198050282196,
+        "realize_stabilize": 5.566957414058492,
+        "eval": 2.1806054386865057,
+        "final_shaping_bidi": 2.3601847101077476
+      },
+      "inclusive_percent": {
+        "line_commit": 11.980502821959979,
+        "body_dispatch": 59.36377629553617,
+        "text_layout": 22.06259620318112,
+        "positions_final": 3.3863519753719857,
+        "semantic_index": 4.335556695741406,
+        "links_final": 2.0266803488968703,
+        "content_clone": 6.028732683427399,
+        "source_children": 0.4874294510005131,
+        "bidi": 0.7183170856849667,
+        "style_lookup": 4.3099025141098,
+        "source_plan_build": 1.1544381734222677,
+        "font_book_select": 0.10261672652642381
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 94.58696767573115,
+        "positions_final": 3.3863519753719857,
+        "links_final": 2.0266803488968703
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          945
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          255
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          165
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          141
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          98
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          89
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          77
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          71
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          64
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          54
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          47
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          37
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          35
+        ],
+        [
+          "alloc::raw_vec::RawVecInner<A>::deallocate",
+          35
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::context_marker_id",
+          29
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          28
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::collect",
+          26
+        ],
+        [
+          "ecow::string::EcoString::to_lowercase",
+          26
+        ],
+        [
+          "<[A] as core::slice::cmp::SlicePartialEq<B>>::equal",
+          26
+        ],
+        [
+          "std::sync::poison::mutex::Mutex<T>::lock",
+          26
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3898
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3880
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3868
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3868
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3515
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          3272
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          2901
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          2781
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2569
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          2314
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          2314
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          2314
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          2282
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          2275
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          2272
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          2267
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          2263
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          860
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          660
+        ],
+        [
+          "typst_core::compiler::layout::paragraph::close_in_chain",
+          580
+        ],
+        [
+          "typst_core::compiler::layout::parbreak::layout",
+          485
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          467
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          440
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          346
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          346
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          328
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          322
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          282
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          268
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          243
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          216
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          208
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::record_line_width",
+          203
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          185
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          184
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::prepare",
+          179
+        ],
+        [
+          "typst_core::compiler::layout::word_segment::word_needs_line_segmentation",
+          174
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          169
+        ],
+        [
+          "typst_core::compiler::layout::html_frame::is_context_marker",
+          168
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          168
+        ],
+        [
+          "typst_core::compiler::introspect::page_running::introspect_with_page_running",
+          163
+        ],
+        [
+          "typst_core::compiler::layout::bidi_origin::collect",
+          160
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          157
+        ],
+        [
+          "typst_infra::export::stream::page::emit_page_items",
+          147
+        ],
+        [
+          "typst_infra::export::stream::page::build_page_stream",
+          147
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          145
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          89
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          88
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::cloned",
+          71
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          33
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          27
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          24
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          24
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          17
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          17
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::push_text",
+          17
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          17
+        ],
+        [
+          "typst_infra::watch::ArmedWatch::publish",
+          16
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          16
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::remove_redundant",
+          15
+        ]
+      ]
+    },
+    {
+      "case": "997000-candidate-references_500",
+      "fixture": "references_500",
+      "period_ns": 997000,
+      "samples": 4128,
+      "truncated": 57,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000002047022423,
+      "stage_percent": {
+        "physical_layout": 65.50387596899225,
+        "pdf_export": 8.042635658914728,
+        "semantic_index": 10.053294573643411,
+        "realize_stabilize": 8.76937984496124,
+        "eval": 4.3604651162790695,
+        "final_shaping_bidi": 1.744186046511628,
+        "other_boundary": 1.5261627906976745
+      },
+      "inclusive_percent": {
+        "line_commit": 10.029069767441861,
+        "body_dispatch": 47.52906976744186,
+        "text_layout": 15.164728682170542,
+        "pdf_compress": 1.8895348837209303,
+        "semantic_index": 4.602713178294573,
+        "positions_final": 4.941860465116279,
+        "content_clone": 7.703488372093023,
+        "links_final": 6.661821705426356,
+        "source_children": 0.4118217054263566,
+        "bidi": 0.31492248062015504,
+        "source_plan_build": 0.7994186046511628,
+        "style_lookup": 2.810077519379845,
+        "font_book_select": 0.02422480620155039
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 88.39631782945736,
+        "positions_final": 4.941860465116279,
+        "links_final": 6.661821705426356
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1197
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          207
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          110
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          96
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::decode",
+          95
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          95
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::decode",
+          88
+        ],
+        [
+          "<typst_core::entities::layout_types::TextStyle as core::clone::Clone>::clone",
+          75
+        ],
+        [
+          "miniz_oxide::deflate::core::compress_inner",
+          73
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          71
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          59
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::observe_page_environment",
+          57
+        ],
+        [
+          "<typst_core::entities::content::Content as core::clone::Clone>::clone",
+          48
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          47
+        ],
+        [
+          "<core::iter::adapters::map::Map<I,F> as core::iter::traits::iterator::Iterator>::try_fold",
+          44
+        ],
+        [
+          "core::ptr::drop_in_place<typst_core::entities::layout_types::FrameItem>",
+          44
+        ],
+        [
+          "hashbrown::map::HashMap<K,V,S,A>::insert",
+          43
+        ],
+        [
+          "typst_core::compiler::layout::text::style::resolve_parts",
+          38
+        ],
+        [
+          "typst_core::entities::style_chain::delta_custom",
+          33
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::PlannedPass::coverage_complete",
+          27
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          4125
+        ],
+        [
+          "typst::main",
+          4124
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          4123
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          4122
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          3775
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          3449
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::physical_step",
+          2837
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          2736
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          2514
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          1962
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_cursor",
+          1955
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_root",
+          1955
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1929
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1923
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1923
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::layout_planned_child_mode",
+          1922
+        ],
+        [
+          "typst_core::compiler::layout::style_scope::layout_styled",
+          1921
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          626
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          481
+        ],
+        [
+          "typst_core::compiler::layout::finish::<impl typst_core::compiler::layout::Layouter<M,S>>::finish_with_running",
+          472
+        ],
+        [
+          "typst_core::compiler::layout::paragraph::close_in_chain",
+          465
+        ],
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          414
+        ],
+        [
+          "typst_core::compiler::layout::parbreak::layout",
+          402
+        ],
+        [
+          "typst_core::compiler::layout::word_layout::word",
+          340
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          325
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          319
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          284
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          282
+        ],
+        [
+          "typst_core::compiler::layout::page_running_requests::<impl typst_core::compiler::layout::Layouter<M,S>>::admit_planned_phase",
+          280
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          275
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_once",
+          271
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_links",
+          268
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content",
+          268
+        ],
+        [
+          "typst_core::compiler::realize::context_occurrences::ContextOccurrenceArena::evaluate",
+          258
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          230
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::resolve_position_markers",
+          204
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::realize",
+          203
+        ],
+        [
+          "typst_core::compiler::layout::space::advance",
+          201
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          193
+        ],
+        [
+          "typst_core::compiler::layout::realized::layout",
+          191
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::page_running::<impl typst_infra::pipeline::context_stabilization::Session>::index_physical_steps",
+          190
+        ],
+        [
+          "typst_core::compiler::introspect::page_running::introspect_with_page_running",
+          189
+        ],
+        [
+          "typst_core::entities::content::traversal::<impl typst_core::entities::content::Content>::map_content_inner",
+          186
+        ],
+        [
+          "typst_infra::pipeline::substitute_context_blocks_in_chain",
+          184
+        ],
+        [
+          "typst_infra::pipeline::substitute_context_blocks",
+          184
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_core::compiler::layout::line_commit::<impl typst_core::compiler::layout::Layouter<M,S>>::flush_line_with_outer_singleton",
+          159
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::project",
+          133
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::marker",
+          99
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::remove_redundant",
+          77
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::cloned",
+          69
+        ],
+        [
+          "typst_core::compiler::layout::position_marker::<impl typst_core::compiler::layout::Layouter<M,S>>::capture_position",
+          40
+        ],
+        [
+          "typst_infra::pipeline::context_stabilization::Session::stabilize",
+          39
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::append_item",
+          36
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run_planned",
+          32
+        ],
+        [
+          "typst_core::compiler::layout::repeat::layout",
+          31
+        ],
+        [
+          "typst_core::compiler::layout::link_capture::resolve",
+          31
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::collapse",
+          27
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          23
+        ],
+        [
+          "typst_core::entities::style_chain::StyleChain::custom",
+          21
+        ],
+        [
+          "typst_core::compiler::layout::physical_memo::layout",
+          18
+        ]
+      ]
+    },
+    {
+      "case": "997000-candidate-unicode_repo",
+      "fixture": "unicode_repo",
+      "period_ns": 997000,
+      "samples": 3969,
+      "truncated": 0,
+      "unknown_self": 0,
+      "main_thread_cpu_fraction": 1.0000010275570603,
+      "stage_percent": {
+        "physical_layout": 42.40362811791383,
+        "final_shaping_bidi": 10.027714789619552,
+        "pdf_export": 41.8493323255228,
+        "other_boundary": 5.542957923910305,
+        "realize_stabilize": 0.07558578987150416,
+        "semantic_index": 0.10078105316200554
+      },
+      "inclusive_percent": {
+        "font_generation_scan": 13.177122700932225,
+        "font_generation_all": 22.373393801965232,
+        "body_dispatch": 41.64777021919879,
+        "font_candidates": 13.555051650289746,
+        "bitmap_png": 18.69488536155203,
+        "pdf_compress": 15.82262534643487,
+        "text_layout": 7.785336356764928,
+        "content_clone": 2.2675736961451247,
+        "line_commit": 0.2015621063240111,
+        "bidi": 0.5039052658100277,
+        "font_book_select": 0.025195263290501386,
+        "positions_final": 0.025195263290501386
+      },
+      "final_pass_exclusive_percent": {
+        "remaining": 99.9748047367095,
+        "positions_final": 0.025195263290501386
+      },
+      "top_self": [
+        [
+          "[libc.so.6]",
+          1727
+        ],
+        [
+          "miniz_oxide::deflate::core::compress_inner",
+          546
+        ],
+        [
+          "typst_core::entities::font_book::Coverage::contains",
+          504
+        ],
+        [
+          "typst_infra::export::images::png::process_png_for_pdf",
+          91
+        ],
+        [
+          "unicode_segmentation::tables::word::word_category",
+          74
+        ],
+        [
+          "typst_infra::shaper::font_selection::CandidateSet::best_covering_run",
+          53
+        ],
+        [
+          "<unicode_segmentation::word::UnicodeWords as core::iter::traits::iterator::Iterator>::next",
+          53
+        ],
+        [
+          "<core::hash::sip::Hasher<S> as core::hash::Hasher>::write",
+          44
+        ],
+        [
+          "hashbrown::rustc_entry::<impl hashbrown::map::HashMap<K,V,S,A>>::rustc_entry",
+          40
+        ],
+        [
+          "core::hash::BuildHasher::hash_one",
+          34
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          33
+        ],
+        [
+          "miniz_oxide::deflate::core::flush_block",
+          28
+        ],
+        [
+          "<image::buffer_::ImageBuffer<FromType,Container> as image::buffer_::ConvertBuffer<image::buffer_::ImageBuffer<ToType,alloc::vec::Vec<<ToType as image::traits::Pixel>::Subpixel>>>>::convert",
+          25
+        ],
+        [
+          "ttf_parser::ggg::layout_table::RecordList<T>::get",
+          25
+        ],
+        [
+          "subsetter::cff::charstring::Decompiler::decompile_inner",
+          23
+        ],
+        [
+          "<rustybuzz::hb::set_digest::hb_set_digest_bits_pattern_t<_> as rustybuzz::hb::set_digest::hb_set_digest_ext>::add_array",
+          20
+        ],
+        [
+          "rustybuzz::hb::ot_shape_plan::hb_ot_shape_plan_t::new",
+          18
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::candidates_for_char",
+          16
+        ],
+        [
+          "<char as unicode_script::UnicodeScript>::script",
+          15
+        ],
+        [
+          "roxmltree::parse::Context::append_node",
+          14
+        ]
+      ],
+      "top_inclusive": [
+        [
+          "typst::main",
+          3969
+        ],
+        [
+          "typst::compile::run_compile_observed_with_sessions",
+          3949
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          3939
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_pdf_in_session",
+          3939
+        ],
+        [
+          "typst_infra::pipeline::paged::compile_paged_in_session",
+          2095
+        ],
+        [
+          "typst_infra::pipeline::paged::layout_with_realized_math_callbacks_from_with_metrics",
+          1657
+        ],
+        [
+          "typst_core::compiler::layout::convergence::run",
+          1657
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content_retaining_plan",
+          1653
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::layout_content",
+          1653
+        ],
+        [
+          "typst_core::compiler::layout::Layouter<M,S>::dispatch_content_body",
+          1652
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_with_routes",
+          1652
+        ],
+        [
+          "typst_core::compiler::layout::text_measure::default_text_width",
+          1650
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped",
+          1649
+        ],
+        [
+          "typst_core::compiler::layout::sequence::layout_parts",
+          1646
+        ],
+        [
+          "typst_infra::font_metrics::fallback::<impl typst_core::compiler::layout::metrics::FontMetrics for typst_infra::font_metrics::FallbackFontMetrics>::advance_shaped::{{closure}}",
+          1627
+        ],
+        [
+          "typst_infra::export::export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard",
+          1560
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          1463
+        ],
+        [
+          "typst_core::compiler::layout::footnote::preflight_carrier",
+          1323
+        ],
+        [
+          "typst_infra::shaper::font_selection::resolve_candidates",
+          894
+        ],
+        [
+          "typst_infra::shaper::font_selection::primary_candidates",
+          894
+        ],
+        [
+          "typst_infra::world::fonts::<impl typst_infra::world::SystemWorld>::with_font_catalog_session::{{closure}}",
+          888
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::select_font",
+          888
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          860
+        ],
+        [
+          "typst_infra::export::bitmap_glyphs::collect_bitmap_glyphs_for_ids",
+          743
+        ],
+        [
+          "typst_infra::export::images::png::process_png_for_pdf",
+          742
+        ],
+        [
+          "typst_infra::export::images::compress_zlib",
+          651
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::candidates_for_char",
+          538
+        ],
+        [
+          "typst_infra::fontdb::generation::ProbeKey::unchanged",
+          525
+        ],
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          523
+        ],
+        [
+          "typst_core::entities::font_book::Coverage::contains",
+          504
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          475
+        ],
+        [
+          "typst_infra::export::font_binding::LookupCache::index",
+          474
+        ],
+        [
+          "typst_infra::export::tiling::walk_resources",
+          417
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_document_with_faces",
+          396
+        ],
+        [
+          "typst_infra::font_metrics::FallbackFontMetrics::shape_document_with_context",
+          396
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_page::shape_layer",
+          393
+        ],
+        [
+          "typst_infra::shaper::traversal::shape_item_into",
+          390
+        ],
+        [
+          "typst_infra::shaper::shaping::try_shape_context",
+          388
+        ],
+        [
+          "typst_infra::shaper::font_selection::CandidateSet::best_covering_run",
+          325
+        ],
+        [
+          "typst_core::compiler::layout::text::layout",
+          309
+        ],
+        [
+          "typst_core::compiler::layout::text::layout_run",
+          307
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          204
+        ],
+        [
+          "typst_infra::world::font_session::FontCatalogSession::catalog::{{closure}}",
+          204
+        ],
+        [
+          "typst_infra::export::font_binding::bind_document",
+          197
+        ],
+        [
+          "typst_infra::export::font_binding::bind_items_with_seed",
+          197
+        ]
+      ],
+      "libc_nearest_core": [
+        [
+          "typst_infra::fontdb::generation::scan_stamp",
+          508
+        ],
+        [
+          "typst_infra::export::font_binding::index",
+          473
+        ],
+        [
+          "typst_infra::pipeline::pdf::compile_to_pdf_bytes_impl",
+          176
+        ],
+        [
+          "typst_infra::fontdb::generation::identity",
+          152
+        ],
+        [
+          "typst_infra::fontdb::generation::config_key",
+          120
+        ],
+        [
+          "typst_infra::export::builder::fonts::<impl typst_infra::export::builder::PdfBuilder>::build_multifont",
+          84
+        ],
+        [
+          "typst_infra::export::images::compress_zlib",
+          40
+        ],
+        [
+          "typst_infra::export::subset::subset_font_inner",
+          35
+        ],
+        [
+          "typst_infra::shaper::cache::RawShapeCache::shape",
+          29
+        ],
+        [
+          "typst_infra::watch::ArmedWatch::publish",
+          15
+        ],
+        [
+          "typst_infra::shaper::font_selection::split_run_by_font",
+          15
+        ],
+        [
+          "typst_infra::export::tiling::walk_resources",
+          11
+        ],
+        [
+          "unresolved",
+          8
+        ],
+        [
+          "typst_infra::world::world_impl::<impl typst_core::contracts::world::World for typst_infra::world::SystemWorld>::candidates_for_char",
+          7
+        ],
+        [
+          "typst_infra::shaper::bidi::bidi_runs_at_level",
+          5
+        ]
+      ]
+    }
+  ],
+  "total_samples": 35968
+}

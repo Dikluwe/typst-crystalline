@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 955ed2ec
+//! @prompt-hash 1362e12a
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -29,7 +29,7 @@ use typst_core::entities::document_format_options::{
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
-use typst_core::entities::font_book::{FontBook, FontVariant};
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::introspector::Introspector;
@@ -105,7 +105,7 @@ use bundle::{bundle_error, introspect_bundle_with_runtime_for_pipeline};
 pub use bundle::{compile_to_bundle_files, BundleCompileOptions, BundleFile};
 mod pdf;
 pub use pdf::{
-    compile_to_pdf_bytes, compile_to_pdf_bytes_full_error,
+    compile_pdf_in_session, compile_to_pdf_bytes, compile_to_pdf_bytes_full_error,
     compile_to_pdf_bytes_full_error_and_document_id,
     compile_to_pdf_bytes_full_error_and_document_id_with_features,
     compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization,
@@ -124,6 +124,7 @@ pub use pdf::{
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
+    PdfCompileSession, PdfSessionOptions,
 };
 #[cfg(test)]
 use pdf::{require_ua1_image_alt, resolve_pdf_pages_and_tags};
@@ -299,26 +300,42 @@ fn eval_to_module_with_sink_target_features(
     target: EvalTarget,
     features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
-    let routines = Routines::new();
-    let traced = Traced::default();
-    let mut sink = Sink::new();
-    let route = Route::root();
-    // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
-    // registarem elementos (não há elemento de utilizador em produção ainda).
-    let registry = typst_core::entities::element_registry::ElementRegistry::new();
-    let result = eval_with_full_error_target_and_features(
-        &routines,
-        world,
-        traced.track(),
-        sink.track_mut(),
-        route.track(),
-        source,
-        &registry,
-        full_error,
-        target,
-        features,
-    );
-    let warnings = sink.into_diagnostics();
+    eval_to_module_in_session(world, source, full_error, target, features, None)
+}
+
+fn eval_to_module_in_session(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    target: EvalTarget,
+    features: typst_core::entities::compiler_features::Features,
+    session: Option<&typst_core::compiler::eval::subtree_session::SubtreeSession>,
+) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+    let (result, warnings) = if let Some(session) = session {
+        session.evaluate(world, source, full_error, target, features)
+    } else {
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
+        // registarem elementos (não há elemento de utilizador em produção ainda).
+        let registry = typst_core::entities::element_registry::ElementRegistry::new();
+        let result = eval_with_full_error_target_and_features(
+            &routines,
+            world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            source,
+            &registry,
+            full_error,
+            target,
+            features,
+        );
+        let warnings = sink.into_diagnostics();
+        (result, warnings)
+    };
     let result = result.and_then(|module| {
         if target != EvalTarget::Bundle {
             if let Some(content) = module.content() {
@@ -743,6 +760,164 @@ fn collect_context_blocks_into(
 /// Um `id` ausente de `resolved` continua a dar `Content::Empty` — mas isso
 /// deixa de acontecer por o walk não ter chegado ao bloco, que era a causa do
 /// defeito de P1037.
+// A closed subtree has no substitution operand. Preserve its actual source owner.
+fn stable_heading_substitution_body(content: &typst_core::entities::content::Content) -> bool {
+    use typst_core::entities::content::Content;
+    fn visit(
+        content: &Content,
+        depth: usize,
+        nodes: &mut usize,
+        payload: &mut usize,
+    ) -> bool {
+        if depth > 8 || *nodes >= 128 {
+            return false;
+        }
+        *nodes += 1;
+        let Some(size) = payload.checked_add(std::mem::size_of::<Content>()) else {
+            return false;
+        };
+        if size > 16 * 1024 {
+            return false;
+        }
+        *payload = size;
+        match content {
+            Content::Text(text) => {
+                let Some(size) = payload.checked_add(text.len()) else {
+                    return false;
+                };
+                if size > 16 * 1024 {
+                    return false;
+                }
+                *payload = size;
+                true
+            }
+            Content::Empty
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak => true,
+            Content::Sequence(parts) => {
+                parts.iter().all(|part| visit(part, depth + 1, nodes, payload))
+            }
+            Content::Strong(element) => visit(&element.body, depth + 1, nodes, payload),
+            Content::Emph(element) => visit(&element.body, depth + 1, nodes, payload),
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Realized(..)
+            | Content::Located(..)
+            | Content::Symbol(..)
+            | Content::HtmlElem(..)
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Link(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Styled(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::Boxed(..)
+            | Content::Block(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::Metadata(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => false,
+        }
+    }
+    visit(content, 0, &mut 0, &mut 0)
+}
+
 fn substitute_context_blocks(
     content: Content,
     resolved: &HashMap<u64, Content>,
@@ -830,7 +1005,12 @@ fn substitute_context_blocks_in_chain(
         Content::Emph(e) => body!(Emph, e),
         Content::Block(e) => body!(Block, e),
         Content::Boxed(e) => body!(Boxed, e),
-        Content::Heading(e) => body!(Heading, e),
+        Content::Heading(e) => {
+            if stable_heading_substitution_body(&e.body) {
+                return content;
+            }
+            body!(Heading, e)
+        }
         Content::Title(e) => body!(Title, e),
         Content::ListItem(e) => body!(ListItem, e),
         Content::EnumItem(e) => body!(EnumItem, e),

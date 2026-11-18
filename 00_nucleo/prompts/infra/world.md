@@ -1,10 +1,12 @@
 # L0 — infra/world
-Hash do Código: 08bb2e65
+Hash do Código: 4133fd09
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0132d0e50e81227203f577144758a78792358faee644dc236f74e2d6d8b80fa9
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
+
+
 
 
 **Layer:** L3
@@ -133,3 +135,64 @@ first eager read, load main normally, retain only a private optional Arc and pas
 it into physical slots. All remaining World services are fresh. Do not merge
 FontCatalogSession into SourceSession or alter its contract. Child definition is
 `00_nucleo/prompts/infra/world/source_session.md`, not shared productive ownership.
+
+## Pending selective-query scope
+
+Draft only: the public gate in core/contracts/world.md proposes select_font and
+font_info. If ratified, private facade state may distinguish an immutable leading
+text-font prefix from the complete current catalog; constructor and source state
+remain per World. This narrowly supersedes the earlier no-new-World-method clause.
+The font child must receive a current owner specification before implementation.
+
+
+## Ratified laboratory selective-font foundation — 2026-11-12T19:11:20.034402+00:00
+
+The user explicitly authorized implementing and testing World::select_font and
+World::font_info only in the laboratory, without integration. The exact approved
+proposal patch is 281b8289424b9c24fe61b8890cd30a12e8d9331165afc4b81590a6e80e85cc30;
+fontdemand-validation/approval.json preserves the wording and integrated base.
+This changes the earlier DRAFT gate status to ratified solely for that scope.
+
+Evidence before decision: structural/selection-proof/receipt.json binds real
+selection/bytes/metadata observations to unchanged font modules and verified
+libraries. Its 2142 query matrix has 60 minimum-weight/style-distance prefix
+winners, all equal to the complete catalog; later equal-score entries do not
+displace them. Better suffix variants and absent-prefix families refute name-only
+selection or negative proof. Embedded math/code follows mutable system entries
+and cannot provide a stable leading index. structural/repeat2/receipt.json
+locates about 13ms by deliberately omitting catalog validation, not by a safe
+candidate; impact.json shows byte/metadata/export queries must also stay selective.
+This foundation alone makes no end-to-end speed claim.
+
+No partial book, changed ordering, stale system font, negative answer without
+proof, global cache, extra public method, unsafe or changed demand phase. Default
+methods on arbitrary World delegate to full current book. Only combined policy
+may expose the immutable leading text group. Literal query certification requires
+existing select_pattern winner with minimum weight/style distances; regex, absent
+family and nonminimum score use existing full acquisition. Current select_pattern
+ranking is observed mechanics, not a new stretch/language parity decision.
+
+Tests precede implementation: defaults equal current full selection/metadata;
+exact prefix queries do not call the full loader; bytes/metadata/indices remain
+stable after full-book acquisition; better variants, absent/regex/math-code
+requests force full path; replacing builders clears old prefix; concurrent
+requests/new Worlds share only immutable data, bounded by the session. Keep
+existing generation freshness controls and original fixture tolerances.
+
+Exclusive owning obligation: Own a private optional Arc to the fonts descendant immutable prefix. Empty/transient/source constructors start without this policy. No new public field or constructor behavior; all prefix acquisition remains lazy in descendants.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

@@ -1,9 +1,14 @@
 # Prompt L0 — entities/scope
-Hash do Código: 89d41084
+Hash do Código: c5a23adc
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/builtin-root-retention.toml sha256:08e9f23ba773c1fd5ed43bf67a985c2593f0c002b0fb6084ef9f883a0ef020c7
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/scope.rs`
 **References:** ADR-0023, ADR-0017, ADR-0018.
+
 
 ## Evidence before decision
 
@@ -85,3 +90,44 @@ values, ordering and scope behavior.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/scope.md`. Historical observations are not a new parity certification.
+
+## Laboratory builtin root retention — 2026-11-13
+
+### Measurement before decision
+
+Frozen line-products source at2026-11-13T06:46:29.065697+00:00 (exact UTC/hash in
+freeze-line-products.json), HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+uncommitted lab composition. Its single twelve-pair campaign records plain
+3.381ms vs vanilla1.706ms,100paragraphs14.820vs3.764,outline24.697vs4.208.
+Twelve raw profiles show evaluation42.8% inclusive of264plain samples,
+11.67% of1508layout samples and20.99% of2630outline samples. Counts overlap
+and are not exact time nor promised savings. Scope::define, symbol_from_codex,
+emoji registration and symbol destruction appear directly in plain samples.
+eval/mod.rs:877-917 builds builtin stdlib each root compilation;
+stdlib_snapshot.rs:42-65 only reuses an import-tree seed and80-248 rebuilds
+scopes/modules/identity-bearing functions; scope.rs:64-66 owns and deeply
+clones its ordered map. module.rs:65-69 uses Module allocation identity;
+func.rs:407-432 preserves Element/With identity. Reusing those wrappers would
+change observable identity. Pure namespace storage sharing is mechanics;
+ordered bindings, values, diagnostics and per-file identities are language.
+User authorizes all laboratory experiments without another approval, no integration.
+
+### Owned responsibility
+
+Use Arc around the private ordered map for O(1) clone, keeping every public signature. new/with_capacity preserve map capacity behavior. define/get_mut detach with Arc::make_mut before write. Read methods borrow current map. Test actual shared binding storage before mutation and independent values/order after mutation; no new observer API. This is an immutable storage mechanism, not a requirement to share Module identities.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

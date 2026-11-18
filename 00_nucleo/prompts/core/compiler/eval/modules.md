@@ -1,10 +1,13 @@
 # L0 — compiler/eval/modules
-Hash do Código: a63c8a8b
+Hash do Código: 157420e1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
+- 00_nucleo/prompts/_nuclei/builtin-root-retention.toml sha256:08e9f23ba773c1fd5ed43bf67a985c2593f0c002b0fb6084ef9f883a0ef020c7
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:727a433beef7710d70729176c3b5a5f851b7e98be320c7594b86e5b269d8d49d
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/modules.rs`
@@ -33,7 +36,7 @@ detection, isolated Engine/scopes, exported bindings, sink and diagnostic traces
 Construct the imported global stdlib object with public name global under lexical
 binding std. Ordinary imported modules retain their own stored names.
 
-## Delayed imported-stdlib composition
+## Historical delayed imported composition — superseded by laboratory graph contract
 
 ### Evidence before decision
 
@@ -286,3 +289,50 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+## Measurement before decision — laboratory builtin graph, 2026-11-13
+
+Base is frozen builtin-root, HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+uncommitted laboratory composition. freeze-builtin-root.json records exact
+UTC/source/binary hashes. Its census still observes1411 Scope::define calls
+per plain/layout warm compilation despite zero registry builder calls.
+stdlib_snapshot.rs:42,80-248 recreates Modules/functions; eval/mod.rs:877-917
+and modules.rs:60-87 repeat global composition. This is construction mechanics.
+
+builtin-identity-audit/receipt.json records pinned vanilla64c5e8c0 queries at
+2026-11-13T07:16:50Z and negative controls at07:19:05Z, source/fixture hashes,
+argv, HEAD and checkout diffstat. Language comparisons root/import sym,std,
+calc,raw.line return true upstream and false in line-products. Local aliases
+stay equal and a user module named calc remains unequal in both. Upstream
+typst-library/src/lib.rs:231-247 constructs one Library graph, and typst-eval/
+src/lib.rs:42,67,105,151 gives each file that library. This corroborates observed
+language behavior, not an assertion of upstream intent from behavior alone.
+Sharing the immutable builtin graph is an inference supported by these probes;
+stale inputs/features, authority leakage, changed diagnostics or failed negative
+homonym/registry tests refute it. Separately created raw.line.with() equality
+is a known independent debt and is outside this experiment.
+
+User authorizes experiments without another permission, laboratory only.
+The current contract below supersedes the old per-file builtin instantiation
+requirement, including the prior deliberate cross-file std equality debt.
+No changes to Module/Func/Value equality or user-module evaluation are authorized.
+
+## Current exclusive laboratory graph contract
+
+At the original input-query boundary, call resolve with current inputs and features. Use the returned seed global view directly for Library instead of recomposing std/colors/text. Transfer that same seed to the fresh child EvalContext. Keep source resolution/validation/cycle/error ordering, full_error/target/features/show isolation, actual user-file evaluation and final ordinary Module::new. Imports cannot see root registry overlays. A mismatch returns an isolated subtree without replacing the parent seed.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

@@ -1,8 +1,10 @@
 # L0 — infra/system-world/source_session
-Hash do Código: d619ab61
+Hash do Código: 9fc466ee
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
+
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/source_session.rs`
@@ -87,3 +89,45 @@ or broadening/loss of existing diagnostics or negative controls.
 ## Approved World metadata integration controls
 
 The approved metadata proposal is pinned in `lab/results/world-metadata-errors-2026-10-22/approval.json`. Healthy dependency results and directory/path lookup fixtures must explicitly require successful Result acquisition while retaining all existing content, identity, source-session and dependency assertions. Test registry and slot poison without catching production panics or reusing poisoned state; assert exact existing FileError errors, unknown-id versus poison distinction, no mutation, and no silent root/empty-graph fallback. Record an actual runtime RED before changing implementations. No other public API, phase, flag or diagnostic policy change is authorized.
+
+
+## Approved laboratory Source revision connection — 2026-11-12
+
+Evidence: this consumer's get_or_parse at40–65 validates exact path/id/text,
+then discards changed Source identity. incremental-boundary-audit/receipt.json
+shows that an unrelated syntax-node insertion renumbers the intact main loop.
+The proposed core owner 00_nucleo/prompts/core/entities/source.md adds exactly
+Source::reparse(&self,text:String)->SourceResult<Self>; the user approved the
+proposal and waived further laboratory approval requests on 2026-11-12.
+
+Keep the matched previous immutable Source long enough to
+request its reparse on changed bytes. Exact same bytes retain the existing hit.
+Different canonical path or FileId, no prior source, and oversized inputs use the
+existing cold Source::new path. Never reuse a revision across logical origins or
+recycled FileIds. Keep8entries/1MiB total text/512KiB per-entry limits, LRU order,
+instance Mutex, existing FileError conversion and diagnostics. Changed source
+is fully parsed; this does not memoize values, modules, layout or errors.
+Successful new revisions replace the prior entry; no partially updated source
+is published on error. Preserve old clones and successful error recovery.
+
+Tests must cover unchanged spans/ranges for unaffected syntax under a fresh
+World, changed-node payloads and diagnostics, source/file-id/path rebinding,
+concurrency, bounds/eviction and a real watch sequence with imports and Unicode.
+No new public method/field/default/flag in this owner. Production checkout stays
+unchanged. The approval applies only to laboratory experiments.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

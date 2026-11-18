@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "builtin-root-retention"
+title = "Caller-owned immutable builtin graphs"
+[[claims]]
+id = "boundary"
+level = "must"
+statement = "A caller-owned SubtreeSession may retain one immutable builtin graph and its composed global Scope across roots. Cold root and expression evaluations own a new graph shared with their matching imports. Never retain World, Engine, registry constructors, evaluated user Modules, diagnostics or mutable lexical scopes."
+[[claims]]
+id = "guard"
+level = "must"
+statement = "Query World inputs once at every existing root/import boundary. Compare all ordered input pairs and complete Features. Root mismatch replaces the single retained seed; more than256pairs or131072UTF8 key/value bytes clears it and uses a compilation-local graph. Import mismatch gets its own child graph without replacing the parent. No global mutable cache."
+[[claims]]
+id = "identity"
+level = "must"
+statement = "Matching roots within one explicit session and matching imported files share the builtin Module/function graph, lexical std Module and composed builtin Scope. Separate sessions and different keys remain isolated. Preserve trusted Std/Format origin, aliases, declaration order, arguments and diagnostic spans. Mutations detach Scope storage. User-generated With/Modules are never captured; global equality implementations remain unchanged."
+[[claims]]
+id = "composition"
+level = "must"
+statement = "Build lexical std from the unshadowed raw registry Scope, then copy registry bindings in order, predefined colors and text exactly once per graph. Root applies current ElementRegistry afterward using isolated copy-on-write storage. Imports never receive those constructors. Library/scopes are read-only base views; user execution, source validation and realization remain current."
+[[claims]]
+id = "validation"
+level = "must"
+statement = "Require runtime RED for real root/import builtin identity and immutable graph storage reuse, then full input/order/feature/bounds/ancestry/session/registry/homonym/error controls. Retain registry domain inspection and mutation isolation coverage. Full build/core/infra/strict gates, watch/font/output controls, paired release campaign and independent construction census are required; sharing alone proves no timing improvement."

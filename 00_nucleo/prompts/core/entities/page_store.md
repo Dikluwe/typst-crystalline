@@ -1,8 +1,10 @@
 # L0 — Sealed page metadata store
-Hash do Código: 0506aac4
+Hash do Código: 1b4fd2a2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/page_store.rs`
@@ -80,3 +82,47 @@ valid non-first interval has no local view, and an invalid4/1 interval is accept
 both tests fail. outline-original3-green separately passes its corrected carrier
 observer under the same frozen inputs. The p1486 original integrated RED remains
 the independent transport acceptance gate; no expected values may be relaxed.
+
+
+## Laboratory complete physical-result retention — 2026-11-13
+
+Evidence before decision: layout-read-audit/summary.json, observations and source
+freeze bind actual nominal-suffix compilations. Normal/narrower/numbered outlines
+each perform six planned calls; three preserve the source plan, tracked-read
+screen and weak PageStore screen with empty running/math/par.line channels.
+Header controls do not pass the empty-channel screen. The audit's runtime test
+proves comemo Content hashes do not preserve separator origin. Neither that hash
+nor PageStore PartialEq is a reuse certificate. Source evidence:
+layout/convergence.rs:211-250 reads PageStore and bibliography outside tracking;
+metrics.rs:343-400 contains an overridable line geometry method; all overrides
+must survive. This is mechanics, not a new language parity claim. The user
+authorizes laboratory changes without an approval stop; integration is excluded.
+This refinement supersedes no-new-public-API clauses only for its named lab API.
+
+Add PageStore::same_scalar_snapshot(&self, other: &Self)->bool, a conservative
+exact proof over every private field and vector length. Compare totals, logical
+numbers and spans exactly; raw numbering accepts None or Pattern only, refusing
+Func even when shared. Content snapshots accept Empty, Text, Space,
+SpaceFromNewline, Parbreak and bounded ordered Sequence recursively, preserving
+variant/origin; all other variants refuse rather than use Content equality.
+Compare optional presence and missing vectors distinctly; never execute content.
+This does not change PartialEq or any constructor/query. Add actual RED positives
+plus negative origin/length/numbering tests before implementation. The retained
+cloned PageStore keeps all scalar data owned; the certificate authorizes no
+source/semantic identity outside this exact snapshot.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

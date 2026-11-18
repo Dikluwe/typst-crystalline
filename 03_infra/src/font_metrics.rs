@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 26e5ed0c
+//! @prompt-hash 001e2edd
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -47,8 +47,12 @@ impl<'a> FontBookMetrics<'a> {
 }
 
 pub struct FallbackFontMetrics<'a> {
+    physical_owner: Arc<()>,
     world: &'a dyn World,
+    paragraph_products:
+        Option<typst_core::compiler::layout::paragraph_session::ParagraphSession>,
     primary_resolution: Arc<Mutex<Option<resolution::PrimaryResolution>>>,
+    first_resolution: Arc<Mutex<Option<resolution::FirstResolution>>>,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
     shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
     /// P673 — cache de faces ttf-parser para `shaped_width`, partilhada entre
@@ -65,11 +69,35 @@ pub struct FallbackFontMetrics<'a> {
 /// Devem ser consistentes entre `FallbackFontMetrics` e `shaper.rs` para
 /// evitar desalinhamento de posicionamento no PDF.
 impl<'a> FallbackFontMetrics<'a> {
+    /// Attach immutable paragraph products; all World-bound caches start fresh.
+    pub fn with_paragraph_session(
+        world: &'a dyn World,
+        session: &typst_core::compiler::layout::paragraph_session::ParagraphSession,
+    ) -> Self {
+        let mut metrics = Self::new(world);
+        metrics.paragraph_products = Some(session.clone());
+        metrics
+    }
+
+    /// Attach only explicit immutable products across fresh compilation caches.
+    pub fn with_product_sessions(
+        world: &'a dyn World,
+        paragraphs: &typst_core::compiler::layout::paragraph_session::ParagraphSession,
+        products: &crate::shaper::ShapeSession,
+    ) -> Self {
+        let metrics = Self::with_paragraph_session(world, paragraphs);
+        metrics.shaper_face_cache.lock().unwrap().attach_products(products);
+        metrics
+    }
+
     /// Constrói métricas de fallback a partir do `World`.
     pub fn new(world: &'a dyn World) -> Self {
         Self {
             world,
+            physical_owner: Arc::new(()),
+            paragraph_products: None,
             primary_resolution: Arc::new(Mutex::new(None)),
+            first_resolution: Arc::new(Mutex::new(None)),
             cache: Arc::new(Mutex::new(HashMap::new())),
             shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
             shaper_face_cache: Arc::new(Mutex::new(crate::shaper::FaceCache::new())),
@@ -78,11 +106,36 @@ impl<'a> FallbackFontMetrics<'a> {
     }
 }
 
+impl FallbackFontMetrics<'_> {
+    /// Share local raw outputs and explicit products; parsed faces and selection stay fresh.
+    pub(crate) fn shape_document_with_context(
+        &self,
+        doc: typst_core::entities::layout_types::PagedDocument,
+        resolved: &crate::bidi_context::Resolved<'_>,
+    ) -> typst_core::entities::layout_types::PagedDocument {
+        let (raw, products) = {
+            let cache = self.shaper_face_cache.lock().unwrap();
+            (cache.raw_store(), cache.product_session())
+        };
+        match products {
+            Some(products) => crate::shaper::shape_document_with_products(
+                self.world, doc, resolved, raw, products,
+            ),
+            None => crate::shaper::shape_document_with_raw_cache(
+                self.world, doc, resolved, raw,
+            ),
+        }
+    }
+}
+
 impl Clone for FallbackFontMetrics<'_> {
     fn clone(&self) -> Self {
         Self {
             world: self.world,
+            physical_owner: self.physical_owner.clone(),
+            paragraph_products: self.paragraph_products.clone(),
             primary_resolution: self.primary_resolution.clone(),
+            first_resolution: self.first_resolution.clone(),
             cache: self.cache.clone(),
             shaped_width_cache: self.shaped_width_cache.clone(),
             shaper_face_cache: self.shaper_face_cache.clone(),

@@ -1,0 +1,31 @@
+{
+  "utc_start": "2026-11-18T02:09:07.611588+00:00",
+  "kind": "standalone diagnostic glue only; no productive code or crate rebuild",
+  "command": [
+    "rustc",
+    "--edition=2024",
+    "-O",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "link-arg=-Wl,--threads=1",
+    "/repos/Antigravity/typst-crystalline/lab/results/construction/diagnostics/incremental-profile-product-2026-11-17/paragraph-observer.rs",
+    "--extern",
+    "typst_core=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_core-182725636e650b66.rlib",
+    "--extern",
+    "typst_infra=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_infra-e514031be82dc256.rlib",
+    "-L",
+    "dependency=/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps",
+    "-o",
+    "/repos/Antigravity/typst-crystalline/lab/experiments/incremental-profile-product-2026-11-17/paragraph-observer"
+  ],
+  "source_sha256": "435a5fa7a888187eabb463acfd5f47e8eb438f022f76dd16ac1808d2ec4768ae",
+  "rlib_sha256": {
+    "/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_core-182725636e650b66.rlib": "9d05e800e8452f057b70632568b31c577cacd0c729af1fc972195c2b9d43aaf1",
+    "/repos/Antigravity/typst-crystalline/lab/experiments/gains-product-vanilla-2026-11-18/target-release/release/deps/libtypst_infra-e514031be82dc256.rlib": "0ddfa543faf9fde1bf00d6a2e51ce6fb6705947288581ed38516f08245b828fb"
+  },
+  "as_limit_bytes": 2147483648,
+  "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
+  "utc_end": "2026-11-18T02:12:42.278924+00:00",
+  "result": "timeout120seconds in diagnostic rustc/link attempt; no productive build or code change"
+}

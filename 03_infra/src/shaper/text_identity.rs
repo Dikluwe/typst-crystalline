@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/text_identity.md
-//! @prompt-hash 1aae656b
+//! @prompt-hash 682a466b
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -80,7 +80,8 @@ mod tests {
                     y_offset: 0,
                     char_code: 'A',
                 })
-                .collect::<Vec<_>>().into(),
+                .collect::<Vec<_>>()
+                .into(),
         }
     }
 

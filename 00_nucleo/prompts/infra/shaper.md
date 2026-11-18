@@ -1,10 +1,14 @@
 # L0 — infra/shaper
-Hash do Código: b27f6a6e
+Hash do Código: 4a0f71a3
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
+- 00_nucleo/prompts/_nuclei/fonts/raw-shaping-cache.toml sha256:ba89868d23ef2304111b39efef27f781b39b74141f68b4abdc048c0088e0ae61
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:4223de1e6a3e82254979134ff4c35c82f22c052e7231c0b058b8954271329fbe
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+
+
 
 
 **Layer:** L3
@@ -130,3 +134,56 @@ font-metrics provider; public shaping/export APIs and entrypoints are unchanged.
 
 Require real RED→GREEN, strict lineage/lint/full suites/build and fresh paired
 PDF/SVG, keeping all historical negative and performance/resource obligations.
+
+## Raw shaping reuse: evidence before decision
+
+The shaping-input-overlap-lab-20261111 census on clean HEAD 48e5a2570159c6fc325babe883bac7d1c1fbd4b2 compared complete inputs and independently replayed 3,788 calls. In layout.typ, 111/111 emission misses had an earlier equal measurement among 113 measurement calls; math admitted only 2/9. Tracking coincidence applied to raw buffers, not final adjusted carriers. Counts do not prove CPU/memory benefit. See the preserved external census and the correction's measurements for exact states/times/ELFs.
+
+Internal correction authorized by the owner; ADR-0127 continuous flow, no public/default/phase/compatibility change. The pinned raw-shaping-cache nucleus supplies shared invariants; this owner authorizes only its following responsibility.
+
+Reexport only the crate-private traversal helper. Keep public entry signatures and child module visibility unchanged.
+
+Keep regression tests first and preserve source/frame/glyph/position/font/fallback semantics. Directed missing-key and bypass-reuse mutants must fail; compare allocation traffic, peak and CPU in the real pipeline including retention/key costs, without an arbitrary target. Compile only in own /dev/shm and preserve all existing checkout changes. Outline's semantic divergence and prior identity debts remain explicit. The retained eval/font-session prototype is a lab measurement base, not integrated by this correction.
+
+
+## Laboratory complete shaping products — 2026-11-13
+
+### Evidence before decision
+
+The frozen fraction-demand release (f34f54de100fc63587f7611d042dc3d836b484f95283a2f5fc029c8afadce65e)
+and fraction-demand-work-shift/causal-summary.json record 112 backend executions
+per100-paragraph compilation and64 peroutline, unchanged by removing2004/2172
+width queries. All three cycle kinds repeat this work. structural-summary.json
+attributes18.39% inclusive samples to emitted shaping and5.31% to raw shaping
+in100 paragraphs; these groups overlap and are not a speedup prediction.
+font_metrics.rs:100-106 shares only raw buffers within a compilation;
+shaper/traversal.rs:30-49 reconstructs faces/selection/output caches;
+shaping.rs:262-346 rebuilds measured widths and:363-679 rebuilds emitted products.
+world/fonts.rs:21,35-39,291 retains one immutable prefix owner across a font
+session and revokes before full-catalog exposure. Current PdfCompileSession
+at pipeline/pdf.rs:1133 has no shaping products. These are execution mechanics,
+not a change to language semantics. The user explicitly authorizes laboratory
+implementation/testing without further stops, including experimental APIs;
+integration remains prohibited. No performance benefit is presumed.
+
+### Exclusive responsibility
+
+Declare private complete_session and reexport public ShapeSession as the explicit laboratory carrier. Keep existing public shaping facades fresh and preserve child ownership.
+
+Reexport only the crate-private shape_document_with_products adapter alongside the public ShapeSession carrier.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

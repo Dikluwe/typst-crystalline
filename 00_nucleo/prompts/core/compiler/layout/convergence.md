@@ -1,10 +1,12 @@
 # L0 — Layout attempt convergence
-Hash do Código: e44cf98b
+Hash do Código: c42456d6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
 - 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/convergence.rs`
@@ -113,3 +115,43 @@ valid non-first interval has no local view, and an invalid4/1 interval is accept
 both tests fail. outline-original3-green separately passes its corrected carrier
 observer under the same frozen inputs. The p1486 original integrated RED remains
 the independent transport acceptance gate; no expected values may be relaxed.
+
+
+## Laboratory complete physical-result retention — 2026-11-13
+
+Evidence before decision: layout-read-audit/summary.json, observations and source
+freeze bind actual nominal-suffix compilations. Normal/narrower/numbered outlines
+each perform six planned calls; three preserve the source plan, tracked-read
+screen and weak PageStore screen with empty running/math/par.line channels.
+Header controls do not pass the empty-channel screen. The audit's runtime test
+proves comemo Content hashes do not preserve separator origin. Neither that hash
+nor PageStore PartialEq is a reuse certificate. Source evidence:
+layout/convergence.rs:211-250 reads PageStore and bibliography outside tracking;
+metrics.rs:343-400 contains an overridable line geometry method; all overrides
+must survive. This is mechanics, not a new language parity claim. The user
+authorizes laboratory changes without an approval stop; integration is excluded.
+This refinement supersedes no-new-public-API clauses only for its named lab API.
+
+Accept an optional private introspection journal on run_planned. Route its
+existing dyn Introspector surface through the exact forwarding recorder when
+present; preserve direct PageStore and bibliography work and every attempt,
+callback, coverage and completion check. Expose a private sibling helper asking
+the existing find_first_bibliography_style routine whether any declaration is
+selected, so the memo declines that untracked dependency without inventing a
+new bibliography scan. Legacy run remains unchanged. No automatic memoization.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

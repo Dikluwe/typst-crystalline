@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/font_selection.md
-//! @prompt-hash 6aad5c49
+//! @prompt-hash 9a5793ac
 //! @layer L3
 //! @updated 2026-10-24
 
 use super::bidi::BidiRun;
-use super::cache::{FaceCache, PrimaryResolution};
+use super::cache::{FaceCache, FirstResolution, PrimaryResolution};
 use crate::fallback_fonts::{
     fallback_font_list_for, math_fallback_font_list, text_fallback_font_list,
 };
@@ -93,6 +93,67 @@ pub(super) fn primary_candidates(
     primary
 }
 
+/// Resolve only the first readable face; its bounded cache never represents a full chain.
+pub(super) fn first_candidate(
+    world: &dyn World,
+    font_list: &FontList,
+    variant: &FontVariant,
+    face_cache: &mut FaceCache,
+) -> Option<FontCandidate> {
+    if let Some(entry) = face_cache.primary_resolution.as_ref() {
+        if entry.font_list == *font_list && entry.variant == *variant && !entry.math {
+            return entry.candidates.first().copied();
+        }
+    }
+    if let Some(entry) = face_cache.first_resolution.as_ref() {
+        if entry.font_list == *font_list && entry.variant == *variant {
+            return Some(entry.candidate);
+        }
+    }
+    let candidate = (|| {
+        let mut acquire = |pattern: &typst_core::entities::font_list::FontNamePattern| {
+            let slot_idx = world.select_font(pattern, variant)?;
+            let face = face_cache.get(world, slot_idx)?;
+            Some(FontCandidate {
+                slot_idx,
+                units_per_em: face.face().units_per_em().max(1),
+            })
+        };
+        for family in font_list.as_slice() {
+            if let Some(candidate) = acquire(&family.name) {
+                return Some(candidate);
+            }
+        }
+        let first = font_list
+            .as_slice()
+            .first()
+            .and_then(|f| f.name.as_str())
+            .unwrap_or("");
+        for family in
+            fallback_font_list_for(first).iter().chain(text_fallback_font_list())
+        {
+            if let Some(candidate) =
+                acquire(&typst_core::entities::font_list::FontNamePattern::Literal(
+                    (*family).into(),
+                ))
+            {
+                return Some(candidate);
+            }
+        }
+        None
+    })();
+    if face_cache.map.values().all(Option::is_some) {
+        if let Some(candidate) = candidate {
+            face_cache.first_resolution = Some(FirstResolution {
+                font_list: font_list.clone(),
+                variant: *variant,
+                candidate,
+            });
+        }
+    }
+    candidate
+}
+
 /// Candidata a fonte para shaping/fallback.
 #[derive(Clone, Copy)]
 pub(super) struct FontCandidate {
@@ -108,10 +169,9 @@ pub(super) fn resolve_candidates(
     variant: &FontVariant,
     face_cache: &mut FaceCache,
 ) -> Option<Vec<FontCandidate>> {
-    let book = world.book();
     let mut candidates = Vec::new();
     for family in font_list.as_slice() {
-        if let Some(idx) = book.select_pattern(&family.name, variant) {
+        if let Some(idx) = world.select_font(&family.name, variant) {
             if let Some(cached) = face_cache.get(world, idx) {
                 let units_per_em = cached.face().units_per_em().max(1);
                 candidates.push(FontCandidate { slot_idx: idx, units_per_em });
@@ -310,7 +370,7 @@ impl<'a> CandidateSet<'a> {
     fn load_fallback(&mut self, slot_idx: usize) -> Option<usize> {
         // Protótipo P932 — não carrega a face durante a filtragem; só valida
         // que o índice existe no FontBook.
-        self.world.book().infos().get(slot_idx).map(|_| slot_idx)
+        self.world.font_info(slot_idx).map(|_| slot_idx)
     }
 
     /// Verifica se `slot_idx` cobre `c` usando o cache de `candidates_for_char`.
@@ -753,5 +813,68 @@ mod primary_chain_reuse_tests {
         let b = resolve(&second, &mut FaceCache::new(), &list, &variant, false);
         assert_eq!(a[0].0, 0);
         assert_eq!(b[0].0, 5);
+    }
+    #[test]
+    fn first_query_repeated_shaper_does_not_publish_partial_chain() {
+        let w = world(false);
+        let mut c = FaceCache::new();
+        let l = list(&["Alpha", "Beta"]);
+        let v = FontVariant::default();
+        let first = first_candidate(&w, &l, &v, &mut c).unwrap();
+        let n = w.book_reads.load(Ordering::Relaxed);
+        assert!(n > 0);
+        for _ in 0..8 {
+            assert_eq!(
+                first_candidate(&w, &l, &v, &mut c).unwrap().slot_idx,
+                first.slot_idx
+            );
+        }
+        assert_eq!(
+            w.book_reads.load(Ordering::Relaxed),
+            n,
+            "first-query hit must not repeat catalog selection"
+        );
+        let full = resolve(&w, &mut c, &l, &v, false);
+        assert!(full.len() > 1);
+        assert_eq!(full, resolve(&w, &mut FaceCache::new(), &l, &v, false));
+    }
+    #[test]
+    fn first_query_shaper_keys_worlds_and_failed_faces_stay_independent() {
+        let w = world(false);
+        let mut c = FaceCache::new();
+        for (l, v) in [
+            (list(&["Alpha"]), FontVariant::default()),
+            (
+                list(&["Alpha"]),
+                FontVariant { weight: FontWeight::BOLD, ..Default::default() },
+            ),
+            (list(&["Beta", "Alpha"]), FontVariant::default()),
+            (list(&["Alpha", "Beta"]), FontVariant::default()),
+        ] {
+            let expected =
+                first_candidate(&w, &l, &v, &mut FaceCache::new()).unwrap().slot_idx;
+            assert_eq!(first_candidate(&w, &l, &v, &mut c).unwrap().slot_idx, expected);
+            assert_eq!(first_candidate(&w, &l, &v, &mut c).unwrap().slot_idx, expected);
+        }
+        let other = world(true);
+        let l = list(&["Alpha"]);
+        let v = FontVariant::default();
+        assert_eq!(
+            first_candidate(&other, &l, &v, &mut FaceCache::new())
+                .unwrap()
+                .slot_idx,
+            5
+        );
+        let blocked = world(false);
+        blocked.blocked_slot.store(0, Ordering::Relaxed);
+        let mut c = FaceCache::new();
+        let l = list(&["Alpha", "Beta"]);
+        assert_eq!(first_candidate(&blocked, &l, &v, &mut c).unwrap().slot_idx, 3);
+        let n = blocked.book_reads.load(Ordering::Relaxed);
+        first_candidate(&blocked, &l, &v, &mut c);
+        assert!(
+            blocked.book_reads.load(Ordering::Relaxed) > n,
+            "failed face must not create a new selection cache"
+        );
     }
 }

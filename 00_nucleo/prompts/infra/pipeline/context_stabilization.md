@@ -1,18 +1,23 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: a8af4920
+Hash do Código: a23f556b
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:966b8ac90f477d71d8a442f4139239da77c75c9f3e24e2c097a1609433cd7227
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
+- 00_nucleo/prompts/_nuclei/lab-legacy-physical-certificate.toml sha256:286d3ec27c85463e62b086abd2df51219197c0502164bac70a631898d7490868
+- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
+
 
 
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/context_stabilization.rs`
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:389926b89934d625412cbbb22bad324ea6579533d79aa6b2dcf92fa5877095e4
-- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
-- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
-- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 
 ## Current evidence
@@ -641,3 +646,222 @@ Migrate only existing Figure fixture literals/destructures for the approved two-
 ### Gates and limits
 
 L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+
+## Laboratory direct-body and context product reuse — 2026-11-13
+
+Evidence before decision: paragraph-layout-boundaries/receipt.json, bound to
+freeze-paragraph, records60 refused try_parts calls but78 try_layout calls
+(72 accepted) on each outline compilation. The older statement that all outline
+plans refuse applied only to try_parts and is superseded by this wider census.
+paragraph-native-phases/summary.json records29.509ms elapsed inside context
+preparation, not exclusive CPU or a promised saving. paragraph_plan.rs:89-136
+prepares/selects the direct body without using the product session;
+context_stabilization.rs:923 constructs compilation-local metrics without it.
+This is execution mechanics, not a new language rule. No gain is claimed until
+paired release measurement. User permits laboratory work; no integration.
+
+Add a private prepare_with_paragraph_session companion that accepts an optional
+borrowed pure ParagraphSession. Existing prepare delegates with None. Initialize
+the same fresh Session and replace only its newly constructed metrics with
+with_paragraph_session before discovery. Retain the existing compilation-local
+World-bound handle only as already authorized by compilation-metric-cache.
+No Context execution, observation, snapshot, source plan, frame, budget or
+warning retention crosses compilations. HTML and bundle entry points keep
+their current path. All discovery/replay/terminal/physical proof remains.
+
+
+## Laboratory complete shaping product connection — 2026-11-13
+
+Evidence before decision: the complete frozen fraction-demand census repeats64
+backend computations peroutline compilation. context_stabilization.rs:1694-1696
+attaches only paragraph products before discovery. shaping-products-validation/
+pipeline-red-source.json and pipeline-red.log now show BOTH ordinary and outline
+full-compilation tests fail at runtime because no shaping product is published,
+although the six isolated product tests pass. User authorizes laboratory changes
+without approval stops; integration remains excluded.
+
+Extend only this private prepare_with_paragraph_session companion's retained
+argument to accept a pair of ParagraphSession and ShapeSession. Existing prepare
+passes None. Attach both using fresh FallbackFontMetrics before discovery, then
+preserve all context execution, observation, convergence, source/event identity,
+selected metrics handoff, errors and warning budgets. No retained Context,
+World-bound metric maps or physical snapshot crosses compilations. Complete
+shaping products follow their pinned nucleus; existing raw stores remain local.
+HTML and bundle paths keep their existing preparation. This supersedes the older
+no-cross-compilation-shaping exclusion solely for the explicit product handle.
+
+## Laboratory: legacy complete-candidate certificate — 2026-11-15
+
+Evidence before decision: reuse-proof-cost-2026-11-15/profiles.json records Align-context three ordinary physical compositions and about13.6ms inclusive layout vs5.47us proof in tail; final introspective snapshot changes then stabilizes (reuse-align/fallback-route-probe.json). paged.rs:943-1098 always rebuilds after the newly realized snapshot unless initial syntax-only proof passes. context_stabilization.rs:2237 creates a new legacy Session and discards its actual executions immediately after expansion; Execution already contains original ctx/read transcript/input/sink/Location and with_replay_engine validates in isolated sinks. World source contract allows external reads and SystemWorld.today reads a live date; context-read validation alone is insufficient. ContextBlock PartialEq only compares id and MUST NOT be used as a cache key. All evidence has HEAD/dirty/ELF/UTC in prior receipts and this initial.json.
+
+Internal-only classification ADR-0127: add private per-compilation proof/World forwarding records; no exported signature/trait/entity changes, no eval/layout movement or target/default/compatibility changes. Keep existing expand_legacy facade and behavior for all other callers. Only its new private companion may retain a successful Session to certify the document composed from that exact expansion. Do not change Session selection, actual closure evaluation order, budgets, occurrence arena or existing warning/error publication. New World guard is used only in the companion, delegates ALL World methods unchanged, permits the established immutable library/book/main/font/candidate resources and rejects any observed other World operation. Source accesses require the immutable-source authority defined below; file/path/include/package/inputs/today/plugin accesses poison certificate even on error. No guarded value caching. Captured plugin calls remain governed by existing PluginFunc.call memoization; new plugin-host access rejects.
+
+Paged owner generalizes the existing positive predicate internally to a borrowed ContextBlock authorization callback, preserving the old strict facade with callback always false. Only the retained session may authorize exact active producer Arc membership (a provenance check, never standalone validity/deduplication); ambiguous topology and unknown carriers reject. Verify original session content, substituted output and actual final realized content with this predicate. Every active producer must have successful retained execution, no poisoned World guard, matching candidate Location, reflexive actual-read validation and validation against candidate, using existing L1 facilities. Require full conservative pagination_stability(input,candidate) coverage/equality for each execution. Validation errors return false and publish nothing; ordinary path then proceeds unchanged.
+
+No certificate for the initial untracked prepare result. After the ordinary snapshot/PageStore/numbering/position injection, require final pages have no numbering and a prior certificate for the CURRENT complete doc. If valid, preserve doc, intr/format data and existing finalization; skip only the next legacy expansion/introspection/outline/layout cycle. If not valid, drop old certificate BEFORE new expansion. The new companion returns content + opaque private certificate; attach it only after successful physical composition from that content and retain at most one Session. Never use snapshot_same alone, compare newly executed closures or remove Pending loops. Context/state/query outputs with effectful/unknown carriers reject. HTML/Bundle and selected physical discovery/replay remain untouched.
+
+Tests before code: actual final page output correct and ordinary layouts3→2 for plain and Align/Page-final contexts, invalid first snapshot forces recomposition, known initial0 must never survive; negative World date/read bodies retain3 layouts and diagnostics, unknown math/numbering/Place/effect bodies retain fallback, nested/position/location changes do not borrow stale candidates. Full pipeline:: suite, nine permanent regressions, warm/cold edits and source/World invalidation, PDF/SVG/diagnostic guards and paired baseline/candidate/original/A-A nominal with memory. Reject candidate if no gain, output/effect divergence or disproportionate resource cost. No integration/commits.
+
+## Laboratory immutable source authority — 2026-11-15
+
+Evidence before decision: the rejected legacy-certificate report and World
+forwarding audit bind its ELF to 16/19 forwarded methods. markup_stream.rs:121-134
+calls World.source to recover the current content origin. Source is immutable
+Arc<SourceInner> (source.rs:28-50); reparse produces another immutable revision.
+Source Eq only compares id/hash and is not revision authority. SystemWorld
+source slots cache the first result in OnceLock (world/cache.rs:37-96), allocate
+monotonic ids and never replace a successfully published slot (cache.rs:98-174).
+Generic World has no source stability promise. These are mechanics observations;
+language acceptance remains text/content morphology/geometry/diagnostics.
+
+Authorization/classification: user explicitly requested correcting World and
+testing immutable source certification in the laboratory, without integration
+or commits. The Source owner records the earlier user instruction "Para o
+laboratório não precisa autorização". This ratifies the following laboratory
+capability addition only; no productive contract or phase/default is changed.
+
+Exact laboratory public trait addition:
+    fn immutable_source(&self, id: FileId) -> Option<Source> { None }
+
+Some(source) is an explicit authority promise: source has the requested id,
+is an owned immutable revision, and every subsequent source(id) query on THIS
+World during its lifetime returns that same successful revision without new
+observable source-query effects. No guarantee is inferred from bytes, ids,
+hashes, root addresses or ordinary source() success. None is conservative and
+permits arbitrary World implementations. Never override another World's source
+answer or cache file/date/path/plugin results. SystemWorld may return its
+successful OnceLock-backed world_source(id); the pipeline asks only after a
+successful actual source(id) query. New Worlds have independent source slots.
+
+LegacyWorldGuard must explicitly forward ALL trait methods, including font
+epoch/select/info and immutable_source, preserving owned/reference identity and
+overrides. The source method first delegates exactly once and returns its exact
+result. Permit only the compilation input id, the exact immutable SourceInner
+revision kept alive by the borrowed input, and a matching explicit authority
+from the SAME World. Root-address comparison is provenance under that authority,
+never a standalone semantic key. Different revisions even with same bytes/id,
+other ids/imports, errors, missing authority, date/file/path/plugin/inputs reject.
+Record whether source was observed in each retained execution; recheck its
+authority before candidate reuse. Replay uses the identical guard. No extra
+ordinary source() calls merely to validate, and no queries in unguarded routes.
+
+All existing complete-document pagination/Location/read/structural proofs,
+first-layout/snapshot requirements, budgets, warning/error policies and local
+certificate lifetimes remain. No Unicode cache, cross-compilation context
+result cache or selected/HTML/Bundle changes. Two manifested lab builds may
+toggle a private constant CERTIFY_IMMUTABLE_SOURCE: false is forwarding-only,
+true enables this capability. This is no product mode/flag/default.
+
+RED before implementation: SystemWorld markup totals in plain/Align/Pad retain
+correct text but must drop physical compositions from3 to2; sentinel World
+font overrides must survive wrapping. Negatives: generic World without authority,
+fresh equal-text revision, mutable external reads/date and imports retain fallback.
+Preserve existing tests; run full pipeline tests and lint, permanent regressions,
+warm/cold/export/edit controls and two balanced paired nominal campaigns versus
+prior Block/Pad/Align and forwarding-only, with an identical-ELF A/A alias.
+Record CPU/RSS/HWM and compare all states, including references and context scale.
+
+The exact capability in the latest section supersedes the prior prototype's blanket source rejection and no-trait-change statements, solely in this laboratory tree. Product integration remains excluded.
+
+Sentinel metadata tests own a synthetic FontInfo and assert reference identity; do not rely on the transient World having an installed catalog entry.
+
+## Session-local owned substituted capture (laboratory, 2026-11-17)
+
+Evidence before decision: `context_stabilization.rs:1117–1139` recursively substitutes
+current contributions and always rebuilds outer carriers when roots exist.
+`lab/results/construction/diagnostics/sourceplan-transitions-2026-11-17/capture-trace.json`
+records eight reference physical calls, four plan owners and distinct captures;
+its report distinguishes actual execution changes from outline regeneration.
+These are mechanics, not new language requirements (ADR-0107/0108).
+
+Permit one private, compilation-local retained substitution in Session::content.
+The immutable origin, World, Source, features and resource scope belong to that
+same Session. Retain actual immutable Execution owners with shared local ownership,
+including their original inputs/styles/location/result/sink; retirement must keep
+those same objects alive. A certificate owns the actual producer Arcs and Execution
+owners and snapshots ordered roots, every node's children/order, active state and
+target. Compare owner identity while both owners live, never integer versions,
+ids, closure Debug/hash, result equality or allocator addresses after release.
+Inactive nodes and missing executions remain distinct. Refuse retention whenever
+an active node is invalid, absent, failed or the session is impossible; clear the
+previous entry and reconstruct through the original substitution in those cases.
+On any certificate mismatch replace the single entry with the actual reconstructed
+capture. Empty roots keep the existing origin.clone fast path. No lookup may
+execute a callback, validate a read, publish a sink or change any attempt budget.
+
+The producer chain is immutable after creation in productive Session paths; its
+executed retained styles belong to the owned Execution. Replacing a producer,
+closure, chain, target or child graph requires the existing causal invalidation
+and descendant realization before a valid certificate can be formed. The capture
+is only a pure projection of current contributions, never an authority to retain
+an execution or bypass invalid flags. No cross-session or cross-edit sharing.
+This narrow permission supersedes the earlier unconditional-reconstruction and
+no-Content-retention clauses only for this pure session projection, not metrics,
+frames, layout, errors, legacy-world proofs or any other cache.
+
+Do not modify same_running_capture, outline observation/reflexivity/focal guards,
+SourcePlan execution-version/outline-generation guards, PhysicalMemo epochs,
+PageStore, callback journals, origin/Location provenance, effect publication or
+validation ordering. HTML and bundle behavior and language surfaces must remain.
+Internal ADR-0127 continuous flow: L0 first, lineage resealed, genuine identity
+RED→GREEN, invalid/missing/error and topology/target/owner replacement controls,
+full suites and lint, release A/B complete cycles plus identical-ELF A/A,
+source/style/include/effect/error/HTML/bundle controls and bounded memory.
+Any stale capture, changed language/diagnostics/effects, guard relaxation or
+unproven runtime improvement refutes promotion; preserve all lab evidence.
+
+### Exact projection frontier, before final implementation
+
+Source evidence: page_running.rs:970,973 and1212 adds physical/outline nodes to
+Session.nodes but to separate running/contribution roots, not Session.roots.
+Session::body traverses only active children of the ordered ordinary roots.
+Therefore the earlier phrase "every node" means every contributing node reachable
+from those roots, not the entire arena. Nodes outside this pure projection are
+not causal inputs to content and must not defeat its ownership certificate.
+Snapshot each contributing index, producer/Execution owners, target and ordered
+active-child edges; root order is exact. New/removed/reordered/activated edges
+must miss. Every visited contribution must be active, valid and successful.
+An unrelated arena node may remain invalid or absent without affecting content.
+Actual running/outline certificates still validate those separate producers.
+Refute with a new unrelated-node RED before narrowing the certificate, alongside
+nested/child activation and execution replacement regressions. Keep all guards.
+
+
+## Preserved project scope and prior obligations
+
+
+## Contract categories — review 2026-11-13
+
+This review changes documentation scope, not executable behavior. Existing public
+signatures, phases, cache lifetimes and fallback behavior remain the current
+implementation contract. Restrictions attached to a named correction delimit
+that correction; they are not universal prohibitions on a separately specified
+future design. Reuse requires complete relevant dependency validation, immutable
+or independently owned results, and preservation of geometry, causal identity,
+effects, warnings and errors. A storage pointer, equal output, or matching page
+count is not sufficient. No laboratory candidate is integrated by this review.
+
+The current Session and RunningState are compilation-local. Generation isolation,
+causal order, actual-read validation and diagnostic publication are requirements;
+reconstructing every immutable representation is not independently a language rule.
+No current checkpoint or partial dependency journal is certified for cross-edit
+replay. Future retention needs a complete boundary contract, not a global lifetime
+extension or removal of the existing validation guards.
+
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

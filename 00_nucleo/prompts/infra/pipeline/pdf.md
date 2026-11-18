@@ -1,5 +1,13 @@
 # L0 — infra/pipeline/pdf
-Hash do Código: 37fd0e3b
+Hash do Código: 717e4e4d
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/pdf.rs`
@@ -7,10 +15,6 @@ Hash do Código: 37fd0e3b
 Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
-- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
-- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 ```
 
 ## Current evidence
@@ -167,3 +171,75 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.r
 
 
 Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.
+
+
+## Laboratory subtree evaluation connection — 2026-11-12
+
+Measured source: pipeline.rs:295–344 evaluates and validates assets; paged.rs:765
+starts root evaluation; pdf.rs:385–416 carries PDF options into paged compilation;
+compile.rs:126/469 and watch.rs:65–85 establish session lifetime and dispatch.
+These are mechanics, not language requirements. Source freeze in subtree-validation.
+User explicitly waives approval for laboratory experiments; no integration.
+
+Add public PdfSessionOptions with full_error, document_id, stream_mode, pdf_tagged_override, features, pretty_override, pages_override, standard_override, exactly the existing corresponding types. compile_pdf_in_session(world,source,options,&SubtreeSession) returns the ordinary result,warnings,Timings. A private borrowed optional session in PdfCompileRequest reaches paged evaluation. All old wrappers and oracle paths pass None; all export choices and validations remain unchanged.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Expose PdfCompileSession::new/Default containing public evaluation:SubtreeSession
+and paragraphs:ParagraphSession fields. compile_pdf_in_session and private
+PdfCompileRequest borrow this combined explicit session instead of SubtreeSession.
+Existing wrappers/oracle remain None; PDF choices and asset checks are unchanged.
+
+
+## Laboratory complete shaping products — 2026-11-13
+
+### Evidence before decision
+
+The frozen fraction-demand release (f34f54de100fc63587f7611d042dc3d836b484f95283a2f5fc029c8afadce65e)
+and fraction-demand-work-shift/causal-summary.json record 112 backend executions
+per100-paragraph compilation and64 peroutline, unchanged by removing2004/2172
+width queries. All three cycle kinds repeat this work. structural-summary.json
+attributes18.39% inclusive samples to emitted shaping and5.31% to raw shaping
+in100 paragraphs; these groups overlap and are not a speedup prediction.
+font_metrics.rs:100-106 shares only raw buffers within a compilation;
+shaper/traversal.rs:30-49 reconstructs faces/selection/output caches;
+shaping.rs:262-346 rebuilds measured widths and:363-679 rebuilds emitted products.
+world/fonts.rs:21,35-39,291 retains one immutable prefix owner across a font
+session and revokes before full-catalog exposure. Current PdfCompileSession
+at pipeline/pdf.rs:1133 has no shaping products. These are execution mechanics,
+not a change to language semantics. The user explicitly authorizes laboratory
+implementation/testing without further stops, including experimental APIs;
+integration remains prohibited. No performance benefit is presumed.
+
+### Exclusive responsibility
+
+Extend explicit PdfCompileSession with a public shaping: ShapeSession field initialized empty by Default/new. Keep every format/option/default/error precedence and caller signature unchanged. This additive laboratory carrier is authorized by the user; no integration.
+
+The PDF owner also owns two in-module full-compilation tests: ordinary and context/outline documents across fresh SystemWorld instances sharing FontCatalogSession. First require publications, then additional hits after changing the tail. Before pipeline connection the explicit shaping field exists empty and both tests must fail at runtime. Preserve compile success/warnings and current dependency epochs.
+
+pipeline-red.log records both full compiler tests failing at runtime with zero product publications before connection. Preserve this RED and require the unchanged tests GREEN after wiring.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

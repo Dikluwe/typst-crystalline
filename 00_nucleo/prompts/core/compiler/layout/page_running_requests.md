@@ -1,15 +1,17 @@
 # L0 — Physical page running-content request protocol
-Hash do Código: fb60c8f8
+Hash do Código: 4b08acaa
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
+- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/page_running_requests.rs`
 **Architecture:** ADR-0071, ADR-0073, ADR-0074, ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130, ADR-0131.
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
-- 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
-- 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 
 ## Evidence before decision
@@ -411,3 +413,38 @@ Require actual-header phase RED→GREEN plus language reference/query/counter1 a
 later distinct-note counter2 controls. Keep all original alias, inactive Repeat,
 raw corruption, checkpoint, deferred-note, source-marker, page-running and style
 tests, builds and lint/lineage gates. Unique RAM target/resources unchanged.
+
+
+## Laboratory SourcePlan query fixture transport — 2026-11-16
+
+Measurement before decision: the complete-flow profiler receipt and source
+manifest in full-flow-profile-2026-11-16 and source-plan-queries-2026-11-16 bind
+this exact dirty source/UTC. This unit has a cfg(test)-only raw SourcePlan literal
+in tests::body (formerly line1209); productive construction belongs exclusively
+to the introspect/page_running owner. Adding that owner's private immutable
+query data requires this test fixture to initialize it as actual construction
+would. Authorize only replacing the test literal with a compiler-private,
+cfg(test)-only constructor provided by that owner, taking exactly its old source
+fields and computing its private derived data. No productive protocol, public
+API/field/default/phase, trace, source origin or assertion may change. Existing
+source-authority, effects, stale/foreign/missing trace, rollback and environment
+controls remain mandatory. This is internal test transport, ADR0127 continuous
+flow; no new public constructor is authorized. Disk-only resource-controlled
+laboratory recipe in this experiment supersedes historical per-issue RAM-target
+recipes for this experiment alone; do not modify the root or prior artifacts.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

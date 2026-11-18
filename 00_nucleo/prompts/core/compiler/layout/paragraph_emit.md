@@ -1,5 +1,5 @@
 # L0 — paragraph_emit
-Hash do Código: 4479dcfc
+Hash do Código: 3e849682
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
@@ -7,7 +7,10 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:417d55b8ae48d8b71220974310a7a31ce00566318c0cfc4837e84c955bdcdfa8
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+
+
 
 
 **Layer:** L1
@@ -118,3 +121,46 @@ continued-justified branch needs it, not only when continued. Add it before the
 existing compression/justification branches. Do not query for short ragged final
 lines whose output cannot change; keep their natural width and existing branch
 conditions. Existing hyphen optical remainder remains authoritative.
+
+## Laboratory line products — 2026-11-13
+
+### Measurement before decision
+
+Frozen shaping-products c2096c812761f5ab5278eb5376142e406990ec4b234615c9fbf6ce3be32feba6,
+freeze 2026-11-13T06:06:24.083725Z, eliminates backend112->1/64->1 on edits,
+but nominal CPU remains14.997/25.187ms versus vanilla3.683/4.234ms. Its twelve
+raw profiles attribute30.45% inclusive layout to100 paragraphs and39.41% physical
+coordination tooutline; overlapping groups are not a promised speedup.
+paragraph_plan.rs:143-174,222-286 re-emits retained Prepared/Line products;
+paragraph_emit.rs:90-125 walks fragments again; word_layout.rs:209-224 clones
+styles and invokes baseline/indent for every fragment. cursor.rs:94-191 and
+region_progress.rs:156-187 show that, with initial_baseline_pending=false,
+block_chain_active=false and already material current_line, repeated admission
+cannot advance region. paragraph_indent.rs:348-372 returns immediately once
+origin_applied is true. bibliography.rs:30-33 returns when no prefix is pending.
+word_layout.rs:89-159 then only appends Text/Replacement (plus Shape for
+highlight), sets optical policy and records tracking. These are mechanics,
+not language acceptance. No whole-Layouter snapshot is justified by these facts.
+User authorizes laboratory work without further approval; no integration.
+
+### Owned responsibility
+
+Add private product-aware wrappers while preserving existing emit facades. Emit first word through the original word/gap loop, then delegate eligible remaining words and trailing gaps as one pure tail to paragraph_paint. Compute proportional/extra optical compensation with current metrics before lookup. Keep pagination/admission/flush outside the cache and preserve exact operation order on cold paths.
+
+Unit GREEN4 and actual parts/direct pipeline RED0pass2fail are preserved before-pipeline-connection. Product owns a fresh paint identity and a once-computed no-highlight certificate across its prepared/hyphenated fragments. Product-aware wrappers retain old emission facades as the refused path; keep the exact first-word/cold-tail/flush order.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

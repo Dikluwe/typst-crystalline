@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "raw-shaping-cache"
+title = "Raw shaping equivalence within one compilation"
+[[claims]]
+id = "scope"
+level = "must"
+statement = "Retain raw shaping results only within one compilation and the same World. Metrics clones may share this result store with the emission walker; never retain it in an eval/watch session or a global cache. Parsed-face and primary-selection caches keep their independent existing lifetimes."
+[[claims]]
+id = "closed-construction"
+level = "must"
+statement = "Only the raw owner constructs engine faces and buffers: face index zero, exact requested axes, fresh UTF-8 push_str buffer, existing authored-ignorable policy, explicit direction/optional language/optional script and ordered features. Keep default context, cluster policy, selector and ppem/ptem. Do not admit arbitrary opaque caller faces or buffers; effective inputs must remain deterministic from the full request."
+[[claims]]
+id = "exact-identity"
+level = "must"
+statement = "Distinguish exact text, slot, ordered axis tags/f32 bits, direction, language absence, script absence and all feature tags/values/ranges/order. Font identity is the retained immutable owner instance and variant, not a name, digest or borrowed address alone. Each entry retains that Font, preventing identity-token reuse; distinct owners conservatively miss even if bytes match."
+[[claims]]
+id = "raw-only"
+level = "must"
+statement = "Share only unmodified immutable raw glyph buffers as results. The raw owner may additionally retain one private immutable configured engine face inside the same compilation store, with exact retained Font owner and ordered axis-tag/value-bit identity; this does not share any parsed-face or selection cache belonging to the callers. Preserve distinct measurement/emission script, ssty and native-superscript policies. Tracking, scale, position, occurrence metadata and final CachedRun construction remain consumer-owned; do not reuse adjusted carriers as raw data. Parse failure publishes no entry and preserves existing fallbacks."
+[[claims]]
+id = "borrowed-world"
+level = "must"
+statement = "The metrics adapter supplies its own borrowed World and clones only the raw-store handle, releasing its face-cache lock before traversal. Existing fresh shaper entry points remain fresh; pipeline sharing uses its accepted current-compilation metrics handle without moving or skipping phases. Add no public API, dependency or unsafe."

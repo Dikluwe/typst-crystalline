@@ -1,0 +1,12 @@
+tekt = 1
+kind = "nucleus"
+id = "eval-lorem-chain"
+title = "Evaluation-local immutable lorem training"
+[[claims]]
+id = "lifetime"
+level = "must"
+statement = "Each EvalContext starts without a lorem training chain and owns at most one lazily constructed immutable chain for its own lifetime. No global, cross-context or cross-compilation retention."
+[[claims]]
+id = "determinism"
+level = "must"
+statement = "Every positive lorem call starts a new deterministic iterator from Lorem/ipsum over LOREM_IPSUM then LIBER_PRIMUS training. Never retain generator progress or generated text between calls. Zero and invalid calls must not initialize training."

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/outline_entries.md
-//! @prompt-hash 70a5dd26
+//! @prompt-hash 1d16a325
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -80,8 +80,9 @@ pub(super) fn materialize_outline_entries_with(
             intr.state.observe_locations_after(anchor, &entry_locations);
         }
     }
-    let counters = &intr.counters;
-    if let Some(entries) = intr.kind_index.get_mut(&ElementKind::OutlineEntry) {
+    let data = &mut **intr;
+    let counters = &data.counters;
+    if let Some(entries) = data.kind_index.get_mut(&ElementKind::OutlineEntry) {
         entries.sort_by_key(|location| counters.order_key(*location));
     }
 }

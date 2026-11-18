@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash cf7707fd
+//! @prompt-hash 5e6a5835
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -12,6 +12,7 @@ use super::{
 use crate::export::FontKey;
 use crate::font_variant::text_style_to_font_variant;
 use std::collections::HashMap;
+mod products;
 mod runs;
 
 pub(super) use runs::{emit_verbose_text_run, verbose_run_end};
@@ -1018,6 +1019,36 @@ pub(super) fn emit_shaped_pdf_verbose_inner(
     font: Option<&typst_core::entities::world_types::Font>,
     zero_alias: bool,
 ) -> bool {
+    products::emit(
+        ops,
+        products::Input {
+            position: (pos_x, base_y),
+            glyphs,
+            text,
+            style,
+            scenario,
+            units: units_per_em,
+            restore,
+            font,
+            zero_alias,
+        },
+    )
+}
+fn emit_shaped_pdf_verbose_fresh(
+    ops: &mut String,
+    input: products::Input<'_, '_>,
+) -> bool {
+    let products::Input {
+        position: (pos_x, base_y),
+        glyphs,
+        text,
+        style,
+        scenario,
+        units: units_per_em,
+        restore,
+        font,
+        zero_alias,
+    } = input;
     let mut deferred = false;
     if glyphs.is_empty() {
         return false;

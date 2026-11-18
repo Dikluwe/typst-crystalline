@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/metrics.md
-//! @prompt-hash ee8d3837
+//! @prompt-hash df36534c
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -14,12 +14,46 @@ use crate::entities::{
 };
 use unicode_script::{Script, UnicodeScript};
 
+/// Owned provider and dependency identities for stable metric answers.
+#[derive(Clone)]
+pub struct MetricEpoch {
+    provider: std::sync::Arc<()>,
+    dependency: std::sync::Arc<()>,
+}
+impl MetricEpoch {
+    pub fn new(provider: std::sync::Arc<()>, dependency: std::sync::Arc<()>) -> Self {
+        Self { provider, dependency }
+    }
+    pub fn same(&self, other: &Self) -> bool {
+        std::sync::Arc::ptr_eq(&self.provider, &other.provider)
+            && std::sync::Arc::ptr_eq(&self.dependency, &other.dependency)
+    }
+}
+
 /// Interface de métricas de fonte para o Layouter.
 ///
 /// Minimalista — não armazena `font_size` nem vaza `ttf-parser` para L1.
 /// `font_size` é passado em cada chamada para suportar tamanhos mistos
 /// (rich text futuro).
 pub trait FontMetrics: Send + Sync {
+    /// Same identities promise stable answers for fixed immutable arguments.
+    fn physical_epoch(&self) -> Option<MetricEpoch> {
+        None
+    }
+
+    /// Optional explicit session for immutable paragraph products.
+    fn paragraph_session(&self) -> Option<super::paragraph_session::ParagraphSession> {
+        None
+    }
+    /// Certify current horizontal measurements; absence keeps preparation cold.
+    fn paragraph_identity(
+        &self,
+        _text: &str,
+        _style: &TextStyle,
+    ) -> Option<super::paragraph_session::MetricIdentity> {
+        None
+    }
+
     fn text_trailing_overhang(
         &self,
         text: &str,
@@ -470,6 +504,21 @@ impl FontMetrics for FixedMetrics {
 /// um tipo genérico `M: FontMetrics`. Delega cada método obrigatório para o
 /// trait object subjacente; os métodos com default usam esses quatro.
 impl FontMetrics for &dyn FontMetrics {
+    fn physical_epoch(&self) -> Option<MetricEpoch> {
+        (*self).physical_epoch()
+    }
+
+    fn paragraph_session(&self) -> Option<super::paragraph_session::ParagraphSession> {
+        (*self).paragraph_session()
+    }
+    fn paragraph_identity(
+        &self,
+        text: &str,
+        style: &TextStyle,
+    ) -> Option<super::paragraph_session::MetricIdentity> {
+        (*self).paragraph_identity(text, style)
+    }
+
     fn text_trailing_overhang(
         &self,
         text: &str,
@@ -752,5 +801,21 @@ mod r10_contract_tests {
         assert_eq!(runs[0].0, 0..2);
         assert_eq!(runs[0].1.size, Pt(4.25));
         assert_eq!(runs[0].2, Pt(2.75));
+    }
+}
+
+#[cfg(test)]
+mod metric_epoch_tests {
+    use super::*;
+    use std::sync::Arc;
+    #[test]
+    fn metric_epoch_default_provider_and_exact_owned_pair() {
+        assert!(FixedMetrics.physical_epoch().is_none());
+        let provider = Arc::new(());
+        let dependency = Arc::new(());
+        let a = MetricEpoch::new(provider.clone(), dependency.clone());
+        assert!(a.same(&a.clone()));
+        assert!(!a.same(&MetricEpoch::new(Arc::new(()), dependency)));
+        assert!(!a.same(&MetricEpoch::new(provider, Arc::new(()))));
     }
 }

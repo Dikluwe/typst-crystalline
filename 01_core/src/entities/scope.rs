@@ -1,11 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/scope.md
-//! @prompt-hash c25317a8
+//! @prompt-hash ddccf16f
 //! @layer L1
 //! @updated 2026-11-08
 
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
+use std::sync::Arc;
 
 use crate::entities::value::Value;
 
@@ -61,23 +62,27 @@ impl Binding {
 /// identificadores curtos.
 #[derive(Debug, Clone)]
 pub struct Scope {
-    map: IndexMap<String, Binding, FxBuildHasher>,
+    map: Arc<IndexMap<String, Binding, FxBuildHasher>>,
 }
 
 impl Scope {
     pub fn new() -> Self {
-        Self { map: IndexMap::with_hasher(FxBuildHasher) }
+        Self {
+            map: Arc::new(IndexMap::with_hasher(FxBuildHasher)),
+        }
     }
 
     /// Cria um scope vazio com espaço para pelo menos `capacity` bindings.
     pub fn with_capacity(capacity: usize) -> Self {
-        Self { map: IndexMap::with_capacity_and_hasher(capacity, FxBuildHasher) }
+        Self {
+            map: Arc::new(IndexMap::with_capacity_and_hasher(capacity, FxBuildHasher)),
+        }
     }
 
     /// Define um binding. Se o nome já existe, substitui no lugar
     /// (mantendo a posição na ordem de inserção).
     pub fn define(&mut self, name: impl Into<String>, value: Value) {
-        self.map.insert(name.into(), Binding::new(value));
+        Arc::make_mut(&mut self.map).insert(name.into(), Binding::new(value));
     }
 
     pub fn get(&self, name: &str) -> Option<&Value> {
@@ -87,7 +92,10 @@ impl Scope {
     /// P715 — acesso mutável a um binding existente, para atribuição.
     /// Não cria o binding se ausente (distinto de `define`).
     pub fn get_mut(&mut self, name: &str) -> Option<&mut Value> {
-        self.map.get_mut(name).map(|b| b.value_mut())
+        if !self.map.contains_key(name) {
+            return None;
+        }
+        Arc::make_mut(&mut self.map).get_mut(name).map(|b| b.value_mut())
     }
 
     pub fn get_binding(&self, name: &str) -> Option<&Binding> {
@@ -198,20 +206,23 @@ mod tests {
             assert_eq!(scope.len(), 0);
             let capacity = scope.map.capacity();
             assert!(capacity >= count, "reservation must cover {count} bindings");
-            let names: Vec<String> = (0..count)
-                .map(|index| format!("key-{:05}", count - index))
-                .collect();
+            let names: Vec<String> =
+                (0..count).map(|index| format!("key-{:05}", count - index)).collect();
             for (index, name) in names.iter().enumerate() {
                 scope.define(name.clone(), Value::Int(index as i64));
                 assert_eq!(scope.map.capacity(), capacity, "insert {index}/{count}");
             }
             assert_eq!(scope.len(), count);
-            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
-                names.iter().map(String::as_str).collect::<Vec<_>>());
+            assert_eq!(
+                scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                names.iter().map(String::as_str).collect::<Vec<_>>()
+            );
             for (index, name) in names.iter().enumerate() {
                 assert_eq!(scope.get(name), Some(&Value::Int(index as i64)));
-                assert_eq!(scope.get_binding(name).unwrap().value(),
-                    &Value::Int(index as i64));
+                assert_eq!(
+                    scope.get_binding(name).unwrap().value(),
+                    &Value::Int(index as i64)
+                );
             }
             let replaced = &names[count / 2];
             scope.define(replaced.clone(), Value::Bool(true));
@@ -221,8 +232,10 @@ mod tests {
             assert!(scope.get_mut("missing").is_none());
             assert_eq!(scope.len(), count);
             assert_eq!(scope.map.capacity(), capacity);
-            assert_eq!(scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
-                names.iter().map(String::as_str).collect::<Vec<_>>());
+            assert_eq!(
+                scope.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+                names.iter().map(String::as_str).collect::<Vec<_>>()
+            );
         }
     }
 
@@ -232,8 +245,10 @@ mod tests {
         let initial_capacity = scope.map.capacity();
         assert!(initial_capacity >= 3);
         for index in 0..=initial_capacity {
-            scope.define(format!("descending-{}", initial_capacity - index),
-                Value::Int(index as i64));
+            scope.define(
+                format!("descending-{}", initial_capacity - index),
+                Value::Int(index as i64),
+            );
         }
         assert_eq!(scope.len(), initial_capacity + 1);
         assert!(scope.map.capacity() > initial_capacity);
@@ -271,5 +286,28 @@ mod tests {
         assert_eq!(empty.len(), 0);
         assert_eq!(empty.map.capacity(), 0);
     }
+}
 
+#[cfg(test)]
+mod builtin_root_storage_tests {
+    use super::*;
+    #[test]
+    fn builtin_root_scope_clone_shares_storage_until_mutated() {
+        let mut a = Scope::new();
+        a.define("z", Value::Int(1));
+        a.define("a", Value::Int(2));
+        let mut b = a.clone();
+        assert!(
+            std::ptr::eq(a.get_binding("z").unwrap(), b.get_binding("z").unwrap()),
+            "immutable scope clone copied bindings"
+        );
+        *b.get_mut("z").unwrap() = Value::Int(3);
+        b.define("a", Value::Int(4));
+        b.define("m", Value::Int(5));
+        assert_eq!(a.get("z"), Some(&Value::Int(1)));
+        assert_eq!(a.get("a"), Some(&Value::Int(2)));
+        assert_eq!(b.iter().map(|(n, _)| n).collect::<Vec<_>>(), vec!["z", "a", "m"]);
+        assert_eq!(a.len(), 2);
+        assert_eq!(b.get("z"), Some(&Value::Int(3)));
+    }
 }

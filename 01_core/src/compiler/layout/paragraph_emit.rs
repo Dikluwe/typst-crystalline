@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_emit.md
-//! @prompt-hash 1e637e74
+//! @prompt-hash 92162acf
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -27,6 +27,22 @@ fn emit_gap<M: FontMetrics, S: ImageSizer>(
     l.regions.current.cursor_x += Pt(width);
     l.justify_opportunities.push(l.regions.current.cursor_x.0);
 }
+pub(super) fn emit_product<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    product: &super::paragraph_session::Product,
+    width: f64,
+    justify: bool,
+) {
+    let identity = product.paintable.then_some(&product.paint_id);
+    match (&product.hyphenated, identity) {
+        (Some(lines), Some(id)) => emit_prepared_impl(l, lines, width, justify, Some(id)),
+        (Some(lines), None) => emit_prepared_lines(l, lines, width, justify),
+        (None, Some(id)) => {
+            emit_impl(l, &product.prepared, &product.lines, width, justify, Some(id))
+        }
+        (None, None) => emit(l, &product.prepared, &product.lines, width, justify),
+    }
+}
 pub(super) fn emit<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     p: &Prepared,
@@ -34,12 +50,30 @@ pub(super) fn emit<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
 ) {
+    emit_impl(l, p, lines, width, justify, None);
+}
+fn emit_impl<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    p: &Prepared,
+    lines: &[Line],
+    width: f64,
+    justify: bool,
+    identity: Option<&std::sync::Arc<()>>,
+) {
     super::paragraph_indent::start(l);
     let saved = l.style.clone();
     let pagination = super::paragraph_pagination::certify_selected(l, p, lines);
     for (index, &line) in lines.iter().enumerate() {
         super::paragraph_pagination::admit(l, pagination, index, lines.len());
-        emit_line(l, p, line, width, justify, index + 1 < lines.len());
+        emit_line(
+            l,
+            p,
+            line,
+            width,
+            justify,
+            index + 1 < lines.len(),
+            identity.map(|id| (id, index)),
+        );
     }
     l.style = saved;
 }
@@ -50,6 +84,7 @@ fn emit_line<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
     continued: bool,
+    identity: Option<(&std::sync::Arc<()>, usize)>,
 ) {
     let width = super::paragraph_indent::current_width(l, width);
     let m = measure(p, line);
@@ -85,35 +120,66 @@ fn emit_line<M: FontMetrics, S: ImageSizer>(
     } else {
         (0.0, 0.0)
     };
-    for i in line.start..line.end {
-        if i > line.start || line.start == 0 {
-            for (gap_index, gap) in p.words[i].before.iter().enumerate() {
-                l.regions.current.cursor_x += Pt(before_gap(p, line, i, gap_index));
-                emit_gap(l, gap, gap.width * (1.0 + proportional) + extra);
-            }
-            l.regions.current.cursor_x += Pt(before_word(p, line, i));
+    let next = if line.start < line.end {
+        emit_word(l, p, line, line.start, proportional, extra);
+        line.start + 1
+    } else {
+        line.start
+    };
+    let run = |l: &mut Layouter<M, S>| {
+        for i in next..line.end {
+            emit_word(l, p, line, i, proportional, extra);
         }
-        for f in &p.words[i].fragments {
-            if l.document_language.is_none() {
-                l.document_language = f.style.lang;
-            }
-            super::word_layout::prepared(
-                l,
-                &f.text,
-                Pt(f.width),
-                &f.style,
-                f.replacement.as_deref(),
-            );
+        let trailing = if line.end < p.words.len() {
+            &p.words[line.end].before
+        } else {
+            &p.trailing
+        };
+        for gap in trailing {
+            l.regions.current.cursor_x += Pt(p.tracking());
+            emit_gap(l, gap, gap.width);
         }
-    }
-    let trailing =
-        if line.end < p.words.len() { &p.words[line.end].before } else { &p.trailing };
-    for gap in trailing {
-        l.regions.current.cursor_x += Pt(p.tracking());
-        emit_gap(l, gap, gap.width);
+    };
+    if let Some((id, index)) = identity.filter(|_| next < line.end) {
+        let language = p.words[next..line.end]
+            .iter()
+            .flat_map(|w| &w.fragments)
+            .find_map(|f| f.style.lang);
+        super::paragraph_paint::tail(l, id, index, [proportional, extra], language, run);
+    } else {
+        run(l);
     }
     if continued {
         l.flush_line();
+    }
+}
+
+fn emit_word<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    p: &Prepared,
+    line: Line,
+    i: usize,
+    proportional: f64,
+    extra: f64,
+) {
+    if i > line.start || line.start == 0 {
+        for (gap_index, gap) in p.words[i].before.iter().enumerate() {
+            l.regions.current.cursor_x += Pt(before_gap(p, line, i, gap_index));
+            emit_gap(l, gap, gap.width * (1.0 + proportional) + extra);
+        }
+        l.regions.current.cursor_x += Pt(before_word(p, line, i));
+    }
+    for f in &p.words[i].fragments {
+        if l.document_language.is_none() {
+            l.document_language = f.style.lang;
+        }
+        super::word_layout::prepared(
+            l,
+            &f.text,
+            Pt(f.width),
+            &f.style,
+            f.replacement.as_deref(),
+        );
     }
 }
 
@@ -122,6 +188,15 @@ pub(super) fn emit_prepared_lines<M: FontMetrics, S: ImageSizer>(
     lines: &[Prepared],
     width: f64,
     justify: bool,
+) {
+    emit_prepared_impl(l, lines, width, justify, None);
+}
+fn emit_prepared_impl<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    lines: &[Prepared],
+    width: f64,
+    justify: bool,
+    identity: Option<&std::sync::Arc<()>>,
 ) {
     super::paragraph_indent::start(l);
     let saved = l.style.clone();
@@ -135,6 +210,7 @@ pub(super) fn emit_prepared_lines<M: FontMetrics, S: ImageSizer>(
             width,
             justify,
             i + 1 < lines.len(),
+            identity.map(|id| (id, i)),
         );
     }
     l.style = saved;

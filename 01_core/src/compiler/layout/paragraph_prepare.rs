@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md
-//! @prompt-hash 20adc897
+//! @prompt-hash e6136f6f
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -36,7 +36,7 @@ pub(super) struct Word {
     pub width: f64,
     pub hyphenation: Option<super::paragraph_hyphen::Hyphenation>,
 }
-#[derive(Default, Debug)]
+#[derive(Default, Clone, Debug)]
 pub(super) struct Prepared {
     pub words: Vec<Word>,
     pub trailing: Vec<Gap>,

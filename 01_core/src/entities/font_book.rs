@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/font_book.md
-//! @prompt-hash 1a0d27ef
+//! @prompt-hash 8668e6de
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -158,13 +158,27 @@ pub struct FontFlags {
 /// P937 — representação por runs alternadas de codepoints fora/dentro do
 /// conjunto, portada do vanilla (`typst-library/src/text/font/info.rs:269-318`).
 /// Elimina os falsos positivos do bitmap por bloco de 256 codepoints (P880).
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Coverage(Arc<[u32]>);
+#[derive(Clone)]
+pub struct Coverage(Arc<[u32]>, Arc<[u32]>);
+
+const COVERAGE_BLOCK_RUNS: usize = 16;
+
+impl PartialEq for Coverage {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl Eq for Coverage {}
+impl std::hash::Hash for Coverage {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        std::hash::Hash::hash(&self.0, state);
+    }
+}
 
 impl Coverage {
     /// Cobertura vazia.
     pub fn new() -> Self {
-        Self(Arc::from([]))
+        Self(Arc::from([]), Arc::from([]))
     }
 
     /// Build exact coverage from codepoints in arbitrary order.
@@ -206,7 +220,7 @@ impl Coverage {
             }
             next = end;
         }
-        Self(runs.into())
+        Self::from_runs(runs)
     }
 
     /// Build the exact union of half-open integer ranges.
@@ -243,22 +257,54 @@ impl Coverage {
             }
             next = range.end;
         }
-        Self(runs.into())
+        Self::from_runs(runs)
     }
 
-    /// Verifica se o codepoint está coberto. O(n) no número de runs; o vanilla
-    /// usa a mesma abordagem (info.rs:313-326).
-    ///
-    /// **P942** — terminação antecipada: como os runs estão ordenados, quando
-    /// `cursor` ultrapassa o codepoint ele já não pode estar em nenhum run
-    /// seguinte. Para fontes que não cobrem o caractere (a maioria, durante o
-    /// fallback), o scan pára cedo em vez de percorrer todos os runs — medido:
-    /// reduz significativamente o custo de `candidates_for_char`.
-    pub fn contains(&self, codepoint: u32) -> bool {
-        let mut inside = false;
+    // Derived immutable checkpoint ends; canonical runs remain the only identity.
+    fn from_runs(runs: Vec<u32>) -> Self {
+        let mut ends = Vec::with_capacity(runs.len().div_ceil(COVERAGE_BLOCK_RUNS));
         let mut cursor = 0u32;
+        for (i, &run) in runs.iter().enumerate() {
+            cursor += run;
+            if (i + 1) % COVERAGE_BLOCK_RUNS == 0 || i + 1 == runs.len() {
+                ends.push(cursor);
+            }
+        }
+        Self(runs.into(), ends.into())
+    }
 
-        for &run in self.0.iter() {
+    /// Exact membership by sparse checkpoint search and at most sixteen runs.
+    pub fn contains(&self, codepoint: u32) -> bool {
+        self.contains_visit(codepoint, || {})
+    }
+
+    fn contains_visit(&self, codepoint: u32, mut visit: impl FnMut()) -> bool {
+        let Some(&last) = self.1.last() else { return false };
+        visit();
+        if codepoint >= last {
+            return false;
+        }
+        visit();
+        let block = if codepoint < self.1[0] {
+            0
+        } else {
+            self.1.partition_point(|&end| {
+                visit();
+                end <= codepoint
+            })
+        };
+        let mut cursor = if block == 0 {
+            0
+        } else {
+            visit();
+            self.1[block - 1]
+        };
+        let start = block * COVERAGE_BLOCK_RUNS;
+        let end = (start + COVERAGE_BLOCK_RUNS).min(self.0.len());
+        // Even-sized blocks always start outside, matching the canonical format.
+        let mut inside = false;
+        for &run in &self.0[start..end] {
+            visit();
             if cursor > codepoint {
                 return false;
             }
@@ -268,8 +314,12 @@ impl Coverage {
             cursor += run;
             inside = !inside;
         }
-
         false
+    }
+
+    #[cfg(test)]
+    fn query_backings(&self) -> [(*const u32, usize); 2] {
+        [(self.0.as_ptr(), self.0.len()), (self.1.as_ptr(), self.1.len())]
     }
 
     /// True se não cobre nenhum codepoint.
@@ -323,21 +373,46 @@ pub struct FontInfo {
 /// `FontBook` em L1 é uma colecção pura com métodos de pesquisa.
 /// Populado em L3 via `font_info_from_bytes` (ADR-0022).
 /// Não sabe de bytes, paths ou `ttf_parser`.
-#[derive(PartialEq, Eq, Hash)]
 pub struct FontBook {
     infos: Vec<FontInfo>,
+    // Derived from this book only; never slot identity or cache authority.
+    literal_slots: Vec<usize>,
+}
+
+impl PartialEq for FontBook {
+    fn eq(&self, other: &Self) -> bool {
+        self.infos == other.infos
+    }
+}
+impl Eq for FontBook {}
+impl std::hash::Hash for FontBook {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        std::hash::Hash::hash(&self.infos, state);
+    }
+}
+
+// ASCII-only folding is exactly the existing case-insensitive equality.
+fn literal_family_cmp(left: &str, right: &str) -> std::cmp::Ordering {
+    left.bytes()
+        .map(|byte| byte.to_ascii_lowercase())
+        .cmp(right.bytes().map(|byte| byte.to_ascii_lowercase()))
 }
 
 impl FontBook {
     pub fn new() -> Self {
-        Self { infos: Vec::new() }
+        Self { infos: Vec::new(), literal_slots: Vec::new() }
     }
 
     /// Adiciona uma entrada de fonte ao catálogo.
     pub fn push(&mut self, info: FontInfo) {
+        let slot = self.infos.len();
         self.infos.push(info);
+        let at = self.literal_slots.partition_point(|&previous| {
+            literal_family_cmp(&self.infos[previous].family, &self.infos[slot].family)
+                .is_le()
+        });
+        self.literal_slots.insert(at, slot);
     }
-
     /// Metadados de todas as fontes no catálogo.
     pub fn infos(&self) -> &[FontInfo] {
         &self.infos
@@ -443,17 +518,52 @@ impl FontBook {
         best
     }
 
+    fn literal_query(
+        &self,
+        family: &str,
+        variant: &FontVariant,
+        mut visit: impl FnMut(),
+    ) -> Option<usize> {
+        let start = self.literal_slots.partition_point(|&slot| {
+            visit();
+            literal_family_cmp(&self.infos[slot].family, family).is_lt()
+        });
+        self.literal_slots[start..]
+            .iter()
+            .copied()
+            .take_while(|&slot| {
+                visit();
+                self.infos[slot].family.eq_ignore_ascii_case(family)
+            })
+            .min_by_key(|&slot| {
+                let info = &self.infos[slot];
+                (
+                    info.variant.weight.distance(variant.weight),
+                    info.variant.style.distance(variant.style),
+                )
+            })
+    }
+
+    #[cfg(test)]
+    fn literal_index_bytes(&self) -> usize {
+        std::mem::size_of_val(&self.literal_slots)
+            + self.literal_slots.capacity() * std::mem::size_of::<usize>()
+    }
     /// Selecciona o índice da fonte mais próxima de `(pattern, variant)`.
     ///
     /// Para `FontNamePattern::Literal` usa lookup exacto case-insensitive.
-    /// Para `FontNamePattern::Regex` faz scan linear O(n) e retorna a
-    /// primeira face que matcha. Critério de desempate: peso + estilo
+    /// Para `FontNamePattern::Regex` mantém o scan linear de todas as faces
+    /// que casam. Critério de desempate: peso + estilo
     /// mais próximos (mesmo de `select`).
     pub fn select_pattern(
         &self,
         pattern: &FontNamePattern,
         variant: &FontVariant,
     ) -> Option<usize> {
+        if let FontNamePattern::Literal(name) = pattern {
+            return self.literal_query(name.as_str(), variant, || {});
+        }
+
         let candidates: Vec<usize> = self
             .infos
             .iter()
@@ -994,5 +1104,410 @@ mod range_constructor_tests {
         let c = Coverage::from_ranges(std::iter::once(u32::MAX - 2..u32::MAX));
         assert_eq!(c.iter().collect::<Vec<_>>(), vec![u32::MAX - 2, u32::MAX - 1]);
         assert!(!c.contains(u32::MAX));
+    }
+}
+
+#[cfg(test)]
+mod literal_index_tests {
+    use super::*;
+    use std::hash::{Hash, Hasher};
+
+    fn info(name: &str, weight: u16, style: FontStyle, stretch: u16) -> FontInfo {
+        FontInfo {
+            family: name.into(),
+            variant: FontVariant {
+                weight: FontWeight(weight),
+                style,
+                stretch: FontStretch(stretch),
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::from_codepoints(vec![65, 66, 937]),
+        }
+    }
+    fn pattern(s: &str) -> FontNamePattern {
+        FontNamePattern::Literal(s.into())
+    }
+    fn old_pattern(
+        book: &FontBook,
+        p: &FontNamePattern,
+        v: &FontVariant,
+    ) -> Option<usize> {
+        book.infos
+            .iter()
+            .enumerate()
+            .filter(|(_, i)| p.is_match(&i.family))
+            .map(|(id, _)| id)
+            .min_by_key(|&id| {
+                let i = &book.infos[id];
+                (i.variant.weight.distance(v.weight), i.variant.style.distance(v.style))
+            })
+    }
+    fn hash(value: &impl Hash) -> u64 {
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        value.hash(&mut h);
+        h.finish()
+    }
+
+    #[test]
+    fn literal_queries_have_logarithmic_family_comparison_work() {
+        let mut book = FontBook::new();
+        for i in 0..4096 {
+            book.push(info(&format!("Family {i:04}"), 400, FontStyle::Normal, 1000));
+        }
+        for name in ["Family 4095", "FAMILY 2048", "Absent Z", "", "Family 0000"] {
+            let mut work = 0;
+            let got = book.literal_query(name, &FontVariant::default(), || work += 1);
+            assert_eq!(got, book.select(name, &FontVariant::default()));
+            assert_eq!(got, book.select_pattern(&pattern(name), &FontVariant::default()));
+            assert!(work<=16,"literal query scans unrelated families: {name:?}, actual comparisons={work}");
+        }
+    }
+
+    #[test]
+    fn variants_case_unicode_and_regex_preserve_original_selection() {
+        let names = [
+            "",
+            "A",
+            "a",
+            "AA",
+            "Alpha",
+            "ALPHA",
+            "alpha",
+            "Zeta",
+            "École",
+            "école",
+            "İ",
+            "i\u{307}",
+            "Σ",
+            "σ",
+            "Straße",
+            "STRASSE",
+            "name\0tail",
+        ];
+        let mut book = FontBook::new();
+        for n in names {
+            for weight in [100, 300, 400, 500, 900] {
+                for style in [FontStyle::Normal, FontStyle::Italic, FontStyle::Oblique] {
+                    book.push(info(
+                        n,
+                        weight,
+                        style,
+                        if weight == 300 { 500 } else { 1500 },
+                    ));
+                }
+            }
+        }
+        let before = book.infos.clone();
+        let mut ps = names.iter().map(|n| pattern(n)).collect::<Vec<_>>();
+        ps.extend([pattern("Not Here"), pattern("éCOLE"), pattern("alphA")]);
+        for regex in [".*", "(?i)^a", "^$", "É|é", "NoSuchFamily"] {
+            ps.push(FontNamePattern::Regex(
+                crate::entities::regex::Regex::new(regex).unwrap(),
+            ));
+        }
+        for weight in [100, 250, 350, 400, 450, 700, 900] {
+            for style in [FontStyle::Normal, FontStyle::Italic, FontStyle::Oblique] {
+                for stretch in [500, 1000, 1500] {
+                    let v = FontVariant {
+                        weight: FontWeight(weight),
+                        style,
+                        stretch: FontStretch(stretch),
+                    };
+                    for p in &ps {
+                        assert_eq!(
+                            book.select_pattern(p, &v),
+                            old_pattern(&book, p, &v),
+                            "{p:?} {v:?}"
+                        );
+                    }
+                }
+            }
+        }
+        assert_eq!(before, book.infos);
+        assert_eq!(
+            book.select_pattern(&pattern("A"), &FontVariant::default()),
+            book.select("a", &FontVariant::default())
+        );
+    }
+
+    #[test]
+    fn append_after_miss_and_better_variant_never_reuses_stale_selection() {
+        let mut a = FontBook::new();
+        let mut b = FontBook::new();
+        let v = FontVariant::default();
+        assert_eq!(a.select_pattern(&pattern("Target"), &v), None);
+        a.push(info("Other", 400, FontStyle::Normal, 1000));
+        a.push(info("TARGET", 700, FontStyle::Normal, 1000));
+        assert_eq!(a.select_pattern(&pattern("target"), &v), Some(1));
+        assert_eq!(b.select_pattern(&pattern("target"), &v), None);
+        a.push(info("target", 400, FontStyle::Normal, 1500));
+        assert_eq!(a.select_pattern(&pattern("Target"), &v), Some(2));
+        a.push(info("Target", 400, FontStyle::Normal, 500));
+        assert_eq!(a.select_pattern(&pattern("Target"), &v), Some(2));
+        b.push(info("Target", 400, FontStyle::Normal, 1000));
+        assert_eq!(b.select_pattern(&pattern("target"), &v), Some(0));
+        assert_eq!(a.select_family("target").collect::<Vec<_>>(), vec![1, 2, 3]);
+        assert_eq!(
+            a.infos.iter().map(|i| i.family.as_str()).collect::<Vec<_>>(),
+            vec!["Other", "TARGET", "target", "Target"]
+        );
+    }
+
+    #[test]
+    fn equal_family_range_work_includes_variants_but_not_unrelated_faces() {
+        let mut b = FontBook::new();
+        for i in 0..2048 {
+            b.push(info(&format!("Z{i:04}"), 400, FontStyle::Normal, 1000));
+        }
+        for i in 0..64 {
+            b.push(info(
+                if i % 2 == 0 { "Target" } else { "TARGET" },
+                400,
+                FontStyle::Normal,
+                1000,
+            ));
+        }
+        let mut work = 0;
+        assert_eq!(
+            b.literal_query("target", &FontVariant::default(), || work += 1),
+            Some(2048)
+        );
+        assert!(work <= 80, "family range must not revisit unrelated faces: {work}");
+    }
+
+    #[test]
+    fn book_identity_is_exactly_ordered_metadata_and_storage_is_linear() {
+        let mut a = FontBook::new();
+        let mut b = FontBook::new();
+        for size in 1usize..=4096 {
+            let i =
+                info(&format!("Family {:04}", 4096 - size), 400, FontStyle::Normal, 1000);
+            a.push(i.clone());
+            b.push(i);
+            if size.is_power_of_two() || size == 1112 {
+                assert!(a == b);
+                assert_eq!(hash(&a), hash(&a.infos));
+                assert_eq!(hash(&a), hash(&b));
+                assert!(a.literal_index_bytes() <= 16 * size + 64);
+                println!(
+                    "LITERAL_INDEX_STORAGE slots={} bytes={}",
+                    size,
+                    a.literal_index_bytes()
+                );
+            }
+        }
+        b.push(info("Another", 400, FontStyle::Normal, 1000));
+        assert!(a != b);
+        assert!(a.infos[0].coverage.contains(937));
+    }
+}
+
+#[cfg(test)]
+mod coverage_query_index_tests {
+    use super::*;
+    use std::{
+        collections::BTreeSet,
+        hash::{Hash, Hasher},
+    };
+    fn sparse() -> Coverage {
+        Coverage::from_codepoints((0..4096).map(|i| i * 3).collect::<Vec<_>>())
+    }
+    fn examined(c: &Coverage, cp: u32) -> (bool, usize) {
+        let mut n = 0;
+        let result = c.contains_visit(cp, || n += 1);
+        (result, n)
+    }
+    #[test]
+    fn sparse_late_hit_has_bounded_actual_entry_reads() {
+        let c = sparse();
+        let (yes, n) = examined(&c, 4095 * 3);
+        assert!(yes);
+        assert!(n <= 32, "actual coverage query examined {n} entries; budget32");
+    }
+    #[test]
+    fn sparse_gap_miss_has_bounded_actual_entry_reads() {
+        let c = sparse();
+        let (yes, n) = examined(&c, 4095 * 3 - 1);
+        assert!(!yes);
+        assert!(n <= 32, "actual gap query examined {n} entries; budget32");
+    }
+    #[test]
+    fn high_absent_has_bounded_actual_entry_reads() {
+        let c = sparse();
+        let (yes, n) = examined(&c, 0x10ffff);
+        assert!(!yes);
+        assert!(n <= 32, "actual absent query examined {n} entries; budget32");
+    }
+    fn linear(c: &Coverage, cp: u32) -> bool {
+        let mut cursor = 0;
+        let mut inside = false;
+        for &run in c.0.iter() {
+            if cursor > cp {
+                return false;
+            }
+            if (cursor..cursor + run).contains(&cp) {
+                return inside;
+            }
+            cursor += run;
+            inside = !inside;
+        }
+        false
+    }
+    #[test]
+    fn membership_iteration_and_canonical_runs_match_independent_set() {
+        let mut seed = 123456789u32;
+        for trial in 0..48 {
+            let mut input = Vec::new();
+            for _ in 0..512 {
+                seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+                input.push(seed % 4096);
+            }
+            input.extend([0, 0x10ffff, 0xd800, 0x10000, 0x1f600]);
+            let expected: BTreeSet<_> = input.iter().copied().collect();
+            let c = Coverage::from_codepoints(input.clone());
+            input.reverse();
+            let d = Coverage::from_codepoints(input);
+            assert_eq!(c, d);
+            assert_eq!(&*c.0, &*d.0);
+            assert_eq!(
+                c.iter().collect::<Vec<_>>(),
+                expected.iter().copied().collect::<Vec<_>>()
+            );
+            for cp in (0..4200).chain([
+                0xd7ff,
+                0xd800,
+                0xd801,
+                0xffff,
+                0x10000,
+                0x1f600,
+                0x10fffe,
+                0x10ffff,
+                0x110000,
+                u32::MAX,
+            ]) {
+                assert_eq!(
+                    c.contains(cp),
+                    expected.contains(&cp),
+                    "trial {trial} cp {cp}"
+                );
+                assert_eq!(c.contains(cp), linear(&c, cp));
+            }
+        }
+    }
+    #[test]
+    fn range_boundaries_blocks_and_supported_u32_endpoints() {
+        let ranges = [
+            0..2,
+            2..5,
+            12..15,
+            9..10,
+            7..7,
+            std::ops::Range { start: 20, end: 18 },
+            0xd7ff..0xd802,
+            0x10fffe..0x110000,
+            u32::MAX - 3..u32::MAX,
+        ];
+        let points: BTreeSet<_> = ranges.iter().flat_map(|r| r.clone()).collect();
+        let c = Coverage::from_ranges(ranges.clone());
+        assert_eq!(
+            c.iter().collect::<Vec<_>>(),
+            points.iter().copied().collect::<Vec<_>>()
+        );
+        for cp in (0..30).chain([
+            0xd7fe,
+            0xd7ff,
+            0xd800,
+            0xd801,
+            0xd802,
+            0x10fffd,
+            0x10fffe,
+            0x10ffff,
+            0x110000,
+            u32::MAX - 4,
+            u32::MAX - 3,
+            u32::MAX - 1,
+            u32::MAX,
+        ]) {
+            assert_eq!(c.contains(cp), points.contains(&cp));
+        }
+        for pairs in [0, 1, 7, 8, 9, 15, 16, 17, 64, 4096] {
+            let c = Coverage::from_ranges((0..pairs).map(|i| i * 3..i * 3 + 1));
+            for cp in 0..pairs * 3 + 3 {
+                assert_eq!(c.contains(cp), cp % 3 == 0 && cp / 3 < pairs);
+            }
+        }
+    }
+    #[derive(Default, Debug, PartialEq, Eq)]
+    struct Trace(Vec<Vec<u8>>);
+    impl Hasher for Trace {
+        fn finish(&self) -> u64 {
+            0
+        }
+        fn write(&mut self, b: &[u8]) {
+            self.0.push(b.to_vec());
+        }
+    }
+    #[test]
+    fn equality_hash_debug_and_clone_storage_keep_old_contract() {
+        for c in [
+            Coverage::new(),
+            Coverage::from_codepoints([2, 3, 4, 9, 10, 11, 15, 18, 19]),
+            sparse(),
+        ] {
+            let d = c.clone();
+            let a = c.query_backings();
+            let b = d.query_backings();
+            assert_eq!(a, b);
+            let mut h = Trace::default();
+            c.hash(&mut h);
+            let mut old = Trace::default();
+            c.0.hash(&mut old);
+            assert_eq!(h, old);
+            assert_eq!(format!("{c:?}"), format!("Coverage({:?})", c.0));
+            assert_eq!(c, d);
+            let runs = c.0.len();
+            assert_eq!(a[0].1, runs);
+            assert!(a[1].1 <= runs.div_ceil(16));
+            assert!(std::mem::size_of::<Coverage>() <= 32);
+            println!("COVERAGE_QUERY_STORAGE runs={} canonical_bytes={} derived_bytes={} struct_bytes={}",runs,a[0].1*4,a[1].1*4,std::mem::size_of::<Coverage>());
+            drop(c);
+            for cp in [0, 2, 3, 7, 9, 4095 * 3, 0x10ffff] {
+                assert_eq!(d.contains(cp), linear(&d, cp));
+            }
+        }
+    }
+    #[test]
+    fn independent_books_preserve_candidate_indices_and_replacement() {
+        fn info(name: &str, coverage: Coverage) -> FontInfo {
+            FontInfo {
+                family: name.into(),
+                variant: FontVariant::default(),
+                flags: FontFlags::default(),
+                coverage,
+            }
+        }
+        let mut b = FontBook::new();
+        b.push(info("A", sparse()));
+        b.push(info("B", Coverage::from_codepoints([3, 7, 0x10ffff])));
+        b.push(info("A", Coverage::new()));
+        for cp in [0, 3, 7, 4095 * 3, 0x10ffff] {
+            let expected: Vec<_> = b
+                .infos()
+                .iter()
+                .enumerate()
+                .filter_map(|(i, f)| linear(&f.coverage, cp).then_some(i))
+                .collect();
+            assert_eq!(
+                b.candidates_for_char(char::from_u32(cp).unwrap()).collect::<Vec<_>>(),
+                expected
+            );
+        }
+        let empty = FontBook::new();
+        assert!(empty.candidates_for_char('x').next().is_none());
+        let mut clone = FontBook::new();
+        for info in b.infos() {
+            clone.push(info.clone());
+        }
+        assert_eq!(clone.candidates_for_char('\u{10ffff}').collect::<Vec<_>>(), vec![1]);
     }
 }

@@ -1,0 +1,16 @@
+tekt = 1
+kind = "nucleus"
+id = "immutable-family-list"
+title = "Owned immutable font family lists and value identity"
+[[claims]]
+id = "complete-values"
+level = "must"
+statement = "Preserve the complete ordered font family values: literal/regex pattern, ordered variants, optional variant/weight/style and representable covers. Independently constructed values compare and hash by complete contents, never storage addresses. Sharing does not certify current font resources or replace font-generation invalidation."
+[[claims]]
+id = "owned-lifetime"
+level = "must"
+statement = "Resolved and cloned lists own their immutable payload beyond the lifetime of all input styles and chains. Replacing an input value cannot alter a prior result and resolution cannot mutate either input. No borrowed list payload or global interner is introduced."
+[[claims]]
+id = "shared-clones"
+level = "may"
+statement = "Clones and fallback results may share immutable owned family storage. Different addresses are not required for ownership; address equality is only an internal performance observation and never a language equality or font-selection certificate."

@@ -20,29 +20,29 @@ ADR-0030 states the correct position formally to remove ambiguity before it caus
 
 ## The correct distinction
 
-What belongs in L3 is not “performance” — it is **system I/O**. The relevant distinction is not “optimized” versus “simple,” but “has side effects in the operating system” versus “operates exclusively on CPU and RAM.”
+System I/O must stay outside L1. Pure CPU/RAM work is eligible for L1 subject to ownership, layer imports and the dependency whitelist; purity alone does not assign every algorithm to L1 or exclude adapters from L3. Performance is not a layer-selection criterion.
 
 ### Performance choices that belong in L1
 
-These choices are correct and required in L1:
+These are examples of pure RAM choices available to L1 when justified by its owning contracts:
 
 | Choice | Why it belongs in the domain |
 |---------|------------------------------|
 | `Arc<T>` in types cloned on a hot path | Shared-without-copy semantics are part of the data model |
 | `EcoString` in `Value::Str` | O(1) string cloning in `eval()` — this performance is the correct behavior |
 | `FxHashMap` in `Scope` | The hasher is a data-type detail, not infrastructure |
-| `Arc<[Content]>` in large sequences | Avoiding O(n) copies during layout traversal is a correctness requirement |
+| `Arc<[Content]>` in large sequences | Avoids repeated payload copying when immutable ownership is demonstrated |
 | Precomputed `content_hash: u64` in `Source` | Immutability + O(1) hashing — see ADR-0031 |
 
 None of these uses has operating-system side effects. They are high-performance data structures confined to RAM.
 
-### What belongs in L3 (system I/O)
+### Infrastructure responsibilities under their owning contracts
 
 | Operation | Why it belongs in L3 |
 |-----------|----------------------|
 | Read a file from disk | Side effect on the file system |
 | File-system caching | Persistent state outside RAM |
-| Memoization with `comemo` | Incremental cache invalidation infrastructure |
+| World/resource access underlying memoization | External inputs and refresh belong to their infrastructure owners; the memoization mechanism alone does not determine the layer |
 | TrueType font parsing | Requires `ttf-parser`, an L3 crate |
 
 ## Consequences for existing code
@@ -68,8 +68,8 @@ The word `clone` in Rust is polysemous. Two distinct semantics share the same me
 
 This ADR establishes two rules from this distinction:
 
-1. **Prohibited on L1 hot paths:** `Vec<T>::clone()`, `String::clone()`, `HashMap<K, V>::clone()`, and similar deep clones. If a field has “shared” semantics (multiple owners, immutable after creation), its type must be `Arc<T>`, `Arc<[T]>`, `Arc<str>`, or `EcoString`.
-2. **Required in L1 when sharing is semantic:** when a value must be replicated for multiple owners without duplicating bytes, explicitly use `Arc::clone`. Examples in current code: `Source` contains `Arc<str>` (ADR-0031), `Content::Sequence(Arc<[Content]>)` (ADR-0026-R1), and `Arc<[ShowRule]>` in `EvalContext` (Step 84.4 / DEBT-22).
+1. **Review repeated deep copies on measured L1 hot paths.** For data proven immutable and shared, specify suitable shared ownership in the owning L0. This is not a blanket prohibition on Vec, String, HashMap, necessary independent copies or copy-on-write detachment. Representation changes require measurements of the full path and retention costs.
+2. **Preserve explicitly specified sharing:** when the owning contract requires multiple owners of the same immutable payload, use a representation that actually shares that payload; Arc is one permitted mechanism. Examples in current code: `Source` contains `Arc<str>` (ADR-0031), `Content::Sequence(Arc<[Content]>)` (ADR-0026-R1), and `Arc<[ShowRule]>` in `EvalContext` (Step 84.4 / DEBT-22).
 
 **Detection note:** the difference between deep clone and `Arc::clone` is not visible in the spelling — both are written `x.clone()`. The criterion is the **type of `x`**. Code reviews and materialization steps must check that hot-path fields have types that make cloning O(1), not O(n).
 
@@ -90,7 +90,7 @@ The wrong question is:
 
 **“Is this structure a performance optimization?”**
 
-Allocation and RAM management performance is not an “optimization” — it is part of a compiler’s correct behavior. A compiler that copies O(n) trees when it could share them through `Arc` is not purer; it is incorrectly slow.
+Allocation and RAM management performance is not an “optimization” — it is part of a compiler’s correct behavior. Pure shared storage may avoid repeated tree copies; its benefit must be measured alongside mutation, allocation and retention costs.
 
 ## Strings and arrays
 
@@ -98,7 +98,7 @@ For future reference:
 
 **Strings in L1:** use `EcoString` when a value is cloned on the `eval()` hot path or passed between closures. Use `String` when it is constructed once (parser, error-message construction).
 
-**Arrays in L1:** `Vec<Value>` is acceptable now. When large arrays appear on the `eval()` hot path — documented in DEBT.md — migrate to `Arc<[Value]>` or `EcoVec<Value>`. This migration is a correctness decision, not “premature optimization.”
+**Arrays in L1:** `Vec<Value>` is acceptable now. When large arrays appear on the `eval()` hot path — documented in DEBT.md — migrate to `Arc<[Value]>` or `EcoVec<Value>`. This migration requires a measured ownership and performance decision in its owning L0; container type alone does not establish language correctness.
 
 ## References
 
@@ -108,3 +108,26 @@ For future reference:
 - ADR-0018 — precedent: “the criterion is not ‘is it external?’ but ‘does it violate purity?’”
 - ADR-0024 — correct distinction: parser vs. `eval()` for `ecow`.
 - ADR-0029 — physical definition of purity.
+
+## Scope clarification — 2026-11-13 contract review
+
+This clarification follows the owner's request to review overbroad contracts.
+Evidence: ADR-0030's hot-path prohibition, the compilation-metric-cache scope
+claim and paged.md's per-compilation extensions prescribe different mechanical
+lifetimes. The prefix-identity-audit records paragraph hits without retention of
+the complete physical result across compilations. These observations establish
+contract boundaries, not the historical intent of every implementation or a
+measured speedup from changing them.
+
+Distinguish three questions: whether an operation is pure RAM work, whether its
+representation belongs in this layer, and whether a prior result remains valid.
+Purity alone proves neither ownership placement nor cache validity. Immutable
+sharing, copy-on-write and memoization are distinct mechanisms; Arc ownership
+is not an invalidation certificate. No automatic Vec-to-Arc conversion, removal
+of necessary copies, global cache, public API change or phase migration follows.
+Read the owning L0 and demonstrate lifetime, mutation isolation, dependencies,
+semantic preservation and actual cost before changing its implementation.
+
+The existing architecture and validation remain in force until a specific owner
+contract revises them. The user authorizes laboratory experiments without a new
+permission gate; that authorization does not integrate them into the product.

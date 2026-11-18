@@ -1,5 +1,11 @@
 # L0 — infra/shaper/font_selection
-Hash do Código: ad84d4b4
+Hash do Código: 306acc82
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
+- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:4b54a922e743e872fd4806c103368a9ccd3b2b736a54eeb7de8f5d1a4b9630ab
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/font_selection.rs`
@@ -7,10 +13,6 @@ Hash do Código: ad84d4b4
 Pinned Tekt dependencies (canonical linter metadata):
 
 ```text
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/fonts/bidi-visual-identity.toml sha256:b234a166cefeba71803da8bcc3cb5e3daf4d7bed8313f5883bcc7bf12bf95f15
-- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
-- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:bb9850c42a48ec519f605159d6aea76b305b0ccf6643ef6a4f8137720c76c898
 ```
 
 ## Current evidence
@@ -125,3 +127,85 @@ Do not select/rank/intern a different candidate, reload a cached face, apply axe
 to the cached base or expose a new public API. The shaping owner clones the face,
 applies its existing variations and owns feature certification. Full selection,
 font-cache, warm/cold script and workspace/lineage tests remain required.
+
+
+## Ratified selective-font consumers — 2026-11-12T19:19:44.102371+00:00
+
+Measurement before decision: structural/repeat2/receipt.json isolates about 13ms
+of catalog freshness work, not a safe optimization. selection-proof/receipt.json
+checks actual prefix metadata/bytes/indices and minimum-score winners; impact.json
+identifies eager chain and late PDF requests. Source font_metrics/resolution.rs:95
+and shaper/font_selection.rs:73 construct unused later families; shaping.rs:302,542
+and pipeline/resources.rs:214 demand full book for individual selection/metadata.
+The approved World query contract now has default-method GREEN; foundation RED
+proved ordinary prefix selection unnecessarily invoked the full loader, and GREEN
+removes that demand with stable paired immutable data. No new performance is yet
+claimed. User explicitly authorizes this candidate only in RAM, no integration.
+
+Selective queries preserve complete current selection/metadata/bytes. A private
+first-primary lookup follows the unchanged ordered declared-family/readability
+policy; if none resolves, use the existing class fallback then common list. It
+is NOT a complete-chain result and never enters a PrimaryResolution cache.
+Existing complete functions/caches remain the fallback and regression oracle.
+No family-name/phrase/fixture/paragraph-count special case, negative memoization,
+cache lifetime extension, new public method, dependency, unsafe, phase or mode.
+This narrowly supersedes previous mandatory eager full-chain query order only
+where the result is proven unchanged, not source font/fallback/script semantics.
+
+For ordinary metrics that use only the first readable face (vertical/edge/cap
+properties), query that face directly. For direct ordinary text advance, a first
+face with nonzero cmap coverage of every authored character already wins the
+existing per-character covering_text rule. Math/native scripts/uncertain coverage
+keep the full route. This proof concerns the unchanged direct-metric operation;
+it is not certification of a raw shaping result.
+
+Shaping may use a one-face primary vector only when non-math, non-superscript,
+non-subscript and not a resolved BidiSpan occurrence. Prove full authored-text
+nonzero cmap coverage in the first readable face; then run the EXISTING bidi and
+script segmentation with that sole candidate and the existing raw owner, actual
+ordered axes, language, direction, script=None/features=[] policies. Require
+nonempty raw results and no zero glyph. Actual emission/measurement uses the same
+unchanged segmentation and raw inputs and can hit the exact current-compilation
+raw store. Any failure/uncertainty uses the unchanged full primary chain before
+producing output. No partial primary result is cached as complete. No adjusted
+glyph/position/width/cache-key changes. This certificate covers each original
+sub-run, not a whole-text shape used to bypass script segmentation. Terminal
+measurement keeps its current output algorithm; using the raw store for the
+additional ordinary certificate does not replace its existing terminal policy.
+
+RED first: complete ordinary PDF compilation must not invoke a full-catalog
+loader, including metrics, shaping, metadata and export-resource resolution.
+Verify full path on uncertain/default/regex/mutable/missing/longest-run cases;
+keep existing snowman, scripts, math, axes, raw identity, missing-face and cache
+controls. A successful prefix followed by a fallback request must match a fresh
+full result and not poison complete caches. Full source/font-update/PDF/SVG/raster
+controls and paired release CPU/allocation measurements remain required.
+
+Exclusive owning obligation: Own first_candidate for the existing declared/class/common order and face readability. It returns one candidate, never writes primary_resolution and does not infer coverage. Existing full-chain resolution uses selective individual queries but preserves every family/order/dedup/cache eligibility. Keep all existing covering_run longest-run and script machinery. Single fallback metadata query may use font_info; global coverage/scoring remains full.
+
+
+## Laboratory first-query reuse correction — 2026-11-12
+
+Evidence precedes decision: fontdemand-fallback-comparison/freeze.json and summary.csv record unchanged release d7c9024946a3ffde6f5ca0825829eeff29c7b17f60ce26b6ef69670a0e39c7a8 regressing in system and nonminimum-variant workloads. resolution.rs:first_primary and font_selection.rs:first_candidate query World again whenever no complete chain was populated; the selective successful path never populates that chain. phase-counts/receipt.json records 1115 certifications for 113 actual shapes on layout, not a timing attribution.
+
+Keep a DISTINCT latest successful first-readable-query result, scoped exactly like the existing per-compilation face/metrics cache. Key by exact full ordered FontList (optional for metrics) and effective FontVariant. It answers only first-face queries and can never substitute for a complete primary/fallback chain, glyph coverage, bidi splitting or raw-shape certification. Store only key, slot and units-per-em; no additional bytes, global state, cross-World/compilation reuse, negative selection cache or public API. Query/read without holding the metrics selection lock. Do not publish if any earlier selected face failed loading/parsing; shaper conservatively refuses while any existing face-cache failure is present, preserving its old negative-face policy. Existing full-chain hits remain usable and take precedence. New starts empty; metrics Clone shares first-query state only with the same World. Size/color/language/axes retain existing downstream application.
+
+Continuous ADR-0127 internal repair. Require counter RED before implementation; repeat hits do not query catalog, keys and Worlds remain isolated, failed faces keep prior retry policy, and subsequent full-chain resolution equals fresh output. Preserve whole-PDF no-acquisition control, all prior semantic tests and font freshness. Rebuild/lint/paired nominal and forced-full regressions before acceptance; laboratory only.
+
+Exclusive obligation: Own first_candidate reuse/publication and its tests; preserve complete-chain, longest-run, script, raw-shape and full fallback behavior.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

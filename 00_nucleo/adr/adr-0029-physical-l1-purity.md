@@ -63,7 +63,7 @@ When materializing vanilla Typst typographic types in L1, follow the original’
 
 1. **Diagnose first:** verify the real structure in the original before defining the L1 type.
 2. **Do not simplify under the pretext of deferral:** if the vanilla type uses `struct Length { abs: Abs, em: f64 }`, use that structure. The fact that mixed sums need `StyleChain` to resolve is an **operations** limitation (`eval_binary_op` returns `Err`), not a **data-structure** limitation.
-3. **`Arc` is permitted and required when the type is cloned on a hot path:** `Arc<T>` in struct fields is RAM management, not I/O.
+3. **`Arc` is permitted for suitable shared ownership:** `Arc<T>` in struct fields is RAM management, not I/O. Hot-path cloning motivates an ownership/cost review; it does not by itself require Arc or authorize a cache.
 4. **Accept simplifications only with an explicit ADR** documenting:
    - the difference between vanilla and crystalline;
    - the semantic cost of the simplification;
@@ -169,3 +169,31 @@ pub struct Func(Arc<FuncRepr>);          // O(1) closure clone
 - ADR-0028 — superseded by this ADR.
 - ADR-0018 — precedent: “the criterion is not ‘is it external?’ but ‘does it violate purity?’”
 - DEBT-1 — `StyleChain` (Step 30), where vanilla `Length` will be needed.
+
+## Scope clarification — 2026-11-13 contract review
+
+This clarification follows the owner's request to review overbroad contracts.
+Evidence: ADR-0030's hot-path prohibition, the compilation-metric-cache scope
+claim and paged.md's per-compilation extensions prescribe different mechanical
+lifetimes. The prefix-identity-audit records paragraph hits without retention of
+the complete physical result across compilations. These observations establish
+contract boundaries, not the historical intent of every implementation or a
+measured speedup from changing them.
+
+Distinguish three questions: whether an operation is pure RAM work, whether its
+representation belongs in this layer, and whether a prior result remains valid.
+Purity alone proves neither ownership placement nor cache validity. Immutable
+sharing, copy-on-write and memoization are distinct mechanisms; Arc ownership
+is not an invalidation certificate. No automatic Vec-to-Arc conversion, removal
+of necessary copies, global cache, public API change or phase migration follows.
+Read the owning L0 and demonstrate lifetime, mutation isolation, dependencies,
+semantic preservation and actual cost before changing its implementation.
+
+The existing architecture and validation remain in force until a specific owner
+contract revises them. The user authorizes laboratory experiments without a new
+permission gate; that authorization does not integrate them into the product.
+
+The historical typographic inventory above excludes Frame/FrameItem/Region.
+Its representation prescriptions must not be extended to those excluded types.
+Read typographic fidelity alongside ADR-0107: preserve language capabilities;
+upstream storage shape alone does not establish a language requirement.

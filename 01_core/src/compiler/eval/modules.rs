@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/modules.md
-//! @prompt-hash 844fa6f7
+//! @prompt-hash a9a11b4d
 //! @layer L1
 //! @updated 2026-11-06
 //!
@@ -19,10 +19,8 @@ use crate::entities::ast::code::{Imports, ModuleImport, ModuleInclude};
 use crate::entities::ast::expr::Expr;
 use crate::entities::ast::AstNode;
 use crate::entities::engine::Engine;
-use crate::entities::func::Func;
 use crate::entities::module::Module;
 use crate::entities::package_spec::PackageSpec;
-use crate::entities::scope::Scope;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult, Tracepoint};
@@ -49,34 +47,13 @@ fn eval_imported_file(
 ) -> SourceResult<Module> {
     let src_id = source.id();
 
-    // Scope base do módulo importado — paridade com o eval principal: o ficheiro
-    // importado vê a stdlib (ex.: `range(3)`), as cores predefinidas e `text`.
-    // P772n — mesmo mecanismo de `eval/mod.rs::run_pass`: `global` embrulhado
-    // em `Library`, passado como `base` (só leitura, nunca mutável) — em vez
-    // de achatado em `module_scopes.top`. Ver `rules/eval.md` §P772n.
-    let mut global = Scope::new();
-    // P694 — `make_stdlib` precisa de `SysInputs` (vêm do `World`); módulos
-    // importados vêem os mesmos `sys.inputs` do documento principal.
+    // Query current inputs even when the caller has a reusable builtin graph.
     let inputs = engine.world.inputs();
-    let (stdlib, stdlib_snapshot) =
+    let (_, stdlib_snapshot) =
         super::stdlib_snapshot::resolve(&ctx.stdlib_snapshot, &inputs, ctx.features);
-    // P709 — `std` também tem de existir aqui: um ficheiro importado (ex.
-    // `cetz`) que sombreia um builtin (`#let length = ...`) precisa de
-    // `std.length` para aceder à versão não-sombreada, exactamente como o
-    // documento principal (`eval/mod.rs::run_pass`). Mesmo mecanismo — clone
-    // tirado antes de `stdlib` ser espalhado neste scope.
-    global.define("std", Value::Module(Module::stdlib(stdlib.clone())));
-    for (n, binding) in stdlib.iter() {
-        global.define(n, binding.value().clone());
-    }
-    for (n, value) in crate::compiler::stdlib::predefined_color_bindings() {
-        global.define(n.as_str(), value);
-    }
-    global.define(
-        "text",
-        Value::Func(Func::native("text", crate::compiler::stdlib::native_text)),
+    let library = Library::with_global(
+        stdlib_snapshot.as_ref().expect("resolved builtin graph").global(),
     );
-    let library = Library::with_global(global);
     let mut module_scopes = Scopes::new(Some(&library));
 
     // Frame filho: segmento de rota com o `id` do ficheiro importado.

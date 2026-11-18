@@ -1,11 +1,15 @@
 # L0 — paragraph_plan
-Hash do Código: 16140850
+Hash do Código: 481b1414
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:417d55b8ae48d8b71220974310a7a31ce00566318c0cfc4837e84c955bdcdfa8
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+
+
 
 
 **Layer:** L1
@@ -85,3 +89,184 @@ Require occurrence/UTF8/restoration/parbreak tests and bilateral wraps for logic
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+
+## Laboratory reusable single-line plans — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records exact frozen ELF,
+UTC and source freeze-subtree. The 100-paragraph document prepares102 segments,
+rejects both complete plans on every edit, and repeats incremental emission.
+All outline plans likewise decline. subtree-native-phases records current layout
+8.882ms versus vanilla layout-document1.341ms (instrumented elapsed, distinct
+scopes), while CPU remains18.871ms versus3.641ms. This is mechanics; no inference
+that single-line routing is a language requirement. Current plan.rs:209-217
+explicitly rejects complete implicit one-line products after all preparation.
+
+For this laboratory experiment, permit the already fully certified complete
+single-line plans to use the same selected emission as explicit Simple. This
+supersedes the implicit single-line fallback requirement only after all existing
+preparation, whole-scope, width, style and effect gates succeed. Opaque content,
+metadata, unknown calls/context effects, integral Styled deferral, bidi and region
+refusals retain their routes. No partial speculative emission or phase move.
+
+This is the reachability prerequisite for cross-compilation paragraph products,
+not the result cache itself. RED must show the complete ordinary single-line
+plan is rejected; GREEN must also compare its text/pages/word positions to the
+original incremental path, including changed width, size, prefix and pagination.
+Never redefine acceptance as plan hits. If geometry diverges, preserve evidence,
+refine the certificate or discard the experiment. User waived laboratory gates;
+no integration. Existing language regressions and lineage/build gates remain.
+
+
+## Laboratory paragraph products — 2026-11-12
+
+Evidence: subtree-layout-admission/receipt.json binds actual repeated preparation
+and refusal counts; paragraph_prepare.rs:234–337 constructs the product using
+current metrics; paragraph_emit.rs:30–57 places it using fresh region state.
+subtree-validation/layout-boundary-audit.json binds source identities and limits.
+This is a mechanics experiment; user waived lab approvals, no integration.
+
+
+Use the paragraph_session owner for an optional exact request/lookup/store around the existing complete prepare/select operation in try_parts. Product holds Prepared, selected Line ranges and optional prepared hyphen lines in Arc; keep selection under this owner and fresh emission. Reuse pure products for all admitted segments only after full-set admission. Request failure remains cold preparation. Ordinary single-line route follows the new reachability experiment above, subject to geometry refutation.
+
+Route-test correction: Layouter::new's legacy size argument is ignored
+(mod.rs:974); set StyleDelta.size explicitly so10/18pt cases really differ.
+Earlier geometry GREEN certified default size only; preserve its receipt.
+
+
+## Full-suite refutation and adjacency certificate
+
+Evidence: paragraph-validation/invisibility-core-all-before-connection.log
+records8435 passes and three unchanged metadata/state/function invisibility
+failures. With adjacent Text atoms, the new implicit single-line plan joins
+"X"+"Y" into "XY", while the opaque route still yields plain_text "X Y".
+This is an observable regression, not permission to weaken those tests.
+
+Refine only the experimental expansion: when the old implicit regional-only
+rule would reject all-single-line/nonoverlong plans, accept only if every
+nonempty segment's original typed atom boundaries are certified preserved.
+Otherwise keep the original full incremental fallback before emission. Existing
+explicit strategies, multiline cases and overlong exceptions remain unchanged.
+Record the pure certificate on each product from the original segment; cache
+hits reuse it only under the exact typed input key. This is a general adjacency
+condition, without fixture names/phrases/counts or source-value special cases.
+
+
+## Laboratory direct-body and context product reuse — 2026-11-13
+
+Evidence before decision: paragraph-layout-boundaries/receipt.json, bound to
+freeze-paragraph, records60 refused try_parts calls but78 try_layout calls
+(72 accepted) on each outline compilation. The older statement that all outline
+plans refuse applied only to try_parts and is superseded by this wider census.
+paragraph-native-phases/summary.json records29.509ms elapsed inside context
+preparation, not exclusive CPU or a promised saving. paragraph_plan.rs:89-136
+prepares/selects the direct body without using the product session;
+context_stabilization.rs:923 constructs compilation-local metrics without it.
+This is execution mechanics, not a new language rule. No gain is claimed until
+paired release measurement. User permits laboratory work; no integration.
+
+Use the same exact bounded request and product in try_layout as in try_parts,
+without broadening admission or changing its implicit single-line rejection.
+Factor unchanged pure selection/product construction into a private helper
+owned here, used by both routes. Request uses body as a one-element slice;
+prepare(body) and prepare_parts([body]) have identical collect/finish semantics.
+To obtain the existing post-start shape before a hit, temporarily clone only
+paragraph_indent, call its existing start, create request, and restore that
+state before actual preparation. start_chain mutates only spec (indent.rs:242–265);
+no whole Layouter checkpoint or speculative emission. Failed prepare preserves
+its old state. After successful preparation or hit, call existing start normally,
+use current regional-only rule and fresh emit. Keep all Styled/region/bidi/refusal
+rules, implicit single-line fallback and current margin/position/pagination.
+
+
+## Laboratory independent paragraph fallback — 2026-11-13
+
+Evidence before decision: paragraph-boundary-audit/receipt.json/finding.json binds
+freeze-snapshot-share, exact nominal source and libraries. The original observer
+has99hits; appended suffix has100hits, but the nominal census refuses both
+try_parts routes. paragraph_prepare.rs:142-150 refuses underscore; this owner's
+try_parts:222-225 abandons the whole vector at any failed preparation. An extra
+parbreak before the suffix does not help. The hits therefore coexist with full
+incremental re-emission. Deep-stack sampling attributes38.6% inclusive presence
+to legacy layout, not exclusive CPU or a promised saving. Keep the benchmark
+unchanged. The user permits lab experiments without approval; no integration.
+
+Allow a complete mixed plan only for ordinary unplanned paginated text. Classify
+every real top-level Parbreak-delimited segment before first emission as empty,
+prepared product, or existing incremental text fallback. Failed prepare may use
+fallback only when the existing bounded preserves_atom_boundaries certificate
+proves closed Source/Sequence/text/space/newline atoms and intact adjacency.
+Unknown/opaque elements, nested breaks, effects, Styled/operational carriers and
+failed certificates still refuse the entire plan before emission. Do not widen
+the Latin alphabet or special-case markers/strings/fixtures/counts. Require at
+least one prepared product; all-fallback input keeps the original outer route.
+
+Keep width/style/strategy/region/bidi checks. Mixed plans are forbidden under an
+active physical page-running pass or HTML marker capture; no source route may be
+skipped. Keep the old implicit single-line gate and require atom preservation on
+every prepared segment of a mixed plan. Full-set admission precedes emission:
+the unchanged paragraph-product-reuse nucleus still requires whole-plan proof.
+There is no speculative prefix paint or arbitrary partial-inline preparation.
+
+Emit prepared products through existing paragraph_emit. For a fallback segment,
+call the existing sequence layout with paragraph planning suppressed and restore
+the flag afterward. It owns one complete real paragraph. Use existing parbreak
+exactly once between segments. Preserve current geometry, spacing, indent,
+styles, origins, diagnostics and region transitions. Products remain only cached
+preparation/selection; placement and unsupported paragraph work stay current.
+No World/frame/callback retention, new public contract, mode or phase move.
+
+Tests first: a prepared prefix followed by unpreparable scalar text must be
+usable on a second layout, while text/pages/word coordinates match the forced
+old incremental route at changed widths/sizes and pagination. The route assertion
+must fail at runtime before implementation. Opaque-symbol and unsafe-adjacent
+fallbacks must refuse before paint. Keep old invisibility/adjacency/scope/bidi/
+indent/physical tests unchanged. Run full core/infra, strict gates, exact nominal
+marker/census/paired CPU and PDF/watch/font controls. Geometry differences refute
+the admission; refine or reject rather than weaken expectations. No claim of
+complete retained-layout reuse, broad language parity or speed before measurement.
+
+## Laboratory line products — 2026-11-13
+
+### Measurement before decision
+
+Frozen shaping-products c2096c812761f5ab5278eb5376142e406990ec4b234615c9fbf6ce3be32feba6,
+freeze 2026-11-13T06:06:24.083725Z, eliminates backend112->1/64->1 on edits,
+but nominal CPU remains14.997/25.187ms versus vanilla3.683/4.234ms. Its twelve
+raw profiles attribute30.45% inclusive layout to100 paragraphs and39.41% physical
+coordination tooutline; overlapping groups are not a promised speedup.
+paragraph_plan.rs:143-174,222-286 re-emits retained Prepared/Line products;
+paragraph_emit.rs:90-125 walks fragments again; word_layout.rs:209-224 clones
+styles and invokes baseline/indent for every fragment. cursor.rs:94-191 and
+region_progress.rs:156-187 show that, with initial_baseline_pending=false,
+block_chain_active=false and already material current_line, repeated admission
+cannot advance region. paragraph_indent.rs:348-372 returns immediately once
+origin_applied is true. bibliography.rs:30-33 returns when no prefix is pending.
+word_layout.rs:89-159 then only appends Text/Replacement (plus Shape for
+highlight), sets optical policy and records tracking. These are mechanics,
+not language acceptance. No whole-Layouter snapshot is justified by these facts.
+User authorizes laboratory work without further approval; no integration.
+
+### Owned responsibility
+
+Initialize a fresh owned paint identity for each newly selected immutable Product. Route accepted products through the emission owner with that identity. Existing whole-plan/fallback/semantic gates remain; never manufacture stable identity from text alone.
+
+Unit GREEN4 and actual parts/direct pipeline RED0pass2fail are preserved before-pipeline-connection. Product owns a fresh paint identity and a once-computed no-highlight certificate across its prepared/hyphenated fragments. Product-aware wrappers retain old emission facades as the refused path; keep the exact first-word/cold-tail/flush order.
+
+Real pipeline GREEN6 is recorded in wired-green. Before full validation add tests for every representable admission guard, current lexical tracking/language/anchors, horizontal offset, oversized products, eviction budgets and retained identity lifetime. The once-computed certificate must require nonempty words/fragments, so every admitted tail executes at least one text emission. Refuse empty retained outputs and post-emission cursor-y changes; no extra behavior is authorized for future emitter side effects.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

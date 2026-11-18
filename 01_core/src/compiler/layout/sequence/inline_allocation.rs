@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence/inline_allocation.md
-//! @prompt-hash 2a40a279
+//! @prompt-hash b3ea7a88
 //! @layer L1
 //! @updated 2026-10-21
 //!
@@ -549,6 +549,146 @@ impl<M: FontMetrics> Certificate<'_, M> {
     }
 }
 
+/// Preserve complete routing without measurement when no reachable Box can
+/// receive a fractional assignment. A refusal restarts the original full walk.
+fn unassigned_draft(content: &Content) -> Option<Draft> {
+    Some(match content {
+        Content::Source(v) => return unassigned_draft(&v.body),
+        Content::Located(v) => return unassigned_draft(&v.body),
+        Content::Realized(v) => return unassigned_draft(&v.visual),
+        Content::Link(v) => return unassigned_draft(&v.body),
+        Content::Underline(v) => return unassigned_draft(&v.body),
+        Content::Strong(v) => return unassigned_draft(&v.body),
+        Content::Emph(v) => return unassigned_draft(&v.body),
+        Content::Sequence(parts) => {
+            Draft::Sequence(parts.iter().map(unassigned_draft).collect::<Option<_>>()?)
+        }
+        Content::Styled(v) => {
+            if styles_supported(&v.styles, &v.body) {
+                return unassigned_draft(&v.body);
+            }
+            Draft::Blocked
+        }
+        Content::Boxed(v) => {
+            if v.width_fraction.is_some() {
+                return None;
+            }
+            Draft::Blocked
+        }
+        Content::SetPage(_)
+        | Content::Parbreak
+        | Content::Linebreak(_)
+        | Content::Par { .. }
+        | Content::Block(_)
+        | Content::Shape(_)
+        | Content::Repeat(_) => Draft::Independent,
+        Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::HSpace(_)
+        | Content::Empty
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::CounterUpdate(_)
+        | Content::ContextBlock(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::ShowRecipe(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::Symbol(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Columns(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::Dynamic(_) => Draft::Blocked,
+    })
+}
+
 // Reconstruct the complete admitted delta, so a new or unsupported field
 // cannot silently become an inert channel. The same bounded lexical class
 // already has a positive certificate in paragraph preparation.
@@ -665,6 +805,11 @@ pub(super) fn prepare<M: FontMetrics, S: ImageSizer>(
     l: &Layouter<M, S>,
     parts: &[Content],
 ) -> Arc<Node> {
+    if let Some(children) = parts.iter().map(unassigned_draft).collect::<Option<Vec<_>>>()
+    {
+        return finish(Draft::Sequence(children), &[])
+            .expect("a sequence always owns its assignment scope");
+    }
     let left = super::super::paragraph_indent::cursor_start(l).0;
     let right = super::super::paragraph_indent::bounds(l).1;
     let style = super::super::text::effective_style(l);
@@ -1213,5 +1358,139 @@ mod tests {
         assert_eq!(assigned(child(&interior, 1)), Some(20.0));
         assert_eq!(assigned(child(&exterior, 1)), Some(40.0));
         assert_eq!(assigned(child(&exterior, 3)), Some(80.0));
+    }
+    struct DemandWidths(std::sync::Arc<std::sync::atomic::AtomicUsize>);
+    impl FontMetrics for DemandWidths {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            DeclaredWidths.advance(text, size, style)
+        }
+        fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            DeclaredWidths.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            DeclaredWidths.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            DeclaredWidths.text_edges(size, style)
+        }
+    }
+    fn demand_scope(parts: &[Content]) -> (Arc<Node>, usize) {
+        let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            DemandWidths(calls.clone()),
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.page_config.width = 100.0;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_x = Pt(0.0);
+        let tree = prepare(&l, parts);
+        (tree, calls.load(std::sync::atomic::Ordering::Relaxed))
+    }
+    #[test]
+    fn fraction_demand_plain_paragraphs_skip_unproductive_measurement() {
+        let mut parts = Vec::new();
+        for i in 0..100 {
+            parts.extend([
+                Content::text("Paragraph"),
+                Content::Space,
+                Content::text(format!("{i}")),
+                Content::Space,
+                Content::text("with several words"),
+                Content::Parbreak,
+            ]);
+        }
+        let (tree, calls) = demand_scope(&parts);
+        for index in 0..100 {
+            assert!(matches!(child(&tree, index * 6).as_deref(), Some(Node::Blocked)));
+            assert!(child(&tree, index * 6 + 5).is_none());
+        }
+        assert_eq!(
+            calls, 0,
+            "fraction-free preparation measured text without any assignable box"
+        );
+    }
+    #[test]
+    fn fraction_demand_h_fraction_and_fixed_box_keep_blocked_routes() {
+        let inner = Content::sequence(vec![
+            Content::text("A"),
+            fraction(1.0),
+            Content::text("B"),
+        ]);
+        let parts = [
+            Content::text("P"),
+            Content::HSpace(Arc::new(HSpaceElem {
+                amount: Spacing::Fractional(1.0),
+                weak: false,
+                weak_explicit: true,
+            })),
+            boxed(inner, Some(60.0), None),
+            Content::Parbreak,
+        ];
+        let (tree, calls) = demand_scope(&parts);
+        for index in 0..3 {
+            assert!(matches!(child(&tree, index).as_deref(), Some(Node::Blocked)));
+        }
+        assert!(child(&tree, 3).is_none());
+        assert_eq!(
+            assigned(child(&tree, 1)),
+            None,
+            "H-only scope must not acquire an assigned zero"
+        );
+        assert_eq!(calls, 0, "fixed box body belongs to its own later region");
+        let interior =
+            scope(&[Content::text("A"), fraction(1.0), Content::text("B")], 60.0);
+        assert_eq!(assigned(child(&interior, 1)), Some(40.0));
+    }
+    #[test]
+    fn fraction_demand_nested_reachable_box_still_measures_complete_budget() {
+        let nested = Content::styled(
+            Content::sequence(vec![
+                Content::text("A"),
+                fraction(1.0),
+                Content::text("B"),
+            ]),
+            Styles::from_iter([Style::strong()]),
+        );
+        let (tree, calls) =
+            demand_scope(&[Content::text("P"), nested, Content::text("Q")]);
+        assert!(calls >= 4, "the full exterior budget must still be measured");
+        let nested = child(&tree, 1).unwrap();
+        assert_eq!(assigned(child(&nested, 1)), Some(60.0));
+    }
+    #[test]
+    fn fraction_demand_opaque_style_cannot_restart_an_independent_scope() {
+        let opaque = Content::styled(
+            Content::Parbreak,
+            Styles::new().push_custom("fraction.unknown", Value::Bool(true)),
+        );
+        let (tree, calls) =
+            demand_scope(&[Content::text("P"), opaque, Content::text("Q")]);
+        assert!(
+            matches!(child(&tree, 1).as_deref(), Some(Node::Blocked)),
+            "opaque wrapper must not become None"
+        );
+        assert_eq!(calls, 0);
+        let refused = scope(
+            &[
+                Content::text("P"),
+                Content::styled(
+                    fraction(1.0),
+                    Styles::new().push_custom("fraction.unknown", Value::Bool(true)),
+                ),
+                Content::text("Q"),
+            ],
+            100.0,
+        );
+        assert!(matches!(child(&refused, 1).as_deref(), Some(Node::Blocked)));
     }
 }

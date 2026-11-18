@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
-//! @prompt-hash 3f3dac23
+//! @prompt-hash 299a6e59
 //! @layer L3
 //! @updated 2026-11-07
 //!
@@ -382,7 +382,8 @@ pub(super) fn resolve_pdf_pretty(
     }
 }
 
-struct PdfCompileRequest {
+struct PdfCompileRequest<'a> {
+    session: Option<&'a PdfCompileSession>,
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
@@ -397,10 +398,11 @@ struct PdfCompileRequest {
 fn compile_to_pdf_bytes_impl(
     world: &dyn World,
     source: &Source,
-    request: PdfCompileRequest,
+    request: PdfCompileRequest<'_>,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let PdfCompileRequest {
+        session,
         full_error,
         document_id,
         stream_mode,
@@ -411,9 +413,10 @@ fn compile_to_pdf_bytes_impl(
         standard_override,
         oracle,
     } = request;
-    let (doc_result, mut warnings) = compile_to_paged_document_full_error_and_features(
-        world, source, full_error, features, timings,
+    let (doc_result, mut warnings) = super::paged::compile_paged_in_session(
+        world, source, full_error, features, timings, session,
     );
+    let doc_result = doc_result.map(|compiled| compiled.document);
     let doc = match doc_result {
         Ok(d) => d,
         Err(errors) => {
@@ -629,6 +632,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
         world,
         source,
         PdfCompileRequest {
+            session: None,
             full_error,
             document_id,
             stream_mode,
@@ -734,6 +738,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
         world,
         source,
         PdfCompileRequest {
+            session: None,
             full_error,
             document_id,
             stream_mode,
@@ -839,6 +844,7 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages
         world,
         source,
         PdfCompileRequest {
+            session: None,
             full_error,
             document_id,
             stream_mode,
@@ -1119,5 +1125,111 @@ mod font_buffer_transfer_tests {
         assert_eq!(result.len(), 2);
         assert_eq!(result[0], (key(), vec![1, 2, 3]));
         assert_eq!(result[1], (key(), vec![5, 6, 7]));
+    }
+}
+
+/// Explicit laboratory retention across PDF compilations.
+#[derive(Default)]
+pub struct PdfCompileSession {
+    pub shaping: crate::shaper::ShapeSession,
+    pub evaluation: typst_core::compiler::eval::subtree_session::SubtreeSession,
+    pub paragraphs: typst_core::compiler::layout::paragraph_session::ParagraphSession,
+}
+impl PdfCompileSession {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+/// Experimental explicit watcher options; preserves existing PDF precedence.
+pub struct PdfSessionOptions {
+    pub full_error: bool,
+    pub document_id: Option<[u8; 16]>,
+    pub stream_mode: StreamMode,
+    pub pdf_tagged_override: Option<bool>,
+    pub features: typst_core::entities::compiler_features::Features,
+    pub pretty_override: Option<bool>,
+    pub pages_override: Option<PageRanges>,
+    pub standard_override: Option<PdfStandards>,
+}
+
+/// Compile with caller-owned evaluation and paragraph retention.
+pub fn compile_pdf_in_session(
+    world: &dyn World,
+    source: &Source,
+    options: PdfSessionOptions,
+    session: &PdfCompileSession,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let result = compile_to_pdf_bytes_impl(
+        world,
+        source,
+        PdfCompileRequest {
+            full_error: options.full_error,
+            document_id: options.document_id,
+            stream_mode: options.stream_mode,
+            pdf_tagged_override: options.pdf_tagged_override,
+            features: options.features,
+            pretty_override: options.pretty_override,
+            pages_override: options.pages_override,
+            standard_override: options.standard_override,
+            oracle: false,
+            session: Some(session),
+        },
+        &mut timings,
+    );
+    (result.0, result.1, timings)
+}
+
+#[cfg(test)]
+mod shaping_products_pipeline_tests {
+    use super::*;
+    use crate::world::{FontCatalogSession, SystemWorld};
+    use std::sync::Arc;
+    use typst_core::contracts::world::World;
+    fn exercise(body: &str) {
+        let fonts = Arc::new(FontCatalogSession::new());
+        let session = PdfCompileSession::new();
+        let options = || PdfSessionOptions {
+            full_error: false,
+            document_id: Some([7; 16]),
+            stream_mode: StreamMode::Verbose,
+            pdf_tagged_override: Some(false),
+            features: Default::default(),
+            pretty_override: None,
+            pages_override: None,
+            standard_override: None,
+        };
+        for i in 0..2 {
+            let world = SystemWorld::for_stdin(
+                ".",
+                format!("#set text(font: \"Libertinus Serif\")\n{body}\n\nTail {i}"),
+            )
+            .with_font_catalog_session(fonts.clone(), &[]);
+            let source = world.source(world.main()).unwrap();
+            let before = session.shaping.stats();
+            let (result, warnings, _) =
+                compile_pdf_in_session(&world, &source, options(), &session);
+            assert!(result.is_ok(), "{result:?}");
+            assert!(warnings.is_empty(), "{warnings:?}");
+            let after = session.shaping.stats();
+            assert!(
+                after.1 > 0,
+                "full compilation did not publish any complete shaping product"
+            );
+            if i > 0 {
+                assert!(
+                    after.0 > before.0,
+                    "fresh World did not reuse unchanged shaping products"
+                );
+            }
+        }
+    }
+    #[test]
+    fn shaping_products_pipeline_ordinary_reuses_across_fresh_worlds() {
+        exercise("#for i in range(3) [Office paragraph #i.\n\n]");
+    }
+    #[test]
+    fn shaping_products_pipeline_outline_reuses_across_fresh_worlds() {
+        exercise("#outline()\n= First\n#lorem(20)\n= Second\n#lorem(20)");
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/watch.md
-//! @prompt-hash c328f691
+//! @prompt-hash 22afd19d
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -64,82 +64,95 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
 
     let font_session = std::sync::Arc::new(typst_infra::world::FontCatalogSession::new());
     let source_session = std::sync::Arc::new(typst_infra::world::SourceSession::new());
+    let compile_session = typst_infra::pipeline::PdfCompileSession::new();
     loop {
-        let mut compile = intent.compile.clone();
-        compile.output = staging.clone();
-        let (started, compiling) = prepare_watch_cycle();
-        emit_watch_block(&compiling).map_err(|error| vec![error])?;
-        let mut report_status = |exit_code, has_warnings| {
-            let status =
-                watch_status_for_outcome(exit_code, has_warnings, started.elapsed());
-            emit_watch_block(&watch_block_now(&status))
-        };
-        let mut written_outputs = Vec::new();
-        let (exit_code, dependencies, published) = after_compilation(
-            run_compile_observed_with_sessions(
-                compile,
-                &mut report_status,
-                Some(font_session.clone()),
-                Some(source_session.clone()),
-                &mut written_outputs,
-            ),
-            || discard_written_outputs(&written_outputs, intent.compile.output_format),
-        )?;
-        let armed = match with_dependencies(
-            dependencies,
-            &intent.compile.input,
-            || discard_staging(&staging, intent.compile.output_format),
-            typst_infra::watch::arm,
-        ) {
-            Ok(armed) => armed,
-            Err(errors) => {
-                for error in errors {
-                    diagnostics::write_stderr(&format!(
-                        "error: failed to finalize watch dependencies: {error}\n"
-                    ))
-                    .map_err(|error| vec![error])?;
-                }
-                return Ok(ExitCode::from(2));
-            }
-        };
-
-        let snapshot = if exit_code == ExitCode::SUCCESS {
-            let publication = if intent.compile.output_format == OutputFormat::Bundle {
-                armed.publish_directory(&staging, &destination)
-            } else {
-                armed.publish(&staging, &destination)
+        // Only the dependency snapshot and scalar status survive this scope.
+        // All other per-cycle values are dropped BEFORE eviction and END.
+        let snapshot = {
+            let mut compile = intent.compile.clone();
+            compile.output = staging.clone();
+            let (started, compiling) = prepare_watch_cycle();
+            emit_watch_block(&compiling).map_err(|error| vec![error])?;
+            let mut report_status = |exit_code, has_warnings| {
+                let status =
+                    watch_status_for_outcome(exit_code, has_warnings, started.elapsed());
+                emit_watch_block(&watch_block_now(&status))
             };
-            match publication {
-                Ok(snapshot) => snapshot,
-                Err(error) => {
-                    return Err(failed_publication(
-                        error,
-                        &destination,
-                        || {
-                            discard_written_outputs(
-                                &written_outputs,
-                                intent.compile.output_format,
-                            )
-                        },
-                        diagnostics::write_stderr,
-                    ));
+            let mut written_outputs = Vec::new();
+            let (exit_code, dependencies, published) = after_compilation(
+                run_compile_observed_with_sessions(
+                    compile,
+                    &mut report_status,
+                    Some(font_session.clone()),
+                    Some(source_session.clone()),
+                    Some(&compile_session),
+                    &mut written_outputs,
+                ),
+                || {
+                    discard_written_outputs(
+                        &written_outputs,
+                        intent.compile.output_format,
+                    )
+                },
+            )?;
+            let armed = match with_dependencies(
+                dependencies,
+                &intent.compile.input,
+                || discard_staging(&staging, intent.compile.output_format),
+                typst_infra::watch::arm,
+            ) {
+                Ok(armed) => armed,
+                Err(errors) => {
+                    for error in errors {
+                        diagnostics::write_stderr(&format!(
+                            "error: failed to finalize watch dependencies: {error}\n"
+                        ))
+                        .map_err(|error| vec![error])?;
+                    }
+                    return Ok(ExitCode::from(2));
+                }
+            };
+
+            let snapshot = if exit_code == ExitCode::SUCCESS {
+                let publication = if intent.compile.output_format == OutputFormat::Bundle
+                {
+                    armed.publish_directory(&staging, &destination)
+                } else {
+                    armed.publish(&staging, &destination)
+                };
+                match publication {
+                    Ok(snapshot) => snapshot,
+                    Err(error) => {
+                        return Err(failed_publication(
+                            error,
+                            &destination,
+                            || {
+                                discard_written_outputs(
+                                    &written_outputs,
+                                    intent.compile.output_format,
+                                )
+                            },
+                            diagnostics::write_stderr,
+                        ));
+                    }
+                }
+            } else if intent.compile.output_format == OutputFormat::Bundle {
+                armed.abandon_directory(&staging)
+            } else {
+                armed.abandon(&staging)
+            };
+
+            if exit_code == ExitCode::SUCCESS {
+                if let (Some(server), Some(published)) = (&server, published) {
+                    match published {
+                        Published::Html(html) => server.publish_html(&html),
+                        Published::Bundle(files) => server.publish(&files),
+                    }
                 }
             }
-        } else if intent.compile.output_format == OutputFormat::Bundle {
-            armed.abandon_directory(&staging)
-        } else {
-            armed.abandon(&staging)
+
+            snapshot
         };
-
-        if exit_code == ExitCode::SUCCESS {
-            if let (Some(server), Some(published)) = (&server, published) {
-                match published {
-                    Published::Html(html) => server.publish_html(&html),
-                    Published::Bundle(files) => server.publish(&files),
-                }
-            }
-        }
-
         eviction::crystalline_evict(10);
         typst_infra::watch::wait_for_change_since(
             snapshot,

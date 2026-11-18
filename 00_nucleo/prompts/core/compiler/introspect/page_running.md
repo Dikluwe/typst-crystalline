@@ -1,8 +1,5 @@
 # L0 — Source plans and incremental physical-page introspection
-Hash do Código: 1efa11a3
-
-
-Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/page_running.rs`.
+Hash do Código: af8dadb9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
@@ -10,6 +7,11 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/math/equation-membership.toml sha256:ca9db29aceb31c748330eb69e474c4e6a6a5c2a2d474d78dc5db52b30380464d
 - 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
+
+
+
+Layer L1. Exclusive productive consumer: `01_core/src/compiler/introspect/page_running.rs`.
+
 
 
 ## Evidence before decision
@@ -503,3 +505,209 @@ if needed; preserve every old captioned-table assertion and expected source.
 This amendment authorizes test code only, no productive source-index change or
 phase/API/default/compatibility change. L0/seal first, meaningful module RED and
 then owner-specific productive corrections; unique RAM target/resources preserved.
+
+
+## Laboratory SourcePlan query acceleration — 2026-11-16
+
+### Measurement before decision
+
+The frozen element-origin-stability candidate (SHA-256
+90c3face599d41111d0af409625d0233168b2f9d440938040d553ce6185a25d0)
+was measured in lab/results/construction/diagnostics/full-flow-profile-2026-11-16/.
+The exact source manifest, dirty HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+UTC, inputs, commands and CPU samples are in its initial/final/nominal/profiles
+receipts. References500 consumes1100.96ms median complete warm CPU; frontier
+and child queries occupy39.1% of sampled stacks, construction below1%.
+page_running.rs:172-277 linearly finds typed children and recursively searches
+from the plan root per frontier query; page_running_requests.rs:849-868 consumes
+that source-wide proof. The same owner currently requires unchanged source
+partition, typed edges, environment provenance and immutable plan authority.
+
+### Classification and scope
+
+This is private RAM mechanics under ADR-0029/0030/0107/0108/0127 continuous flow.
+No public field/signature/trait, language behavior, default flag, phase, shared
+Nucleus, or different plan/epoch reuse is authorized. Only this owning unit and
+its private tests may change in the isolated laboratory source. The productive
+checkout and prior source/ELFs must remain unchanged. This is an experiment,
+not a claim that the measured39% is recoverable. Retaining whole plans could
+have indirect physical-memo benefits, which this query experiment does not test.
+
+### Immutable derived query data
+
+After the existing PlanBuilder has completed the SAME nodes/root/environments,
+derive private query data once before publishing its existing Arc. Never sort,
+rewrite, omit, deduplicate, renumber or wrap authoritative nodes/children,
+locations, captures, source parents, roles or allocation authority. No callback,
+query evaluation, font/clock/environment/file access or mutable global is added.
+
+A private per-packet frontier table may encode the exact existing root-path
+predicate. Reject original, conditional-reference, OperationalTemplate and
+PrunedOriginal nodes before marking even the root. Traverse only the existing
+exhaustively classified carrier/sequence/page-flow edges; StyledBody requires
+the actual eval.flow.scope=true delta, ColumnsBody actual page_columns=true.
+Other edges do not continue. Preserve the existing strictly forward packet
+constraint, invalid-packet/root refusal and source authority boundary. Increasing
+paths imply every ancestor index is below the target; this is the proof for
+replacing the old per-target pruning with one forward traversal. Use an iterative
+worklist, with each admitted node expanded at most once. Query is bounded O(1).
+
+A private flat typed child lookup plus per-node ranges may be derived without
+changing original child order. Derive a total order for private PlanEdge only;
+its ordinal is never language identity. Stable sorting of an auxiliary copy and
+lower-bound lookup must return the FIRST original equal-edge child, including
+malformed duplicate controls. Unknown parent/edge returns None as before.
+A stored dangling child value is not silently replaced by None. Query work is
+O(log degree); storage O(nodes+edges), with no per-query allocation or tree walk.
+All derived data belongs to that one immutable SourcePlan and is rebuilt for
+another plan. Clone retains exact authority and derived answers; no cross-plan
+interning or new proof of callback/result equality.
+
+### Tests before implementation and acceptance
+
+A temporary instrumentation scaffold may factor the EXISTING slow algorithms
+through private monomorphized pure operation-visitor closures and add an empty
+initialization hook. It is not the acceleration. Production query facades use a
+no-op visitor; tests count actual visited nodes/comparisons through those SAME
+paths, without timing or global counters. Record this scaffold separately.
+RED must be an executed assertion: large late-packet frontier queries exceed a
+constant probe budget and high-degree typed child queries exceed a logarithmic
+comparison budget. Compilation errors and tests asserting a placeholder are not
+RED. GREEN requires the same actual query paths satisfy the bounds and results.
+
+Retain the old algorithms as test-only differential reference. Check every typed
+edge, lexical versus local style, page columns, all role/original/conditional
+ref exclusions, root singleton, missing/dangling nodes, forward constraints,
+duplicate child first-match, construction order, distinct-plan invalidation and
+large/deep/wide plans. These mechanical checks complement, not replace, language
+acceptance. Existing physical page, source/effect, invalid/stale/foreign authority,
+rollback and memo tests remain; no gate or counter/state/query effect is weakened.
+
+Measure baseline and candidate with matched fresh release recipe, serial builds,
+and separately delimited complete cycles (publication/drop/evict included),
+without census/sampler/timings in the nominal runs. Include references100/500,
+outline100, scaling, empty/prose/math/Unicode/mixed/header controls, same bytes,
+comments, visible edits and dependency-changing edits. Preserve exact sources,
+diagnostics and fresh/candidate PDFs, text/geometry/link/bookmark controls.
+Replay source/style changes to refute stale precomputation across generations.
+Use paired balanced order with an A/A executable alias control and exploratory
+intervals; do not sum historical gains or claim precision unsupported by A/A.
+Profile separately if needed. Record HWM and added table storage; enforce serial
+builds, AS and monitored RSS ceilings, disk-only targets, no integration/commits.
+A speedup is refuted if complete-cycle CPU does not fall, source/effects change,
+lookup cost merely moves into construction, or retained memory grows unbounded.
+
+
+### Measured test-fixture dependency and storage controls
+
+The sole other SourcePlan literal is cfg(test) tests::body in the layout request
+owner, measured by source scan after RED. That owner's L0 explicitly permits
+transporting the SAME source fields through a cfg(test)-only compiler-private
+fixture constructor owned here, which initializes derived data before returning.
+The query tables remain private to this module; no productive constructor/API
+is added. Preserve all old fixture fields/assertions and source identity. This
+narrow dependency supersedes only the earlier one-consumer-change limit above.
+Also test a deep forward path without recursive query stack growth and report
+actual private table capacity in bytes with a linear nodes+edges upper bound.
+
+
+## Laboratory semantic event uniqueness — 2026-11-16
+
+### Evidence before decision
+
+The unchanged source-plan-queries candidate was frozen and profiled in
+lab/results/construction/diagnostics/semantic-index-profile-2026-11-16/.
+Its initial/final receipts pin HEAD48e5a2570159c6fc325babe883bac7d1c1fbd4b2,
+uncommitted diffstat, full source manifests, ELF SHA and UTC. The normal ELF
+is db72cdbb6d25014f3141dee1359185cdcbe4e92257fb502a9869f80b838a0dea.
+page_running.rs:2628-2638 scans every prior event for each unique event, using
+exact Arc::ptr_eq + PacketId + PlanPhase equality. Its planned-index samples
+in references500 are90.1% duplicate validation,1.9% coverage,2.8% application;
+the planned index is25.2% of cycle samples. Nominal complete comment CPU is
+988.36ms. These are separate sampling and timing campaigns, not exact substage
+clocks. The debug observer perturbed other workloads, so normal instruction
+mapping and its limits remain part of the evidence. No recoverable gain is
+assumed from those percentages.
+
+### Classification and authorized scope
+
+Private internal RAM mechanics; ADR0018/0029/0030/0107/0108 and ADR0127 continuous
+flow. Only this owner and its consumer may change in the isolated laboratory
+copy. No public fields, signatures, traits, default behavior, pipeline phase,
+shared Nucleus, retained store or compatibility change. Preserve productive
+checkout, earlier experiment sources and ELFs. No integration or commits.
+
+### Exact ephemeral membership
+
+Replace ONLY the final duplicate-event membership scan inside scheduled_document.
+A key is the actual Arc allocation address of SourcePlan, PacketId and PlanPhase.
+All event Arcs remain alive for the entire lookup, so the address cannot be
+reused during validation. Pointer equality is the existing Arc::ptr_eq equality;
+never dereference the raw pointer, cast it to a Location, expose it, persist it,
+or treat equal plan contents, Content, Debug/hash or a Location alias as authority.
+Hash collisions must compare complete keys and cannot conflate authorities.
+A private generic pure membership helper may share the actual algorithm with
+counted-key tests; production maps events directly to the exact key tuple.
+No new authority/index/certificate survives this invocation or a retry.
+
+Use an allowed rustc_hash FxHashSet local to this pass, bounded by event count,
+with expected linear work and O(events) transient storage. No worst-case bound
+against adversarial hash collisions is claimed. Empty inputs remain accepted.
+Return the identical detached invalid-plan error on the first duplicate; keep
+original event order unchanged. Drop the table before subsequent repeat-activity
+validation and active-contribution filtering. Required packet/phase coverage,
+source/owner checks, slot schedule order and their diagnostic precedence stay
+before uniqueness exactly as now. All callbacks/population/effects stay after
+validation. Do not optimize coverage, plan assembly or activity in this step.
+
+### Tests before implementation
+
+Factor the original Vec scan into the pure helper without accelerating it.
+Add a counted Eq/Hash key with local Cell and demonstrate an executed RED on
+actual Eq comparisons through that same production algorithm for large unique
+inputs. No timer, global counter or assumed operation count; compile errors
+are not RED. GREEN must satisfy a linear comparison budget for a fixed ordinary
+key family at several sizes. A test-only old scan provides differential evidence.
+Check empty/singleton/first/middle/last duplicates, two actual distinct plans with
+identical payload and packet values, Arc clones, distinct packets at the same
+Location, Root/PostChildren, repeated invocation and different generations.
+Force hash collisions and retain correct acceptance/refusal; never claim those
+colliding keys satisfy the ordinary expected-work bound. Observe transient
+capacity with test-only support if needed, not retained productive state.
+Run all existing source-plan, missing/foreign/duplicate/zero-copy, order/effect,
+rollback and memo controls and the full core suite. No acceptance gate weakened.
+
+### Complete-cycle acceptance and resources
+
+Use the byte-frozen normal baseline, candidate built with the same release
+recipe (s/ThinLTO/one codegen unit/alignment, debug off), and byte-identical
+baseline alias A/A. Complete CPU includes publication/drop/evict; nominal runs
+have no profiler/census/timing JSON. Balance all six orders twice across12 blocks;
+references100/500, outline100, mixed/prose/Unicode/math/header and tiny/empty.
+Measure startup/same bytes/comment edits/visible edits, fresh CLI and scaling;
+mutate/restore source/style/dependencies and state/counter/query controls.
+Separate census from nominal. Compare exact input fresh/watch semantic text,
+styles, geometry, links, bookmarks and metadata, retaining language morphology
+controls and the verified current oracle pin. Bytes/pixels are auxiliary mechanics.
+Record full source/ELF/input hashes, UTC, changed-file list and raw results.
+Refute success if full-cycle gains are unsupported relative to paired variability
+and A/A, if any source/phase/diagnostic/effect or invalidation changes, or memory
+is unbounded. No new source-plan reuse claim follows from cheaper membership.
+Serial disk builds:12GiB AS,8GiB process-tree RSS and MemAvailable>=6GiB.
+Runtime:1GiB AS,64MiB stack. No target on tmpfs or parallel compilers.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

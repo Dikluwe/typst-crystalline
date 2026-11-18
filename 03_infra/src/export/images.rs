@@ -1,15 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash f8d2124e
+//! @prompt-hash 196023fc
 //! @layer L3
 //! @updated 2026-09-26
 
 //! Composição e tipos de imagens PDF; famílias proprietárias em images/.
 
-use flate2::{write::ZlibEncoder, Compression};
-use std::io::Write;
 use std::sync::Arc;
 
+mod compression;
 mod icc;
 mod jpeg;
 mod png;
@@ -45,9 +44,7 @@ pub struct PdfImagePayload {
 }
 
 pub(super) fn compress_zlib(data: &[u8]) -> Result<Vec<u8>, String> {
-    let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
-    enc.write_all(data).map_err(|e| e.to_string())?;
-    enc.finish().map_err(|e| e.to_string())
+    compression::compress(data)
 }
 
 /// Metadados de imagem para resource dict e page streams.

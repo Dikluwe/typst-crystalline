@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-product-reuse"
+title = "Validated paragraph products between compilations"
+[[claims]]
+id = "owned-product"
+level = "must"
+statement = "Retain immutable preparation and selected line products in an explicit bounded session. A separately specified paragraph-line-products cache may retain completed pure visual tails at exact keyed positions. Never retain a World, Layouter, introspector, metrics handle, callback transcript or diagnostics between compilations."
+[[claims]]
+id = "current-provider"
+level = "must"
+statement = "A current FontMetrics provider must certify an exact identity for all horizontal measurements used by the admitted paragraph and potential hyphen substrings. Default absence declines reuse. Changed font owner, provider or unsupported coverage declines or misses; provider identities remain owned while retained."
+[[claims]]
+id = "exact-inputs"
+level = "must"
+statement = "Key complete ordered text/separator inputs, effective styles with exact numeric bits, first/continuation widths, strategy, font size, justification, hyphenation, overhang and line costs. Unknown effects and unproven inputs decline. No digest-only or language-equality-only identity."
+[[claims]]
+id = "fresh-placement"
+level = "must"
+statement = "Place retained products using current region state and existing pagination/emission logic; only the separately certified pure line tail may bypass its cold emitter. Whole-plan certification precedes emission. Errors, callbacks, origin propagation and rejected routes remain current; a hit alone is not language or performance evidence."

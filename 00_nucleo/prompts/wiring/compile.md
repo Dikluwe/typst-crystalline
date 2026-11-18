@@ -1,14 +1,17 @@
 # L0 — wiring/compile
-Hash do Código: 0e1f376c
+Hash do Código: 252aa300
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:9c4f3ce07c56762e4c588a0f223c3ea1e7e50d6c00f83ff457fad766b0cea3cf
 - 00_nucleo/prompts/_nuclei/export/svg-output-files.toml sha256:c113eedd71c8ccb4bedb949e5765dadcc14cc8435a5a5485d6e2ff14eb02a570
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
-- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0f2985807cc3c7b4aeed9a5a26b77ad66dbbdb67ccfb43ba8336dbc8e8eea1a5
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
+- 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0132d0e50e81227203f577144758a78792358faee644dc236f74e2d6d8b80fa9
 - 00_nucleo/prompts/_nuclei/watch-source-generation.toml sha256:c7f9b3d18b112b1d725e082b7da75b886bf7120346ffbca911c236ea65c52986
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:e9d6623a18ffc35f36051b280d96a75a0e4c1bd1768361a3a50c98587c568aef
+
+
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/compile.rs`
@@ -383,3 +386,44 @@ language-parity acceptance. Preserve compilation errors and feature gates.
 Reseal this exclusive owner and consumer, run complete workspace validation
 and full crystalline lint with zero violations; retain exact source states,
 commands, environment, traces and timestamps for each RED/GREEN measurement.
+
+
+## Laboratory subtree evaluation connection — 2026-11-12
+
+Measured source: pipeline.rs:295–344 evaluates and validates assets; paged.rs:765
+starts root evaluation; pdf.rs:385–416 carries PDF options into paged compilation;
+compile.rs:126/469 and watch.rs:65–85 establish session lifetime and dispatch.
+These are mechanics, not language requirements. Source freeze in subtree-validation.
+User explicitly waives approval for laboratory experiments; no integration.
+
+Accept a borrowed optional SubtreeSession in run_compile_observed_with_sessions. Ordinary compile passes None. For PDF without oracle and with session, compose PdfSessionOptions from every current CLI field and invoke compile_pdf_in_session. Preserve timing output, diagnostics, errors, dependencies and publication. Other formats and oracle retain current dispatch.
+
+
+## Laboratory paragraph retention — 2026-11-12
+
+Evidence first: subtree-layout-admission/receipt.json records102 preparations
+and two refused complete plans per100-paragraph compilation at frozen subtree.
+paragraph-validation records actual route geometry GREEN and cold-cache runtime
+RED (22 vs11 calls). Prepared contains word/gap measurements and selectors,
+without World, positions or callbacks. This experiment preserves all current
+phase order and creates a bounded explicit product session. User waives gates
+for laboratory work; no checkout integration.
+
+Borrow optional PdfCompileSession in existing experimental compile helper.
+Preserve option construction and other formats/diagnostics/publication behavior.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

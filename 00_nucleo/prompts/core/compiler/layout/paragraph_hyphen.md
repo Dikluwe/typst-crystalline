@@ -1,11 +1,13 @@
 # L0 — paragraph_hyphen
-Hash do Código: 91d33337
+Hash do Código: 1c211048
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_hyphen.rs`
@@ -123,3 +125,27 @@ Revalidate exact primary PDF words/lines/pages and all bounds at unchanged
 0.001 pt, strategy/justification/lexical/punctuation controls, existing A–H/R1
 controls, full established suite, Clippy/fmt/Rustdoc and full linter before closure.
 Do not declare uncertified supplemental contexts or general hyphenation complete.
+
+## Laboratory retained payload accounting
+
+Evidence: Hyphenation owns offsets, lengths and widths vectors plus a scalar
+dash_width. Paragraph-session retention needs all three vector payloads to
+charge its declared logical memory budget. Add a private checked payload-size
+query on Hyphenation; retain existing preparation, ranges and selection unchanged.
+This is a memory accounting helper, not a public contract or selection policy.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

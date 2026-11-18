@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/resolution.md
-//! @prompt-hash cd68cced
+//! @prompt-hash 59b8221c
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -26,7 +26,101 @@ pub(super) struct PrimaryResolution {
     candidates: Vec<FontCandidate>,
 }
 
+/// One first-readable query result, never a complete fallback chain.
+pub(super) struct FirstResolution {
+    font: Option<FontList>,
+    variant: FontVariant,
+    candidate: FontCandidate,
+}
+
 impl FallbackFontMetrics<'_> {
+    /// First readable face under the existing order, never a complete-chain entry.
+    pub(super) fn first_primary(&self, style: &TextStyle) -> Option<FontCandidate> {
+        let variant = text_style_to_font_variant(style);
+        {
+            let cache = self.primary_resolution.lock().unwrap();
+            if let Some(entry) = cache.as_ref() {
+                if entry.font == style.font && entry.variant == variant {
+                    return entry.candidates.first().copied();
+                }
+            }
+        }
+        {
+            let cache = self.first_resolution.lock().unwrap();
+            if let Some(entry) = cache.as_ref() {
+                if entry.font == style.font && entry.variant == variant {
+                    return Some(entry.candidate);
+                }
+            }
+        }
+        let mut complete = true;
+        let candidate = (|| {
+            let mut acquire = |pattern: &FontNamePattern| {
+                let slot_idx = self.world.select_font(pattern, &variant)?;
+                let Some(cached) = self.cached_face(slot_idx) else {
+                    complete = false;
+                    return None;
+                };
+                Some(FontCandidate {
+                    slot_idx,
+                    units_per_em: cached.face().units_per_em().max(1),
+                })
+            };
+            if let Some(list) = &style.font {
+                for family in list.as_slice() {
+                    if let Some(candidate) = acquire(&family.name) {
+                        return Some(candidate);
+                    }
+                }
+            }
+            let first = style
+                .font
+                .as_ref()
+                .and_then(|f| f.as_slice().first())
+                .and_then(|f| f.name.as_str())
+                .unwrap_or("");
+            for family in
+                fallback_font_list_for(first).iter().chain(text_fallback_font_list())
+            {
+                if let Some(candidate) =
+                    acquire(&FontNamePattern::Literal((*family).into()))
+                {
+                    return Some(candidate);
+                }
+            }
+            None
+        })();
+        if complete {
+            if let Some(candidate) = candidate {
+                *self.first_resolution.lock().unwrap() = Some(FirstResolution {
+                    font: style.font.clone(),
+                    variant,
+                    candidate,
+                });
+            }
+        }
+        candidate
+    }
+
+    /// A first face covering every character wins the ordinary direct-metric rule.
+    pub(super) fn primary_for_text_advance(
+        &self,
+        text: &str,
+        style: &TextStyle,
+    ) -> Vec<FontCandidate> {
+        if !style.math && !style.superscript && !style.subscript && !text.is_empty() {
+            if let Some(first) = self.first_primary(style) {
+                if self.cached_face(first.slot_idx).is_some_and(|cached| {
+                    text.chars()
+                        .all(|c| cached.face().glyph_index(c).is_some_and(|g| g.0 != 0))
+                }) {
+                    return vec![first];
+                }
+            }
+        }
+        self.resolve_primary_with_math_fallback(style, &text_style_to_font_variant(style))
+    }
+
     /// Resolve as fontes primárias declaradas no estilo. Se o estilo não
     /// declarar fonte (ou nenhuma resolver), replica o fallback padrão do
     /// shaper (`DEFAULT_FALLBACK_FONTS`) para manter as métricas alinhadas
@@ -53,8 +147,7 @@ impl FallbackFontMetrics<'_> {
 
         if let Some(font_list) = &style.font {
             for family in font_list.as_slice() {
-                let Some(idx) = self.world.book().select_pattern(&family.name, &variant)
-                else {
+                let Some(idx) = self.world.select_font(&family.name, &variant) else {
                     continue;
                 };
                 let Some(cached) = self.cached_face(idx) else {
@@ -72,8 +165,7 @@ impl FallbackFontMetrics<'_> {
             let fallback_list = fallback_font_list_for(first_family.unwrap_or(""));
             for family in fallback_list {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-                let Some(idx) = self.world.book().select_pattern(&pattern, &variant)
-                else {
+                let Some(idx) = self.world.select_font(&pattern, &variant) else {
                     continue;
                 };
                 let Some(cached) = self.cached_face(idx) else {
@@ -92,7 +184,7 @@ impl FallbackFontMetrics<'_> {
         // fallback global. Preservar a prioridade das famílias declaradas.
         for family in text_fallback_font_list() {
             let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-            let Some(idx) = self.world.book().select_pattern(&pattern, &variant) else {
+            let Some(idx) = self.world.select_font(&pattern, &variant) else {
                 continue;
             };
             if primary.iter().any(|candidate| candidate.slot_idx == idx) {
@@ -141,8 +233,7 @@ impl FallbackFontMetrics<'_> {
         if style.math {
             for family in crate::fallback_fonts::math_fallback_font_list() {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-                let Some(idx) = self.world.book().select_pattern(&pattern, variant)
-                else {
+                let Some(idx) = self.world.select_font(&pattern, variant) else {
                     continue;
                 };
                 if primary.iter().any(|p| p.slot_idx == idx) {
@@ -263,7 +354,7 @@ impl FallbackFontMetrics<'_> {
         let variant = text_style_to_font_variant(style);
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
         let cand = self.covering(c, &primary, &variant)?;
-        let info = self.world.book().infos().get(cand.slot_idx)?;
+        let info = self.world.font_info(cand.slot_idx)?;
         Some((
             FontList::single(ecow::EcoString::from(info.family.as_str())),
             info.variant,
@@ -874,5 +965,60 @@ mod primary_reuse_tests {
                 fresh.resolve_font_combo('a', style)
             );
         }
+    }
+    #[test]
+    fn first_query_repeated_metrics_share_only_first_result() {
+        let w = world(false);
+        let m = FallbackFontMetrics::new(&w);
+        let s = style(&["Alpha", "Beta"]);
+        let first = m.first_primary(&s).unwrap();
+        let n = w.book_reads.load(Ordering::Relaxed);
+        assert!(n > 0);
+        for _ in 0..8 {
+            assert_eq!(m.clone().first_primary(&s).unwrap().slot_idx, first.slot_idx);
+        }
+        assert_eq!(
+            w.book_reads.load(Ordering::Relaxed),
+            n,
+            "first-query hit must not repeat catalog selection"
+        );
+        let full = slots(m.resolve_primary(&s));
+        assert!(full.len() > 1);
+        assert_eq!(full, slots(FallbackFontMetrics::new(&w).resolve_primary(&s)));
+    }
+    #[test]
+    fn first_query_metrics_keys_worlds_and_failed_faces_stay_independent() {
+        let w = world(false);
+        let m = FallbackFontMetrics::new(&w);
+        for s in [
+            style(&["Alpha"]),
+            TextStyle { bold: true, ..style(&["Alpha"]) },
+            style(&["Beta", "Alpha"]),
+            style(&["Alpha", "Beta"]),
+        ] {
+            let expected =
+                FallbackFontMetrics::new(&w).first_primary(&s).unwrap().slot_idx;
+            assert_eq!(m.first_primary(&s).unwrap().slot_idx, expected);
+            assert_eq!(m.first_primary(&s).unwrap().slot_idx, expected);
+        }
+        let other = world(true);
+        assert_eq!(
+            FallbackFontMetrics::new(&other)
+                .first_primary(&style(&["Alpha"]))
+                .unwrap()
+                .slot_idx,
+            5
+        );
+        let blocked = world(false);
+        blocked.blocked_slot.store(0, Ordering::Relaxed);
+        let m = FallbackFontMetrics::new(&blocked);
+        let s = style(&["Alpha", "Beta"]);
+        assert_eq!(m.first_primary(&s).unwrap().slot_idx, 3);
+        blocked.blocked_slot.store(usize::MAX, Ordering::Relaxed);
+        assert_eq!(
+            m.first_primary(&s).unwrap().slot_idx,
+            0,
+            "failed earlier face must be retried"
+        );
     }
 }

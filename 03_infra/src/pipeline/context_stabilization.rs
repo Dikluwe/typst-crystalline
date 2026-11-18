@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 16bb2325
+//! @prompt-hash 0fc55d6e
 //! @layer L3
 //! @updated 2026-10-09
 //!
 //! A compilation-local owner of contextual contributions and their lifetimes.
 
 use super::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 mod page_running;
 use typst_core::compiler::realize::context_occurrences::{
@@ -22,6 +24,8 @@ pub(super) struct Prepared<'a> {
 }
 
 struct Execution {
+    world_sealed: bool,
+    source_read: bool,
     version: u64,
     ctx: EvalContext,
     input: Arc<TagIntrospector>,
@@ -37,7 +41,7 @@ struct Producer {
     elem: Arc<ContextBlockElem>,
     chain: StyleChain,
     children: Vec<usize>,
-    current: Option<Box<Execution>>,
+    current: Option<Rc<Execution>>,
     selected: bool,
     selected_filtered_counter: bool,
     selected_reference_supplement: bool,
@@ -46,6 +50,89 @@ struct Producer {
     active: bool,
     target: EvalTarget,
     reference_depth: usize,
+}
+
+// Each witness owns the original producer and immutable execution. Their
+// identities remain valid through retirement, without address/version fingerprints.
+struct CaptureNode {
+    index: usize,
+    elem: Arc<ContextBlockElem>,
+    execution: Rc<Execution>,
+    children: Vec<usize>,
+    target: EvalTarget,
+}
+
+struct RetainedCapture {
+    roots: Vec<usize>,
+    nodes: Vec<CaptureNode>,
+    content: Content,
+}
+
+impl RetainedCapture {
+    fn matches(&self, session: &Session<'_>) -> bool {
+        !session.impossible
+            && self.roots == session.roots
+            && self.nodes.iter().all(|saved| {
+                session.nodes.get(saved.index).is_some_and(|node| {
+                    node.active
+                        && !node.invalid
+                        && node.target == saved.target
+                        && Arc::ptr_eq(&saved.elem, &node.elem)
+                        && node.current.as_ref().is_some_and(|execution| {
+                            execution.result.is_ok()
+                                && Rc::ptr_eq(&saved.execution, execution)
+                        })
+                        && node
+                            .children
+                            .iter()
+                            .copied()
+                            .filter(|&i| session.nodes[i].active)
+                            .eq(saved.children.iter().copied())
+                })
+            })
+    }
+
+    fn new(session: &Session<'_>, content: Content) -> Option<Self> {
+        fn visit(
+            session: &Session<'_>,
+            index: usize,
+            nodes: &mut Vec<CaptureNode>,
+        ) -> Option<()> {
+            let node = &session.nodes[index];
+            if !node.active || node.invalid {
+                return None;
+            }
+            let execution = node.current.as_ref()?;
+            if execution.result.is_err() {
+                return None;
+            }
+            let children: Vec<_> = node
+                .children
+                .iter()
+                .copied()
+                .filter(|&i| session.nodes[i].active)
+                .collect();
+            nodes.push(CaptureNode {
+                index,
+                elem: node.elem.clone(),
+                execution: execution.clone(),
+                children: children.clone(),
+                target: node.target,
+            });
+            for child in children {
+                visit(session, child, nodes)?;
+            }
+            Some(())
+        }
+        if session.impossible {
+            return None;
+        }
+        let mut nodes = Vec::new();
+        for &root in &session.roots {
+            visit(session, root, &mut nodes)?;
+        }
+        Some(Self { roots: session.roots.clone(), nodes, content })
+    }
 }
 
 struct Session<'a> {
@@ -59,12 +146,14 @@ struct Session<'a> {
     target: EvalTarget,
     features: Features,
     full_error: bool,
+    certify_legacy_world: bool,
     origin: Content,
+    capture: RefCell<Option<RetainedCapture>>,
     original_intr: TagIntrospector,
     nodes: Vec<Producer>,
     roots: Vec<usize>,
     // Retain causal objects, not fingerprints of newly recreated closures.
-    retired: Vec<Execution>,
+    retired: Vec<Rc<Execution>>,
     next_id: u64,
     impossible: bool,
     bundle_html_targets: Option<Vec<bool>>,
@@ -924,7 +1013,9 @@ impl<'a> Session<'a> {
             target,
             features,
             full_error,
+            certify_legacy_world: false,
             origin,
+            capture: RefCell::new(None),
             original_intr: intr.clone(),
             nodes: Vec::new(),
             roots: Vec::new(),
@@ -1014,11 +1105,15 @@ impl<'a> Session<'a> {
         };
         let exceeded_reference_depth =
             selected_reference_supplement && !route.within(Route::MAX_CALL_DEPTH);
+        let world_guard = LegacyWorldGuard::with_source(self.world, self.source);
+        let execution_world: &dyn World = if self.certify_legacy_world {
+            &world_guard
+        } else { self.world };
         let result = {
             let mut tracked = sink.track_mut();
             let mut local = TrackedMut::reborrow_mut(&mut tracked);
             let mut engine = Engine {
-                world: self.world,
+                world: execution_world,
                 font_metrics: &self.metrics,
                 route,
                 styles: &mut styles,
@@ -1067,7 +1162,9 @@ impl<'a> Session<'a> {
         // fresh context. This evaluation-only view has no later consumer.
         ctx.introspector = TagIntrospector::empty();
         self.next_execution_version += 1;
-        let execution = Box::new(Execution {
+        let execution = Rc::new(Execution {
+            world_sealed: self.certify_legacy_world && world_guard.sealed(),
+            source_read: self.certify_legacy_world && world_guard.observed_source(),
             version: self.next_execution_version,
             ctx,
             input: Arc::clone(input),
@@ -1085,7 +1182,7 @@ impl<'a> Session<'a> {
         node.selected_html_position |= selected_html_position;
         node.invalid = false;
         if let Some(previous) = node.current.replace(execution) {
-            self.retired.push(*previous);
+            self.retired.push(previous);
         }
     }
 
@@ -1119,14 +1216,25 @@ impl<'a> Session<'a> {
 
     fn content(&self) -> Content {
         if self.roots.is_empty() {
+            self.capture.borrow_mut().take();
             return self.origin.clone();
         }
+        // This is only a pure substitution certificate, never execution validity.
+        // Validation flags are consulted anew, before considering retained owners.
+        if let Some(saved) = self.capture.borrow().as_ref() {
+            if saved.matches(self) {
+                return saved.content.clone();
+            }
+        }
+        self.capture.borrow_mut().take();
         let resolved = self
             .roots
             .iter()
             .map(|&i| (self.nodes[i].elem.id, self.body(i)))
             .collect();
-        substitute_context_blocks(self.origin.clone(), &resolved)
+        let content = substitute_context_blocks(self.origin.clone(), &resolved);
+        *self.capture.borrow_mut() = RetainedCapture::new(self, content.clone());
+        content
     }
 
     fn order_into(&self, index: usize, order: &mut Vec<usize>) {
@@ -1180,7 +1288,7 @@ impl<'a> Session<'a> {
             self.discard_descendants(child);
             self.nodes[child].active = false;
             if let Some(old) = self.nodes[child].current.take() {
-                self.retired.push(*old);
+                self.retired.push(old);
             }
         }
     }
@@ -1254,6 +1362,10 @@ impl<'a> Session<'a> {
         index: usize,
         run: impl FnOnce(&EvalContext, &mut Engine<'_>) -> SourceResult<T>,
     ) -> SourceResult<T> {
+        let world_guard = LegacyWorldGuard::with_source(self.world, self.source);
+        let replay_world: &dyn World = if self.certify_legacy_world {
+            &world_guard
+        } else { self.world };
         let node = &self.nodes[index];
         let execution = node.current.as_ref().expect("executed selected producer");
         let mut styles = node.chain.clone();
@@ -1273,7 +1385,7 @@ impl<'a> Session<'a> {
         let mut tracked = sink.track_mut();
         let mut local = TrackedMut::reborrow_mut(&mut tracked);
         let mut engine = Engine {
-            world: self.world,
+            world: replay_world,
             font_metrics: &self.metrics,
             route,
             styles: &mut styles,
@@ -1283,7 +1395,12 @@ impl<'a> Session<'a> {
             sink: &mut local,
         };
         // This sink, and the L1 replay transaction inside it, are never published.
-        run(&execution.ctx, &mut engine)
+        let result = run(&execution.ctx, &mut engine);
+        if self.certify_legacy_world && !world_guard.sealed() {
+            return Err(vec![SourceDiagnostic::error(self.source.root().span(),
+                "legacy certificate replay used external World resources")]);
+        }
+        result
     }
 
     // Eligibility is latched only from a reached source contribution and the
@@ -1315,7 +1432,7 @@ impl<'a> Session<'a> {
         for index in self.order() {
             if self.nodes[index].selected {
                 if let Some(discovery) = self.nodes[index].current.take() {
-                    self.retired.push(*discovery);
+                    self.retired.push(discovery);
                 }
                 self.nodes[index].invalid = true;
             }
@@ -1658,6 +1775,33 @@ pub(super) fn prepare<'a>(
     features: Features,
     module: Option<&Module>,
 ) -> (SourceResult<Prepared<'a>>, Vec<SourceDiagnostic>) {
+    prepare_with_paragraph_session(
+        content,
+        intr,
+        world,
+        source,
+        full_error,
+        features,
+        (module, None),
+    )
+}
+
+pub(super) fn prepare_with_paragraph_session<'a>(
+    content: Content,
+    intr: &TagIntrospector,
+    world: &'a dyn World,
+    source: &'a Source,
+    full_error: bool,
+    features: Features,
+    retained: (
+        Option<&Module>,
+        Option<(
+            &typst_core::compiler::layout::paragraph_session::ParagraphSession,
+            &crate::shaper::ShapeSession,
+        )>,
+    ),
+) -> (SourceResult<Prepared<'a>>, Vec<SourceDiagnostic>) {
+    let (module, products) = retained;
     let mut session = Session::new(
         content,
         intr,
@@ -1667,6 +1811,10 @@ pub(super) fn prepare<'a>(
         features,
         EvalTarget::Paged,
     );
+    if let Some((paragraphs, shaping)) = products {
+        session.metrics =
+            FallbackFontMetrics::with_product_sessions(world, paragraphs, shaping);
+    }
     session.running_enabled =
         module.is_some() && page_running::has_potential(&session.origin);
     let selected = session.discover();
@@ -2256,6 +2404,135 @@ pub(super) fn expand_legacy(
     } else {
         Err(errors)
     }
+}
+
+
+// Manifested laboratory ablation: false builds forwarding-only, true certifies.
+const CERTIFY_IMMUTABLE_SOURCE: bool = true;
+
+fn immutable_source_matches(world: &dyn World, input: &Source) -> bool {
+    world.immutable_source(input.id()).is_some_and(|authority|
+        authority.id() == input.id() && std::ptr::eq(authority.root(), input.root()))
+}
+
+// A per-execution forwarding guard; no delegated resource result is changed.
+struct LegacyWorldGuard<'a> {
+    inner: &'a dyn World,
+    source: Option<&'a Source>,
+    source_read: std::sync::atomic::AtomicBool,
+    external: std::sync::atomic::AtomicBool,
+}
+impl<'a> LegacyWorldGuard<'a> {
+    fn new(inner: &'a dyn World) -> Self {
+        Self { inner, source: None, source_read: std::sync::atomic::AtomicBool::new(false),
+            external: std::sync::atomic::AtomicBool::new(false) }
+    }
+    fn with_source(inner: &'a dyn World, source: &'a Source) -> Self {
+        Self { source: Some(source), ..Self::new(inner) }
+    }
+    fn observed_source(&self) -> bool {
+        self.source_read.load(std::sync::atomic::Ordering::Relaxed)
+    }
+    fn poison(&self) { self.external.store(true, std::sync::atomic::Ordering::Relaxed); }
+    fn sealed(&self) -> bool { !self.external.load(std::sync::atomic::Ordering::Relaxed) }
+}
+impl World for LegacyWorldGuard<'_> {
+    fn font_query_epoch(&self) -> Option<Arc<()>> { self.inner.font_query_epoch() }
+    fn select_font(&self, pattern: &typst_core::entities::font_list::FontNamePattern, variant: &typst_core::entities::font_book::FontVariant) -> Option<usize> { self.inner.select_font(pattern, variant) }
+    fn font_info(&self, index: usize) -> Option<&typst_core::entities::font_book::FontInfo> { self.inner.font_info(index) }
+    fn immutable_source(&self, id: typst_core::entities::file_id::FileId) -> Option<Source> { self.inner.immutable_source(id) }
+
+    fn library(&self) -> &typst_core::entities::world_types::Library { self.inner.library() }
+    fn book(&self) -> &typst_core::entities::font_book::FontBook { self.inner.book() }
+    fn main(&self) -> typst_core::entities::file_id::FileId { self.inner.main() }
+    fn source(&self, id: typst_core::entities::file_id::FileId) -> typst_core::entities::world_types::FileResult<Source> {
+        let result = self.inner.source(id);
+        self.source_read.store(true, std::sync::atomic::Ordering::Relaxed);
+        let certified = CERTIFY_IMMUTABLE_SOURCE && self.source.is_some_and(|input|
+            id == input.id() && result.as_ref().is_ok_and(|observed|
+                observed.id() == input.id() && std::ptr::eq(observed.root(), input.root()))
+                && immutable_source_matches(self.inner, input));
+        if !certified { self.poison(); }
+        result
+    }
+    fn file(&self, id: typst_core::entities::file_id::FileId) -> typst_core::entities::world_types::FileResult<typst_core::entities::world_types::Bytes> { self.poison(); self.inner.file(id) }
+    fn resolve_path(&self, id: typst_core::entities::file_id::FileId, path: &str) -> Result<typst_core::entities::path::RootedPath,String> { self.poison(); self.inner.resolve_path(id,path) }
+    fn read_path(&self, path: &typst_core::entities::path::RootedPath) -> Result<Arc<Vec<u8>>,String> { self.poison(); self.inner.read_path(path) }
+    fn include_path(&self, path: &typst_core::entities::path::RootedPath) -> Result<Source,String> { self.poison(); self.inner.include_path(path) }
+    fn read_bytes(&self, id: typst_core::entities::file_id::FileId, path: &str) -> Result<Arc<Vec<u8>>,String> { self.poison(); self.inner.read_bytes(id,path) }
+    fn include_source(&self, id: typst_core::entities::file_id::FileId, path: &str) -> Result<Source,String> { self.poison(); self.inner.include_source(id,path) }
+    fn resolve_package(&self, spec: &typst_core::entities::package_spec::PackageSpec) -> Result<Source,String> { self.poison(); self.inner.resolve_package(spec) }
+    fn inputs(&self) -> typst_core::contracts::world::SysInputs { self.poison(); self.inner.inputs() }
+    fn plugin_host(&self) -> Option<Arc<dyn typst_core::contracts::plugin_host::PluginHost>> { self.poison(); self.inner.plugin_host() }
+    fn font(&self, index: usize) -> Option<typst_core::entities::world_types::Font> { self.inner.font(index) }
+    fn candidates_for_char(&self, c: char) -> Vec<usize> { self.inner.candidates_for_char(c) }
+    fn today(&self, offset: Option<typst_core::entities::duration::Duration>) -> Option<typst_core::entities::world_types::Datetime> { self.poison(); self.inner.today(offset) }
+}
+
+// Opaque and compilation-local. The pointer set checks provenance only;
+// every execution/read/generation still needs the independent checks below.
+pub(super) struct LegacyCertificate<'a> {
+    session: Session<'a>,
+    content: Content,
+    producer_ptrs: HashSet<usize>,
+}
+impl LegacyCertificate<'_> {
+    fn structural(&self, realized: &Content) -> bool {
+        if self.session.impossible || self.session.running_enabled
+            || self.session.bundle_html_targets.is_some() || self.session.nodes.is_empty()
+            || self.session.nodes.iter().any(|node| node.active &&
+                (node.selected || node.current.as_ref().is_none_or(|e|
+                    !e.world_sealed || e.result.is_err()))) {
+            return false;
+        }
+        let member = |content: &Content| matches!(content,
+            Content::ContextBlock(elem) if self.producer_ptrs.contains(&(Arc::as_ptr(elem) as usize)));
+        paged::layout_input_certified(&self.session.origin, &member)
+            && paged::layout_input_certified(&self.content, &member)
+            && paged::layout_input_certified(realized, &member)
+    }
+    pub(super) fn reusable_for(&self, candidate: &TagIntrospector, realized: &Content) -> bool {
+        if !self.structural(realized) { return false; }
+        if self.session.nodes.iter().any(|node| node.active &&
+            node.current.as_ref().is_some_and(|execution| execution.source_read))
+            && !immutable_source_matches(self.session.world, self.session.source) {
+            return false;
+        }
+
+        for index in self.session.order() {
+            let node = &self.session.nodes[index];
+            let Some(execution) = node.current.as_ref() else { return false };
+            if candidate.context_block_locations.get(&node.elem.id) != Some(&execution.location)
+                || pagination_stability(&execution.input, candidate) != (true,true) {
+                return false;
+            }
+            let reflexive = self.session.with_replay_engine(index,
+                |ctx, engine| ctx.context_reads_valid_for(&execution.input, engine));
+            let checked = self.session.with_replay_engine(index,
+                |ctx, engine| ctx.context_reads_valid_for(candidate, engine));
+            if !matches!((reflexive,checked),(Ok(true),Ok(true))) { return false; }
+        }
+        true
+    }
+}
+
+pub(super) fn expand_legacy_certified<'a>(
+    content: Content,
+    intr: &TagIntrospector,
+    world: &'a dyn World,
+    source: &'a Source,
+) -> SourceResult<(Content, Option<LegacyCertificate<'a>>)> {
+    let mut session = Session::new(content,intr,world,source,false,Features::default(),EvalTarget::Paged);
+    session.certify_legacy_world = true;
+    session.discover();
+    let errors = session.errors();
+    if !errors.is_empty() { return Err(errors); }
+    let content = session.content();
+    let producer_ptrs = session.nodes.iter().filter(|n| n.active)
+        .map(|n| Arc::as_ptr(&n.elem) as usize).collect();
+    let proof = LegacyCertificate { session, content: content.clone(), producer_ptrs };
+    let proof = if proof.structural(&content) { Some(proof) } else { None };
+    Ok((content,proof))
 }
 
 #[cfg(test)]
@@ -3786,3 +4063,212 @@ mod readiness_physical_number_outline_tests {
         }
     }
 }
+
+
+#[cfg(test)]
+mod lab_immutable_source_forwarding_tests {
+    use super::*;
+    struct OverrideWorld { base: crate::world::SystemWorld, epoch: Arc<()>, info: typst_core::entities::font_book::FontInfo }
+    impl World for OverrideWorld {
+        fn library(&self)->&typst_core::entities::world_types::Library { self.base.library() }
+        fn book(&self)->&typst_core::entities::font_book::FontBook { self.base.book() }
+        fn main(&self)->typst_core::entities::file_id::FileId { self.base.main() }
+        fn source(&self,id:typst_core::entities::file_id::FileId)->typst_core::entities::world_types::FileResult<Source> { self.base.source(id) }
+        fn file(&self,id:typst_core::entities::file_id::FileId)->typst_core::entities::world_types::FileResult<typst_core::entities::world_types::Bytes> { self.base.file(id) }
+        fn font(&self,index:usize)->Option<typst_core::entities::world_types::Font> { self.base.font(index) }
+        fn today(&self,offset:Option<typst_core::entities::duration::Duration>)->Option<typst_core::entities::world_types::Datetime> { self.base.today(offset) }
+        fn font_query_epoch(&self)->Option<Arc<()>> { Some(self.epoch.clone()) }
+        fn select_font(&self,_:&typst_core::entities::font_list::FontNamePattern,_:&typst_core::entities::font_book::FontVariant)->Option<usize> { Some(usize::MAX-7) }
+        fn font_info(&self,_:usize)->Option<&typst_core::entities::font_book::FontInfo> { Some(&self.info) }
+    }
+    #[test]
+    fn lab_immutable_source_forwards_font_overrides() {
+        let world=OverrideWorld { base:crate::world::SystemWorld::for_stdin(".","x".into()),epoch:Arc::new(()),info:typst_core::entities::font_book::FontInfo { family:"sentinel".into(),variant:Default::default(),flags:Default::default(),coverage:Default::default() } };
+        let guard=LegacyWorldGuard::new(&world);
+        let epoch=guard.font_query_epoch().expect("explicit inner epoch must survive wrapper");
+        assert!(Arc::ptr_eq(&epoch,&world.epoch));
+        let pattern=typst_core::entities::font_list::FontNamePattern::Literal("serif".into());
+        let variant=typst_core::entities::font_book::FontVariant::default();
+        assert_eq!(guard.select_font(&pattern,&variant),Some(usize::MAX-7));
+        assert!(std::ptr::eq(guard.font_info(0).expect("inner metadata override"),&world.info));
+    }
+}
+
+#[cfg(test)]
+mod retained_capture_tests {
+    use super::*;
+
+    fn same_owner(a: &Content, b: &Content) -> bool {
+        match (a, b) {
+            (Content::Source(a), Content::Source(b)) => Arc::ptr_eq(a, b),
+            (Content::Sequence(a), Content::Sequence(b)) => Arc::ptr_eq(a, b),
+            _ => panic!("fixture must have an owned external carrier"),
+        }
+    }
+
+    fn with_session(text: &str, test: impl FnOnce(&mut Session<'_>)) {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            text.into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            Features::default(),
+        )
+        .0
+        .unwrap();
+        let origin = module.content().unwrap().clone();
+        let intr = introspect_with_introspector(&origin);
+        let mut session = Session::new(
+            origin,
+            &intr,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        session.discover();
+        test(&mut session);
+    }
+
+    #[test]
+    fn unchanged_execution_keeps_actual_capture_and_does_not_execute() {
+        with_session("#context [A]\n#context [B]", |s| {
+            let first = s.content();
+            let version = s.next_execution_version;
+            let retired = s.retired.len();
+            for _ in 0..4 {
+                let next = s.content();
+                assert_eq!(next.plain_text(), first.plain_text());
+                assert!(same_owner(&first, &next), "actual capture must be preserved");
+            }
+            assert_eq!(s.next_execution_version, version);
+            assert_eq!(s.retired.len(), retired);
+        });
+    }
+
+    #[test]
+    fn replacement_execution_and_same_id_new_producer_refuse_old_capture() {
+        with_session("#context [A]", |s| {
+            let first = s.content();
+            let input = Arc::new(s.original_intr.clone());
+            let location = input.context_block_locations[&s.nodes[0].elem.id];
+            s.execute(0, &input, location);
+            let replacement = s.content();
+            assert!(!same_owner(&first, &replacement));
+            assert!(same_owner(&replacement, &s.content()));
+            let elem = &s.nodes[0].elem;
+            s.nodes[0].elem =
+                Arc::new(ContextBlockElem { id: elem.id, closure: elem.closure.clone() });
+            let new_owner = s.content();
+            assert!(!same_owner(&replacement, &new_owner));
+            assert_eq!(replacement.plain_text(), new_owner.plain_text());
+        });
+    }
+
+    #[test]
+    fn invalid_missing_impossible_and_restore_never_resurrect_capture() {
+        with_session("#context [A]", |s| {
+            let mut first = s.content();
+            s.nodes[0].invalid = true;
+            assert!(!same_owner(&first, &s.content()));
+            s.nodes[0].invalid = false;
+            let next = s.content();
+            assert!(!same_owner(&first, &next));
+            first = next;
+            let execution = s.nodes[0].current.take();
+            assert!(!s.content().plain_text().contains('A'));
+            s.nodes[0].current = execution;
+            let next = s.content();
+            assert!(!same_owner(&first, &next));
+            first = next;
+            s.impossible = true;
+            assert!(!same_owner(&first, &s.content()));
+            s.impossible = false;
+            assert!(!same_owner(&first, &s.content()));
+        });
+    }
+
+    #[test]
+    fn root_order_target_and_child_activity_are_part_of_certificate() {
+        with_session("#context [A]\n#context [B]", |s| {
+            let first = s.content();
+            s.roots.reverse();
+            let reordered = s.content();
+            assert!(!same_owner(&first, &reordered));
+            s.nodes[0].target = EvalTarget::Html;
+            let target = s.content();
+            assert!(!same_owner(&reordered, &target));
+            s.nodes[0].children.push(1);
+            let child = s.content();
+            assert!(!same_owner(&target, &child));
+            s.nodes[1].active = false;
+            let inactive = s.content();
+            assert!(!same_owner(&child, &inactive));
+            s.nodes[1].active = true;
+            assert!(!same_owner(&inactive, &s.content()));
+        });
+    }
+
+    #[test]
+    fn failed_execution_stays_uncached_and_original_error_survives() {
+        with_session("#context { panic(\"capture failure\") }", |s| {
+            let count = s.errors().len();
+            assert!(count > 0);
+            let first = s.content();
+            assert!(!same_owner(&first, &s.content()));
+            assert_eq!(s.errors().len(), count);
+        });
+    }
+
+    #[test]
+    fn unrelated_running_arena_node_does_not_replace_body_capture() {
+        with_session("#context [A]", |s| {
+            let first = s.content();
+            let elem = Arc::new(ContextBlockElem {
+                id: 9999,
+                closure: s.nodes[0].elem.closure.clone(),
+            });
+            let extra = s.add(elem, StyleChain::default_chain(), None);
+            assert!(s.nodes[extra].invalid && s.nodes[extra].current.is_none());
+            assert!(
+                same_owner(&first, &s.content()),
+                "noncontributing arena nodes cannot alter the pure projection"
+            );
+        });
+    }
+
+    #[test]
+    fn independently_created_sessions_never_share_capture() {
+        let mut first = None;
+        with_session("#context [A]", |s| first = Some(s.content()));
+        with_session("#context [A]", |s| {
+            let next = s.content();
+            assert_eq!(first.as_ref().unwrap().plain_text(), next.plain_text());
+            assert!(!same_owner(first.as_ref().unwrap(), &next));
+        });
+    }
+
+    #[test]
+    fn empty_origin_keeps_its_existing_owner_and_nested_results_are_retained() {
+        with_session("Ordinary body", |s| {
+            s.origin = Content::Sequence(Arc::from([s.origin.clone()]));
+            assert!(same_owner(&s.origin, &s.content()));
+        });
+        with_session("#context [Outer #context [Inner]]", |s| {
+            assert_eq!(s.nodes.len(), 2);
+            let first = s.content();
+            assert!(same_owner(&first, &s.content()));
+            let input = Arc::new(introspect_with_introspector(&first));
+            let id = s.nodes[1].elem.id;
+            s.execute(1, &input, input.context_block_locations[&id]);
+            assert!(!same_owner(&first, &s.content()));
+        });
+    }
+}
+

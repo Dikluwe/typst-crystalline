@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 51b02888
+//! @prompt-hash 4a18dfd2
 //! @layer L3
 //! @updated 2026-10-03
 //! Post-layout shaping facade. Implementation remains in private L3 descendants.
@@ -9,6 +9,7 @@
 
 mod bidi;
 mod cache;
+mod complete_session;
 mod font_selection;
 mod reconciliation;
 mod shaping;
@@ -30,3 +31,9 @@ pub(crate) use shaping::{
 pub use traversal::shape_document;
 
 pub(crate) use traversal::shape_document_with_context;
+
+pub(crate) use traversal::shape_document_with_raw_cache;
+
+pub use complete_session::ShapeSession;
+
+pub(crate) use traversal::shape_document_with_products;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world.md
-//! @prompt-hash cd9f14a0
+//! @prompt-hash 46b5ae5e
 //! @layer L3
 //! @updated 2026-10-08
 //!
@@ -73,6 +73,8 @@ pub struct SystemWorld {
     next_id: Mutex<u32>,
     /// Paired font slots/book, initialized once on the first font demand.
     font_catalog: OnceLock<Arc<(Vec<FontSlot>, FontBook)>>,
+    /// Immutable leading text assets, only for combined catalog policies.
+    font_prefix: Option<Arc<fonts::EmbeddedPrefix>>,
     /// Private acquisition policy; no font discovery occurs while configuring it.
     font_loader: Box<dyn Fn() -> Arc<(Vec<FontSlot>, FontBook)> + Send + Sync>,
     /// Stub de biblioteca padrão.
@@ -129,6 +131,7 @@ impl SystemWorld {
             next_id: Mutex::new(2),
             font_catalog: OnceLock::from(Arc::new((Vec::new(), FontBook::new()))),
             font_loader: Box::new(|| Arc::new((Vec::new(), FontBook::new()))),
+            font_prefix: None,
             library: Library::new(),
             inputs: SysInputs::default(),
             plugin_host: None,
@@ -206,6 +209,7 @@ impl SystemWorld {
             next_id: Mutex::new(2),
             font_catalog: OnceLock::from(Arc::new((Vec::new(), FontBook::new()))),
             font_loader: Box::new(|| Arc::new((Vec::new(), FontBook::new()))),
+            font_prefix: None,
             library: Library::new(),
             inputs: SysInputs::default(),
             plugin_host: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/text.md
-//! @prompt-hash 61dff5f4
+//! @prompt-hash 98e8e3ce
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -322,7 +322,6 @@ pub(super) fn eval_set_text(
                     // literais. Nome impresso lowercased (normalização
                     // de `FontFamily::new` do vanilla).
                     let missing_families: Vec<String> = {
-                        let book = engine.world.book();
                         arr.iter()
                             .filter_map(|item| match item {
                                 Value::Str(s) => Some(s.as_str()),
@@ -408,7 +407,10 @@ pub(super) fn eval_set_text(
                                 | Value::Type(..)
                                 | Value::SpotColorant(..) => None,
                             })
-                            .filter(|name| book.select_family(name).next().is_none())
+                             .filter(|name| engine.world.select_font(
+                                &crate::entities::font_list::FontNamePattern::Literal((*name).into()),
+                                &crate::entities::font_book::FontVariant::default(),
+                            ).is_none())
                             .map(|name| name.to_lowercase())
                             .collect()
                     };

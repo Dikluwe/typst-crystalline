@@ -1,0 +1,23 @@
+[
+  {
+    "path": "01_core/src/compiler/eval/stdlib_snapshot/tests.rs",
+    "names": [
+      "cold_slot_installs_seed_and_equal_queries_reuse_only_seed_identity",
+      "element_functions_in_builtin_namespaces_keep_per_file_language_identity",
+      "known_cardinality_nested_unequal_scopes_keep_aliases_and_fresh_identity",
+      "modules_keep_per_file_language_identity_and_within_file_aliases"
+    ]
+  },
+  {
+    "path": "01_core/src/compiler/eval/stdlib_snapshot.rs",
+    "names": [
+      "fresh_eval_context_keeps_stdlib_snapshot_unallocated_until_import"
+    ]
+  },
+  {
+    "path": "01_core/src/entities/font_list.rs",
+    "names": [
+      "font_list_clone_o1_via_ecow_passo_132b"
+    ]
+  }
+]

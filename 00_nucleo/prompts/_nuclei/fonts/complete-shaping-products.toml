@@ -1,0 +1,28 @@
+tekt = 1
+kind = "nucleus"
+id = "complete-shaping-products"
+title = "Bounded complete shaping products across compilations"
+[[claims]]
+id = "scope"
+level = "must"
+statement = "Caller-owned bounded ShapeSession may retain successful measured-width and complete emitted-shaping products across compilations. Keep these distinct products and preserve the existing distinct width/emission feature policies. Never retain World, mutable faces, selection caches, callbacks or whole paged documents."
+[[claims]]
+id = "dependencies"
+level = "must"
+statement = "Admission and lookup require the same owned World immutable font-query token before and after computation or lookup. A revoked, replaced or absent token is a miss, never a cached failure. A completed emission containing mapped font storage is not admitted. Equal tokens certify stable answers for equal font queries under the strengthened immutable-metric-epoch contract; default and full-catalog providers remain uncertified."
+[[claims]]
+id = "identity"
+level = "must"
+statement = "Match exact UTF-8 input, complete style equality plus exact numeric bit patterns, product kind, and for emitted output the exact input position bits and supplied bidi mode/resolved run ranges and directions. Current source bidi identities are not retained: materialize each hit with current spans and the original relative subrun ranges. Do not infer context from fragment direction. Whitespace/failure remain uncached; successful empty output remains distinct from failure."
+[[claims]]
+id = "bounds"
+level = "must"
+statement = "Bound logical product payload to8MiB, total entries to4096, single input to16KiB, key to64KiB, emitted runs to2048, each font owner to16MiB and unique immutable font owners to4. Evict old complete entries before admitting new ones; do not cache oversized or unsupported products. Logical charge is not an allocator/RSS guarantee. No global session or mutable shared data outside caller ownership."
+[[claims]]
+id = "placement"
+level = "must"
+statement = "Keep existing pipeline order and font/glyph/cluster/feature/position policies. Cache complete outputs of the existing shaping operations, not a speculative substitute algorithm. Existing raw caches remain compilation-local. Traversal still applies authored-identity envelopes in the current wrapper scope. Current style metadata and bidi owners accompany each emission."
+[[claims]]
+id = "validation"
+level = "must"
+statement = "Require runtime RED before reuse, fresh-cache equality for width and emitted products, changed/revoked/absent epoch, style/axes/language/direction/position/context, current-bidi rebinding, bounded retention and session-isolation refuters. Verify real watch backend/emission counts, full suites, late/replaced fonts, PDF/SVG/raster controls and a single paired nominal release campaign. Production admission requires a ratified owning contract and language validation; counters alone do not close a vanilla goal."

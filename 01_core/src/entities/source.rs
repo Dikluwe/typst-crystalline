@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/source.md
-//! @prompt-hash 123237be
+//! @prompt-hash b65fb802
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -48,12 +48,44 @@ struct SourceInner {
     text: String,
     root: SyntaxNode,
     content_hash: u64, // ADR-0031 — pré-computado em new(), nunca muda
+    parser: fn(&str) -> SyntaxNode,
+    numbering_interval: std::ops::Range<u64>,
 }
 
 impl Source {
     /// Cria `Source` com `FileId` explícito — usado por L3 ao carregar ficheiros.
     pub fn new(id: FileId, text: String) -> SourceResult<Self> {
         Self::new_with_parser(id, text, parse)
+    }
+
+    /// Builds an immutable revision of this source.
+    pub fn reparse(&self, text: String) -> SourceResult<Self> {
+        if text == self.0.text {
+            return Ok(self.clone());
+        }
+        let fresh = (self.0.parser)(&text);
+        let mut root = self.0.root.clone();
+        if !reconcile_revision(&mut root, &fresh) || !root.spanless_eq(&fresh) {
+            root = fresh;
+            root.numberize(self.id(), self.0.numbering_interval.clone()).map_err(
+                |_| {
+                    vec![SourceDiagnostic::error(
+                        Span::from_range(self.id(), 0..text.len()),
+                        "cannot number source spans",
+                    )]
+                },
+            )?;
+        }
+        let mut hasher = FxHasher::default();
+        text.hash(&mut hasher);
+        Ok(Self(Arc::new(SourceInner {
+            id: self.id(),
+            text,
+            root,
+            content_hash: hasher.finish(),
+            parser: self.0.parser,
+            numbering_interval: self.0.numbering_interval.clone(),
+        })))
     }
 
     /// Hash do conteúdo — O(1), pré-computado na construção (ADR-0031).
@@ -85,13 +117,20 @@ impl Source {
             h.finish()
         };
         let mut root = parser(&text);
-        root.numberize(id, within).map_err(|_| {
+        root.numberize(id, within.clone()).map_err(|_| {
             vec![SourceDiagnostic::error(
                 Span::from_range(id, 0..text.len()),
                 "cannot number source spans",
             )]
         })?;
-        Ok(Self(Arc::new(SourceInner { id, text, root, content_hash })))
+        Ok(Self(Arc::new(SourceInner {
+            id,
+            text,
+            root,
+            content_hash,
+            parser,
+            numbering_interval: within,
+        })))
     }
 
     /// Cria `Source` sem `FileId` real — para testes e contextos sem filesystem.
@@ -200,6 +239,98 @@ impl Source {
         }
         Some(LinkedNode::new(&self.0.root).find(span)?.range())
     }
+}
+
+// Every attempt owns its candidate. A failed numbering operation can mutate its
+// receiver, so a failed child must never be installed in an otherwise valid parent.
+fn reconcile_revision(old: &mut SyntaxNode, fresh: &SyntaxNode) -> bool {
+    if old.spanless_eq(fresh) {
+        return true;
+    }
+    let count = old.children().len();
+    if old.kind() != fresh.kind() || count == 0 || fresh.children().len() == 0 {
+        return false;
+    }
+    if count != fresh.children().len() {
+        return reconcile_children(old, fresh);
+    }
+    for (index, next) in fresh.children().enumerate() {
+        let previous = &old.children_mut()[index];
+        if previous.spanless_eq(next) {
+            continue;
+        }
+        let previous_len = previous.len();
+        let previous_descendants = previous.descendants();
+        let mut candidate = previous.clone();
+        if reconcile_revision(&mut candidate, next) {
+            let new_len = candidate.len();
+            let new_descendants = candidate.descendants();
+            old.children_mut()[index] = candidate;
+            old.update_parent(
+                previous_len,
+                new_len,
+                previous_descendants,
+                new_descendants,
+            );
+        } else if old.replace_children(index..index + 1, vec![next.clone()]).is_err() {
+            return false;
+        }
+    }
+    true
+}
+
+// Bounded, ordered exact anchors preserve islands between multiple edits.
+fn next_revision_anchor(
+    old: &[SyntaxNode],
+    fresh: &[SyntaxNode],
+) -> Option<(usize, usize)> {
+    const LOOKAHEAD: usize = 32;
+    for distance in 1..=2 * LOOKAHEAD {
+        for left in 0..=distance.min(LOOKAHEAD) {
+            let right = distance - left;
+            if right > LOOKAHEAD {
+                continue;
+            }
+            if let (Some(a), Some(b)) = (old.get(left), fresh.get(right)) {
+                if a.spanless_eq(b) {
+                    return Some((left, right));
+                }
+            }
+        }
+    }
+    None
+}
+
+fn reconcile_children(old: &mut SyntaxNode, fresh: &SyntaxNode) -> bool {
+    let next: Vec<_> = fresh.children().cloned().collect();
+    let mut index = 0;
+    let mut cursor = 0;
+    while cursor < next.len() {
+        let previous = old.children().as_slice();
+        if previous
+            .get(index)
+            .is_some_and(|child| child.spanless_eq(&next[cursor]))
+        {
+            index += 1;
+            cursor += 1;
+            continue;
+        }
+        let anchor = next_revision_anchor(&previous[index..], &next[cursor..]);
+        let (old_end, new_end) = match anchor {
+            Some((left, right)) => (index + left, cursor + right),
+            None => (previous.len(), next.len()),
+        };
+        if old
+            .replace_children(index..old_end, next[cursor..new_end].to_vec())
+            .is_err()
+        {
+            return false;
+        }
+        index += new_end - cursor;
+        cursor = new_end;
+    }
+    let end = old.children().len();
+    old.replace_children(index..end, Vec::new()).is_ok()
 }
 
 #[cfg(test)]
@@ -383,5 +514,186 @@ mod tests {
         assert_eq!(errors[0].span.range(), Some(0..4));
         assert!(errors[0].hints.is_empty());
         assert!(errors[0].trace.is_empty());
+    }
+
+    fn revision_find(node: &SyntaxNode, kind: SyntaxKind) -> Option<&SyntaxNode> {
+        if node.kind() == kind {
+            return Some(node);
+        }
+        node.children().find_map(|child| revision_find(child, kind))
+    }
+
+    fn revision_check(source: &Source, parser: fn(&str) -> SyntaxNode) {
+        let cold =
+            Source::new_with_parser(source.id(), source.text().into(), parser).unwrap();
+        assert!(source.root().spanless_eq(cold.root()));
+        fn walk(
+            source: &Source,
+            node: &SyntaxNode,
+            offset: usize,
+            seen: &mut std::collections::HashSet<Span>,
+        ) {
+            assert!(seen.insert(node.span()), "duplicate span");
+            assert_eq!(
+                source.span_byte_range(node.span()),
+                Some(offset..offset + node.len())
+            );
+            let mut cursor = offset;
+            for child in node.children() {
+                walk(source, child, cursor, seen);
+                cursor += child.len();
+            }
+        }
+        walk(source, source.root(), 0, &mut std::collections::HashSet::new());
+    }
+
+    #[test]
+    fn revision_preserves_intact_loop_across_prefix_and_suffix_insertions() {
+        let text = "before\n#for i in range(3) [item #i]\nafter";
+        let old = Source::detached(text).unwrap();
+        let span = revision_find(old.root(), SyntaxKind::ForLoop).unwrap().span();
+        for new in [
+            format!("= Heading\n{text}"),
+            format!("{text}\n= Heading"),
+            format!("= Heading\n{text}\n= Suffix"),
+        ] {
+            let revised = old.reparse(new).unwrap();
+            revision_check(&revised, parse);
+            assert_eq!(
+                revision_find(revised.root(), SyntaxKind::ForLoop).unwrap().span(),
+                span
+            );
+            assert_eq!(old.text(), text);
+            assert_eq!(
+                revision_find(old.root(), SyntaxKind::ForLoop).unwrap().span(),
+                span
+            );
+        }
+    }
+
+    #[test]
+    fn revision_preserves_nested_loop_and_old_clones() {
+        let old =
+            Source::detached("#[before\n#for i in range(3) [item #i]\nafter]").unwrap();
+        let clone = old.clone();
+        let span = revision_find(old.root(), SyntaxKind::ForLoop).unwrap().span();
+        let revised = old
+            .reparse("#[before\n#for i in range(3) [item #i]\nafter extra]".into())
+            .unwrap();
+        revision_check(&revised, parse);
+        assert_eq!(
+            revision_find(revised.root(), SyntaxKind::ForLoop).unwrap().span(),
+            span
+        );
+        assert!(std::ptr::eq(old.root(), clone.root()));
+        assert_ne!(old.text(), revised.text());
+        revision_check(&old, parse);
+    }
+
+    #[test]
+    fn revision_matches_cold_parse_through_edits_errors_and_unicode() {
+        let mut source = Source::detached("").unwrap();
+        let cases = [
+            "α🙂\n#let x = 1\n#x",
+            "α🙂\n#let x = 2\n#x",
+            "#let x = [",
+            "#[a #for i in range(3) [#i] b]",
+            "#[a #for i in range(4) [#i] b]",
+            "a\na\na",
+            "a\n= a\na",
+            "a\na",
+            "$x + sqrt(y)$",
+            "#let a = (",
+            "",
+            "recovered",
+        ];
+        for _ in 0..4 {
+            for text in cases {
+                source = source.reparse(text.into()).unwrap();
+                assert_eq!(source.text(), text);
+                revision_check(&source, parse);
+            }
+        }
+    }
+
+    #[test]
+    fn revision_retains_custom_parser_and_equal_source() {
+        for parser in [
+            crate::compiler::parse::parse_code as fn(&str) -> SyntaxNode,
+            crate::compiler::parse::parse_math,
+        ] {
+            let old = Source::detached_with_parser("x + 1", parser).unwrap();
+            let revised = old.reparse("y + 22".into()).unwrap();
+            revision_check(&revised, parser);
+            let equal = revised.reparse(revised.text().into()).unwrap();
+            assert!(std::ptr::eq(equal.root(), revised.root()));
+        }
+    }
+
+    #[test]
+    fn revision_numbering_pressure_is_fallible_and_keeps_old_source() {
+        let old =
+            Source::with_numbering_interval(test_id(), "a".into(), parse, 2..10).unwrap();
+        let changed = "#for i in range(10) [#i]";
+        let error = old.reparse(changed.into()).unwrap_err();
+        assert_eq!(error[0].message, "cannot number source spans");
+        assert_eq!(error[0].span.id(), Some(old.id()));
+        assert_eq!(error[0].span.range(), Some(0..changed.len()));
+        revision_check(&old, parse);
+        assert_eq!(old.text(), "a");
+    }
+
+    #[test]
+    fn revision_falls_back_when_custom_parser_changes_root_kind() {
+        fn parser(text: &str) -> SyntaxNode {
+            if text.starts_with('#') {
+                parse(text)
+            } else {
+                crate::compiler::parse::parse_code(text)
+            }
+        }
+        let old = Source::detached_with_parser("1 + 2", parser).unwrap();
+        let new = old.reparse("#let x = 7\n#x".into()).unwrap();
+        assert_ne!(old.root().kind(), new.root().kind());
+        revision_check(&new, parser);
+        revision_check(&old, parser);
+    }
+
+    #[test]
+    fn revision_deterministic_edit_sequence_preserves_searchable_spans() {
+        let fragments = [
+            "α🙂",
+            "\n= title\n",
+            "#let x = [",
+            "]",
+            "#for i in range(2) [#i]",
+            "\n\n",
+            "$x_2$",
+            "*emph*",
+            "#x",
+        ];
+        let mut source = Source::detached("seed").unwrap();
+        let mut seed = 37usize;
+        for step in 0..256 {
+            seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+            let mut text = source.text().to_owned();
+            let boundaries: Vec<_> = text
+                .char_indices()
+                .map(|(i, _)| i)
+                .chain(std::iter::once(text.len()))
+                .collect();
+            let a = seed % boundaries.len();
+            let b = (seed / 17) % boundaries.len();
+            let range = boundaries[a.min(b)]..boundaries[a.max(b)];
+            let replacement =
+                if step % 5 == 0 { "" } else { fragments[step % fragments.len()] };
+            text.replace_range(range, replacement);
+            let old = source.clone();
+            source = source.reparse(text.clone()).unwrap();
+            assert_eq!(source.text(), text);
+            assert_eq!(source.root().clone().into_text().as_str(), text);
+            revision_check(&source, parse);
+            revision_check(&old, parse);
+        }
     }
 }

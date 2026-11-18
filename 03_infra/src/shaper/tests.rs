@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash 5ca49991
+//! @prompt-hash 9f19a001
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -2459,3 +2459,6 @@ mod shared_cache_regressions {
 }
 
 mod shared_glyphs;
+
+#[cfg(test)]
+pub(crate) mod raw_reuse;

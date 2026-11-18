@@ -18,3 +18,7 @@ statement = "Do not cache empty or partial resolutions when a selected face cann
 id = "selection-preservation"
 level = "must"
 statement = "Preserve family and regex matching, variant ranking, declared-family order, class fallback, common fallback order and deduplication. Reuse does not change the FontKey identity or variation application."
+[[claims]]
+id = "separate-first-query"
+level = "may"
+statement = "A distinct bounded latest successful first-readable-query cache may coexist with the complete-chain cache under the same World and instance lifetime and exact ordered family/variant equality. It never represents the complete chain, never caches failure, and must refuse publication when a preceding selected face cannot be read or parsed (shaper conservatively whenever its face map contains failure). Clone sharing follows the owning metrics instance; new World/instance starts empty. Coverage, shaping and complete fallback still run under their own contracts."

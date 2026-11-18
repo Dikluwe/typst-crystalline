@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/page_store.md
-//! @prompt-hash 068e4fde
+//! @prompt-hash aca28b75
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -278,5 +278,218 @@ mod tests {
         assert_eq!(s.reference_numbering_for_page(nz(2)), None);
         assert_eq!(s.visible_numbering_for_page(nz(3)), None);
         assert_eq!(s.numbering_span_for_page(nz(3)), None);
+    }
+}
+
+impl PageStore {
+    /// Conservative exact comparison for the laboratory scalar page snapshot.
+    pub fn same_scalar_snapshot(&self, other: &Self) -> bool {
+        fn content(a: &Content, b: &Content, depth: usize, budget: &mut usize) -> bool {
+            if depth > 32 || *budget == 0 {
+                return false;
+            }
+            *budget -= 1;
+            match a {
+                Content::Empty => matches!(b, Content::Empty),
+                Content::Text(a) => matches!(b,Content::Text(b) if a==b),
+                Content::Space => matches!(b, Content::Space),
+                Content::SpaceFromNewline => matches!(b, Content::SpaceFromNewline),
+                Content::Parbreak => matches!(b, Content::Parbreak),
+                Content::Sequence(a) => {
+                    matches!(b,Content::Sequence(b) if a.len()==b.len() && a.iter().zip(b.iter()).all(|(a,b)|content(a,b,depth+1,budget)))
+                }
+                Content::Source(..)
+                | Content::ShowRecipe(..)
+                | Content::Realized(..)
+                | Content::Located(..)
+                | Content::Symbol(..)
+                | Content::HtmlElem(..)
+                | Content::HtmlFrame(..)
+                | Content::Par { .. }
+                | Content::Heading(..)
+                | Content::Title(..)
+                | Content::Strong(..)
+                | Content::Emph(..)
+                | Content::Raw(..)
+                | Content::ListItem(..)
+                | Content::EnumItem(..)
+                | Content::Link(..)
+                | Content::Equation(..)
+                | Content::MathSequence(..)
+                | Content::MathIdent(..)
+                | Content::MathText(..)
+                | Content::MathFrac(..)
+                | Content::MathAttach(..)
+                | Content::MathPrimes(..)
+                | Content::MathRoot(..)
+                | Content::MathStretch(..)
+                | Content::MathDelimited(..)
+                | Content::MathLr(..)
+                | Content::MathMid(..)
+                | Content::MathOverbrace(..)
+                | Content::MathUnderbrace(..)
+                | Content::MathUnderbracket(..)
+                | Content::MathUnderparen(..)
+                | Content::MathUndershell(..)
+                | Content::MathOverbracket(..)
+                | Content::MathOverparen(..)
+                | Content::MathOvershell(..)
+                | Content::MathAlignPoint(..)
+                | Content::Linebreak(..)
+                | Content::MathMatrix(..)
+                | Content::MathCases(..)
+                | Content::MathAccent(..)
+                | Content::MathCancel(..)
+                | Content::MathUnderline(..)
+                | Content::MathOverline(..)
+                | Content::MathVec(..)
+                | Content::MathClassOverride(..)
+                | Content::MathLimitsOverride(..)
+                | Content::MathUnderover(..)
+                | Content::MathOp(..)
+                | Content::MathStyled(..)
+                | Content::Label(..)
+                | Content::Ref(..)
+                | Content::CounterDisplay(..)
+                | Content::CounterUpdate(..)
+                | Content::Outline(..)
+                | Content::OutlineEntry(..)
+                | Content::Figure(..)
+                | Content::FigureCaption(..)
+                | Content::Image(..)
+                | Content::Shape(..)
+                | Content::Curve(..)
+                | Content::Transform(..)
+                | Content::Grid(..)
+                | Content::GridHeader(..)
+                | Content::GridFooter(..)
+                | Content::GridCell(..)
+                | Content::SetPage(..)
+                | Content::PageRun(..)
+                | Content::Align(..)
+                | Content::Place(..)
+                | Content::Flush(..)
+                | Content::Styled(..)
+                | Content::Divider(..)
+                | Content::Terms(..)
+                | Content::TermItem(..)
+                | Content::Quote(..)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(..)
+                | Content::PdfAttach(..)
+                | Content::PdfArtifact(..)
+                | Content::Underline(..)
+                | Content::Strike(..)
+                | Content::Overline(..)
+                | Content::SmallCaps { .. }
+                | Content::Pad(..)
+                | Content::Hide(..)
+                | Content::HSpace(..)
+                | Content::VSpace(..)
+                | Content::Pagebreak(..)
+                | Content::Colbreak(..)
+                | Content::Stack(..)
+                | Content::Boxed(..)
+                | Content::Block(..)
+                | Content::TableCell(..)
+                | Content::Bibliography(..)
+                | Content::Cite(..)
+                | Content::Footnote(..)
+                | Content::FootnoteEntry(..)
+                | Content::TableHeader(..)
+                | Content::TableFooter(..)
+                | Content::GridHLine(..)
+                | Content::GridVLine(..)
+                | Content::TableHLine(..)
+                | Content::TableVLine(..)
+                | Content::Table(..)
+                | Content::Repeat(..)
+                | Content::Columns(..)
+                | Content::Metadata(..)
+                | Content::State(..)
+                | Content::StateUpdate(..)
+                | Content::StateDisplay(..)
+                | Content::CounterDisplayCallback(..)
+                | Content::ContextBlock(..)
+                | Content::Dynamic(..) => false,
+            }
+        }
+        fn optional(
+            a: &Option<Content>,
+            b: &Option<Content>,
+            budget: &mut usize,
+        ) -> bool {
+            match (a, b) {
+                (None, None) => true,
+                (Some(a), Some(b)) => content(a, b, 0, budget),
+                (None, Some(_)) | (Some(_), None) => false,
+            }
+        }
+        let mut budget = 8192;
+        self.total_pages == other.total_pages
+            && self.logical_numbers == other.logical_numbers
+            && self.numbering_spans == other.numbering_spans
+            && self.numberings.len() == other.numberings.len()
+            && self
+                .numberings
+                .iter()
+                .zip(&other.numberings)
+                .all(|(a, b)| match (a, b) {
+                    (None, None) => true,
+                    (Some(Numbering::Pattern(a)), Some(Numbering::Pattern(b))) => a == b,
+                    (Some(Numbering::Func(_)), _)
+                    | (_, Some(Numbering::Func(_)))
+                    | (None, Some(Numbering::Pattern(_)))
+                    | (Some(Numbering::Pattern(_)), None) => false,
+                })
+            && self.visible_numberings.len() == other.visible_numberings.len()
+            && self
+                .visible_numberings
+                .iter()
+                .zip(&other.visible_numberings)
+                .all(|(a, b)| optional(a, b, &mut budget))
+            && self.reference_numberings.len() == other.reference_numberings.len()
+            && self
+                .reference_numberings
+                .iter()
+                .zip(&other.reference_numberings)
+                .all(|(a, b)| optional(a, b, &mut budget))
+            && self.supplements.len() == other.supplements.len()
+            && self
+                .supplements
+                .iter()
+                .zip(&other.supplements)
+                .all(|(a, b)| content(a, b, 0, &mut budget))
+    }
+}
+#[cfg(test)]
+mod physical_retention_page_tests {
+    use super::*;
+    #[test]
+    fn physical_retention_page_identical_scalar_data_is_certified() {
+        let s = PageStore::from_runtime(
+            NonZeroUsize::new(1).unwrap(),
+            vec![Some("1".into())],
+            vec![Content::text("Page")],
+        );
+        assert!(s.same_scalar_snapshot(&s.clone()));
+        assert!(PageStore::empty().same_scalar_snapshot(&PageStore::empty()));
+    }
+    #[test]
+    fn physical_retention_page_origin_and_missing_slots_are_distinct() {
+        let a = PageStore::from_runtime(
+            NonZeroUsize::new(1).unwrap(),
+            vec![None],
+            vec![Content::Space],
+        );
+        let b = PageStore::from_runtime(
+            NonZeroUsize::new(1).unwrap(),
+            vec![None],
+            vec![Content::SpaceFromNewline],
+        );
+        let c = PageStore::from_total_pages(NonZeroUsize::new(1).unwrap());
+        assert!(!a.same_scalar_snapshot(&b));
+        assert!(!a.same_scalar_snapshot(&c));
     }
 }

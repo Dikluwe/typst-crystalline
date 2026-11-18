@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/fallback.md
-//! @prompt-hash ea4739b1
+//! @prompt-hash 67028386
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -43,6 +43,52 @@ fn face_kerning(
 }
 
 impl FontMetrics for FallbackFontMetrics<'_> {
+    fn physical_epoch(&self) -> Option<typst_core::compiler::layout::MetricEpoch> {
+        Some(typst_core::compiler::layout::MetricEpoch::new(
+            self.physical_owner.clone(),
+            self.world.font_query_epoch()?,
+        ))
+    }
+
+    fn paragraph_session(
+        &self,
+    ) -> Option<typst_core::compiler::layout::paragraph_session::ParagraphSession> {
+        self.paragraph_products.clone()
+    }
+    fn paragraph_identity(
+        &self,
+        text: &str,
+        style: &TextStyle,
+    ) -> Option<typst_core::compiler::layout::paragraph_session::MetricIdentity> {
+        self.paragraph_products.as_ref()?;
+        if style.math
+            || style.subscript
+            || style.superscript
+            || text.is_empty()
+            || !matches!(
+                style.dir,
+                None | Some(typst_core::entities::dir::Dir::LTR)
+                    | Some(typst_core::entities::dir::Dir::RTL)
+            )
+        {
+            return None;
+        }
+        let candidate = self.first_primary(style)?;
+        let font = self.world.font(candidate.slot_idx)?;
+        let cached = self.cached_face(candidate.slot_idx)?;
+        if !cached.retained_font_matches(&font) {
+            return None;
+        }
+        let face = cached.face();
+        if !text.chars().all(|c| face.glyph_index(c).is_some_and(|g| g.0 != 0)) {
+            return None;
+        }
+        Some(typst_core::compiler::layout::paragraph_session::MetricIdentity::for_font(
+            "fallback-primary-width-v1",
+            font,
+        ))
+    }
+
     fn text_trailing_overhang(
         &self,
         text: &str,
@@ -58,9 +104,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         }
         let mut style = TextStyle { size, ..style.clone() };
         if style.font.is_none() {
-            let primary = self.resolve_primary(&style);
-            let candidate = primary.first()?;
-            let info = self.world.book().infos().get(candidate.slot_idx)?;
+            let candidate = self.first_primary(&style)?;
+            let info = self.world.font_info(candidate.slot_idx)?;
             style.font = Some(typst_core::entities::font_list::FontList::single(
                 info.family.clone().into(),
             ));
@@ -128,7 +173,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let causal = if index == 0 { text } else { &text[range.clone()] };
             let (mut actual, x) =
                 super::basic::resolved_superscript_style(&face, causal, size, style);
-            let Some(info) = self.world.book().infos().get(candidate.slot_idx) else {
+            let Some(info) = self.world.font_info(candidate.slot_idx) else {
                 return Vec::new();
             };
             actual.font = Some(typst_core::entities::font_list::FontList::single(
@@ -208,7 +253,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // de TODO o FontBook na primeira chamada) mesmo quando a fonte
             // certa já estava na cadeia dedicada, só não tinha sido
             // consultada (`typst-passo-890-relatorio.md`).
-            let primary = self.resolve_primary_with_math_fallback(style, &variant);
+            let primary = self.primary_for_text_advance(text, style);
             // **P772o** — mesmas coordenadas de eixo que já diferenciam a
             // chave de cache (P659, `advance_width_key`) e que o shaper usa
             // para desenhar os glifos (`shaper.rs::shape`,
@@ -339,8 +384,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         // em vez da primeira fonte arbitrária do FontBook. Isto alinha o
         // line_height com a fonte efectivamente usada para renderizar.
         // As métricas tipográficas do OS/2 são preferidas, como no Typst vanilla.
-        let primary = self.resolve_primary(style);
-        if let Some(cand) = primary.first() {
+        let primary = self.first_primary(style);
+        if let Some(cand) = primary.as_ref() {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
@@ -377,12 +422,12 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// Usa `resolve_primary(style)` para escolher a mesma face que o shaper
     /// usará, em vez da primeira fonte arbitrária do FontBook.
     fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
-        let primary = self.resolve_primary(style);
+        let primary = self.first_primary(style);
 
         // Se o estilo declarou uma fonte primária, usar a primeira que
         // resolveu. Caso contrário, `resolve_primary` já aplicou a lista de
         // fallback do shaper.
-        if let Some(cand) = primary.first() {
+        if let Some(cand) = primary.as_ref() {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
@@ -423,9 +468,9 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     }
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
-        let primary = self.resolve_primary(style);
+        let primary = self.first_primary(style);
 
-        if let Some(cand) = primary.first() {
+        if let Some(cand) = primary.as_ref() {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
@@ -1808,5 +1853,151 @@ mod remaining_underline_tests {
                 .text_trailing_overhang("A.", Pt(11.0), &style, &[('.', 0.8)])
                 .is_none());
         }
+    }
+}
+
+#[cfg(test)]
+mod paragraph_owner_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use typst_core::compiler::layout::paragraph_session::ParagraphSession;
+    use typst_core::{
+        contracts::world::World,
+        entities::{
+            duration::Duration,
+            file_id::FileId,
+            font_book::FontBook,
+            font_list::FontList,
+            source::Source,
+            world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+        },
+    };
+    struct ReplacedWorld {
+        library: Library,
+        book: FontBook,
+        original: Font,
+        replacement: Font,
+        replaced: AtomicBool,
+    }
+    impl World for ReplacedWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, index: usize) -> Option<Font> {
+            (index == 0).then(|| {
+                if self.replaced.load(Ordering::Relaxed) {
+                    self.replacement.clone()
+                } else {
+                    self.original.clone()
+                }
+            })
+        }
+        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn check_replacement(replacement: &[u8], different_metrics: bool) {
+        let bytes = include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf");
+        let mut book = FontBook::new();
+        book.push(crate::fonts::font_info_from_bytes(bytes, 0).unwrap());
+        let world = ReplacedWorld {
+            library: Library::new(),
+            book,
+            original: Font::from_data(bytes.to_vec()),
+            replacement: Font::from_data(replacement.to_vec()),
+            replaced: AtomicBool::new(false),
+        };
+        let session = ParagraphSession::new();
+        let metrics = FallbackFontMetrics::with_paragraph_session(&world, &session);
+        let style = TextStyle {
+            font: Some(FontList::single("Nimbus Sans".into())),
+            ..TextStyle::regular(Pt(12.0))
+        };
+        let old = metrics.advance(" ", style.size, &style);
+        assert!(
+            metrics.paragraph_identity("words -", &style).is_some(),
+            "stable owner must certify"
+        );
+        world.replaced.store(true, Ordering::Relaxed);
+        let fresh = FallbackFontMetrics::with_paragraph_session(&world, &session);
+        assert!(
+            fresh.paragraph_identity("words -", &style).is_some(),
+            "fresh replacement must certify"
+        );
+        let new = fresh.advance(" ", style.size, &style);
+        if different_metrics {
+            assert_ne!(old, new, "real fonts must discriminate cached metric ownership");
+        } else {
+            assert_eq!(old, new);
+        }
+        assert!(
+            metrics.paragraph_identity("words -", &style).is_none(),
+            "old parsed metrics certified a different current font owner"
+        );
+    }
+    #[test]
+    fn paragraph_identity_refuses_replaced_metric_owner() {
+        check_replacement(include_bytes!("../../fixtures/fonts/DejaVuSans.ttf"), true);
+    }
+    #[test]
+    fn paragraph_identity_refuses_distinct_owner_with_equal_bytes() {
+        check_replacement(
+            include_bytes!("../../fixtures/fonts/NimbusSans-Regular.otf"),
+            false,
+        );
+    }
+}
+
+#[cfg(test)]
+mod metric_epoch_tests {
+    use super::*;
+    use typst_core::contracts::world::World;
+    #[test]
+    fn metric_epoch_real_metrics_share_only_with_clones_and_revoke() {
+        let world = crate::world::SystemWorld::for_eval(".").with_fonts_and_system(&[]);
+        let m = FallbackFontMetrics::new(&world);
+        let clone = m.clone();
+        let other = FallbackFontMetrics::new(&world);
+        let first = m.physical_epoch().expect("immutable real metrics should certify");
+        assert!(first.same(&clone.physical_epoch().unwrap()));
+        assert!(!first.same(&other.physical_epoch().unwrap()));
+        let borrowed: &dyn FontMetrics = &m;
+        assert!(
+            first.same(&FontMetrics::physical_epoch(&borrowed).unwrap()),
+            "borrowed adapter must forward epoch"
+        );
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                "Libertinus Serif".into(),
+            )),
+            ..TextStyle::regular(Pt(11.0))
+        };
+        assert_eq!(
+            m.advance("Alpha", Pt(11.0), &style),
+            clone.advance("Alpha", Pt(11.0), &style)
+        );
+        assert!(first.same(&m.physical_epoch().unwrap()));
+        let _ = world.book();
+        assert!(m.physical_epoch().is_none());
+        assert!(clone.physical_epoch().is_none());
+        // The unspecified-family route first asks for a system sans face.
+        let default_world =
+            crate::world::SystemWorld::for_eval(".").with_fonts_and_system(&[]);
+        let default_metrics = FallbackFontMetrics::new(&default_world);
+        assert!(default_metrics.physical_epoch().is_some());
+        let _ = default_metrics.advance("Alpha", Pt(11.0), &TextStyle::regular(Pt(11.0)));
+        assert!(default_metrics.physical_epoch().is_none());
     }
 }

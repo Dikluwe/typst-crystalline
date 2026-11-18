@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/traversal.md
-//! @prompt-hash 0894668d
+//! @prompt-hash 8707222b
 //! @layer L3
 //! @updated 2026-11-06
 
@@ -21,18 +21,40 @@ pub fn shape_document(world: &dyn World, doc: PagedDocument) -> PagedDocument {
 }
 pub(crate) fn shape_document_with_context(
     world: &dyn World,
-    mut doc: PagedDocument,
+    doc: PagedDocument,
     resolved: &crate::bidi_context::Resolved<'_>,
 ) -> PagedDocument {
-    // P657 — cache local de resultados de shaping. Criada por documento para
-    // evitar invalidação complexa entre mundos; reaproveita sub-runs idênticos
-    // (mesmo texto, face, direção, variações e tracking) dentro do mesmo
-    // documento, o que é comum em documentos com conteúdo repetido.
-    let mut cache = ShapeCache::new();
-    // P672 — cache local de faces ttf-parser. Evita re-parsear a mesma fonte
-    // milhares de vezes durante a segmentação por fonte.
-    let mut face_cache = FaceCache::new();
+    shape_document_with_faces(world, doc, resolved, FaceCache::new())
+}
 
+pub(crate) fn shape_document_with_raw_cache(
+    world: &dyn World,
+    doc: PagedDocument,
+    resolved: &crate::bidi_context::Resolved<'_>,
+    raw: super::cache::RawShapeStore,
+) -> PagedDocument {
+    shape_document_with_faces(world, doc, resolved, FaceCache::with_raw_store(raw))
+}
+
+pub(crate) fn shape_document_with_products(
+    world: &dyn World,
+    doc: PagedDocument,
+    resolved: &crate::bidi_context::Resolved<'_>,
+    raw: super::cache::RawShapeStore,
+    products: super::complete_session::ShapeSession,
+) -> PagedDocument {
+    let mut faces = FaceCache::with_raw_store(raw);
+    faces.attach_products(&products);
+    shape_document_with_faces(world, doc, resolved, faces)
+}
+
+fn shape_document_with_faces(
+    world: &dyn World,
+    mut doc: PagedDocument,
+    resolved: &crate::bidi_context::Resolved<'_>,
+    mut face_cache: FaceCache,
+) -> PagedDocument {
+    let mut cache = ShapeCache::new();
     for page in &mut doc.pages {
         shape_page(world, page, &mut cache, &mut face_cache, resolved);
     }

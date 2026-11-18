@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 911e6cd4
+//! @prompt-hash d3879e61
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -1360,8 +1360,7 @@ fn resolve_font_match_primeiro_devolve_bytes() {
         fonts: vec![Some(Font::from_data(bytes_esperados.clone()))],
     };
     let fl = font_list("Inria Serif");
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
-        .expect("deve resolver");
+    let got = resolve_font(&fl, &FontVariant::default(), &world).expect("deve resolver");
     assert_eq!(got, bytes_esperados);
 }
 
@@ -1375,7 +1374,7 @@ fn resolve_font_nao_match_devolve_none() {
         fonts: vec![Some(Font::from_data(vec![0]))],
     };
     let fl = font_list("Não Existe");
-    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+    assert!(resolve_font(&fl, &FontVariant::default(), &world).is_none());
 }
 
 #[test]
@@ -1386,7 +1385,7 @@ fn resolve_font_font_book_vazio_devolve_none() {
         fonts: vec![],
     };
     let fl = font_list("Qualquer");
-    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+    assert!(resolve_font(&fl, &FontVariant::default(), &world).is_none());
 }
 
 // ── Passo 141: array fallback chain ───────────────────────────────
@@ -1407,8 +1406,7 @@ fn resolve_font_lista_match_indice_0() {
         fonts: vec![Some(Font::from_data(bytes_a.clone()))],
     };
     let fl = font_list_multi(&["A", "B", "C"]);
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
-        .expect("deve resolver");
+    let got = resolve_font(&fl, &FontVariant::default(), &world).expect("deve resolver");
     assert_eq!(got, bytes_a, "primeira família vence quando existe");
 }
 
@@ -1424,8 +1422,8 @@ fn resolve_font_lista_match_indice_1() {
         fonts: vec![Some(Font::from_data(bytes_b.clone()))],
     };
     let fl = font_list_multi(&["X", "B", "C"]);
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
-        .expect("deve resolver via B");
+    let got =
+        resolve_font(&fl, &FontVariant::default(), &world).expect("deve resolver via B");
     assert_eq!(got, bytes_b, "segunda família vence quando primeira falha");
 }
 
@@ -1441,8 +1439,8 @@ fn resolve_font_lista_match_indice_2() {
         fonts: vec![Some(Font::from_data(bytes_c.clone()))],
     };
     let fl = font_list_multi(&["X", "Y", "C"]);
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
-        .expect("deve resolver via C");
+    let got =
+        resolve_font(&fl, &FontVariant::default(), &world).expect("deve resolver via C");
     assert_eq!(got, bytes_c, "terceira família vence quando duas primeiras falham");
 }
 
@@ -1458,7 +1456,7 @@ fn resolve_font_lista_sem_match_devolve_none() {
     };
     let fl = font_list_multi(&["X", "Y", "Z"]);
     assert!(
-        resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none(),
+        resolve_font(&fl, &FontVariant::default(), &world).is_none(),
         "nenhuma família resolve → fallback Helvetica via None"
     );
 }
@@ -1598,7 +1596,7 @@ fn resolve_font_regex_key_match() {
         fonts: vec![Some(Font::from_data(bytes.clone()))],
     };
     let fl = font_list_regex("Name.*");
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+    let got = resolve_font(&fl, &FontVariant::default(), &world)
         .expect("deve resolver via regex");
     assert_eq!(got, bytes);
 }
@@ -1613,7 +1611,7 @@ fn resolve_font_regex_key_no_match() {
         fonts: vec![Some(Font::from_data(vec![0xEE]))],
     };
     let fl = font_list_regex("Name.*");
-    assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+    assert!(resolve_font(&fl, &FontVariant::default(), &world).is_none());
 }
 
 #[test]
@@ -1627,7 +1625,7 @@ fn resolve_font_literal_still_works_after_p407() {
         fonts: vec![Some(Font::from_data(bytes.clone()))],
     };
     let fl = font_list("Inria Serif");
-    let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+    let got = resolve_font(&fl, &FontVariant::default(), &world)
         .expect("literal continua a resolver");
     assert_eq!(got, bytes);
 }
@@ -5712,5 +5710,675 @@ OK"#,
             &mut timings,
         );
         assert!(result.is_err(), "fallback must be a boolean");
+    }
+}
+
+#[test]
+fn subtree_pdf_session_reuses_and_invalidates() {
+    let session = PdfCompileSession::new();
+    let base = "#for i in range(5) [Paragraph #i.\n\n]";
+    let mut world = mock_world(base);
+    let options = || PdfSessionOptions {
+        full_error: false,
+        document_id: Some([7; 16]),
+        stream_mode: StreamMode::Verbose,
+        pdf_tagged_override: Some(false),
+        features: Default::default(),
+        pretty_override: None,
+        pages_override: None,
+        standard_override: None,
+    };
+    let (first, warnings, _) =
+        compile_pdf_in_session(&world, &world.source, options(), &session);
+    assert!(first.is_ok(), "{first:?}");
+    assert!(warnings.is_empty());
+    world.source = world.source.reparse(format!("Prefix\n\n{base}\n\nSuffix")).unwrap();
+    let (warm, warnings, _) =
+        compile_pdf_in_session(&world, &world.source, options(), &session);
+    assert!(warm.is_ok(), "{warm:?}");
+    assert!(warnings.is_empty());
+    assert!(session.evaluation.stats().0 > 0, "PDF facade did not reuse the intact body");
+    let hits = session.evaluation.stats().0;
+    world.source = world.source.reparse(base.replace("Paragraph", "Changed")).unwrap();
+    let (changed, _, _) =
+        compile_pdf_in_session(&world, &world.source, options(), &session);
+    assert!(changed.is_ok());
+    assert_eq!(session.evaluation.stats().0, hits);
+}
+
+#[test]
+fn subtree_pdf_session_keeps_asset_guard_after_hit() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+    let session = PdfCompileSession::new();
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    let base = "#for i in range(3) [Paragraph #i.]";
+    let mut world = mock_world(base);
+    let options = || PdfSessionOptions {
+        full_error: false,
+        document_id: None,
+        stream_mode: StreamMode::Verbose,
+        pdf_tagged_override: Some(false),
+        features,
+        pretty_override: None,
+        pages_override: None,
+        standard_override: None,
+    };
+    assert!(compile_pdf_in_session(&world, &world.source, options(), &session)
+        .0
+        .is_ok());
+    world.source = world
+        .source
+        .reparse(format!("{base}\n#asset(\"data.txt\", \"data\")"))
+        .unwrap();
+    let (result, _, _) =
+        compile_pdf_in_session(&world, &world.source, options(), &session);
+    let errors = result.unwrap_err();
+    assert!(
+        errors
+            .iter()
+            .any(|e| e.message == "assets are only supported in the bundle target"),
+        "{errors:?}"
+    );
+    assert!(session.evaluation.stats().0 > 0);
+}
+
+#[test]
+fn paragraph_pipeline_retains_real_font_products_after_prefix_edit() {
+    let mut book = FontBook::new();
+    book.push(font_info("Nimbus Sans"));
+    let font = Font::from_data(
+        std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .unwrap(),
+    );
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(font)],
+    };
+    let base="#set text(font: \"Nimbus Sans\")\n#for i in range(100) [Paragraph #i words.\n\n]";
+    let source = Source::new(world.main(), base.into()).unwrap();
+    let session = PdfCompileSession::new();
+    let compile = |source: &Source, session: &PdfCompileSession| {
+        let mut timings = Timings::default();
+        let (result, warnings) = super::paged::compile_paged_in_session(
+            &world,
+            source,
+            false,
+            Default::default(),
+            &mut timings,
+            Some(session),
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+        result.unwrap().document
+    };
+    let _ = compile(&source, &session);
+    let edited = source.reparse(base.replace("#for", "Prefix\n\n#for")).unwrap();
+    let hits = session.paragraphs.stats().0;
+    let warm = compile(&edited, &session);
+    assert!(
+        session.paragraphs.stats().0 > hits,
+        "pipeline did not retain paragraph products"
+    );
+    let cold = compile(&edited, &PdfCompileSession::new());
+    assert_eq!(warm.plain_text(), cold.plain_text());
+    assert_eq!(format!("{:?}", warm.pages), format!("{:?}", cold.pages));
+}
+
+fn paragraph_test_document(
+    world: &dyn World,
+    source: &Source,
+    session: &PdfCompileSession,
+) -> PagedDocument {
+    let mut timings = Timings::default();
+    let (result, warnings) = super::paged::compile_paged_in_session(
+        world,
+        source,
+        false,
+        Default::default(),
+        &mut timings,
+        Some(session),
+    );
+    assert!(warnings.is_empty(), "{warnings:?}");
+    result.unwrap().document
+}
+fn paragraph_test_font(name: &str) -> Font {
+    Font::from_data(
+        std::fs::read(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("fixtures/fonts")
+                .join(name),
+        )
+        .unwrap(),
+    )
+}
+fn paragraph_assert_fresh(
+    world: &dyn World,
+    source: &Source,
+    session: &PdfCompileSession,
+) {
+    let warm = paragraph_test_document(world, source, session);
+    let fresh = paragraph_test_document(world, source, &PdfCompileSession::new());
+    assert_eq!(warm.plain_text(), fresh.plain_text());
+    assert_eq!(format!("{:?}", warm.pages), format!("{:?}", fresh.pages));
+}
+#[test]
+fn paragraph_pipeline_font_replacement_and_prior_availability_invalidate() {
+    let mut book = FontBook::new();
+    book.push(font_info("First"));
+    book.push(font_info("Second"));
+    let mut world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![None, Some(paragraph_test_font("NimbusSans-Regular.otf"))],
+    };
+    let source=Source::new(world.main(),"#set text(font: (\"First\", \"Second\"))\n#for i in range(5) [Paragraph #i words.\n\n]".into()).unwrap();
+    let session = PdfCompileSession::new();
+    let _ = paragraph_test_document(&world, &source, &session);
+    paragraph_assert_fresh(&world, &source, &session);
+    assert!(session.paragraphs.stats().0 > 0);
+    world.fonts[0] = Some(paragraph_test_font("Cantarell-VF.otf"));
+    let misses = session.paragraphs.stats().1;
+    paragraph_assert_fresh(&world, &source, &session);
+    assert!(
+        session.paragraphs.stats().1 > misses,
+        "newly available earlier font must miss old owner"
+    );
+    world.fonts[0] = Some(paragraph_test_font("NotoSans-Regular.ttf"));
+    let misses = session.paragraphs.stats().1;
+    paragraph_assert_fresh(&world, &source, &session);
+    assert!(
+        session.paragraphs.stats().1 > misses,
+        "same slot with replaced bytes must miss"
+    );
+}
+#[test]
+fn paragraph_pipeline_style_width_and_axes_match_fresh() {
+    let mut book = FontBook::new();
+    book.push(font_info("Cantarell"));
+    let world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(paragraph_test_font("Cantarell-VF.otf"))],
+    };
+    let session = PdfCompileSession::new();
+    let base="#set page(width:240pt, height:300pt, margin:12pt)\n#set text(font:\"Cantarell\",size:11pt)\n#for i in range(5) [Paragraph #i words more words.\n\n]";
+    let source = Source::new(world.main(), base.into()).unwrap();
+    let _ = paragraph_test_document(&world, &source, &session);
+    for text in [
+        base.replace("240pt", "180pt"),
+        base.replace("size:11pt", "size:18pt"),
+        base.replace("size:11pt", "size:11pt, weight:700"),
+        base.replace("size:11pt", "size:11pt, variations:(wght:750)"),
+    ] {
+        let edited = source.reparse(text).unwrap();
+        let misses = session.paragraphs.stats().1;
+        paragraph_assert_fresh(&world, &edited, &session);
+        assert!(
+            session.paragraphs.stats().1 > misses,
+            "changed horizontal dependency must miss"
+        );
+    }
+}
+
+#[test]
+fn paragraph_context_outline_reuses_body_products_and_matches_fresh() {
+    let mut book = FontBook::new();
+    book.push(font_info("Nimbus Sans"));
+    let mut world = FontMockWorld {
+        library: Library::new(),
+        book,
+        fonts: vec![Some(paragraph_test_font("NimbusSans-Regular.otf"))],
+    };
+    let base="#set text(font: \"Nimbus Sans\")\n#set page(width:400pt,height:600pt)\n#outline()\nAlpha\n#for i in range(12) [= Heading #i\n#lorem(30)\n#pagebreak()]";
+    let source = Source::new(world.main(), base.into()).unwrap();
+    let session = PdfCompileSession::new();
+    let _ = paragraph_test_document(&world, &source, &session);
+    let hits = session.paragraphs.stats().0;
+    let edited = source.reparse(base.replace("Alpha", "Beta")).unwrap();
+    paragraph_assert_fresh(&world, &edited, &session);
+    assert!(
+        session.paragraphs.stats().0 > hits,
+        "context path did not retain direct paragraph bodies"
+    );
+    for text in [base.replace("400pt", "300pt"), base.replace("Heading", "Changed title")]
+    {
+        let edited = source.reparse(text).unwrap();
+        paragraph_assert_fresh(&world, &edited, &session);
+    }
+    world.fonts[0] = Some(paragraph_test_font("DejaVuSans.ttf"));
+    let misses = session.paragraphs.stats().1;
+    paragraph_assert_fresh(&world, &source, &session);
+    assert!(
+        session.paragraphs.stats().1 > misses,
+        "replaced font must miss contextual products"
+    );
+}
+
+#[test]
+fn lab_block_independence_reuses_complete_candidate() {
+    for body in [
+        "#block[#for i in range(40) [Line #i text words. #parbreak()]] OUTSIDE",
+        "#block(inset: 2pt, fill: yellow, stroke: 1pt)[#block[#for i in range(40) [Line #i text words. #parbreak()]]] OUTSIDE",
+        "#block(breakable: false, width: 80pt, height: 30pt, clip: true)[Line zero] OUTSIDE",
+    ] {
+        let world=mock_world(&format!("#set page(width:200pt,height:120pt,margin:10pt)\n{body}"));
+        INITIAL_LAYOUT_CALLS.with(|n|n.set(0));
+        let (result,_)=compile_to_paged_document_full_error(&world,&world.source,false,&mut Timings::default());
+        let doc=result.expect("independent block compiles");
+        assert!(doc.plain_text().contains("Line") && doc.plain_text().contains("OUTSIDE"));
+        for (i,p) in doc.pages.iter().enumerate(){assert_eq!(p.logical_number,i+1);}
+        INITIAL_LAYOUT_CALLS.with(|n|assert_eq!(n.get(),1,"complete page-independent Block candidate must be reused: {body}"));
+    }
+}
+
+#[test]
+fn lab_block_independence_keeps_numbering_context_and_unknown_fallback() {
+    for source in [
+        "#set page(numbering:\"1 / 1\")\n#block[A]",
+        "#block[A #context [#counter(page).final().first()]]",
+        "#block[$x$]",
+    ] {
+        let world = mock_world(source);
+        INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        assert!(result.is_ok(), "{result:?}");
+        let (module, _) = eval_to_module_with_sink(&world, &world.source);
+        assert!(
+            !paged::initial_layout_independent(module.unwrap().content().unwrap()),
+            "unproved/numbered block must remain outside the reuse proof: {source}"
+        );
+        if source.contains("numbering:") {
+            let doc = result.unwrap();
+            assert_eq!(frame_items_text(&doc.pages[0].foreground), "1 / 1");
+        }
+    }
+}
+
+#[test]
+fn lab_pad_complete_candidate_is_reused() {
+    for body in [
+        "#pad(left:2pt,right:3pt,top:1pt,bottom:4pt)[#for i in range(40) [Line #i words. #parbreak()]] OUTSIDE",
+        "#pad(left:1em,right:2em)[#block[#pad(top:2pt)[Line words]]] OUTSIDE",
+    ] {
+        let world=mock_world(&format!("#set page(width:200pt,height:120pt,margin:10pt)\n{body}"));
+        INITIAL_LAYOUT_CALLS.with(|n|n.set(0));
+        let (result,_)=compile_to_paged_document_full_error(&world,&world.source,false,&mut Timings::default());
+        let doc=result.expect("independent Pad compiles");
+        assert!(doc.plain_text().contains("Line") && doc.plain_text().contains("OUTSIDE"));
+        for (i,p) in doc.pages.iter().enumerate(){assert_eq!(p.logical_number,i+1);}
+        INITIAL_LAYOUT_CALLS.with(|n|assert_eq!(n.get(),1,"complete independent Pad candidate must be reused: {body}"));
+    }
+}
+#[test]
+fn lab_pad_keeps_unknown_and_contextual_dependencies_outside_proof() {
+    for source in [
+        "#pad[Total #context counter(page).final().first()]",
+        "#pad[$x$]",
+        "#set page(numbering: \"1 / 1\")\n#pad[A]",
+        "#let s=state(\"x\",0)\n#pad[#s.update(1) #context s.get()]",
+    ] {
+        let world = mock_world(source);
+        let (module, _) = eval_to_module_with_sink(&world, &world.source);
+        assert!(
+            !paged::initial_layout_independent(module.unwrap().content().unwrap()),
+            "{source}"
+        );
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        assert!(result.is_ok(), "{result:?}");
+    }
+}
+
+#[test]
+fn lab_align_complete_candidate_is_reused() {
+    for (page, body) in [
+        (
+            "width:200pt,height:120pt,margin:10pt",
+            "#align(center)[#for i in range(40) [Line #i words. #parbreak()]] OUTSIDE",
+        ),
+        (
+            "width:200pt,height:120pt,margin:10pt",
+            "#align(right)[#pad(left:1em)[#block[#align(left)[Line words]]]] OUTSIDE",
+        ),
+        (
+            "width:200pt,height:120pt,margin:10pt",
+            "#align(bottom+right)[Line words] OUTSIDE",
+        ),
+        (
+            "width:auto,height:auto,margin:10pt",
+            "#align(horizon+center)[Line words] OUTSIDE",
+        ),
+    ] {
+        let world = mock_world(&format!("#set page({page})\n{body}"));
+        INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        let doc = result.expect("independent Align compiles");
+        assert!(
+            doc.plain_text().contains("Line") && doc.plain_text().contains("OUTSIDE")
+        );
+        for (i, p) in doc.pages.iter().enumerate() {
+            assert_eq!(p.logical_number, i + 1);
+        }
+        INITIAL_LAYOUT_CALLS.with(|n| {
+            assert_eq!(
+                n.get(),
+                1,
+                "complete independent Align candidate must be reused: {body}"
+            )
+        });
+    }
+}
+#[test]
+fn lab_align_keeps_unknown_and_contextual_dependencies_outside_proof() {
+    for source in [
+        "#align(center)[Total #context counter(page).final().first()]",
+        "#align(center)[$x$]",
+        "#set page(numbering: \"1 / 1\")\n#align(center)[A]",
+        "#let s=state(\"x\",0)\n#align(center)[#s.update(1) #context s.get()]",
+        "#align(center)[#place(top)[A]]",
+        "#metadata(1) <m>\n#align(center)[#context query(<m>).first().value]",
+    ] {
+        let world = mock_world(source);
+        let (module, _) = eval_to_module_with_sink(&world, &world.source);
+        assert!(
+            !paged::initial_layout_independent(module.unwrap().content().unwrap()),
+            "{source}"
+        );
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        assert!(result.is_ok(), "{result:?}");
+    }
+}
+
+#[test]
+fn lab_legacy_certificate_reuses_only_after_real_page_snapshot() {
+    for body in [
+        "#context counter(page).final().first()",
+        "#align(center)[#context counter(page).final().first()]",
+        "#pad(left:2pt)[#context counter(page).final().first()]",
+    ] {
+        let world = mock_world(body);
+        INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        let doc = result.expect("context compiles");
+        assert_eq!(
+            doc.plain_text().trim(),
+            "1",
+            "final page counter must use real snapshot"
+        );
+        INITIAL_LAYOUT_CALLS.with(|n|assert_eq!(n.get(),2,"valid physical candidate after real snapshot must avoid third layout: {body}"));
+    }
+}
+#[test]
+fn lab_legacy_certificate_rejects_external_date_dependency() {
+    let world = crate::world::SystemWorld::for_stdin(
+        ".",
+        "#context [#repr(datetime.today(offset:0))]".into(),
+    );
+    let source = world.source(world.main()).unwrap();
+    INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &source,
+        false,
+        &mut Timings::default(),
+    );
+    assert!(result.is_ok(), "{result:?}");
+    INITIAL_LAYOUT_CALLS.with(|n| {
+        assert_eq!(n.get(), 3, "untracked date dependency must retain conservative cycle")
+    });
+}
+
+#[test]
+fn lab_legacy_certificate_preserves_changing_world_reads() {
+    struct ChangingReadWorld {
+        base: crate::world::SystemWorld,
+        reads: std::sync::atomic::AtomicUsize,
+    }
+    impl World for ChangingReadWorld {
+        fn library(&self) -> &typst_core::entities::world_types::Library {
+            self.base.library()
+        }
+        fn book(&self) -> &typst_core::entities::font_book::FontBook {
+            self.base.book()
+        }
+        fn main(&self) -> FileId {
+            self.base.main()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            self.base.source(id)
+        }
+        fn file(&self, id: FileId) -> FileResult<Bytes> {
+            self.base.file(id)
+        }
+        fn font(&self, index: usize) -> Option<Font> {
+            self.base.font(index)
+        }
+        fn today(
+            &self,
+            offset: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            self.base.today(offset)
+        }
+        fn resolve_path(
+            &self,
+            id: FileId,
+            path: &str,
+        ) -> Result<typst_core::entities::path::RootedPath, String> {
+            self.base.resolve_path(id, path)
+        }
+        fn read_path(
+            &self,
+            _path: &typst_core::entities::path::RootedPath,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            let value = self.reads.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
+            Ok(Arc::new(value.to_string().into_bytes()))
+        }
+    }
+    let world = ChangingReadWorld {
+        base: crate::world::SystemWorld::for_stdin(
+            ".",
+            "#context read(\"volatile.txt\")".into(),
+        ),
+        reads: std::sync::atomic::AtomicUsize::new(0),
+    };
+    let source = world.source(world.main()).unwrap();
+    INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("forwarded read succeeds");
+    assert_eq!(
+        doc.plain_text().trim(),
+        "3",
+        "external reads must not reuse the second result"
+    );
+    assert_eq!(world.reads.load(std::sync::atomic::Ordering::SeqCst), 3);
+    INITIAL_LAYOUT_CALLS.with(|n| assert_eq!(n.get(), 3));
+}
+
+#[test]
+fn lab_legacy_certificate_rejects_markup_source_reads() {
+    for body in [
+        "#context [Total: #counter(page).final().first()]",
+        "#align(center)[#context [Total: #counter(page).final().first()]]",
+        "#pad(left:2pt)[#context [Total: #counter(page).final().first()]]",
+    ] {
+        let world = mock_world(body);
+        INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+        let (result, _) = compile_to_paged_document_full_error(
+            &world,
+            &world.source,
+            false,
+            &mut Timings::default(),
+        );
+        let doc = result.expect("markup context compiles");
+        assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "Total:1");
+        INITIAL_LAYOUT_CALLS.with(|n| {
+            eprintln!("MARKUP CONTROL layouts={} body={body}", n.get());
+            assert_eq!(
+                n.get(),
+                3,
+                "markup source dependency must retain conservative cycle"
+            );
+        });
+    }
+}
+
+#[test]
+fn lab_immutable_source_reuses_markup_after_real_snapshot() {
+    for body in [
+        "#context [Total: #counter(page).final().first()]",
+        "#align(center)[#context [Total: #counter(page).final().first()]]",
+        "#pad(left:2pt)[#context [Total: #counter(page).final().first()]]",
+    ] {
+        let world = crate::world::SystemWorld::for_stdin(".", body.into());
+        let source = world.source(world.main()).unwrap();
+        INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+        let (doc, _) = compile_to_paged_document_full_error(
+            &world,
+            &source,
+            false,
+            &mut Timings::default(),
+        );
+        assert_eq!(
+            doc.unwrap().plain_text().split_whitespace().collect::<String>(),
+            "Total:1"
+        );
+        INITIAL_LAYOUT_CALLS.with(|n| {
+            assert_eq!(
+                n.get(),
+                2,
+                "immutable input authority must avoid third markup layout: {body}"
+            )
+        });
+    }
+}
+
+#[test]
+fn lab_immutable_source_rejects_equal_text_different_revision() {
+    let body = "#context [Total: #counter(page).final().first()]";
+    let world = crate::world::SystemWorld::for_stdin(".", body.into());
+    let authority = world.source(world.main()).unwrap();
+    let source = Source::new(authority.id(), body.into()).unwrap();
+    assert_eq!(source, authority);
+    assert!(!std::ptr::eq(source.root(), authority.root()));
+    INITIAL_LAYOUT_CALLS.with(|n| n.set(0));
+    let (doc, _) = compile_to_paged_document_full_error(
+        &world,
+        &source,
+        false,
+        &mut Timings::default(),
+    );
+    assert_eq!(
+        doc.unwrap().plain_text().split_whitespace().collect::<String>(),
+        "Total:1"
+    );
+    INITIAL_LAYOUT_CALLS.with(|n| {
+        assert_eq!(n.get(), 3, "same id/hash/bytes cannot certify another revision")
+    });
+}
+
+#[test]
+fn origin_certificate_preserves_closed_heading_owner_and_fields() {
+    use typst_core::entities::elements::heading::HeadingElem;
+    let mut elem = HeadingElem::new_with_outlined_and_bookmarked(
+        3,
+        Content::sequence(vec![
+            Content::strong(Content::text("A")),
+            Content::Space,
+            Content::emph(Content::text("B")),
+        ]),
+        false,
+        Some(true),
+    );
+    elem.set_fields = 7;
+    let owner = Arc::new(elem);
+    let source = Content::Heading(owner.clone());
+    let resolved = HashMap::from([(999, Content::text("unrelated"))]);
+    let mut out = source.clone();
+    for _ in 0..4 {
+        out = substitute_context_blocks(out, &resolved);
+        let Content::Heading(h) = &out else { panic!("heading morphology") };
+        assert!(Arc::ptr_eq(&owner, h), "certified source heading must retain its owner");
+        assert_eq!(
+            (h.level, h.outlined, h.bookmarked, h.set_fields),
+            (3, false, Some(true), 7)
+        );
+        assert_eq!(h.body.plain_text(), "A B");
+    }
+    let Content::Heading(other) = Content::heading(3, owner.body.clone()) else {
+        unreachable!()
+    };
+    let Content::Heading(mapped) =
+        substitute_context_blocks(Content::Heading(other.clone()), &resolved)
+    else {
+        unreachable!()
+    };
+    assert!(Arc::ptr_eq(&other, &mapped));
+    assert!(!Arc::ptr_eq(&owner, &mapped), "equal origins must never coalesce");
+}
+#[test]
+fn origin_certificate_context_resolutions_still_change_and_do_not_mutate_source() {
+    let source = Content::heading(2, dummy_context_block(77));
+    let Content::Heading(owner) = &source else { unreachable!() };
+    for text in ["A", "B"] {
+        let out = substitute_context_blocks(
+            source.clone(),
+            &HashMap::from([(77, Content::text(text))]),
+        );
+        let Content::Heading(mapped) = out else { unreachable!() };
+        assert!(!Arc::ptr_eq(owner, &mapped));
+        assert_eq!(mapped.body.plain_text(), text);
+        assert!(matches!(owner.body, Content::ContextBlock(_)));
+    }
+}
+#[test]
+fn origin_certificate_bounds_and_unknown_carriers_decline_shortcut() {
+    let mut deep = Content::text("X");
+    for _ in 0..10 {
+        deep = Content::strong(deep);
+    }
+    for body in [
+        Content::text("X".repeat(16385)),
+        Content::sequence(vec![Content::Space; 129]),
+        deep,
+        Content::heading(1, Content::text("nested")),
+    ] {
+        let Content::Heading(owner) = Content::heading(1, body) else { unreachable!() };
+        let out =
+            substitute_context_blocks(Content::Heading(owner.clone()), &HashMap::new());
+        let Content::Heading(mapped) = out else { unreachable!() };
+        assert!(!Arc::ptr_eq(&owner, &mapped), "uncertified heading must keep fallback");
     }
 }

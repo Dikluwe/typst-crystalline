@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash e1cb3bf3
+//! @prompt-hash a6a07426
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -89,9 +89,18 @@ fn page_independent_style(key: &str, value: &Value, captured: bool) -> bool {
 }
 
 pub(super) fn initial_layout_independent(content: &Content) -> bool {
+    layout_input_certified(content, &|_| false)
+}
+
+pub(super) fn layout_input_certified(
+    content: &Content,
+    contextual: &impl Fn(&Content) -> bool,
+) -> bool {
+    let certify = |body: &Content| layout_input_certified(body, contextual);
     let optional =
-        |body: &Option<Content>| body.as_ref().is_none_or(initial_layout_independent);
+        |body: &Option<Content>| body.as_ref().is_none_or(certify);
     match content {
+        Content::ContextBlock(..) => contextual(content),
         Content::Empty
         | Content::Text(_)
         | Content::Space
@@ -103,43 +112,46 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         | Content::Pagebreak(_)
         | Content::Colbreak(_)
         | Content::Linebreak(_) => true,
-        Content::Sequence(parts) => parts.iter().all(initial_layout_independent),
-        Content::Par { body } => initial_layout_independent(body),
-        Content::Strong(elem) => initial_layout_independent(&elem.body),
-        Content::Emph(elem) => initial_layout_independent(&elem.body),
-        Content::Source(elem) => initial_layout_independent(&elem.body),
-        Content::Located(elem) => initial_layout_independent(&elem.body),
+        Content::Sequence(parts) => parts.iter().all(certify),
+        Content::Par { body } => certify(body),
+        Content::Strong(elem) => certify(&elem.body),
+        Content::Block(elem) => certify(&elem.body),
+        Content::Pad(elem) => certify(&elem.body),
+        Content::Align(elem) => certify(&elem.body),
+        Content::Emph(elem) => certify(&elem.body),
+        Content::Source(elem) => certify(&elem.body),
+        Content::Located(elem) => certify(&elem.body),
         Content::Realized(elem) => {
-            initial_layout_independent(&elem.original)
-                && initial_layout_independent(&elem.visual)
+            certify(&elem.original)
+                && certify(&elem.visual)
         }
         Content::Styled(elem) => {
             let scalar_styles =
                 elem.styles.delta().custom.iter().all(|(key, value)| {
                     page_independent_style(key.as_str(), value, false)
                 });
-            scalar_styles && initial_layout_independent(&elem.body)
+            scalar_styles && certify(&elem.body)
         }
         Content::Table(elem) => {
             elem.resolved
                 .as_ref()
                 .map_or(elem.items.as_ref().unwrap_or(&elem.children), |r| &r.cells)
                 .iter()
-                .all(initial_layout_independent)
+                .all(certify)
                 && (elem.resolved.is_some()
                     || elem.items.is_some()
                     || (optional(&elem.header) && optional(&elem.footer)))
                 && optional(&elem.caption)
         }
         Content::Grid(elem) => {
-            elem.cells.iter().all(initial_layout_independent)
+            elem.cells.iter().all(certify)
                 && optional(&elem.header)
                 && optional(&elem.footer)
         }
-        Content::TableCell(elem) => initial_layout_independent(
+        Content::TableCell(elem) => certify(
             elem.resolved.as_ref().map_or(&elem.body, |r| &r.visual),
         ),
-        Content::GridCell(elem) => initial_layout_independent(&elem.body),
+        Content::GridCell(elem) => certify(&elem.body),
         Content::SetPage(delta) => {
             let marginal = |value: &Option<
                 typst_core::entities::page_running::PageMarginal,
@@ -214,7 +226,6 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         | Content::GridHeader(..)
         | Content::GridFooter(..)
         | Content::PageRun(..)
-        | Content::Align(..)
         | Content::Place(..)
         | Content::Flush(..)
         | Content::Divider(..)
@@ -230,11 +241,9 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         | Content::Strike(..)
         | Content::Overline(..)
         | Content::SmallCaps { .. }
-        | Content::Pad(..)
         | Content::Hide(..)
         | Content::Stack(..)
         | Content::Boxed(..)
-        | Content::Block(..)
         | Content::Bibliography(..)
         | Content::Cite(..)
         | Content::Footnote(..)
@@ -252,7 +261,6 @@ pub(super) fn initial_layout_independent(content: &Content) -> bool {
         | Content::StateUpdate(..)
         | Content::StateDisplay(..)
         | Content::CounterDisplayCallback(..)
-        | Content::ContextBlock(..)
         | Content::Dynamic(..) => false, // Unproved: retain the ordinary complete layout cycle.
     }
 }
@@ -597,7 +605,8 @@ pub(super) fn realize_outlines_for_pipeline(
     if same_carrier {
         return (Ok((first, introspector.clone())), warnings);
     }
-    let observed = introspect_with_introspector(&first).outline_prefix_widths;
+    let observed =
+        std::mem::take(&mut introspect_with_introspector(&first).outline_prefix_widths);
     let mut stabilized = introspector.clone();
     if observed != stabilized.outline_prefix_widths {
         stabilized.outline_prefix_widths = observed;
@@ -720,9 +729,10 @@ fn expand_realized_outline_contexts(
             .any(|old| Arc::ptr_eq(old, elem))
             .then_some(Content::Empty))
     })?;
-    let realized_topology = introspect_with_introspector(&content);
+    let mut realized_topology = introspect_with_introspector(&content);
     let mut contextual_intr = introspector.clone();
-    contextual_intr.context_block_locations = realized_topology.context_block_locations;
+    contextual_intr.context_block_locations =
+        std::mem::take(&mut realized_topology.context_block_locations);
     context_stabilization::expand_legacy(content, &contextual_intr, world, source)
 }
 
@@ -769,13 +779,25 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
     features: typst_core::entities::compiler_features::Features,
     timings: &mut Timings,
 ) -> (SourceResult<PagedCompilation>, Vec<SourceDiagnostic>) {
+    compile_paged_in_session(world, source, full_error, features, timings, None)
+}
+
+pub(super) fn compile_paged_in_session(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    features: typst_core::entities::compiler_features::Features,
+    timings: &mut Timings,
+    session: Option<&super::pdf::PdfCompileSession>,
+) -> (SourceResult<PagedCompilation>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
-    let (eval_result, mut warnings) = eval_to_module_with_sink_target_features(
+    let (eval_result, mut warnings) = eval_to_module_in_session(
         world,
         source,
         full_error,
         EvalTarget::Paged,
         features,
+        session.map(|session| &session.evaluation),
     );
     let t1 = Instant::now();
     timings.eval_ms = duration_ms(t1.duration_since(t0));
@@ -830,15 +852,16 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
-    let (prepared, contextual_warnings) = context_stabilization::prepare(
-        content.clone(),
-        &intr,
-        world,
-        source,
-        full_error,
-        features,
-        Some(&module),
-    );
+    let (prepared, contextual_warnings) =
+        context_stabilization::prepare_with_paragraph_session(
+            content.clone(),
+            &intr,
+            world,
+            source,
+            full_error,
+            features,
+            (Some(&module), session.map(|s| (&s.paragraphs, &s.shaping))),
+        );
     warnings.extend(contextual_warnings);
     let prepared = match prepared {
         Ok(prepared) => prepared,
@@ -905,7 +928,14 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                 let mut final_realized_content = realized_content.clone();
                 // One World and one compilation: let the second numbering candidate
                 // reuse font/shaping caches warmed by the first layout.
-                let layout_metrics = FallbackFontMetrics::new(world);
+                let layout_metrics = match session {
+                    Some(session) => FallbackFontMetrics::with_product_sessions(
+                        world,
+                        &session.paragraphs,
+                        &session.shaping,
+                    ),
+                    None => FallbackFontMetrics::new(world),
+                };
                 let (mut doc, callback_warnings) =
                     match layout_with_realized_math_callbacks_with_metrics(
                         &realized_content,
@@ -918,6 +948,7 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                         Err(errors) => return Err(errors),
                     };
                 warnings.extend(callback_warnings);
+                let mut legacy_certificate: Option<context_stabilization::LegacyCertificate<'_>> = None;
                 let reuse_initial_layout =
                     initial_layout_independent(&contextual_content)
                         && initial_layout_independent(&realized_content)
@@ -973,13 +1004,17 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                     warnings.extend(numbering_warnings);
                     layout_intr.inject_positions(doc.extracted_positions.clone());
                     layout_intr.inject_pages(store.clone());
-                    if reuse_initial_layout {
+                    if reuse_initial_layout || (doc.pages.iter().all(|p| p.numbering.is_none())
+                        && legacy_certificate.as_ref().is_some_and(|proof|
+                            proof.reusable_for(&layout_intr, &final_realized_content))) {
                         break;
                     }
+                    // Invalid records never overlap a new legacy expansion.
+                    drop(legacy_certificate.take());
                     // `location.page-numbering()` vive em `context`; a primeira expansão
                     // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
                     // snapshot anterior é parte do fixpoint, não um default falso.
-                    let expanded = match context_stabilization::expand_legacy(
+                    let (expanded, next_certificate) = match context_stabilization::expand_legacy_certified(
                         contextual_content.clone(),
                         &layout_intr,
                         world,
@@ -1046,6 +1081,7 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                             || layout_intr.context_block_locations.is_empty());
                     final_realized_content = realized_content;
                     doc = next;
+                    legacy_certificate = next_certificate;
                     if converged {
                         break;
                     }
@@ -1150,7 +1186,21 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
         }
     };
 
-    let doc = crate::shaper::shape_document_with_context(world, doc, &bidi_resolved);
+    let doc = match ordinary_layout_metrics.as_ref().or(selected_layout_metrics.as_ref())
+    {
+        Some(metrics) => metrics.shape_document_with_context(doc, &bidi_resolved),
+        None => match session {
+            Some(session) => FallbackFontMetrics::with_product_sessions(
+                world,
+                &session.paragraphs,
+                &session.shaping,
+            )
+            .shape_document_with_context(doc, &bidi_resolved),
+            None => {
+                crate::shaper::shape_document_with_context(world, doc, &bidi_resolved)
+            }
+        },
+    };
     let doc = match ordinary_layout_metrics.as_ref().or(selected_layout_metrics.as_ref())
     {
         Some(metrics) => crate::shaper::fix_line_positions_with_metrics(doc, metrics),

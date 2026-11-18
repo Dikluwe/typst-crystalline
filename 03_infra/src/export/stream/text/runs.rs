@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash 54b1db4c
+//! @prompt-hash dcf87d9c
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -258,7 +258,8 @@ mod tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: 'A',
-                }].into(),
+                }]
+                .into(),
                 style: style.clone(),
                 units_per_em: 2048,
                 bidi: None,
@@ -315,7 +316,8 @@ mod readiness_unicode_tests {
                     y_offset: 0,
                     cluster: 0,
                     char_code: ch,
-                }].into(),
+                }]
+                .into(),
             })
             .collect();
         let page = Page {

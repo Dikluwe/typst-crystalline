@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link.md
-//! @prompt-hash 4cc130db
+//! @prompt-hash 0355e99a
 //! @layer L1
 //! @updated 2026-11-07
 //!
@@ -52,14 +52,14 @@ pub(super) fn link_bbox<M: FontMetrics>(
         match item {
             FrameItem::TextSeparator { .. } => {}
             FrameItem::Text { pos, text, style, .. } => {
-                let w = metrics.advance(text.as_str(), style.size, style).0;
+                let w = metrics.text_width(text.as_str(), style.size, style).0;
                 let (ascender, line_height) = metrics.vertical_metrics(style.size, style);
                 let asc_pt = ascender.val();
                 let h_pt = line_height.val();
                 expand(pos.x.0, pos.y.0 - asc_pt, w, h_pt);
             }
             FrameItem::TextShaped { pos, text, style, .. } => {
-                let w = metrics.advance(text.as_str(), style.size, style).0;
+                let w = metrics.text_width(text.as_str(), style.size, style).0;
                 let (ascender, line_height) = metrics.vertical_metrics(style.size, style);
                 let asc_pt = ascender.val();
                 let h_pt = line_height.val();
@@ -119,6 +119,88 @@ mod tests {
     use crate::entities::layout_types::{FrameItem, Pt, Size, TextStyle};
     use comemo::Track;
     use std::sync::Arc;
+
+    struct WidthContract;
+    impl FontMetrics for WidthContract {
+        fn advance(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(77.0)
+        }
+        fn text_width(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(19.0)
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(8.0), Pt(12.0))
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            Pt(8.0)
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(8.0), Pt(2.0))
+        }
+    }
+    struct DefaultWidth(Option<Pt>);
+    impl FontMetrics for DefaultWidth {
+        fn advance(&self, _: &str, _: Pt, _: &TextStyle) -> Pt {
+            Pt(77.0)
+        }
+        fn advance_shaped(&self, _: &str, _: Pt, _: &TextStyle) -> Option<Pt> {
+            self.0
+        }
+        fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(8.0), Pt(12.0))
+        }
+        fn cap_height(&self, _: Pt, _: &TextStyle) -> Pt {
+            Pt(8.0)
+        }
+        fn text_edges(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (Pt(8.0), Pt(2.0))
+        }
+    }
+    fn width_carrier(shaped: bool, style: TextStyle) -> FrameItem {
+        let pos = Point { x: Pt(10.0), y: Pt(20.0) };
+        if shaped {
+            FrameItem::TextShaped {
+                pos,
+                text: "ABC".into(),
+                style,
+                bidi: None,
+                glyphs: vec![].into(),
+                units_per_em: 1000,
+                font: None,
+            }
+        } else {
+            FrameItem::Text { pos, text: "ABC".into(), style, bidi: None }
+        }
+    }
+    #[test]
+    fn authoritative_width_dispatch_preserves_override_for_both_carriers() {
+        for shaped in [false, true] {
+            let (pos, size) = link_bbox(
+                &[width_carrier(shaped, TextStyle::regular(Pt(10.0)))],
+                &WidthContract,
+            );
+            assert_eq!((pos.x.0,pos.y.0,size.width.0,size.height.0), (10.0,12.0,19.0,12.0), "link bounds must honor the injected text_width contract, carrier shaped={shaped}");
+        }
+    }
+    #[test]
+    fn authoritative_width_default_keeps_shaping_tracking_and_fallback() {
+        for shaped in [false, true] {
+            let mut style = TextStyle::regular(Pt(10.0));
+            style.tracking = Some(crate::entities::layout_types::Length::pt(2.0));
+            for (advance, expected) in
+                [(Some(Pt(7.0)), 11.0), (Some(Pt(0.0)), 4.0), (None, 81.0)]
+            {
+                let (_, size) = link_bbox(
+                    &[width_carrier(shaped, style.clone())],
+                    &DefaultWidth(advance),
+                );
+                assert_eq!(
+                    size.width.0, expected,
+                    "link bounds must use shaped width and tracking, retaining fallback"
+                );
+            }
+        }
+    }
 
     #[test]
     fn text_link_bbox_uses_total_line_height_without_adding_ascender() {

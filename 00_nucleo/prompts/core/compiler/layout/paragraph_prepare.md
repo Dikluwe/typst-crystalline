@@ -1,12 +1,15 @@
 # L0 — paragraph_prepare
-Hash do Código: e7be8dca
+Hash do Código: cd543d8f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+
+
 
 
 **Layer:** L1
@@ -123,3 +126,31 @@ positive/zero widow controls, exact punctuation/adjacency and rejection controls
 bilateral full-prose and reduced-case line/page membership, spacing/leading,
 paragraph/overflow geometry at the original tolerance, plus complete gates.
 This does not certify arbitrary punctuation or all incremental paragraphs.
+
+
+## Laboratory paragraph products — 2026-11-12
+
+Evidence: subtree-layout-admission/receipt.json binds actual repeated preparation
+and refusal counts; paragraph_prepare.rs:234–337 constructs the product using
+current metrics; paragraph_emit.rs:30–57 places it using fresh region state.
+subtree-validation/layout-boundary-audit.json binds source identities and limits.
+This is a mechanics experiment; user waived lab approvals, no integration.
+
+
+Derive Clone for Prepared solely to support owned immutable products; retain all preparation admission, source transparency, styles, measurement and hyphenation behavior.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

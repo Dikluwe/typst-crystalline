@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/font_list.md
-//! @prompt-hash 535cfa0f
+//! @prompt-hash 2655bef0
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -18,6 +18,7 @@
 //! aceites.
 
 use ecow::EcoString;
+use std::sync::Arc;
 
 use crate::entities::regex::Regex;
 
@@ -136,7 +137,7 @@ impl FontFamily {
 
 /// Lista priorizada de famílias. Non-empty por construção.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct FontList(Vec<FontFamily>);
+pub struct FontList(Arc<[FontFamily]>);
 
 impl FontList {
     /// Constrói lista a partir de vector non-empty.
@@ -146,14 +147,14 @@ impl FontList {
         if families.is_empty() {
             None
         } else {
-            Some(Self(families))
+            Some(Self(families.into()))
         }
     }
 
     /// Constrói lista com uma única família literal (forma string do
     /// vanilla), variants vazio.
     pub fn single(name: EcoString) -> Self {
-        Self(vec![FontFamily::new(name)])
+        Self(vec![FontFamily::new(name)].into())
     }
 
     /// Slice das famílias (prioridade = ordem).
@@ -323,7 +324,7 @@ mod tests {
     }
 
     #[test]
-    fn font_list_clone_o1_via_ecow_passo_132b() {
+    fn font_list_clone_preserva_valores_passo_132b() {
         let a = FontList::single(EcoString::from("arial"));
         let b = a.clone();
         assert_eq!(a, b);
@@ -340,5 +341,156 @@ mod tests {
     fn font_list_is_empty_sempre_false_passo_132b() {
         let list = FontList::single(EcoString::from("arial"));
         assert!(!list.is_empty());
+    }
+    fn shared_fixture() -> FontList {
+        FontList::new(vec![
+            FontFamily::new_named(
+                FontNamePattern::Literal("first".into()),
+                vec!["Regular".into(), "Bold".into()],
+                Some("SemiBold".into()),
+                Some("600".into()),
+                Some("italic".into()),
+            ),
+            FontFamily::new_regex(Regex::new("Fallback.*").unwrap(), vec!["Book".into()]),
+            FontFamily::new("last".into()),
+        ])
+        .unwrap()
+    }
+    #[test]
+    fn shared_font_list_clone_reuses_complete_immutable_payload() {
+        let original = shared_fixture();
+        let clone = original.clone();
+        assert_eq!(original.as_slice(), clone.as_slice());
+        assert_eq!(
+            original.as_slice().as_ptr(),
+            clone.as_slice().as_ptr(),
+            "list clone must not rebuild the family vector"
+        );
+        assert_eq!(
+            original.as_slice()[0].variants.as_ptr(),
+            clone.as_slice()[0].variants.as_ptr(),
+            "nested immutable variants must remain owned once"
+        );
+        drop(original);
+        assert_eq!(clone.as_slice()[0].variant.as_deref(), Some("SemiBold"));
+        assert!(clone.as_slice()[1].name.is_match("Fallback Book"));
+    }
+    #[test]
+    fn shared_font_list_style_clone_preserves_shared_owner() {
+        use crate::entities::layout_types::{Pt, TextStyle};
+        let mut original = TextStyle::regular(Pt(11.0));
+        original.font = Some(shared_fixture());
+        let mut clone = original.clone();
+        assert_eq!(
+            original.font.as_ref().unwrap().as_slice().as_ptr(),
+            clone.font.as_ref().unwrap().as_slice().as_ptr()
+        );
+        clone.font = Some(FontList::single("replacement".into()));
+        assert_eq!(
+            original.font.as_ref().unwrap().as_slice()[0].name.as_str(),
+            Some("first")
+        );
+        assert_eq!(
+            clone.font.as_ref().unwrap().as_slice()[0].name.as_str(),
+            Some("replacement")
+        );
+    }
+    #[test]
+    fn shared_font_list_frame_clone_retains_owner_after_source_drop() {
+        use crate::entities::layout_types::{FrameItem, Point, Pt, TextStyle};
+        let mut style = TextStyle::regular(Pt(11.0));
+        style.font = Some(shared_fixture());
+        let ptr = style.font.as_ref().unwrap().as_slice().as_ptr();
+        let original = FrameItem::Text {
+            pos: Point::ZERO,
+            text: "café α".into(),
+            style,
+            bidi: None,
+        };
+        let clone = original.clone();
+        let FrameItem::Text { style, text, .. } = &clone else {
+            panic!("text clone changed variant")
+        };
+        assert_eq!(style.font.as_ref().unwrap().as_slice().as_ptr(), ptr);
+        drop(original);
+        assert_eq!(text.as_str(), "café α");
+        assert_eq!(
+            style.font.as_ref().unwrap().as_slice()[0].weight.as_deref(),
+            Some("600")
+        );
+    }
+    #[test]
+    fn shared_font_list_distinct_owners_keep_ordered_value_hash_equality() {
+        use std::collections::{hash_map::DefaultHasher, HashMap};
+        use std::hash::{Hash, Hasher};
+        let a = shared_fixture();
+        let b = shared_fixture();
+        assert_ne!(a.as_slice().as_ptr(), b.as_slice().as_ptr());
+        assert_eq!(a, b);
+        let hash = |x: &FontList| {
+            let mut h = DefaultHasher::new();
+            x.hash(&mut h);
+            h.finish()
+        };
+        assert_eq!(hash(&a), hash(&b));
+        fn check_map_keys<K: Eq + Hash>(first: K, equal: &K, other: K) {
+            let mut map = HashMap::new();
+            map.insert(first, 7);
+            assert_eq!(map.get(equal), Some(&7));
+            map.insert(other, 9);
+            assert_eq!(map.len(), 2);
+        }
+        let mut reversed = b.as_slice().to_vec();
+        reversed.reverse();
+        let reversed = FontList::new(reversed).unwrap();
+        assert_ne!(b, reversed);
+        check_map_keys(a, &b, reversed);
+    }
+    #[test]
+    fn shared_font_list_every_named_field_remains_distinguishable() {
+        use std::collections::HashSet;
+        let base = shared_fixture();
+        fn unique_count<K: Eq + std::hash::Hash>(
+            values: impl IntoIterator<Item = K>,
+        ) -> usize {
+            values.into_iter().collect::<HashSet<K>>().len()
+        }
+        let mut values = vec![base.clone()];
+        for n in 0..6 {
+            let mut families = base.as_slice().to_vec();
+            match n {
+                0 => families[0].name = FontNamePattern::Literal("different".into()),
+                1 => families[0].variants.reverse(),
+                2 => families[0].variant = Some("Other".into()),
+                3 => families[0].weight = Some("700".into()),
+                4 => families[0].style = Some("oblique".into()),
+                5 => families[1].name = FontNamePattern::Literal("Fallback.*".into()),
+                _ => unreachable!(),
+            }
+            let changed = FontList::new(families).unwrap();
+            assert_ne!(base, changed);
+            values.push(changed);
+        }
+        assert_eq!(unique_count(values), 7);
+        assert_eq!(base.as_slice()[0].variants, vec!["Regular", "Bold"]);
+    }
+    #[test]
+    fn shared_font_list_nonempty_construction_and_many_live_clones() {
+        fn send_sync<T: Send + Sync>() {}
+        send_sync::<FontList>();
+        assert!(FontList::new(vec![]).is_none());
+        let original = FontList::new(
+            (0..128)
+                .map(|n| FontFamily::new(format!("Family {n}").into()))
+                .collect(),
+        )
+        .unwrap();
+        let ptr = original.as_slice().as_ptr();
+        let clones: Vec<_> = (0..64).map(|_| original.clone()).collect();
+        assert!(clones.iter().all(|list| list.as_slice().as_ptr() == ptr));
+        drop(original);
+        assert!(clones.iter().all(|list| list.len() == 128
+            && !list.is_empty()
+            && list.as_slice()[127].name.as_str() == Some("family 127")));
     }
 }

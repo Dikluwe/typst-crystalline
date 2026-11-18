@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/caches.md
-//! @prompt-hash 95e45117
+//! @prompt-hash 14c0c59b
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -18,8 +18,7 @@ use typst_core::entities::world_types::Font;
 /// dos bytes via um slice `'static` obtido com `from_raw_parts`. O campo
 /// `data` nunca é movido porque a struct vive dentro de `Arc`.
 pub(super) struct CachedFace {
-    // `data` é lido implicitamente pelo `Face`; mantém os bytes vivos.
-    #[allow(dead_code)]
+    // Own the bytes borrowed by Face and certify their exact retained owner.
     data: Font,
     face: Face<'static>,
 }
@@ -36,6 +35,15 @@ impl CachedFace {
         };
         let face = Face::parse(slice, 0).ok()?;
         Some(Arc::new(Self { data, face }))
+    }
+
+    pub(super) fn retained_font_matches(&self, font: &Font) -> bool {
+        match (&self.data, font) {
+            (Font::Vec(a), Font::Vec(b)) => Arc::ptr_eq(a, b),
+            (Font::Mmap(_), Font::Mmap(_))
+            | (Font::Vec(_), Font::Mmap(_))
+            | (Font::Mmap(_), Font::Vec(_)) => false,
+        }
     }
 
     pub(super) fn face(&self) -> &Face<'_> {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/heading.md
-//! @prompt-hash d0d4de09
+//! @prompt-hash 30641b81
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -68,6 +68,20 @@ impl HeadingElem {
             // Caminho do markup (`= H`) — paridade vanilla: assenta `depth`.
             set_fields: HEADING_SET_DEPTH,
         }
+    }
+
+    // Propagate the actual traversal's absence of replacement; equality is irrelevant.
+    pub(in crate::entities) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(self
+            .body
+            .map_content_if_changed(transform)?
+            .map(|body| Content::Heading(Arc::new(self.with_body(body)))))
     }
 
     /// P493 — construtor com controlo de `outlined`.
@@ -198,5 +212,88 @@ mod tests {
             h().to_payload(),
             Some(ElementPayload::Heading { depth: 2, .. })
         ));
+    }
+}
+
+#[cfg(test)]
+mod stable_origin_mapping_tests {
+    use super::*;
+    #[test]
+    fn no_replacement_retains_exact_heading_origin() {
+        let source =
+            Content::Heading(Arc::new(HeadingElem::new_with_outlined_and_bookmarked(
+                3,
+                Content::strong(Content::emph(Content::text("A"))),
+                false,
+                Some(true),
+            )));
+        let Content::Heading(original) = &source else { unreachable!() };
+        let mut out = source.clone();
+        for _ in 0..3 {
+            out = out.map_content(&mut |_| Ok(None)).unwrap();
+        }
+        let Content::Heading(mapped) = out else { unreachable!() };
+        assert!(
+            Arc::ptr_eq(original, &mapped),
+            "no replacement must preserve source heading origin"
+        );
+        let other = Content::heading(3, original.body.clone())
+            .map_content(&mut |_| Ok(None))
+            .unwrap();
+        let Content::Heading(other) = other else { unreachable!() };
+        assert!(!Arc::ptr_eq(original, &other));
+    }
+    #[test]
+    fn equal_replacement_rebuilds_preserving_fields_and_callback_order() {
+        let mut elem = HeadingElem::new_with_outlined_and_bookmarked(
+            3,
+            Content::sequence(vec![Content::text("A"), Content::text("B")]),
+            false,
+            Some(true),
+        );
+        elem.set_fields = 7;
+        let owner = Arc::new(elem);
+        let source = Content::Heading(owner.clone());
+        let mut visits = Vec::new();
+        let out = source
+            .map_content(&mut |node| {
+                if let Content::Text(t) = node {
+                    visits.push(t.to_string());
+                    if t.as_str() == "A" {
+                        return Ok(Some(Content::text("A")));
+                    }
+                } else if matches!(node, Content::Heading(_)) {
+                    visits.push("H".into());
+                }
+                Ok(None)
+            })
+            .unwrap();
+        let Content::Heading(mapped) = out else { unreachable!() };
+        assert!(!Arc::ptr_eq(&owner, &mapped));
+        assert_eq!(visits, vec!["A", "B", "H"]);
+        assert_eq!(
+            (mapped.level, mapped.outlined, mapped.bookmarked, mapped.set_fields),
+            (3, false, Some(true), 7)
+        );
+        assert_eq!(mapped.body.plain_text(), "AB");
+        assert_eq!(owner.body.plain_text(), "AB");
+    }
+    #[test]
+    fn first_error_preserves_source_and_stops_later_callbacks() {
+        let source = Content::heading(
+            2,
+            Content::sequence(vec![Content::text("A"), Content::text("B")]),
+        );
+        let mut visits = Vec::new();
+        let out = source.map_content(&mut |node| {
+            if let Content::Text(t) = node {
+                visits.push(t.to_string());
+                return Err(Vec::new());
+            }
+            Ok(None)
+        });
+        assert!(out.is_err());
+        assert_eq!(visits, vec!["A"]);
+        assert_eq!(source.plain_text(), "AB");
     }
 }

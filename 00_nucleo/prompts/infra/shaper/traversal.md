@@ -1,11 +1,15 @@
 # L0 — infra/shaper/traversal
-Hash do Código: 836b5a5f
+Hash do Código: ed7e0de9
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
+- 00_nucleo/prompts/_nuclei/fonts/raw-shaping-cache.toml sha256:ba89868d23ef2304111b39efef27f781b39b74141f68b4abdc048c0088e0ae61
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
+
+
 
 
 **Layer:** L3
@@ -229,3 +233,56 @@ fallback versus valid-empty results, nested wrappers, existing replacement
 suppression, SHY/bidi identity, already-shaped items and shared tiling origin.
 Acceptance preserves language semantics, syntax and morphology; output bytes
 are not a parity criterion. This restriction promises no performance percentage.
+
+## Raw shaping reuse: evidence before decision
+
+The shaping-input-overlap-lab-20261111 census on clean HEAD 48e5a2570159c6fc325babe883bac7d1c1fbd4b2 compared complete inputs and independently replayed 3,788 calls. In layout.typ, 111/111 emission misses had an earlier equal measurement among 113 measurement calls; math admitted only 2/9. Tracking coincidence applied to raw buffers, not final adjusted carriers. Counts do not prove CPU/memory benefit. See the preserved external census and the correction's measurements for exact states/times/ELFs.
+
+Internal correction authorized by the owner; ADR-0127 continuous flow, no public/default/phase/compatibility change. The pinned raw-shaping-cache nucleus supplies shared invariants; this owner authorizes only its following responsibility.
+
+Own the new private raw-store helper and common traversal. Both paths still construct fresh parsed-face and primary-selection caches. Existing public/fresh entry points keep fresh raw stores. Keep background/body/foreground order and wrapper metadata unchanged.
+
+Keep regression tests first and preserve source/frame/glyph/position/font/fallback semantics. Directed missing-key and bypass-reuse mutants must fail; compare allocation traffic, peak and CPU in the real pipeline including retention/key costs, without an arbitrary target. Compile only in own /dev/shm and preserve all existing checkout changes. Outline's semantic divergence and prior identity debts remain explicit. The retained eval/font-session prototype is a lab measurement base, not integrated by this correction.
+
+
+## Laboratory complete shaping products — 2026-11-13
+
+### Evidence before decision
+
+The frozen fraction-demand release (f34f54de100fc63587f7611d042dc3d836b484f95283a2f5fc029c8afadce65e)
+and fraction-demand-work-shift/causal-summary.json record 112 backend executions
+per100-paragraph compilation and64 peroutline, unchanged by removing2004/2172
+width queries. All three cycle kinds repeat this work. structural-summary.json
+attributes18.39% inclusive samples to emitted shaping and5.31% to raw shaping
+in100 paragraphs; these groups overlap and are not a speedup prediction.
+font_metrics.rs:100-106 shares only raw buffers within a compilation;
+shaper/traversal.rs:30-49 reconstructs faces/selection/output caches;
+shaping.rs:262-346 rebuilds measured widths and:363-679 rebuilds emitted products.
+world/fonts.rs:21,35-39,291 retains one immutable prefix owner across a font
+session and revokes before full-catalog exposure. Current PdfCompileSession
+at pipeline/pdf.rs:1133 has no shaping products. These are execution mechanics,
+not a change to language semantics. The user explicitly authorizes laboratory
+implementation/testing without further stops, including experimental APIs;
+integration remains prohibited. No performance benefit is presumed.
+
+### Exclusive responsibility
+
+Transport an optional explicit ShapeSession into freshly constructed faces. Existing context/document/raw facades remain cold unless the private session adapter is called. Keep traversal, wrapper policy, authored identity and tiling context intact.
+
+Own shape_document_with_products(world, document, resolved, raw, products), attaching the caller session to otherwise fresh faces and using the same existing common traversal.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

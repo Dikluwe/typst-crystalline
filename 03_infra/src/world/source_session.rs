@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/source_session.md
-//! @prompt-hash f2666aa0
+//! @prompt-hash 83628311
 //! @layer L3
 //! @updated 2026-10-08
 
@@ -44,6 +44,7 @@ impl SourceSession {
             .entries
             .lock()
             .map_err(|_| FileError::Other("source session lock is poisoned".into()))?;
+        let mut previous = None;
         if let Some(index) =
             entries.iter().position(|e| e.path == path && e.source.id() == id)
         {
@@ -53,12 +54,17 @@ impl SourceSession {
                 entries.push(entry);
                 return Ok(source);
             }
+            previous = Some(entry.source);
         }
         if !path.is_absolute() || text.len() > MAX_ENTRY_BYTES {
             drop(entries);
             return super::cache::source_from_result(Source::new(id, text));
         }
-        let source = super::cache::source_from_result(Source::new(id, text))?;
+        let result = match previous {
+            Some(source) => source.reparse(text),
+            None => Source::new(id, text),
+        };
+        let source = super::cache::source_from_result(result)?;
         entries.push(Entry { path, source: source.clone() });
         while entries.len() > MAX_ENTRIES
             || entries.iter().map(|e| e.source.len_bytes()).sum::<usize>() > MAX_BYTES
@@ -403,5 +409,35 @@ mod tests {
             .unwrap_err();
         assert_eq!(error, FileError::Other("source session lock is poisoned".into()));
         assert!(session.entries.is_poisoned());
+    }
+
+    #[test]
+    fn revision_fresh_world_preserves_unedited_loop_identity() {
+        use typst_core::entities::{syntax_kind::SyntaxKind, syntax_node::SyntaxNode};
+        fn find(node: &SyntaxNode) -> Option<&SyntaxNode> {
+            if node.kind() == SyntaxKind::ForLoop {
+                return Some(node);
+            }
+            node.children().find_map(find)
+        }
+        let fixture = Fixture::new();
+        let session = Arc::new(SourceSession::new());
+        let initial = "before\n#for i in range(3) [item #i]\nafter";
+        let path = fixture.file("main.typ", initial);
+        let first_world = fixture.world("main.typ", &session);
+        let first = first_world.source(first_world.main()).unwrap();
+        let span = find(first.root()).unwrap().span();
+        fixture.file("main.typ", &format!("= New\n{initial}"));
+        let next_world = fixture.world("main.typ", &session);
+        let next = next_world.source(next_world.main()).unwrap();
+        assert_eq!(find(next.root()).unwrap().span(), span);
+        assert_eq!(
+            next.span_byte_range(span).unwrap().start,
+            first.span_byte_range(span).unwrap().start + 6
+        );
+        assert_eq!(first.text(), initial);
+        let rebound = session.get_or_parse(path, id(222), next.text().into()).unwrap();
+        assert_eq!(rebound.id(), id(222));
+        assert_ne!(find(rebound.root()).unwrap().span(), span);
     }
 }

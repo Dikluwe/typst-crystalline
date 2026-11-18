@@ -1,9 +1,14 @@
 # L0 — infra/shaper/cache
-Hash do Código: a434296e
+Hash do Código: 3a1e105b
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
+- 00_nucleo/prompts/_nuclei/fonts/primary-selection-proof.toml sha256:5a0fb32f391d73057b0b38d83c211b834b23ce2f8055ffee25ee3be671b5adef
+- 00_nucleo/prompts/_nuclei/fonts/raw-shaping-cache.toml sha256:ba89868d23ef2304111b39efef27f781b39b74141f68b4abdc048c0088e0ae61
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
-- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:bb9850c42a48ec519f605159d6aea76b305b0ccf6643ef6a4f8137720c76c898
+- 00_nucleo/prompts/_nuclei/fonts/shaper-primary-cache.toml sha256:4b54a922e743e872fd4806c103368a9ccd3b2b736a54eeb7de8f5d1a4b9630ab
+
+
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/cache.rs`
@@ -159,3 +164,155 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `shaper/cache.r
 
 
 CachedRun.glyphs uses SharedGlyphs; derived Clone shares it. Preserve all other cache behavior. Test helpers may explicitly copy to Vec.
+
+## Raw shaping reuse: evidence before decision
+
+The shaping-input-overlap-lab-20261111 census on clean HEAD 48e5a2570159c6fc325babe883bac7d1c1fbd4b2 compared complete inputs and independently replayed 3,788 calls. In layout.typ, 111/111 emission misses had an earlier equal measurement among 113 measurement calls; math admitted only 2/9. Tracking coincidence applied to raw buffers, not final adjusted carriers. Counts do not prove CPU/memory benefit. See the preserved external census and the correction's measurements for exact states/times/ELFs.
+
+Internal correction authorized by the owner; ADR-0127 continuous flow, no public/default/phase/compatibility change. The pinned raw-shaping-cache nucleus supplies shared invariants; this owner authorizes only its following responsibility.
+
+Own RawShapeInput/RawShapeKey/RawShapeStore alongside existing caches. Construct faces/buffers and store Arc<GlyphBuffer> plus the owning Font. FaceCache::new creates its raw store; raw_store clones only that handle, with_raw_store keeps parsed faces and primary resolution initially empty. Test-only backend observation occurs only at an actual miss.
+
+Keep regression tests first and preserve source/frame/glyph/position/font/fallback semantics. Directed missing-key and bypass-reuse mutants must fail; compare allocation traffic, peak and CPU in the real pipeline including retention/key costs, without an arbitrary target. Compile only in own /dev/shm and preserve all existing checkout changes. Outline's semantic divergence and prior identity debts remain explicit. The retained eval/font-session prototype is a lab measurement base, not integrated by this correction.
+
+
+## One configured engine face inside raw shaping — RAM experiment (2026-11-12T07:51:11.406374+00:00)
+
+Evidence precedes decision. face-construction/receipt.json binds the existing
+ELF, source freeze, inputs, symbol maps and UTC. Full CLI layout has 112 engine
+face constructions, all underneath RawShapeCache::shape, out of 222 raw requests;
+plain has 4 constructions/6 requests. These counts are not timings. The separate
+kernel-provenance.json records 112 synthetic requests with an identified embedded
+font: fresh parse/configuration 1.888 ms, clone 0.937 ms, immutable borrow 0.548 ms.
+The exact requests are synthetic, not captured CLI arguments; capture/lookup/
+retention costs are excluded. Raw glyph info/position equality passed and an
+axis-changing variable-font refuter was discriminant. This does not certify
+nominal performance or upstream language parity.
+
+Private internal scheduling under ADR-0127 section 2 continuous item 4; no public
+signature/field, mode/default, phase/order, dependency, new unsafe or compatibility
+change. Supersede the prior no-cache/unchanged-CachedFace exclusions solely for
+this one private engine-face slot. The updated pinned nucleus permits this raw
+owner-private resource; all caller parsed-face and selection caches remain fresh.
+Retain at most one successful configured engine face per RawShapeCache, using
+exact immutable Font owner variant/address held alive by the owned CachedFace
+and exact ordered axis tag/value bits. Neither slot alone, digest, byte equality,
+font family nor pointer without an owner is sufficient. Full raw-result keys,
+including slot, remain unchanged. Compare all axes before using a face. On owner
+or axes change create a fresh face at index zero, set the complete requested axes
+once and replace the last slot only after successful parsing. A failed parse must
+return the original None/fallback, never cache a failure or use the old face.
+Never mutate a configured retained engine face. Raw hits bypass engine construction
+as before. Text, buffer flags, language, script, direction, ordered features and
+raw/adjusted result boundaries remain unchanged and per request.
+
+Reuse the existing CachedFace owned-byte/lifetime enclosure, adding only an
+optional boxed configured engine face and private constructor/accessor. Use its
+existing encapsulated slice conversion; add no unsafe block or widened reference
+lifetime. Engine references must borrow the CachedFace; no static reference may
+escape. Existing callers of CachedFace::new retain the same behavior, with no
+engine construction. Lifetime ends with this compilation, never watch/global.
+
+Before implementation, real crate tests must fail the construction bound for
+different texts with the same owner and axes. Verify against independent fresh
+stores for owner changes, slot changes, directions, languages, scripts, features,
+reordered/repeated/adjacent axes, variable-font default restoration and invalid
+font then recovery. Confirm one slot retained on churn and distinguish raw-result
+hits from face reuse. Bypass-reuse, missing-owner and missing-axis mutants must
+fail their respective gates. Preserve existing raw reuse/cache/font-metrics tests.
+L0 first, V15/V26 before sealing, release build and strict lint; source-to-PDF
+text/pages/geometry, paired CPU/startup/wall/RSS, allocations and peak determine
+utility. No percentage target, no sum of different campaigns, no outline closure.
+Laboratory only; this experiment does not integrate previous candidates.
+
+
+## Laboratory first-query reuse correction — 2026-11-12
+
+Evidence precedes decision: fontdemand-fallback-comparison/freeze.json and summary.csv record unchanged release d7c9024946a3ffde6f5ca0825829eeff29c7b17f60ce26b6ef69670a0e39c7a8 regressing in system and nonminimum-variant workloads. resolution.rs:first_primary and font_selection.rs:first_candidate query World again whenever no complete chain was populated; the selective successful path never populates that chain. phase-counts/receipt.json records 1115 certifications for 113 actual shapes on layout, not a timing attribution.
+
+Keep a DISTINCT latest successful first-readable-query result, scoped exactly like the existing per-compilation face/metrics cache. Key by exact full ordered FontList (optional for metrics) and effective FontVariant. It answers only first-face queries and can never substitute for a complete primary/fallback chain, glyph coverage, bidi splitting or raw-shape certification. Store only key, slot and units-per-em; no additional bytes, global state, cross-World/compilation reuse, negative selection cache or public API. Query/read without holding the metrics selection lock. Do not publish if any earlier selected face failed loading/parsing; shaper conservatively refuses while any existing face-cache failure is present, preserving its old negative-face policy. Existing full-chain hits remain usable and take precedence. New starts empty; metrics Clone shares first-query state only with the same World. Size/color/language/axes retain existing downstream application.
+
+Continuous ADR-0127 internal repair. Require counter RED before implementation; repeat hits do not query catalog, keys and Worlds remain isolated, failed faces keep prior retry policy, and subsequent full-chain resolution equals fresh output. Preserve whole-PDF no-acquisition control, all prior semantic tests and font freshness. Rebuild/lint/paired nominal and forced-full regressions before acceptance; laboratory only.
+
+Exclusive obligation: Own the private optional first-query record and FaceCache field, empty at new/with_raw_store; never copy it with the raw store or into another World.
+
+
+## Current-compilation positive primary proof reuse (laboratory only)
+
+Evidence precedes decision. controlprimary-segmentation-counts/receipt.json
+(2026-11-12T21:39:58.227369Z–21:40:16.650035Z) binds frozen ELF/source and
+observes 1115 certificate calls plus 2230 bidi analyses per hundred-paragraph
+compilation: 1115 inside the proof and 1115 in consumers. There is one compile
+entry per cycle; the same work recurs on unchanged-byte rewrites. The separate
+CPU profile attributes about12% inclusive nearest-project-frame samples to the
+proof (not exclusive CPU or guaranteed savings). The external allocator records
+116764 requests/40837726 requested bytes for this workload; bidi is the largest
+sampled request-count origin. Sources: evidence/freeze-controlprimary.json,
+controlprimary-cpu-stacks/ and familyshare-allocation-before/. These measurements
+are mechanisms, not language requirements; nominal benefit remains unproved.
+
+Internal reversible reuse under ADR-0127 continuous flow: update L0 before tests
+and code, reseal, no public/default/phase/compatibility change, no integration.
+The pinned primary-selection-proof nucleus fixes the shared exact key, guard,
+positive-only result, lifetime and immutable partition obligations. Preserve all
+existing raw-cache/face/selection/axes/language/source-identity controls, fresh
+fallback after success, late font demand/replacement, PDF/SVG/query/raster, and
+strict workspace gates. Measure CPU and allocation traffic separately; retain
+negative results, RSS and retained-memory costs. No performance claim from counts.
+
+Exclusive responsibility: own the private exact proof key and positive map in FaceCache, initialized empty in with_raw_store. Value retains Font and Arc of the bidi partition; keep every existing map and raw store unchanged.
+
+Represent unresolved direction absence structurally as Option of the exact four-way discriminant, with an exhaustive inner match. The first complete validation rejected the neutral zero encoding at cache.rs:132 (V16); preserve that failed gate and do not suppress it. This private key representation keeps identical equality partitions; no new source, selection or shaping behavior.
+
+
+## Laboratory complete shaping products — 2026-11-13
+
+### Evidence before decision
+
+The frozen fraction-demand release (f34f54de100fc63587f7611d042dc3d836b484f95283a2f5fc029c8afadce65e)
+and fraction-demand-work-shift/causal-summary.json record 112 backend executions
+per100-paragraph compilation and64 peroutline, unchanged by removing2004/2172
+width queries. All three cycle kinds repeat this work. structural-summary.json
+attributes18.39% inclusive samples to emitted shaping and5.31% to raw shaping
+in100 paragraphs; these groups overlap and are not a speedup prediction.
+font_metrics.rs:100-106 shares only raw buffers within a compilation;
+shaper/traversal.rs:30-49 reconstructs faces/selection/output caches;
+shaping.rs:262-346 rebuilds measured widths and:363-679 rebuilds emitted products.
+world/fonts.rs:21,35-39,291 retains one immutable prefix owner across a font
+session and revokes before full-catalog exposure. Current PdfCompileSession
+at pipeline/pdf.rs:1133 has no shaping products. These are execution mechanics,
+not a change to language semantics. The user explicitly authorizes laboratory
+implementation/testing without further stops, including experimental APIs;
+integration remains prohibited. No performance benefit is presumed.
+
+### Exclusive responsibility
+
+Add one optional ShapeSession handle to FaceCache, absent in new/with_raw_store. A private constructor can attach that handle while all faces, first/primary proofs and raw results remain fresh or share only the existing same-compilation raw store. Do not extend ShapeCache key/map lifetime.
+
+Own crate-private attach_products and product_session carrier accessors. They transport only the bounded session; do not copy parsed faces, negative entries or primary resolution across Worlds.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Strict test qualification for adoption
+
+Preserve every existing test assertion, reference comparison and negative case.
+Remove redundant cfg/borrows, use a named private snapshot type and array, and
+pass configured raw-shaping inputs as the existing named RawShapeInput value
+instead of a nine-argument helper. Test FontList HashMap/HashSet contracts through
+generic Eq+Hash helpers so immutable regex backend caches do not trigger a
+concrete mutable-key lint; keep actual map lookup, deduplication and field coverage.
+No lint suppression or productive algorithm change is permitted by this cleanup.

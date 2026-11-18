@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "paragraph-line-products"
+title = "Bounded pure prepared-line tails"
+[[claims]]
+id = "boundary"
+level = "must"
+statement = "Retain only completed pure prepared-line tails after the first word has executed normally. Require admitted baseline, inactive block chain, applied paragraph origin, material current line, no pending bibliography prefix and no current bidi span. Refuse highlights, regex font owners and spot colors in retained tails. Keep initial word, current pagination, line closing, markers and introspection outside retention."
+[[claims]]
+id = "identity"
+level = "must"
+statement = "Each immutable paragraph Product owns a fresh Arc identity. Key that owned identity, line ordinal, exact finite cursor x/y, horizontal offset and computed proportional/extra justification bits. Same product means same prepared words, styles, ranges and gaps; a new product cannot alias a dropped owner. Do not normalize/rebase positions or retain previous source spans."
+[[claims]]
+id = "effects"
+level = "must"
+statement = "Replay only appended Text/TextSeparator/TextReplacement items, exact final cursor x, appended justification anchors, first available tail language when current language is absent, current optical policy, and tracking.record on current lexical state. Keep outer style and all other flow state current. Use unchanged cold emission for misses/refusals."
+[[claims]]
+id = "budget"
+level = "must"
+statement = "Caller-owned ParagraphSession carries a separate bounded paint cache, no global state. At most4096entries,8MiB logical payload,256KiB per entry and2048items; charge styles/text/anchors conservatively. Entries retain a detached owned product identity, not Product or World. Evict whole entries; no cycles, callbacks, diagnostics or font bytes retained."
+[[claims]]
+id = "validation"
+level = "must"
+statement = "Require actual runtime RED for skipped cold emitter, exact cold/warm frame and state equivalence, changed product/position/justification/offset, admission refusal, session isolation and bounds. Real pipeline must hit across fresh Layouters, with changed widths/sizes/pagination matching cold layout. Full suites, strict lineage/build gates, warm watch/PDF/raster/font controls and one paired release campaign. No vanilla-goal closure by hits."

@@ -1,18 +1,12 @@
 # L0 — Layout engine coordination
-Hash do Código: 0ee090bc
-
-
-
-
-**Layer:** L1
-**Exclusive consumer:** `01_core/src/compiler/layout/mod.rs`
-**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+Hash do Código: d062a86c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
+- 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:4a93d5c55bf975b506b6f02ae484a91fdf7449716f9248dea2fcaa6b7b0738b6
@@ -36,11 +30,22 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
+- 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:417d55b8ae48d8b71220974310a7a31ce00566318c0cfc4837e84c955bdcdfa8
+- 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
+
+
+
+
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/mod.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
+
 
 
 ## Evidence before specification
@@ -779,3 +784,98 @@ L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede rep
 Own initialization only of a private optional column main-flow-end accumulator. None preserves legacy behavior, Some tracks corrected note flow. No entity field, public signature or global state; feature logic stays in its column owners.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+
+## Laboratory paragraph products — 2026-11-12
+
+Evidence: subtree-layout-admission/receipt.json binds actual repeated preparation
+and refusal counts; paragraph_prepare.rs:234–337 constructs the product using
+current metrics; paragraph_emit.rs:30–57 places it using fresh region state.
+subtree-validation/layout-boundary-audit.json binds source identities and limits.
+This is a mechanics experiment; user waived lab approvals, no integration.
+
+
+Declare the owning public paragraph_session module. Do not add retained mutable layout state to Layouter or change existing layout facade signatures.
+
+
+## Laboratory complete physical-result retention — 2026-11-13
+
+Evidence before decision: layout-read-audit/summary.json, observations and source
+freeze bind actual nominal-suffix compilations. Normal/narrower/numbered outlines
+each perform six planned calls; three preserve the source plan, tracked-read
+screen and weak PageStore screen with empty running/math/par.line channels.
+Header controls do not pass the empty-channel screen. The audit's runtime test
+proves comemo Content hashes do not preserve separator origin. Neither that hash
+nor PageStore PartialEq is a reuse certificate. Source evidence:
+layout/convergence.rs:211-250 reads PageStore and bibliography outside tracking;
+metrics.rs:343-400 contains an overridable line geometry method; all overrides
+must survive. This is mechanics, not a new language parity claim. The user
+authorizes laboratory changes without an approval stop; integration is excluded.
+This refinement supersedes no-new-public-API clauses only for its named lab API.
+
+Expose only the new physical_memo module. Existing public facade remains cold
+and passes no journal to the private planned coordinator. No default legacy
+behavior or other facade contract changes. New module owns cache logic.
+
+
+## Laboratory immutable metric epoch — 2026-11-13
+
+Evidence before decision: physical-retain/conclusion.json and its exact release
+freeze record six-to-three physical execution reduction but only about5% CPU gain
+on the outline. physical-retain-deep-stacks/structural-summary.json measures
+11.5% inclusive samples in Journal::validates, with additional metric request
+recording/style copying. These are execution mechanics, not language semantics.
+Source world/fonts.rs:168-216 routes every query beyond the immutable prefix
+through font_catalog(); world.rs stores the full catalog in OnceLock. FontSlot
+get at fonts.rs:179-216 keeps embedded bytes in owned Vec and disk fonts may be
+Mmap. Fallback metrics and transitive shaper queries use only the font-facing
+World methods. Therefore a still-uninitialized full catalog plus the owned
+embedded-prefix identity can certify this restricted domain; full-catalog or
+arbitrary provider identity alone cannot. Runtime tests must refute expiry,
+provider replacement and a falsely complete journal. No performance gain is
+assumed. The user explicitly waives approval stops for laboratory work; this
+additive experiment supersedes prior no-new-API clauses only for named methods.
+Integration remains excluded. Follow the pinned immutable-metric-epoch nucleus.
+
+Exclusive owner obligation: Only reexport MetricEpoch alongside existing FontMetrics/FixedMetrics; preserve topology and dispatch.
+
+## Laboratory line products — 2026-11-13
+
+### Measurement before decision
+
+Frozen shaping-products c2096c812761f5ab5278eb5376142e406990ec4b234615c9fbf6ce3be32feba6,
+freeze 2026-11-13T06:06:24.083725Z, eliminates backend112->1/64->1 on edits,
+but nominal CPU remains14.997/25.187ms versus vanilla3.683/4.234ms. Its twelve
+raw profiles attribute30.45% inclusive layout to100 paragraphs and39.41% physical
+coordination tooutline; overlapping groups are not a promised speedup.
+paragraph_plan.rs:143-174,222-286 re-emits retained Prepared/Line products;
+paragraph_emit.rs:90-125 walks fragments again; word_layout.rs:209-224 clones
+styles and invokes baseline/indent for every fragment. cursor.rs:94-191 and
+region_progress.rs:156-187 show that, with initial_baseline_pending=false,
+block_chain_active=false and already material current_line, repeated admission
+cannot advance region. paragraph_indent.rs:348-372 returns immediately once
+origin_applied is true. bibliography.rs:30-33 returns when no prefix is pending.
+word_layout.rs:89-159 then only appends Text/Replacement (plus Shape for
+highlight), sets optical policy and records tracking. These are mechanics,
+not language acceptance. No whole-Layouter snapshot is justified by these facts.
+User authorizes laboratory work without further approval; no integration.
+
+### Owned responsibility
+
+Declare paragraph_paint as a private owning child. No state-machine restructuring, public Layouter contract or pipeline phase change.
+
+## Productive adoption scope — 2026-11-18
+
+The user explicitly authorizes the cumulative packages with measured gain. This
+owner adopts only its finalized implementation in the preserved capture candidate
+29115606, qualified together with its required dependency owners; earlier
+laboratory-only exclusions are superseded only for this specific implementation.
+Existing current project ADR scope clarifications and conservative fallbacks
+remain in force. No additional public method, default or phase is invented here;
+already specified optional capabilities keep their explicit authority/None paths.
+Diagnostic census, no-retain ablations and blocking watch markers are not product
+features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS,
+8GiB tree RSS and no swap; prior task-specific temporary-target paths are scoped
+to their original correction. Require real capture RED→GREEN, complete suites,
+lineage/ownership, source/effect/invalidation controls and measured before/after
+and pinned vanilla comparison. No commit is authorized by this adoption.

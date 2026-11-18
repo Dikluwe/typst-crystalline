@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "shaped-text-products"
+title = "Complete shaped text operator products with current resource dependencies"
+[[claims]]
+id = "current-resource-facts"
+level = "must"
+statement = "Before any retained operator lookup, resolve current export font binding and project every used GID remapping and nominal advance. Font names, slots, hashes or borrowed pointer addresses are not an equality certificate. Retaining commands never retains or substitutes font resources, glyph shapes, Unicode maps or resource-table authority."
+[[claims]]
+id = "complete-transcript"
+level = "must"
+statement = "A retained shaped verbose leaf product consists only of its complete appended operator suffix and pending graphic-restoration result. The key preserves exact position/size/tracking bits, glyph fields/order, text, units, resource selection, current nonspot RGBA bits and actual render-mode result, restore and zero-alias state. If dependencies of the emitter change, its certificate must change first."
+[[claims]]
+id = "occurrence-boundary"
+level = "must"
+statement = "ActualText, semantic marks, tagging, page geometry, font/subset resources and outer graphical scopes remain current and outside the retained inner suffix. Reuse does not reshape, infer source text from GIDs, rewrite serialized operators or alter compact/bitmap/Type1 behavior."
+[[claims]]
+id = "bounded-owned-retention"
+level = "must"
+statement = "Retention owns immutable scalar/glyph/text facts and completed operator products only, with finite checked entry/input/output/payload limits. No World, page, context, font bytes, style object, borrowed mapping or resource registry is retained. Hash collisions require complete comparison. Unsupported, oversized or unavailable/poisoned storage falls back to current ordinary emission without truncation."

@@ -21,4 +21,8 @@ statement = "Session retains at most one generation for future reuse;active Worl
 [[claims]]
 id = "exclude-unproven-caches"
 level = "must-not"
-statement = "Font retention extends no metrics,shaping,eval,layout,context,plugin,package/clock-observation lifetime;changes no World signature or unsafe."
+statement = "Font retention extends no metrics,shaping,eval,layout,context,plugin,package/clock-observation lifetime;changes no World signature except the explicitly ratified select_font/font_info query methods;introduces no unsafe."
+[[claims]]
+id = "immutable-prefix-query"
+level = "may"
+statement = "After explicit public-contract ratification, an immutable embedded-text prefix may satisfy a selective query only with proof of the same winner and stable World indices as the complete current catalog. Mutable discovery uncertainty always follows the existing fresh path;book remains complete and no stale mutable generation is accepted."

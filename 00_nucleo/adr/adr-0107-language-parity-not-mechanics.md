@@ -77,3 +77,11 @@ This ADR supplies the missing face: **parity is with the language; mechanics are
 - **P342** — `lab/results/construction/diagnostics/typst-passo-342-relatorio.md` (language/render separation; Finding 2; `==` falling through to Rust `PartialEq`).
 - **P339–P343** — the stumbles (β1, “the night,” `==`, bake inventory) that motivate the definition.
 - **P344** — the step that drafted this ADR (and the foundational note above).
+
+## Boundary clarification — 2026-11-13
+
+Freedom from upstream execution mechanics is not permission to disregard the
+current owning L0, purity/import rules, dependency validity or observed rendering
+geometry. Mechanical alternatives require explicit owner contracts and language
+validation. This ADR neither mandates copying vanilla caches nor prohibits reuse,
+and it does not establish a performance result.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash f38ade93
+//! @prompt-hash d98493a4
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -468,7 +468,7 @@ impl Content {
             // Strong e Emph conservam suas variantes semânticas próprias.
             // A prova de ausência de substituição vem dos owners abaixo.
             // Modelo D (P316): Heading delega ao elemento.
-            Content::Heading(h) => rebuild_bottom_up_node(|| Ok(Some(h.map_content(transform)?))),
+            Content::Heading(h) => rebuild_bottom_up_node(|| h.map_content_if_changed(transform)),
             Content::Title(t) => rebuild_bottom_up_node(|| Ok(Some(t.map_content(transform)?))),
             Content::Strong(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
             Content::Emph(e)   => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
