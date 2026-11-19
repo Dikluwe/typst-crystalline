@@ -1,5 +1,5 @@
 # L0 — infra/fontdb/generation
-Hash do Código: 0cd789b1
+Hash do Código: 58bb21ee
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/watch-font-generation.toml sha256:0132d0e50e81227203f577144758a78792358faee644dc236f74e2d6d8b80fa9
@@ -122,3 +122,43 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Validated certified root observation on the word-measurement route (2026-11-19)
+
+The frozen post-preflight profile put the generation predicates at 22.12–24.92%
+of warm Unicode CPU. All 2,534 candidate samples under these predicates came
+through normal width measurement, and sampled proof CPU stayed about 15 ms per
+cycle across the preflight change. world/fonts.rs:89 retains the loaded catalog
+within each World. world/font_session.rs:65–68 requires both generation proofs
+when a fresh World demands it. The prior mutation witness refuted reusing an
+earlier observation for the later check. The separately tested regular-file
+root observation certificate is eligible to retest on this changed baseline.
+
+Within the retained root-stamp recheck, including its use during initial generation establishment, one fresh nofollow metadata observation
+identifies both roles for a regular non-symlink file when its full identity equals
+both stored link and target identities. Reuse exactly that observation within
+the stamp. Keep target metadata for directories, symlinks, dangling targets and
+ambiguous roles. Any changed link or unexpected error refuses the proof. Preserve
+config checks, bounded discovery, the later GenerationKey recheck on all stamps,
+fresh fallbacks, font ordering/bytes, and all public contracts. No proof answer is
+retained across Worlds or passed from the root proof to the second proof.
+
+Before materializing, require RED on one duplicate regular-file metadata lookup
+and show a counterexample for carrying a successful result into a later proof
+or World. Check a mutation between proofs even when the earlier root observation
+matched. Require GREEN for ordinary file, directory, symlink, absence, dangling
+target, equal-size replacement and restored mtime, and the session tests. Compare
+live effects, notes, dependency and font mutations against fresh baseline. Use
+the frozen preflight release with the enlarged Deflate cache as reference.
+Measure the complete Unicode watch cycle in balanced A/A with dedicated placebo.
+
+### Productive adoption — 2026-11-19
+
+Adopt the bounded implementation qualified in
+lab/results/construction/diagnostics/unicode-font-proof-word-reuse-2026-11-19/report.md.
+The 2026-11-19 integration is explicitly authorized and supersedes isolation
+restrictions for this validated implementation. Prior experiment gates and
+provenance remain historical. Preserve the specified refusals, source identity,
+effects and invalidation. Keep measurement barriers and private observers in the
+laboratory. Reseal this owner and verify the integrated release and the pinned
+vanilla comparison.

@@ -1,5 +1,5 @@
 # L0 — Physical page running-content request protocol
-Hash do Código: 4b08acaa
+Hash do Código: b15e8e01
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
@@ -448,3 +448,30 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Validated SourcePlan pure segments — 2026-11-18T03:52:12.728500+00:00
+
+### Evidence before decision
+
+paragraph-reuse-refusals-2026-11-17/report.md and watch-census.json bind HEAD eacb58346, exact dirty source/ELFs/UTC and 66 real cycles. On comment edits references_100 has20 pre-identity structural declines, references_500 has140 and outline_100 has20; pure prose admits500 products and hits. These are invocation counts and mechanics, not language requirements or promised gain. sequence.rs:73-95 suppresses descendants after complete-plan refusal; :132-153 bypasses layout_with_routes into layout_parts; :411-498 reopens only limited boundaries. paragraph_plan.rs:211-251 refuses opaque segments atomically. page_running.rs:1452-1463 explicitly permits omitting proven no-fact nodes. This supports a separate current-source certificate for a complete paragraph, not stripping opaque wrappers. Root sources and predecessor artifacts remain preserved in initial.json.
+
+### Exclusive implementation contract
+
+Own a private fresh no-fact certificate for original SequencePart edges of the active SourcePlan cursor. Permit only Canonical Source/Sequence/Text/Empty/Space/SpaceFromNewline nodes, exact declared child arities/edges, no required Root/PostChildren facts, location/label/auxiliary/conditional/original/math metadata, no generated edges/anchor/paint-only cursor and same effective environment as parent. Validate supplied routes against the actual parent source plan, indexed child packet and section, with Arc identity only for the owning current plan. Bound depth/node/input traversal; malformed/missing/mixed/stale paths decline without modifying trace or marking invalid. Current actual opaque nodes retain normal dispatch and every required semantic admission. The certificate is attempt-local, not retained by paragraph memo, not public API, and never derived from Content equality/hash/text identity. Existing SourcePlan.required explicitly permits optimized paint to omit proven no-fact nodes; do not invent admissions or replay cached semantic transcripts.
+
+Classification is internal mechanics qualified in the laboratory and adopted by explicit user request. No public entity/trait/signature, language mode/default or pipeline phase changes. Update L0 before tests/code and reseal after V15/V26. Tests must fail at runtime on old routing, then pass with exact geometry, source/effect coverage, refusal and restoration controls. Baseline/candidate use identical build/resources; complete-cycle paired CPU and A/A before any gain decision. Preserve all inputs, source manifests, UTC transitions and ELFs. Cargo1job/AS12GiB/RSS8GiB, runtime AS1GiB, minimum6GiB available. Existing global/mixed/full-plan gates and nuclei stay binding; this authorizes only a separately bounded complete pure paragraph, never partial inline acceptance.
+
+### Exhaustive certificate complement — 2026-11-18T04:29:42.593803+00:00
+
+Full lint found V16 at the no-fact classifier wildcard false. Enumerate every current unsupported Content variant explicitly, preserving the exact six admitted types and every previous metadata/frontier/geometry guard. No wildcard or lint suppression. Preserve source-v1, its ELFs and measured receipts separately. Recheck V15/V26 before resealing, build and test the final classifier and compare final complete-flow censuses/PDFs to the preserved original class before accepting timing results. This is a spelling/exhaustiveness correction, no new authority or cache input.
+
+### Productive adoption — 2026-11-19
+
+Adopt the bounded implementation qualified in
+lab/results/construction/diagnostics/sourceplan-pure-segments-2026-11-18/report.md.
+The 2026-11-19 integration is explicitly authorized and supersedes isolation
+restrictions for this validated implementation. Prior experiment gates and
+provenance remain historical. Preserve the specified refusals, source identity,
+effects and invalidation. Keep measurement barriers and private observers in the
+laboratory. Reseal this owner and verify the integrated release and the pinned
+vanilla comparison.

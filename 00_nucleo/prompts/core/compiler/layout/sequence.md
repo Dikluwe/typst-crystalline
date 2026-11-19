@@ -1,5 +1,5 @@
 # L0 — sequence
-Hash do Código: f98f4973
+Hash do Código: 08b3a9bd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -371,3 +371,26 @@ PDF/SVG/words/pages/0.001pt/paint without normalization. Explicit Linebreak's
 separate mixed-size vertical mismatch remains open; admitting Parbreak does
 not certify it. Keep opaque text-scope refusals, no guessed coordinates, new
 frame scanning or linter suppressions. JPEG/historical gates remain required.
+
+## Validated SourcePlan pure segments — 2026-11-18T03:52:12.728211+00:00
+
+### Evidence before decision
+
+paragraph-reuse-refusals-2026-11-17/report.md and watch-census.json bind HEAD eacb58346, exact dirty source/ELFs/UTC and 66 real cycles. On comment edits references_100 has20 pre-identity structural declines, references_500 has140 and outline_100 has20; pure prose admits500 products and hits. These are invocation counts and mechanics, not language requirements or promised gain. sequence.rs:73-95 suppresses descendants after complete-plan refusal; :132-153 bypasses layout_with_routes into layout_parts; :411-498 reopens only limited boundaries. paragraph_plan.rs:211-251 refuses opaque segments atomically. page_running.rs:1452-1463 explicitly permits omitting proven no-fact nodes. This supports a separate current-source certificate for a complete paragraph, not stripping opaque wrappers. Root sources and predecessor artifacts remain preserved in initial.json.
+
+### Exclusive implementation contract
+
+Admit only a complete immediate sibling segment strictly after a real Source-normalized Parbreak and strictly before its next real Parbreak. Refuse initial/terminal unbounded fragments, nested breaks, opaque/wrapped styles, open material line, bidi cursor, excluded direction/regions/notes/floats/HTML or active suffix transaction, fractional distribution and unproved source paths. A bounded current-source no-fact certificate from page_running_requests must authorize every original indexed child before try_parts. Require existing atom-boundary preservation and at least material text. Use existing complete try_parts admission/key/placement; no guard bypass or invented width. Failed attempt restores paragraph-indent state before ordinary dispatch. Successful attempt skips only the certified factless original children, retains the actual closing Parbreak dispatch exactly once and restores grouping, enum, loose-item, material-line and lexical-segment state as ordinary pure text. Original indices/routes remain unchanged. Cover both layout_with_routes and direct layout_parts/segmented entries through the common loop. No cached authority or source equality matching.
+
+Classification is internal mechanics qualified in the laboratory and adopted by explicit user request. No public entity/trait/signature, language mode/default or pipeline phase changes. Update L0 before tests/code and reseal after V15/V26. Tests must fail at runtime on old routing, then pass with exact geometry, source/effect coverage, refusal and restoration controls. Baseline/candidate use identical build/resources; complete-cycle paired CPU and A/A before any gain decision. Preserve all inputs, source manifests, UTC transitions and ELFs. Cargo1job/AS12GiB/RSS8GiB, runtime AS1GiB, minimum6GiB available. Existing global/mixed/full-plan gates and nuclei stay binding; this authorizes only a separately bounded complete pure paragraph, never partial inline acceptance.
+
+### Productive adoption — 2026-11-19
+
+Adopt the bounded implementation qualified in
+lab/results/construction/diagnostics/sourceplan-pure-segments-2026-11-18/report.md.
+The 2026-11-19 integration is explicitly authorized and supersedes isolation
+restrictions for this validated implementation. Prior experiment gates and
+provenance remain historical. Preserve the specified refusals, source identity,
+effects and invalidation. Keep measurement barriers and private observers in the
+laboratory. Reseal this owner and verify the integrated release and the pinned
+vanilla comparison.

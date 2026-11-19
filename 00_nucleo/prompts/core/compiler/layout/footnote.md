@@ -1,5 +1,5 @@
 # L0 — footnote
-Hash do Código: 30d581cf
+Hash do Código: ddbff9a2
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/footnote.rs`
@@ -273,3 +273,42 @@ This measured amendment supersedes the prior use of page_columns presence alone 
 ### Page-column common-style prefix refinement
 
 Measurement before decision: final-paint.json.gz under footnote-columns-numbering-2026-11-01 exposes a0.85pt x offset for both short page-column entries, while all four long/Box column scenes and numbering glyphs match. The source orders set page(columns:2) before set text(size:10pt). prepare_entry_scope stops at the generated physical Columns wrapper and captures11pt defaults rather than the common10pt body style, yielding9.35pt instead of8.5pt indent. This does not authorize substituting local call styles for shared flow settings. Add a direct common-prefix RED. Treat only ColumnsElem.page_columns=true as transparent while finding the common Source/Styled prefix; standalone Columns remains a material boundary. No new style, callback, field or phase. Preserve existing local/shared/late entry-setting controls and exact short/long PDF/SVG positions.
+
+## Validated carrier absence certificate (2026-11-19)
+
+The Unicode cycle profile with the 64-entry and 2 MiB Deflate cache measured
+37.23–37.42% of warm cycle CPU under `preflight_carrier` on a fixture with no
+footnotes. In this snapshot `sequence.rs:300` calls the preflight before dispatch,
+and `footnote.rs:598–620` invokes text and space width before checking whether
+a note ends the eligible prefix. These are execution mechanics. Origin,
+pagination, semantic structure, annotation destinations, source effects and
+font/dependency invalidation remain the language acceptance gates.
+
+In the productive implementation, prove eligibility on the same borrowed suffix after the
+existing admission guards, before the first width call. Unwrap only Source and
+Located with the same location precedence. Traverse only the original finite
+prefix of Text without control characters, Empty and spaces. Require nonempty
+text before the first terminal Footnote and the same effect-free body
+certificate. Stops at the first refusal, paragraph boundary, or end of suffix.
+A negative certificate performs no width query, stores no state, does not
+dispatch content, and is recomputed on the current suffix each time.
+
+For a positive certificate, keep original metric inputs and their order,
+including empty text and only spaces after nonempty text. Keep the original
+location, counter lookup, marker morphology, note-body capture, page and column
+admission, and all fallback behavior. Preserve both font-generation proofs on
+normal font demand. No new public contract, default behavior, phase or persistent
+cache. Require a RED→GREEN count of actual preflight metric calls, continued
+admission for real notes, fresh comparison for Unicode and note-bearing controls,
+effects and invalidation, and a full-cycle comparison with balanced A/A.
+
+### Productive adoption — 2026-11-19
+
+Adopt the bounded implementation qualified in
+lab/results/construction/diagnostics/unicode-footnote-preflight-2026-11-19/report.md.
+The 2026-11-19 integration is explicitly authorized and supersedes isolation
+restrictions for this validated implementation. Prior experiment gates and
+provenance remain historical. Preserve the specified refusals, source identity,
+effects and invalidation. Keep measurement barriers and private observers in the
+laboratory. Reseal this owner and verify the integrated release and the pinned
+vanilla comparison.

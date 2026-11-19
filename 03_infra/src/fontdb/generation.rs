@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb/generation.md
-//! @prompt-hash d3c61e02
+//! @prompt-hash 1b1b6394
 //! @layer L3
 //! @updated 2026-10-09
 
@@ -43,9 +43,42 @@ struct ProbeKey(Vec<ScanStamp>);
 impl ProbeKey {
     fn unchanged(&self) -> bool {
         self.0.iter().all(|previous| {
-            scan_stamp(&previous.path, previous.link.is_none())
-                .is_some_and(|(current, _)| current == *previous)
+            retained_stamp_unchanged(
+                previous,
+                |path| std::fs::symlink_metadata(path),
+                |path| std::fs::metadata(path),
+            )
         })
+    }
+}
+
+#[cfg(unix)]
+fn retained_stamp_unchanged(
+    previous: &ScanStamp,
+    nofollow: impl FnOnce(&Path) -> std::io::Result<std::fs::Metadata>,
+    follow: impl FnOnce(&Path) -> std::io::Result<std::fs::Metadata>,
+) -> bool {
+    let link = match nofollow(&previous.path) {
+        Ok(metadata) => metadata,
+        Err(error) => {
+            return previous.link.is_none()
+                && previous.target.is_none()
+                && error.kind() == std::io::ErrorKind::NotFound;
+        }
+    };
+    let identity = metadata_identity(&link);
+    if previous.link != Some(identity) {
+        return false;
+    }
+    // A regular file names its own target in this one observation.
+    if link.is_file() && previous.target == Some(identity) {
+        return true;
+    }
+    match follow(&previous.path) {
+        Ok(target) => previous.target == Some(metadata_identity(&target)),
+        Err(error) => {
+            previous.target.is_none() && error.kind() == std::io::ErrorKind::NotFound
+        }
     }
 }
 

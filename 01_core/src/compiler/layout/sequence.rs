@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence.md
-//! @prompt-hash b7bf07ab
+//! @prompt-hash dc64eab9
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -22,7 +22,7 @@ mod inline_prefix;
 #[cfg(test)]
 use self::fractional_preflight::fractional_region_remaining;
 use self::fractional_preflight::{
-    fractional_block, fractional_preflight, fractional_share, FractionalRegionBasis,
+    FractionalRegionBasis, fractional_block, fractional_preflight, fractional_share,
 };
 #[cfg(test)]
 use self::inline_prefix::{
@@ -153,6 +153,69 @@ fn layout_segmented_unstyled<M: FontMetrics, S: ImageSizer>(
     }
 }
 
+/// One complete real paragraph, certified under the current original source cursor.
+fn try_source_segment<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<'_, M, S>,
+    parts: &[Content],
+    start: usize,
+    planned: Option<PartRoutes<'_>>,
+) -> Option<usize> {
+    if start == 0
+        || !matches!(parts[start - 1].source_body(), Content::Parbreak)
+        || l.bidi_cursor.is_some()
+        || l.active_paragraph_dir == Some(crate::entities::dir::Dir::RTL)
+        || l.capture_html_context_markers
+        || l.flow_suffix_transaction_active
+        || !l.pending_footnote_bodies.is_empty()
+        || !l.pending_footnote_frames.is_empty()
+        || !l.pending_footnote_plans.is_empty()
+        || l.footnote_capture.is_some()
+        || l.fractional_block_height.is_some()
+        || l.pending_bib_escape.is_some()
+        || l.style.superscript
+        || l.style.subscript
+        || !l.link_capture.active.is_empty()
+    {
+        return None;
+    }
+    let end = start
+        + parts[start..]
+            .iter()
+            .position(|p| matches!(p.source_body(), Content::Parbreak))?;
+    if end == start
+        || end - start > 2048
+        || !super::paragraph_session::preserves_atom_boundaries(&parts[start..end])
+    {
+        return None;
+    }
+    for index in start..end {
+        let route = match planned {
+            Some(PartRoutes::Source(routes)) => Some(routes.get(index)?),
+            Some(PartRoutes::Mixed(routes)) => Some(routes.get(index)?.as_ref()?),
+            None => None,
+        };
+        if !l.certifies_pure_source_part(index, parts.len(), route) {
+            return None;
+        }
+    }
+    let saved_indent = l.paragraph_indent.clone();
+    if !super::paragraph_plan::try_parts(l, &parts[start..end]) {
+        l.paragraph_indent = saved_indent;
+        return None;
+    }
+    // Every admitted paragraph contains material Text; retain the ordinary
+    // sibling state after that pure paragraph, leaving its Parbreak to dispatch.
+    l.last_seen_item_group = None;
+    l.parbreak_since_last_item = false;
+    l.last_was_loose_item = false;
+    l.enum_counter = None;
+    if super::html_frame::items_have_material(&l.regions.current.current_line) {
+        l.block_chain_active = false;
+        l.prev_block_below_pending = 0.0;
+    }
+    Some(end)
+}
+
 fn layout_parts<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
@@ -235,6 +298,16 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             }
         }
         super::footnote::preflight_carrier(layouter, &parts[part_index..]);
+        if distribution.is_none() {
+            if let Some(end) = try_source_segment(layouter, parts, part_index, planned) {
+                for _ in part_index + 1..end {
+                    let _ = iter.next();
+                }
+                part_index = end;
+                continue;
+            }
+        }
+
         // **P864** — detetar `Content::Parbreak` entre itens do mesmo grupo.
         // Se o item anterior (mesmo tipo) foi separado por um Parbreak,
         // aplica o espaçamento de parágrafo entre grupos e reinicia o estado
@@ -1014,5 +1087,234 @@ mod template_paragraph_tests {
             (author_y(&siblings) - author_y(&explicit)).abs() < 0.001,
             "{siblings:?} vs {explicit:?}"
         );
+    }
+}
+
+#[cfg(test)]
+mod source_segment_tests {
+    use super::*;
+    use crate::compiler::layout::{
+        FixedMetrics,
+        page_running_requests::{PlannedPass, TraceSection},
+        paragraph_session::{MetricIdentity, ParagraphSession},
+    };
+    use crate::compiler::{
+        eval::EvalContext,
+        introspect::page_running::{PlanPhase, prepare_page_running_body},
+        realize::context_occurrences::ContextOccurrenceArena,
+    };
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{
+            FrameItem, Length, PageMarginSpec, PageMargins, PagedDocument, TextStyle,
+        },
+        style_chain::StyleDelta,
+        value::Value,
+    };
+    use comemo::Track;
+    #[derive(Clone)]
+    struct Provider {
+        session: ParagraphSession,
+        identity: MetricIdentity,
+    }
+    impl FontMetrics for Provider {
+        fn paragraph_session(&self) -> Option<ParagraphSession> {
+            Some(self.session.clone())
+        }
+        fn paragraph_identity(&self, _: &str, _: &TextStyle) -> Option<MetricIdentity> {
+            Some(self.identity.clone())
+        }
+        fn advance(&self, t: &str, s: Pt, st: &TextStyle) -> Pt {
+            FixedMetrics.advance(t, s, st)
+        }
+        fn vertical_metrics(&self, s: Pt, st: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(s, st)
+        }
+        fn cap_height(&self, s: Pt, st: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(s, st)
+        }
+        fn text_edges(&self, s: Pt, st: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(s, st)
+        }
+    }
+    fn provider() -> Provider {
+        Provider {
+            session: ParagraphSession::new(),
+            identity: MetricIdentity::new(),
+        }
+    }
+    fn input(word: &str) -> Content {
+        Content::sequence(vec![
+            Content::metadata(Value::Str("before".into())),
+            Content::Parbreak,
+            Content::text("Alpha"),
+            Content::Space,
+            Content::text(word),
+            Content::Space,
+            Content::text("epsilon"),
+            Content::Parbreak,
+            Content::metadata(Value::Str("after".into())),
+        ])
+    }
+    fn run(
+        p: &Provider,
+        c: &Content,
+        width: f64,
+        size: f64,
+    ) -> (PagedDocument, Vec<(String, PlanPhase, usize)>) {
+        let mut arena = ContextOccurrenceArena::new(c);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        let body = arena
+            .evaluate(&mut frame, &mut ctx, |ctx| prepare_page_running_body(c, ctx))
+            .unwrap();
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            p.clone(),
+            NullImageSizer,
+            size,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push(StyleDelta {
+            size: Some(Length::pt(size)),
+            ..StyleDelta::empty()
+        });
+        l.style = TextStyle::from(&l.chain);
+        l.page_config.width = width;
+        l.page_config.height = 100.0;
+        l.page_config.margin = PageMargins::uniform(10.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(10.0);
+        l.regions.current.width = width;
+        l.regions.current.height = 100.0;
+        l.regions.current.cursor_x = Pt(10.0);
+        l.regions.current.line_start_x = Pt(10.0);
+        l.regions.current.cursor_y = Pt(10.0);
+        l.page_running_pass = Some(PlannedPass::new(&body, None));
+        l.layout_planned_root(&body, TraceSection::Body);
+        assert!(
+            l.page_running_pass.as_ref().unwrap().coverage_complete(),
+            "source facts lost"
+        );
+        assert!(l.layout_errors.is_empty());
+        assert!(l.current_source_span.is_detached());
+        let pass = l.page_running_pass.as_ref().unwrap();
+        let facts = pass
+            .trace
+            .data
+            .admissions
+            .iter()
+            .filter(|a| a.plan.required(a.packet, a.phase))
+            .map(|a| {
+                (
+                    a.plan.node(a.packet).unwrap().content.elem_name().to_string(),
+                    a.phase,
+                    a.page.get(),
+                )
+            })
+            .collect();
+        (l.finish(), facts)
+    }
+    fn observe(d: &PagedDocument) -> Vec<(usize, String, u64, u64)> {
+        d.pages
+            .iter()
+            .enumerate()
+            .flat_map(|(i, p)| {
+                super::super::tests::frame_items_recursive(&p.items)
+                    .into_iter()
+                    .filter_map(move |f| match f {
+                        FrameItem::Text { pos, text, .. } => Some((
+                            i,
+                            text.to_string(),
+                            pos.x.0.to_bits(),
+                            pos.y.0.to_bits(),
+                        )),
+                        _ => None,
+                    })
+            })
+            .collect()
+    }
+    #[test]
+    fn source_segment_reaches_existing_memo_on_fresh_plans() {
+        let p = provider();
+        let c = input("beta gamma delta");
+        let (first, facts) = run(&p, &c, 180.0, 11.0);
+        let misses = p.session.stats().1;
+        let (second, again) = run(&p, &c, 180.0, 11.0);
+        assert_eq!(observe(&first), observe(&second));
+        assert_eq!(facts, again);
+        assert!(!facts.is_empty());
+        assert!(
+            misses > 0 && p.session.stats().0 > 0,
+            "closed pure SourcePlan segment never reached memo: {:?}",
+            p.session.stats()
+        );
+    }
+    #[test]
+    fn source_segment_invalidates_text_width_size_and_provider() {
+        let mut p = provider();
+        let _ = run(&p, &input("beta gamma delta"), 180.0, 11.0);
+        for (word, width, size) in [
+            ("changed gamma delta", 180.0, 11.0),
+            ("beta gamma delta", 140.0, 11.0),
+            ("beta gamma delta", 180.0, 18.0),
+        ] {
+            let hits = p.session.stats().0;
+            let (warm, facts) = run(&p, &input(word), width, size);
+            let cold = provider();
+            let (fresh, fresh_facts) = run(&cold, &input(word), width, size);
+            assert_eq!(observe(&warm), observe(&fresh));
+            assert_eq!(facts, fresh_facts);
+            assert_eq!(p.session.stats().0, hits);
+        }
+        p.identity = MetricIdentity::new();
+        let hits = p.session.stats().0;
+        let _ = run(&p, &input("beta gamma delta"), 180.0, 11.0);
+        assert_eq!(p.session.stats().0, hits);
+    }
+    #[test]
+    fn source_segment_preserves_changed_origin_and_opaque_neighbors() {
+        use crate::entities::{file_id::FileId, span::Span};
+        let p = provider();
+        let id = FileId::from_raw(std::num::NonZeroU16::new(41).unwrap());
+        let first =
+            input("beta gamma delta").with_source_span(Span::from_range(id, 0..10));
+        let (a, facts) = run(&p, &first, 180.0, 11.0);
+        let hits = p.session.stats().0;
+        let second =
+            input("beta gamma delta").with_source_span(Span::from_range(id, 20..40));
+        let (b, next) = run(&p, &second, 180.0, 11.0);
+        assert_eq!(observe(&a), observe(&b));
+        assert_eq!(facts, next);
+        assert!(p.session.stats().0 > hits);
+        assert_eq!(first.source_span(), Span::from_range(id, 0..10));
+        assert_eq!(second.source_span(), Span::from_range(id, 20..40));
+    }
+    #[test]
+    fn source_segment_rejects_unbounded_initial_and_terminal_fragments() {
+        for c in [
+            Content::sequence(vec![
+                Content::metadata(Value::Str("opaque initial paragraph".into())),
+                Content::text("Alpha"),
+                Content::Space,
+                Content::text("beta gamma"),
+                Content::Parbreak,
+                Content::metadata(Value::Str("end".into())),
+            ]),
+            Content::sequence(vec![
+                Content::metadata(Value::Str("start".into())),
+                Content::Parbreak,
+                Content::text("Alpha"),
+                Content::Space,
+                Content::text("beta gamma"),
+            ]),
+        ] {
+            let p = provider();
+            let (a, facts) = run(&p, &c, 180.0, 11.0);
+            let (b, next) = run(&p, &c, 180.0, 11.0);
+            assert_eq!(observe(&a), observe(&b));
+            assert_eq!(facts, next);
+            assert_eq!(p.session.stats(), (0, 0, 0));
+        }
     }
 }

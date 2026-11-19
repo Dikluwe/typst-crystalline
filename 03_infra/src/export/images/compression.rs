@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images/compression.md
-//! @prompt-hash c9774139
+//! @prompt-hash 75c2002f
 //! @layer L3
 //! @updated 2026-11-12
 
@@ -9,8 +9,8 @@ use std::collections::VecDeque;
 use std::io::Write;
 use std::sync::{Mutex, OnceLock};
 
-const MAX_ENTRIES: usize = 32;
-const MAX_BYTES: usize = 1024 * 1024;
+const MAX_ENTRIES: usize = 64;
+const MAX_BYTES: usize = 2 * 1024 * 1024;
 struct Entry {
     input: Box<[u8]>,
     output: Box<[u8]>,

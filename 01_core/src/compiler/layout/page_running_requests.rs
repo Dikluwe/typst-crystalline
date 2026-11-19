@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_running_requests.md
-//! @prompt-hash 74e10296
+//! @prompt-hash ae0e186e
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -703,6 +703,211 @@ impl<'a, M: super::FontMetrics, S: crate::entities::image_sizer::ImageSizer>
         } else {
             self.layout_content(content);
         }
+    }
+
+    /// Attempt-local authority for a no-fact original text child, never a memo key.
+    pub(super) fn certifies_pure_source_part(
+        &self,
+        index: usize,
+        count: usize,
+        routed: Option<&Cursor>,
+    ) -> bool {
+        use crate::compiler::introspect::page_running::{PlanEdge, PlanRole};
+        let Some(pass) = &self.page_running_pass else { return false };
+        let Some(parent) = &pass.cursor else { return false };
+        if pass.invalid
+            || parent.paint_only
+            || parent.anchor.is_some()
+            || !parent.generated_edges.is_empty()
+            || parent.section != TraceSection::Body
+            || !Arc::ptr_eq(&pass.source, &parent.plan)
+        {
+            return false;
+        }
+        let Some(scope) = parent.plan.node(parent.packet) else { return false };
+        if !matches!(&scope.content, Content::Sequence(parts) if parts.len()==count) {
+            return false;
+        }
+        let Some(packet) =
+            parent.plan.child(parent.packet, PlanEdge::SequencePart(index))
+        else {
+            return false;
+        };
+        if let Some(route) = routed {
+            if !Arc::ptr_eq(&route.plan, &parent.plan)
+                || route.packet != packet
+                || route.section != parent.section
+                || route.paint_only
+                || route.anchor.is_some()
+                || !route.generated_edges.is_empty()
+            {
+                return false;
+            }
+        }
+        let mut pending = vec![(packet, 0usize)];
+        let mut visited = 0usize;
+        while let Some((packet, depth)) = pending.pop() {
+            visited += 1;
+            if visited > 2048 || depth >= 64 {
+                return false;
+            }
+            let Some(node) = parent.plan.node(packet) else { return false };
+            if node.role != PlanRole::Canonical
+                || node.location.is_some()
+                || node.label.is_some()
+                || !node.auxiliary_locations.is_empty()
+                || node.conditional_ref.is_some()
+                || node.original
+                || node.math
+                || node.environment != scope.environment
+            {
+                return false;
+            }
+            let correct_edges = match &node.content {
+                Content::Source(_) => {
+                    node.children.len() == 1 && node.children[0].0 == PlanEdge::SourceBody
+                }
+                Content::Sequence(parts) => {
+                    node.children.len() == parts.len()
+                        && node
+                            .children
+                            .iter()
+                            .enumerate()
+                            .all(|(i, (edge, _))| *edge == PlanEdge::SequencePart(i))
+                }
+                Content::Text(_)
+                | Content::Empty
+                | Content::Space
+                | Content::SpaceFromNewline => node.children.is_empty(),
+                Content::ShowRecipe(..)
+                | Content::Realized(..)
+                | Content::Located(..)
+                | Content::Symbol(..)
+                | Content::Parbreak
+                | Content::HtmlElem(..)
+                | Content::HtmlFrame(..)
+                | Content::Par { .. }
+                | Content::Heading(..)
+                | Content::Title(..)
+                | Content::Strong(..)
+                | Content::Emph(..)
+                | Content::Raw(..)
+                | Content::ListItem(..)
+                | Content::EnumItem(..)
+                | Content::Link(..)
+                | Content::Equation(..)
+                | Content::MathSequence(..)
+                | Content::MathIdent(..)
+                | Content::MathText(..)
+                | Content::MathFrac(..)
+                | Content::MathAttach(..)
+                | Content::MathPrimes(..)
+                | Content::MathRoot(..)
+                | Content::MathStretch(..)
+                | Content::MathDelimited(..)
+                | Content::MathLr(..)
+                | Content::MathMid(..)
+                | Content::MathOverbrace(..)
+                | Content::MathUnderbrace(..)
+                | Content::MathUnderbracket(..)
+                | Content::MathUnderparen(..)
+                | Content::MathUndershell(..)
+                | Content::MathOverbracket(..)
+                | Content::MathOverparen(..)
+                | Content::MathOvershell(..)
+                | Content::MathAlignPoint(..)
+                | Content::Linebreak(..)
+                | Content::MathMatrix(..)
+                | Content::MathCases(..)
+                | Content::MathAccent(..)
+                | Content::MathCancel(..)
+                | Content::MathUnderline(..)
+                | Content::MathOverline(..)
+                | Content::MathVec(..)
+                | Content::MathClassOverride(..)
+                | Content::MathLimitsOverride(..)
+                | Content::MathUnderover(..)
+                | Content::MathOp(..)
+                | Content::MathStyled(..)
+                | Content::Label(..)
+                | Content::Ref(..)
+                | Content::CounterDisplay(..)
+                | Content::CounterUpdate(..)
+                | Content::Outline(..)
+                | Content::OutlineEntry(..)
+                | Content::Figure(..)
+                | Content::FigureCaption(..)
+                | Content::Image(..)
+                | Content::Shape(..)
+                | Content::Curve(..)
+                | Content::Transform(..)
+                | Content::Grid(..)
+                | Content::GridHeader(..)
+                | Content::GridFooter(..)
+                | Content::GridCell(..)
+                | Content::SetPage(..)
+                | Content::PageRun(..)
+                | Content::Align(..)
+                | Content::Place(..)
+                | Content::Flush(..)
+                | Content::Styled(..)
+                | Content::Divider(..)
+                | Content::Terms(..)
+                | Content::TermItem(..)
+                | Content::Quote(..)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(..)
+                | Content::PdfAttach(..)
+                | Content::PdfArtifact(..)
+                | Content::Underline(..)
+                | Content::Strike(..)
+                | Content::Overline(..)
+                | Content::SmallCaps { .. }
+                | Content::Pad(..)
+                | Content::Hide(..)
+                | Content::HSpace(..)
+                | Content::VSpace(..)
+                | Content::Pagebreak(..)
+                | Content::Colbreak(..)
+                | Content::Stack(..)
+                | Content::Boxed(..)
+                | Content::Block(..)
+                | Content::TableCell(..)
+                | Content::Bibliography(..)
+                | Content::Cite(..)
+                | Content::Footnote(..)
+                | Content::FootnoteEntry(..)
+                | Content::TableHeader(..)
+                | Content::TableFooter(..)
+                | Content::GridHLine(..)
+                | Content::GridVLine(..)
+                | Content::TableHLine(..)
+                | Content::TableVLine(..)
+                | Content::Table(..)
+                | Content::Repeat(..)
+                | Content::Columns(..)
+                | Content::Metadata(..)
+                | Content::State(..)
+                | Content::StateUpdate(..)
+                | Content::StateDisplay(..)
+                | Content::CounterDisplayCallback(..)
+                | Content::ContextBlock(..)
+                | Content::Dynamic(..) => false,
+            };
+            if !correct_edges
+                || node.children.len() > 2048usize.saturating_sub(visited + pending.len())
+            {
+                return false;
+            }
+            if parent.plan.required(packet, PlanPhase::Root)
+                || parent.plan.required(packet, PlanPhase::PostChildren)
+            {
+                return false;
+            }
+            pending.extend(node.children.iter().map(|(_, child)| (*child, depth + 1)));
+        }
+        true
     }
 
     pub(super) fn planned_location(&self) -> Option<crate::entities::location::Location> {
@@ -1780,6 +1985,140 @@ mod repeat_activity_tests {
             }
             invalid.data.inactive_repeat_bodies.push(forged);
             assert!(!invalid.repeat_activity_valid(), "forged {mode} must reject");
+        }
+    }
+}
+
+#[cfg(test)]
+mod source_certificate_tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::compiler::{
+        eval::EvalContext,
+        introspect::page_running::{PlanEdge, prepare_page_running_body},
+        realize::context_occurrences::ContextOccurrenceArena,
+    };
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        value::Value,
+    };
+    use comemo::Track;
+    fn check(
+        part: Content,
+        f: impl FnOnce(
+            &mut super::super::Layouter<'_, FixedMetrics, NullImageSizer>,
+            &PageRunningBody,
+        ),
+    ) {
+        let c = Content::sequence(vec![Content::Empty, part, Content::Space]);
+        let mut arena = ContextOccurrenceArena::new(&c);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        let body = arena
+            .evaluate(&mut frame, &mut ctx, |ctx| prepare_page_running_body(&c, ctx))
+            .unwrap();
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let mut pass = PlannedPass::new(&body, None);
+        pass.cursor = Some(Cursor {
+            plan: body.plan.clone(),
+            packet: body.plan.root,
+            section: TraceSection::Body,
+            paint_only: false,
+            generated_edges: vec![],
+            anchor: None,
+        });
+        l.page_running_pass = Some(pass);
+        f(&mut l, &body);
+    }
+    #[test]
+    fn source_certificate_accepts_only_current_typed_authority_without_trace_mutation()
+     {
+        check(Content::text("alpha beta"), |l, body| {
+            let Content::Sequence(parts) = body.content() else {
+                panic!("sequence retained")
+            };
+            let n = parts.len();
+            let i = parts
+                .iter()
+                .position(|p| matches!(p.source_body(), Content::Text(_)))
+                .unwrap();
+            assert!(l.certifies_pure_source_part(i, n, None));
+            let events =
+                l.page_running_pass.as_ref().unwrap().trace.data.admissions.len();
+            let route = l.planned_child_cursor(PlanEdge::SequencePart(i)).unwrap();
+            assert!(l.certifies_pure_source_part(i, n, Some(&route)));
+            check(Content::text("same values, foreign owner"), |_, other| {
+                let mut foreign = route.clone();
+                foreign.plan = other.plan.clone();
+                assert!(!l.certifies_pure_source_part(i, n, Some(&foreign)));
+            });
+            let mut wrong = route.clone();
+            wrong.packet = body.plan.root;
+            assert!(!l.certifies_pure_source_part(i, n, Some(&wrong)));
+            wrong = route.clone();
+            wrong.generated_edges.push(PlanEdge::SourceBody);
+            assert!(!l.certifies_pure_source_part(i, n, Some(&wrong)));
+            wrong = route.clone();
+            wrong.paint_only = true;
+            assert!(!l.certifies_pure_source_part(i, n, Some(&wrong)));
+            assert!(!l.certifies_pure_source_part(n, n, None));
+            assert!(!l.certifies_pure_source_part(i, n + 1, None));
+            l.page_running_pass.as_mut().unwrap().invalid = true;
+            assert!(!l.certifies_pure_source_part(i, n, None));
+            l.page_running_pass.as_mut().unwrap().invalid = false;
+            l.page_running_pass
+                .as_mut()
+                .unwrap()
+                .cursor
+                .as_mut()
+                .unwrap()
+                .generated_edges
+                .push(PlanEdge::SourceBody);
+            assert!(!l.certifies_pure_source_part(i, n, None));
+            assert_eq!(
+                events,
+                l.page_running_pass.as_ref().unwrap().trace.data.admissions.len()
+            );
+            assert!(l.layout_errors.is_empty());
+        });
+    }
+    #[test]
+    fn source_certificate_rejects_opaque_effects_nested_breaks_and_styles() {
+        for part in [
+            Content::metadata(Value::Str("effect".into())),
+            Content::Symbol("x".into()),
+            Content::Parbreak,
+            Content::strong(Content::text("bold")),
+        ] {
+            check(part, |l, body| {
+                let Content::Sequence(parts) = body.content() else {
+                    panic!("sequence retained")
+                };
+                let i = parts
+                    .iter()
+                    .position(|p| {
+                        !matches!(p.source_body(), Content::Empty | Content::Space)
+                    })
+                    .unwrap();
+                assert!(!l.certifies_pure_source_part(i, parts.len(), None));
+                assert!(l.layout_errors.is_empty());
+                assert!(
+                    l.page_running_pass
+                        .as_ref()
+                        .unwrap()
+                        .trace
+                        .data
+                        .admissions
+                        .is_empty()
+                );
+            });
         }
     }
 }

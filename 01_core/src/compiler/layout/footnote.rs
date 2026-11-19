@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote.md
-//! @prompt-hash 82c1ea77
+//! @prompt-hash 5e63fb50
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -565,6 +565,32 @@ pub(super) fn preflight_following_prose<M: FontMetrics, S: ImageSizer>(
     }
 }
 
+/// Identify the same terminal note and borrowed prefix before querying metrics.
+fn carrier_candidate(
+    parts: &[Content],
+) -> Option<(&[Content], &FootnoteElem, Option<crate::entities::location::Location>)> {
+    let mut has_text = false;
+    for (index, part) in parts.iter().enumerate() {
+        let (part, location) = unwrapped(part, None);
+        if let Content::Text(text) = part {
+            if text.chars().any(char::is_control) {
+                return None;
+            }
+            has_text |= !text.is_empty();
+            continue;
+        }
+        if matches!(part, Content::Empty | Content::Space | Content::SpaceFromNewline) {
+            continue;
+        }
+        let Content::Footnote(note) = part else {
+            return None;
+        };
+        return (has_text && admission_text(&note.body))
+            .then_some((&parts[..index], note.as_ref(), location));
+    }
+    None
+}
+
 /// Admit a certified carrier before its original source child is dispatched.
 pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
@@ -592,110 +618,95 @@ pub(super) fn preflight_carrier<M: FontMetrics, S: ImageSizer>(
     {
         return;
     }
+    let Some((prefix, note, location)) = carrier_candidate(parts) else {
+        return;
+    };
     let available_width = l.regions.current.width - l.page_config.margin.horizontal();
     let mut width = 0.0;
     let mut has_text = false;
-    for part in parts {
-        let (part, location) = unwrapped(part, None);
+    for part in prefix {
+        let (part, _) = unwrapped(part, None);
         if let Content::Text(text) = part {
-            if text.chars().any(char::is_control) {
-                return;
-            }
             width += l.metrics.text_width(text, style.size, &style).0;
             has_text |= !text.is_empty();
-            continue;
+        } else if has_text && matches!(part, Content::Space | Content::SpaceFromNewline) {
+            width += l.metrics.text_width(" ", style.size, &style).0;
         }
-        if matches!(part, Content::Empty) {
-            continue;
-        }
-        if matches!(part, Content::Space | Content::SpaceFromNewline) {
-            if has_text {
-                width += l.metrics.text_width(" ", style.size, &style).0;
-            }
-            continue;
-        }
-        let Content::Footnote(note) = part else {
-            return;
-        };
-        if !has_text || !admission_text(&note.body) {
-            return;
-        }
-        let key = CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
-        let n = location
-            .and_then(|loc| l.introspector.flat_counter_at(&key, loc))
-            .unwrap_or(1);
-        let marker_text = format_counter(&[n], numbering(note, &l.chain))
-            .unwrap_or_else(|| n.to_string());
-        let mut script = style.clone();
-        script.superscript = true;
-        script.size = l
-            .metrics
-            .text_superscript_metrics(&marker_text, style.size, &script)
-            .0;
-        width += l.metrics.text_width(&marker_text, script.size, &script).0;
-        if !width.is_finite() || width > available_width {
-            return;
-        }
-        let marker = Content::superscript(Content::text(marker_text));
-        let entry = entry_settings(l);
-        let Some(separator_height) = entry.separator_height else { return };
-        let prefix = entry_prefix(marker, style.size.0, entry.indent);
-        let height = {
-            let metrics: &dyn FontMetrics = &l.metrics;
-            let mut probe = Layouter::new(
-                metrics,
-                crate::entities::image_sizer::NullImageSizer,
-                style.size.0,
-                l.introspector,
-            );
-            probe.chain = l.chain.clone();
-            probe.footnote_entry_scope = l.footnote_entry_scope.clone();
-            probe.style = style.clone();
-            probe.page_config = l.page_config.clone();
-            probe.regions.current.width = l.regions.current.width;
-            probe.column_mode = l.column_mode;
-            probe.page_columns = l.page_columns;
-            probe.page_column_notes = l.page_column_notes;
-            probe.column_width = l.column_width;
-            let frame = probe.capture_footnote_frame(&prefix, &note.body, None);
-            if l.page_column_notes {
-                if !frame.source_lines {
-                    return;
-                }
-                super::footnote_fragments::first_line_requirement(&frame)
-            } else {
-                frame.height
-            }
-        };
-        let overhead = entry.clearance + entry.gap + separator_height;
-        let top = l.metrics.text_edges(style.size, &style).0 .0;
-        let initial = if l.initial_baseline_pending { top } else { 0.0 };
-        let mut required = initial + overhead + height;
-        let mut remaining = l.regions.current.height
-            - l.page_config.margin.bottom
-            - l.regions.current.cursor_y.0;
-        let fresh = l.regions.current.height - l.page_config.margin.vertical();
-        if !required.is_finite() {
-            return;
-        }
-        if l.page_column_notes {
-            while required > remaining {
-                if top + overhead + height > fresh
-                    && l.page_columns.is_none_or(|count| l.current_column + 1 >= count)
-                {
-                    break;
-                }
-                l.new_page();
-                let initial = if l.initial_baseline_pending { top } else { 0.0 };
-                required = initial + overhead + height;
-                remaining = l.regions.current.height
-                    - l.page_config.margin.bottom
-                    - l.regions.current.cursor_y.0;
-            }
-        } else if required > remaining && top + overhead + height <= fresh {
-            l.new_page();
-        }
+    }
+    let key = CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
+    let n = location
+        .and_then(|loc| l.introspector.flat_counter_at(&key, loc))
+        .unwrap_or(1);
+    let marker_text = format_counter(&[n], numbering(note, &l.chain))
+        .unwrap_or_else(|| n.to_string());
+    let mut script = style.clone();
+    script.superscript = true;
+    script.size = l
+        .metrics
+        .text_superscript_metrics(&marker_text, style.size, &script)
+        .0;
+    width += l.metrics.text_width(&marker_text, script.size, &script).0;
+    if !width.is_finite() || width > available_width {
         return;
+    }
+    let marker = Content::superscript(Content::text(marker_text));
+    let entry = entry_settings(l);
+    let Some(separator_height) = entry.separator_height else { return };
+    let prefix = entry_prefix(marker, style.size.0, entry.indent);
+    let height = {
+        let metrics: &dyn FontMetrics = &l.metrics;
+        let mut probe = Layouter::new(
+            metrics,
+            crate::entities::image_sizer::NullImageSizer,
+            style.size.0,
+            l.introspector,
+        );
+        probe.chain = l.chain.clone();
+        probe.footnote_entry_scope = l.footnote_entry_scope.clone();
+        probe.style = style.clone();
+        probe.page_config = l.page_config.clone();
+        probe.regions.current.width = l.regions.current.width;
+        probe.column_mode = l.column_mode;
+        probe.page_columns = l.page_columns;
+        probe.page_column_notes = l.page_column_notes;
+        probe.column_width = l.column_width;
+        let frame = probe.capture_footnote_frame(&prefix, &note.body, None);
+        if l.page_column_notes {
+            if !frame.source_lines {
+                return;
+            }
+            super::footnote_fragments::first_line_requirement(&frame)
+        } else {
+            frame.height
+        }
+    };
+    let overhead = entry.clearance + entry.gap + separator_height;
+    let top = l.metrics.text_edges(style.size, &style).0 .0;
+    let initial = if l.initial_baseline_pending { top } else { 0.0 };
+    let mut required = initial + overhead + height;
+    let mut remaining = l.regions.current.height
+        - l.page_config.margin.bottom
+        - l.regions.current.cursor_y.0;
+    let fresh = l.regions.current.height - l.page_config.margin.vertical();
+    if !required.is_finite() {
+        return;
+    }
+    if l.page_column_notes {
+        while required > remaining {
+            if top + overhead + height > fresh
+                && l.page_columns.is_none_or(|count| l.current_column + 1 >= count)
+            {
+                break;
+            }
+            l.new_page();
+            let initial = if l.initial_baseline_pending { top } else { 0.0 };
+            required = initial + overhead + height;
+            remaining = l.regions.current.height
+                - l.page_config.margin.bottom
+                - l.regions.current.cursor_y.0;
+        }
+    } else if required > remaining && top + overhead + height <= fresh {
+        l.new_page();
     }
 }
 
@@ -1283,5 +1294,103 @@ mod footnote_columns_tests {
             (super::entry_settings(&l).indent - 8.5).abs() < 1e-8,
             "common page-column text style owns default indent"
         );
+    }
+}
+
+#[cfg(test)]
+mod carrier_certificate_tests {
+    use super::*;
+    use crate::entities::{
+        content::{LocatedContent, SourceContent},
+        image_sizer::NullImageSizer,
+        introspector::TagIntrospector,
+        layout_types::{Pt, TextStyle},
+        location::Location,
+        span::Span,
+    };
+    use comemo::Track;
+    use std::sync::{Arc, Mutex};
+
+    #[derive(Default)]
+    struct CountingMetrics(Mutex<Vec<String>>);
+
+    impl FontMetrics for CountingMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            super::super::FixedMetrics.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            super::super::FixedMetrics.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            super::super::FixedMetrics.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            super::super::FixedMetrics.text_edges(size, style)
+        }
+
+        fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.0.lock().unwrap().push(text.to_string());
+            super::super::FixedMetrics.text_width(text, size, style)
+        }
+    }
+
+    fn note(body: Content) -> Content {
+        Content::Footnote(Arc::new(FootnoteElem { body, numbering: None }))
+    }
+
+    fn wrapped(body: Content) -> Content {
+        Content::Source(Arc::new(SourceContent {
+            body: Content::Located(Arc::new(LocatedContent {
+                body,
+                location: Location::from_raw(42),
+            })),
+            span: Span::detached(),
+        }))
+    }
+
+    fn measured(parts: &[Content]) -> Vec<String> {
+        let intr = TagIntrospector::empty();
+        let mut layout = Layouter::new(
+            CountingMetrics::default(),
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        preflight_carrier(&mut layout, parts);
+        layout.metrics.0.into_inner().unwrap()
+    }
+
+    #[test]
+    fn rejects_absence_and_boundaries_before_measuring() {
+        let eligible = note(Content::text("NOTE"));
+        for parts in [
+            vec![wrapped(Content::text("こんにちは")), Content::Space],
+            vec![Content::text("a"), Content::Parbreak, eligible.clone()],
+            vec![Content::text("a"), Content::text("b\t"), eligible.clone()],
+            vec![Content::text("a"), Content::strong(eligible.clone()), eligible.clone()],
+            vec![Content::text("a"), note(Content::Parbreak), eligible.clone()],
+            vec![Content::text(""), Content::Space, eligible],
+        ] {
+            assert!(measured(&parts).is_empty(), "refused carrier measured widths");
+        }
+    }
+
+    #[test]
+    fn eligible_wrapped_note_preserves_prefix_and_marker_width_order() {
+        let parts = [
+            Content::SpaceFromNewline,
+            wrapped(Content::text("ALPHA")),
+            Content::Empty,
+            Content::Space,
+            Content::text("BETA"),
+            wrapped(note(Content::text("NOTE"))),
+            Content::text("AFTER"),
+        ];
+        let widths = measured(&parts);
+        assert_eq!(widths[..4], ["ALPHA", " ", "BETA", "1"]);
+        assert!(!widths.iter().any(|text| text == "AFTER"));
     }
 }

@@ -1,5 +1,5 @@
 # L0 — bounded immutable zlib reuse
-Hash do Código: 9a176127
+Hash do Código: dc3011bd
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/images/compression.rs`
@@ -74,3 +74,22 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Validated cache budget for bitmap Unicode (2026-11-19)
+
+The preceding Unicode census reproduced the exact LRU decisions in both sessions. At 32 entries and 1 MiB, all 44 bitmap buffers in a comment cycle repeated byte for byte and all 44 ran Deflate again. Both limits triggered eviction. The replay with 64 entries and 2 MiB retained the repeated buffers in those sessions. The result specifies an experiment and predicts no cycle time.
+
+In the productive implementation, cap the same LRU at 64 entries and 2,097,152 total owned input-plus-output bytes. This supersedes the earlier two constants for the productive cache. Preserve exact-byte matching, current encoder and settings, eviction order, ownership, errors and admission rules. Exports preserve source text, fonts, effects and current invalidation. No change to public contracts or pipeline phases.
+
+Run the recorded all-caller stream through the actual cache logic before and after the change. Use recorded compressed lengths in that structural witness, separate from the timed release. Verify real Unicode publications against fresh baseline, including effects, dependencies and font mutation. Qualify CPU benefit only with balanced A/A and complete end-to-end watch cycles. Keep build and runtime bounded .
+
+### Productive adoption — 2026-11-19
+
+Adopt the bounded implementation qualified in
+lab/results/construction/diagnostics/unicode-deflate-cache-64-2026-11-19/report.md.
+The 2026-11-19 integration is explicitly authorized and supersedes isolation
+restrictions for this validated implementation. Prior experiment gates and
+provenance remain historical. Preserve the specified refusals, source identity,
+effects and invalidation. Keep measurement barriers and private observers in the
+laboratory. Reseal this owner and verify the integrated release and the pinned
+vanilla comparison.
