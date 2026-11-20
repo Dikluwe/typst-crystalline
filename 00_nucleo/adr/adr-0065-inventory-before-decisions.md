@@ -1,6 +1,11 @@
 # ⚖️ ADR-0065: Inventariar primeiro — sub-passo `.1` para qualquer decisão arquitectural não-trivial
 
 **Status:** ACCEPTED
+
+The inventory principle remains in force. [ADR-0132](adr-0132-evidence-for-maintained-changes.md)
+defines the current evidence format and replaces the numbered sub-step
+and construction filename requirements below.
+
 **Data**: 2026-04-26
 
 ---

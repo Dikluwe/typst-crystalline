@@ -31,12 +31,16 @@ jobs:
       - name: Install Linux export observers
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y poppler-utils qpdf librsvg2-bin imagemagick
+      - name: Read the language oracle pin
+        id: oracle-pin
+        if: runner.os == 'Linux'
+        run: python3 -c 'import json; print("commit=" + json.load(open("lab/parity/vanilla.json"))["commit"])' >> "$GITHUB_OUTPUT"
       - name: Checkout pinned language oracle
         if: runner.os == 'Linux'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: typst/typst
-          ref: 64c5e8c02fe0394d913ead36e42ef8c1334d2107
+          ref: ${{ steps.oracle-pin.outputs.commit }}
           path: lab/ci-oracle
           persist-credentials: false
       - name: Build and record pinned oracle

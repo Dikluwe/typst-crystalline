@@ -2,8 +2,8 @@
 
 This file orders the active ADR corpus by authority and architectural reach.
 It does not renumber decisions. Every numbered file in 00_nucleo/adr/ must
-appear exactly once below. Revoked, superseded, and misclassified records are
-listed through the archive manifest instead. Classification uses the canonical
+appear exactly once below, including retained superseded records. Moved
+records are listed through the archive manifest. Classification uses the canonical
 English primary statuses defined in README.md; historical qualifiers do not
 promote a decision. ADR-0130 governs L0 references: use full repository-relative
 paths including `00_nucleo/prompts/` in prose. Rust `@prompt` remains unchanged.
@@ -31,19 +31,17 @@ paths including `00_nucleo/prompts/` in prose. Rust `@prompt` remains unchanged.
 
 ## 2. Evidence and decision process
 
+- [ADR-0132](adr-0132-evidence-for-maintained-changes.md)
 - [ADR-0034](adr-0034-diagnose-vanilla-types-before-materialization.md)
 - [ADR-0065](adr-0065-inventory-before-decisions.md)
 - [ADR-0084](adr-0084-conditional-audit.md)
 - [ADR-0085](adr-0085-immutable-diagnostics.md)
-- [ADR-0114](adr-0114-probe-before-specification.md)
-- [ADR-0117](adr-0117-probe-a0-verification-mechanism.md)
 - [ADR-0122](adr-0122-parity-defaults-in-comparison-tests.md)
 - [ADR-0124](adr-0124-sublayout-propagation-checklist.md)
 - [ADR-0093](adr-0093-adr-evolution-methodology.md)
 - [ADR-0094](adr-0094-specification-operations.md)
 - [ADR-0098](adr-0098-single-source-of-truth-anti-bug-invariant.md)
 - [ADR-0113](adr-0113-transparent-stub-vs-software-fallback.md)
-- [ADR-0080](adr-0080-minimal-l0-for-refactors.md)
 
 ## 3. Core domain and representation
 
@@ -72,7 +70,6 @@ paths including `00_nucleo/prompts/` in prose. Rust `@prompt` remains unchanged.
 
 ## 4. Compiler runtime and pipeline
 
-- [ADR-0017](adr-0017-defer-eval-typst-library-strategy.md)
 - [ADR-0040](adr-0040-set-rule-activation-in-eval.md)
 - [ADR-0041](adr-0041-show-rule-activation.md)
 - [ADR-0042](adr-0042-materialized-sink-in-l1.md)
@@ -150,6 +147,11 @@ paths including `00_nucleo/prompts/` in prose. Rust `@prompt` remains unchanged.
 - [ADR-0123](adr-0123-typographic-geometry.md)
 
 ## Historical records
+
+- [ADR-0017](adr-0017-defer-eval-typst-library-strategy.md), completed evaluation migration deferral
+- [ADR-0080](adr-0080-minimal-l0-for-refactors.md), construction L0 exception superseded by ADR-0132
+- [ADR-0114](adr-0114-probe-before-specification.md), construction evidence gate superseded by ADR-0132
+- [ADR-0117](adr-0117-probe-a0-verification-mechanism.md), construction verification procedure superseded by ADR-0132
 
 Historical records and redirects are indexed in
 `lab/results/construction/diagnostics/adr-archive/redirects.tsv`. They are

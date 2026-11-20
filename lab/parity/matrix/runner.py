@@ -20,8 +20,10 @@ from svg_morphology import compare as compare_svg_morphology
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+VANILLA_REFERENCE = json.loads((HERE.parent / "vanilla.json").read_text())
+VANILLA_REVISION = VANILLA_REFERENCE["commit"][:8]
 DEFAULT_VANILLA = ROOT / "lab/typst-original/target/release/typst"
-DEFAULT_CRYSTALLINE = ROOT / "target/release/typst"
+DEFAULT_CRYSTALLINE = ROOT / "lab/target/product/release/typst"
 STATES = {"MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE"}
 LATTICE_STATES = (
     "MATCH",
@@ -155,8 +157,8 @@ def validate_manifest(data: dict) -> list[str]:
 
     if data.get("schema_version") != 1:
         errors.append("schema_version must be 1")
-    if data.get("vanilla_revision") != "64c5e8c0":
-        errors.append("vanilla_revision must be 64c5e8c0")
+    if data.get("vanilla_revision") != VANILLA_REVISION:
+        errors.append(f"vanilla_revision must be {VANILLA_REVISION}")
     profiles = data.get("profiles")
     if profiles != REQUIRED_PROFILES:
         errors.append("profiles must freeze default/html/a11y/bundle combinations exactly")
@@ -805,7 +807,7 @@ def make_payload(
     vanilla_binary: str,
     crystalline_binary: str,
     *,
-    vanilla_revision: str = "64c5e8c0",
+    vanilla_revision: str = VANILLA_REVISION,
     vanilla_sha256: str | None = None,
     crystalline_sha256: str | None = None,
     order_check: dict | None = None,

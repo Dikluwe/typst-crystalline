@@ -3,6 +3,10 @@
 **Status:** IMPLEMENTED
 **Data**: 2026-03-26
 
+This record describes a completed construction step. The current compiler
+implements evaluation in `01_core/src/compiler/eval/`, with its entry-point
+contract in `00_nucleo/prompts/core/compiler/eval/mod.md`.
+
 ## Contexto
 
 O diagnóstico do Passo 6 confirmou que `typst-eval/src/lib.rs` depende

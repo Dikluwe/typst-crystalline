@@ -5,7 +5,7 @@
   "required": ["schema_version", "vanilla_revision", "cases"],
   "properties": {
     "schema_version": { "const": 1 },
-    "vanilla_revision": { "const": "bd5ebec2" },
+    "vanilla_revision": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
     "profiles": { "type": "object", "additionalProperties": { "type": "object", "properties": { "features": { "type": "array", "items": { "type": "string" } } }, "required": ["features"] } },
     "scope_out_features": { "type": "array", "items": { "type": "string" } },
     "cases": {

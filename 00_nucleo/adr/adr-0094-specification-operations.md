@@ -1,6 +1,11 @@
 # ⚖️ ADR-0094: Meta-operacional de specs (Cap LOC hard/soft + Reutilização helpers + Industry research proactiva)
 
 **Status:** ACCEPTED
+
+[ADR-0132](adr-0132-evidence-for-maintained-changes.md) defines the
+current scope of the LOC budget and research recipes below. A task may
+adopt a budget or research format when its evidence and constraints warrant it.
+
 **Status history:** `EM VIGOR` (criada directamente; paridade pattern P260
 ADR-0084/0085 e P268.1 ADR-0090)
 **Data**: 2026-05-17

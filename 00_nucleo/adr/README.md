@@ -4,8 +4,17 @@ This directory is the canonical home of Typst Crystalline architecture
 decision records (ADRs). English is the normative language for new ADRs and
 for maintained translations of existing ADRs.
 
-The complete active corpus, ordered by authority and subsystem, is in
+The complete catalog, ordered by authority and subsystem, is in
 [ORDER.md](ORDER.md).
+
+## Where to start
+
+| Work | Start with |
+|---|---|
+| Internal correction or performance improvement | [Current evidence workflow](adr-0132-evidence-for-maintained-changes.md) and the owning L0 |
+| Public contract, default, phase or compatibility change | [Approval boundary](adr-0127-l0-gate-stop-vs-continuous-flow.md) |
+| Upstream behavior or parity | [Language parity](adr-0107-language-parity-not-mechanics.md) and [measurement provenance](adr-0121-measurement-provenance.md) |
+| Shared L0 obligations or ownership | [Owners and nuclei](adr-0129-l0-owners-and-shared-tekt-nuclei.md) |
 
 ## Stable organization
 
@@ -26,7 +35,7 @@ ADR number, including the distinct ADR-0026 revision record.
 The following files are not numbered decisions:
 
 - README.md: this reference and governance document;
-- ORDER.md: the complete authority-ordered active catalog;
+- ORDER.md: the authority-ordered catalog, including retained historical records;
 - template-adr.md: the required structure for new decisions.
 
 The former Portuguese reference, which mixed a current index with cumulative

@@ -9,8 +9,11 @@ from pathlib import Path
 import subprocess
 import tomllib
 
-PIN = '64c5e8c02fe0394d913ead36e42ef8c1334d2107'
-TREE = '483bd6f1d8ac8810db47b65336d402647955fd17'
+REFERENCE = json.loads(
+    (Path(__file__).resolve().parents[2] / 'parity/vanilla.json').read_text()
+)
+PIN = REFERENCE['commit']
+TREE = REFERENCE['tree']
 
 
 def verify_source(source: Path, pin: str = PIN, tree: str = TREE) -> None:

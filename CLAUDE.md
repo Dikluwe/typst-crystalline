@@ -19,8 +19,12 @@ Distinguish these three artifacts to prevent code being written without a specif
 The workflow is:
 
 ```text
-1. Temporary task coordination → 2. AI drafts or updates the L0 prompt → 3. Human saves L0 and calculates its hash → 4. AI writes code (L1)
+Inspect the current owner and evidence → update and seal L0 → apply the ADR-0127 gate → implement and verify
 ```
+
+[ADR-0132](00_nucleo/adr/adr-0132-evidence-for-maintained-changes.md) defines the
+evidence workflow for current work. Evidence can be recorded in the owning L0
+or a diagnostic, depending on the scope.
 
 **When to stop for confirmation (ADR-0127):** stop at step 3 only for (1) a public contract change (entity field, trait method, public signature), (2) a change to default product behavior (new mode/flag/default path), (3) a pipeline phase change (eval ↔ layout), or (4) a compatibility break. Internal formula corrections, mapping-table entries, and vanilla-parity corrections follow continuous flow: update L0 first, reseal its hash, then pass the RED→GREEN and revalidation gates without stopping for a separate decision. If the change class is uncertain, stop and classify it. See [ADR-0127](00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md).
 
@@ -91,18 +95,29 @@ Parity is with the Typst **language**—semantics, syntax, and morphology—neve
 
 ---
 
-## Parity reference: which binary and source (pinned 2026-10-26)
+## Pinned parity reference
 
-The current vanilla upstream/main parity target is pinned to commit **`64c5e8c02fe0394d913ead36e42ef8c1334d2107`**, tree **`483bd6f1d8ac8810db47b65336d402647955fd17`**. The explicit resync authorized on 2026-10-26 replaces pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`; the prior P1489 pin is `9f2b6e8715237cb086899a42873660fe744622e8`. A future update requires an explicit new step/decision. Do not use moving `main` or a textual tag/version as the target. Measurements, prompts, and reports against `bd5ebec285`, `9f2b6e871`, `586e1bd43`, or earlier pins remain historical for those snapshots; they do not certify the current target without a new run. Pin `a51e02804` remains historical in the P990–P992 correction. Parity follows ADR-0107/0108: measure semantics, syntax, and morphology before deciding; do not copy vanilla defects as requirements for Crystalline.
+[lab/parity/vanilla.json](lab/parity/vanilla.json) fixes the upstream commit,
+tree and local executable SHA-256. The reference in effect is
+`a6dcd82927b2a44bb089bc9151e29566e84e7d5a`, selected on 2026-11-19 from
+upstream `main`. Future resyncs require an explicit decision. Keep earlier
+measurements with their original pins and reassess parity under ADR-0107
+and ADR-0108.
 
-Four provenance traps:
+- **Vanilla:** `lab/typst-original/target/release/typst` is the verified
+  local oracle. CI builds the same commit and tree in a clean checkout and
+  records its own binary SHA-256. Use the commit, tree, build recipe and
+  binary hash together. The vendored source retains the local inventory
+  extractor, and the oracle is built from clean upstream source.
+- **Crystalline:** `lab/target/product/release/typst` is the product binary.
+  Record its HEAD, source state and hash. The version string is supporting
+  evidence for either executable.
+- **Language version:** the pinned vanilla reports `version(0, 15, 1)`.
+  A product change to `PARITY_VERSION` requires the ADR-0127 gate in
+  `00_nucleo/prompts/core/entities/version.md`.
 
-1. **Version string is supporting evidence only.** `lab/typst-original` has no separate `.git`. The ratified build explicitly received `TYPST_COMMIT_SHA=64c5e8c02fe0394d913ead36e42ef8c1334d2107`, Rust 1.92.0, the lockfile, one job, a 12 GiB ceiling, and zero swap. Its source was blob-compared with the tree above, keeping only the lockfile and local extractor as overlays. Executable `lab/typst-original/target/release/typst` has SHA-256 `22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34`. Recipe, source/tree verification, resources, and full receipt are in `lab/results/construction/diagnostics/vanilla-resync-2026-10-26/relatorio.md` and its evidence under that directory. The previous bd5ebec285 oracle is preserved as `lab/typst-original/target/release/typst-bd5ebec285-2026-10-17` (SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`). The P1489 binary is preserved locally as `lab/typst-original/target/release/typst-9f2b6e871-p1489`; its reports retain the original SHA. Identity requires commit, tree, recipe, and SHA-256, never only `--version`.
-2. **`lab/target/product/release/typst` is the Crystalline product binary.** `04_wiring` declares `[[bin]] name = "typst"`; its public version comes from `PARITY_VERSION` (`entities/version.rs`) and our HEAD. Confusing product and oracle was the P1024 error. The oracle is the verified build in the lab or an independently checked-out CI build with a verified receipt. `/usr/local/bin/typst` can replace it only after its bytes are proven identical to the current ratified build.
-3. **`sys.version` is a language surface.** Direct probe of new vanilla `64c5e8c0` returned `version(0, 15, 1)`. Crystalline retains this triplet; `PARITY_VERSION` did not change in the resync. A future change requires the ADR-0127 gate in `00_nucleo/prompts/core/entities/version.md`.
-4. **Crystalline `--version` can be stuck on an old HEAD.** Before P1033, `02_shell/build.rs` only declared `rerun-if-env-changed=TYPST_COMMIT_SHA`. P1033 fixed this with `cargo:rerun-if-changed=../.git/HEAD` and `../.git/refs`. Provenance still records HEAD and tree state; a version string alone does not prove the source used for a measurement.
-
-Never cite "0.15.0" or "0.15.1" as the target without confirming the pinned hash first.
+The [resync diagnostic](00_nucleo/diagnostics/vanilla-reference-2026-11-19.md)
+links the verified source and build receipts and the earlier local oracle.
 
 ---
 
@@ -140,7 +155,7 @@ The required shape is B: keep the core `match` lean, with bodies delegating to a
 ## Nucleation protocol (required before code)
 
 1. **Audit L0:** Does a prompt exist under `00_nucleo/prompts/` for the affected module? Is it current against applicable ADRs?
-2. **Validate L0:** If it is absent or outdated, draft the new L0 and stop. Continue only after the human confirms the file is saved and its hash is available.
+2. **Validate L0:** If no owning L0 exists, draft it and wait for the human to confirm its canonical path and hash. For an existing owner, classify the update under ADR-0127, update and seal L0 first, and obtain confirmation when that gate requires it.
 3. **Tests first:** Add tests in the module (`#[cfg(test)]`) and confirm they fail.
 4. **Implementation:** Write code to make the specified tests pass.
 5. **Lineage:** Add the required header with correct `@prompt-hash` and canonical `@prompt`.
@@ -181,6 +196,7 @@ The required shape is B: keep the core `match` lean, with bodies delegating to a
 | [ADR-0129](00_nucleo/adr/adr-0129-l0-owners-and-shared-tekt-nuclei.md) | L0 prompt ↔ consumer is 1:1; shared invariants use pinned 1:N Tekt Nuclei validated by V26. |
 | [ADR-0130](00_nucleo/adr/adr-0130-canonical-l0-prompt-references.md) | L0 references use full canonical paths; `@prompt` headers identify the owner unambiguously. |
 | [ADR-0131](00_nucleo/adr/adr-0131-owner-aligned-prompt-paths.md) | Owner paths mirror the layer and source modules without leading `src/`; active filenames describe responsibility. |
+| [ADR-0132](00_nucleo/adr/adr-0132-evidence-for-maintained-changes.md) | Evidence precedes decisions. Use the owner or a diagnostic according to scope. |
 
 Do not follow revoked ADRs that are absent from the current table.
 

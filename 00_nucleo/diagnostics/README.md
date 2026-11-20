@@ -3,6 +3,15 @@
 Diagnostics record evidence, limitations, and unresolved questions. They do not
 own productive consumers and are not L0 specifications.
 
+- [Pinned vanilla reference](vanilla-reference-2026-11-19.md)
+  records the November 19 upstream commit, tree, and verified build.
+
+- [Architecture decisions after construction](architecture-maintenance-2026-11-19.md)
+  records the evidence workflow consolidation and the sublayout review.
+
+- [Sublayout routes and test coverage](sublayout-coverage-2026-11-19.md)
+  records the code paths and assertions behind the ADR-0124 revision.
+
 - [Layout reuse in references and watch](validated-references-layout-2026-11-19.md)
   records the integrated convergence, paragraph emission, and font metric changes
   with links to the laboratory comparisons and integration validation.
@@ -71,8 +80,8 @@ own productive consumers and are not L0 specifications.
   ownership, superseded statements, and proposals that have not been implemented.
 - [Context reading comparison](context-reading-comparison-2026-10-18.md): a bounded
   before/after task, recovered obligations, and limits of the pilot's claims.
-- [Pinned upstream resync](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md):
-  commit/tree/build provenance for the current local oracle.
+- [October 17 upstream resync](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md):
+  commit, tree and build provenance for that historical oracle.
 
 - [Vanilla parity debt inventory and batch plan](vanilla-parity-plan-2026-10-21.md): current measured gaps, historical/uncovered boundaries, owners and gates.
 

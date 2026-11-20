@@ -1,6 +1,10 @@
 # ADR-0117 — Sonda A.0: mecanismo operacional de verificação antes da spec
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+Current workflow is defined in [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+The text below preserves the construction procedure.
+
 **Status history:** `EM VIGOR` (Passo 453 — mecanismo proposto e adoptado como extensão operacional da ADR-0114; **Cláusula 4 adicionada no Passo 455**).
 **Decisão do dono (registada):** toda spec de materialização deve ser precedida de uma sonda A.0 que produza evidência empírica; a sonda pode ser um script, uma varredura mecânica ou um conjunto de greps, desde que produza output imutável com file:line e decisão derivada. A sonda deve cobrir quatro dimensões (cláusulas 1–4).  
 **ADRs relacionadas:** ADR-0114 (sonda antes da spec), ADR-0065 (inventariar antes de decidir), ADR-0084 (Fase A antes de decisão), ADR-0085 (diagnósticos imutáveis).

@@ -22,7 +22,7 @@ The upstream-oriented guide that previously occupied this README remains recover
 | `04_wiring/` | L4 composition and executable entry points |
 | `lab/` | Quarantined upstream source, experiments, tools, results, and build outputs |
 
-The current parity reference is pinned to upstream commit `64c5e8c02fe0394d913ead36e42ef8c1334d2107`, tree `483bd6f1d8ac8810db47b65336d402647955fd17`. Historical reports for earlier pins do not certify this target. See the [architectural decisions](00_nucleo/adr) and [L0 specifications](00_nucleo/prompts) for current scope and acceptance criteria.
+The [vanilla reference](lab/parity/vanilla.json) fixes the upstream commit, tree, and verified local binary. See the [architectural decisions](00_nucleo/adr) and [L0 specifications](00_nucleo/prompts) for current scope and acceptance criteria.
 
 ## Build and validation
 

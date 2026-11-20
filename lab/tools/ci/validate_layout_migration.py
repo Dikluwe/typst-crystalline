@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / 'lab/results/mature-layout-2026-10-18'
 LINTER = ROOT / 'lab/target/linter/debug/crystalline-lint'
 ORACLE = ROOT / 'lab/typst-original/target/release/typst'
+ORACLE_REFERENCE = ROOT / 'lab/parity/vanilla.json'
 PIN = '12797073972e375d9ab078cf6750c8b30b71e2b9'
 
 
@@ -55,7 +56,7 @@ def main():
         OUT.relative_to(ROOT / 'lab/results')
     OUT.mkdir(parents=True, exist_ok=True)
     os.chdir(ROOT)
-    assert digest(ORACLE) == '22897f93c7c2c8589cf5913b0ce735f1c01ba711c70f55c7a350f7c4b96c0b34', 'oracle identity mismatch'
+    assert digest(ORACLE) == json.loads(ORACLE_REFERENCE.read_text())['local_binary_sha256'], 'oracle identity mismatch'
     assert subprocess.check_output(['git', '-C', str(ROOT/'lab/scratch/tekt-linter-pinned'), 'rev-parse', 'HEAD'], text=True).strip() == PIN
     env = os.environ.copy()
     env.update(CARGO_BUILD_JOBS='1', CARGO_PROFILE_DEV_DEBUG='0', CARGO_PROFILE_TEST_DEBUG='0', CARGO_INCREMENTAL='0', TYPST_VANILLA=str(ORACLE), PATH=str(LINTER.parent)+os.pathsep+env['PATH'])
