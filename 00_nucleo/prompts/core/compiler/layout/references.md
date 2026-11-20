@@ -1,5 +1,5 @@
 # L0 — references
-Hash do Código: dfd2cd50
+Hash do Código: 9d500378
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
@@ -239,3 +239,12 @@ ADR-0127 continuous flow: this restores measured note semantics/pagination/morph
 For actual Footnote references prefer the existing original-occurrence resolved-label marker snapshot. Keep the existing explicit-pattern/counter formatting fallback for synthetic introspectors without that snapshot. Render the same superscript/link and no note or effect. Preserve all #8935 identity/duplicate and other reference routes.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+## Prior label-page map observation
+
+At the existing Page-form lookup, route both prior label-map reads through the
+layout hub's observation accessor. At b9914ad09 references.rs:110–126 and the
+positive control in references-500-inner-reuse-2026-11-19 show that the Page
+form consumes this map. Preserve short circuit, unknown-label errors,
+numbering and output. Ordinary references keep their existing resolution.
+This is an internal convergence observation.

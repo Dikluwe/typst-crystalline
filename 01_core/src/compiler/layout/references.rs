@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash 0bf8d009
+//! @prompt-hash cadb0d75
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -110,7 +110,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
     if elem.form == crate::entities::elements::r#ref::RefForm::Page {
         let known = layouter.introspector.query_by_label(&target_label).is_some()
             || layouter.introspector.counter_key_for_label(&target_label).is_some()
-            || layouter.runtime.known_page_numbers.contains_key(&target_label);
+            || layouter.prior_label_page(&target_label).is_some();
         if !known && !layouter.runtime.known_page_store.is_empty() {
             layouter.layout_errors.push(SourceDiagnostic::error(
                 layouter.current_source_span,
@@ -118,9 +118,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             ));
             return;
         }
-        let Some(page_number) =
-            layouter.runtime.known_page_numbers.get(&target_label).copied()
-        else {
+        let Some(page_number) = layouter.prior_label_page(&target_label) else {
             layout_ref_link_text(layouter, &target_label, "?");
             return;
         };

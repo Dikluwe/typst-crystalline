@@ -1,5 +1,5 @@
 # L0 — Layout attempt convergence
-Hash do Código: c42456d6
+Hash do Código: 27f28448
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
@@ -155,3 +155,30 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## First planned traversal with an unread prior label map
+
+The measured baseline at b9914ad09 made ten root traversals across five
+productions in references_500. The prior label-map observer removed four
+retries when the PageStore was injected. The follow-up removed the final
+retry when the first pass had an absent store. The counterexample with an
+explicit page reference still required both traversals. Evidence and exact
+sources are in `lab/results/construction/diagnostics/references-500-native-reuse-2026-11-19/report.md`
+and `lab/results/construction/diagnostics/references-500-first-snapshot-2026-11-19/report.md`.
+
+On the first planned traversal with a physical journal, observe every read
+of the previous label-page map through the layout hub, including deferred
+finish. When the map was unread, differences in the extracted label map do
+not require an inner retry. An injected PageStore stays fixed. With no
+injected store, PageStore::from_runtime exposes the same physical fallback
+and absent realized numbering. Explicit page references that could observe
+a difference read the previous label map before the relevant early return.
+A real read retains the original equality test and retry. Revalidate this
+proof when adding a reader or changing the provisional PageStore projection.
+
+Keep the exact figure/table comparisons, callback transcripts, coverage,
+trace, source authority, numbering, and diagnostics. Later attempts and
+calls without a physical journal retain the original fixpoint. This is an
+internal optimization under ADR-0127. Preserve the RED/GREEN traversal and
+page-reference controls, including absent/injected stores and compound
+page numbering, alongside source/effect/invalidation and fresh output checks.

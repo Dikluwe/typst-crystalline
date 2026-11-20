@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 001e2edd
+//! @prompt-hash d42e1b6c
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -16,7 +16,7 @@ mod math;
 mod resolution;
 
 pub(crate) use basic::{edge_offset_pt, superscript_in_face};
-use caches::{AdvanceWidthKey, CachedFace, ShapedWidthKey};
+use caches::{AdvanceWidthKey, CachedFace, CertifiedWidths, ShapedWidthKey};
 pub(crate) use math::{build_math_glyph_reverse_map, ssty_eligible_text};
 use typst_core::entities::layout_types::Pt;
 
@@ -54,7 +54,9 @@ pub struct FallbackFontMetrics<'a> {
     primary_resolution: Arc<Mutex<Option<resolution::PrimaryResolution>>>,
     first_resolution: Arc<Mutex<Option<resolution::FirstResolution>>>,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
+    default_text_edges: Arc<Mutex<Option<fallback::DefaultTextEdges>>>,
     shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
+    certified_widths: Arc<Mutex<CertifiedWidths>>,
     /// P673 — cache de faces ttf-parser para `shaped_width`, partilhada entre
     /// todas as chamadas de `advance_shaped` no mesmo documento. Evita
     /// re-parsear as mesmas fontes em cada medição de palavra.
@@ -98,8 +100,10 @@ impl<'a> FallbackFontMetrics<'a> {
             paragraph_products: None,
             primary_resolution: Arc::new(Mutex::new(None)),
             first_resolution: Arc::new(Mutex::new(None)),
+            default_text_edges: Arc::new(Mutex::new(None)),
             cache: Arc::new(Mutex::new(HashMap::new())),
             shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
+            certified_widths: Arc::new(Mutex::new(CertifiedWidths::default())),
             shaper_face_cache: Arc::new(Mutex::new(crate::shaper::FaceCache::new())),
             advance_width_cache: Arc::new(Mutex::new(HashMap::new())),
         }
@@ -136,8 +140,10 @@ impl Clone for FallbackFontMetrics<'_> {
             paragraph_products: self.paragraph_products.clone(),
             primary_resolution: self.primary_resolution.clone(),
             first_resolution: self.first_resolution.clone(),
+            default_text_edges: self.default_text_edges.clone(),
             cache: self.cache.clone(),
             shaped_width_cache: self.shaped_width_cache.clone(),
+            certified_widths: self.certified_widths.clone(),
             shaper_face_cache: self.shaper_face_cache.clone(),
             advance_width_cache: self.advance_width_cache.clone(),
         }

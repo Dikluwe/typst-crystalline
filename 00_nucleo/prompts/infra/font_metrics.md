@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics
-Hash do Código: 0a910630
+Hash do Código: 7daa94ae
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/complete-shaping-products.toml sha256:d612a88c4d14b13ea8e783dc06a984e26cc2c9978983a93dbabc6fac1277c2e3
@@ -190,3 +190,21 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Reúso de bordas tipográficas no fechamento
+
+O censo em `lab/results/construction/diagnostics/references-500-reused-lines-2026-11-19/probe/observed.json` registra cerca de 25 mil
+chamadas de text_edges por produção. Cada provedor real possui
+uma entrada compartilhada só entre seus clones para bordas padrão
+certificadas pelo domínio imutável da consulta de fonte. Seu filho fallback
+define a chave e as condições de publicação. O cache começa vazio para
+cada novo FallbackFontMetrics e tem capacidade unitária.
+
+## Reúso de larguras repetidas
+
+O censo de references_500 em lab/results/construction/diagnostics/references-500-item-width-2026-11-19/probe-summary.json
+mostra que os cálculos de largura de item são majoritariamente Text, com
+poucos textos distintos. Cada provedor real possui uma tabela adicional de
+larguras shaped certificadas, compartilhada entre seus clones. Ela começa
+vazia em novos provedores. O L0 de caches define sua chave, orçamento e
+publicação. Mudança interna em fluxo contínuo ADR-0127.

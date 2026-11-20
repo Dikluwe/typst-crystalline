@@ -1,5 +1,5 @@
 # L0 — outline
-Hash do Código: 4e2e0a59
+Hash do Código: 7e335956
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -40,3 +40,11 @@ In a planned pass, descend by OutlineRealizedBody for the existing realized body
 
 
 The destination-link helper's sole productive caller is the Styled outline-destination branch. It obtains that actual StyledBody cursor and supplies it explicitly to the Link capture owner without changing its existing private signature, fraction expansion or destination. Unplanned calls preserve the same body dispatch. No source route is inferred from the link target.
+
+## Prior label-page map observation
+
+At the fallback heading-outline lookup, route the prior label-map read
+through the layout hub's observation accessor. At b9914ad09 outline.rs:119–129
+this reads the map even when a label is absent. The realized body continues
+through its own existing route. Figure and table list maps keep their
+existing convergence comparisons. This is an internal convergence observation.

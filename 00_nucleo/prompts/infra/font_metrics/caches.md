@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/caches
-Hash do Código: f6a00c3a
+Hash do Código: 68a42a80
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/caches.rs`
@@ -134,3 +134,25 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Reúso de larguras shaped certificadas
+
+O censo de references_500 em lab/results/construction/diagnostics/references-500-item-width-2026-11-19/probe-summary.json
+conta 31.085 chamadas de item_width em cinco produções e separa Text,
+TextShaped e Math das outras variantes. Poucas entradas de advance_shaped
+precisam chamar o shaper. Reutilize a resposta antes da alocação,
+hashes de família e eixos e aquisição do lock de faces do caminho anterior.
+
+A tabela adicional admite família literal simples única, sem metadados de
+variantes, com nome de até 96 bytes, texto não vazio de até 128 bytes,
+tamanho finito e sem tracking, variações explícitas, matemática ou scripts
+alto/baixo. Use o domínio imutável atual do World e a igualdade do nome
+literal, variante font, direção, língua, bits do tamanho explícito e texto.
+Lookup por &str na tabela de um estilo. Até quatro estilos por provedor
+com substituição em ordem de inserção e 512 medidas por estilo. Compute
+fora do lock, preserve None e publique somente valores finitos após nova
+verificação do domínio. O caminho legacy mantém todas as regras anteriores.
+
+Exigir RED/GREEN para hit real que evita a tabela legacy, tamanho explícito
+alterado, variante, tracking e revogação. Revalidar PDFs frescos do último
+candidato e campanha pareada do watch.

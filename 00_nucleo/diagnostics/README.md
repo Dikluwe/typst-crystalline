@@ -3,6 +3,10 @@
 Diagnostics record evidence, limitations, and unresolved questions. They do not
 own productive consumers and are not L0 specifications.
 
+- [Layout reuse in references and watch](validated-references-layout-2026-11-19.md)
+  records the integrated convergence, paragraph emission, and font metric changes
+  with links to the laboratory comparisons and integration validation.
+
 - [Nested-equation index and JPEG recovery](readiness-fixes-2026-10-28.md): index semantics preserved, compiler alignment8 recovery and complete technical/language/visual/JPEG/resource qualification; four approvals intact and known parity debts explicit.
 
 - [Readiness for Typst users](vanilla-readiness-2026-10-28.md): fresh representative documents, fixed-package probes and PDF/SVG review; guided experimental demo recommended, general replacement blocked by basic layout and template incompatibilities.

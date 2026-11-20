@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/fallback
-Hash do Código: 8c5ee149
+Hash do Código: 12eefa2f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:934979e5e3d19d62b8dff899dcc462783b0522bf8bbde4c2bdbd1385e4c7f949
@@ -468,3 +468,29 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Reúso de bordas tipográficas no fechamento
+
+O censo `lab/results/construction/diagnostics/references-500-reused-lines-2026-11-19/probe/observed.json` registra a repetição de text_edges.
+O fechamento chama text_edges ao visitar fragmentos e novamente para o
+estilo de avanço. A paginação usa a mesma consulta. A implementação atual
+seleciona a face primária e resolve cap-height/baseline quando ambos os
+bordos são padrão.
+
+Reutilize o resultado real de bordas padrão por domínio de fonte imutável
+atual, família/lista, variante e bits de tamanho finito. Nunca publique
+se a consulta revogar o domínio. Exija a mesma autoridade ao ler; sem ela,
+para bordos explícitos ou quando não há face primária utilizável, execute
+o caminho anterior. Preserve o resultado bit a bit, inclua troca de
+família/variante/tamanho e revogação nos controles. O fechamento continua
+resolvendo largura, escopo, posições, efeitos e transferência ao vivo.
+
+## Reúso da largura shaped
+
+O censo de references_500 em lab/results/construction/diagnostics/references-500-item-width-2026-11-19/probe-summary.json
+distingue a entrada de advance_shaped e a chamada à produção da largura
+pelo shaper. O caminho anterior adquire o lock de faces antes da chave
+legacy. Os hits da tabela certificada devem devolver a largura shaped já
+observada antes desse lock e dessa chave. Ausência/refusa mantém a
+medição anterior, inclusive tracking, fallback, estilo efetivo e tamanho
+explícito do argumento. O caminho genérico do fechamento continua vigente.

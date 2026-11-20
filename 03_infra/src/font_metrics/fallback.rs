@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/fallback.md
-//! @prompt-hash 67028386
+//! @prompt-hash 47069abd
 //! @layer L3
 //! @updated 2026-10-24
 
@@ -12,11 +12,24 @@ use super::math::{
 };
 use super::FallbackFontMetrics;
 use crate::font_variant::{axis_variations_for_text_style, text_style_to_font_variant};
+use std::sync::Arc;
 use ttf_parser::Face;
 use typst_core::compiler::layout::{FixedMetrics, FontMetrics};
-use typst_core::entities::glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern};
-use typst_core::entities::layout_types::{Pt, TextStyle};
-use typst_core::entities::math_constants::MathConstants;
+use typst_core::entities::{
+    font_book::FontVariant,
+    font_list::FontList,
+    glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
+    layout_types::{Pt, TextStyle},
+    math_constants::MathConstants,
+};
+
+pub(super) struct DefaultTextEdges {
+    epoch: Arc<()>,
+    font: Option<FontList>,
+    variant: FontVariant,
+    size: u64,
+    edges: (Pt, Pt),
+}
 
 /// Kerning entre dois glifos numa face, consultando as tabelas legacy
 /// `kern` e `kerx`. GPOS kerning não é suportado nesta iteração.
@@ -40,6 +53,26 @@ fn face_kerning(
         }
     }
     0
+}
+
+impl FallbackFontMetrics<'_> {
+    // Keep the allocation and face lock off the certified hit path.
+    #[inline(never)]
+    fn shaped_width_with_face_cache(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
+        let effective_style;
+        let style = if size.0.to_bits() == style.size.0.to_bits() {
+            style
+        } else {
+            effective_style = TextStyle { size, ..style.clone() };
+            &effective_style
+        };
+        // **P1104** — Usar o shaper (rustybuzz com GPOS kerning) para medição precisa de extensão de texto
+        let world = self.world;
+        let mut face_cache = self.shaper_face_cache.lock().unwrap();
+        self.cached_shaped_width(text, style, || {
+            crate::shaper::shaped_width(world, text, style, &mut face_cache)
+        })
+    }
 }
 
 impl FontMetrics for FallbackFontMetrics<'_> {
@@ -364,18 +397,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// shaper para obter a largura real com formas ligadas. Para os restantes
     /// scripts, mantém o caminho rápido `advance`.
     fn advance_shaped(&self, text: &str, size: Pt, style: &TextStyle) -> Option<Pt> {
-        let effective_style;
-        let style = if size.0.to_bits() == style.size.0.to_bits() {
-            style
-        } else {
-            effective_style = TextStyle { size, ..style.clone() };
-            &effective_style
-        };
-        // **P1104** — Usar o shaper (rustybuzz com GPOS kerning) para medição precisa de extensão de texto
-        let world = self.world;
-        let mut face_cache = self.shaper_face_cache.lock().unwrap();
-        self.cached_shaped_width(text, style, || {
-            crate::shaper::shaped_width(world, text, style, &mut face_cache)
+        self.certified_shaped_width(text, size, style, || {
+            self.shaped_width_with_face_cache(text, size, style)
         })
     }
 
@@ -468,6 +491,27 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     }
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let key = if style.top_edge.is_none()
+            && style.bottom_edge.is_none()
+            && size.0.is_finite()
+        {
+            self.world
+                .font_query_epoch()
+                .map(|epoch| (epoch, text_style_to_font_variant(style)))
+        } else {
+            None
+        };
+        if let Some((epoch, variant)) = &key {
+            let cache = self.default_text_edges.lock().unwrap();
+            if let Some(entry) = cache.as_ref().filter(|entry| {
+                Arc::ptr_eq(&entry.epoch, epoch)
+                    && entry.font == style.font
+                    && entry.variant == *variant
+                    && entry.size == size.0.to_bits()
+            }) {
+                return entry.edges;
+            }
+        }
         let primary = self.first_primary(style);
 
         if let Some(cand) = primary.as_ref() {
@@ -477,6 +521,19 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                 let top = edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
                 let bottom =
                     edge_offset_pt(face, upem, size, style.bottom_edge.as_ref(), false);
+                if let Some((epoch, variant)) = key.filter(|(epoch, _)| {
+                    self.world
+                        .font_query_epoch()
+                        .is_some_and(|now| Arc::ptr_eq(epoch, &now))
+                }) {
+                    *self.default_text_edges.lock().unwrap() = Some(DefaultTextEdges {
+                        epoch,
+                        font: style.font.clone(),
+                        variant,
+                        size: size.0.to_bits(),
+                        edges: (top, bottom),
+                    });
+                }
                 return (top, bottom);
             }
         }
@@ -1964,6 +2021,56 @@ mod paragraph_owner_tests {
 mod metric_epoch_tests {
     use super::*;
     use typst_core::contracts::world::World;
+    #[test]
+    fn reused_line_edges_skip_face_resolution_only_in_the_current_epoch() {
+        use typst_core::entities::{
+            font_list::FontList,
+            layout_types::{Length, TextEdge},
+        };
+
+        let world = crate::world::SystemWorld::for_eval(".").with_fonts_and_system(&[]);
+        let metrics = FallbackFontMetrics::new(&world);
+        let style = TextStyle {
+            font: Some(FontList::single("Libertinus Serif".into())),
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let size = style.size;
+        let reference = metrics.text_edges(size, &style);
+        assert!(metrics.physical_epoch().is_some());
+        let clear_resolution = || {
+            *metrics.primary_resolution.lock().unwrap() = None;
+            *metrics.first_resolution.lock().unwrap() = None;
+            metrics.cache.lock().unwrap().clear();
+        };
+        clear_resolution();
+        assert_eq!(metrics.clone().text_edges(size, &style), reference);
+        assert!(metrics.cache.lock().unwrap().is_empty(), "same edges resolved a face");
+
+        let resized = Pt(13.0);
+        let mut explicit = style.clone();
+        explicit.top_edge = Some(TextEdge::Length(Length::pt(19.0)));
+        let cold = FallbackFontMetrics::new(&world);
+        assert_ne!(metrics.text_edges(resized, &style), reference);
+        assert_eq!(
+            metrics.text_edges(resized, &style),
+            cold.text_edges(resized, &style),
+        );
+        assert_eq!(metrics.text_edges(size, &explicit).0, Pt(19.0));
+        let mut alternate_style = style.clone();
+        alternate_style.italic = true;
+        assert_eq!(
+            metrics.text_edges(size, &alternate_style),
+            cold.text_edges(size, &alternate_style),
+        );
+        let _ = metrics.text_edges(size, &style);
+
+        let _ = world.book();
+        clear_resolution();
+        assert!(metrics.physical_epoch().is_none());
+        assert_eq!(metrics.text_edges(size, &style), cold.text_edges(size, &style));
+        assert!(!metrics.cache.lock().unwrap().is_empty(), "revoked epoch replayed edges");
+    }
+
     #[test]
     fn metric_epoch_real_metrics_share_only_with_clones_and_revoke() {
         let world = crate::world::SystemWorld::for_eval(".").with_fonts_and_system(&[]);

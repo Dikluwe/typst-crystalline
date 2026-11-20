@@ -9,7 +9,7 @@ statement = "Retain only completed pure prepared-line tails after the first word
 [[claims]]
 id = "identity"
 level = "must"
-statement = "Each immutable paragraph Product owns a fresh Arc identity. Key that owned identity, line ordinal, exact finite cursor x/y, horizontal offset and computed proportional/extra justification bits. Same product means same prepared words, styles, ranges and gaps; a new product cannot alias a dropped owner. Do not normalize/rebase positions or retain previous source spans."
+statement = "Each immutable paragraph Product owns a fresh Arc identity. Key the owned identity, line ordinal, exact finite cursor x, horizontal offset and computed proportional/extra justification bits. Allow another finite cursor y only if each item is produced from its baseline plus the retained style offset and the captured coordinates prove the same expression bit for bit. Recompute that expression from the current baseline; never shift by a coordinate difference. Same product means same prepared words, styles, ranges and gaps; a new product cannot alias a dropped owner. Do not retain previous source spans."
 [[claims]]
 id = "effects"
 level = "must"

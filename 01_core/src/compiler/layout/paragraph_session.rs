@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_session.md
-//! @prompt-hash f644c25c
+//! @prompt-hash 58bc255a
 //! @layer L1
 //! @updated 2026-11-12
 use super::{

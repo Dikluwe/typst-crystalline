@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/convergence.md
-//! @prompt-hash 0321cd4a
+//! @prompt-hash 93eaca40
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -193,6 +193,7 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::collections::HashMap;
+    use std::sync::atomic::{AtomicBool, Ordering};
 
     // Marcador legado de outline: preservado, mas não encurta o ciclo de
     // convergência, que compara mapas em todos os documentos.
@@ -280,15 +281,23 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
     let mut known_figure_page_numbers: Vec<usize> = Vec::new();
     let mut known_table_page_numbers: Vec<usize> = Vec::new();
-    for _ in 0..MAX_ITERATIONS {
+    for attempt in 0..MAX_ITERATIONS {
         let callback_pass =
             crate::compiler::math::layout::callbacks::MathCallbackPassState::new(
                 math_callback_store,
             );
         let par_line_callback_pass =
             ParLineCallbackPassState::new(par_line_callback_store);
+        // An injected PageStore stays fixed. A provisional from_runtime
+        // store keeps physical numbering and absent realized numbering.
+        // Page references that could depend on the new store read the
+        // prior label map on this first pass, even during deferred finish.
+        let prior_label_pages_observed = AtomicBool::new(false);
+        let observe_prior_label_pages = attempt == 0 && journal.is_some();
         let mut l =
             Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
+        l.prior_label_pages_observed =
+            observe_prior_label_pages.then_some(&prior_label_pages_observed);
         l.math_callback_pass = Some(&callback_pass);
         l.par_line_callback_pass = Some(&par_line_callback_pass);
         l.bib_render_cache =
@@ -329,7 +338,10 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
 
         // Convergência: mapa de páginas gerado == mapa da iteração anterior?
         // P488: estendido para incluir páginas de figuras/tabelas (LoF/LoT).
-        if doc.extracted_label_pages == known_page_numbers
+        let labels_stable = doc.extracted_label_pages == known_page_numbers
+            || (observe_prior_label_pages
+                && !prior_label_pages_observed.load(Ordering::Relaxed));
+        if labels_stable
             && doc.extracted_figure_page_numbers == known_figure_page_numbers
             && doc.extracted_table_page_numbers == known_table_page_numbers
         {
@@ -609,4 +621,171 @@ pub(super) fn has_bibliography(
     input: &crate::entities::introspector::TagIntrospector,
 ) -> bool {
     find_first_bibliography_style(content, input).is_some()
+}
+
+#[cfg(test)]
+mod prior_label_map_tests {
+    use super::*;
+    use crate::compiler::{
+        eval::EvalContext, introspect::page_running::prepare_page_running_body,
+        realize::context_occurrences::ContextOccurrenceArena,
+    };
+    use crate::entities::{introspector::TagIntrospector, page_store::PageStore};
+    use std::num::NonZeroUsize;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    struct CountingMetrics<'a>(&'a AtomicUsize);
+
+    impl Clone for CountingMetrics<'_> {
+        fn clone(&self) -> Self {
+            self.0.fetch_add(1, Ordering::Relaxed);
+            Self(self.0)
+        }
+    }
+
+    impl FontMetrics for CountingMetrics<'_> {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+    }
+
+    fn prepared(content: &Content) -> PageRunningBody {
+        let mut arena = ContextOccurrenceArena::new(content);
+        let mut frame = arena.frame();
+        arena
+            .evaluate(&mut frame, &mut EvalContext::new(), |ctx| {
+                prepare_page_running_body(content, ctx)
+            })
+            .unwrap()
+    }
+
+    fn execute(
+        body: &PageRunningBody,
+        input: TagIntrospector,
+        journal: Option<&super::super::physical_memo::Journal>,
+    ) -> (PageRunningDocument, usize) {
+        let clones = AtomicUsize::new(0);
+        let result = run_planned(
+            body,
+            input,
+            CountingMetrics(&clones),
+            NullImageSizer,
+            11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: None },
+            journal,
+        )
+        .into_result()
+        .ok()
+        .expect("labelled plan must complete");
+        (result, clones.load(Ordering::Relaxed))
+    }
+
+    #[test]
+    fn prior_label_map_unread_keeps_first_physical_traversal() {
+        let body = prepared(&Content::label("target", Content::text("Ordinary text.")));
+        let mut index = TagIntrospector::empty();
+        index.page_store = PageStore::from_total_pages(NonZeroUsize::MIN);
+        let (cold, cold_walks) = execute(&body, index.clone(), None);
+        let (retained, retained_walks) =
+            execute(&body, index, Some(&super::super::physical_memo::Journal::default()));
+        assert_eq!(cold_walks, 2);
+        assert_eq!(retained_walks, 1, "an unread label map caused a second traversal");
+        assert_eq!(retained.document.plain_text(), cold.document.plain_text());
+        assert_eq!(
+            retained.document.extracted_label_positions,
+            cold.document.extracted_label_positions
+        );
+        assert_eq!(retained.document.pages.len(), cold.document.pages.len());
+    }
+
+    #[test]
+    fn prior_label_map_page_reference_keeps_second_traversal() {
+        use crate::compiler::introspect::introspect_with_introspector;
+        use crate::entities::{
+            elements::r#ref::{RefElem, RefForm},
+            numbering::Numbering,
+        };
+        let content = Content::sequence(vec![
+            Content::SetPage(Arc::new(crate::entities::content::SetPageDelta {
+                numbering: Some(Some("1".into())),
+                ..Default::default()
+            })),
+            Content::label("target", Content::heading(1, Content::text("Target"))),
+            Content::Parbreak,
+            Content::Ref(Arc::new(RefElem {
+                name: "target".into(),
+                supplement: Some(Content::Empty),
+                form: RefForm::Page,
+            })),
+        ]);
+        let body = prepared(&content);
+        for injected in [false, true] {
+            let mut index = introspect_with_introspector(&content);
+            if injected {
+                index.page_store = PageStore::from_runtime(
+                    NonZeroUsize::MIN,
+                    vec![Some(Numbering::Pattern("1".into()))],
+                    vec![Content::Empty],
+                );
+            }
+            let (cold, cold_walks) = execute(&body, index.clone(), None);
+            let (recorded, recorded_walks) = execute(
+                &body,
+                index,
+                Some(&super::super::physical_memo::Journal::default()),
+            );
+            assert_eq!(cold_walks, 2);
+            assert_eq!(recorded_walks, 2);
+            assert_eq!(recorded.document.plain_text(), cold.document.plain_text());
+            assert!(recorded.document.plain_text().contains('1'));
+        }
+    }
+
+    #[test]
+    fn prior_label_map_absent_store_keeps_compound_numbering_without_retry() {
+        let body = prepared(&Content::sequence(vec![
+            Content::SetPage(Arc::new(crate::entities::content::SetPageDelta {
+                numbering: Some(Some("1 / 1".into())),
+                ..Default::default()
+            })),
+            Content::label("target", Content::text("Ordinary text.")),
+        ]));
+        let index = TagIntrospector::empty();
+        let (cold, cold_walks) = execute(&body, index.clone(), None);
+        let (retained, walks) =
+            execute(&body, index, Some(&super::super::physical_memo::Journal::default()));
+        let footer = |doc: &PagedDocument| {
+            doc.pages[0]
+                .foreground
+                .iter()
+                .filter_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } => Some((text.to_string(), *pos)),
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(cold_walks, 2);
+        assert_eq!(footer(&cold.document), footer(&retained.document));
+        assert!(footer(&retained.document).iter().any(|(text, _)| text == "1 / 1"));
+        assert_eq!(
+            cold.document.extracted_label_positions,
+            retained.document.extracted_label_positions
+        );
+        assert_eq!(
+            walks, 1,
+            "an equivalent provisional page store caused a second traversal"
+        );
+    }
 }

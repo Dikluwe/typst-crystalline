@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/outline.md
-//! @prompt-hash cb03f156
+//! @prompt-hash 5c399e3f
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -121,9 +121,7 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
         // P190C (M6 categoria Page tracking): known_page_numbers movido
         // para LayouterRuntimeState.
         let page_num = layouter
-            .runtime
-            .known_page_numbers
-            .get(&label)
+            .prior_label_page(&label)
             .map(|p| format!("  {}", p))
             .unwrap_or_default();
 

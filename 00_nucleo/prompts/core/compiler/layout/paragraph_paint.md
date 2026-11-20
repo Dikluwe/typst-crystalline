@@ -1,8 +1,8 @@
 # L0 — core/compiler/layout/paragraph_paint
-Hash do Código: 10d50b42
+Hash do Código: 55395708
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:417d55b8ae48d8b71220974310a7a31ce00566318c0cfc4837e84c955bdcdfa8
+- 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:9e606cf207ae72ade678378bb4fe6c0aa4d1daa77b9c8fc2817b7c2afd4c8ea6
 
 
 **Layer:** L1
@@ -53,3 +53,22 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Reúso da emissão em outra baseline
+
+A contagem no release de controle em `lab/results/construction/diagnostics/references-500-reused-lines-2026-11-19/probe/observed.json` registra 1699 hits em
+2400 consultas durante a recompilação de comentário. `paragraph_emit.rs`
+emite separadores com cursor_y + baseline_offset. `word_layout.rs` emite
+o texto com a mesma soma, via `cursor.rs`; a admissão após a primeira
+palavra mantém o cursor quando há material, a origem foi aplicada e
+não há baseline inicial, bloco pendente ou escape bibliográfico.
+
+Mantenha identidade e coordenadas horizontais
+exatas, os guardas atuais e os limites da sessão. Para o tail imutável
+só de Text, TextSeparator e TextReplacement permitido, recomponha o y
+com a nova baseline mais o offset do estilo de cada item, na mesma ordem
+aritmética da emissão original. Preserve o caminho de coordenada idêntica
+e recuse publicação se algum y capturado não reproduzir essa expressão
+bit a bit. Não retenha a primeira palavra, os efeitos de fechamento nem
+qualquer estado de página. Exija RED/GREEN com baselines, offset e
+substituição, e PDFs frescos do último candidato como controle.

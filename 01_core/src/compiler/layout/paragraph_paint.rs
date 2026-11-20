@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_paint.md
-//! @prompt-hash 1b8ebac2
+//! @prompt-hash cf8d6f09
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -31,7 +31,7 @@ struct Memo {
 struct Key {
     identity: usize,
     line: usize,
-    numeric: [u64; 5],
+    numeric: [u64; 4],
 }
 struct Entry {
     _owner: Arc<()>,
@@ -42,6 +42,7 @@ struct Paint {
     items: Vec<FrameItem>,
     anchors: Vec<f64>,
     end: Pt,
+    baseline: Pt,
 }
 impl PaintSession {
     #[cfg(test)]
@@ -72,20 +73,48 @@ fn supported_style(style: &TextStyle) -> Option<usize> {
     }
     Some(size)
 }
-fn item_charge(item: &FrameItem, depth: usize) -> Option<usize> {
+fn baseline_position(baseline: Pt, style: &TextStyle) -> Pt {
+    baseline + Pt(style.baseline_offset.resolve_pt(style.size.val()))
+}
+
+fn at_baseline(item: &mut FrameItem, baseline: Pt) {
+    match item {
+        FrameItem::Text { pos, style, .. }
+        | FrameItem::TextSeparator { pos, style, .. } => {
+            pos.y = baseline_position(baseline, style);
+        }
+        FrameItem::TextReplacement { items, .. } => {
+            for child in items {
+                at_baseline(child, baseline);
+            }
+        }
+        _ => unreachable!(
+            "paint product requires individually positioned text or separators"
+        ),
+    }
+}
+
+fn exact_baseline(y: Pt, style: &TextStyle, baseline: Pt) -> bool {
+    y.0.is_finite() && y.0.to_bits() == baseline_position(baseline, style).0.to_bits()
+}
+
+fn item_charge(item: &FrameItem, depth: usize, baseline: Pt) -> Option<usize> {
     if depth > 1 {
         return None;
     }
     let base = std::mem::size_of::<FrameItem>();
     match item {
         FrameItem::Text { pos, text, style, bidi: None } => {
-            if !pos.x.0.is_finite() || !pos.y.0.is_finite() {
+            if !pos.x.0.is_finite() || !exact_baseline(pos.y, style, baseline) {
                 return None;
             }
             base.checked_add(text.len())?.checked_add(supported_style(style)?)
         }
         FrameItem::TextSeparator { pos, advance, style, bidi: None, .. } => {
-            if !pos.x.0.is_finite() || !pos.y.0.is_finite() || !advance.0.is_finite() {
+            if !pos.x.0.is_finite()
+                || !exact_baseline(pos.y, style, baseline)
+                || !advance.0.is_finite()
+            {
                 return None;
             }
             base.checked_add(supported_style(style)?)
@@ -93,7 +122,7 @@ fn item_charge(item: &FrameItem, depth: usize) -> Option<usize> {
         FrameItem::TextReplacement { text, items } if items.len() <= MAX_ITEMS => {
             let mut size = base.checked_add(text.len())?;
             for item in items {
-                size = size.checked_add(item_charge(item, depth + 1)?)?;
+                size = size.checked_add(item_charge(item, depth + 1, baseline)?)?;
             }
             Some(size)
         }
@@ -110,7 +139,7 @@ fn item_charge(item: &FrameItem, depth: usize) -> Option<usize> {
         | FrameItem::Semantic { .. } => None,
     }
 }
-fn charge(items: &[FrameItem], anchors: &[f64]) -> Option<usize> {
+fn charge(items: &[FrameItem], anchors: &[f64], baseline: Pt) -> Option<usize> {
     if items.is_empty()
         || items.len() > MAX_ITEMS
         || anchors.len() > MAX_ITEMS
@@ -121,12 +150,13 @@ fn charge(items: &[FrameItem], anchors: &[f64]) -> Option<usize> {
     let mut size =
         std::mem::size_of::<Entry>().checked_add(anchors.len().checked_mul(8)?)?;
     for item in items {
-        size = size.checked_add(item_charge(item, 0)?)?;
+        size = size.checked_add(item_charge(item, 0, baseline)?)?;
     }
     (size <= MAX_ENTRY).then_some(size)
 }
 /// The caller's immutable product and ordinal identify its exact prepared tail.
-/// Admission has already executed the first word; no regional state is retained.
+/// The first word has already admitted material. Only replay the pure prepared
+/// tail, using the current line baseline and its original per-item offset.
 pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     identity: &Arc<()>,
@@ -135,9 +165,9 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     language: Option<Lang>,
     emit: impl FnOnce(&mut Layouter<M, S>),
 ) {
+    let baseline = l.regions.current.cursor_y;
     let numeric = [
         l.regions.current.cursor_x.0,
-        l.regions.current.cursor_y.0,
         l.text_horizontal_offset.0,
         spacing[0],
         spacing[1],
@@ -149,6 +179,7 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
         && l.pending_bib_prefix.is_none()
         && l.pending_bib_escape.is_none()
         && l.text_bidi.is_none()
+        && baseline.0.is_finite()
         && numeric.iter().all(|n| n.is_finite())
         && super::html_frame::items_have_material(&l.regions.current.current_line);
     let Some(session) = session.filter(|_| eligible) else {
@@ -169,7 +200,14 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
         product
     };
     if let Some(product) = product {
-        l.regions.current.current_line.extend(product.items.iter().cloned());
+        let line = &mut l.regions.current.current_line;
+        let first = line.len();
+        line.extend(product.items.iter().cloned());
+        if product.baseline.0.to_bits() != baseline.0.to_bits() {
+            for item in &mut line[first..] {
+                at_baseline(item, baseline);
+            }
+        }
         l.regions.current.cursor_x = product.end;
         l.justify_opportunities.extend_from_slice(&product.anchors);
         if l.document_language.is_none() {
@@ -185,11 +223,11 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     emit(l);
     let items = &l.regions.current.current_line[first..];
     let anchors = &l.justify_opportunities[anchor..];
-    let Some(charge) = charge(items, anchors) else {
+    let Some(charge) = charge(items, anchors, baseline) else {
         return;
     };
     if !l.regions.current.cursor_x.0.is_finite()
-        || l.regions.current.cursor_y.0.to_bits() != numeric[1].to_bits()
+        || l.regions.current.cursor_y.0.to_bits() != baseline.0.to_bits()
     {
         return;
     }
@@ -197,6 +235,7 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
         items: items.to_vec(),
         anchors: anchors.to_vec(),
         end: l.regions.current.cursor_x,
+        baseline,
     });
     let mut m = session.paint.0.lock().unwrap();
     if m.entries.contains_key(&key) {
@@ -222,7 +261,7 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::compiler::layout::{paragraph_session::ParagraphSession, FixedMetrics};
+    use crate::compiler::layout::{FixedMetrics, paragraph_session::ParagraphSession};
     use crate::entities::{
         content::Content,
         image_sizer::NullImageSizer,
@@ -331,6 +370,63 @@ mod tests {
         assert_eq!(calls.get(), 4);
     }
     #[test]
+    fn reused_line_replays_exactly_at_the_new_baseline() {
+        use crate::entities::layout_types::{Length, Point, TextSeparatorOrigin};
+
+        let identity = Arc::new(());
+        let memo = ParagraphSession::new();
+        let calls = Cell::new(0);
+        let run = |session, y| {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                Metrics(session),
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            super::super::paragraph_indent::start(&mut l);
+            l.layout_content(&Content::text("prefix"));
+            l.regions.current.cursor_y = Pt(y);
+            let style = TextStyle {
+                baseline_offset: Length::pt(0.1),
+                ..l.style.clone()
+            };
+            tail(&mut l, &identity, 0, [0.0, 0.0], None, |l| {
+                calls.set(calls.get() + 1);
+                l.regions.current.current_line.push(FrameItem::TextSeparator {
+                    pos: Point {
+                        x: l.regions.current.cursor_x,
+                        y: l.regions.current.cursor_y + Pt(0.1),
+                    },
+                    advance: Pt(2.0),
+                    style: style.clone(),
+                    origin: TextSeparatorOrigin::Literal,
+                    bidi: None,
+                });
+                l.regions.current.cursor_x += Pt(2.0);
+                l.justify_opportunities.push(l.regions.current.cursor_x.0);
+                super::super::word_layout::prepared(
+                    l,
+                    "frag",
+                    Pt(7.0),
+                    &style,
+                    Some("original"),
+                );
+            });
+            (
+                format!("{:?}", l.regions.current.current_line),
+                l.regions.current.cursor_x.0.to_bits(),
+                l.justify_opportunities,
+            )
+        };
+        let expected = run(None, 0.3);
+        let original_y = run(Some(memo.clone()), 29.0);
+        assert_ne!(original_y, expected);
+        assert_eq!(run(Some(memo), 0.3), expected);
+        assert_eq!(calls.get(), 2, "tail must skip the third cold emission");
+    }
+
+    #[test]
     fn line_products_independent_sessions_are_cold() {
         let id = Arc::new(());
         let calls = Cell::new(0);
@@ -344,8 +440,8 @@ mod tests {
 #[cfg(test)]
 mod pipeline_tests {
     use super::super::{
-        paragraph_session::{MetricIdentity, ParagraphSession},
         FixedMetrics,
+        paragraph_session::{MetricIdentity, ParagraphSession},
     };
     use super::*;
     use crate::entities::{
@@ -403,7 +499,9 @@ mod pipeline_tests {
         l.regions.current.cursor_x = Pt(10.0);
         l.regions.current.line_start_x = Pt(10.0);
         l.regions.current.cursor_y = Pt(10.0);
-        let body=Content::text("alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega");
+        let body = Content::text(
+            "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega",
+        );
         assert!(if direct {
             super::super::paragraph_plan::try_layout(&mut l, &body)
         } else {

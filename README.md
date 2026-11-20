@@ -14,6 +14,7 @@ The upstream-oriented guide that previously occupied this README remains recover
 |---|---|
 | `00_nucleo/adr/` | Architectural decisions |
 | `00_nucleo/prompts/` | L0 specifications that own productive consumers |
+| [`00_nucleo/diagnostics/`](00_nucleo/diagnostics/README.md) | Current findings and validated performance changes |
 | `lab/results/construction/diagnostics/` | Preserved diagnostic reports, measurements, and validation receipts |
 | `01_core/` | L1 domain and compiler core |
 | `02_shell/` | L2 CLI and formatting |

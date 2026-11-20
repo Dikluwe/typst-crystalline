@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash 9bdc3c9a
+//! @prompt-hash f3f98439
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -279,6 +279,7 @@ pub(super) enum ItemGroup {
 pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) page_running_pass: Option<page_running_requests::PlannedPass>,
     page_running_generation: u64,
+    prior_label_pages_observed: Option<&'a std::sync::atomic::AtomicBool>,
     pub(super) metrics: M,
     sizer: S,
 
@@ -965,6 +966,13 @@ pub(super) struct DeferredCellTail {
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    fn prior_label_page(&self, label: &crate::entities::label::Label) -> Option<usize> {
+        if let Some(observed) = self.prior_label_pages_observed {
+            observed.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        self.runtime.known_page_numbers.get(label).copied()
+    }
+
     /// **P204C (M8)** — `introspector` parameter agora obrigatório
     /// (migrado de `TagIntrospector` field assignment para
     /// `Tracked<'a, dyn Introspector + 'a>` aceite no construtor).
@@ -983,6 +991,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Self {
             page_running_pass: None,
             page_running_generation: 0,
+            prior_label_pages_observed: None,
             metrics,
             sizer,
 

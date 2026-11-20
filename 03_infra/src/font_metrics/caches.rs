@@ -1,15 +1,20 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/caches.md
-//! @prompt-hash 14c0c59b
+//! @prompt-hash 0b8f0b5a
 //! @layer L3
 //! @updated 2026-10-24
 
 use super::FallbackFontMetrics;
-use crate::font_variant::axis_variations_for_text_style;
-use std::sync::Arc;
+use crate::font_variant::{axis_variations_for_text_style, text_style_to_font_variant};
+use std::{collections::HashMap, sync::Arc};
 use ttf_parser::Face;
-use typst_core::entities::layout_types::{Pt, TextStyle};
-use typst_core::entities::world_types::Font;
+use typst_core::entities::{
+    dir::Dir,
+    font_book::FontVariant,
+    lang::Lang,
+    layout_types::{Pt, TextStyle},
+    world_types::Font,
+};
 
 /// Face parseada e bytes correspondentes, alocada em `Arc` para garantir
 /// que os bytes não se movem depois de o `Face` ser criado.
@@ -105,7 +110,147 @@ pub(super) struct AdvanceWidthKey {
     math_size: u8,
 }
 
+const CERTIFIED_WIDTH_GROUPS: usize = 4;
+const CERTIFIED_WORDS_PER_GROUP: usize = 512;
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct WidthStyle {
+    size: u64,
+    variant: FontVariant,
+    direction: Option<Dir>,
+    language: Option<Lang>,
+}
+
+struct WidthQuery<'a> {
+    family: &'a str,
+    style: WidthStyle,
+    text: &'a str,
+}
+
+impl<'a> WidthQuery<'a> {
+    fn new(text: &'a str, size: Pt, style: &'a TextStyle) -> Option<Self> {
+        if text.is_empty()
+            || text.len() > 128
+            || !size.0.is_finite()
+            || style.tracking.is_some()
+            || style.variations.is_some()
+            || style.math
+            || style.subscript
+            || style.superscript
+        {
+            return None;
+        }
+        let [family] = style.font.as_ref()?.as_slice() else { return None };
+        let name = family.name.as_str()?;
+        if name.len() > 96
+            || !family.variants.is_empty()
+            || family.variant.is_some()
+            || family.weight.is_some()
+            || family.style.is_some()
+        {
+            return None;
+        }
+        Some(Self {
+            family: name,
+            style: WidthStyle {
+                size: size.0.to_bits(),
+                variant: text_style_to_font_variant(style),
+                direction: style.dir,
+                language: style.lang,
+            },
+            text,
+        })
+    }
+}
+
+struct WidthGroup {
+    family: String,
+    style: WidthStyle,
+    words: HashMap<String, Pt>,
+}
+
+impl WidthGroup {
+    fn matches(&self, query: &WidthQuery<'_>) -> bool {
+        self.style == query.style && self.family == query.family
+    }
+}
+
+#[derive(Default)]
+pub(super) struct CertifiedWidths {
+    epoch: Option<Arc<()>>,
+    groups: Vec<WidthGroup>,
+}
+
+impl CertifiedWidths {
+    fn has_epoch(&self, epoch: &Arc<()>) -> bool {
+        self.epoch.as_ref().is_some_and(|current| Arc::ptr_eq(current, epoch))
+    }
+
+    fn get(&self, epoch: &Arc<()>, query: &WidthQuery<'_>) -> Option<Pt> {
+        if !self.has_epoch(epoch) {
+            return None;
+        }
+        self.groups
+            .iter()
+            .find(|g| g.matches(query))?
+            .words
+            .get(query.text)
+            .copied()
+    }
+
+    fn publish(&mut self, epoch: Arc<()>, query: &WidthQuery<'_>, width: Pt) {
+        if !self.has_epoch(&epoch) {
+            self.epoch = Some(epoch);
+            self.groups.clear();
+        }
+        let group = if let Some(index) = self.groups.iter().position(|g| g.matches(query))
+        {
+            &mut self.groups[index]
+        } else {
+            if self.groups.len() == CERTIFIED_WIDTH_GROUPS {
+                self.groups.remove(0);
+            }
+            self.groups.push(WidthGroup {
+                family: query.family.to_owned(),
+                style: query.style,
+                words: HashMap::new(),
+            });
+            self.groups.last_mut().unwrap()
+        };
+        if group.words.len() < CERTIFIED_WORDS_PER_GROUP {
+            group.words.entry(query.text.to_owned()).or_insert(width);
+        }
+    }
+}
+
 impl FallbackFontMetrics<'_> {
+    pub(super) fn certified_shaped_width(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+        compute: impl FnOnce() -> Option<Pt>,
+    ) -> Option<Pt> {
+        let Some(query) = WidthQuery::new(text, size, style) else { return compute() };
+        let Some(epoch) = self.world.font_query_epoch() else { return compute() };
+        {
+            let widths = self.certified_widths.lock().unwrap();
+            if let Some(width) = widths.get(&epoch, &query) {
+                return Some(width);
+            }
+        }
+        let width = compute()?;
+        if width.0.is_finite()
+            && self
+                .world
+                .font_query_epoch()
+                .is_some_and(|now| Arc::ptr_eq(&epoch, &now))
+        {
+            self.certified_widths.lock().unwrap().publish(epoch, &query, width);
+        }
+        Some(width)
+    }
+
     /// **P591** — constrói uma chave de cache para `advance_shaped`.
     pub(super) fn shaped_width_key(
         text: &str,
@@ -292,6 +437,64 @@ mod tests {
     // P659 — a chave de cache de shaped_width deve distinguir variações de eixo
     // OpenType. O mesmo texto, tamanho e peso nominal pode ter larguras shaped
     // diferentes se o eixo efectivo (ex.: wght) divergir.
+    #[test]
+    fn certified_width_reuses_the_result_before_the_legacy_cache() {
+        use typst_core::compiler::layout::FontMetrics;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::{font_list::FontList, layout_types::Length};
+
+        let world = crate::world::SystemWorld::for_eval(".").with_fonts_and_system(&[]);
+        let metrics = FallbackFontMetrics::new(&world);
+        let style = TextStyle {
+            font: Some(FontList::single("Libertinus Serif".into())),
+            ..TextStyle::regular(Pt(11.0))
+        };
+        let terms = ["Alpha", "AV", "several"];
+        let width_at =
+            |metrics: &FallbackFontMetrics<'_>, text, size, style: &TextStyle| {
+                metrics.advance_shaped(text, size, style).unwrap().0.to_bits()
+            };
+        let expected = terms.map(|text| width_at(&metrics, text, style.size, &style));
+        assert!(world.font_query_epoch().is_some());
+        assert!(!metrics.shaped_width_cache.lock().unwrap().is_empty());
+        metrics.shaped_width_cache.lock().unwrap().clear();
+        let clone = metrics.clone();
+        let repeated = terms.map(|text| width_at(&clone, text, style.size, &style));
+        assert_eq!(repeated, expected);
+        assert!(
+            metrics.shaped_width_cache.lock().unwrap().is_empty(),
+            "the certified hit rebuilt the legacy shaped-width keys"
+        );
+
+        let fresh = FallbackFontMetrics::new(&world);
+        let larger = Pt(15.0);
+        assert_ne!(width_at(&clone, terms[0], larger, &style), expected[0]);
+        assert_eq!(
+            width_at(&clone, terms[0], larger, &style),
+            width_at(&fresh, terms[0], larger, &style),
+        );
+        let alternate = TextStyle { italic: true, ..style.clone() };
+        assert_eq!(
+            width_at(&clone, terms[0], style.size, &alternate),
+            width_at(&fresh, terms[0], style.size, &alternate),
+        );
+        let tracked = TextStyle { tracking: Some(Length::pt(1.3)), ..style.clone() };
+        assert_eq!(
+            clone.text_width(terms[1], style.size, &tracked).0.to_bits(),
+            fresh.text_width(terms[1], style.size, &tracked).0.to_bits(),
+        );
+        assert_ne!(
+            clone.text_width(terms[1], style.size, &tracked).0.to_bits(),
+            expected[1],
+        );
+
+        let _ = world.book();
+        assert!(world.font_query_epoch().is_none());
+        metrics.shaped_width_cache.lock().unwrap().clear();
+        assert_eq!(width_at(&clone, terms[0], style.size, &style), expected[0]);
+        assert!(!metrics.shaped_width_cache.lock().unwrap().is_empty());
+    }
+
     #[test]
     fn p659_shaped_width_key_distingue_variacoes_de_eixo() {
         let style_a = TextStyle { weight: Some(400), ..TextStyle::default() };
