@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 0fc55d6e
+//! @prompt-hash 5d605258
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -133,6 +133,27 @@ impl RetainedCapture {
         }
         Some(Self { roots: session.roots.clone(), nodes, content })
     }
+}
+
+/// The provisional producer locations are valid only within one root batch.
+enum ProvisionalLocations {
+    Uncached,
+    Batch(Option<HashMap<u64, Location>>),
+}
+
+impl ProvisionalLocations {
+    fn clear(&mut self) {
+        if let Self::Batch(cached) = self {
+            *cached = None;
+        }
+    }
+}
+
+/// Session::body substitutes plain Empty for an absent or failed execution.
+fn empty_provisional_product(node: &Producer) -> bool {
+    node.current.as_ref().is_none_or(|execution| {
+        matches!(&execution.result, Err(_) | Ok(Content::Empty))
+    })
 }
 
 struct Session<'a> {
@@ -1294,7 +1315,23 @@ impl<'a> Session<'a> {
     }
 
     fn realize(&mut self, index: usize, input: &Arc<TagIntrospector>) {
+        self.realize_with_provisional_locations(
+            index,
+            input,
+            &mut ProvisionalLocations::Uncached,
+        );
+    }
+
+    fn realize_with_provisional_locations(
+        &mut self,
+        index: usize,
+        input: &Arc<TagIntrospector>,
+        locations: &mut ProvisionalLocations,
+    ) {
         if self.nodes[index].invalid {
+            if !self.nodes[index].children.is_empty() {
+                locations.clear();
+            }
             self.discard_descendants(index);
             // A retained paginated producer consumes the actual physical
             // input occurrence. A newly discovered producer still obtains its
@@ -1307,17 +1344,33 @@ impl<'a> Session<'a> {
             } else {
                 None
             };
-            let location = retained_location.or_else(|| {
-                introspect_with_introspector(&self.running_topology())
+            let id = self.nodes[index].elem.id;
+            let location = retained_location.or_else(|| match locations {
+                ProvisionalLocations::Uncached => introspect_with_introspector(
+                    &self.running_topology(),
+                )
                     .context_block_locations
-                    .get(&self.nodes[index].elem.id)
-                    .copied()
+                    .get(&id)
+                    .copied(),
+                ProvisionalLocations::Batch(cached) => cached
+                    .get_or_insert_with(|| {
+                        introspect_with_introspector(&self.running_topology())
+                            .context_block_locations
+                            .clone()
+                    })
+                    .get(&id)
+                    .copied(),
             });
             let Some(location) = location else {
                 self.impossible = true;
                 return;
             };
+            let has_map = matches!(locations, ProvisionalLocations::Batch(Some(_)));
+            let old_empty = has_map && empty_provisional_product(&self.nodes[index]);
             self.execute(index, input, location);
+            if has_map && (!old_empty || !empty_provisional_product(&self.nodes[index])) {
+                locations.clear();
+            }
             if self.impossible {
                 return;
             }
@@ -1331,6 +1384,9 @@ impl<'a> Session<'a> {
                 .map(|body| ordered_blocks(body, &node.chain));
             match children {
                 Some(Some(blocks)) => {
+                    if !blocks.is_empty() {
+                        locations.clear();
+                    }
                     for (elem, chain) in blocks {
                         // The allocator is compilation-local across body evaluations.
                         // A retained producer is its actual object, not this integer.
@@ -1350,7 +1406,7 @@ impl<'a> Session<'a> {
             }
         }
         for child in self.nodes[index].children.clone() {
-            self.realize(child, input);
+            self.realize_with_provisional_locations(child, input, locations);
             if self.impossible {
                 return;
             }
@@ -1448,10 +1504,19 @@ impl<'a> Session<'a> {
         for attempt in 1..=5 {
             let snapshot = Arc::new(history.last().unwrap().clone());
             let input = &snapshot;
-            for root in self.roots.clone() {
-                self.realize(root, input);
-                if self.impossible {
-                    return (terminal(self.source, self.errors()), self.warnings());
+            {
+                let mut locations = if self.target == EvalTarget::Paged
+                    && self.bundle_html_targets.is_none()
+                {
+                    ProvisionalLocations::Batch(None)
+                } else {
+                    ProvisionalLocations::Uncached
+                };
+                for root in self.roots.clone() {
+                    self.realize_with_provisional_locations(root, input, &mut locations);
+                    if self.impossible {
+                        return (terminal(self.source, self.errors()), self.warnings());
+                    }
                 }
             }
             let content = self.content();
@@ -3514,6 +3579,64 @@ mod batch_g_session_tests {
         assert_eq!(session.body(0).plain_text(), "LAST30");
         assert_eq!(session.body(1).plain_text(), "MIDDLE");
         assert_eq!(session.content().plain_text(), "LAST30MIDDLELAST30");
+    }
+
+    #[test]
+    fn provisional_locations_survive_empty_products_and_expire_on_new_descendants() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let producer = block(
+            3,
+            Func::native("add-child", |_ctx, _args, _world, _file| {
+                Ok(Value::Content(empty(4)))
+            }),
+        );
+        let content = Content::sequence(vec![empty(1), empty(2), producer]);
+        let original = introspect_with_introspector(&content);
+        let input = Arc::new(TagIntrospector::empty());
+        let mut session = Session::new(
+            content,
+            &original,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        let roots = session.roots.clone();
+        let mut locations = ProvisionalLocations::Batch(None);
+        for &root in &roots[..2] {
+            session.realize_with_provisional_locations(root, &input, &mut locations);
+            assert!(!session.impossible);
+            let ProvisionalLocations::Batch(Some(cached)) = &locations else {
+                panic!("an empty result preserves the batch map");
+            };
+            assert_eq!(
+                *cached,
+                introspect_with_introspector(&session.running_topology())
+                    .context_block_locations,
+            );
+        }
+
+        let root = roots[2];
+        session.realize_with_provisional_locations(root, &input, &mut locations);
+        assert!(!session.impossible);
+        let [child] = session.nodes[root].children.as_slice() else {
+            panic!("producer introduces one descendant");
+        };
+        assert_eq!(session.nodes[*child].elem.id, 4);
+        let ProvisionalLocations::Batch(Some(cached)) = &locations else {
+            panic!("the new descendant builds a fresh map");
+        };
+        assert!(cached.contains_key(&4));
+        assert_eq!(
+            *cached,
+            introspect_with_introspector(&session.running_topology())
+                .context_block_locations,
+        );
     }
 
     #[test]

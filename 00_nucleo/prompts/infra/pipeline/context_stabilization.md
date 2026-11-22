@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: a23f556b
+Hash do Código: bdcb005c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:966b8ac90f477d71d8a442f4139239da77c75c9f3e24e2c097a1609433cd7227
@@ -865,3 +865,22 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Batch-local provisional producer locations — 2026-11-21
+
+The laboratory census in
+`lab/results/construction/diagnostics/references-500-after-suffix-2026-11-21/topology-control.json`
+counts 20 provisional introspections from realization in the visible edit. In
+the candidate, one map was built and 19 uses matched a full reconstruction.
+Both paired timing series favored reuse in the measured fixture. This evidence
+concerns implementation work and does not change the language semantics.
+
+In each ordinary paged stabilization attempt, the root batch may retain only
+the provisional producer-to-location map. Actual physical locations retain
+precedence. Reuse across executions only while the effective substitution is
+plain empty both before and after. Discard the map before removing descendants,
+after discovering descendants, and before leaving the root batch. HTML, mixed
+bundles and isolated discovery or overlay realizations keep the fresh lookup.
+Every producer continues to execute and validate its reads against its
+current input. The cache is private to the batch, with no public contract,
+environment switch, persistent state, or fixture-specific admission.

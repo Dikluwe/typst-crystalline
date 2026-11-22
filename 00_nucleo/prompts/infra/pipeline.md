@@ -1,5 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: 7ab90917
+Hash do Código: 0beb92a5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -371,3 +371,24 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Preserve unchanged substitution owners — 2026-11-21
+
+The retained branch in
+`lab/results/construction/diagnostics/references-500-context-substitution-2026-11-21/report.md`
+saved 23.01 ms of paired CPU over extraction alone and verified spans,
+context markers, PDF observables and directed restoration. The productive
+owner adopts the private retention behavior within the existing substitution
+function. The extraction into new modules is outside this change.
+
+Directly handled wrappers preserve their original owner when the selected
+child has no replacement. This includes original-versus-visual transport,
+the recipe's captured chain and the selected prepared reference supplement.
+A sequence preserves its allocation on no change and builds a replacement
+vector only on the first actual child replacement. The generic traversal
+retains its existing normalization, marker insertion, error fallback and
+operational template restoration. Figure supplement resolution retains its
+existing semantics. The existing bounded Heading certificate remains the
+only authority for retaining the Heading owner. A refusal rebuilds the
+Heading even when the body preserves its owner. This step changes neither
+public interfaces nor phase order.

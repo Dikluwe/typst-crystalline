@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 1362e12a
+//! @prompt-hash e5532316
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -930,76 +930,95 @@ fn substitute_context_blocks_in_chain(
     resolved: &HashMap<u64, Content>,
     chain: &StyleChain,
 ) -> Content {
+    substitute_context_blocks_if_changed(&content, resolved, chain).unwrap_or(content)
+}
+
+fn substitute_context_blocks_if_changed(
+    content: &Content,
+    resolved: &HashMap<u64, Content>,
+    chain: &StyleChain,
+) -> Option<Content> {
+    use typst_core::compiler::realize::reference_supplements::{
+        map_prepared_reference_supplement, prepared_reference_supplement,
+    };
+
     macro_rules! body {
-        ($variant:ident, $elem:expr) => {{
+        ($variant:ident, $elem:expr, $chain:expr) => {{
+            let body = substitute_context_blocks_if_changed(&$elem.body, resolved, $chain)?;
             let mut elem = (**$elem).clone();
-            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
-            return Content::$variant(Arc::new(elem));
+            elem.body = body;
+            return Some(Content::$variant(Arc::new(elem)));
         }};
+        ($variant:ident, $elem:expr) => { body!($variant, $elem, chain) };
     }
-    match &content {
-        Content::Source(e) => {
-            let mut elem = (**e).clone();
-            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
-            return Content::Source(Arc::new(elem));
-        }
+    match content {
+        Content::Source(e) => body!(Source, e),
         Content::Located(e) if !matches!(e.body, Content::ContextBlock(_)) => {
-            let mut elem = (**e).clone();
-            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
-            return Content::Located(Arc::new(elem));
+            body!(Located, e)
         }
         Content::Realized(e) => {
+            let visual = substitute_context_blocks_if_changed(&e.visual, resolved, chain)?;
             let mut elem = (**e).clone();
-            elem.visual =
-                substitute_context_blocks_in_chain(elem.visual, resolved, chain);
-            return Content::Realized(Arc::new(elem));
+            elem.visual = visual;
+            return Some(Content::Realized(Arc::new(elem)));
         }
-        Content::ShowRecipe(e) => {
-            let mut elem = (**e).clone();
-            elem.body =
-                substitute_context_blocks_in_chain(elem.body, resolved, &elem.styles);
-            return Content::ShowRecipe(Arc::new(elem));
-        }
+        Content::ShowRecipe(e) => body!(ShowRecipe, e, &e.styles),
         Content::Styled(e) => {
-            if let Ok(Some(rebuilt)) = typst_core::compiler::realize::reference_supplements::map_prepared_reference_supplement(&content, |child| {
-                Ok(substitute_context_blocks_in_chain(child.clone(), resolved, chain))
-            }) { return rebuilt; }
-            let mut elem = (**e).clone();
-            elem.body = substitute_context_blocks_in_chain(
-                elem.body,
-                resolved,
-                &chain.push_styles(&elem.styles),
-            );
-            return Content::Styled(Arc::new(elem));
+            if let Some(child) = prepared_reference_supplement(content) {
+                let child = substitute_context_blocks_if_changed(child, resolved, chain)?;
+                if let Ok(Some(rebuilt)) =
+                    map_prepared_reference_supplement(content, |_| Ok(child))
+                {
+                    return Some(rebuilt);
+                }
+            }
+            body!(Styled, e, &chain.push_styles(&e.styles))
         }
         Content::Sequence(parts) | Content::MathSequence(parts) => {
-            let parts = parts
-                .iter()
-                .cloned()
-                .map(|part| substitute_context_blocks_in_chain(part, resolved, chain))
-                .collect::<Vec<_>>()
-                .into();
-            return if matches!(content, Content::Sequence(_)) {
-                Content::Sequence(parts)
+            let mut output = None;
+            for (index, part) in parts.iter().enumerate() {
+                if let Some(replacement) =
+                    substitute_context_blocks_if_changed(part, resolved, chain)
+                {
+                    let output = output.get_or_insert_with(|| {
+                        let mut output = Vec::with_capacity(parts.len());
+                        output.extend_from_slice(&parts[..index]);
+                        output
+                    });
+                    output.push(replacement);
+                } else if let Some(output) = &mut output {
+                    output.push(part.clone());
+                }
+            }
+            let output = output?.into();
+            return Some(if matches!(content, Content::Sequence(_)) {
+                Content::Sequence(output)
             } else {
-                Content::MathSequence(parts)
-            };
+                Content::MathSequence(output)
+            });
         }
         Content::Figure(e) => {
-            let mut elem = (**e).clone();
-            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
-            if let Some(supplement) = figure_context_supplement(e, chain) {
-                elem.resolved_supplement =
-                    Some(Some(substitute_context_blocks_in_chain(
-                        supplement.clone(),
-                        resolved,
-                        chain,
-                    )));
-            }
-            elem.caption = elem.caption.map(|caption| {
-                substitute_context_blocks_in_chain(caption, resolved, chain)
+            let body = substitute_context_blocks_if_changed(&e.body, resolved, chain);
+            let caption = e.caption.as_ref().and_then(|caption| {
+                substitute_context_blocks_if_changed(caption, resolved, chain)
             });
-            return Content::Figure(Arc::new(elem));
+            let supplement = figure_context_supplement(e, chain).map(|supplement| {
+                substitute_context_blocks_in_chain(supplement.clone(), resolved, chain)
+            });
+            if body.is_none() && caption.is_none() && supplement.is_none() {
+                return None;
+            }
+            let mut elem = (**e).clone();
+            if let Some(body) = body {
+                elem.body = body;
+            }
+            if let Some(caption) = caption {
+                elem.caption = Some(caption);
+            }
+            if let Some(supplement) = supplement {
+                elem.resolved_supplement = Some(Some(supplement));
+            }
+            return Some(Content::Figure(Arc::new(elem)));
         }
         Content::Strong(e) => body!(Strong, e),
         Content::Emph(e) => body!(Emph, e),
@@ -1007,9 +1026,11 @@ fn substitute_context_blocks_in_chain(
         Content::Boxed(e) => body!(Boxed, e),
         Content::Heading(e) => {
             if stable_heading_substitution_body(&e.body) {
-                return content;
+                return None;
             }
-            body!(Heading, e)
+            let mut elem = (**e).clone();
+            elem.body = substitute_context_blocks_in_chain(elem.body, resolved, chain);
+            return Some(Content::Heading(Arc::new(elem)));
         }
         Content::Title(e) => body!(Title, e),
         Content::ListItem(e) => body!(ListItem, e),
@@ -1022,31 +1043,18 @@ fn substitute_context_blocks_in_chain(
         Content::Transform(e) => body!(Transform, e),
         Content::Label(e) => body!(Label, e),
         Content::Par { body } => {
-            return Content::Par {
-                body: Box::new(substitute_context_blocks_in_chain(
-                    (**body).clone(),
-                    resolved,
-                    chain,
-                )),
-            };
+            let body = substitute_context_blocks_if_changed(body, resolved, chain)?;
+            return Some(Content::Par { body: Box::new(body) });
         }
         Content::SmallCaps { body } => {
-            return Content::SmallCaps {
-                body: Box::new(substitute_context_blocks_in_chain(
-                    (**body).clone(),
-                    resolved,
-                    chain,
-                )),
-            };
+            let body = substitute_context_blocks_if_changed(body, resolved, chain)?;
+            return Some(Content::SmallCaps { body: Box::new(body) });
         }
+        Content::Empty | Content::Text(..) | Content::Space
+        | Content::SpaceFromNewline | Content::Parbreak | Content::Ref(..) => return None,
         // These nodes delegate descendant substitution to the existing
         // generic mapper. Located(ContextBlock) deliberately retains its marker.
         Content::Located(..)
-        | Content::Empty
-        | Content::Text(..)
-        | Content::Space
-        | Content::SpaceFromNewline
-        | Content::Parbreak
         | Content::HtmlElem(..)
         | Content::HtmlFrame(..)
         | Content::Raw(..)
@@ -1084,7 +1092,6 @@ fn substitute_context_blocks_in_chain(
         | Content::MathUnderover(..)
         | Content::MathOp(..)
         | Content::MathStyled(..)
-        | Content::Ref(..)
         | Content::CounterDisplay(..)
         | Content::CounterUpdate(..)
         | Content::Outline(..)
@@ -1301,7 +1308,7 @@ fn substitute_context_blocks_in_chain(
                 | Content::Dynamic(..) => None,
             })
         })
-        .unwrap_or(content)
+        .ok()
 }
 
 /// Tempos das fases do pipeline cristalino, em milissegundos.
@@ -1356,6 +1363,37 @@ impl Timings {
 #[cfg(test)]
 mod batch_g_collection_tests {
     use super::*;
+
+    #[test]
+    fn substitution_retains_unchanged_sequence_and_source_owners() {
+        use typst_core::entities::{content::SourceContent, func::Func, span::Span};
+
+        let prefix = Arc::new(SourceContent {
+            body: Content::text("prefix"),
+            span: Span::detached(),
+        });
+        let parts: Arc<[Content]> =
+            vec![Content::Source(prefix.clone()), Content::text(" suffix")].into();
+        let unchanged =
+            substitute_context_blocks(Content::Sequence(parts.clone()), &HashMap::new());
+        let Content::Sequence(unchanged) = unchanged else { panic!("sequence must survive") };
+        assert!(Arc::ptr_eq(&parts, &unchanged));
+
+        let block = Content::ContextBlock(Arc::new(ContextBlockElem {
+            id: 14,
+            closure: Func::native("unused", |_, _, _, _| Ok(Value::None)),
+        }));
+        let parts: Arc<[Content]> = vec![Content::Source(prefix.clone()), block].into();
+        let changed = substitute_context_blocks(
+            Content::Sequence(parts.clone()),
+            &HashMap::from([(14, Content::text(" replacement"))]),
+        );
+        assert_eq!(changed.plain_text(), "prefix replacement");
+        let Content::Sequence(changed) = changed else { panic!("sequence must survive") };
+        assert!(!Arc::ptr_eq(&parts, &changed));
+        let Content::Source(retained) = &changed[0] else { panic!("source must survive") };
+        assert!(Arc::ptr_eq(&prefix, retained));
+    }
     use typst_core::entities::content::{
         LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
     };
