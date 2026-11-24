@@ -199,7 +199,7 @@ types = ["ColorPrimaries", "ColorProfile", "Hypercube", "Lab", "Matrix3f", "Matr
 types = ["icc", "CMYK_TO_XYZ"]
 
 [orphan_exceptions]
-# No ownerless documents remain in active L0. Process templates live in lab/tools/workflows.
+# No ownerless documents remain in active L0. Process templates live in docs/workflows.
 
 [wildcard_exceptions]
 "01_core/src/compiler/eval/bindings/field_access.rs:568" = "eval de nó/método retorna neutro para variantes sem despacho específico"

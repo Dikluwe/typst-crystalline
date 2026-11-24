@@ -90,7 +90,7 @@ and the aggregate final coverage are authoritative for this validation.
 
 ## Review artifacts
 
-[Source archive and manifest](../../lab/history/prompt-consolidation-2026-10-18/README.md)
+[Source archive and manifest](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/history/prompt-consolidation-2026-10-18/README.md)
 preserve the original contracts, measurements and chronology.
-[Validation and review receipts](../../lab/results/prompt-consolidation-2026-10-18/README.md)
+[Validation and review receipts](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/prompt-consolidation-2026-10-18/README.md)
 provide per-file ledgers, semantic cross-checks, exact commands and full logs.

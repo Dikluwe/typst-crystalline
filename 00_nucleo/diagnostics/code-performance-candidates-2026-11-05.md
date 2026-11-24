@@ -343,7 +343,7 @@ A ADR-0029 permite gerenciamento local de RAM; não precisa ser revista só porq
 ## O que a auditoria evita repetir
 
 - `Content::Sequence` já compartilha Arc slices; muitas variantes pesadas já são indiretas. Não existe migração universal de Box→u32 autorizada ou ganho presumido de 50% do documento.
-- `Value::Stroke` já foi compactado e existe guarda de footprint de Value/Binding. O [resultado de outubro](../../lab/results/construction/diagnostics/value-compacto-memoria5-execucao-2026-10-08.md) pertence àquele estado/pin; não é medida nova. Não fixar ABI portátil com sizeof exato.
+- `Value::Stroke` já foi compactado e existe guarda de footprint de Value/Binding. O [resultado de outubro](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/value-compacto-memoria5-execucao-2026-10-08.md) pertence àquele estado/pin; não é medida nova. Não fixar ABI portátil com sizeof exato.
 - Parser já usa MemoArena de nós/ranges. SyntaxNode tem edição COW e SourceSession retém CST validada. Isso não memoiza eval e não justifica descartar proprietário/geração de um índice.
 - `map_children_if_changed` em content/traversal.rs:376 já aloca apenas após o primeiro filho alterado. Checkpoint já evita cópia de prefixos de FrameItem por comprimentos. Uma proposta genérica de acrescentar esses mecanismos repetiria trabalho existente.
 - Métricas/FaceCache/shaping/font binding e medição de células já têm caches locais. Raw mantém SyntaxSet/Theme lazy; Regex clonada compartilha compilado. A pergunta é custo/hit/miss/escopo do cache existente, não simplesmente acrescentar cache.

@@ -1,6 +1,6 @@
 # Catálogo e evidências na descoberta: captura mínima
 
-Experimento de laboratório sobre a mesma árvore recebida. Nenhuma otimização foi integrada ao produto ou aos L0. A revisão usa o percurso nativo observado do protótipo anterior, mas elimina uma consulta de captura redundante para paths que não são links. Código e testes: [joint-font-witness](../../lab/experiments/joint-font-witness/README.md).
+Experimento de laboratório sobre a mesma árvore recebida. Nenhuma otimização foi integrada ao produto ou aos L0. A revisão usa o percurso nativo observado do protótipo anterior, mas elimina uma consulta de captura redundante para paths que não são links. Código e testes: [joint-font-witness](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/experiments/joint-font-witness/README.md).
 
 ## Medições
 

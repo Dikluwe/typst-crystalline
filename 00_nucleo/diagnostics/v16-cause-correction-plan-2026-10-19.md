@@ -22,7 +22,7 @@ The executable is `lab/target/linter/debug/crystalline-lint`, SHA-256
 `421d0797e7ae1a5102e9c5bcd87b488fea70a1997394c38765a03239fe579121`, from
 linter commit `12797073972e375d9ab078cf6750c8b30b71e2b9`. The exact command,
 UTC interval, clean state, source/L0 digests, and complete diagnostics are in the
-[evidence directory](../../lab/results/v16-cause-analysis-2026-10-19/README.md).
+[evidence directory](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-cause-analysis-2026-10-19/README.md).
 Three agents read the containing functions, guards/callers, enum definitions,
 and current owning L0 clauses for disjoint partitions of 33, 37, and 35 findings.
 The primary agent reviewed the proposed repairs and cross-checked sensitive
@@ -71,7 +71,7 @@ catchall in the repository.
 The complete per-occurrence ledger records the actual function, scrutinee,
 source/L0 evidence, complement meaning, proposed repair, acceptance/refutation
 controls, dependencies, uncertainty, and ADR-0127 classification. The
-[execution batches](../../lab/results/v16-cause-analysis-2026-10-19/batches.md)
+[execution batches](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-cause-analysis-2026-10-19/batches.md)
 assign every ID exactly once. Batch assignment is scheduling, not permission to
 skip the individual contract or unresolved prerequisite.
 

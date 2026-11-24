@@ -75,7 +75,7 @@ measurement states.
 - Oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
   `cac836c07e4dec2a89219370428292393a3216b5`, SHA-256
   `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Its ratified source/recipe receipt remains
-  [the 2026-10-17 resync](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
+  [the 2026-10-17 resync](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
   No target update or version-string substitution occurred.
 - Both use Rust 1.92.0 and their accepted ThinLTO/one-codegen-unit release
   recipes. Product symbols remain; size normalization strips disposable copies

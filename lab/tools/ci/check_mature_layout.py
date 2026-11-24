@@ -146,6 +146,7 @@ def _markdown_files(root: Path) -> list[Path]:
         root / "00_nucleo" / "adr",
         root / "00_nucleo" / "prompts",
         root / "00_nucleo" / "diagnostics",
+        root / "docs" / "workflows",
         root / "lab" / "tools",
     )
     for directory in directories:

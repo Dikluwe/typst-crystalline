@@ -109,10 +109,11 @@ class MatureLayoutTests(unittest.TestCase):
         self.assertEqual(count_dynamic_include_paths(self.root), 1)
         self.assertNotIn("INCLUDE_PATH_MISSING", {finding.code for finding in check_layout(self.root)})
 
-    def test_active_links_cover_nucleo_diagnostics_and_lab_tool_docs_only(self):
+    def test_active_links_cover_governance_workflows_and_lab_tool_docs(self):
         scoped = {
             "00_nucleo/README.md": "nucleo",
             "00_nucleo/diagnostics/current.md": "diagnostic",
+            "docs/workflows/l0-prompt-template.md": "workflow",
             "lab/README.md": "lab",
             "lab/history/README.md": "history",
             "lab/tools/ci/README.md": "tools",

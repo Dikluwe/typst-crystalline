@@ -5,7 +5,7 @@
 **Data**: 2026-04-25
 **Autor**: Humano + IA
 **Diagnóstico prévio**:
-[`lab/results/construction/diagnostics/divergencias-value-passo-149.md`](../../lab/results/construction/diagnostics/divergencias-value-passo-149.md)
+[`lab/results/construction/diagnostics/divergencias-value-passo-149.md`](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/divergencias-value-passo-149.md)
 
 ---
 

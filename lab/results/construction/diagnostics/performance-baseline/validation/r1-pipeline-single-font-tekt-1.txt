@@ -1,3 +1,0 @@
-name                                 type              encoding         emb sub uni object ID
------------------------------------- ----------------- ---------------- --- --- --- ---------
-AAAAAA+LibertinusSerif-Regular       CID Type 0C       Identity-H       yes yes yes      5  0

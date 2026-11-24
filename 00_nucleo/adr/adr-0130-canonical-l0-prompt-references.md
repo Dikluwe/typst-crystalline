@@ -69,5 +69,5 @@ template use the same prose convention. No source-header migration is needed.
 
 The Step 1060 inventory and the historical explanation formerly embedded
 here are preserved in
-[the ADR-0130 historical diagnostic](../../lab/results/construction/diagnostics/adr-0130-step-1060-history.md).
+[the ADR-0130 historical diagnostic](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/adr-0130-step-1060-history.md).
 They are retrospective evidence, not a normative inventory of the current tree.

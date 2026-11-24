@@ -9,8 +9,8 @@ and acceptance cases that must remain. Neither implemented code or ran tests.
 One used only checkpoint `8ec827fd975bf14cd849bebb9ede245e49033337`; the other used
 only the current owner documents. Their exact read sets, byte hashes, consulted
 sections, and conclusions are retained in the
-[before report](../../lab/results/mature-layout-2026-10-18/context-read-before.md)
-and [after report](../../lab/results/mature-layout-2026-10-18/context-read-after.md).
+[before report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/context-read-before.md)
+and [after report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/context-read-after.md).
 
 This compares the recovery of a bounded contract, not implementation performance
 or a blind controlled experiment. Reading choices were left to each agent. The

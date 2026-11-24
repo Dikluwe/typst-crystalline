@@ -2,7 +2,7 @@
 
 R9 corrigido no escopo medido. Os **75 controles passam em PDF e SVG, em debug e release**, com todas as palavras e páginas físicas e tolerância mantida de **0,001 pt**. As nove regressões de domínio passaram por RED→GREEN. O caso de cinco linhas em página de 80 pt passa de 1/2/2 linhas da nota para 0/2/3; notas de 12 e 20 linhas conservam todo o conteúdo.
 
-A referência permanece o commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, árvore `cac836c07e4dec2a89219370428292393a3216b5`, executável SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. A versão textual não foi usada como identidade. A receita ratificada continua no [resync fixado](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
+A referência permanece o commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, árvore `cac836c07e4dec2a89219370428292393a3216b5`, executável SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. A versão textual não foi usada como identidade. A receita ratificada continua no [resync fixado](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
 
 ## Estado e proveniência
 

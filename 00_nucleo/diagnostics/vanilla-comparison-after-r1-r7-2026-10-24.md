@@ -34,7 +34,7 @@ not authorize productive implementation or change L0.
 - Oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree
   `cac836c07e4dec2a89219370428292393a3216b5`, executable SHA-256
   `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Identity follows the
-  [ratified source/tree/recipe receipt](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
+  [ratified source/tree/recipe receipt](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
   No moving-main substitution, oracle update or version-only identification occurred.
 - [Serial execution](../../lab/results/tekt-vs-vanilla-after-r1-r7-2026-10-24/complete-stages.json) ran `2026-10-24T12:51:24.317309+00:00`
   through `2026-10-24T13:19:42.814811+00:00`. [Effective caps](../../lab/results/tekt-vs-vanilla-after-r1-r7-2026-10-24/effective-caps.txt) are

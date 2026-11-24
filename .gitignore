@@ -15,6 +15,81 @@ tests/fuzz/artifacts
 tests/fuzz/coverage
 tarpaulin-report.html
 
+# Laboratory: opt source and required build/test inputs into version control.
+# Put generated receipts and temporary checkouts in the excluded trees below.
+/lab/**/*
+!/lab/**/
+!/lab/**/*.rs
+!/lab/**/*.typ
+!/lab/**/*.py
+!/lab/**/*.sh
+!/lab/**/*.c
+!/lab/**/*.h
+!/lab/**/*.js
+!/lab/**/*.ts
+!/lab/**/*.css
+!/lab/**/*.gdb
+!/lab/**/Cargo.toml
+!/lab/**/Cargo.lock
+!/lab/**/typst.toml
+!/lab/**/Dockerfile
+!/lab/**/LICENSE
+!/lab/**/LICENSE-*
+!/lab/**/*.LICENSE
+!/lab/**/NOTICE
+
+# Inputs consumed by the parity, font, inventory and benchmark suites.
+!/lab/parity/vanilla.json
+!/lab/parity/SKIPS.md
+!/lab/tools/ci/README.md
+!/lab/parity/matrix/manifest.yaml
+!/lab/parity/matrix/schema.json
+!/lab/parity/corpus/**/*.typ.toml
+!/lab/parity/corpus/visual/refs.yaml
+!/lab/parity/corpus/p500/refs.bib
+!/lab/parity/corpus/p500/test.png
+!/lab/experiments/joint-font-discovery/fixtures/*.ttf
+!/lab/experiments/joint-font-witness/fixtures/*.ttf
+!/lab/experiments/stdlib-qualification/inputs/*.json
+!/lab/surface-inventory/*probes.json
+!/lab/surface-inventory/extra_seeds.json
+!/lab/tools/perf/corpus/p922923-canonical/logo.png
+
+# Build metadata, translations and golden inputs for the vendored compiler.
+!/lab/typst-original/.cargo/config.toml
+!/lab/typst-original/.gitattributes
+!/lab/typst-original/.github/workflows/*.yml
+!/lab/typst-original/clippy.toml
+!/lab/typst-original/rustfmt.toml
+!/lab/typst-original/README.md
+!/lab/typst-original/tools/support/*.json
+!/lab/typst-original/tools/test-helper/package.json
+!/lab/typst-original/tools/test-helper/tsconfig.json
+!/lab/typst-original/tests/.gitattributes
+!/lab/typst-original/crates/typst-library/translations/*.txt
+!/lab/typst-original/tests/ref/render/*.png
+!/lab/typst-original/tests/ref/bundle/*.txt
+!/lab/typst-original/tests/ref/*/hashes.txt
+!/lab/typst-original/tests/packages/**/*.txt
+!/lab/typst-original/tests/skip.txt
+
+# Do not discover source copies or generated code in disposable trees.
+/lab/work/
+/lab/history/
+/lab/ci-oracle/
+/lab/experiments/*/source/
+/lab/experiments/*/source-*/
+/lab/experiments/*/*-source/
+/lab/experiments/*/stage/
+/lab/experiments/*/stage-*/
+/lab/experiments/*/runs/
+/lab/experiments/*/tmp/
+/lab/**/.git/
+/lab/**/.venv/
+/lab/**/__pycache__/
+/lab/**/node_modules/
+/lab/**/target/
+
 # Rust
 /dist/
 lab/target/

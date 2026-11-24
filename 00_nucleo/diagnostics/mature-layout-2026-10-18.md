@@ -37,20 +37,20 @@ were preserved. The compilation helper writes outputs under `lab/results`.
 
 ## Preservation and review evidence
 
-The [history verification](../../lab/results/mature-layout-2026-10-18/history-verification.json)
+The [history verification](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/history-verification.json)
 checked all 163,863 manifest entries and 14,224,786,882 bytes with zero hash/size
 errors. Three independent restored samples matched. The
-[Git object comparison](../../lab/results/mature-layout-2026-10-18/tracked-history-objects.json)
+[Git object comparison](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/tracked-history-objects.json)
 also found exact blob identity for 37,313 historical tracked files and 820
 benchmark result files at their staged destinations. Previously ignored local
 evidence remains local; it was not silently added wholesale to Git.
 
-The [ADR review](../../lab/results/mature-layout-2026-10-18/adr-review.md)
+The [ADR review](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/adr-review.md)
 verified the 116 mapped records, IDs, statuses, and ordered index. The
-[final pilot review](../../lab/results/mature-layout-2026-10-18/final-pilot-review.md)
+[final pilot review](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/final-pilot-review.md)
 records the realization clause comparison and approval receipts. Its reference
 findings were corrected as recorded in
-[review fixes](../../lab/results/mature-layout-2026-10-18/review-fixes.json).
+[review fixes](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/review-fixes.json).
 The [bounded reading comparison](context-reading-comparison-2026-10-18.md)
 recovered the same occurrence/error-restoration obligations before and after;
 it does not demonstrate reduced cognitive or implementation cost.
@@ -58,14 +58,14 @@ it does not demonstrate reduced cognitive or implementation cost.
 ## Validation
 
 Execution receipts are collected in
-[lab/results/mature-layout-2026-10-18](../../lab/results/mature-layout-2026-10-18).
+[lab/results/mature-layout-2026-10-18](https://github.com/Dikluwe/typst-crystalline/tree/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18).
 Commands, timestamps, source hashes, and initial failed attempts are retained there.
 The linter is built from CI pin `12797073972e375d9ab078cf6750c8b30b71e2b9`.
 A separate copy of the checkpoint provides the before-migration baseline using
 that same executable. Full lint findings are compared with the baseline; the
 strict lineage gate and reverse seals are checked independently.
 
-The [matched-source lint comparison](../../lab/results/mature-layout-2026-10-18/lint-comparison-matched-oracle.json)
+The [matched-source lint comparison](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/lint-comparison-matched-oracle.json)
 found identical findings before and after: the same 105 V16 errors remain.
 The initial isolated checkpoint lacked the ignored vanilla source, producing
 five V21 missing-source warnings. Repeating the comparison with byte-identical
@@ -74,10 +74,10 @@ the initial and inconclusive symlink attempts are retained. Informational V19/V2
 counts are unchanged. This repository is not globally lint-clean; the existing
 V16 failures still block the full architecture CI gate.
 
-The [clean snapshot check](../../lab/results/mature-layout-2026-10-18/fresh-checkout.json)
+The [clean snapshot check](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/fresh-checkout.json)
 passed layout, Cargo metadata, strict lineage, and reverse lineage after extracting
 only the staged Git tree. Ignored local files were not copied into that snapshot.
-The [Rust change-scope check](../../lab/results/mature-layout-2026-10-18/rust-change-scope.json)
+The [Rust change-scope check](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/rust-change-scope.json)
 found only comment/header edits and the twelve literal test-fixture path changes;
 no productive algorithm was changed.
 
@@ -86,7 +86,7 @@ and the three SVG observer failures caused by `rsvg-convert` being absent from
 the service's PATH. The final runner validates observer availability before
 starting tests and records the resolved executables and hashes.
 
-The [functional test summary](../../lab/results/mature-layout-2026-10-18/test-summary.json)
+The [functional test summary](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/test-summary.json)
 records 9,128 unit/integration tests and five doctests passing, with seven ignored
 tests and no failures. The workspace build passed. The final Python helper suite
 passed all 28 tests. Strict V1/V5/V15/V26 checks and reverse lineage passed for
@@ -96,7 +96,7 @@ The all-target build and Clippy continuation cover the relocated benchmark crate
 including its corrected `include_bytes!` fixture path. The subsequent formatting
 continuation changes only the wrapping of that expression. Product sources did
 not change after the functional tests. Source-freeze receipts and the
-[validation summary](../../lab/results/mature-layout-2026-10-18/validation-summary.json)
+[validation summary](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/validation-summary.json)
 join these runs without treating earlier failed attempts as successes.
 The final `cargo fmt --check --all` and workspace Rustdoc build with warnings
 denied also passed.

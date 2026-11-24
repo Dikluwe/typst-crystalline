@@ -29,7 +29,7 @@ The existing corpus is being translated by reviewed units, not by replacing
 technical literals or observable diagnostic messages.
 
 Operational procedures and the prompt template live in
-[lab/tools/workflows](../lab/tools/workflows). There is no permanent execution-step
+[docs/workflows](../docs/workflows). There is no permanent execution-step
 hierarchy. Durable decisions belong in ADRs, product requirements in their L0
 owners, findings here in diagnostics, and reproducible evidence in `lab/results`.
-The construction period is preserved in [lab/history](../lab/history/README.md).
+The construction period is preserved in [lab/history](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/history/README.md).

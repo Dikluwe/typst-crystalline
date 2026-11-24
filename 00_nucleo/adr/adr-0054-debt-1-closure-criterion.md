@@ -4,7 +4,7 @@
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:
-[`lab/results/construction/diagnostics/diagnostico-shaping-passo-135.md`](../../lab/results/construction/diagnostics/diagnostico-shaping-passo-135.md)
+[`lab/results/construction/diagnostics/diagnostico-shaping-passo-135.md`](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/diagnostico-shaping-passo-135.md)
 
 ---
 

@@ -3,15 +3,15 @@
 ## Evidence and disposition
 
 The construction checkpoint is `8ec827fd975bf14cd849bebb9ede245e49033337`.
-The [classification review](../../lab/results/mature-layout-2026-10-18/nonowner-classification.md)
+The [classification review](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/nonowner-classification.md)
 records the source anchors and coverage limitations before retirement. The
-[migration map](../../lab/results/mature-layout-2026-10-18/nonowner-migration.json)
+[migration map](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/mature-layout-2026-10-18/nonowner-migration.json)
 records destinations. No new product API, behavior, or consumer was introduced.
 
 Three process documents now live in `lab/tools/workflows`: module splitting
 audit, L0 audit, and the L0 template. They guide work but do not legitimize code.
 Five other documents are retained under
-[construction/retired-l0](../../lab/history/construction/retired-l0):
+[construction/retired-l0](https://github.com/Dikluwe/typst-crystalline/tree/86a4aaa489eb9d484380c370e31de3be57771440/lab/history/construction/retired-l0):
 
 | Former prompt | Status and current authority |
 |---|---|

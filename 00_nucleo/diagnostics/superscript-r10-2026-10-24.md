@@ -2,7 +2,7 @@
 
 Os **seis limites remanescentes de R9 estão corrigidos no corpus medido**. Os **69 controles passam em PDF e SVG, em debug e release**, preservando todas as palavras, páginas físicas e a tolerância de **0,001 pt**. No executável recebido de R9, o mesmo corpus passa em **15/69** e falha em **54/69**. Os 15 controles originais passam integralmente; os 54 adicionais cobrem 11/17 pt, três fontes, quebras iniciais/consecutivas/terminais, fallback explícito, ordem fria/aquecida, tamanho explícito e tracking assinado.
 
-A referência permanece o commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, árvore `cac836c07e4dec2a89219370428292393a3216b5`, executável SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Versão textual e bytes de saída não foram usados como critério de linguagem. A receita ratificada continua no [resync fixado](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
+A referência permanece o commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, árvore `cac836c07e4dec2a89219370428292393a3216b5`, executável SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`. Versão textual e bytes de saída não foram usados como critério de linguagem. A receita ratificada continua no [resync fixado](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md).
 
 ## Proveniência e escopo
 

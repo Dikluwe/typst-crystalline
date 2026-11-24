@@ -21,6 +21,16 @@ Do not claim language parity from matching Rust structures, algorithm steps, or 
 
 ## Review expectations
 
+Under `lab/`, track source and the inputs required to build, license and test
+it. This includes the oracle pin, test manifests and golden fixtures. Add a
+path-specific exception to the root `.gitignore` when a test needs a new
+non-source input. Keep reports, measurements, binaries and temporary checkouts
+local. Put new reusable scripts in the laboratory's source directories.
+
+The last revision before the laboratory archive was removed from the index is
+`86a4aaa489eb9d484380c370e31de3be57771440`. In a clone with that commit, use
+`git show 86a4aaa48:lab/path/to/file` to read a historical artifact offline.
+
 A contribution should address one coherent change, keep interfaces and dependencies within the owning layer, include appropriate regression coverage, and update documentation where the user-facing behavior changes. Review checks the implementation against the current L0, ADRs, tests, lineage, and stated evidence. Passing CI is necessary for the covered gates; it does not certify behavior outside their scope.
 
 Use the exact commands and resource limits in [`lab/tools/ci/README.md`](lab/tools/ci/README.md). Do not publish or release a build without the project's release approval.

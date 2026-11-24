@@ -17,15 +17,15 @@ coverage. The linter remains pinned to commit
 
 | Accepted scope | V16 before → after | Evidence and limits |
 |---|---|---|
-| A: enum projections and adapters | 105 → 91 | [Report](../../lab/results/v16-corrections-2026-10-19/batch-a/README.md) |
-| B: test observers and storage | 91 → 83 | [Report](../../lab/results/v16-corrections-2026-10-19/batch-b/README.md) |
-| C: selectors, rich display and discarded effects | 83 → 64 | [Report](../../lab/results/v16-corrections-2026-10-19/batch-c/README.md), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json) |
-| D: grid, layout and bounded measurement | 64 → 44 | [Report](../../lab/results/v16-corrections-2026-10-19/batch-d/README.md) |
-| E: reflection and serialization | 44 → 37 | [Report](../../lab/results/v16-corrections-2026-10-19/batch-e/README.md), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json) |
-| F: initial conversions and exhaustive decisions | 37 → 21 | [Partial checkpoint](../../lab/results/v16-corrections-2026-10-19/batch-f/README.md), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json) |
-| F: approved Circle origin and explicit radius | 21 → 20 | [Report](../../lab/results/v16-corrections-2026-10-19/circle-origin/README.md) |
-| F: approved Figure/Grid and contextual Ref supplements | 20 → 18 | [Final report](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md), [closure ledger](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json) |
-| G: explicit decisions and causal/visual projections | 18 → 0 | [Final report](../../lab/results/v16-corrections-2026-10-19/batch-g/README.md), [closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json), [open obligations](../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json) |
+| A: enum projections and adapters | 105 → 91 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-a/README.md) |
+| B: test observers and storage | 91 → 83 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-b/README.md) |
+| C: selectors, rich display and discarded effects | 83 → 64 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-c/README.md), [open obligations](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json) |
+| D: grid, layout and bounded measurement | 64 → 44 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-d/README.md) |
+| E: reflection and serialization | 44 → 37 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-e/README.md), [open obligations](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json) |
+| F: initial conversions and exhaustive decisions | 37 → 21 | [Partial checkpoint](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-f/README.md), [open obligations](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json) |
+| F: approved Circle origin and explicit radius | 21 → 20 | [Report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/circle-origin/README.md) |
+| F: approved Figure/Grid and contextual Ref supplements | 20 → 18 | [Final report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/README.md), [closure ledger](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/closure-ledger.json) |
+| G: explicit decisions and causal/visual projections | 18 → 0 | [Final report](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-g/README.md), [closure ledger](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-g/closure-ledger.json), [open obligations](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json) |
 
 G's final measurement uses HEAD `4382891f0d5f0839669597cb5c90a98f24cfb8bd`
 plus the exact dirty-state sources/L0 recorded in its receipts. All 2,174
@@ -74,7 +74,7 @@ independent review, focused GREEN and the final complete run are all retained.
 
 ## Remaining obligations and organizational result
 
-[The Figure gap ledger](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json)
+[The Figure gap ledger](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/open-obligations.json)
 retains configured SetPage headers, Block own-label projection, unrestricted Ref
 show termination diagnostics, ambiguity diagnostics and the declared caption/style/HTML/Grid,
 preview, Dynamic-field and physical-page boundaries. Native PageRun has separate
@@ -93,14 +93,14 @@ The reorganization helped trace findings to exclusive canonical L0 owners and
 separate current specifications from historical evidence. No runtime or
 development-speed improvement was measured. The same branch and Git ancestry
 are preserved, with builds, probes, tests and detailed receipts under `lab/`.
-The [complete previous diagnostic](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/v16-correction-progress-before-figure-closure.md)
-and its [hash/provenance](../../lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/provenance.json)
+The [complete previous diagnostic](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/v16-correction-progress-before-figure-closure.md)
+and its [hash/provenance](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/figure-kind-implementation/diagnostic-history/provenance.json)
 retain all earlier checkpoints. The original [cause-correction plan](v16-cause-correction-plan-2026-10-19.md)
 remains the historical inventory and scheduling baseline, not authorization to
 skip current L0 or outstanding contracts.
 
-The [G gap ledger](../../lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json)
+The [G gap ledger](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-g/open-obligations.json)
 retains all inherited ledgers by hash and records query approximation, unsupported
 HTML/diagnostic boundaries, raw-footer behavior and unmeasured performance.
-The [complete A–F diagnostic](../../lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md)
+The [complete A–F diagnostic](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/v16-corrections-2026-10-19/batch-g/diagnostic-history/v16-correction-progress-2026-10-19.md)
 preserves the state before G; the original inventory remains historical.

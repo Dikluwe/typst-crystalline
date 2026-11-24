@@ -80,7 +80,7 @@ own productive consumers and are not L0 specifications.
   ownership, superseded statements, and proposals that have not been implemented.
 - [Context reading comparison](context-reading-comparison-2026-10-18.md): a bounded
   before/after task, recovered obligations, and limits of the pilot's claims.
-- [October 17 upstream resync](../../lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md):
+- [October 17 upstream resync](https://github.com/Dikluwe/typst-crystalline/blob/86a4aaa489eb9d484380c370e31de3be57771440/lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md):
   commit, tree and build provenance for that historical oracle.
 
 - [Vanilla parity debt inventory and batch plan](vanilla-parity-plan-2026-10-21.md): current measured gaps, historical/uncovered boundaries, owners and gates.
