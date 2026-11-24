@@ -1,6 +1,10 @@
 # ADR-0120: FrameItem::TextShaped e pipeline rustybuzz
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/infra/shaper/shaping.md](../prompts/infra/shaper/shaping.md) · [00_nucleo/prompts/core/entities/layout_types.md](../prompts/core/entities/layout_types.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE** (P482 2026-06-27; materializado em P482).
 **Trilha**: 5 — Shaping / rustybuzz.
 **Substitui/Complementa**: ADR-0039 (`TextStyle` como struct; `FrameItem::Text` usa `TextStyle`).

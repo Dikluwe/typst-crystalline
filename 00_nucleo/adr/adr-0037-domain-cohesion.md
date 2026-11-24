@@ -1,6 +1,10 @@
 # ⚖️ ADR-0037: Coesão por domínio — ficheiros limitados a uma responsabilidade clara
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-04-22 (`PROPOSTO`) / 2026-04-22 (`EM VIGOR` após validação nos Passos 96.1–96.2)
 
 ---

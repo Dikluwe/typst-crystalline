@@ -1,6 +1,10 @@
 # ⚖️ ADR-0014: `unscanny` → `01_core/rules/lexer/scanner.rs` (inline)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/compiler/lexer/scanner.md](../prompts/core/compiler/lexer/scanner.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-23
 
 ---

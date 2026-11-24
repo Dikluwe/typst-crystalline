@@ -1,6 +1,10 @@
 # ⚖️ ADR-0001: Estratégia de Migração do Typst para a Arquitetura Cristalina
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Opção escolhida**: C (comemo em `[l1_allowed_external]`, Passo 4)
 **Nota**: Opção B (isolamento em L3) continua em aberto como
 direcção futura, não registada como DEBT por não ter plano de

@@ -1,6 +1,10 @@
 # ⚖️ ADR-0053: Font como tipo composto em L1
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/entities/font_list.md](../prompts/core/entities/font_list.md) · [00_nucleo/prompts/core/compiler/eval/font_dict.md](../prompts/core/compiler/eval/font_dict.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-04-24
 **Materializado em**: Passo 132B (2026-04-24)
 **Autor**: Humano + IA

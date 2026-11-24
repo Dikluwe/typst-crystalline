@@ -1,6 +1,10 @@
 # ⚖️ ADR-0038: Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/entities/style_chain.md](../prompts/core/entities/style_chain.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 99.E — 780 testes; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

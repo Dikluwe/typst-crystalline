@@ -1,6 +1,10 @@
 # ADR-0130 — Canonical L0 prompt references
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0129
+
+**Current authority** — [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Layer:** L0 — Governance and Document Traceability
 **Created on:** 2026-08-17 (Step 1062)
 **Decision owner:** Repository owner

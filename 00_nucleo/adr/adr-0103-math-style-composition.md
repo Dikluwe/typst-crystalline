@@ -1,6 +1,12 @@
 # ⚖️ ADR-0103: Composição math style — outer-wins via `Option::or`
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/math/layout/mod.md](../prompts/core/compiler/math/layout/mod.md) · [00_nucleo/prompts/core/compiler/math/layout/style_transform.md](../prompts/core/compiler/math/layout/style_transform.md).
+
+The previous outer-wins rule is superseded. For nested glyph styles, the innermost specified setter wins on the same axis and independent axes compose. See the owner and the p1291_apply_math_style_bb_cal_inner_wins regression.
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-05-20
 **Passo promotor**: P311b.4 (refinamento empírico)
 **Categoria**: Arquitectural / Regras de composição cross-variant

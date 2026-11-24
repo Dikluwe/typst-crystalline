@@ -1,6 +1,10 @@
 # ⚖️ ADR-0039: Forma de estilo no `FrameItem::Text`
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/entities/layout_types.md](../prompts/core/entities/layout_types.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 100.E — 783 testes; +3 integração `Content::Styled` end-to-end; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

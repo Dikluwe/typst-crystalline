@@ -1,6 +1,10 @@
 # ⚖️ ADR-0085: Diagnóstico imutável — artefacto produzido por audit
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 
 [ADR-0132](adr-0132-evidence-for-maintained-changes.md) governs the form
 of new evidence. Existing audit receipts retain their original content

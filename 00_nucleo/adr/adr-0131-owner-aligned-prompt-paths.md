@@ -1,6 +1,10 @@
 # ADR-0131 — Owner aligned prompt paths
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0129
+
+**Current authority** — [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-10-18
 **Approval:** The repository owner explicitly authorized this organization and
 execution on the existing branch, with semantic filenames, preserved history,

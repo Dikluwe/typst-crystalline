@@ -1,6 +1,12 @@
 # ⚖️ ADR-0088: Gradient Radial materializado; Conic scope-out preservado
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/core/entities/gradient/radial.md](../prompts/core/entities/gradient/radial.md) · [00_nucleo/prompts/infra/export/gradients/radial.md](../prompts/infra/export/gradients/radial.md).
+
+The radial milestone records construction order. The linked owners define radial gradient behavior today.
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 264.B (criação PROPOSTO) → Passo 264.D

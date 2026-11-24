@@ -1,6 +1,6 @@
 # CLAUDE.md — typst-crystalline
 
-This file is the governing assistant guide for this repository. Read the applicable ADRs in `00_nucleo/adr/` before making architecture decisions.
+This file is the governing assistant guide for this repository. Consult the [ADR index](00_nucleo/adr/README.md) and read the applicable primary or retained decision before making an architectural choice.
 
 ---
 
@@ -55,17 +55,18 @@ The original compiler source is quarantined in `lab/typst-original/`. Migration 
 |---|---|---|
 | `adr/` | Formal architectural decisions. | `adr/adr-0109-atomization.md` |
 | `diagnostics/` | Current analyses, inventories, measurements, receipts, and state reports. | `lab/results/construction/diagnostics/typst-cobertura-vanilla-vs-cristalino.md` |
-| `prompts/` | L0 prompts directly paired with L1–L4 productive code. | `prompts/core/compiler/layout/mod.md` |
+| `prompts/` | L0 prompts directly paired with L1–L4 productive code. | `00_nucleo/prompts/core/compiler/layout/mod.md` |
 | `prompts/_nuclei/` | Shared declarative Tekt obligations in TOML. | `prompts/_nuclei/path-identity.toml` |
 
 Organization rules:
 
 - `prompts/` is reserved for L0 specifications with direct correspondence to code produced in L1–L4.
 - L0 prompt ↔ productive consumer correspondence is strictly 1:1.
-- ADR-0131 makes owner paths deterministic: `prompts/{core,shell,infra,wiring}/`
-  plus the consumer-relative path, omitting only leading `src/` and replacing
-  `.rs` with `.md`. Preserve `tests/`, `mod`, `lib`, `main`, and `build`; source
-  and owner basenames describe responsibility, not execution-step numbers.
+- Under ADR-0129, append the consumer-relative path to
+  `00_nucleo/prompts/{core,shell,infra,wiring}/`, dropping only leading `src/`
+  and replacing `.rs` with `.md`. Preserve `tests/`, `mod`, `lib`, `main`, and
+  `build`. Source and owner basenames describe responsibility. Use the full
+  repository-relative owner path in Markdown citations and Rust `@prompt` headers.
 - `prompts/_nuclei/**/*.toml` is a distinct L0 namespace using strict TOML 1.0, `tekt = 1`, `kind = "nucleus"`, `must`/`must-not`/`may` claims, a DAG, and full SHA-256 pins in consuming prompts.
 - Every Nucleus has one or more consuming prompts; an orphan Nucleus is V26.
 - Code never points directly to a Nucleus. A Nucleus never contains `Hash do Código`, a productive owner, or a consumer list.
@@ -85,7 +86,7 @@ Organization rules:
 **Allowed** (RAM performance work is not I/O):
 
 - `Arc<T>` in struct fields (ADR-0029), `Vec`, `Box`, `String`, and `HashMap`.
-- `EcoString` (ADR-0024), `rustc-hash` / `FxHashMap` (ADR-0018).
+- `EcoString` and `rustc-hash` / `FxHashMap` within the type-level permissions declared in `crystalline.toml` under ADR-0029.
 
 ---
 
@@ -98,11 +99,9 @@ Parity is with the Typst **language**—semantics, syntax, and morphology—neve
 ## Pinned parity reference
 
 [lab/parity/vanilla.json](lab/parity/vanilla.json) fixes the upstream commit,
-tree and local executable SHA-256. The reference in effect is
-`a6dcd82927b2a44bb089bc9151e29566e84e7d5a`, selected on 2026-11-19 from
-upstream `main`. Future resyncs require an explicit decision. Keep earlier
-measurements with their original pins and reassess parity under ADR-0107
-and ADR-0108.
+tree and local executable SHA-256. Read the manifest for the current reference.
+Resyncs require an explicit decision. Keep earlier measurements with their
+original pins and reassess parity under ADR-0107 and ADR-0132.
 
 - **Vanilla:** `lab/typst-original/target/release/typst` is the verified
   local oracle. CI builds the same commit and tree in a clean checkout and
@@ -121,9 +120,9 @@ links the verified source and build receipts and the earlier local oracle.
 
 ---
 
-## Anti-drift discipline: measure before deciding (ADR-0108)
+## Anti-drift discipline: measure before deciding (ADR-0132)
 
-Every prompt measures before deciding: the decision/classification section follows the measurement (`file:line`) that supports it, never the reverse. Classify source evidence as language or mechanics (semantics/syntax/morphology means parity; Rust equality/bytes/steps/structure means divergence under ADR-0107). Distinguish intended behavior from observed behavior; do not infer intent from behavior. Mark inferences and what would refute them. Be suspicious of flattering or convenient framing and check the source again before accepting it. Acceptance is at the language level, never mechanics, except where mechanics are themselves observable (for example, an error message). A malformed prompt still requires the owner to audit its substance; format checks reduce reliance on the brake but do not eliminate it. See [ADR-0108](00_nucleo/adr/adr-0108-anti-drift-measure-before-deciding.md).
+Every prompt measures before deciding: the decision/classification section follows the measurement (`file:line`) that supports it, never the reverse. Classify source evidence as language or mechanics (semantics/syntax/morphology means parity; Rust equality/bytes/steps/structure means divergence under ADR-0107). Distinguish intended behavior from observed behavior; do not infer intent from behavior. Mark inferences and what would refute them. Be suspicious of flattering or convenient framing and check the source again before accepting it. Acceptance is at the language level, never mechanics, except where mechanics are themselves observable (for example, an error message). A malformed prompt still requires the owner to audit its substance; format checks reduce reliance on the brake but do not eliminate it. See [ADR-0132](00_nucleo/adr/adr-0132-evidence-for-maintained-changes.md).
 
 ---
 
@@ -177,28 +176,14 @@ The required shape is B: keep the core `match` lean, with bodies delegating to a
 
 ---
 
-## Current ADRs: read before proposing architecture
+## Current architectural decisions
 
-| ADR | Decision |
-|---|---|
-| [ADR-0018](00_nucleo/adr/adr-0018-rustc-hash-l1-dependency.md) | `rustc_hash` authorized in L1 (revokes ADR-0007). |
-| [ADR-0024](00_nucleo/adr/adr-0024-ecow-for-value-string.md) | `EcoString` in `Value::Str`; O(1) clone in `eval()`. |
-| [ADR-0026](00_nucleo/adr/adr-0026-content-intentional-divergence.md) / [ADR-0026 R1](00_nucleo/adr/adr-0026-r1-content-arc-revision-1.md) | Closed `Content` enum; `Arc` in `Sequence`. |
-| [ADR-0029](00_nucleo/adr/adr-0029-physical-l1-purity.md) | Physical purity; `Arc` in domain structs is permitted (revokes ADR-0028). |
-| [ADR-0030](00_nucleo/adr/adr-0030-ram-performance-in-l1-domain.md) | RAM performance belongs to L1; corrects ADR-0004/0015. |
-| [ADR-0031](00_nucleo/adr/adr-0031-early-source-hashing.md) | Early hashing in `Source`; complements ADR-0016. |
-| [ADR-0107](00_nucleo/adr/adr-0107-language-parity-not-mechanics.md) | Parity is language semantics/syntax/morphology, not mechanics or Rust equality. |
-| [ADR-0108](00_nucleo/adr/adr-0108-anti-drift-measure-before-deciding.md) | Anti-drift discipline: six verifiable rules; measure before deciding; owner audits substance. |
-| [ADR-0109](00_nucleo/adr/adr-0109-atomization.md) | Atomization uses owner-layer render logic and free functions (shape B, Option A rejected); keep exhaustive static `match` and imports; it does not decouple `content→elements`. |
-| [ADR-0126](00_nucleo/adr/adr-0126-verbose-pdf-default-compact-option.md) | Verbose vanilla-mirroring PDF is production default; compact is `--compact` validated by decalque; tagged PDF/accessibility is separate. |
-| [ADR-0127](00_nucleo/adr/adr-0127-l0-gate-stop-vs-continuous-flow.md) | Stop only for public contract/default behavior/pipeline phase/compatibility changes; internal and parity corrections use continuous flow with L0 first and resealing. |
-| [ADR-0128](00_nucleo/adr/adr-0128-html-as-semantic-target.md) | HTML is a separate semantic target from paginated layout; feature and target are separate axes. |
-| [ADR-0129](00_nucleo/adr/adr-0129-l0-owners-and-shared-tekt-nuclei.md) | L0 prompt ↔ consumer is 1:1; shared invariants use pinned 1:N Tekt Nuclei validated by V26. |
-| [ADR-0130](00_nucleo/adr/adr-0130-canonical-l0-prompt-references.md) | L0 references use full canonical paths; `@prompt` headers identify the owner unambiguously. |
-| [ADR-0131](00_nucleo/adr/adr-0131-owner-aligned-prompt-paths.md) | Owner paths mirror the layer and source modules without leading `src/`; active filenames describe responsibility. |
-| [ADR-0132](00_nucleo/adr/adr-0132-evidence-for-maintained-changes.md) | Evidence precedes decisions. Use the owner or a diagnostic according to scope. |
-
-Do not follow revoked ADRs that are absent from the current table.
+Use the [ADR index](00_nucleo/adr/README.md) to find the governing decision
+for each subject. The [identifier register](00_nucleo/adr/ORDER.md) preserves
+the disposition of earlier decisions. When an older owner cites a predecessor,
+follow its successor and preserve any separately retained obligations before
+changing that owner. Apply the evidence, approval and ownership rules in
+ADR-0132, ADR-0127 and ADR-0129 to the change.
 
 For operational `#[comemo::track]` conventions in L1 (Clone, `Option<&str>`, and `TrackedMut::reborrow_mut` gotchas), see [`01_core/CLAUDE.md`](01_core/CLAUDE.md).
 
@@ -210,6 +195,6 @@ When a constructor or feature is deliberately divided across multiple temporary 
 
 ## Read current L0 before proposing architecture
 
-Before proposing an architectural option in a specification—especially module subdivision/consolidation—read the current L0 for affected modules and confirm its hash. If L0 has already decided the issue (for example, `stream.md` says not to subdivide shape primitives), do not recommend the opposite. Resolve conflict by updating L0 and its hash or by scoping the proposal out; do not recommend option β against current L0. This gate prevents drift like P427 (`shape_emit.rs` versus `stream.md`, hash `9acca994`).
+Before proposing an architectural option in a specification—especially module subdivision/consolidation—read the current L0 for affected modules and confirm its hash. If L0 has already decided the issue (for example, `00_nucleo/prompts/infra/export/stream.md` addresses subdivision of shape primitives), do not recommend the opposite. Resolve conflict by updating L0 and its hash or by scoping the proposal out; do not recommend option β against current L0. This gate prevents drift like P427 (the historical `shape_emit.rs` proposal and owner hash `9acca994`).
 
 See [`01_core/CLAUDE.md`](01_core/CLAUDE.md) for the `TrackedMut::reborrow_mut` lifetime-descent convention.

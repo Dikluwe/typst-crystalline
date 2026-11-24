@@ -10,7 +10,7 @@ Hash do Código: 6dec3154
 Debug, Clone, Copy and PartialEq are derived when supported by T; Eq requires
 T: Eq. This pure generic pair does not acquire map/with helpers merely because
 the upstream `lab/typst-original/crates/typst-library/src/layout/axes.rs`
-has them. The assigned scope is the base carrier and constructor (ADR-0080).
+has them. The base carrier and constructor form the scope of this owner. ADR-0080 records the construction history. Changes follow ADR-0127 and ADR-0132.
 
 Facade exposure belongs to `00_nucleo/prompts/core/entities/mod.md`. The former
 `pub use axes::Axes` obligation is retained as an unresolved ownership/public

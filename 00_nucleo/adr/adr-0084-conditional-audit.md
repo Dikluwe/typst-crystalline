@@ -1,6 +1,10 @@
 # ⚖️ ADR-0084: Auditoria condicional — audit empírico antes de decisão B1/B2/B3
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 
 For current work, [ADR-0132](adr-0132-evidence-for-maintained-changes.md)
 governs the evidence workflow. The phases and coverage bands below are

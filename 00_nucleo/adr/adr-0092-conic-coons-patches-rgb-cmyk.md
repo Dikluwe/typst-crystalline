@@ -1,6 +1,10 @@
 # ⚖️ ADR-0092: Conic Type 6 Coons Patch Mesh L3 emit (preparação CMYK + RGB futuro)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/infra/export/gradients/conic.md](../prompts/infra/export/gradients/conic.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** **`IMPLEMENTADO`** (PROPOSTO P270.3.B → **IMPLEMENTADO
 P270.3.D** — materialização infra-estrutura Coons RGB L3 +
 4 anotações cumulativas paralelas ADR-0089/0090/0091/0054;

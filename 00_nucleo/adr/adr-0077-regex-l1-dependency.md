@@ -1,6 +1,10 @@
 # ⚖️ ADR-0077: `regex` → `[l1_allowed_external]`
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml) · [00_nucleo/prompts/core/entities/regex.md](../prompts/core/entities/regex.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE** (transição PROPOSTO → ACEITE em P209E
 2026-05-12 após verificação dos 8 critérios do §Plano de
 validação).

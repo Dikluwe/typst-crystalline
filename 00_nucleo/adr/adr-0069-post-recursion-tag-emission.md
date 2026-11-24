@@ -1,6 +1,10 @@
 # ⚖️ ADR-0069: Post-recursion tag emission for state-dependent payload
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md) · [00_nucleo/prompts/core/compiler/introspect/from_tags.md](../prompts/core/compiler/introspect/from_tags.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: 2026-05-04 — P195D 4 tests E2E (`mod
 p195d_walk_labelled`) passam; paridade observable
 preservada via mutação legacy paralela; sincronização

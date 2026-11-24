@@ -1,6 +1,12 @@
 # ⚖️ ADR-0058: Tipo simplificado — `type()` devolve `Value::Str` em vez de `Value::Type(Type)`
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [00_nucleo/prompts/core/entities/value.md](../prompts/core/entities/value.md).
+
+The original restricted Value model predates first-class types. The Value owner defines type identity and callable subsets.
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 149 — arqueologia (`divergencias-value-passo-149.md` §3.1); 1113 tests verdes desde Passo 13.
 **Data**: 2026-04-25
 **Autor**: Humano + IA

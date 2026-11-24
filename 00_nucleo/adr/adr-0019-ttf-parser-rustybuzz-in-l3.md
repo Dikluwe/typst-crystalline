@@ -1,6 +1,10 @@
 # ⚖️ ADR-0019: `ttf-parser` e `rustybuzz` → L3
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/infra/shaper/shaping.md](../prompts/infra/shaper/shaping.md) · [00_nucleo/prompts/infra/font_metrics.md](../prompts/infra/font_metrics.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-23
 
 ---

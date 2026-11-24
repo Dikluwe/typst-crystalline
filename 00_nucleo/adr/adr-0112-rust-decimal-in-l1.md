@@ -1,6 +1,10 @@
 # ADR-0112 — Autorização de `rust_decimal` em L1 para o tipo `Decimal`
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml) · [00_nucleo/prompts/core/entities/decimal.md](../prompts/core/entities/decimal.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** `IMPLEMENTADO` (Passo 399 — `Value::Decimal` materializado; `cargo test --workspace` + `crystalline-lint .` verdes).
 **Decisão do dono (registada):** usar `rust_decimal::Decimal` (precisão fixa 28 dígitos, puro-Rust, `Copy`, zero alloc) como substrato do tipo L1 `Decimal`; alternativa `bigdecimal` (heap, precisão arbitrária) rejeitada por não ser `Copy` e por exceder a paridade linguagem do vanilla.
 **ADRs relacionadas:** ADR-0017 (portão aberto para variants em `Value`), ADR-0029 (pureza L1), ADR-0107 (paridade linguagem vs mecânica), ADR-0054 (operações aritméticas ricas scope-out).

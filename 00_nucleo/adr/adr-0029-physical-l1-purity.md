@@ -1,199 +1,60 @@
-# ADR-0029 — Physical definition of L1 purity — supersedes ADR-0028
+# ADR-0029 — Layer ownership, physical purity and safe memory use
 
 **Status:** ACCEPTED
-**Supersedes:** ADR-0028 (Simplified Representation of Typographic Types)
 **Date:** 2026-03-29
+**Decision owners:** Typst Crystalline maintainers
+**Consolidated:** 2026-11-24
+**Supersedes:** ADR-0028
 
----
+## Evidence
 
-## Context
+The original decision corrected a typographic representation chosen during migration. A length can retain both its absolute and font-relative components in RAM even before a style chain is available to resolve them. Later work showed a separate distinction. Sharing an immutable metric handle in one compilation and retaining a completed product across edits require different validity proofs. Reference counting alone establishes neither. [Review of the owning contracts](../diagnostics/contract-scope-review-2026-11-13.md)
 
-ADR-0028 authorized simplified representations for typographic types in L1 — `Length` as `enum { Pt(f64), Em(f64) }`, `Color` without CMYK/Oklab spaces, and so on — on the grounds that fidelity to the original would be deferred until `StyleChain` existed.
+The dependency whitelist records permitted items per crate. Its entry for `time` includes `now_utc`, while the actual clock read belongs to the L3 World implementation. The entry is a configuration discrepancy to test and reconcile. It confers no permission to read the clock inside L1. [Whitelist](../../crystalline.toml) · [World adapter](../../03_infra/src/world/world_impl.rs)
 
-At the same time, the project adopted a more rigorous formal definition of purity: purity means determinism without system I/O, not absence of high-performance data structures. This definition has direct consequences for what is acceptable in L1.
+## Layer responsibilities
 
-ADR-0028 codified a simplification that the new definition of purity makes incorrect: vanilla Typst’s structures for `Length`, `Abs`, `Rel`, `Angle`, and `Ratio` use `Arc` and internal representations that are completely pure under the physical definition — they perform no system I/O, have no mutable global state, and do not escape RAM. There is no domain reason to simplify them.
+| Layer | Responsibility and permitted dependencies |
+|---|---|
+| L0 | An owning prompt specifies one productive consumer. Shared invariants and lineage follow ADR-0129. |
+| L1 | Own pure domain values, algorithms and contracts for injected capabilities. Use pure standard-library operations and specifically authorized external items. |
+| L2 | Own CLI syntax, typed intents and human presentation. Depend on L1. The shell resolves its supported argument, environment and terminal options. |
+| L3 | Implement L1 contracts for filesystem, packages, fonts, clocks and other external resources. Pure helpers belonging to an adapter may stay with it. Depend on L1. |
+| L4 | Compose L1, L2 and L3, supply concrete adapters, and deliver output. Keep compiler and presentation rules in their owning layers. |
+| Laboratory | Keep the pinned upstream reference, experiments and benchmark infrastructure in quarantine. L1–L4 never import laboratory code. |
 
-## Formal definition of purity and I/O in L1
+In L1, prohibit disk and network access, system clocks, process environment, OS entropy, production console I/O and mutable global state, including a mutable global hidden behind a lock or an atomic. L1 can consume an observation through an explicit contract supplied by the caller. A calendar operation on a supplied date belongs in the pure domain. Obtaining today's date belongs to the World implementation. [00_nucleo/prompts/core/contracts/world.md](../prompts/core/contracts/world.md)
 
-### What is I/O — strictly prohibited in L1
+## Domain representation and RAM
 
-I/O refers **exclusively** to interaction with the world outside the processor and the current process’s RAM:
+Retain the language capabilities of typographic values, including compound dimensions, relative quantities, angles, axes, alignment and paint. Inspect the reference type, effective values and operators before choosing a representation. An unresolved contextual operation is insufficient reason to drop a component of its data. Record any deliberate simplification, its observable cost and its concrete review condition in an explicit ADR. The original typographic inventory excluded generic containers, AST elements, DSL values and internal layout types (`Frame`, `FrameItem`, `Region`, `Fragment`, `Paper`, `Margin`). Use each type's own contract and ADR-0107 when evaluating its representation.
 
-| Operation | Examples | Prohibited in L1 |
-|-----------|----------|------------------|
-| Disk access | `std::fs::read`, `File::open` | ✓ |
-| Network access | HTTP, sockets, `std::net` | ✓ |
-| System clock | `SystemTime::now()`, `OffsetDateTime::now_utc()` | ✓ |
-| Environment variables | `std::env::var`, `std::env::args` | ✓ |
-| OS entropy | `rand::thread_rng()` with an OS seed | ✓ |
-| Console | `println!`, `eprintln!` in production | ✓ |
-| Mutable global state | `static mut T`, `static Mutex<T>`, `static OnceLock<T>` | ✓ |
+Owned allocation, shared immutable storage, copy-on-write and processing already supplied bytes are permitted in L1. Monitor repeated deep copies on measured hot paths. Select `Arc`, `EcoString`, `EcoVec`, or independent owned storage according to lifetime, mutation isolation and full-path cost, including retained memory. A cache has a separate obligation to establish complete inputs, validity, invalidation and scope. The default hasher for performance-sensitive internal lookups is `rustc_hash`; ordinary standard maps remain suitable for small or clearer cases. Preserve ordered iteration wherever the language exposes it. Source hashing and the cost of copying content sequences remain with their owners. [00_nucleo/prompts/core/entities/source.md](../prompts/core/entities/source.md) · [00_nucleo/prompts/core/entities/content.md](../prompts/core/entities/content.md)
 
-### What is NOT I/O — permitted and required in L1
+## External items
 
-| Operation | Examples | Permitted in L1 |
-|-----------|----------|-----------------|
-| RAM allocation | `Vec::new()`, `String::new()`, `Box::new()` | ✓ |
-| Reference counting | `Arc<T>`, `Rc<T>` in struct fields | ✓ |
-| Authorized pure utility crates | `ecow`, `indexmap`, `rustc_hash` | ✓ |
-| In-memory binary processing | Iterate over an already-loaded `&[u8]` | ✓ |
+`[l1_allowed_external.<crate>]` in `crystalline.toml` is the item inventory. Review each prospective use against physical purity, its owning contract and imports. A Cargo declaration alone grants no L1 use. An allowed type does not expose every operation in its crate or authorize an external type in an unrelated public interface. Keep the admission rationale and observable constraints recoverable.
 
-## Revocation of ADR-0028
+| Use | Scope inherited from the decisions |
+|---|---|
+| Unicode and math classification | Use the listed identifier, script, segmentation and math-class items. Retain the language's class overrides and source boundaries. |
+| Strings, dictionaries and memory | `Value::Str` uses `EcoString` for cheap cloning. `EcoVec<T>` requires an admissible element. Other ecow containers need their own admission. Ordered dictionaries preserve insertion order with the admitted `indexmap` and hasher. |
+| Calendar, numbers and patterns | Admit pure calendar arithmetic, the fixed-precision `rust_decimal` substrate for Decimal, and the declared regex operations through the L1 domain wrapper. The wrapper preserves pattern identity without leaking the compiled external type. The input/output types and diagnostics belong to the corresponding owners. |
+| Hyphenation and data loading | Use embedded hyphenation patterns in L1. Use the listed items of `serde_json`, `saphyr`, `toml`, `ciborium`, `roxmltree` and `csv` for their respective input formats. YAML maps its parser tree explicitly into language values. Keep each format’s conversion and limitations in its owner. The external reader supplies input. Bibliographic parsing may use the admitted Hayagriva items in L1. |
+| Fonts and tracking | The font catalog in L1 holds domain metadata. System discovery, opening faces and Rustybuzz shaping belong to L3. Allowed comemo operations track explicit reads or writes under the owning contract. A tracking facility grants no mutable global domain store. |
 
-ADR-0028 is revoked in its entirety.
+Preserve the whitelist and the responsibilities in the owning specifications when altering an admission. [00_nucleo/prompts/core/entities/value.md](../prompts/core/entities/value.md) · [00_nucleo/prompts/core/compiler/stdlib/loading.md](../prompts/core/compiler/stdlib/loading.md) · [00_nucleo/prompts/infra/fontdb.md](../prompts/infra/fontdb.md)
 
-### What was wrong in ADR-0028
+## Unsafe in L1
 
-ADR-0028 justified simplifications on the pretext that fidelity to the original required `StyleChain` (DEBT-1). That was true for **semantic behavior** (mixed sums `Pt + Em` → `Relative`), but not for each type’s **internal data structure**.
+The goal is zero unsafe code in L1. The temporary exceptions recorded by ADR-0032 apply to reviewed inlined code or an identified refactor with a documented exit plan. A permanent exception requires a site-specific architectural decision, a demonstrated safety invariant, the safe alternative and a reproducible benchmark quantifying the unacceptable regression. The prohibitions on `Box::leak`, arbitrary transmutation between unrelated types, zero-initializing non-`Copy` types and raw-pointer `as` casts between pointer types also apply in L3.
 
-In original vanilla Typst, `Length` is a struct with two fields (`abs: Abs`, `em: f64`) — not an enum. This representation is pure under the physical definition. Simplifying it to an enum `{ Pt(f64), Em(f64) }` was not an architectural necessity; it was implementation convenience incorrectly recorded as a domain decision.
+Document the safety invariant at each unsafe site in a `SAFETY` comment. The permanent scanner exception covers the five existing `str::get_unchecked` slices in `before`, `after`, `from`, `to` and `get`. The cursor stays inside the borrowed string at a UTF-8 scalar boundary. External endpoints are snapped in bounds and ordered against the cursor or each other. Sealed matching advances only by a valid in-bounds UTF-8 length. Changes to cursor movement, snapping, the pattern contract or any of the five slices require rechecking this proof. The exception grants no unchecked indexing for arbitrary input or other consumers. [00_nucleo/prompts/core/compiler/lexer/scanner.md](../prompts/core/compiler/lexer/scanner.md)
 
-### Impact on existing code (Step 25)
+The historical ADR-0116 comparison used a safe-slicing candidate, Criterion 0.5 and five lexer inputs covering a short file, prose, math, code and multibyte text. The original table records elapsed-time regressions from 6.4% to 58.3% and per-byte regressions from 8.5% to 54.1%. These are historical measurements. For a new decision, use equivalent inputs and builds, measure lexer time per byte in three sequential runs, check the original reproducibility criterion of less than 3% variation between median and mean, and bind the result to the tested revisions. Keep the benchmark dependencies in the laboratory. [Scanner benchmark](../../lab/benches/scanner_bench.rs)
 
-Step 25 implemented `Length` as enum `{ Pt(f64), Em(f64) }`. This code **continues to work** and all 341 tests continue to pass. Revoking ADR-0028 does not require an immediate refactor.
+## Verification and history
 
-What changes is the direction of subsequent steps: when adding new types or revisiting `Length` in the context of Step 30 (`StyleChain`), use the vanilla-faithful representation — not a simplification.
+Verify layer topology, I/O, global state, whitelist use and ownership through the applicable architecture checks. Exercise the actual language operation whenever a representation or dependency changes. For the scanner, exercise bounded and reversed ranges, multibyte navigation, matching and failure alongside the benchmark. The four approval boundaries in ADR-0127 apply to public contracts, defaults, phases and compatibility.
 
-## Decision
-
-### Operating rule for typographic types in L1
-
-When materializing vanilla Typst typographic types in L1, follow the original’s memory architecture without convenience simplifications:
-
-1. **Diagnose first:** verify the real structure in the original before defining the L1 type.
-2. **Do not simplify under the pretext of deferral:** if the vanilla type uses `struct Length { abs: Abs, em: f64 }`, use that structure. The fact that mixed sums need `StyleChain` to resolve is an **operations** limitation (`eval_binary_op` returns `Err`), not a **data-structure** limitation.
-3. **`Arc` is permitted for suitable shared ownership:** `Arc<T>` in struct fields is RAM management, not I/O. Hot-path cloning motivates an ownership/cost review; it does not by itself require Arc or authorize a cache.
-4. **Accept simplifications only with an explicit ADR** documenting:
-   - the difference between vanilla and crystalline;
-   - the semantic cost of the simplification;
-   - the review criterion (not a vague “when `StyleChain` exists,” but a specific step).
-
-### Enumeration of vanilla typographic types covered by this rule
-
-Types identified in the Step 84.8c diagnostic of
-`lab/typst-original/crates/typst-library/src/{layout,visualize}/`:
-
-**Dimension / quantity:**
-
-- `Length` (combined structure `abs: Abs + em: f64` in vanilla)
-- `Abs` (absolute length component)
-- `Em` (component relative to font size)
-- `Rel<T>` (combination of `Length + Ratio`)
-- `Ratio` (normalized percentage)
-- `Fr` (Fraction, `1fr`, `2.5fr`)
-
-**Angle:**
-
-- `Angle`
-
-**Alignment:**
-
-- `Alignment` (tagged enum `H | V | Both` in vanilla)
-- `HAlignment` (Start, Left, Center, Right, End)
-- `VAlignment` (Top, Horizon, Bottom)
-
-**Direction / axis:**
-
-- `Dir` (LTR, RTL, TTB, BTT)
-- `Axis` (Horizontal, Vertical)
-
-**Color / visual:**
-
-- `Color`
-- `ColorSpace`
-- `Gradient` (Linear / Radial / Conic)
-- `Paint` (enum `Color | Gradient | Tiling`)
-- `Stroke<T>`
-- `Tiling` (Pattern in earlier vanilla versions)
-
-This list covers the typographic types recognized in vanilla Typst at the time of this ADR, whether or not they have been materialized in L1. The crystalline architecture maintains type parity with vanilla — each type appears in L1 with a potentially different form (e.g. `Align2D` in crystalline vs. `Alignment` in vanilla) but identical observable semantics.
-
-Future types added by vanilla Typst follow the same architecture and are added to this list when identified in new materialization ADRs.
-
-**Non-typographic types excluded from this list**, even if they appear in `lab/typst-original/crates/typst-library/src/`:
-
-- Generic containers (`Sides<T>`, `Axes<T>`, `Corners<T>`, `Smart<T>`, `OneOrMultiple<T>`) — structural material reused by multiple types.
-- Non-typographic DSL types (`Func`, `Content`, `Module`, `Array`, `Dict`, `Bytes`, `Str`, `Label`, `Symbol`).
-- Types with their own ADR (`Datetime` → ADR-0021).
-- Ephemeral internal implementation types (`Frame`, `FrameItem`, `Region`, `Fragment`, `Paper`, `Margin`).
-- AST elements (`*Elem`: `PlaceElem`, `BoxElem`, etc.) — content containers, not typographic values.
-- Specialized internal alignment variants (`OuterHAlignment`, `OuterVAlignment`, `SpecificAlignment<H,V>`, `FixedAlignment`) — indirectly covered by `Alignment`.
-- Subcomponents of compound types (`Cmyk`, `WeightedColor`, `RatioComponent`, `GradientStop`, `DashPattern`, `LineCap`, `LineJoin`, `FillRule`, etc.) — internal to `Color`/`Gradient`/`Stroke`.
-- Conversion/casting types (`ToAbs`, `ToFloat`, `Num`, `DecNum`, `AngleLike`, `CastInfo`).
-
-### About the Step 25 code
-
-Keep `Length` as enum `{ Pt(f64), Em(f64) }` in Step 25. Revisit it in the Step 30 (`StyleChain`) diagnostic when vanilla’s actual `Length` structure is required to implement `Relative` and mixed sums.
-
-For `Ratio(f64)`, `Angle(f64)`, and `Color { Rgb, Rgba }`, check in the next step’s diagnostic that touches these types whether vanilla’s representation differs materially.
-
-## What remains prohibited (V13 unchanged)
-
-V13 (`MutableStateInCore`) remains in force for mutable global state:
-
-```rust
-// PROHIBITED — mutable global state
-static INTERNER: Mutex<HashMap<PathBuf, FileId>> = Mutex::new(HashMap::new());
-static COUNTER: AtomicU16 = AtomicU16::new(1);
-static CACHE: OnceLock<Vec<SyntaxKind>> = OnceLock::new();
-```
-
-```rust
-// PERMITTED — RAM management in struct fields
-pub struct Module(Arc<ModuleInner>);     // O(1) clone in eval()
-pub struct SyntaxNode(Arc<NodeData>);    // share the CST without copying
-pub struct Func(Arc<FuncRepr>);          // O(1) closure clone
-```
-
-## Consequences
-
-**Positive:**
-
-- Removes pressure to make premature simplification decisions based on DEBT that does not yet exist.
-- Aligns the AI with the intent to maintain vanilla parity where the memory architecture is pure.
-- Removes ADR-0028 as authority for future undocumented simplifications.
-
-**Negative:**
-
-- Diagnosing each vanilla typographic type is required before materializing it — more upfront diagnostic work.
-- Step 25’s `Length` enum may not match vanilla — acceptable for now, to be reviewed in Step 30.
-
-**Neutral:**
-
-- Existing code does not need immediate changes.
-- V13 does not change; its semantics were already correct.
-
-## References
-
-- ADR-0028 — superseded by this ADR.
-- ADR-0018 — precedent: “the criterion is not ‘is it external?’ but ‘does it violate purity?’”
-- DEBT-1 — `StyleChain` (Step 30), where vanilla `Length` will be needed.
-
-## Scope clarification — 2026-11-13 contract review
-
-This clarification follows the owner's request to review overbroad contracts.
-Evidence: ADR-0030's hot-path prohibition, the compilation-metric-cache scope
-claim and paged.md's per-compilation extensions prescribe different mechanical
-lifetimes. The prefix-identity-audit records paragraph hits without retention of
-the complete physical result across compilations. These observations establish
-contract boundaries, not the historical intent of every implementation or a
-measured speedup from changing them.
-
-Distinguish three questions: whether an operation is pure RAM work, whether its
-representation belongs in this layer, and whether a prior result remains valid.
-Purity alone proves neither ownership placement nor cache validity. Immutable
-sharing, copy-on-write and memoization are distinct mechanisms; Arc ownership
-is not an invalidation certificate. No automatic Vec-to-Arc conversion, removal
-of necessary copies, global cache, public API change or phase migration follows.
-Read the owning L0 and demonstrate lifetime, mutation isolation, dependencies,
-semantic preservation and actual cost before changing its implementation.
-
-The existing architecture and validation remain in force until a specific owner
-contract revises them. The user authorizes laboratory experiments without a new
-permission gate; that authorization does not integrate them into the product.
-
-The historical typographic inventory above excludes Frame/FrameItem/Region.
-Its representation prescriptions must not be extended to those excluded types.
-Read typographic fidelity alongside ADR-0107: preserve language capabilities;
-upstream storage shape alone does not establish a language requirement.
+ADR-0001 supplies migration topology and quarantine. ADR-0030 supplies RAM ownership and cost, and ADR-0032/0115/0116 supply unsafe policy, methodology and the scanner exception. ADR-0010–0013, 0018, 0021, 0023, 0024, 0035, 0057, 0077, 0111 and 0112 provide the individual dependency rationales. The full original records, rejected alternatives and historical benchmark table are recoverable in Git at `958aa51a15501417b584c374a23c4b262e6f52ac`. The current whitelist and owners continue to define the concrete admissions. The separate review of the clock entry remains open.

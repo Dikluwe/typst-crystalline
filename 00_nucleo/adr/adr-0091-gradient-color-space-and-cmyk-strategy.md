@@ -1,6 +1,10 @@
 # ⚖️ ADR-0091: Gradient ColorSpace runtime cross-variant + CMYK strategy
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/core/entities/gradient/interpolation.md](../prompts/core/entities/gradient/interpolation.md) · [00_nucleo/prompts/infra/export/gradients/cmyk.md](../prompts/infra/export/gradients/cmyk.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** **`IMPLEMENTADO`** (PROPOSTO P270.B → **IMPLEMENTADO
 P270.D** — materialização cumpre L1+stdlib 3 variants × 8 spaces;
 defaults Oklab preservam P262/P264/P267 bit-exact)

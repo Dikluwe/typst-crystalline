@@ -19,8 +19,10 @@ Under `prompts/`, `core/`, `shell/`, `infra/`, and `wiring/` mirror their
 consumer's module path, omitting only the leading `src/` and replacing `.rs`
 with `.md`. Preserve `tests/` and actual `mod`, `lib`, `main`, and `build`
 basenames. Use semantic source filenames rather than construction-step IDs.
-Shared invariants stay in `_nuclei/`. See
-[ADR-0131](adr/adr-0131-owner-aligned-prompt-paths.md) for the rule and gates.
+Shared invariants stay in `_nuclei/`. Use the full repository-relative owner
+path in Markdown citations and source headers. The ownership, path and
+verification rules are defined together in
+[ADR-0129](adr/adr-0129-l0-owners-and-shared-tekt-nuclei.md).
 
 New and substantively revised active prose is written in English. Machine-readable
 metadata such as `Hash do Código:` and `Núcleos Tekt:` remains unchanged until the

@@ -1,6 +1,10 @@
 # ⚖️ ADR-0031: Early hashing em Source — complementa ADR-0016
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/entities/source.md](../prompts/core/entities/source.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-29
 **Complementa**: ADR-0016 (remoção de LazyHash de L1)
 

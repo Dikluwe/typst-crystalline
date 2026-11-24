@@ -1,6 +1,10 @@
 # ⚖️ ADR-0050: Formatter de diagnósticos em L2 (completa ADR-0049)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/diagnostic.md](../prompts/shell/diagnostic.md) · [00_nucleo/prompts/wiring/diagnostics.md](../prompts/wiring/diagnostics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Completa**: ADR-0049 (CLI em L2) — ADR-0049 ganha nota
 "completada por ADR-0050 no Passo 119".
 **Não revoga**: nenhuma.

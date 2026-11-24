@@ -1,6 +1,10 @@
 # ⚖️ ADR-0026 (Revisão): Content cristalino — actualização de ADR-0026
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [00_nucleo/prompts/core/entities/content.md](../prompts/core/entities/content.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Revê**: ADR-0026
 **Data**: 2026-03-29
 **Motivação**: ADR-0029 (pureza física) e ADR-0030 (performance é domínio)

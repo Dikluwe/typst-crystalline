@@ -1,6 +1,10 @@
 # ⚖️ ADR-0064: Tradução `Smart<T>` vanilla → `Option<T>`/default cristalino
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/entities/content.md](../prompts/core/entities/content.md) · [00_nucleo/prompts/core/entities/style_chain.md](../prompts/core/entities/style_chain.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-04-26
 
 ---

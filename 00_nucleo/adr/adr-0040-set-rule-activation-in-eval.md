@@ -1,6 +1,10 @@
 # ⚖️ ADR-0040: Activação de `#set` em eval
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/compiler/eval/rules/set.md](../prompts/core/compiler/eval/rules/set.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 102.E — 790 testes L1; +7 integração/unitários `#set`; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

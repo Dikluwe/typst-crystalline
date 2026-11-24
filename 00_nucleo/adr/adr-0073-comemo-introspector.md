@@ -1,6 +1,10 @@
 # ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/entities/introspector.md](../prompts/core/entities/introspector.md) · [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md) · [00_nucleo/prompts/infra/pipeline/context_stabilization.md](../prompts/infra/pipeline/context_stabilization.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE (completo retroactivo + paridade trait
 estendida M9c, P212 2026-05-12)**.
 **Validado**: 2026-05-07 (P204H — 8/9 condições

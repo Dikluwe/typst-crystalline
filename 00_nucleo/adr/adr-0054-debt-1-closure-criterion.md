@@ -1,6 +1,10 @@
 # ⚖️ ADR-0054: Critério de fecho de DEBT-1 inclui consumo integral
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:

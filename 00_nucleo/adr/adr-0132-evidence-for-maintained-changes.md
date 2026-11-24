@@ -3,78 +3,29 @@
 **Status:** ACCEPTED
 **Date:** 2026-11-19
 **Decision owners:** Typst Crystalline maintainers
+**Consolidated:** 2026-11-24
 
-## Context
+## Evidence
 
-ADR-0114 §2 and ADR-0117 §§1–3 both require a separate A.0 artifact before a
-materialization specification. ADR-0084 prescribes numbered audit phases and
-coverage bands. ADR-0085 prescribes the corresponding construction filenames.
-ADR-0065 requires a numbered inventory sub-step. ADR-0080 exempted certain
-additive construction changes from L0 updates, including new public fields
-and new modules, which now have explicit ownership and approval rules.
-These procedures caught mistaken assumptions about missing features during
-migration. The recent reference-layout integration used owning L0 prompts,
-source anchors, failing tests, controlled measurements, and checks bound to
-the tested tree. Its evidence is indexed in
-`00_nucleo/diagnostics/validated-references-layout-2026-11-19.md`.
+Construction probes caught proposals for features that were already present. P569 also recorded a line count that subsequent checks could not reproduce from the stated revision. The reference-layout integration used owner specifications, failing tests, source anchors and receipts tied to the measured code state. The later architecture review found that source line numbers had moved in some inventories and that a release executable differed from the checkout under review. [Integration evidence](../diagnostics/validated-references-layout-2026-11-19.md) · [Review and reproducibility record](../diagnostics/architecture-review-2026-11-24.pt-BR.md)
 
 ## Decision
 
-Before deciding, inspect the current implementation, owning L0 and relevant
-architectural decisions. Record a source anchor or observable result that
-distinguishes the claimed problem from the current behavior. When upstream
-behavior matters, use the pinned reference and classify the finding under
-ADR-0107. Record the revision and reproducible observation according to
-ADR-0108 and ADR-0121.
+1. **Measure before deciding.** Read the current implementation, its owning L0, applicable ADRs and relevant recent investigations of the same symptom. When a decision depends on upstream types, enumerate actual types, fields and consumers at the pin. Record the anchor or observable result that distinguishes the claimed problem. Place the measurement before the resulting classification in the prompt or diagnostic. A current source citation identifies file, line and symbol at the inspected revision.
+2. **Separate observation, intent and inference.** Classify a comparison as language behavior or implementation mechanics under ADR-0107. An observation of the reference alone cannot establish design intent. Identify any inference, the evidence that would refute it, and an additional source check when the interpretation is flattering or convenient. The owner reviews whether the evidence actually distinguishes the alternatives.
+3. **Bind decision-bearing numbers to the measured state.** Record the commit, or identify the uncommitted working tree and preserve the exact changed-file list from `git diff HEAD --stat`. Record the exact time when the state could have changed between measurements. Identify relevant untracked inputs and executable identities where they affect reproduction. Use the current upstream pin for new comparisons and preserve original pins on historical measurements. An untraceable number is a lead to remeasure. [Oracle manifest](../../lab/parity/vanilla.json)
+4. **Verify the original case.** Use the requested measurement method and record its result. Check causal explanations against the reference when claiming parity. If the observation or cause remains unconfirmed, state what remains open. Report completion only for the actual input, route and observable exercised. A nearby feature with similar output may have a different execution path.
+5. **Exercise the affected boundary.** Trace layout from the caller's region and state through the changed branch to the result. Credit an existing test when it supplies equivalent inputs and state and asserts that result. When behavior depends on the caller, cover routing, geometry, restoration and output handling there. Relevant boundaries include grid/table fragmentation, box inline tails, float versus in-place handling, columns across regions and ordinary versus subframe finalization. Shared-helper tests cover the helper's contract. [00_nucleo/prompts/core/compiler/layout/columns.md](../prompts/core/compiler/layout/columns.md) · [00_nucleo/prompts/core/compiler/layout/line_commit.md](../prompts/core/compiler/layout/line_commit.md)
+6. **Verify fine typography at glyph level.** For kerning, tracking or positioning, verify the participating font on both sides, preferably the same font file. Compare PDF `TJ` adjustments for sign and magnitude and inspect actual per-glyph positions and advances, using `mutool show` and `mutool trace` or equivalent measurements. Text extraction helps verify morphology but can mask compensating errors. Test each suspected cause independently. [00_nucleo/prompts/_nuclei/layout/pdf-shaped-advances.toml](../prompts/_nuclei/layout/pdf-shaped-advances.toml)
 
-Use the smallest durable record that preserves the evidence and decision.
-A local correction can cite an existing test, a failing focused test, or an
-observed source path in its owning L0. A multi-component audit, uncertain
-baseline, or performance comparison can use a diagnostic with linked raw
-evidence. Preserve prior measurements and add new receipts when the tree or
-input changes. The depth of verification follows the scope and risk of the
-change.
+## Durable records and reuse
 
-Numbered construction steps, a separate A.0 file, a minimum number of
-commands and B1/B2/B3 percentages are optional techniques. ADR-0127 continues
-to govern confirmation. The owning L0, lineage and nucleus checks still
-apply before materializing a productive change.
+Keep the smallest durable evidence that supports the decision. A local correction may cite a focused test or source observation in the owning L0. A multi-component audit, uncertain baseline or performance comparison may require a diagnostic and raw receipts. Preserve the exact original observation and append a new receipt when input or state changes. Give each shared fact one authority. Use an existing implementation or primitive when it preserves its callers' contracts. Test the observable result and any specifically contracted snapshot. An unchanged source hash alone cannot establish behavioral equivalence.
 
-Use the LOC budgets and research formats in ADR-0094 when a current task
-calls for them. A stop for a budget requires an explicit current limit.
-Reuse an existing helper when it preserves its caller's contract.
+Record a feature's actual consumers and incomplete routes before classifying support. If a field or parser exists without observable downstream support, identify the boundary, any deliberate fallback and the case that will demonstrate completion. Preserve existing contracts when a narrower route is promoted. Do not impose a bitwise compatibility rule on unrelated outputs. [ADR-0107](adr-0107-language-parity-not-mechanics.md)
 
-## Affected L0 prompts
+A numbered sub-step, a separate A.0 file, a minimum command count, coverage bands, LOC budgets or industry-research formats are optional tools. A budget stop requires an explicit current limit. Keep construction history and receipts in the evidence record. Update the current decision once when the rule changes, and link its owners and evidence. A common outcome does not require duplicating the campaign history in every related ADR.
 
-This decision changes the evidence workflow. Existing component obligations
-and historical evidence in their owners keep their scope. Use canonical
-owner paths for future changes under ADR-0130 and ADR-0131.
+## Compatibility and verification
 
-## Consequences
-
-Current work can proceed from one evidence-backed L0 update. A broader
-investigation still leaves a reproducible diagnostic. The reviewer must
-decide whether the evidence exercises the actual behavior under change.
-
-## Alternatives considered
-
-Keeping the A.0 artifact as a universal gate preserves a uniform form
-but makes small repairs duplicate evidence. Removing the evidence gate
-loses the protection against stale assumptions that the construction
-reports established.
-
-## Compatibility and supersession
-
-Supersedes ADR-0080, ADR-0114 and ADR-0117. For current work, supersedes the
-prescribed sub-step, phase sequence, coverage bands and filename rules in
-ADR-0065, ADR-0084 and ADR-0085. It clarifies the scope of the construction
-recipes in ADR-0094. Preserve the original audit records and
-their provenance. ADR-0107, ADR-0108, ADR-0119, ADR-0121, ADR-0127 and
-ADR-0129 continue to apply.
-
-## Verification
-
-For each decision, a reviewer can recover the current owner, concrete
-evidence and the validation used. For a public contract, default, phase
-or compatibility change, the reviewer can also recover the ADR-0127
-approval. Keep historical ADR identifiers and links resolvable.
+The maintained evidence workflow originally superseded ADR-0080, ADR-0114 and ADR-0117 and the numbered procedures in ADR-0065, ADR-0084 and ADR-0085. It now carries forward the evidence requirements of ADR-0034, ADR-0065, ADR-0084, ADR-0085, ADR-0093, ADR-0094, ADR-0098, ADR-0108, ADR-0119, ADR-0121 and ADR-0124. Preserve historical identifiers and original receipts. ADR-0127 governs the approval decision. ADR-0129 governs ownership, pinned nuclei and lineage. A reviewer must be able to recover the current owner, the evidence that affected the decision, the validation and any required approval. [ADR-0127](adr-0127-l0-gate-stop-vs-continuous-flow.md) · [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md)

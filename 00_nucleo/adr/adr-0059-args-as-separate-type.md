@@ -1,6 +1,12 @@
 # ⚖️ ADR-0059: `Args` como tipo separado, não-variant de `Value`
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [00_nucleo/prompts/core/entities/args.md](../prompts/core/entities/args.md) · [00_nucleo/prompts/core/entities/value.md](../prompts/core/entities/value.md).
+
+Argument bundles are first-class values. Args owns their structure and Value owns their language identity.
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 149 — arqueologia (`divergencias-value-passo-149.md` §3.2); 1113 tests verdes desde Passo 16.
 **Data**: 2026-04-25
 **Autor**: Humano + IA

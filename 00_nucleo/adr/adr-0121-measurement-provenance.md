@@ -1,6 +1,10 @@
 # ADR-0121 — Record the provenance of every measurement
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md) · [ADR-0107](adr-0107-language-parity-not-mechanics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-07-05
 **Applies to:** the entire project and every step that produces a number used to make a decision.
 **Numbering history:** no dedicated file/number until P910; reconciled in that step by an actual scan of `00_nucleo/adr/` (slot `0121` was free and assigned in the same batch as `0122`).

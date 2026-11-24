@@ -1,6 +1,10 @@
 # ⚖️ ADR-0062: Autorização de crate `hayagriva` para bibliography + cite (CSL parsing)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/compiler/eval/bibliography.md](../prompts/core/compiler/eval/bibliography.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** `IMPLEMENTADO` (promovido em P418, 2026-06-23)
 **Data**: 2026-04-27
 

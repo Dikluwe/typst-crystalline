@@ -1,6 +1,10 @@
 # ⚖️ ADR-0016: `typst_utils::LazyHash` → removido de L1
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/entities/source.md](../prompts/core/entities/source.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-25
 
 ---

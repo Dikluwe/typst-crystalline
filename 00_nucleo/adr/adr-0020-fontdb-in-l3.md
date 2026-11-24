@@ -1,6 +1,10 @@
 # ⚖️ ADR-0020: `fontdb` → L3 (adiada)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/infra/fontdb.md](../prompts/infra/fontdb.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-23
 
 ---

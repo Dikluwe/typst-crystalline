@@ -1,6 +1,10 @@
 # ADR-0111 — Autorização de crates de parsing para o módulo `loading` (data import)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml) · [00_nucleo/prompts/core/compiler/stdlib/loading.md](../prompts/core/compiler/stdlib/loading.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** `IMPLEMENTADO` (Passo 387 — módulo `loading` materializado; `cargo build --workspace` + `crystalline-lint .` verdes; 13 testes de decode L1 passam).
 **Decisão do dono (registada):** escolhas por formato confirmadas — **yaml = `saphyr`** (parser YAML **genuinamente mantido**; mapa `Yaml → Value` manual, sem serde) após apurar-se que **tanto `serde_yaml` (arquivada) como `serde_yml` (shim DEPRECATED na crates.io) estão não-mantidas** (ADR-0108: a fonte refutou o enquadramento "fork mantido"); **6 formatos materializados, zero parciais por omissão**; `read` modo texto (`Str`) apenas, binário deferido; cbor byte-strings graded documentado. `Value::Bytes` registado como **DEBT-62** (ver `00_nucleo/DEBT.md`) para passo dedicado de modelagem de tipos. Materialização do módulo `loading` segue o L0 `00_nucleo/prompts/engine/stdlib/loading.md`.
 **Histórico de numeração:** `00_nucleo/adr/` varrido — 0110 ocupada (marcador `@vanilla`, P385); **0111 é o primeiro livre** (precedente P160A/P376: nunca assumir número).

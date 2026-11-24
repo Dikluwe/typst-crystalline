@@ -1,6 +1,10 @@
 # ADR-0124 — Verify affected sublayout paths
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md) · [ADR-0107](adr-0107-language-parity-not-mechanics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-07-09
 **Revised:** 2026-11-19
 

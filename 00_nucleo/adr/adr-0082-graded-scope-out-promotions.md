@@ -1,6 +1,10 @@
 # ⚖️ ADR-0082: Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **`EM VIGOR`** (PROPOSTO P249 → **EM VIGOR P254** —
 paridade pattern P229 ADR-0080 promoção administrativa XS
 dedicada pós-N=3 citantes documentados literal).

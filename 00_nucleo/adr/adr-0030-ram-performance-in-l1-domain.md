@@ -1,6 +1,10 @@
 # ADR-0030 — Efficient RAM management belongs to L1 — philosophical alignment
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/compiler/lexer/scanner.md](../prompts/core/compiler/lexer/scanner.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-03-29
 **Corrects (does not supersede):** ADR-0004 (performance rationale), ADR-0015 (removal of `ecow` from the parser)
 

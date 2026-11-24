@@ -1,6 +1,10 @@
 # ⚖️ ADR-0047: Argparsing com `clap` na CLI
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/cli.md](../prompts/shell/cli.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Revoga**: nenhuma.
 **Nota Passo 117 (ADR-0049)**: camada corrigida — `clap` consumido
 em L2 (`02_shell/`), não em L4. Decisões funcionais deste ADR

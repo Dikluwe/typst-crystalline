@@ -1,6 +1,10 @@
 # ⚖️ ADR-0005: PackageSpec (DTO pattern) e World trait
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/contracts/world.md](../prompts/core/contracts/world.md) · [00_nucleo/prompts/core/entities/package_spec.md](../prompts/core/entities/package_spec.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-22
 
 ---

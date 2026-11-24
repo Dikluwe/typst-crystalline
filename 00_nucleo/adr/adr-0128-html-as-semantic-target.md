@@ -1,56 +1,22 @@
-# ADR-0128 — HTML é target semântico, não conversão do layout paginado
+# ADR-0128 — HTML as a semantic target
 
 **Status:** ACCEPTED
-**Data:** 2026-08-23
+**Date:** 2026-08-23
+**Feature amendment approved:** 2026-08-25 under ADR-0127
+**Consolidated:** 2026-11-24
 
-## Contexto medido
+## Evidence
 
-O vanilla ratificado `a51e02804` produz, para `Hello, parity.`, um documento
-HTML5 compacto de 175 bytes. O cristalino não possui exporter HTML,
-`OutputFormat::Html` nem dispatch L4. `eval/mod.rs:1813-1816` fixa `target()` em
-`"paged"` e os exporters existentes atravessam `PagedDocument`. A ADR-0076
-reservou HTML/bundle para ADR explícita.
+The initial implementation evaluated every document as paged. The reference distinguished the HTML target during evaluation and required explicit access to its experimental feature. The HTML pipeline and bundle owners now define separate evaluation, feature checks, contextual preparation and publication. [00_nucleo/prompts/infra/pipeline/html.md](../prompts/infra/pipeline/html.md) · [00_nucleo/prompts/infra/pipeline/bundle.md](../prompts/infra/pipeline/bundle.md)
 
-## Decisão
+## Decision
 
-HTML é target semântico separado:
+Compile an HTML document by evaluating its source with the HTML target, expanding semantic content and serializing HTML. Existing paged evaluation APIs keep their paged target. Converting a whole paged document, wrapping pages in SVG or PDF, or rasterizing the document discards semantic information and cannot implement this target. A supported variant preserves its language semantics. An unsupported variant produces a diagnostic. Translate the surface incrementally through owning L0s. [00_nucleo/prompts/infra/export/html.md](../prompts/infra/export/html.md)
 
-```text
-Source → eval(target=html) → Content → expansão HTML → HTML
-```
+An intrinsic `html.frame` is a local layout island inside semantic HTML. Preserve occurrence order, effective styles and nested-frame handling. Local rendering can produce an inline SVG and supply an intrinsic position for a captured location. It does not create a public HTML page. The complete document remains an HTML target even if it contains such islands. In a bundle, paged bodies advance the page offset, while HTML and assets consume no pages. [00_nucleo/prompts/infra/pipeline/html.md](../prompts/infra/pipeline/html.md) · [00_nucleo/prompts/infra/tests/html_frame.md](../prompts/infra/tests/html_frame.md) · [00_nucleo/prompts/infra/pipeline/bundle.md](../prompts/infra/pipeline/bundle.md)
 
-É proibido rasterizar páginas, embrulhar SVG/PDF ou converter
-`PagedDocument`. O target é dado explícito do eval; APIs existentes preservam
-`target="paged"`.
+Feature selection is independent of target and serialization. Features default to empty. An HTML extension, output format or serialization choice cannot enable `Feature::Html`. The public HTML binding, expansion and export require explicit enablement. A bundle containing HTML requires the applicable bundle and HTML features. The approved amendment requires `info` to report effective feature state. [00_nucleo/prompts/_nuclei/compiler-feature-gates.toml](../prompts/_nuclei/compiler-feature-gates.toml)
 
-### Entrega inicial P1137-X-002
+## Open discrepancy and verification
 
-Recorte explicitamente incompleto: documento, parágrafo, texto, sequência,
-heading, strong, emph e linebreak; escape HTML; envelope HTML5 vanilla;
-warning experimental; `target() == "html"`. Variante não suportada produz
-diagnóstico, nunca desaparece.
-
-Completudes futuras: tabelas/listas/links/imagens/math/CSS, fixpoint HTML e
-bundle. Cada grupo exige L0 antes do código.
-
-## Consequências
-
-A sentinela simples pode tornar-se `MATCH`, sem afirmar paridade HTML global.
-A separação impede que geometria paginada contamine a morfologia HTML.
-
-## Adendo proposto P1165 — feature e target são eixos separados
-
-**Estado do adendo:** APROVADO NO GATE ADR-0127 EM 2026-08-25.
-
-Medição no vanilla ratificado `a51e02804`: `compile --format html` sem
-`--features html` termina com exit 1 e exige a feature; com a feature termina
-com exit 0. `info --format json` reporta `features.html: false` por default.
-No cristalino, o mesmo compile sem feature termina com exit 0 e
-`04_wiring/src/main.rs:161` reporta true fixo.
-
-Se aprovado, a decisão ganha estes invariantes: target/formato HTML não
-habilita `Feature::Html`; default de features é vazio; o binding público
-`html`, a expansão correspondente e o export HTML exigem feature explícita;
-`info` reporta estado efetivo, não mera capacidade compilada. A superfície do
-módulo é incremental conforme os L0s, sem transformar a entrega inicial em
-promessa de paridade global.
+The 2026-11-24 review observed divergent `features.html` reports under `TYPST_FEATURES=html` in the pinned reference and the identified local release. The L2 and L4 info owners describe the current limited report. Keep the approved rule and the discrepancy separately identifiable pending reconciliation of those owners. This consolidation changes no CLI behavior. Verify feature-disabled and feature-enabled compilation, effective reporting, unsupported variants, and the intrinsic-frame exception through their public entry points. [Review and executable receipts](../diagnostics/architecture-review-2026-11-24.pt-BR.md) · [00_nucleo/prompts/shell/info.md](../prompts/shell/info.md) · [00_nucleo/prompts/wiring/info.md](../prompts/wiring/info.md)

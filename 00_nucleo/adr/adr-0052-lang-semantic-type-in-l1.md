@@ -1,6 +1,10 @@
 # ⚖️ ADR-0052: Lang como tipo semântico em L1
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/entities/lang.md](../prompts/core/entities/lang.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-04-24
 **Materializado em**: Passo 131B (2026-04-24)
 **Autor**: Humano + IA

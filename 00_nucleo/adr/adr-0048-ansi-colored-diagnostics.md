@@ -1,6 +1,10 @@
 # ⚖️ ADR-0048: Cores ANSI nos diagnósticos (L3 formata com `bool`, L4 decide)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/diagnostic.md](../prompts/shell/diagnostic.md) · [00_nucleo/prompts/wiring/diagnostics.md](../prompts/wiring/diagnostics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Revoga**: nenhuma.
 **Nota Passo 117 (ADR-0049)**: camada corrigida — `ColorWhen` e
 `resolve_colored_with` vivem agora em L2 (`02_shell/src/cli.rs`),

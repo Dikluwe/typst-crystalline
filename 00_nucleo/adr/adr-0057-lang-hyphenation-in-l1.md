@@ -1,6 +1,10 @@
 # ⚖️ ADR-0057: Lang hyphenation em L1 via crate `hypher`
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml) · [00_nucleo/prompts/core/entities/lang.md](../prompts/core/entities/lang.md) · [00_nucleo/prompts/core/compiler/layout/hyphenation.md](../prompts/core/compiler/layout/hyphenation.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Validado**: Passo 144.E — 9 testes (5 unit `hyphenation` + 4 integração `lang_hyphenation_*`); zero violations.
 **Data**: 2026-04-24
 **Autor**: Humano + IA

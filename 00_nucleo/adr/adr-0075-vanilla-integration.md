@@ -1,6 +1,10 @@
 # ⚖️ ADR-0075: Vanilla integration via pre-built CLI + comparação estrutural
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md) · [lab/parity/vanilla.json](../../lab/parity/vanilla.json).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE** (final, P206E 2026-05-08).
 **Validado**: P206A–E concluídos; 7/7 condições do plano
 de validação CUMPRIDAS; `P206C.div-1` registada como

@@ -1,6 +1,10 @@
 # ADR-0119 — Verification discipline, not trust
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md) · [ADR-0107](adr-0107-language-parity-not-mechanics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-07-03
 **Applies to:** the entire project and every step.
 **Numbering history:** no dedicated file/number until P910; reconciled in that step by an actual scan of `00_nucleo/adr/` (slot `0119` was free between `0118` and `0120`).

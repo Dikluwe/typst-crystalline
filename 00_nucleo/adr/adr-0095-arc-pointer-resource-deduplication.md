@@ -1,6 +1,12 @@
 # ⚖️ ADR-0095: Dedup `Arc::as_ptr` resources (PDF reusable objects)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/infra/export/gradients/mod.md](../prompts/infra/export/gradients/mod.md) · [00_nucleo/prompts/infra/export/images/scan.md](../prompts/infra/export/images/scan.md).
+
+Resource deduplication uses allocation identity within its owning export and includes the rendering context where it affects the resource.
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** `EM VIGOR` (criada directamente; paridade pattern P271
 ADR-0093/0094 — meta-ADR formalizando sub-padrão empírico N≥3
 cumulativo)

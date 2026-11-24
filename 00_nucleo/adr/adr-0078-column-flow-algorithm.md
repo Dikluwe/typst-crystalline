@@ -1,6 +1,10 @@
 # ⚖️ ADR-0078: Column flow algorithm — `Region/Regions` abstraction + multi-column consumer
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [00_nucleo/prompts/core/compiler/layout/columns.md](../prompts/core/compiler/layout/columns.md) · [00_nucleo/prompts/core/compiler/layout/columns/flow.md](../prompts/core/compiler/layout/columns/flow.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** **IMPLEMENTADO** (P215 PROPOSTO 2026-05-12 → P221
 IMPLEMENTADO 2026-05-12 — sub-fases (a)+(b) materializadas;
 DEBT-56 ENCERRADO simultaneamente).

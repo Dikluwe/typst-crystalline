@@ -1,6 +1,10 @@
 # ⚖️ ADR-0049: CLI vive em L2 (correcção de ADRs 0046/0047/0048)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/cli.md](../prompts/shell/cli.md) · [00_nucleo/prompts/wiring/main.md](../prompts/wiring/main.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Revoga**: nenhuma (correcção parcial, não revogação total).
 **Nota Passo 119 (ADR-0050)**: migração completada.
 `format_diagnostic` + paleta ANSI movidos para L2

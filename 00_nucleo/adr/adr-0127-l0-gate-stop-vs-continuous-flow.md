@@ -4,6 +4,7 @@
 **Date:** 2026-08-04
 **Decision owner:** Repository owner (in response to the question about P962–P964 — the distinction was already practiced; the owner accepted it as valid and requested that it be written as a rule).
 **Recorded in:** Step 965.
+**Consolidated:** 2026-11-24
 
 ---
 
@@ -27,6 +28,12 @@ The “Golden Rule” (`CLAUDE.md`, Nucleation Protocol) says: the AI drafts L0 
 3. **Parity corrections against vanilla in general**, even when they change rendered output (P958: `Gamma(z)` → Γ(𝑧); P961: reduced legend). Their gate is RED→GREEN tests plus revalidation (visual/`compare.py`/benchmark), not prior confirmation. This is the daily work of the effort; requiring a stop for every correction would halt progress without review benefit.
 4. Any change whose reversal would break nothing outside its own module.
 
+### Where the approval lives
+
+Record the scope, date and source of the owner's decision against the specific L0 change. An approval for one public type or capability covers only the approved contract. If the change introduces a new productive owner, confirm its canonical path and hash before writing code. When the classification is uncertain, pause and classify it with the owner.
+
+An extension within an existing architectural decision, including a new public `Value` variant whose type has been migrated, can be specified in its owning L0. Obtain public-contract approval before implementation. A new ADR is warranted when the choice establishes a durable cross-component or public product policy and no existing decision settles the alternatives. Apply this distinction to new changes without rewriting the record of earlier approvals. [00_nucleo/prompts/core/entities/value.md](../prompts/core/entities/value.md) · [00_nucleo/prompts/infra/watch.md](../prompts/infra/watch.md)
+
 ## 3. Verification against executed steps (P965 Phase A)
 
 | Step | Type | Applied mode | Correct? |
@@ -46,7 +53,7 @@ The criterion cleanly separates all executed cases; no boundary case remained un
 
 ## 4. Collision check (actual scan of `00_nucleo/adr/`)
 
-A scan for `paragem|confirma|gate|PARAR` found no existing ADR that decides when to stop after editing L0. ADR-0114/0117 (probe before specification) concern investigation method; they complement this ADR and do not collide. The slot was confirmed by listing: the last file was `typst-adr-0126-*` → **free slot = 0127**.
+A scan for `paragem|confirma|gate|PARAR` found no existing ADR that decides when to stop after editing L0. ADR-0114 and ADR-0117 were investigation procedures at the time of that scan. ADR-0132 now governs evidence for maintained changes. The slot was confirmed by listing: the last file was `typst-adr-0126-*` → **free slot = 0127**.
 
 ## 5. Consequences
 
@@ -59,4 +66,4 @@ A scan for `paragem|confirma|gate|PARAR` found no existing ADR that decides when
 
 - `lab/history/construction/records/00_nucleo/materialization/typst-passo-965.md` (statement + owner’s proposed criterion).
 - `lab/results/construction/diagnostics/typst-passo-952-relatorio.md` §6 (the deviation that motivated formalization).
-- ADR-0114/0117 (probe before specification — method), ADR-0108 (measure before deciding), ADR-0121 (measurement provenance).
+- [ADR-0132](adr-0132-evidence-for-maintained-changes.md) governs measurement, provenance and validation. [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md) governs ownership and lineage.

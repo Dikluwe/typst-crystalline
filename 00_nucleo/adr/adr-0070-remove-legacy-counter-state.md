@@ -1,6 +1,10 @@
 # ADR-0070 — Eliminação `CounterStateLegacy` (fim de M5 universal)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md) · [00_nucleo/prompts/core/compiler/introspect/from_tags.md](../prompts/core/compiler/introspect/from_tags.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE** (P190I — M6 fechado).
 **Data**: 2026-05-04 (PROPOSTA P190A); 2026-05-05 (ACEITE P190I).
 **Marco arquitectural pre-condição**: M5 universal completo (P200B).

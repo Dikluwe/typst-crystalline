@@ -1,6 +1,10 @@
 # ⚖️ ADR-0010: `unicode_ident` → `[l1_allowed_external]`
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-23
 
 ---

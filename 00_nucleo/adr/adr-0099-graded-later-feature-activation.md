@@ -1,6 +1,10 @@
 # ADR-0099 — Activação posterior de feature graded como padrão de pendência
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** IMPLEMENTADO (desde P285; formalizado em P289)
 **Data**: 2026-05-19
 **Passo promotor**: P289 (`P-style-weight-variant`)

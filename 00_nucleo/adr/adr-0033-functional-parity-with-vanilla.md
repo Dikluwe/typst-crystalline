@@ -1,6 +1,10 @@
 # ⚖️ ADR-0033: Paridade funcional com vanilla como invariante arquitectural
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md) · [lab/parity/vanilla.json](../../lab/parity/vanilla.json).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-04-22
 
 ---

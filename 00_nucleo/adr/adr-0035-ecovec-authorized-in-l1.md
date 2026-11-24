@@ -1,6 +1,10 @@
 # ⚖️ ADR-0035: `ecow::EcoVec` autorizado em L1
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-04-22
 
 ---

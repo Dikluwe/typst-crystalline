@@ -1,6 +1,10 @@
 # ADR-0032 — `unsafe` policy in L1
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/compiler/lexer/scanner.md](../prompts/core/compiler/lexer/scanner.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-04-22
 
 ---

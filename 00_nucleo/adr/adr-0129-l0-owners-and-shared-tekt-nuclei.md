@@ -50,6 +50,47 @@ For all productive L1–L4 code:
 
 A productive test file, build script, or entry point also needs its own owner when it is in a strict directory; it cannot share a module’s prompt merely because of functional proximity.
 
+#### Canonical path and reference
+
+Derive the owner path from the productive Rust file. Replace the layer
+directory (`01_core`, `02_shell`, `03_infra`, `04_wiring`) with
+`00_nucleo/prompts/` followed by `core/`, `shell/`, `infra/`, or `wiring/`,
+respectively. Drop an immediately following `src/` if present, keep the
+remaining directories and snake_case basename, and replace `.rs` with `.md`.
+Keep `tests/`, internal test modules, and the actual basenames `mod`, `lib`,
+`main`, and `build`. Active filenames describe the consumer's responsibility.
+For example:
+
+| Productive consumer | Canonical L0 owner |
+|---|---|
+| `01_core/src/compiler/layout/mod.rs` | `00_nucleo/prompts/core/compiler/layout/mod.md` |
+| `01_core/tests/outline_entry_indented.rs` | `00_nucleo/prompts/core/tests/outline_entry_indented.md` |
+| `02_shell/build.rs` | `00_nucleo/prompts/shell/build.md` |
+
+Use the complete repository-relative owner path, with forward slashes and the
+literal `00_nucleo/prompts/` prefix, in the Rust module's leading `//! @prompt`
+header and every Markdown citation of an L0. A navigational Markdown link may
+use a relative destination with the canonical path as its visible label.
+Explicitly excluded files keep their configured classification. The mapping
+applies only to materializable owners. Shared nuclei use the namespace below.
+
+For a relocation, map old paths to new paths before moving files. Update L0
+first, then Rust headers, module declarations, `#[path]`, test target names,
+links and canonical citations. Keep historical records, fixture bytes and
+provenance names recoverable. Preserve each existing owner, its obligations,
+partial supersessions, fallbacks, approvals and open scope. A directory
+reorganization supplies no authority to combine owners, split code, or
+change public behavior. Run the layout check for consumer-derived paths,
+unique destinations, names and links. After V15/V26 pass, reseal, verify
+both lineage directions and resolve the paths in an isolated versioned
+snapshot. For a source relocation, build all targets and run product and
+tool tests. Report the full lint result against the prior baseline.
+
+These clauses incorporate the owner-approved reference rule of ADR-0130
+and the subsequent relocation approval of ADR-0131. The original path
+inventory and evidence belong to those dated records. Their stable IDs
+remain available in the decision index.
+
 ### 2. Normative sharing uses Tekt nuclei
 
 Adopt **Tekt nucleus** as a declarative L0 artifact for sharing obligations, never ownership:
@@ -133,12 +174,10 @@ Missing canonical metadata is repaired only after ownership is resolved. Reseali
 
 If the pinned binary no longer proves V15/V26, complete preflight, or rollback, corpus repair must stop before further writes. Prompts already individualized must not be shared again: preserve the bijection and temporarily remove only the affected nucleus consumption, restoring affected prompts/pins from the last valid commit. A new tool version requires provenance, two dry runs, and an explicit decision before work resumes.
 
-## ADR-0127 gate
+## Approval and original migration scope
 
-This decision changes the project’s public lineage contract. The owner explicitly approved it on 2026-08-25. Following approval:
-
-- this ADR is `IN FORCE`;
-- V15 and V26 are explicitly included in project configuration;
-- new owners and nuclei must follow the decided cardinalities;
-- legacy-corpus repair proceeds only in the audited P1181 batches;
-- approval of this ADR does not by itself authorize global repair, automatic prompt splitting, or functional changes.
+The owner approved the original public lineage contract on 2026-08-25.
+That authorization covered the audited P1181 migration batches. Current
+repairs use the ownership and nucleus preflight above, and changes affecting
+public contracts follow ADR-0127. Corpus-wide repairs, automatic prompt
+splitting and functional changes require their own scope and evidence.

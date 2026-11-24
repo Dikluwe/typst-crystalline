@@ -1,6 +1,10 @@
 # ⚖️ ADR-0076: Marco M9c — completion do Introspector cristalino
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/entities/introspector.md](../prompts/core/entities/introspector.md) · [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md) · [00_nucleo/prompts/infra/pipeline/context_stabilization.md](../prompts/infra/pipeline/context_stabilization.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE (completo retroactivo, P212 2026-05-12 —
 com excepções documentadas em cond #2 e cond #4 reinterpretadas
 per `P207A.div-1` reshape)**.

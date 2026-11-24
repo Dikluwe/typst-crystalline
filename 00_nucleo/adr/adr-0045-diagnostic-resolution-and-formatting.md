@@ -1,6 +1,10 @@
 # ⚖️ ADR-0045: Formato de diagnósticos: resolução em L1, formatação em L3
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/diagnostic.md](../prompts/shell/diagnostic.md) · [00_nucleo/prompts/wiring/diagnostics.md](../prompts/wiring/diagnostics.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** `EM VIGOR COM ADENDO P1139`
 **Revoga**: nenhuma.
 **Validado**: Passo 111.E.

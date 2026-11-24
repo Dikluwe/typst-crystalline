@@ -1,6 +1,10 @@
 # ⚖️ ADR-0025: `Int == Float` — desvio de `PartialEq` vs semântica do original
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [lab/parity/vanilla.json](../../lab/parity/vanilla.json) · [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-27
 
 ---

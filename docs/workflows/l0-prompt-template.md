@@ -3,14 +3,13 @@
 **Layer:** L[n] — [Core | Shell | Infrastructure | Wiring]
 **Created:** YYYY-MM-DD
 **Exclusive consumer:** `[exact productive consumer path]`
-**Generated files:** [files this prompt originated, if applicable]
 **Technique** *(optional; use only when the mechanism has a named computer-science technique; do not force one into every prompt)*: [technique/area] — [one sentence or reference to the standard concept]. Example: “Term rewriting system — termination by cycle detection, not by a maximum depth.” This field can make the prompt useful as study material as well as a specification.
 
 The prompt’s canonical path is the owner path used by lineage metadata. A materializable prompt owns exactly one productive consumer; one consumer has exactly one owner. Put shared invariants in Tekt nuclei, pinned by their consuming prompts. A nucleus is not an owner and does not authorize code by itself.
 
 Derive that path under `00_nucleo/prompts/{core,shell,infra,wiring}/` from the
 consumer's module path: omit only a leading `src/`, preserve `tests/` and the
-actual basename, and replace `.rs` with `.md` (ADR-0131). Use semantic filenames.
+actual basename, and replace `.rs` with `.md` (ADR-0129). Use semantic filenames.
 
 ---
 
@@ -44,10 +43,10 @@ Include relevant edge cases and error behavior. Record evidence and provenance w
 
 ## Expected Result
 
-- List files created or changed, including implementation and tests where applicable.
-- State what each file exposes (functions, types, or interfaces).
+- Identify the outcome in the exclusive consumer. Cite the canonical owners of any related changes to other consumers.
+- State the functions, types, interfaces, or observations this consumer supplies.
 - Explain how to verify structural constraints and the requested behavior.
-- State the required validation commands and resource limits from current repository guidance.
+- State the verification that demonstrates the contract. Record resource limits when the current task or measurement requires them.
 
 ## Revision History
 

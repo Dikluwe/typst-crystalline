@@ -1,6 +1,12 @@
 # ⚖️ ADR-0087: Gradient Linear materializado; Radial/Conic scope-out
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/core/entities/gradient/linear.md](../prompts/core/entities/gradient/linear.md) · [00_nucleo/prompts/infra/export/gradients/linear.md](../prompts/infra/export/gradients/linear.md).
+
+The linear-only milestone records construction order. The linked owners define linear gradient behavior today.
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 262.B (criação PROPOSTO) → Passo 262.D

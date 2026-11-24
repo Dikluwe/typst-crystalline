@@ -1,6 +1,10 @@
 # ⚖️ ADR-0055: Font consumer via pipeline CIDFont existente
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/infra/export/fonts.md](../prompts/infra/export/fonts.md) · [00_nucleo/prompts/infra/export/subset.md](../prompts/infra/export/subset.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:

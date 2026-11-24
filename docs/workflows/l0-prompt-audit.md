@@ -30,9 +30,8 @@ For the Instruction section or its equivalent, check:
 For prompts describing Typst language behavior, rather than internal crystalline infrastructure:
 
 - Claims about what Typst does should cite official documentation (`typst.app/docs/`) or, where documentation does not cover the case, a direct measurement against the pinned vanilla binary with provenance (`file:line` or command and result).
-- The current vanilla parity target is pinned upstream commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`. Prefer the verified oracle at `lab/typst-original/target/release/typst`, built with explicit `TYPST_COMMIT_SHA` and verified provenance. The current crystalline product binary is `lab/target/product/release/typst`; do not use it as its own oracle. `/usr/local/bin/typst` is usable only after byte-identity with the ratified oracle is proved.
-- Confirm commit, tree, build recipe, and binary SHA-256 before citing a measurement. A tag, version string, or `--version` alone does not prove identity. The ratified vanilla executable SHA-256 is `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
-- Parity follows ADR-0107/0108: measure language semantics, syntax, and morphology, not Rust implementation mechanics, and do not copy vanilla defects as requirements.
+- Read the pinned upstream commit, tree and local binary SHA-256 from [the parity manifest](../../lab/parity/vanilla.json). Verify the build recipe and executable identity before citing a measurement. The local vanilla oracle is `lab/typst-original/target/release/typst`. CI records the identity of its build of that revision. Preserve earlier measurements with the pins used at the time.
+- Record the crystalline revision, working-tree state and binary SHA-256 separately for `lab/target/product/release/typst`. Compare observations at the language level defined in ADR-0107 and record their provenance under ADR-0132.
 - A claim without either a supporting citation or measurement is an evidence finding, whether or not the claim happens to be correct.
 - Check that the cited source supports the full generalization. For example, documentation saying “X can happen” does not support a prompt that claims “X is the only case.” A known precedent is `compiler/eval.md`, which described `\\` in math as “only” a line break when the cited source only stated that formulas can contain line breaks.
 - If an area has a documentation corpus under the current documentation-corpus path, compare against it directly; this is faster and more reliable than retrieving the same documentation again.
@@ -49,4 +48,4 @@ Report one finding per issue. Each finding includes:
 - Exact location (section and, where useful, line).
 - A concise description of the problem, without recommending a fix. This workflow audits; it does not perform the repair.
 
-Do not assign B1/B2/B3 classifications here; those apply to code modules under ADR-0084. This workflow returns findings only. The task that requested the audit decides what to address first.
+Report the evidence and the owner affected. The task that requested the audit sets priority. Historical coverage bands are optional under ADR-0132.

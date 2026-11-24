@@ -1,6 +1,10 @@
 # ⚖️ ADR-0104: Atomicidade para agentes — força arquitetural de primeira classe
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-06-10
 **Passo promotor**: P314 (materialização de processo/linhagem)
 **Diagnóstico**: P313 (`diagnosticos/diagnostico-modelo-elemento-passo-313.md`, §0 requisito + §2.1 imposto medido + §6 texto do princípio)

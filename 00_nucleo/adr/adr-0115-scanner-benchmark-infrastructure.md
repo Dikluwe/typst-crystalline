@@ -1,6 +1,10 @@
 # ADR-0115 — Scanner benchmark infrastructure
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/core/compiler/lexer/scanner.md](../prompts/core/compiler/lexer/scanner.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** `EM VIGOR` (Step 441 — benchmark infrastructure created; `cargo bench` works and is reproducible).
 **Recorded owner decision:** use `criterion` 0.5 in `lab/benches/` to measure scanner/lexer tokenization time; create a corpus of 5 representative inputs; primary metric is ns/byte; reproducibility criterion is variation < 3% across 3 sequential runs.
 **Related ADRs:** ADR-0032 (L1 `unsafe` policy), ADR-0030 (performance belongs to L1), ADR-0014 (scanner inherited from `unscanny`).

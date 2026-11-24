@@ -3,7 +3,7 @@ Hash do Código: a871fde3
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/version.rs`
-**Governance:** ADR-0017, ADR-0029, ADR-0107, ADR-0108, ADR-0127.
+**Governance:** ADR-0029, ADR-0107, ADR-0127, ADR-0132.
 
 ## Evidence before specification
 
@@ -35,10 +35,12 @@ commands/binaries are recorded in
 `lab/results/construction/diagnostics/paridade-matriz-p1137-baseline.md`.
 Later source resync receipts preserve `586e1bd43` and
 `9f2b6e8715237cb086899a42873660fe744622e8` observations in the archive.
-The current pin `bd5ebec285505889e8ff1d4f68804ab147a699f3` also reports
+The October pin `bd5ebec285505889e8ff1d4f68804ab147a699f3` also reports
 `version(0, 15, 1)`, as recorded in
 `lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md`.
-A CLI version string supports the value check but does not prove binary identity.
+For a new comparison, read the commit, tree and executable identity from
+`lab/parity/vanilla.json`. A CLI version string supports the value check but
+does not prove binary identity.
 
 Default derivation was justified by the same empty-components value and no
 new generic bounds at HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, with

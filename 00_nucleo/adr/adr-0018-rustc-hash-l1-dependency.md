@@ -1,6 +1,10 @@
 # ADR-0018 — `rustc_hash` → `[l1_allowed_external]` — supersedes ADR-0007
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Supersedes:** ADR-0007
 **Date:** 2026-03-23
 

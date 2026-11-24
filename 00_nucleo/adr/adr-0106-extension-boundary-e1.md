@@ -1,6 +1,10 @@
 # ⚖️ ADR-0106: Fronteira de extensão do F — E1 (`Content::Dynamic(Arc<dyn Element>)`)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0109
+
+**Current authority** — [ADR-0109](adr-0109-atomization.md) · [00_nucleo/prompts/core/entities/content.md](../prompts/core/entities/content.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-06-12
 **Passo promotor**: P333 (grava a decisão do dono; a implementação é por lotes, pós-Trava)
 **Experimento**: P332 (`diagnosticos/f-experimento-extensao-passo-332.md` — spikes E1/E2/E3 + tabela comparativa de 7 critérios)

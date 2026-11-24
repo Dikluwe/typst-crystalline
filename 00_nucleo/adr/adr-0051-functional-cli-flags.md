@@ -1,6 +1,10 @@
 # ⚖️ ADR-0051: Flags funcionais em L2 — pattern e primeira flag (`-o`)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [00_nucleo/prompts/shell/cli.md](../prompts/shell/cli.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Complementa**: ADR-0047 (clap), ADR-0049 (CLI em L2),
 ADR-0050 (formatter em L2).
 **Validado**: Passo 120.E.

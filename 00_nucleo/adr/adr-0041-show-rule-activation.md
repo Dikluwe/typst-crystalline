@@ -1,6 +1,10 @@
 # ⚖️ ADR-0041: Activação de `#show` — heading, strong, emph
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/compiler/eval/rules/show.md](../prompts/core/compiler/eval/rules/show.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Validado**: Passo 103.E — 795 testes L1; +5 integração `#show`; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA

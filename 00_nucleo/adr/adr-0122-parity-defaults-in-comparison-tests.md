@@ -1,6 +1,10 @@
 # ADR-0122 — Paridade de definições por defeito nos testes de comparação
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md) · [lab/parity/vanilla.json](../../lab/parity/vanilla.json).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data:** 2026-07-05
 **Aplica-se a:** todos os testes que comparam directamente o cristalino com o vanilla (posições, larguras, contagem de páginas, ou qualquer número medido dos dois lados).
 **Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por

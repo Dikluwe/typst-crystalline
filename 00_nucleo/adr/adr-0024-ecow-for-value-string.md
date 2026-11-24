@@ -1,6 +1,10 @@
 # ⚖️ ADR-0024: `ecow` → `[l1_allowed_external]` para `Value::Str`
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0029
+
+**Current authority** — [ADR-0029](adr-0029-physical-l1-purity.md) · [crystalline.toml](../../crystalline.toml) · [00_nucleo/prompts/core/entities/value.md](../prompts/core/entities/value.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-27
 **Contexto**: Passo 13 — subset de Value
 

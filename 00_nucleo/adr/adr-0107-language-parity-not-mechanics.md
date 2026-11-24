@@ -1,87 +1,27 @@
-# ADR-0107 — Parity is with the language, not the mechanics
+# ADR-0107 — Language parity and deliberate extensions
 
 **Status:** ACCEPTED
 **Date:** 2026-06-17
+**Consolidated:** 2026-11-24
 
----
+## Evidence
 
-## Context
+The original content-equality investigation used a heading whose rendered text was bold. Its body compared differently from plain text when the comparison inspected resolved rendering properties. The language can distinguish semantic markup, such as explicit strong emphasis, while treating the body of that heading as the text it contains. The equality and content owners define the current cases. [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md) · [00_nucleo/prompts/core/entities/content.md](../prompts/core/entities/content.md)
 
-One principle governed the project’s sound decisions without ever being written down: **crystalline’s parity with Typst is with the *language* — not with the execution *mechanics* that produce it.** Because it remained implicit, it was rediscovered — and rediscovered **incorrectly** — three times:
-
-- **β1 (P339)** — a style-transport wrapper (local numbering’s `Content::Styled`) was treated as part of the language’s form.
-- **“The night” (P340)** — fidelity was assumed to require copying vanilla’s pass mechanics (fixpoint/multi-pass), when the contract is the output, not the algorithm.
-- **Content `==` (P342)** — content equality was measured with Rust’s `PartialEq` (structural/mechanical), which observes baked render style (Finding 2: `it.body == [a]` fails because of render `bold`, not a language difference).
-
-Each stumble is the **inverse error of P329**. P329 says, “do not copy vanilla’s *structure*; fidelity is behavioral.” This ADR closes the other half: **do not *measure* the language by structure** (or Rust equality, output bytes, or algorithm steps). Both halves are the same principle.
+The repository pins an upstream commit, tree and local executable hash. CI builds the pinned source and records its own executable identity. A version string alone can identify multiple source states. Earlier measurements retain their original pins. [Oracle manifest](../../lab/parity/vanilla.json) · [CI build](../../.github/workflows/ci.yml) · [Reference resynchronization](../diagnostics/vanilla-reference-2026-11-19.md)
 
 ## Decision
 
-Parity between crystalline and Typst is defined at **three language levels**:
+Parity covers Typst syntax, semantics and morphology. Morphology includes the text, markup and semantic styling of a language object. Observable evaluation, errors, order, public fields and rendered geometry must be tested at the boundary the change affects. Typst numeric equality compares an integer and a float by language rules, so `1 == 1.0` is true. Rust representation, structural equality, cache design, pass count and binary serialization can differ. Each implementation still satisfies its owning L0, purity and dependency contracts.
 
-- **Semantics** — what a construct **means**. Example: `1 == 1.0` is `true` (ADR-0025); content `==` compares content **by what it is**, not by its data structure.
-- **Syntax** — how a construct is **written** (the `.typ` grammar).
-- **Morphology** — *(term introduced by this ADR; not previously used in the project)* — the **form of content as an object of the language**: text, markup structure, and **semantic** style (`*bold*`, `_italic_`) — **distinct from** resolved **render** style baked or derived by the implementation.
-  - Example boundary: in `= a`, the morphology of `it.body` is the text **“a”**; the heading’s **bold** is **render** style, **not** part of morphology. Therefore `it.body` and `[a]` have the **same morphology**, and the language **must** treat them as equal.
+Before introducing user syntax, an argument or a language feature, run a minimal example against the pinned reference and inspect its semantics. If upstream rejects the proposed feature, retain it only under a deliberate product decision documenting the user benefit and portability consequence. Classify accidental extensions for correction and apply ADR-0127 to their public impact. Use the pinned source and executable together when intent or behavior is ambiguous.
 
-**What is NOT parity (it is mechanics and deliberately diverges — P329 / ADR-0033 / ADR-0026):**
+Distinguish controlled comparisons from production-default tests. For a controlled geometry comparison, explicitly match the font and other sensitive settings such as page size, margins and language in both inputs. For a production-default comparison, use each compiler's actual defaults and measure which setting explains an observed difference. Record which question the test answers.
 
-- restricted Rust equality (`#[derive(PartialEq)]` / structural comparison of structs);
-- exact bytes of rendered output;
-- algorithm steps (pass order, eager vs. multi-pass, …);
-- internal data-structure form (which variant, which fields, which wrappers).
+A feature counts as supported only where a real consumer produces the claimed observable result. Acceptance by a constructor, storage of a field, and painting or publication are distinct claims. Identify partial support, transparent stubs and approximations in their owners. A transparent stub can preserve an input or produce empty output while a capability is missing. A software fallback requires proven equivalence or an explicitly bounded approximation with its limits and completion condition. Exercise the working and affected paths when activating deferred behavior. The language contract does not impose a general requirement to preserve incidental artifact bytes. The PDF validation contract is specific to its output modes. [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md)
 
-**How parity is measured.** By the construction’s semantics, syntax, and morphology — **not** by output-byte diffs or whether mechanical `==` returns the same boolean. **The compiled vanilla is an oracle for *semantics* when the source is ambiguous** (second-level trigger), **not** an oracle for bytes. Measuring parity through mechanics confuses implementation with language.
+## Boundaries and verification
 
-## Foundational note — this ADR was subjected to its own rule at birth
+Use observed coordinates, baselines and font metrics to evaluate typographic geometry. The general proposal in ADR-0123 to copy formulas literally has not been adopted. The proposed upstream correspondence marker in ADR-0110 adds no required field to current L0s. The deliberate finite-result restrictions of ADR-0101 remain subject to a separate decision about compatibility and per-function behavior. [00_nucleo/prompts/_nuclei/math/layout-observables.toml](../prompts/_nuclei/math/layout-observables.toml) · [00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md](../prompts/core/compiler/stdlib/calc/logarithms.md)
 
-The first draft of this ADR (in P344) cited a **“Principle V”** and **ADR-0029** as precedents. Checking against the source — the same discipline this ADR establishes — refuted both:
-
-- **“Principle V” does not exist** in the project: it appeared only in the step text drafting this ADR; ADR-0025 never names it. The citation was corrected to ADR-0025’s **actual decision** (the separation between Rust equality and Typst equality).
-- **ADR-0029 is “physical purity in L1” (Arc)**, not behavioral fidelity. The correct behavioral precedent is **ADR-0033** (+ **ADR-0026** for `Content`’s structural divergence), with **P329** as the **north star** — a step, not an ADR.
-
-This is recorded **not as an embarrassed footnote but as the first evidence**: the definition of parity was tested against drift at birth — trusting the narrative instead of the source — and held up because it was measured against the source. This is the zero case of this ADR’s rule applied to itself.
-
-## Precedents unified by this ADR (not created by it)
-
-- **P329** — the **north star** (a step, not an ADR): fidelity is **behavioral** (same `.typ` → same output), not structural; Rust structure is free.
-- **ADR-0033** — “Functional parity with vanilla as an architectural invariant.” It establishes that **observable behavior** (visible output, error meaning, visible order) is the contract and the **internal form diverges** — the behavioral precedent inherited here. **Note on its name (verified against the source, P344):** ADR-0033’s content is **behavioral**, not “functionality” in the sense this ADR rejects — ADR-0033 itself **excludes byte identity**: “different bytes are acceptable only if the difference is invisible.” In ADR-0033, “functional” means **observable behavior** (what the language does); the rejected sense would mean “make mechanics/bytes equal,” which ADR-0033 also rejects. This ADR **refines where to measure**: at the language level (semantics/syntax/morphology), not by diffing observable output. The ADRs agree — 0033 views the contract from observable output; 0107 views it from the language.
-- **ADR-0026** (+ R1) — `Content` deliberately diverges from the original’s structure (**enum vs. vtable**): data form is free.
-- **ADR-0025** — Typst equality is **semantic** (`1 == 1.0`), **separate from** mechanical Rust equality (derived `PartialEq`, for tests/data structures; Typst `==`, for eval).
-- **Language/render separation (P342)** — the language (eval, semantics, morphology) is the contract; rendering is the output; mechanics between them diverge.
-
-This ADR supplies the missing face: **parity is with the language; mechanics are free.**
-
-## Consequences
-
-**Positive:** the principle stops being rediscovered (and rediscovered incorrectly) in every batch; acceptance criteria are written at the three language levels; the term **morphology** names the boundary between language content and render style.
-
-**Recorded for immediate application, NOT executed by this ADR:** content `==` currently falls through to Rust `PartialEq` (`content.rs:1711`, via `value.rs:17`) — mechanics — and observes baked render style (Finding 2, P342). Extending ADR-0025 to content means it should be **semantic/morphological**. **That correction is a subsequent step, not this ADR.**
-
-**Neutral:** this ADR changes no data structure; it defines a rule, not a refactor.
-
-## Alternatives considered
-
-| Alternative | Advantages | Disadvantages |
-|-------------|------------|---------------|
-| Leave the principle implicit (status quo) | No work | Rediscovered incorrectly in every batch (β1, “the night,” `==`) |
-| Define parity by **output** (bytes/render) | Simple test | Confuses language with rendering; fails morphology (`it.body == [a]`); mechanics are deliberately divergent |
-| **Define parity by language (semantics/syntax/morphology)** | **Names the real contract; unifies P329/0033/0026/0025/P342; provides a measurement criterion** | **Requires the new term “morphology” and discipline when writing criteria** |
-
-## References
-
-- **P329** — north star for behavioral fidelity (`lab/history/construction/records/00_nucleo/materialization/typst-passo-329*`; reaffirmed in `typst-passo-341-relatorio.md`, `prompts/entities/content.md`, `f_fronteira_e1.md`).
-- **ADR-0033** — functional parity with vanilla as an invariant (observable behavior).
-- **ADR-0026** / **ADR-0026-R1** — `Content` as an enum; intentional structural divergence.
-- **ADR-0025** — `Int == Float`; Typst’s semantic equality is separate from Rust mechanics.
-- **P342** — `lab/results/construction/diagnostics/typst-passo-342-relatorio.md` (language/render separation; Finding 2; `==` falling through to Rust `PartialEq`).
-- **P339–P343** — the stumbles (β1, “the night,” `==`, bake inventory) that motivate the definition.
-- **P344** — the step that drafted this ADR (and the foundational note above).
-
-## Boundary clarification — 2026-11-13
-
-Freedom from upstream execution mechanics is not permission to disregard the
-current owning L0, purity/import rules, dependency validity or observed rendering
-geometry. Mechanical alternatives require explicit owner contracts and language
-validation. This ADR neither mandates copying vanilla caches nor prohibits reuse,
-and it does not establish a performance result.
+This decision carries forward the language boundary in ADR-0025 and ADR-0033, the oracle role in ADR-0075, comparison controls in ADR-0122, portability in ADR-0125, and the observable-consumption criteria in ADR-0054, ADR-0082, ADR-0099 and ADR-0113. ADR-0132 governs evidence, provenance and how to verify a causal explanation.

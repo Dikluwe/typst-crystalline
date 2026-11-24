@@ -1,6 +1,10 @@
 # ⚖️ ADR-0102: Mecanismo math style — variant `Content::MathStyled` (Caminho I)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/stdlib/math_style.md](../prompts/core/compiler/stdlib/math_style.md) · [00_nucleo/prompts/core/compiler/math/layout/style_transform.md](../prompts/core/compiler/math/layout/style_transform.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Data**: 2026-05-20
 **Passo promotor**: P311b.2 + P311b.4 (materialização)
 **Diagnóstico**: P311a (`diagnosticos/diagnostico-math-style-passo-311a.md`)

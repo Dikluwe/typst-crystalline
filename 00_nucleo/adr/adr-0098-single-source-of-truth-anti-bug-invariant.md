@@ -1,6 +1,10 @@
 # ADR-0098 — Single source of truth como invariante anti-bug
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md) · [ADR-0107](adr-0107-language-parity-not-mechanics.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** IMPLEMENTADO (desde P281; formalizado em P288)
 **Data**: 2026-05-19
 **Passo promotor**: P288 (`P-style-lang-variant`)

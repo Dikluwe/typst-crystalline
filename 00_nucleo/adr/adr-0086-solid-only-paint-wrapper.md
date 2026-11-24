@@ -1,6 +1,12 @@
 # ⚖️ ADR-0086: Paint wrapper enum com subset materializado (Solid only)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/core/entities/paint.md](../prompts/core/entities/paint.md).
+
+The solid-only construction stage ended. Paint and the applicable gradient owner define the supported representations.
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 261.B (criação PROPOSTO) → Passo 261.D

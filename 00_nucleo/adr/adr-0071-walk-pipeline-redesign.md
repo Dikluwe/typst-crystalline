@@ -1,6 +1,10 @@
 # ADR-0071 — Walk pipeline com Introspector acessível durante execução
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md) · [00_nucleo/prompts/core/compiler/introspect/entrypoints.md](../prompts/core/compiler/introspect/entrypoints.md) · [00_nucleo/prompts/infra/pipeline/context_stabilization.md](../prompts/infra/pipeline/context_stabilization.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** **ACEITE** (P191C — validação empírica completa após 2 helpers migrados + walk gate migrado).
 **Data**: 2026-05-05 (PROPOSTA P191A); 2026-05-05 (ACEITE P191C).
 **Pre-condição**: barreira arquitectural identificada em P190F §3.

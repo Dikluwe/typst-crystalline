@@ -1,6 +1,12 @@
 # ⚖️ ADR-0089: Gradient Conic-only L1+stdlib (fecha cluster Gradient 3/3 variants)
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0126
+
+**Current authority** — [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) · [00_nucleo/prompts/core/entities/gradient/conic.md](../prompts/core/entities/gradient/conic.md) · [00_nucleo/prompts/infra/export/gradients/conic.md](../prompts/infra/export/gradients/conic.md).
+
+The conic milestone records construction order. The linked owners define conic gradient behavior today.
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-05-15
 **Autor**: Humano + IA
 **Validado**: Passo 267.B (criação PROPOSTO) → Passo 267.D

@@ -1,201 +1,49 @@
-# ADR-0072 — M7 fixpoint runtime estruturalmente fechado
+# ADR-0072 — Compiler phases, observations and convergence
 
 **Status:** ACCEPTED
-**Data**: 2026-05-05
-**Sub-passo**: P192B
-**Pré-condição**: M5 universal completo (P200B) + M6 fechado completo (P190I) + M9 11/11.
+**Date:** 2026-05-05
+**Decision owners:** Typst Crystalline maintainers
+**Consolidated:** 2026-11-24
 
----
+## Evidence
 
-## Contexto
+The M7 record described a bounded paginated loop for outlines and a separate opt-in helper that reevaluates a supplied closure. The current owner of `run_fixpoint` identifies its L3 callers' actual route through the single-walk runtime entry points. The layout convergence owner documents a bounded map comparison even for a document without an outline. The production pipeline has an additional, private per-compilation session that checks observations on complete candidates. These routes have different inputs, completion conditions and failure results. [00_nucleo/prompts/core/compiler/introspect/fixpoint.md](../prompts/core/compiler/introspect/fixpoint.md) · [00_nucleo/prompts/core/compiler/layout/convergence.md](../prompts/core/compiler/layout/convergence.md) · [00_nucleo/prompts/infra/pipeline/context_stabilization.md](../prompts/infra/pipeline/context_stabilization.md)
 
-M7 (loop fixpoint runtime) era marco arquitectural pendente para
-resolver dependências reverse em introspection — page numbers em
-TOC (forward refs); queries runtime stdlib (`query()`,
-`counter.at()`, `here()`) que dependem de introspector populado de
-iteração anterior.
+## Phase responsibilities
 
-**P192A diagnóstico revelou** que M7 estava **estruturalmente
-fechado** por força de sequência incremental P174 → P175-P179 → M9
-→ P190 série → P191 série, **sem ADR explícita**. P192A audita
-estado existente; P192B (este passo) declara formalmente.
+| Boundary | Maintained decision |
+|---|---|
+| Evaluation and realization | Eval owns evaluation order, lexical styles, set/show activation, guards, source identity and the corresponding effects. Preserve content morphology independently of resolved render style. Eval captures callbacks and contextual inputs under their owning contracts. |
+| Introspection | A causal walk builds one semantic store from the supplied content. Source-owned occurrences, effective lexical fields, tags and document order give meaning to query, reference, counter and state results. A runtime entry point can resolve its owned deferred work with an Engine. |
+| Paginated layout | L1 lays out through its injected read-only observations and metrics, builds geometry and records positions and callback requests. The coordinator supplies validated resolutions. Layout executes no language functions and does not repeat the original evaluation to obtain a missing value. |
+| L3 coordination and shaping | L3 supplies resources and coordinates preparation, candidate validation and physical shaping through the existing facades. Rustybuzz uses the actual selected face. A shaped run preserves glyph IDs, advances, offsets, original run text, clusters, and its established face and source identity. Clusters index UTF-8 bytes within that run. Preserve the specified unshaped fallbacks and distinct width/emission policies. Export consumes the completed target product. |
 
----
+[00_nucleo/prompts/core/compiler/eval/rules/set.md](../prompts/core/compiler/eval/rules/set.md) · [00_nucleo/prompts/core/compiler/eval/rules/show.md](../prompts/core/compiler/eval/rules/show.md) · [00_nucleo/prompts/core/entities/layout_types.md](../prompts/core/entities/layout_types.md) · [00_nucleo/prompts/infra/shaper/shaping.md](../prompts/infra/shaper/shaping.md)
 
-## Decisão
+## Identity, state and diagnostics
 
-**M7 fechado estruturalmente** via dois loops fixpoint
-complementares — não redundantes:
+Reserve each real occurrence's `Location` once. Capture its lexical properties and semantic payload, emit Start before descending, and close at the same location. A derived label whose text depends on its target reads the accumulated state after descent and reuses the target location. Derived label, outline and bookmark records create no extra real occurrence. Preserve source order and parentage in the semantic store even when a float, page-running item or other carrier paints elsewhere. Numeric location order, frame order and hash equality alone cannot establish the causal sequence. [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md)
 
-### 1. TOC fixpoint (`layout/mod.rs:1515`)
+The canonical stores own counter updates, demand-driven state reads, label multiplicity, ordered selectors and current-source observations. Keep positions and label-page data sealed at their contracted boundaries. The paginated and HTML position views are independent. A missing observation stays absent. Direct comemo tracking of the introspector and reads from sealed substores allow fine-grained invalidation inside their valid generation. A tracking hit does not establish whole-document convergence. Changes to the source, order, dependencies or generation must invalidate any affected reuse. [00_nucleo/prompts/core/compiler/introspect.md](../prompts/core/compiler/introspect.md) · [00_nucleo/prompts/infra/pipeline/paged.md](../prompts/infra/pipeline/paged.md)
 
-- Resolve forward refs em page numbers (DEBT-12 cobertura).
-- Activo em produção quando `intr.kind_index.contains_key(&ElementKind::Outline)`.
-- `MAX_ITERATIONS = 5` (paridade vanilla `MAX_ITERS = 5`).
-- Convergência via `doc.extracted_label_pages == known_page_numbers`
-  (page numbers map idempotente entre iterações).
-- Documentos sem TOC: short-circuit 1 passagem única.
+Engine aggregates injected resources with scoped evaluation state. Route and Sink preserve their individually tracked interfaces and reborrow through narrower scopes. The caller owns the warning channel. A Sink preserves insertion order and the first warning for each span/message pair. Hints, trace and severity are outside the deduplication key. At the production boundary, only retained executions publish their warnings once, in causal order, following the established terminal-error rules. Provisional and validation executions do not publish speculative warnings. [00_nucleo/prompts/core/entities/engine.md](../prompts/core/entities/engine.md) · [00_nucleo/prompts/core/entities/sink.md](../prompts/core/entities/sink.md)
 
-### 2. `run_fixpoint` (`introspect/fixpoint.rs:65`)
+## Completion rules by entry point
 
-- Mecanismo opt-in para stdlib features (P175-P179 / M9).
-- 626 LOC; `pub fn run_fixpoint`, `pub fn introspect_to_fixpoint`.
-- `MAX_FIXPOINT_ITERATIONS = 5`.
-- Convergência via `compute_tags_hash(&tags) == prev_tags_hash` (2
-  hashes consecutivos iguais).
-- Estruturalmente pronto; sem clientes runtime em produção (per
-  docs P174 internas: "Mecanismo sem clientes em P174. Adopção
-  planeada para P175+").
-- 13+ tests E2E exercitam mecanismo + features stdlib.
+| Entry point | Admission, completion and failure |
+|---|---|
+| Pure and runtime introspection | Walk the supplied content once. The pure entry point executes no deferred language function. The runtime entry point coordinates its owned postprocessing passes, propagates failures, and prepares a queryable store. Bundle bodies share a causal locator and semantic store, with documented per-body page boundaries. |
+| Opt-in `run_fixpoint` and `introspect_to_fixpoint` | Begin with an empty previous introspector. Reevaluate the caller's closure and build the next store. Two successive equal tag hashes terminate this helper. An evaluation or postprocessing error returns `FixpointError::Eval`. The bound is five iterations, after which the helper returns `FixpointError::NotConverged`. Hash equality is the stopping rule for this helper only. |
+| Paginated layout convergence | Seed each attempt with the prescribed locator, observations, metrics and known page/label state. Preserve the owner’s comparison of page and element maps, even without an outline. Accept a stable candidate with its required math and paragraph-line requests consumed. Failed attempts discard their transcripts. The bounded layout facade can return Pending, including empty requests on exhaustion. |
+| Production context stabilization | Select by an actually reached observation. Retain producer identity, source, captures, styles, effects, target and features. Build the current generation from the previous view, then revalidate the observed reads against the resulting complete candidate. Reexecute only invalidated contributions and descendants under the existing protocol. Equal page counts or coincident final values do not prove stability. |
+| Terminal production outcome | Paginated invalidations share the five-attempt contextual budget. On proven linguistic nonconvergence without a final error, return the fifth candidate computed from the fourth view and its contracted diagnostic history. Failure to prove required stability returns the sourced error `contextual stability could not be verified`. Pending original errors keep precedence. Publish only an admissible complete document. The math and paragraph-line callback channel retains its independent eight-attempt budget. |
 
-### Distinção arquitectural — categorias de dependências reverse
+HTML uses its own semantic target and generation-local position view. For bundles, retain ordered member targets, a global semantic candidate, causal per-body seeds and paginated work only where demanded. Production must not substitute the opt-in reevaluation helper for any of these target protocols. [ADR-0128](adr-0128-html-as-semantic-target.md) · [00_nucleo/prompts/infra/pipeline/context_stabilization.md](../prompts/infra/pipeline/context_stabilization.md)
 
-| Loop | Categoria de dependência |
-|------|--------------------------|
-| TOC fixpoint | Page numbers reverse-deps (layout-time → introspection result) |
-| `run_fixpoint` | Stdlib queries reverse-deps (eval-time → introspection result) |
+## Remaining boundaries and verification
 
-**Não redundantes**. Os dois loops cobrem categorias distintas em
-fases distintas do pipeline (eval / layout).
+Preserve the public interface evidence in ADR-0042, ADR-0043 and ADR-0044. The owning World-types prompt identifies outstanding provenance for Route, Routines, Traced, Engine, tracked Sink and parts of Font. This consolidation records the established responsibilities. It cannot infer approval for a public field or trait method from its presence in Rust. Keep the source decisions independently available until each unresolved contract has an applicable ratified L0 or an explicit owner decision. The runtime parts of the ADR-0118 proposal require separate classification against the current state, counter and context owners. Implemented pieces do not ratify that proposal as a whole. [00_nucleo/prompts/core/entities/world_types.md](../prompts/core/entities/world_types.md) · [00_nucleo/prompts/core/entities/engine.md](../prompts/core/entities/engine.md)
 
----
+Verify each route through its own entry point. Include a forward reference, a source-order-sensitive nested label or counter, independently changing HTML and paginated positions, a rejected candidate with a warning, original-error precedence, and separate controls for opt-in nonconvergence and unproven production stability. Check source text, glyph clusters and placement when shaping changes. Use the owning specifications for the exact protocol, inputs and assertions. ADR-0127 governs changes to the public surface, defaults, compatibility and phase boundaries.
 
-## Distinção crítica — fechamento estrutural
-
-**M7 fechado estruturalmente, não arquiteturalmente definitivo.**
-
-Hash-based convergence é **decisão intermédia viável**:
-- Funciona empíricamente — tests E2E verdes.
-- 2 loops complementares cobrem categorias distintas.
-- Cap `MAX_ITERATIONS = 5` paridade nominal vanilla.
-
-**Mas paridade vanilla typst exige `comemo::Track`** para:
-- **Memoização cross-iteration**: evitar re-walk full por iteração;
-  invalidação granular permite re-walks parciais.
-- **Tracking granular de dependências**: cada query rastreia que
-  sub-stores observou; mudança em sub-store não-observado não
-  invalida resultado.
-- **Performance comparável**: re-walk full × 5 iterações é caro;
-  comemo permite cache válido em maioria dos casos.
-
-**M8 introduzirá comemo** — adopção planeada como próximo passo
-natural após M7 estrutural.
-
----
-
-## Consequências
-
-### Positivas
-
-- **M7 declarado estruturalmente fechado em P192B**.
-- Cristalino atinge **consolidação arquitectural intermédia**:
-  M5 universal completo + M6 fechado + M7 estruturalmente fechado +
-  M9 11/11.
-- Pattern **"auditoria sobre estado existente"** documentado (1ª
-  aplicação completa).
-- M8 definido como adopção `comemo` para paridade vanilla.
-
-### Neutras
-
-- Performance hash-based convergence é aceitável para cristalino
-  actual (tests verdes; sem queixas observáveis).
-- Paridade vanilla típica imediata via comemo é desejável mas não
-  bloqueante.
-
-### Riscos
-
-- **Risco baixo**: Se cristalino expandir features stdlib que
-  exercitam `run_fixpoint` em produção real (não-tests),
-  performance hash-based pode tornar-se gargalo. Mitigação: M8.
-
----
-
-## Alternativas avaliadas
-
-### Comemo imediato em M7 (rejeitado)
-
-ADR-0066 já tinha decidido adiar comemo. M7 fecha hash-based como
-mecanismo intermédio viável. Comemo planeado para M8.
-
-**Razão para adiar**: comemo invariantes complexos; M5 universal
-completo + M6 + M7 estruturalmente fechados primeiro permitem M8
-enfocar exclusivamente em comemo adopção.
-
-### Sem fixpoint (rejeitado)
-
-Dependências reverse (TOC page numbers, stdlib queries) exigem
-convergência iterativa. Sem fixpoint, forward refs ficam não
-resolvidas.
-
-### Loop único combinado (rejeitado)
-
-Combinar TOC fixpoint + `run_fixpoint` num único loop adicionaria
-complexidade. Os dois resolvem categorias distintas em fases
-distintas (layout vs eval); separação é mais clara.
-
----
-
-## Cross-references
-
-- **P174** — `run_fixpoint` mecanismo (sub-passo M7 inicial).
-- **P175-P179** — features stdlib via fixpoint (`query()`,
-  `counter.at()`, etc.).
-- **M9 11/11** — features stdlib finalizadas.
-- **P190I** — M6 fechado completo; ADR-0070 ACEITE.
-- **P191C** — ADR-0071 ACEITE (walk pipeline com Introspector
-  accessible — pré-condição location-aware queries).
-- **ADR-0066** — ACEITE em P192B com nota "intermediário até M8".
-- **ADR-0068** — ACEITE (location-aware Layouter; pré-condição
-  queries runtime location-aware).
-- **M8** — adopção `comemo::Track` para paridade vanilla typst
-  (próximo passo natural; ADR dedicada futura).
-
----
-
-## Pattern emergente
-
-### "Auditoria sobre estado existente vs planeamento de trabalho futuro"
-
-P192A é **primeira instância documentada** deste pattern. Distinção
-das auditorias planeadoras anteriores:
-
-| Auditoria planeadora (P190A, P191A, P195A, etc.) | Auditoria sobre estado existente (P192A) |
-|--------------------------------------------------|------------------------------------------|
-| Audita para identificar trabalho a fazer | Audita estado já materializado |
-| Produz ADR PROPOSTO + plano implementação | Produz declaração formal + ADR ACEITE retrospectiva |
-| Sub-passos subsequentes implementam | Sub-passos subsequentes documentam |
-| Magnitude inicial S-M; total M+/L | Magnitude inicial S-M; total S-M agregado |
-
-**Pattern reaproveitável** quando trabalho cumulativo incremental
-atinge fechamento estrutural sem ADR explícita. Aplicações futuras
-prováveis: marco fechado por agregação de séries pequenas que
-resolvem o trabalho em conjunto.
-
----
-
-## Métricas marco P192
-
-- **2 sub-passos** materializados (A diagnóstico + B declaração).
-- **0 LOC produção** (P192A + P192B; passo declarativo).
-- **0 LOC tests** (testes inalterados).
-- **2 ADRs novas / transitadas**: ADR-0072 (NOVA ACEITE);
-  ADR-0066 (PROPOSTO → ACEITE).
-- **2 relatórios**: P192A relatório + P192-relatório-consolidado.
-- **1 diagnóstico**: P192A.
-- **Magnitude agregada**: S-M.
-- **Tests workspace**: 1.802 (inalterados).
-
----
-
-## Estado pós-P192B
-
-- M5 universal completo (P200B): ✅
-- M6 fechado completo (P190I): ✅
-- **M7 estruturalmente fechado (P192B)**: ✅ — esta ADR.
-- M9 11/11: ✅ (snapshot pré-P190).
-- M8 (comemo): pendente — próximo passo natural.
-
-**7 ADRs ACEITES no ciclo M5/M6/M7**: ADR-0066 (com nota
-intermediário), 0067, 0068, 0069, 0070, 0071, 0072.
-
-**Padrão diagnóstico-primeiro**: 33ª aplicação consecutiva.
+ADR-0068–0071, 0073, 0074 and 0076 record the decisions on locations, post-recursion tags, canonical counters, causal traversal, tracking and sealed stores. ADR-0120 records the shaping handoff. Their earlier stage-specific algorithms, benchmark claims, rejected alternatives and the M7 record are recoverable in Git at `958aa51a15501417b584c374a23c4b262e6f52ac`. Milestone completion is historical evidence and supplies no general parity or cache-validity guarantee.

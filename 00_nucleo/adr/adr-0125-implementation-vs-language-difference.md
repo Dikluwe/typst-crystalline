@@ -1,6 +1,10 @@
 # ADR-0125 — Implementation difference vs. language difference
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/compiler/eval/operators/equality.md](../prompts/core/compiler/eval/operators/equality.md) · [lab/parity/vanilla.json](../../lab/parity/vanilla.json).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Date:** 2026-07-09
 **Applies to:** any step that introduces syntax, an argument, a property, or behavior that a `.typ` document can invoke.
 **Numbering history:** no dedicated file/number until P910; reconciled in that step by an actual scan of `00_nucleo/adr/` (slot `0125` was free, the last in the batch after `0124`).

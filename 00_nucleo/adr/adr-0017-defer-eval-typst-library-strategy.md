@@ -1,6 +1,12 @@
 # ⚖️ ADR-0017: Adiamento de eval() e estratégia typst-library
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0072
+
+**Current authority** — [ADR-0072](adr-0072-closed-m7-fixpoint-runtime.md).
+
+The staged deferral of evaluation records the migration sequence. The runtime decision and productive owners govern current work.
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Data**: 2026-03-26
 
 This record describes a completed construction step. The current compiler

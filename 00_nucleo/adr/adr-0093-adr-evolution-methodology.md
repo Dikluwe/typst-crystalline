@@ -1,6 +1,10 @@
 # ⚖️ ADR-0093: Meta-metodologia de evolução de ADRs (scope-out revogado parcialmente + Anotação cumulativa)
 
-**Status:** ACCEPTED
+**Status:** SUPERSEDED BY ADR-0132
+
+**Current authority** — [ADR-0132](adr-0132-evidence-for-maintained-changes.md).
+
+**Historical record** — The original decision below had status `ACCEPTED`.
 **Status history:** `EM VIGOR` (criada directamente; paridade pattern P260
 ADR-0084/0085 e P268.1 ADR-0090)
 **Data**: 2026-05-17

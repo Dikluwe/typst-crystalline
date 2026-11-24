@@ -1,6 +1,10 @@
 # ⚖️ ADR-0083: Color paridade vanilla com subset materializado
 
-**Status:** IMPLEMENTED
+**Status:** SUPERSEDED BY ADR-0107
+
+**Current authority** — [ADR-0107](adr-0107-language-parity-not-mechanics.md) · [00_nucleo/prompts/core/entities/color.md](../prompts/core/entities/color.md).
+
+**Historical record** — The original decision below had status `IMPLEMENTED`.
 **Status history:** **`IMPLEMENTADO`** (PROPOSTO P257.B → **IMPLEMENTADO
 P257.D** — materialização cumpre 8 variantes + scope-outs
 documentados; paridade observable preservada).
