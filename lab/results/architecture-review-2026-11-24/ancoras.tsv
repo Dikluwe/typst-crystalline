@@ -1,0 +1,256 @@
+L0	linha_L0	consumidor	linha_citada	simbolo	teste_literal	declaracoes_candidatas
+00_nucleo/prompts/core/compiler/eval/bibtex.md	9	01_core/src/compiler/eval/bibtex.rs	62	parse_bibtex	símbolo na linha	62
+00_nucleo/prompts/infra/embedded_fonts.md	9	03_infra/src/embedded_fonts.rs	31	EmbeddedFontSets	símbolo na linha	31
+00_nucleo/prompts/infra/embedded_fonts.md	10	03_infra/src/embedded_fonts.rs	66	embedded_font_group	símbolo na linha	66
+00_nucleo/prompts/infra/embedded_fonts.md	11	03_infra/src/embedded_fonts.rs	85	load_embedded_fonts	símbolo na linha	85
+00_nucleo/prompts/infra/font_metrics/basic.md	12	03_infra/src/font_metrics/basic.rs	24	typo_metrics	símbolo na linha	24
+00_nucleo/prompts/infra/font_metrics/basic.md	13	03_infra/src/font_metrics/basic.rs	53	edge_offset_pt	símbolo na linha	53
+00_nucleo/prompts/infra/font_metrics/basic.md	14	03_infra/src/font_metrics/basic.rs	110	advance	rever âncora	285
+00_nucleo/prompts/infra/font_metrics/basic.md	15	03_infra/src/font_metrics/basic.rs	164	vertical_metrics	rever âncora	361
+00_nucleo/prompts/infra/font_metrics/basic.md	16	03_infra/src/font_metrics/basic.rs	178	cap_height	rever âncora	375
+00_nucleo/prompts/infra/font_metrics/caches.md	9	03_infra/src/font_metrics/caches.rs	20	CachedFace	rever âncora	25
+00_nucleo/prompts/infra/font_metrics/caches.md	10	03_infra/src/font_metrics/caches.rs	29	new	rever âncora	33,131
+00_nucleo/prompts/infra/font_metrics/caches.md	11	03_infra/src/font_metrics/caches.rs	41	face	símbolo na linha	41
+00_nucleo/prompts/infra/font_metrics/caches.md	12	03_infra/src/font_metrics/caches.rs	58	ShapedWidthKey	rever âncora	71
+00_nucleo/prompts/infra/font_metrics/caches.md	13	03_infra/src/font_metrics/caches.rs	75	AdvanceWidthKey	rever âncora	90
+00_nucleo/prompts/infra/font_metrics/fallback.md	21	03_infra/src/font_metrics/fallback.rs	23	face_kerning	rever âncora	36
+00_nucleo/prompts/infra/font_metrics/fallback.md	22	03_infra/src/font_metrics/fallback.rs	46	advance	rever âncora	262
+00_nucleo/prompts/infra/font_metrics/fallback.md	23	03_infra/src/font_metrics/fallback.rs	168	advance_shaped	rever âncora	399
+00_nucleo/prompts/infra/font_metrics/fallback.md	24	03_infra/src/font_metrics/fallback.rs	184	vertical_metrics	rever âncora	405
+00_nucleo/prompts/infra/font_metrics/fallback.md	25	03_infra/src/font_metrics/fallback.rs	226	cap_height	rever âncora	447
+00_nucleo/prompts/infra/font_metrics/math.md	12	03_infra/src/font_metrics/math.rs	17	extract_variants	símbolo na linha	17
+00_nucleo/prompts/infra/font_metrics/math.md	13	03_infra/src/font_metrics/math.rs	52	extract_assembly	símbolo na linha	52
+00_nucleo/prompts/infra/font_metrics/math.md	14	03_infra/src/font_metrics/math.rs	101	extract_variants_horizontal	símbolo na linha	101
+00_nucleo/prompts/infra/font_metrics/math.md	15	03_infra/src/font_metrics/math.rs	159	extract_assembly_horizontal	símbolo na linha	159
+00_nucleo/prompts/infra/font_metrics/math.md	16	03_infra/src/font_metrics/math.rs	207	build_math_glyph_reverse_map	símbolo na linha	207
+00_nucleo/prompts/infra/font_metrics/resolution.md	19	03_infra/src/font_metrics/resolution.rs	17	FontCandidate	símbolo na linha	17
+00_nucleo/prompts/infra/font_metrics/resolution.md	20	03_infra/src/font_metrics/resolution.rs	27	resolve_primary	rever âncora	128
+00_nucleo/prompts/infra/font_metrics/resolution.md	21	03_infra/src/font_metrics/resolution.rs	86	resolve_primary_with_math_fallback	rever âncora	227
+00_nucleo/prompts/infra/font_metrics/resolution.md	22	03_infra/src/font_metrics/resolution.rs	118	covering	rever âncora	274
+00_nucleo/prompts/infra/font_metrics/resolution.md	23	03_infra/src/font_metrics/resolution.rs	193	resolve_font_combo	rever âncora	349
+00_nucleo/prompts/infra/font_metrics.md	18	03_infra/src/font_metrics.rs	27	FontBookMetrics	símbolo na linha	27
+00_nucleo/prompts/infra/font_metrics.md	19	03_infra/src/font_metrics.rs	40	from_bytes	símbolo na linha	40
+00_nucleo/prompts/infra/font_metrics.md	20	03_infra/src/font_metrics.rs	49	FallbackFontMetrics	símbolo na linha	49
+00_nucleo/prompts/infra/font_metrics.md	21	03_infra/src/font_metrics.rs	68	new	rever âncora	96
+00_nucleo/prompts/infra/font_metrics.md	22	03_infra/src/font_metrics.rs	80	clone	símbolo na linha	80
+00_nucleo/prompts/infra/font_variant.md	9	03_infra/src/font_variant.rs	27	text_style_to_font_variant	símbolo na linha	27
+00_nucleo/prompts/infra/fonts.md	12	03_infra/src/fonts.rs	52	inventory_fonts	rever âncora	68
+00_nucleo/prompts/infra/layout.md	16	03_infra/src/layout.rs	17	layout_with_font	símbolo na linha	17
+00_nucleo/prompts/infra/measurements.md	11	03_infra/src/measurements.rs	199	CountingIntrospector	símbolo na linha	199
+00_nucleo/prompts/infra/pipeline/bundle.md	26	03_infra/src/pipeline/bundle.rs	13	introspect_bundle_with_runtime_for_pipeline	rever âncora	14
+00_nucleo/prompts/infra/pipeline/bundle.md	27	03_infra/src/pipeline/bundle.rs	55	BundleFile	rever âncora	65
+00_nucleo/prompts/infra/pipeline/bundle.md	28	03_infra/src/pipeline/bundle.rs	63	BundleCompileOptions	rever âncora	73
+00_nucleo/prompts/infra/pipeline/bundle.md	29	03_infra/src/pipeline/bundle.rs	77	bundle_error	rever âncora	87
+00_nucleo/prompts/infra/pipeline/bundle.md	30	03_infra/src/pipeline/bundle.rs	82	compile_to_bundle_files	rever âncora	92
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	25	03_infra/src/pipeline/context_stabilization.rs	42	Session	rever âncora	159
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	26	03_infra/src/pipeline/context_stabilization.rs	651	prepare	rever âncora	1838
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	27	03_infra/src/pipeline/context_stabilization.rs	690	prepare_html	rever âncora	1912
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	28	03_infra/src/pipeline/context_stabilization.rs	748	prepare_bundle	rever âncora	2022
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	29	03_infra/src/pipeline/context_stabilization.rs	897	bundle_page_views	rever âncora	2197
+00_nucleo/prompts/infra/pipeline/context_stabilization.md	30	03_infra/src/pipeline/context_stabilization.rs	1043	strip_executed_html_markers	rever âncora	2351
+00_nucleo/prompts/infra/pipeline/html.md	22	03_infra/src/pipeline/html.rs	64	resolve_html_pretty	símbolo na linha	64
+00_nucleo/prompts/infra/pipeline/html.md	23	03_infra/src/pipeline/html.rs	71	compile_to_html_string_with_features_and_serialization_and_pretty_override	símbolo na linha	71
+00_nucleo/prompts/infra/pipeline/paged.md	37	03_infra/src/pipeline/paged.rs	188	compile_to_paged_document_full_error_and_features_with_introspector	rever âncora	775
+00_nucleo/prompts/infra/pipeline/paged.md	38	03_infra/src/pipeline/paged.rs	686	bind_logical_page_numbers	rever âncora	1454
+00_nucleo/prompts/infra/pipeline/paged.md	39	03_infra/src/pipeline/paged.rs	712	realize_page_numberings	rever âncora	1480
+00_nucleo/prompts/infra/pipeline/pdf.md	22	03_infra/src/pipeline/pdf.rs	180	resolve_pdf_pages_and_tags	rever âncora	184
+00_nucleo/prompts/infra/pipeline/pdf.md	23	03_infra/src/pipeline/pdf.rs	243	resolve_pdf_pages_tags_and_standards	rever âncora	247
+00_nucleo/prompts/infra/pipeline/pdf.md	24	03_infra/src/pipeline/pdf.rs	288	require_ua1_document_title	rever âncora	292
+00_nucleo/prompts/infra/pipeline/pdf.md	25	03_infra/src/pipeline/pdf.rs	308	require_ua1_image_alt	rever âncora	312
+00_nucleo/prompts/infra/pipeline/pdf.md	26	03_infra/src/pipeline/pdf.rs	351	compile_to_pdf_bytes_impl	rever âncora	398
+00_nucleo/prompts/infra/pipeline/raster.md	16	03_infra/src/pipeline/raster.rs	12	compile_to_png_bytes	símbolo na linha	12
+00_nucleo/prompts/infra/pipeline/raster.md	17	03_infra/src/pipeline/raster.rs	21	compile_to_png_bytes_full_error	símbolo na linha	21
+00_nucleo/prompts/infra/pipeline/raster.md	18	03_infra/src/pipeline/raster.rs	33	compile_to_png_bytes_with_timings_full_error	símbolo na linha	33
+00_nucleo/prompts/infra/pipeline/raster.md	19	03_infra/src/pipeline/raster.rs	47	compile_to_png_bytes_with_timings_full_error_and_features	símbolo na linha	47
+00_nucleo/prompts/infra/pipeline/raster.md	20	03_infra/src/pipeline/raster.rs	61	compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override	símbolo na linha	61
+00_nucleo/prompts/infra/pipeline/svg.md	20	03_infra/src/pipeline/svg.rs	12	compile_to_svg_string	símbolo na linha	12
+00_nucleo/prompts/infra/pipeline/svg.md	21	03_infra/src/pipeline/svg.rs	21	compile_to_svg_string_full_error	símbolo na linha	21
+00_nucleo/prompts/infra/pipeline/svg.md	22	03_infra/src/pipeline/svg.rs	33	compile_to_svg_string_with_timings_full_error	símbolo na linha	33
+00_nucleo/prompts/infra/pipeline/svg.md	23	03_infra/src/pipeline/svg.rs	47	compile_to_svg_string_with_timings_full_error_and_features	símbolo na linha	47
+00_nucleo/prompts/infra/pipeline/svg.md	24	03_infra/src/pipeline/svg.rs	59	compile_to_svg_string_with_timings_full_error_and_features_and_pretty	símbolo na linha	59
+00_nucleo/prompts/infra/pipeline/tests.md	28	03_infra/src/pipeline/tests.rs	18	p1247_contexto_svg_filtra_pagina_e_posicao_homologa	símbolo na linha	18
+00_nucleo/prompts/infra/pipeline/tests.md	29	03_infra/src/pipeline/tests.rs	41	MockWorld	símbolo na linha	41
+00_nucleo/prompts/infra/pipeline/tests.md	30	03_infra/src/pipeline/tests.rs	47	library	símbolo na linha	47
+00_nucleo/prompts/infra/pipeline/tests.md	31	03_infra/src/pipeline/tests.rs	50	book	símbolo na linha	50
+00_nucleo/prompts/infra/pipeline/tests.md	32	03_infra/src/pipeline/tests.rs	53	main	símbolo na linha	53
+00_nucleo/prompts/infra/pipeline.md	21	03_infra/src/pipeline.rs	174	eval_expression_with_document_features	rever âncora	238
+00_nucleo/prompts/infra/pipeline.md	22	03_infra/src/pipeline.rs	244	eval_to_module_with_sink_target_features	rever âncora	296
+00_nucleo/prompts/infra/pipeline.md	23	03_infra/src/pipeline.rs	355	collect_context_blocks_into	rever âncora	509
+00_nucleo/prompts/infra/pipeline.md	24	03_infra/src/pipeline.rs	409	substitute_context_blocks	rever âncora	921
+00_nucleo/prompts/infra/pipeline.md	25	03_infra/src/pipeline.rs	438	Timings	rever âncora	1320
+00_nucleo/prompts/infra/plugin_host/execution.md	9	03_infra/src/plugin_host/execution.rs	14	call	símbolo na linha	14
+00_nucleo/prompts/infra/plugin_host/execution.md	10	03_infra/src/plugin_host/execution.rs	44	transition	símbolo na linha	44
+00_nucleo/prompts/infra/plugin_host/execution.md	11	03_infra/src/plugin_host/execution.rs	83	run_call	símbolo na linha	83
+00_nucleo/prompts/infra/plugin_host/loading.md	9	03_infra/src/plugin_host/loading.rs	13	PluginBase	símbolo na linha	13
+00_nucleo/prompts/infra/plugin_host/loading.md	10	03_infra/src/plugin_host/loading.rs	18	load	símbolo na linha	18
+00_nucleo/prompts/infra/plugin_host/loading.md	11	03_infra/src/plugin_host/loading.rs	43	exports	símbolo na linha	43
+00_nucleo/prompts/infra/plugin_host/snapshot.md	9	03_infra/src/plugin_host/snapshot.rs	11	Snapshot	símbolo na linha	11
+00_nucleo/prompts/infra/plugin_host/snapshot.md	10	03_infra/src/plugin_host/snapshot.rs	18	instance_memory	símbolo na linha	18
+00_nucleo/prompts/infra/plugin_host/snapshot.md	11	03_infra/src/plugin_host/snapshot.rs	29	snapshot_memory	símbolo na linha	29
+00_nucleo/prompts/infra/plugin_host/snapshot.md	12	03_infra/src/plugin_host/snapshot.rs	42	restore_memory	símbolo na linha	42
+00_nucleo/prompts/infra/plugin_host/tests.md	9	03_infra/src/plugin_host/tests.rs	17	uleb	rever âncora	16
+00_nucleo/prompts/infra/plugin_host/tests.md	10	03_infra/src/plugin_host/tests.rs	32	sleb	rever âncora	31
+00_nucleo/prompts/infra/plugin_host/tests.md	11	03_infra/src/plugin_host/tests.rs	46	vbytes	rever âncora	45
+00_nucleo/prompts/infra/plugin_host/tests.md	12	03_infra/src/plugin_host/tests.rs	52	name	rever âncora	51
+00_nucleo/prompts/infra/plugin_host/tests.md	13	03_infra/src/plugin_host/tests.rs	56	section	rever âncora	55
+00_nucleo/prompts/infra/plugin_host/typst_env.md	9	03_infra/src/plugin_host/typst_env.rs	9	CallData	símbolo na linha	9
+00_nucleo/prompts/infra/plugin_host/typst_env.md	10	03_infra/src/plugin_host/typst_env.rs	16	MemoryError	símbolo na linha	16
+00_nucleo/prompts/infra/plugin_host/typst_env.md	11	03_infra/src/plugin_host/typst_env.rs	23	linker	símbolo na linha	23
+00_nucleo/prompts/infra/plugin_host/typst_env.md	12	03_infra/src/plugin_host/typst_env.rs	47	wasm_minimal_protocol_write_args_to_buffer	símbolo na linha	47
+00_nucleo/prompts/infra/plugin_host/typst_env.md	13	03_infra/src/plugin_host/typst_env.rs	68	wasm_minimal_protocol_send_result_to_host	símbolo na linha	68
+00_nucleo/prompts/infra/plugin_host.md	9	03_infra/src/plugin_host.rs	19	WasmiPluginHost	símbolo na linha	19
+00_nucleo/prompts/infra/plugin_host.md	10	03_infra/src/plugin_host.rs	40	PluginEntry	símbolo na linha	40
+00_nucleo/prompts/infra/plugin_host.md	11	03_infra/src/plugin_host.rs	48	new	símbolo na linha	48
+00_nucleo/prompts/infra/plugin_host.md	12	03_infra/src/plugin_host.rs	61	default	símbolo na linha	61
+00_nucleo/prompts/infra/plugin_host.md	13	03_infra/src/plugin_host.rs	67	load	símbolo na linha	67
+00_nucleo/prompts/infra/query_helpers.md	22	03_infra/src/query_helpers.rs	110	parse_selector	rever âncora	99
+00_nucleo/prompts/infra/query_helpers.md	23	03_infra/src/query_helpers.rs	154	summarize_query	rever âncora	143
+00_nucleo/prompts/infra/shaper/bidi.md	12	03_infra/src/shaper/bidi.rs	11	BidiRun	símbolo na linha	11
+00_nucleo/prompts/infra/shaper/bidi.md	13	03_infra/src/shaper/bidi.rs	30	bidi_runs	símbolo na linha	30
+00_nucleo/prompts/infra/shaper/cache.md	18	03_infra/src/shaper/cache.rs	19	ShapeCache	rever âncora	21
+00_nucleo/prompts/infra/shaper/cache.md	19	03_infra/src/shaper/cache.rs	24	CachedRun	rever âncora	45
+00_nucleo/prompts/infra/shaper/cache.md	20	03_infra/src/shaper/cache.rs	30	new	rever âncora	52,109,169,208
+00_nucleo/prompts/infra/shaper/cache.md	21	03_infra/src/shaper/cache.rs	34	key	rever âncora	56
+00_nucleo/prompts/infra/shaper/cache.md	22	03_infra/src/shaper/cache.rs	61	FaceCache	rever âncora	148
+00_nucleo/prompts/infra/shaper/font_selection.md	20	03_infra/src/shaper/font_selection.rs	16	primary_candidates	rever âncora	18
+00_nucleo/prompts/infra/shaper/font_selection.md	21	03_infra/src/shaper/font_selection.rs	116	CandidateSet	rever âncora	193
+00_nucleo/prompts/infra/shaper/font_selection.md	22	03_infra/src/shaper/font_selection.rs	326	intern_fallback_slot	rever âncora	414
+00_nucleo/prompts/infra/shaper/font_selection.md	23	03_infra/src/shaper/font_selection.rs	363	split_run_by_font	rever âncora	451
+00_nucleo/prompts/infra/shaper/font_selection.md	24	03_infra/src/shaper/font_selection.rs	439	is_p1404_format_control	rever âncora	527
+00_nucleo/prompts/infra/shaper/reconciliation.md	18	03_infra/src/shaper/reconciliation.rs	28	fix_line_positions	símbolo na linha	28
+00_nucleo/prompts/infra/shaper/reconciliation.md	19	03_infra/src/shaper/reconciliation.rs	98	reconcile_rtl_positions	rever âncora	115
+00_nucleo/prompts/infra/shaper/reconciliation.md	20	03_infra/src/shaper/reconciliation.rs	149	fix_line_positions_page	rever âncora	170
+00_nucleo/prompts/infra/shaper/shaping.md	28	03_infra/src/shaper/shaping.rs	21	ssty_level_for_subrun	rever âncora	119
+00_nucleo/prompts/infra/shaper/shaping.md	29	03_infra/src/shaper/shaping.rs	38	shaped_width	rever âncora	263
+00_nucleo/prompts/infra/shaper/shaping.md	30	03_infra/src/shaper/shaping.rs	106	try_shape	rever âncora	360
+00_nucleo/prompts/infra/shaper/shaping.md	31	03_infra/src/shaper/shaping.rs	366	byte_idx_to_char	rever âncora	712
+00_nucleo/prompts/infra/shaper/tests.md	18	03_infra/src/shaper/tests.rs	38	p1404_fallback_interner_e_esparso_e_idempotente	rever âncora	40
+00_nucleo/prompts/infra/shaper/tests.md	19	03_infra/src/shaper/tests.rs	48	p1404_controles_de_formato_nao_pedem_glifo	rever âncora	50
+00_nucleo/prompts/infra/shaper/tests.md	20	03_infra/src/shaper/tests.rs	56	MockWorld	rever âncora	67
+00_nucleo/prompts/infra/shaper/tests.md	21	03_infra/src/shaper/tests.rs	61	library	rever âncora	72,137,1203,1820
+00_nucleo/prompts/infra/shaper/tests.md	22	03_infra/src/shaper/tests.rs	65	book	rever âncora	76,141,1207,1823
+00_nucleo/prompts/infra/shaper/traversal.md	20	03_infra/src/shaper/traversal.rs	17	shape_document	símbolo na linha	17
+00_nucleo/prompts/infra/shaper/traversal.md	21	03_infra/src/shaper/traversal.rs	34	shape_page	rever âncora	65
+00_nucleo/prompts/infra/shaper/traversal.md	22	03_infra/src/shaper/traversal.rs	40	shape_layer	rever âncora	72
+00_nucleo/prompts/infra/shaper/traversal.md	23	03_infra/src/shaper/traversal.rs	59	shape_item	rever âncora	101
+00_nucleo/prompts/infra/world/cache.md	13	03_infra/src/world/cache.rs	20	SourceSlot	rever âncora	37
+00_nucleo/prompts/infra/world/cache.md	14	03_infra/src/world/cache.rs	27	new	rever âncora	45
+00_nucleo/prompts/infra/world/cache.md	15	03_infra/src/world/cache.rs	31	synthetic	rever âncora	59
+00_nucleo/prompts/infra/world/cache.md	16	03_infra/src/world/cache.rs	40	get	rever âncora	78
+00_nucleo/prompts/infra/world/cache.md	17	03_infra/src/world/cache.rs	58	register_file	rever âncora	101
+00_nucleo/prompts/infra/world/fonts.md	15	03_infra/src/world/fonts.rs	23	with_fonts	rever âncora	47
+00_nucleo/prompts/infra/world/fonts.md	16	03_infra/src/world/fonts.rs	34	with_system_fonts	rever âncora	58
+00_nucleo/prompts/infra/world/fonts.md	17	03_infra/src/world/fonts.rs	46	with_embedded_fonts	rever âncora	71
+00_nucleo/prompts/infra/world/fonts.md	18	03_infra/src/world/fonts.rs	65	with_fonts_and_system	rever âncora	90
+00_nucleo/prompts/infra/world/fonts.md	19	03_infra/src/world/fonts.rs	121	preload_coverage_if_needed	rever âncora	123
+00_nucleo/prompts/infra/world/packages.md	16	03_infra/src/world/packages.rs	18	package_candidate_dirs	símbolo na linha	18
+00_nucleo/prompts/infra/world/packages.md	17	03_infra/src/world/packages.rs	40	default_package_cache_dir	símbolo na linha	40
+00_nucleo/prompts/infra/world/packages.md	18	03_infra/src/world/packages.rs	46	with_custom_ca	símbolo na linha	46
+00_nucleo/prompts/infra/world/packages.md	19	03_infra/src/world/packages.rs	60	package_root_of	símbolo na linha	60
+00_nucleo/prompts/infra/world/packages.md	20	03_infra/src/world/packages.rs	79	package_identity_of	símbolo na linha	79
+00_nucleo/prompts/infra/world/paths.md	9	03_infra/src/world/paths.rs	19	root	símbolo na linha	19
+00_nucleo/prompts/infra/world/paths.md	10	03_infra/src/world/paths.rs	25	directory_of	símbolo na linha	25
+00_nucleo/prompts/infra/world/paths.md	11	03_infra/src/world/paths.rs	37	path_of	rever âncora	38
+00_nucleo/prompts/infra/world/paths.md	12	03_infra/src/world/paths.rs	41	realize_rooted	rever âncora	47
+00_nucleo/prompts/infra/world/paths.md	13	03_infra/src/world/paths.rs	56	resolve_physical_path	rever âncora	62
+00_nucleo/prompts/infra/world/tests.md	13	03_infra/src/world/tests.rs	18	MockWorld	símbolo na linha	18
+00_nucleo/prompts/infra/world/tests.md	14	03_infra/src/world/tests.rs	26	new	símbolo na linha	26
+00_nucleo/prompts/infra/world/tests.md	15	03_infra/src/world/tests.rs	38	library	símbolo na linha	38
+00_nucleo/prompts/infra/world/tests.md	16	03_infra/src/world/tests.rs	41	book	símbolo na linha	41
+00_nucleo/prompts/infra/world/tests.md	17	03_infra/src/world/tests.rs	44	main	símbolo na linha	44
+00_nucleo/prompts/infra/world/world_impl.md	16	03_infra/src/world/world_impl.rs	19	library	rever âncora	24
+00_nucleo/prompts/infra/world/world_impl.md	17	03_infra/src/world/world_impl.rs	23	book	rever âncora	28
+00_nucleo/prompts/infra/world/world_impl.md	18	03_infra/src/world/world_impl.rs	27	main	rever âncora	44
+00_nucleo/prompts/infra/world/world_impl.md	19	03_infra/src/world/world_impl.rs	31	source	rever âncora	48
+00_nucleo/prompts/infra/world/world_impl.md	20	03_infra/src/world/world_impl.rs	35	file	rever âncora	57
+00_nucleo/prompts/infra/world.md	17	03_infra/src/world.rs	35	SystemWorldError	rever âncora	39
+00_nucleo/prompts/infra/world.md	18	03_infra/src/world.rs	43	fmt	rever âncora	47
+00_nucleo/prompts/infra/world.md	19	03_infra/src/world.rs	58	SystemWorld	rever âncora	62
+00_nucleo/prompts/infra/world.md	20	03_infra/src/world.rs	97	for_eval	rever âncora	104
+00_nucleo/prompts/infra/world.md	21	03_infra/src/world.rs	132	new	símbolo na linha	132
+00_nucleo/prompts/wiring/compile.md	24	04_wiring/src/compile.rs	40	report_in_order	rever âncora	41
+00_nucleo/prompts/wiring/compile.md	25	04_wiring/src/compile.rs	45	write_bundle_output	rever âncora	54
+00_nucleo/prompts/wiring/compile.md	26	04_wiring/src/compile.rs	81	run_compile	rever âncora	107
+00_nucleo/prompts/wiring/compile.md	27	04_wiring/src/compile.rs	86	run_compile_observed	rever âncora	112
+00_nucleo/prompts/wiring/compile.md	28	04_wiring/src/compile.rs	546	p1323_html_experimental_warning_matches_ratified_envelope	rever âncora	732
+00_nucleo/prompts/wiring/completions.md	16	04_wiring/src/completions.rs	11	run_completions	rever âncora	12
+00_nucleo/prompts/wiring/diagnostics.md	16	04_wiring/src/diagnostics.rs	19	prepare	símbolo na linha	19
+00_nucleo/prompts/wiring/diagnostics.md	17	04_wiring/src/diagnostics.rs	28	prepare_with_primary	símbolo na linha	28
+00_nucleo/prompts/wiring/eval.md	19	04_wiring/src/eval.rs	16	run_eval	símbolo na linha	16
+00_nucleo/prompts/wiring/eviction.md	9	04_wiring/src/eviction.rs	43	crystalline_evict	símbolo na linha	43
+00_nucleo/prompts/wiring/eviction.md	10	04_wiring/src/eviction.rs	53	p204e_crystalline_evict_existe	símbolo na linha	53
+00_nucleo/prompts/wiring/eviction.md	11	04_wiring/src/eviction.rs	64	p204e_crystalline_evict_aceita_max_age_parametro	símbolo na linha	64
+00_nucleo/prompts/wiring/fonts.md	16	04_wiring/src/fonts.rs	11	run_fonts	rever âncora	12
+00_nucleo/prompts/wiring/info.md	17	04_wiring/src/info.rs	11	run_info	rever âncora	12
+00_nucleo/prompts/wiring/init.md	16	04_wiring/src/init.rs	10	run_init	rever âncora	13
+00_nucleo/prompts/wiring/main.md	17	04_wiring/src/main.rs	27	main	rever âncora	22
+00_nucleo/prompts/wiring/main.md	18	04_wiring/src/main.rs	43	main_is_only_a_closed_command_dispatcher	rever âncora	46
+00_nucleo/prompts/wiring/query.md	17	04_wiring/src/query.rs	16	run_query	rever âncora	17
+00_nucleo/prompts/wiring/tests/cli.md	18	04_wiring/tests/cli.rs	38	temp_typ	rever âncora	43
+00_nucleo/prompts/wiring/tests/cli.md	19	04_wiring/tests/cli.rs	46	temp_pdf	rever âncora	51
+00_nucleo/prompts/wiring/tests/cli.md	20	04_wiring/tests/cli.rs	54	cleanup	rever âncora	59
+00_nucleo/prompts/wiring/tests/cli.md	21	04_wiring/tests/cli.rs	60	WatchedChild	rever âncora	""
+00_nucleo/prompts/wiring/tests/cli.md	22	04_wiring/tests/cli.rs	63	assert_alive	rever âncora	""
+00_nucleo/prompts/wiring/tests/crystalline_lint.md	9	04_wiring/tests/crystalline_lint.rs	20	temp_project	símbolo na linha	20
+00_nucleo/prompts/wiring/tests/crystalline_lint.md	10	04_wiring/tests/crystalline_lint.rs	29	write_file	símbolo na linha	29
+00_nucleo/prompts/wiring/tests/crystalline_lint.md	11	04_wiring/tests/crystalline_lint.rs	38	setup_project_dirs	símbolo na linha	38
+00_nucleo/prompts/wiring/tests/crystalline_lint.md	12	04_wiring/tests/crystalline_lint.rs	85	type_level_violation_ecow_ecomap	símbolo na linha	85
+00_nucleo/prompts/wiring/tests/crystalline_lint.md	13	04_wiring/tests/crystalline_lint.rs	116	type_level_allowed_ecow_ecostring	símbolo na linha	116
+00_nucleo/prompts/wiring/tests/float_is_infinite.md	9	04_wiring/tests/float_is_infinite.rs	8	eval	símbolo na linha	8
+00_nucleo/prompts/wiring/tests/float_is_infinite.md	10	04_wiring/tests/float_is_infinite.rs	16	p1289_float_is_infinite_reports_finite_infinite_and_nan	símbolo na linha	16
+00_nucleo/prompts/wiring/tests/float_is_infinite.md	11	04_wiring/tests/float_is_infinite.rs	30	p1289_float_is_infinite_preserves_public_signature_and_errors	símbolo na linha	30
+00_nucleo/prompts/wiring/tests/format_html.md	17	04_wiring/tests/format_html.rs	136	Profile	rever âncora	141
+00_nucleo/prompts/wiring/tests/format_html.md	18	04_wiring/tests/format_html.rs	158	ProcessResult	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_html.md	19	04_wiring/tests/format_html.rs	165	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_html.md	20	04_wiring/tests/format_html.rs	171	Checks	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_html.md	21	04_wiring/tests/format_html.rs	176	require	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_namespace.md	16	04_wiring/tests/format_pdf_namespace.rs	16	Profile	rever âncora	21
+00_nucleo/prompts/wiring/tests/format_pdf_namespace.md	17	04_wiring/tests/format_pdf_namespace.rs	38	ProcessResult	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_namespace.md	18	04_wiring/tests/format_pdf_namespace.rs	45	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_namespace.md	19	04_wiring/tests/format_pdf_namespace.rs	51	Checks	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_namespace.md	20	04_wiring/tests/format_pdf_namespace.rs	56	require	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_pages.md	9	04_wiring/tests/format_pdf_pages.rs	30	ProcessResult	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_pages.md	10	04_wiring/tests/format_pdf_pages.rs	37	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_pages.md	11	04_wiring/tests/format_pdf_pages.rs	42	typst_binary	rever âncora	34
+00_nucleo/prompts/wiring/tests/format_pdf_pages.md	12	04_wiring/tests/format_pdf_pages.rs	48	shm_root	rever âncora	40
+00_nucleo/prompts/wiring/tests/format_pdf_pages.md	13	04_wiring/tests/format_pdf_pages.rs	58	fixture_paths	rever âncora	50
+00_nucleo/prompts/wiring/tests/format_pdf_standard.md	9	04_wiring/tests/format_pdf_standard.rs	30	ProcessResult	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_standard.md	10	04_wiring/tests/format_pdf_standard.rs	37	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_standard.md	11	04_wiring/tests/format_pdf_standard.rs	42	typst_binary	rever âncora	34
+00_nucleo/prompts/wiring/tests/format_pdf_standard.md	12	04_wiring/tests/format_pdf_standard.rs	48	shm_root	rever âncora	40
+00_nucleo/prompts/wiring/tests/format_pdf_standard.md	13	04_wiring/tests/format_pdf_standard.rs	58	fixture_paths	rever âncora	50
+00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md	9	04_wiring/tests/format_pdf_tagged_pretty.rs	27	ProcessResult	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md	10	04_wiring/tests/format_pdf_tagged_pretty.rs	34	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md	11	04_wiring/tests/format_pdf_tagged_pretty.rs	39	typst_binary	rever âncora	31
+00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md	12	04_wiring/tests/format_pdf_tagged_pretty.rs	45	shm_root	rever âncora	37
+00_nucleo/prompts/wiring/tests/format_pdf_tagged_pretty.md	13	04_wiring/tests/format_pdf_tagged_pretty.rs	55	fixture_paths	rever âncora	47
+00_nucleo/prompts/wiring/tests/format_png.md	9	04_wiring/tests/format_png.rs	20	TempDir	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_png.md	10	04_wiring/tests/format_png.rs	25	new	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_png.md	11	04_wiring/tests/format_png.rs	42	drop	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_png.md	12	04_wiring/tests/format_png.rs	48	ProcessResult	rever âncora	23
+00_nucleo/prompts/wiring/tests/format_png.md	13	04_wiring/tests/format_png.rs	55	Compilation	rever âncora	30
+00_nucleo/prompts/wiring/tests/format_svg.md	9	04_wiring/tests/format_svg.rs	20	TempDir	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_svg.md	10	04_wiring/tests/format_svg.rs	25	new	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_svg.md	11	04_wiring/tests/format_svg.rs	42	drop	rever âncora	""
+00_nucleo/prompts/wiring/tests/format_svg.md	12	04_wiring/tests/format_svg.rs	48	ProcessResult	rever âncora	23
+00_nucleo/prompts/wiring/tests/format_svg.md	13	04_wiring/tests/format_svg.rs	55	Compilation	rever âncora	30
+00_nucleo/prompts/wiring/tests/language_and_export_contract.md	9	04_wiring/tests/language_and_export_contract.rs	24	Transcript	rever âncora	""
+00_nucleo/prompts/wiring/tests/language_and_export_contract.md	10	04_wiring/tests/language_and_export_contract.rs	31	from_output	rever âncora	""
+00_nucleo/prompts/wiring/tests/language_and_export_contract.md	11	04_wiring/tests/language_and_export_contract.rs	39	success	rever âncora	""
+00_nucleo/prompts/wiring/tests/language_and_export_contract.md	12	04_wiring/tests/language_and_export_contract.rs	44	trim_transport	rever âncora	""
+00_nucleo/prompts/wiring/tests/language_and_export_contract.md	13	04_wiring/tests/language_and_export_contract.rs	50	run	rever âncora	32
+00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md	16	04_wiring/tests/math_cancel_callback_runtime.rs	18	Scratch	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md	17	04_wiring/tests/math_cancel_callback_runtime.rs	21	new	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md	18	04_wiring/tests/math_cancel_callback_runtime.rs	34	drop	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md	19	04_wiring/tests/math_cancel_callback_runtime.rs	39	diagnostic	rever âncora	22
+00_nucleo/prompts/wiring/tests/math_cancel_callback_runtime.md	20	04_wiring/tests/math_cancel_callback_runtime.rs	48	compile	rever âncora	31
+00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md	9	04_wiring/tests/math_decoration_and_float_flush.rs	16	Scratch	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md	10	04_wiring/tests/math_decoration_and_float_flush.rs	19	new	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md	11	04_wiring/tests/math_decoration_and_float_flush.rs	32	drop	rever âncora	""
+00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md	12	04_wiring/tests/math_decoration_and_float_flush.rs	37	eval	símbolo na linha	37
+00_nucleo/prompts/wiring/tests/math_decoration_and_float_flush.md	13	04_wiring/tests/math_decoration_and_float_flush.rs	44	diagnostic	rever âncora	27
+00_nucleo/prompts/wiring/watch.md	20	04_wiring/src/watch.rs	14	run_watch	rever âncora	17
+00_nucleo/prompts/wiring/watch.md	21	04_wiring/src/watch.rs	113	write_watch_block	rever âncora	262
+00_nucleo/prompts/wiring/watch.md	22	04_wiring/src/watch.rs	118	emit_watch_block	rever âncora	267
+00_nucleo/prompts/wiring/watch.md	23	04_wiring/src/watch.rs	124	watch_line_at	rever âncora	273
+00_nucleo/prompts/wiring/watch.md	24	04_wiring/src/watch.rs	128	watch_block_at	rever âncora	277
