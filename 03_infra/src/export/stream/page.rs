@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/page.md
-//! @prompt-hash 1c19f043
+//! @prompt-hash 8b15b607
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -27,7 +27,9 @@ pub(in crate::export) fn build_page_stream(page: &Page, ctx: &PageContext) -> Ve
         } else {
             String::new()
         };
-        if !opacity.is_empty() {
+        // Compact text without fill inherits the state; the page color must not.
+        let scoped = !opacity.is_empty() || matches!(ctx.mode, StreamMode::Compact);
+        if scoped {
             ops.push_str("q\n");
             ops.push_str(&opacity);
         }
@@ -47,7 +49,7 @@ pub(in crate::export) fn build_page_stream(page: &Page, ctx: &PageContext) -> Ve
             page.canvas_width(),
             page.canvas_height(),
         ));
-        if !opacity.is_empty() {
+        if scoped {
             ops.push_str("Q\n");
         }
         if ctx.ua1 {
@@ -137,5 +139,45 @@ mod tests {
             items: vec![],
         };
         assert!(build_page_stream(&page, &ctx).is_empty());
+    }
+
+    #[test]
+    fn compact_page_fill_is_scoped_and_verbose_is_unchanged() {
+        use typst_core::entities::layout_types::Color;
+        use typst_core::entities::{page_canvas::PageFill, paint::Paint};
+        let images = HashMap::new();
+        let patterns = HashMap::new();
+        let opaque = Color::rgb(0, 255, 255);
+        let translucent = Color::srgb_f32(0.0, 1.0, 1.0, 0.5);
+        for (color, verbose_scopes) in [(opaque, 0), (translucent, 1)] {
+            for (mode, scopes) in
+                [(StreamMode::Compact, 1), (StreamMode::Verbose, verbose_scopes)]
+            {
+                for ua1 in [false, true] {
+                    let mut ctx = PageContext::type1(&images, &[], &patterns, &[], mode);
+                    ctx.ua1 = ua1;
+                    let page = Page {
+                        width: 100.0,
+                        height: 100.0,
+                        numbering: None,
+                        logical_number: 1,
+                        supplement: Content::Empty,
+                        bleed: Default::default(),
+                        fill: PageFill::Paint(Paint::Solid(color.clone())),
+                        background: vec![],
+                        foreground: vec![],
+                        items: vec![],
+                    };
+                    let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+                    let count = |op| s.lines().filter(|l| *l == op).count();
+                    assert_eq!((count("q"), count("Q")), (scopes, scopes), "{s}");
+                    if scopes == 1 {
+                        let at = |op| s.find(op).unwrap();
+                        assert!(at("q\n") < at(" rg\n") && at(" re f\n") < at("Q\n"));
+                        assert!(!ua1 || at("Q\n") < at("EMC\n"), "{s}");
+                    }
+                }
+            }
+        }
     }
 }

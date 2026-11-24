@@ -507,8 +507,7 @@ local color operator keep their current bytes, including the uncolored compact
 envelope and snapshots, and inherit the enclosing state. One private helper owns
 the color scope. Verbose, bitmap/Type3 and ActualText boundaries do not change.
 
-The page fill in `00_nucleo/prompts/infra/export/stream/page.md` is also emitted
-outside `q`/`Q`; its isolation is incomplete here and belongs to that owner.
+Isolation of the page fill belongs to `00_nucleo/prompts/infra/export/stream/page.md`.
 
 Require RED→GREEN for the carriers across Type1/CIDFont/Multifont where each
 applies, balanced normal/deferred scopes, uncolored byte controls, unchanged

@@ -1,5 +1,5 @@
 # L0 — stream/page
-Hash do Código: 45b3a5aa
+Hash do Código: 75edd195
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
@@ -97,3 +97,21 @@ Unicode/ALT/ligature/space/bidi/UA1 controls and independent PDF/SVG painting.
 Require V15/V26 before resealing, forward/reverse lineage, full technical gates
 and final historical/JPEG resource validation. This does not certify general
 Unicode extraction, PDF-UA, HTML, bibliography or overall product readiness.
+
+## Compact page-fill isolation
+
+Measured on 2026-11-24 at `88672ddc7` (debug `typst` sha256 prefix
+`cea6c890ce68819d`, 20:54:34 UTC) and again with the compact text color scope
+(`80c09fdd0e79f448`, 21:04:39 UTC): plain, math and Group text over
+`#set page(width: 8cm, height: 4cm, fill: aqua)` differs between compact and
+verbose in 3928 RGB bytes (maximum 255) through `pdftoppm -r 144`.
+`build_page_stream` sets the opaque page color outside `q`/`Q`, and compact text
+without fill inherits it, so it takes the page color. Verbose resets its color
+per block. ADR-0126 requires equal ink; this is an internal continuous-flow
+correction under ADR-0127.
+
+In Compact, wrap every explicit page fill (solid, spot or `to_color` projection,
+opaque or translucent) in exactly one `q`/`Q`, inside the UA1 artifact. Verbose
+keeps its operators: only translucent solid uses the scope. Auto and None emit
+nothing. Require RED→GREEN for opaque and translucent solid fills, unchanged
+verbose operators and equal compact/verbose rasterization.
