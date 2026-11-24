@@ -1,5 +1,5 @@
 # L0 — paragraph_plan
-Hash do Código: 481b1414
+Hash do Código: 6a33ec3f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -270,3 +270,8 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Width reuse at the source paragraph boundary
+
+Return the optional witness only to source sequence planning when eligible.
+Incremental paths, failed planning and later segments cannot inherit it.

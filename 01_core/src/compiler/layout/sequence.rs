@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence.md
-//! @prompt-hash dc64eab9
+//! @prompt-hash 3e5b734e
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -159,7 +159,7 @@ fn try_source_segment<M: FontMetrics, S: ImageSizer>(
     parts: &[Content],
     start: usize,
     planned: Option<PartRoutes<'_>>,
-) -> Option<usize> {
+) -> Option<(usize, Option<super::paragraph_paint::CloseTail>)> {
     if start == 0
         || !matches!(parts[start - 1].source_body(), Content::Parbreak)
         || l.bidi_cursor.is_some()
@@ -199,7 +199,8 @@ fn try_source_segment<M: FontMetrics, S: ImageSizer>(
         }
     }
     let saved_indent = l.paragraph_indent.clone();
-    if !super::paragraph_plan::try_parts(l, &parts[start..end]) {
+    let mut tail = None;
+    if !super::paragraph_plan::try_source_parts(l, &parts[start..end], &mut tail) {
         l.paragraph_indent = saved_indent;
         return None;
     }
@@ -213,7 +214,7 @@ fn try_source_segment<M: FontMetrics, S: ImageSizer>(
         l.block_chain_active = false;
         l.prev_block_below_pending = 0.0;
     }
-    Some(end)
+    Some((end, tail))
 }
 
 fn layout_parts<M: FontMetrics, S: ImageSizer>(
@@ -262,7 +263,9 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     let mut owns_text_segment = !super::html_frame::items_have_causal_line(
         &layouter.regions.current.current_line,
     );
+    let mut previous_tail = None;
     while let Some(part) = iter.next() {
+        let tail = previous_tail.take();
         if part_index > 0
             && matches!(parts[part_index - 1].source_body(), Content::Parbreak)
         {
@@ -299,7 +302,8 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         }
         super::footnote::preflight_carrier(layouter, &parts[part_index..]);
         if distribution.is_none() {
-            if let Some(end) = try_source_segment(layouter, parts, part_index, planned) {
+            if let Some((end, tail)) = try_source_segment(layouter, parts, part_index, planned) {
+                previous_tail = tail;
                 for _ in part_index + 1..end {
                     let _ = iter.next();
                 }
@@ -427,9 +431,10 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
                 super::paragraph::close_segment(
                     layouter,
                     &parts[text_segment_start..part_index],
+                    tail,
                 );
             } else if let Some(chain) = layouter.text_segment_chain.clone() {
-                super::paragraph::close_in_chain(layouter, chain, true);
+                super::paragraph::close_in_chain_with_tail(layouter, chain, true, tail);
             }
             if inline_prefix.is_some_and(|p| p.multiline && p.block_index == part_index) {
                 layouter.geometric_text_lines = saved_geometric_lines;

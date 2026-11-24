@@ -1,5 +1,5 @@
 # L0 — line commit
-Hash do Código: 9c653286
+Hash do Código: 98a69506
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -340,3 +340,10 @@ Both reduced-region and ordinary-root text admission guards consult the
 Block-owned terminal text-region query before implicit page progress or suffix
 rejection. Preserve actual ink metrics, clearances, reserves, line publication
 and every existing guard outside that active context.
+
+## Width reuse at the source paragraph boundary
+
+Combine the certified horizontal extent with live prefix and suffix
+measurements. Preserve the terminal literal-space rules. Require the exact
+metric epoch and the original item range. Refuse fractional expansion,
+interrupted paint and transactions. Keep vertical metrics and commit effects live.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/finish.md
-//! @prompt-hash 9cc36c54
+//! @prompt-hash 9ccdb85a
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -83,11 +83,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
             let page = std::num::NonZeroUsize::new(page_number).unwrap();
-            let margin_number = self
-                .runtime
-                .known_page_store
-                .logical_number_for_page(page)
-                .unwrap_or(page_number);
+            let margin_number = self.effective_runtime_page_number(page);
             let mut items = std::mem::take(&mut self.regions.current.current_items);
             self.apply_pending_par_line_fixups(&mut items);
             // **P896** — resolve centragem/numeração de equação de bloco
@@ -171,11 +167,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     page_numbering,
                     Some(crate::entities::numbering::Numbering::Func(_))
                 ) {
-                    if let Some(content) = self
-                        .runtime
-                        .known_page_store
-                        .visible_numbering_for_page(page)
-                        .cloned()
+                    if let Some(content) =
+                        self.exact_runtime_page_store().visible_numbering_for_page(page).cloned()
                     {
                         marginal_items.extend(page_running::realized_numbering_layer(
                             &mut self,
@@ -234,7 +227,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // página, o número da página e o pattern composto.
         let total_pages = self.pages.len();
         let logical_total = std::num::NonZeroUsize::new(total_pages)
-            .and_then(|page| self.runtime.known_page_store.logical_number_for_page(page))
+            .map(|page| self.effective_runtime_page_number(page))
             .unwrap_or(total_pages);
         for page_running::PendingNumber {
             page_idx,

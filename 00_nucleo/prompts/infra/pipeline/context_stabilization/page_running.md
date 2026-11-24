@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization/page_running
-Hash do Código: ce632ba2
+Hash do Código: 2fd97910
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
@@ -597,3 +597,12 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Physical products by consumer
+
+The single paged discovery sends the prepared body, physical trace and
+sealed resolutions to the existing index. Use trace-only discovery for
+this path. Single paged replay keeps its shared physical result through
+indexing and stabilization. Bundle discovery and replay use owned documents
+to count and partition pages. Preserve callbacks, warnings, Pending and
+the existing index and stabilization decisions.

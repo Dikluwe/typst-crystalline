@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 5d605258
+//! @prompt-hash 109ab7c3
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -1648,12 +1648,15 @@ impl<'a> Session<'a> {
                         self.source,
                         &self.metrics,
                     ) {
-                        Ok((doc, warnings)) => (Some(doc), warnings),
+                        Ok((doc, warnings)) => {
+                            (Some(page_running::PhysicalDocument::Owned(doc)), warnings)
+                        }
                         Err(errors) => return (self.fail(errors), self.warnings()),
                     }
                 };
                 phase_warnings.extend(callback_warnings);
-                if let Some(doc) = doc {
+                if let Some(material) = doc {
+                    let doc = material.view();
                     if !physical_positions {
                         candidate.inject_positions(doc.extracted_positions.clone());
                     }
@@ -1684,11 +1687,11 @@ impl<'a> Session<'a> {
                         .and_then(|v| v.first())
                         .copied()
                         .unwrap_or_else(|| logical_numbers.last().copied().unwrap_or(0));
-                    let references = page_reference_pages(&content, &doc);
+                    let references = page_reference_pages(&content, doc);
                     let (pages, numbering_warnings) = match realize_page_numberings(
                         self.world,
                         self.source,
-                        &doc,
+                        doc,
                         &logical_numbers,
                         logical_final,
                         &references,
@@ -1701,7 +1704,7 @@ impl<'a> Session<'a> {
                         candidate.inject_positions(doc.extracted_positions.clone());
                     }
                     candidate.inject_pages(pages);
-                    document = Some(doc);
+                    document = Some(material);
                 }
             }
             if self.target == EvalTarget::Html && self.bundle_html_targets.is_none() {
@@ -1820,8 +1823,9 @@ impl<'a> Session<'a> {
                 return (
                     Ok(Prepared {
                         content,
-                        settled: document
-                            .map(|doc| (candidate, doc, self.metrics.clone())),
+                        settled: document.map(|material| {
+                            (candidate, self.running.finish_document(material), self.metrics.clone())
+                        }),
                     }),
                     warnings,
                 );

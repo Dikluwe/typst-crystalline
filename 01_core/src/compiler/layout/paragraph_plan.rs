@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_plan.md
-//! @prompt-hash 2e32224c
+//! @prompt-hash d70897d9
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -202,6 +202,20 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     parts: &[Content],
 ) -> bool {
+    try_parts_impl(l, parts, None)
+}
+pub(super) fn try_source_parts<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    parts: &[Content],
+    close: &mut Option<super::paragraph_paint::CloseTail>,
+) -> bool {
+    try_parts_impl(l, parts, Some(close))
+}
+fn try_parts_impl<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    parts: &[Content],
+    mut close: Option<&mut Option<super::paragraph_paint::CloseTail>>,
+) -> bool {
     let Some((strategy, width, font, justify)) = options(l) else { return false };
     super::paragraph_indent::start_scope(l, parts);
     let shape = super::paragraph_indent::shape(l, width);
@@ -289,7 +303,11 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
         let Some(segment) = segment else { continue };
         match segment {
             Segment::Planned(product) => {
-                paragraph_emit::emit_product(l, product, width, justify);
+                if let Some(close) = close.as_deref_mut().filter(|_| index + 1 == prepared.len()) {
+                    *close = paragraph_emit::emit_source_product(l, product, width, justify, true);
+                } else {
+                    paragraph_emit::emit_product(l, product, width, justify);
+                }
             }
             Segment::Incremental(parts) => {
                 let previous = l.paragraph_planning_suppressed;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 5de9700c
+//! @prompt-hash 82283c3a
 //! @layer L1
 //! @updated 2026-10-26
 //!
@@ -390,13 +390,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
         let force_outer_singleton =
             std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
-        self.flush_line_with_outer_singleton(force_outer_singleton, !justified);
+        self.flush_line_with_outer_singleton(force_outer_singleton, !justified, None);
     }
 
     pub(super) fn flush_line(&mut self) {
+        self.flush_line_with_tail(None);
+    }
+
+    pub(super) fn flush_line_with_tail(&mut self, tail: Option<super::paragraph_paint::CloseTail>) {
         let force_outer_singleton =
             std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
-        self.flush_line_with_outer_singleton(force_outer_singleton, false);
+        self.flush_line_with_outer_singleton(force_outer_singleton, false, tail);
     }
 
     /// P1391 — o texto overlong pode fechar a linha antes de Sequence voltar
@@ -410,14 +414,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// ascent e o leading passam a seguir o estilo exterior activo.
     pub(super) fn flush_wrapped_inline_prefix_line(&mut self) {
         self.wrapped_inline_prefix_line_armed = false;
-        self.flush_line_with_outer_singleton(true, false);
+        self.flush_line_with_outer_singleton(true, false, None);
     }
 
     fn flush_line_with_outer_singleton(
         &mut self,
         force_outer_singleton: bool,
         continued: bool,
+        tail: Option<super::paragraph_paint::CloseTail>,
     ) {
+        let tail = tail.filter(|_| {
+            !force_outer_singleton
+                && !continued
+                && !self.is_sub_frame
+                && !self.column_mode
+                && self.page_columns.is_none()
+                && self.regions.cell.is_none()
+                && self.piece_alignment.is_none()
+                && !self.flow_suffix_transaction_active
+                && !self.flow_suffix_checkpoint_pending
+                && self.regions.current.pending_fr.is_empty()
+                && self.pending_repeats.is_empty()
+        });
         let accepted_optical_policy = self.line_optical_overhang.take();
         super::h_space::close_paragraph(self);
         self.terminal_paragraph_line = false;
@@ -438,7 +456,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // A soft wrap consumes terminal spaces without allocating their advance.
         // Keep their carriers for text extraction; explicit final spaces remain.
-        self.record_line_width(!continued);
+        let tail_right = tail.filter(|_| had_items).and_then(|tail| {
+            tail.width(
+                &self.regions.current.current_line,
+                self.regions.current.cursor_x,
+                &self.metrics,
+            )
+        });
+        if let Some(right) = tail_right {
+            self.record_flow_width_at(right, 0.0);
+        } else {
+            self.record_line_width(!continued);
+        }
 
         // Determinar o tamanho máximo de fonte presente nos items da linha e
         // o estilo do item que o possui (clonado para não manter borrow da

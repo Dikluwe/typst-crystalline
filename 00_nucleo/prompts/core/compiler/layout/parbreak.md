@@ -1,5 +1,5 @@
 # L0 — parbreak
-Hash do Código: b50661b5
+Hash do Código: b5c97178
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/horizontal-space-paragraph.toml sha256:bbcb7c79c93e3d2da4580dfbc5586174a9698f02e3d3579ea886a1ff2608ed4b
@@ -112,3 +112,8 @@ Require targeted RED→GREEN, bilateral PDF/SVG<=0.001pt, source order/complete 
 ### Measured lexical horizontal scope refinement
 
 The candidate2 frozen state and pilot/geometry.json in image-flow-fix-2026-10-27 show mixed-h-scopes and siblings-h-scopes differ by43.2pt at the third image, while sole-h-scope and wrapper-h-scopes match. Equal styled siblings do not establish a shared lexical paragraph wrapper. Resolve h-only paragraph spacing from the nearest actual common StyleChain ancestor of all producers. Preserve the original anchor and monotonically narrow to its ancestor; do not infer lexical scope from equal values. Existing raw_deltas supplies identity without a public contract change. The private pending state stores an Arc-backed source chain and ancestor depth; normal one-producer closure resolves directly, mixed scope may reconstruct only the ancestor suffix for resolution. Checkpoint clones, subframes save/clear/restore, region reset and real-line absorption apply to this complete state. No public API, source reevaluation, paint, dependency or phase change. Require RED→GREEN for mixed outer/sibling scope and sole/wrapped controls, then rerun full validation.
+
+## Width reuse at the source paragraph boundary
+
+Pass the optional width witness to the flush after emitting the current
+paragraph boundary. Keep spacing, markers and flow effects live.

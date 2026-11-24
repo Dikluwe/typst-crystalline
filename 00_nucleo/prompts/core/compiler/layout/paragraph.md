@@ -1,5 +1,5 @@
 # L0 — paragraph
-Hash do Código: 205357da
+Hash do Código: 6a7611ab
 
 
 
@@ -198,3 +198,8 @@ Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
 with exact source/UTC/diffstat provenance and restricted resealing after a
 valid V15/V26 graph. Preserve all concurrent changes and every other owner
 responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+## Width reuse at the source paragraph boundary
+
+Forward the optional width witness to paragraph closure under the existing
+style chain. Restore the chain at the same boundary.

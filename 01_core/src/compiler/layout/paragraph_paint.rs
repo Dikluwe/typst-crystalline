@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_paint.md
-//! @prompt-hash cf8d6f09
+//! @prompt-hash d586a61d
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -43,6 +43,51 @@ struct Paint {
     anchors: Vec<f64>,
     end: Pt,
     baseline: Pt,
+    width: Mutex<Option<(super::MetricEpoch, f64)>>,
+}
+
+/// Identifies the emitted tail until its immediate source paragraph break.
+pub(super) struct CloseTail {
+    product: Arc<Paint>,
+    first: usize,
+}
+impl CloseTail {
+    pub(super) fn width(
+        &self,
+        items: &[FrameItem],
+        end_x: Pt,
+        metrics: &dyn FontMetrics,
+    ) -> Option<f64> {
+        let end = self.first + self.product.items.len();
+        if items.len() != end + 1 || self.product.end.0.to_bits() != end_x.0.to_bits() {
+            return None;
+        }
+        let (body, boundary) = items.split_at(end);
+        let [FrameItem::Semantic {
+            kind: crate::entities::layout_types::SemanticKind::ParbreakBoundary, ..
+        }] = boundary else {
+            return None;
+        };
+        let (prefix, tail) = body.split_at(self.first);
+        let epoch = metrics.physical_epoch()?;
+        let cached = self.product.width.lock().unwrap().as_ref()
+            .filter(|(owner, _)| owner.same(&epoch))
+            .map(|(_, width)| *width);
+        let live = super::helpers::line_content_right(prefix.iter().chain(boundary), metrics);
+        let width = cached.unwrap_or_else(|| {
+            super::helpers::line_content_right(tail, metrics)
+                .max(super::line_commit::literal_line_right(tail))
+        });
+        if !metrics.physical_epoch().is_some_and(|current| epoch.same(&current)) {
+            return None;
+        }
+        if cached.is_none() && width.is_finite() {
+            *self.product.width.lock().unwrap() = Some((epoch, width));
+        }
+        Some(width.max(live)
+            .max(super::line_commit::literal_line_right(prefix))
+            .max(super::line_commit::literal_line_right(boundary)))
+    }
 }
 impl PaintSession {
     #[cfg(test)]
@@ -148,7 +193,9 @@ fn charge(items: &[FrameItem], anchors: &[f64], baseline: Pt) -> Option<usize> {
         return None;
     }
     let mut size =
-        std::mem::size_of::<Entry>().checked_add(anchors.len().checked_mul(8)?)?;
+        std::mem::size_of::<Entry>()
+            .checked_add(std::mem::size_of::<Mutex<Option<(super::MetricEpoch, f64)>>>())?
+            .checked_add(anchors.len().checked_mul(8)?)?;
     for item in items {
         size = size.checked_add(item_charge(item, 0, baseline)?)?;
     }
@@ -157,6 +204,7 @@ fn charge(items: &[FrameItem], anchors: &[f64], baseline: Pt) -> Option<usize> {
 /// The caller's immutable product and ordinal identify its exact prepared tail.
 /// The first word has already admitted material. Only replay the pure prepared
 /// tail, using the current line baseline and its original per-item offset.
+#[cfg(test)]
 pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     identity: &Arc<()>,
@@ -165,6 +213,18 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     language: Option<Lang>,
     emit: impl FnOnce(&mut Layouter<M, S>),
 ) {
+    let _ = tail_with_close(l, identity, line, spacing, language, false, emit);
+}
+
+pub(super) fn tail_with_close<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    identity: &Arc<()>,
+    line: usize,
+    spacing: [f64; 2],
+    language: Option<Lang>,
+    lend: bool,
+    emit: impl FnOnce(&mut Layouter<M, S>),
+) -> Option<CloseTail> {
     let baseline = l.regions.current.cursor_y;
     let numeric = [
         l.regions.current.cursor_x.0,
@@ -184,7 +244,7 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
         && super::html_frame::items_have_material(&l.regions.current.current_line);
     let Some(session) = session.filter(|_| eligible) else {
         emit(l);
-        return;
+        return None;
     };
     let key = Key {
         identity: Arc::as_ptr(identity) as usize,
@@ -216,37 +276,34 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
         l.line_optical_overhang =
             Some(!matches!(l.chain.custom("text.overhang"), Some(Value::Bool(false))));
         l.text_tracking_state.record();
-        return;
+        return lend.then_some(CloseTail { product, first });
     }
     let first = l.regions.current.current_line.len();
     let anchor = l.justify_opportunities.len();
     emit(l);
     let items = &l.regions.current.current_line[first..];
     let anchors = &l.justify_opportunities[anchor..];
-    let Some(charge) = charge(items, anchors, baseline) else {
-        return;
-    };
+    let charge = charge(items, anchors, baseline)?;
     if !l.regions.current.cursor_x.0.is_finite()
         || l.regions.current.cursor_y.0.to_bits() != baseline.0.to_bits()
     {
-        return;
+        return None;
     }
     let product = Arc::new(Paint {
         items: items.to_vec(),
         anchors: anchors.to_vec(),
         end: l.regions.current.cursor_x,
         baseline,
+        width: Mutex::new(None),
     });
     let mut m = session.paint.0.lock().unwrap();
     if m.entries.contains_key(&key) {
-        return;
+        return None;
     }
     while m.entries.len() >= MAX_ENTRIES
         || m.charged.checked_add(charge).is_none_or(|n| n > MAX_PAYLOAD)
     {
-        let Some(old) = m.order.pop_front() else {
-            return;
-        };
+        let old = m.order.pop_front()?;
         if let Some(entry) = m.entries.remove(&old) {
             m.charged -= entry.charge;
         }
@@ -254,8 +311,10 @@ pub(super) fn tail<M: FontMetrics, S: ImageSizer>(
     m.charged += charge;
     m.published += 1;
     m.order.push_back(key);
+    let witness = lend.then(|| CloseTail { product: product.clone(), first });
     m.entries
         .insert(key, Entry { _owner: identity.clone(), product, charge });
+    witness
 }
 
 #[cfg(test)]
@@ -435,6 +494,72 @@ mod tests {
         }
         assert_eq!(calls.get(), 2);
     }
+    #[test]
+    fn source_tail_identity_avoids_remeasuring_at_the_boundary() {
+        use crate::compiler::{
+            eval::EvalContext, introspect::page_running::prepare_page_running_body,
+            realize::context_occurrences::ContextOccurrenceArena,
+        };
+        use crate::entities::{content::Content, image_sizer::NullImageSizer,
+            introspector::TagIntrospector};
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use super::super::{FixedMetrics, MetricEpoch, PageRunningLayoutInputs,
+            paragraph_session::{MetricIdentity, ParagraphSession}};
+
+        #[derive(Clone)]
+        struct Count {
+            paragraph: ParagraphSession,
+            font: MetricIdentity,
+            epoch: MetricEpoch,
+            calls: Arc<AtomicUsize>,
+        }
+        impl FontMetrics for Count {
+            fn physical_epoch(&self) -> Option<MetricEpoch> { Some(self.epoch.clone()) }
+            fn paragraph_session(&self) -> Option<ParagraphSession> { Some(self.paragraph.clone()) }
+            fn paragraph_identity(&self, _: &str, _: &TextStyle) -> Option<MetricIdentity> { Some(self.font.clone()) }
+            fn advance(&self, t: &str, s: Pt, st: &TextStyle) -> Pt { FixedMetrics.advance(t,s,st) }
+            fn text_width(&self, t: &str, s: Pt, st: &TextStyle) -> Pt {
+                if t == "gamma" { self.calls.fetch_add(1,Ordering::Relaxed); }
+                FixedMetrics.text_width(t,s,st)
+            }
+            fn vertical_metrics(&self, s: Pt, st: &TextStyle) -> (Pt,Pt) { FixedMetrics.vertical_metrics(s,st) }
+            fn cap_height(&self, s: Pt, st: &TextStyle) -> Pt { FixedMetrics.cap_height(s,st) }
+            fn text_edges(&self, s: Pt, st: &TextStyle) -> (Pt,Pt) { FixedMetrics.text_edges(s,st) }
+        }
+
+        let content = Content::sequence(vec![
+            Content::heading(1,Content::text("Lead")), Content::Parbreak,
+            Content::text("alpha"), Content::Space, Content::text("beta"),
+            Content::Space, Content::text("gamma"), Content::Parbreak,
+            Content::text("After"), Content::Parbreak,
+        ]);
+        let mut arena = ContextOccurrenceArena::new(&content);
+        let mut frame = arena.frame();
+        let plan = arena.evaluate(&mut frame,&mut EvalContext::new(),|ctx|
+            prepare_page_running_body(&content, ctx)).unwrap();
+        let p = Count {
+            paragraph: ParagraphSession::new(), font: MetricIdentity::new(),
+            epoch: MetricEpoch::new(Arc::new(()),Arc::new(())),
+            calls: Arc::new(AtomicUsize::new(0)),
+        };
+        let run = |provider: Count| super::super::convergence::run_planned(
+            &plan,TagIntrospector::empty(),provider,NullImageSizer,11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: None },None,
+        ).into_result().ok().unwrap().document;
+        let first = run(p.clone());
+        assert!(p.calls.load(Ordering::Relaxed)>0);
+        let hits = p.paragraph.paint.stats().0;
+        p.calls.store(0, Ordering::Relaxed);
+        let warm = run(p.clone());
+        assert_eq!(format!("{:?}", first.pages),format!("{:?}", warm.pages));
+        assert!(p.paragraph.paint.stats().0 > hits, "fixture must revisit the existing paint identity");
+        assert_eq!(p.calls.load(Ordering::Relaxed),0,"certified tail was remeasured");
+        let changed = Count { epoch: MetricEpoch::new(Arc::new(()),Arc::new(())), ..p.clone() };
+        let refreshed = run(changed);
+        assert_eq!(format!("{:?}", warm.pages),format!("{:?}", refreshed.pages));
+        assert!(p.calls.load(Ordering::Relaxed)>0);
+    }
+
 }
 
 #[cfg(test)]

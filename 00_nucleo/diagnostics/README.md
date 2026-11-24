@@ -12,6 +12,12 @@ own productive consumers and are not L0 specifications.
 - [Sublayout routes and test coverage](sublayout-coverage-2026-11-19.md)
   records the code paths and assertions behind the ADR-0124 revision.
 
+- [Shared physical replay in watch](validated-shared-physical-replay-2026-11-20.md)
+  records the approved interfaces, ownership transfer, and watch validation.
+
+- [Physical pagination and line width reuse](validated-references-layout-2026-11-20.md)
+  records the November 20 watch integration and its controlled measurements.
+
 - [Layout reuse in references and watch](validated-references-layout-2026-11-19.md)
   records the integrated convergence, paragraph emission, and font metric changes
   with links to the laboratory comparisons and integration validation.

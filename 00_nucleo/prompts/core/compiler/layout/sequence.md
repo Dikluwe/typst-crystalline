@@ -1,5 +1,5 @@
 # L0 — sequence
-Hash do Código: 08b3a9bd
+Hash do Código: 819667e3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -394,3 +394,8 @@ provenance remain historical. Preserve the specified refusals, source identity,
 effects and invalidation. Keep measurement barriers and private observers in the
 laboratory. Reseal this owner and verify the integrated release and the pinned
 vanilla comparison.
+
+## Width reuse at the source paragraph boundary
+
+Lend the witness only from the current source paragraph to its immediately
+following paragraph break under the same style chain.

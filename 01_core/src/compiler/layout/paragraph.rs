@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph.md
-//! @prompt-hash a90083f0
+//! @prompt-hash a7c71bf2
 //! @layer L1
 //! @updated 2026-11-01
 
@@ -228,15 +228,24 @@ pub(super) fn spacing_for_size(
 pub(super) fn close_segment<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     parts: &[Content],
+    tail: Option<super::paragraph_paint::CloseTail>,
 ) {
     let Some(chain) = shared_chain(parts, &l.chain) else { return };
-    close_in_chain(l, chain, !parts.is_empty());
+    close_in_chain_with_tail(l, chain, !parts.is_empty(), tail);
 }
 
 pub(super) fn close_in_chain<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     chain: crate::entities::style_chain::StyleChain,
     nonempty: bool,
+) {
+    close_in_chain_with_tail(l, chain, nonempty, None);
+}
+pub(super) fn close_in_chain_with_tail<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    chain: crate::entities::style_chain::StyleChain,
+    nonempty: bool,
+    tail: Option<super::paragraph_paint::CloseTail>,
 ) {
     let outer_spacing = spacing(&l.chain);
     if !html_frame::items_have_causal_line(&l.regions.current.current_line) {
@@ -256,7 +265,7 @@ pub(super) fn close_in_chain<M: FontMetrics, S: ImageSizer>(
         &mut l.style,
         crate::entities::layout_types::TextStyle::from(&l.chain),
     );
-    parbreak::layout(l);
+    parbreak::layout_with_tail(l, tail);
     l.chain = previous_chain;
     l.style = previous_style;
     l.prev_block_below_pending = l.prev_block_below_pending.max(outer_spacing);

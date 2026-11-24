@@ -1,5 +1,5 @@
 # L0 — Layout attempt convergence
-Hash do Código: 27f28448
+Hash do Código: cc0e6c63
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:5c68aee638a285b125399ae9198883a90ae27a0c3a89f68e0765b86fa84b8197
@@ -182,3 +182,11 @@ calls without a physical journal retain the original fixpoint. This is an
 internal optimization under ADR-0127. Preserve the RED/GREEN traversal and
 page-reference controls, including absent/injected stores and compound
 page numbering, alongside source/effect/invalidation and fresh output checks.
+
+## Runtime page inputs and physical replay
+
+Record runtime page reads in planned seeded passes and on the first pass
+without a seed. Projected inputs use their local store outside memo admission.
+Certify seedless replay only when the first pass returns a complete trace
+after the existing callback and coverage checks. Keep all later iterations
+and page-store publication on the existing convergence path.

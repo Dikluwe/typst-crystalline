@@ -5,7 +5,7 @@ title = "Exact dependencies for complete physical results"
 [[claims]]
 id = "owned-source"
 level = "must"
-statement = "Retain a complete document and trace only under the identical owned immutable source plan, exact scalar page snapshot, font size bits and callback channel conditions. Never authorize reuse with Content/Value hashes, Debug output or generic Content equality."
+statement = "Retain a complete document and trace only under the identical owned immutable source plan, exact scalar page snapshot or an exact certificate of observed runtime page inputs, font size bits and callback channel conditions. Never authorize reuse with Content/Value hashes, Debug output or generic Content equality."
 [[claims]]
 id = "current-dependencies"
 level = "must"

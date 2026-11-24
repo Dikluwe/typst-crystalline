@@ -1,9 +1,9 @@
 # L0 — core/compiler/layout/physical_memo
-Hash do Código: af1f5a95
+Hash do Código: d8ecdef6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
-- 00_nucleo/prompts/_nuclei/layout/physical-result-retention.toml sha256:250f1c5a380b7b9c78383f6ca26a42360c1164702b2366c2ee2ab109083c564b
+- 00_nucleo/prompts/_nuclei/layout/physical-result-retention.toml sha256:b8cd832698d034ec483a2af5f682eb01f21106e9178be0d79e0baee773139f0b
 
 
 **Layer:** L1
@@ -37,10 +37,10 @@ addresses without ownership, content hash or ordinary PartialEq.
 
 Admit only unprojected bodies, absent math/par.line stores, empty running store,
 and no bibliography declaration selected by the existing discovery routine.
-Check this again before lookup. Compare PageStore through its new conservative
-scalar-snapshot certificate. Replay all recorded provider and introspection
+Check this again before lookup. Compare PageStore using the exact scalar
+snapshot or the runtime read certificate below. Replay all recorded provider and introspection
 queries using current supplied objects, comparing complete certified returns,
-before returning a clone of the complete document and source-owned trace. Store
+before returning the product required by the caller. Store
 no Pending, failure or incomplete transcript. Preserve current callbacks,
 coverage, source plans, positions, labels, warnings and diagnostics. On miss, run
 the original coordinator with recording wrappers; on refusal run the same layout
@@ -59,8 +59,8 @@ than substituting a default implementation.
 
 Tests first: repeated same-plan input must avoid the original coordinator's
 provider clone while matching complete output; changed horizontal/vertical
-provider answers, font size, source plan, PageStore or observed introspection
-must refuse old output. Observe real cloning/geometry, not cache counters alone.
+provider answers, font size, source plan, observed PageStore answers or
+observed introspection must refuse old output. Observe real cloning/geometry, not cache counters alone.
 Retained output edits must not mutate the cached copy. Unsupported reads,
 images/callbacks, bounds and independent sessions must preserve the old route.
 Keep full suites and existing font/watch/semantic controls; measure one paired
@@ -132,3 +132,50 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Runtime page inputs and physical replay
+
+The closed-pages watch census observed identical output in the 21-to-23 seeded
+discovery/replay transition. Layout has direct PageStore readers outside the
+tracked Introspector: convergence (presence), page_commit and finish (effective
+logical number and functional numbering) and references (page form). Keep
+whole scalar snapshot equality as the primary path. For different snapshots,
+accept only with a seeded request, the same owned SourcePlan, every observed
+effective logical page number, and all other memo gates. A retained result
+from a seedless attempt also needs the complete first-iteration certificate.
+Collect the page ordinal and effective number (with the current physical
+fallback) in a bounded attempt journal. Page-form references and functional
+numbering require the whole exact snapshot. Overflow and conflicting observations
+also require the whole exact snapshot. Revalidate the existing provider and
+Introspector journal independently. Preserve source trace, coverage and
+diagnostics. Retain one complete physical result per compilation.
+Tests distinguish changed total with unchanged effective reads from a change
+to a logically displayed page or total. Cover seedless to seeded replay,
+seeded to seedless refusal and whole-snapshot reads.
+
+## Trace-only discovery and shared physical replay
+
+The laboratory census in
+`lab/results/construction/diagnostics/references-500-shared-replay-2026-11-20/report.md`
+counts eight full document copies on the previous physical path and zero
+with trace-only discovery and shared replay. The owner approved the added
+public interfaces on 2026-11-20 under ADR-0127.
+
+Share the same admission and validation logic among `layout`, `discover`
+and `replay_shared`. Retain one immutable `Arc<PageRunningDocument>`.
+`discover` takes the layout inputs and returns the authoritative
+`Result<PageRunningTrace, PageRunningRequests>` without cloning the
+document. `replay_shared` takes the same inputs and returns
+`Result<Arc<PageRunningDocument>, PageRunningRequests>`. A validated hit
+shares the retained owner. A completed miss moves the original into an Arc
+and retains a second owner only when admitted. The existing owned
+`layout` facade continues to provide isolated mutable output.
+
+At the terminal boundary, `finish_replay(product, session) -> PagedDocument`
+releases a memo entry only when it retains that exact product, then moves
+the original document if uniquely owned. Clone the document defensively
+if another reader still holds the product. Preserve unrelated memo entries
+and all existing page-read certificates, bounds, traces, callbacks,
+dependencies and Pending outcomes. Test discovery without a document
+clone, actual page allocation transfer, defensive isolation and an
+obsolete publication alongside a different retained product.

@@ -3,7 +3,7 @@ Hash do Código: 7d4b8703
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
-- 00_nucleo/prompts/_nuclei/layout/physical-result-retention.toml sha256:250f1c5a380b7b9c78383f6ca26a42360c1164702b2366c2ee2ab109083c564b
+- 00_nucleo/prompts/_nuclei/layout/physical-result-retention.toml sha256:b8cd832698d034ec483a2af5f682eb01f21106e9178be0d79e0baee773139f0b
 
 
 **Layer:** L1

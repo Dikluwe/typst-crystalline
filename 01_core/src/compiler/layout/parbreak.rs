@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/parbreak.md
-//! @prompt-hash b0853f68
+//! @prompt-hash ee74af21
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -39,6 +39,12 @@ pub(super) fn mark_boundary<M: FontMetrics, S: ImageSizer>(
 }
 
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+    layout_with_tail(layouter, None);
+}
+pub(super) fn layout_with_tail<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    tail: Option<super::paragraph_paint::CloseTail>,
+) {
     layouter.smartquote_context.reset_paragraph();
     super::h_space::close_paragraph(layouter);
     let had_items =
@@ -48,7 +54,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S
             super::text_baseline::admit_literal_line(layouter);
         }
         mark_boundary(layouter);
-        layouter.flush_line();
+        layouter.flush_line_with_tail(tail);
         let flow_end = layouter.flow_placement_y();
         if let Some(end) = flow_end {
             // The next paragraph's weak-margin branch starts from the actual

@@ -1,5 +1,5 @@
 # L0 — Private link capture scopes
-Hash do Código: 386e7d9b
+Hash do Código: d54c285e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -150,3 +150,15 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Preservação de vetores na redução de links redundantes
+
+### Evidência
+
+O ensaio de 21/11/2026 em `lab/results/construction/diagnostics/references-500-link-redundant-vectors-2026-11-21/report.md` observou 11.282 visitas e 1.166 remoções nos dois braços. Os pedidos de alocação caíram de 6.264 para 1.166, e o custo amostrado da redução caiu de 2,02 para 0,50 ms. A diferença ponta a ponta ficou inconclusiva. O relatório preserva os ELFs, a origem do código, a comparação em RAM e a validação das posições e dos destinos. Identidade e capacidade dos vetores são critérios de desempenho. Ordem, destinos, geometria e escopos lexicais são observáveis de linguagem.
+
+### Materialização interna
+
+Em `remove_redundant`, percorra o vetor em ordem e preserve sua alocação e capacidade enquanto mantiver a composição direta. Resolva recursivamente grupos, invólucros semânticos e substituições textuais durante a visita. Um descendente pode mudar sem exigir reconstrução do vetor que o contém. Ao encontrar o primeiro link direto de mesmo destino, mova o prefixo processado para a saída e promova os filhos desse link, em ordem. Links de destino diferente permanecem opacos. A alteração usa apenas armazenamento local à função, com o mesmo ponto de execução e a mesma interface interna.
+
+Exercite no módulo o RED de identidade e capacidade de um vetor pai e de um filho intacto quando outro filho perde um link redundante. Verifique ordem de promoção, remoção de links vazios, opacidade de destinos distintos e o conjunto de testes de captura existente. A promoção preserva as regras de geometria e de navegação do proprietário. A integração é uma melhoria interna de alocação sob a ADR-0127.

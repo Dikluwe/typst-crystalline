@@ -1,5 +1,5 @@
 # L0 — page commit
-Hash do Código: 2d6f08a9
+Hash do Código: 07748eee
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -122,3 +122,10 @@ Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
 divider when body width is positive, and complete text before/after the rule.
 Do not copy vanilla zero width or force a paper size. This does not certify
 other relative-size shapes, asymmetric margins or general auto-page parity.
+
+## Runtime page inputs and physical replay
+
+Route injected logical page number reads with their physical ordinal fallback
+through the private memo observer. Route functional numbering through the
+same whole-snapshot observation as page references. Preserve the returned
+number and visible numbering content for every caller.

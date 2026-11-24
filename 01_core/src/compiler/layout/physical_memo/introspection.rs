@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/physical_memo/introspection.md
-//! @prompt-hash 6a9ab63e
+//! @prompt-hash e5929269
 //! @layer L1
 //! @updated 2026-11-13
 

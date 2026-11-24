@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/convergence.md
-//! @prompt-hash 93eaca40
+//! @prompt-hash 8b72c2b8
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -298,6 +298,7 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
             Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.prior_label_pages_observed =
             observe_prior_label_pages.then_some(&prior_label_pages_observed);
+        l.physical_page_reads = journal.filter(|_| has_injected_page_store || attempt == 0);
         l.math_callback_pass = Some(&callback_pass);
         l.par_line_callback_pass = Some(&par_line_callback_pass);
         l.bib_render_cache =
@@ -353,6 +354,11 @@ pub(super) fn run_planned<M: FontMetrics + Clone, S: ImageSizer + Clone>(
                     && running.consumed_all()
                     && running.coverage_complete();
                 if running.trace.data.complete {
+                    if let Some(journal) =
+                        journal.filter(|_| attempt == 0 && !has_injected_page_store)
+                    {
+                        journal.certify_unseeded_first_iteration();
+                    }
                     return PageRunningPassOutcome::complete(PageRunningDocument {
                         document: doc,
                         trace: running.trace,

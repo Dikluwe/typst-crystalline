@@ -1,5 +1,5 @@
 # L0 — core/compiler/layout/paragraph_paint
-Hash do Código: 55395708
+Hash do Código: 442cd2a9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:9e606cf207ae72ade678378bb4fe6c0aa4d1daa77b9c8fc2817b7c2afd4c8ea6
@@ -72,3 +72,9 @@ e recuse publicação se algum y capturado não reproduzir essa expressão
 bit a bit. Não retenha a primeira palavra, os efeitos de fechamento nem
 qualquer estado de página. Exija RED/GREEN com baselines, offset e
 substituição, e PDFs frescos do último candidato como controle.
+
+## Width reuse at the source paragraph boundary
+
+Store a finite horizontal extent in the bounded Paint product together with
+its immutable metric epoch. The width witness owns the matching Paint and item
+range. Recompute geometry on cold, unretained or invalidated paint.

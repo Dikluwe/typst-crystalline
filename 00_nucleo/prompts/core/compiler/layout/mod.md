@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 897b5e73
+Hash do Código: 71701618
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -889,3 +889,9 @@ to no observer. Keep observation monotonic outside checkpoint restoration and
 alive through deferred finish. All layout consumer reads go through the
 accessor; map publication and replacement are still owned by convergence.
 This is an internal convergence observation.
+
+## Runtime page inputs and physical replay
+
+Allow a private optional borrowed physical journal on the root Layouter for
+exact runtime PageStore read recording. Leave fresh independent layouters
+on their default empty runtime input and existing checkpoint behavior.

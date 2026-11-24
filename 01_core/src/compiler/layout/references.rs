@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/references.md
-//! @prompt-hash cadb0d75
+//! @prompt-hash 5955cdc2
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -111,7 +111,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         let known = layouter.introspector.query_by_label(&target_label).is_some()
             || layouter.introspector.counter_key_for_label(&target_label).is_some()
             || layouter.prior_label_page(&target_label).is_some();
-        if !known && !layouter.runtime.known_page_store.is_empty() {
+        if !known && !layouter.exact_runtime_page_store().is_empty() {
             layouter.layout_errors.push(SourceDiagnostic::error(
                 layouter.current_source_span,
                 format!("label `<{}>` does not exist in the document", elem.name),
@@ -123,7 +123,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             return;
         };
         let page = std::num::NonZeroUsize::new(page_number).unwrap();
-        let Some(pattern) = layouter.runtime.known_page_store.numbering_for_page(page)
+        let Some(pattern) = layouter.exact_runtime_page_store().numbering_for_page(page)
         else {
             layouter.layout_errors.push(
                 SourceDiagnostic::error(
@@ -142,14 +142,13 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
                     .unwrap_or_else(|| page_number.to_string())
             }
             crate::entities::numbering::Numbering::Func(_) => layouter
-                .runtime
-                .known_page_store
+                .exact_runtime_page_store()
                 .reference_numbering_for_page(page)
                 .map(Content::plain_text)
                 .unwrap_or_else(|| "?".to_string()),
         };
         let supplement = elem.supplement.clone().or_else(|| {
-            layouter.runtime.known_page_store.supplement_for_page(page).cloned()
+            layouter.exact_runtime_page_store().supplement_for_page(page).cloned()
         });
         let text = match supplement {
             Some(content) if !content.is_empty() => {

@@ -1,5 +1,5 @@
 # L0 — paragraph_emit
-Hash do Código: 3e849682
+Hash do Código: 890f7803
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/optical-overhang.toml sha256:8c4e3b767247e54f966c3a86be1b528b030dc4c8d05ea9b358533351720a3cf2
@@ -164,3 +164,8 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Width reuse at the source paragraph boundary
+
+Lend only the terminal item range of replayed paint to the source caller
+after first-word admission. Intermediate flushes use the ordinary path.

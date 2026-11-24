@@ -1,5 +1,5 @@
 # L0 — references
-Hash do Código: 9d500378
+Hash do Código: 0987dea9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/footnote-numbering.toml sha256:35a0a18aa4a83222cca7b82e79a77ec9bf254700b7e133b68d34e9907c4e5cad
@@ -248,3 +248,10 @@ positive control in references-500-inner-reuse-2026-11-19 show that the Page
 form consumes this map. Preserve short circuit, unknown-label errors,
 numbering and output. Ordinary references keep their existing resolution.
 This is an internal convergence observation.
+
+## Runtime page inputs and physical replay
+
+On the page-form reference path, mark use of the whole runtime page snapshot
+before the first page-store read. Preserve existence checks, patterns, rendered
+reference numbering and supplement behavior. Ordinary references keep the
+existing tracked-reader path.

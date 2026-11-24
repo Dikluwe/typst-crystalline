@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization/page_running.md
-//! @prompt-hash 38a65ec7
+//! @prompt-hash c545c017
 //! @layer L3
 //! @updated 2026-10-21
 
@@ -10,7 +10,8 @@ use typst_core::compiler::introspect::page_running::{
     introspect_with_page_running, prepare_page_running_body, PageRunningIndexInput,
 };
 use typst_core::compiler::layout::{
-    PageRunningBody, PageRunningKey, PageRunningLayoutInputs, PageRunningRequest,
+    physical_memo::{self, PhysicalLayoutSession}, PageRunningBody, PageRunningDocument,
+    PageRunningKey, PageRunningLayoutInputs, PageRunningRequest,
     PageRunningResolution, PageRunningTrace, SealedPageRunning,
 };
 use typst_core::compiler::realize::page_running::{
@@ -41,17 +42,31 @@ struct LayoutCallbacks {
     warnings: Vec<SourceDiagnostic>,
 }
 
+pub(super) enum PhysicalDocument {
+    Owned(PagedDocument),
+    Shared(Arc<PageRunningDocument>),
+}
+
+impl PhysicalDocument {
+    pub(super) fn view(&self) -> &PagedDocument {
+        match self {
+            Self::Owned(document) => document,
+            Self::Shared(product) => &product.document,
+        }
+    }
+}
+
 struct PhysicalStep {
     body: PageRunningBody,
     target: EvalTarget,
     running: Option<(PageRunningTrace, SealedPageRunning)>,
-    document: Option<PagedDocument>,
+    document: Option<PhysicalDocument>,
     warnings: Vec<SourceDiagnostic>,
 }
 
 pub(super) struct PhysicalCandidate {
     pub(super) index: TagIntrospector,
-    pub(super) document: Option<PagedDocument>,
+    pub(super) document: Option<PhysicalDocument>,
     pub(super) complete: bool,
     pub(super) warnings: Vec<SourceDiagnostic>,
 }
@@ -77,7 +92,7 @@ struct OutlineState {
 
 #[derive(Default)]
 pub(super) struct RunningState {
-    physical: typst_core::compiler::layout::physical_memo::PhysicalLayoutSession,
+    physical: PhysicalLayoutSession,
     generation: u64,
     document_index: Option<usize>,
     body: Option<PageRunningBody>,
@@ -93,6 +108,17 @@ pub(super) struct RunningState {
     numbering_partition: Option<Vec<usize>>,
 }
 
+impl RunningState {
+    pub(super) fn finish_document(&self, material: PhysicalDocument) -> PagedDocument {
+        match material {
+            PhysicalDocument::Owned(document) => document,
+            PhysicalDocument::Shared(product) => {
+                physical_memo::finish_replay(product, &self.physical)
+            }
+        }
+    }
+}
+
 /// Counts come only from these actual document steps, never request/paint inference.
 fn document_page_counts(steps: &[PhysicalStep], targets: &[bool]) -> Option<Vec<usize>> {
     if steps.len() != targets.len() {
@@ -105,7 +131,7 @@ fn document_page_counts(steps: &[PhysicalStep], targets: &[bool]) -> Option<Vec<
             if html {
                 (step.target == EvalTarget::Html && step.document.is_none()).then_some(0)
             } else if step.target == EvalTarget::Paged {
-                let count = step.document.as_ref()?.pages.len();
+                let count = step.document.as_ref()?.view().pages.len();
                 (count > 0).then_some(count)
             } else {
                 None
@@ -1561,7 +1587,15 @@ impl Session<'_> {
         for step in &steps {
             warnings.extend(step.warnings.iter().cloned());
         }
-        let documents: Vec<_> = steps.into_iter().map(|step| step.document).collect();
+        let documents: Vec<_> = steps
+            .into_iter()
+            .map(|step| {
+                step.document.map(|material| match material {
+                    PhysicalDocument::Owned(document) => document,
+                    PhysicalDocument::Shared(_) => unreachable!("Bundle uses owned layout"),
+                })
+            })
+            .collect();
         if complete {
             warnings.extend(super::bundle_page_views(
                 content,
@@ -1634,20 +1668,48 @@ impl Session<'_> {
                 })
                 .transpose()?;
             let body = projected.as_ref().unwrap_or(body);
-            let outcome = typst_core::compiler::layout::physical_memo::layout(
-                body,
-                input.as_ref().clone(),
-                self.metrics.clone(),
-                ImageSizeImageSizer,
-                11.0,
-                PageRunningLayoutInputs {
-                    math: callbacks.math.as_ref(),
-                    par_line: callbacks.par_line.as_ref(),
-                    running: Some(&sealed),
-                },
-                &self.running.physical,
-            )
-            .into_result();
+            let inputs = PageRunningLayoutInputs {
+                math: callbacks.math.as_ref(),
+                par_line: callbacks.par_line.as_ref(),
+                running: Some(&sealed),
+            };
+            let outcome = if !replay && self.bundle_html_targets.is_none() {
+                physical_memo::discover(
+                    body,
+                    input.as_ref().clone(),
+                    self.metrics.clone(),
+                    ImageSizeImageSizer,
+                    11.0,
+                    inputs,
+                    &self.running.physical,
+                )
+                .map(|trace| (trace, None))
+            } else if self.bundle_html_targets.is_none() {
+                physical_memo::replay_shared(
+                    body,
+                    input.as_ref().clone(),
+                    self.metrics.clone(),
+                    ImageSizeImageSizer,
+                    11.0,
+                    inputs,
+                    &self.running.physical,
+                )
+                .map(|product| {
+                    (product.trace.clone(), Some(PhysicalDocument::Shared(product)))
+                })
+            } else {
+                physical_memo::layout(
+                    body,
+                    input.as_ref().clone(),
+                    self.metrics.clone(),
+                    ImageSizeImageSizer,
+                    11.0,
+                    inputs,
+                    &self.running.physical,
+                )
+                .into_result()
+                .map(|complete| (complete.trace, Some(PhysicalDocument::Owned(complete.document))))
+            };
             match &outcome {
                 Ok(_) => {
                     if !callbacks.closed {
@@ -1671,14 +1733,14 @@ impl Session<'_> {
                 }
             }
             match outcome {
-                Ok(complete) => {
+                Ok((trace, document)) => {
                     let body = body.clone();
                     self.retire_stale_running();
                     return Ok(PhysicalStep {
                         body,
                         target: EvalTarget::Paged,
-                        running: Some((complete.trace, sealed)),
-                        document: Some(complete.document),
+                        running: Some((trace, sealed)),
+                        document,
                         warnings: callbacks.warnings.clone(),
                     });
                 }

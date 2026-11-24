@@ -1,5 +1,5 @@
 # L0 — compiler/layout/finish
-Hash do Código: 5287e062
+Hash do Código: 62b8f87e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -213,3 +213,9 @@ Acceptance requires finite content-derived page/SVG/PDF geometry, a nonzero
 divider when body width is positive, and complete text before/after the rule.
 Do not copy vanilla zero width or force a paper size. This does not certify
 other relative-size shapes, asymmetric margins or general auto-page parity.
+
+## Runtime page inputs and physical replay
+
+Route terminal and deferred-total effective page numbers through the same
+private runtime observer as ordinary page close. Functional numbering requires
+the whole scalar snapshot. Preserve page composition and trace creation.

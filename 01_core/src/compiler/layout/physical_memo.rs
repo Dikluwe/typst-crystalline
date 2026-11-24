@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/physical_memo.md
-//! @prompt-hash 49eb8073
+//! @prompt-hash 36ac85d3
 //! @layer L1
 //! @updated 2026-11-13
 
@@ -8,20 +8,89 @@ pub(super) mod introspection;
 mod providers;
 use super::*;
 use crate::entities::{introspector::TagIntrospector, page_store::PageStore};
-use std::sync::Mutex;
+use std::{num::NonZeroUsize, sync::Mutex};
 const LIMIT: usize = 32 * 1024 * 1024;
+const JOURNAL_MAX_CHECKS: usize = 16_384;
 type MetricCheck = Box<dyn Fn(&dyn FontMetrics) -> bool + Send + Sync>;
 type IndexCheck = Box<dyn Fn(&TagIntrospector) -> bool + Send + Sync>;
+const MAX_OBSERVED_PAGE_NUMBERS: usize = 128;
+const PAGE_NUMBER_CHARGE: usize = std::mem::size_of::<(NonZeroUsize, usize)>();
+
+fn effective_page_number(store: &PageStore, page: NonZeroUsize) -> usize {
+    store.logical_number_for_page(page).unwrap_or(page.get())
+}
+
+#[derive(Default)]
+struct PageReads {
+    first_iteration_completed: bool,
+    exact_snapshot: bool,
+    logical: Vec<(NonZeroUsize, usize)>,
+}
+
+impl PageReads {
+    fn record(&mut self, page: NonZeroUsize, number: usize) {
+        if self.exact_snapshot || self.logical.contains(&(page, number)) {
+            return;
+        }
+        if self.logical.len() == MAX_OBSERVED_PAGE_NUMBERS
+            || self.logical.iter().any(|(previous, _)| *previous == page)
+        {
+            self.require_exact_snapshot();
+            return;
+        }
+        self.logical.push((page, number));
+    }
+
+    fn require_exact_snapshot(&mut self) {
+        self.exact_snapshot = true;
+        self.logical.clear();
+    }
+
+    fn validates(&self, current: &PageStore) -> bool {
+        !self.exact_snapshot
+            && self.logical.iter().all(|&(page, expected)| {
+                effective_page_number(current, page) == expected
+            })
+    }
+}
+
+impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
+    pub(super) fn effective_runtime_page_number(&self, page: NonZeroUsize) -> usize {
+        let number = effective_page_number(&self.runtime.known_page_store, page);
+        if let Some(journal) = self.physical_page_reads {
+            journal.record_page_number(page, number);
+        }
+        number
+    }
+
+    pub(super) fn exact_runtime_page_store(&self) -> &PageStore {
+        if let Some(journal) = self.physical_page_reads {
+            journal.require_exact_page_snapshot();
+        }
+        &self.runtime.known_page_store
+    }
+}
+
 enum Check {
     Metric(MetricCheck),
     Index(IndexCheck),
 }
 #[derive(Default)]
 struct JournalState {
+    page_reads: PageReads,
     checks: Vec<Check>,
     charged: usize,
     refusals: Vec<&'static str>,
     fonts: Vec<(u8, usize)>,
+}
+impl JournalState {
+    fn has_room_for(&self, charge: usize) -> bool {
+        let page_checks = self.page_reads.logical.len();
+        self.checks.len() + page_checks < JOURNAL_MAX_CHECKS
+            && self.charged.checked_add(charge).is_some_and(|bytes| {
+                bytes <= LIMIT - page_checks * PAGE_NUMBER_CHARGE
+            })
+    }
 }
 #[derive(Clone, Default)]
 pub(super) struct Journal(Arc<Mutex<JournalState>>);
@@ -37,9 +106,7 @@ impl Journal {
         if !s.refusals.is_empty() {
             return;
         }
-        if s.checks.len() >= 16384
-            || s.charged.checked_add(charge).is_none_or(|n| n > LIMIT)
-        {
+        if !s.has_room_for(charge) {
             s.refusals.push("journal budget");
             return;
         }
@@ -73,6 +140,36 @@ impl Journal {
             Some(bytes)
         }
     }
+
+    fn record_page_number(&self, page: NonZeroUsize, number: usize) {
+        let mut state = self.0.lock().unwrap();
+        if state.has_room_for(PAGE_NUMBER_CHARGE) {
+            state.page_reads.record(page, number);
+        } else {
+            state.page_reads.require_exact_snapshot();
+        }
+    }
+
+    fn require_exact_page_snapshot(&self) {
+        self.0.lock().unwrap().page_reads.require_exact_snapshot();
+    }
+
+    pub(super) fn certify_unseeded_first_iteration(&self) {
+        self.0.lock().unwrap().page_reads.first_iteration_completed = true;
+    }
+
+    fn page_inputs_match(&self, original: &PageStore, current: &PageStore) -> bool {
+        if original.same_scalar_snapshot(current) {
+            return true;
+        }
+        if current.is_empty() {
+            return false;
+        }
+        let state = self.0.lock().unwrap();
+        (!original.is_empty() || state.page_reads.first_iteration_completed)
+            && state.page_reads.validates(current)
+    }
+
     fn validates(&self, metrics: &dyn FontMetrics, index: &TagIntrospector) -> bool {
         let state = self.0.lock().unwrap();
         state.refusals.is_empty()
@@ -89,7 +186,7 @@ struct Entry {
     font_size: u64,
     running: bool,
     journal: Journal,
-    product: PageRunningDocument,
+    product: Arc<PageRunningDocument>,
 }
 #[derive(Default)]
 struct Memo {
@@ -101,7 +198,10 @@ struct Memo {
 }
 /// Bounded complete physical results local to an explicit compilation session.
 #[derive(Default)]
-pub struct PhysicalLayoutSession(Mutex<Memo>);
+pub struct PhysicalLayoutSession(
+    Mutex<Memo>,
+    #[cfg(test)] std::sync::atomic::AtomicUsize,
+);
 impl PhysicalLayoutSession {
     pub fn new() -> Self {
         Self::default()
@@ -114,9 +214,15 @@ impl PhysicalLayoutSession {
         self.0.lock().unwrap().reasons.clone()
     }
 }
-fn cloned(product: &PageRunningDocument) -> PageRunningDocument {
+fn clone_document(product: &PageRunningDocument, _session: &PhysicalLayoutSession) -> PagedDocument {
+    #[cfg(test)]
+    _session.1.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    product.document.clone()
+}
+
+fn cloned(product: &PageRunningDocument, session: &PhysicalLayoutSession) -> PageRunningDocument {
     PageRunningDocument {
-        document: product.document.clone(),
+        document: clone_document(product, session),
         trace: product.trace.clone(),
     }
 }
@@ -127,6 +233,70 @@ fn same_epoch(expected: &Option<MetricEpoch>, current: &Option<MetricEpoch>) -> 
         _ => false,
     }
 }
+/// Produces the authoritative discovery trace and retains eligible layout for replay.
+pub fn discover<M: FontMetrics + Clone, S: ImageSizer + Clone>(
+    body: &PageRunningBody,
+    input: TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    inputs: PageRunningLayoutInputs<'_>,
+    session: &PhysicalLayoutSession,
+) -> Result<super::PageRunningTrace, super::PageRunningRequests> {
+    layout_with(
+        body, input, metrics, sizer, font_size, inputs, session,
+        |product| product.trace.clone(),
+        |product, retain| {
+            if retain {
+                (product.trace.clone(), Some(Arc::new(product)))
+            } else {
+                (product.trace, None)
+            }
+        },
+    )
+}
+
+/// Returns a shared physical result for read-only stabilization.
+pub fn replay_shared<M: FontMetrics + Clone, S: ImageSizer + Clone>(
+    body: &PageRunningBody,
+    input: TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    inputs: PageRunningLayoutInputs<'_>,
+    session: &PhysicalLayoutSession,
+) -> Result<Arc<PageRunningDocument>, super::PageRunningRequests> {
+    layout_with(
+        body, input, metrics, sizer, font_size, inputs, session,
+        Arc::clone,
+        |product, retain| {
+            let product = Arc::new(product);
+            let retained = retain.then(|| Arc::clone(&product));
+            (product, retained)
+        },
+    )
+}
+
+/// Transfers the selected document at terminal publication.
+///
+/// Releases the session's retained owner when it refers to this exact result.
+/// Other readers keep an immutable snapshot if the document needs to be copied.
+pub fn finish_replay(
+    product: Arc<PageRunningDocument>,
+    session: &PhysicalLayoutSession,
+) -> PagedDocument {
+    let retained = {
+        let mut memo = session.0.lock().unwrap();
+        memo.entry
+            .take_if(|entry| Arc::ptr_eq(&entry.product, &product))
+    };
+    drop(retained);
+    match Arc::try_unwrap(product) {
+        Ok(product) => product.document,
+        Err(product) => clone_document(&product, session),
+    }
+}
+
 pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     body: &PageRunningBody,
     input: TagIntrospector,
@@ -136,6 +306,32 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     inputs: PageRunningLayoutInputs<'_>,
     session: &PhysicalLayoutSession,
 ) -> PageRunningPassOutcome {
+    let result = layout_with(
+        body, input, metrics, sizer, font_size, inputs, session,
+        |product| cloned(product, session),
+        |product, retain| {
+            let retained = retain.then(|| Arc::new(cloned(&product, session)));
+            (product, retained)
+        },
+    );
+    match result {
+        Ok(product) => PageRunningPassOutcome::complete(product),
+        Err(pending) => PageRunningPassOutcome::pending(pending),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn layout_with<M: FontMetrics + Clone, S: ImageSizer + Clone, R>(
+    body: &PageRunningBody,
+    input: TagIntrospector,
+    metrics: M,
+    sizer: S,
+    font_size: f64,
+    inputs: PageRunningLayoutInputs<'_>,
+    session: &PhysicalLayoutSession,
+    on_hit: impl FnOnce(&Arc<PageRunningDocument>) -> R,
+    on_production: impl FnOnce(PageRunningDocument, bool) -> (R, Option<Arc<PageRunningDocument>>),
+) -> Result<R, super::PageRunningRequests> {
     let prior = session.0.lock().unwrap().entry.take();
     let running = inputs.running.is_some();
     let epoch = metrics.physical_epoch();
@@ -153,15 +349,15 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
                 && Arc::ptr_eq(&entry.source, &body.plan)
                 && entry.font_size == font_size.to_bits()
                 && entry.running == running
-                && entry.pages.same_scalar_snapshot(&input.page_store)
+                && entry.journal.page_inputs_match(&entry.pages, &input.page_store)
                 && entry.journal.validates(&metrics, &input)
                 && same_epoch(&entry.epoch, &metrics.physical_epoch())
             {
-                let out = cloned(&entry.product);
+                let out = on_hit(&entry.product);
                 let mut memo = session.0.lock().unwrap();
                 memo.hits += 1;
                 memo.entry = Some(entry);
-                return PageRunningPassOutcome::complete(out);
+                return Ok(out);
             }
         }
     }
@@ -175,7 +371,9 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
         drop(m);
         return super::layout_with_page_running(
             body, input, metrics, sizer, font_size, inputs,
-        );
+        )
+        .into_result()
+        .map(|product| on_production(product, false).0);
     }
     let journal = Journal::default();
     let recorded = providers::RecordingMetrics {
@@ -200,8 +398,9 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
                 && document_bounded(&product.document)
                 && journal.validates(&recorded.inner, &input)
                 && same_epoch(&epoch, &recorded.inner.physical_epoch());
+            let (out, retained) = on_production(product, admitted);
             let mut memo = session.0.lock().unwrap();
-            if admitted {
+            if let Some(product) = retained {
                 memo.entry = Some(Entry {
                     epoch,
                     source: body.plan.clone(),
@@ -209,7 +408,7 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
                     font_size: font_size.to_bits(),
                     running,
                     journal,
-                    product: cloned(&product),
+                    product,
                 });
             } else {
                 memo.refused += 1;
@@ -225,9 +424,9 @@ pub fn layout<M: FontMetrics + Clone, S: ImageSizer + Clone>(
                     }
                 }
             }
-            PageRunningPassOutcome::complete(product)
+            Ok(out)
         }
-        Err(pending) => PageRunningPassOutcome::pending(pending),
+        Err(pending) => Err(pending),
     }
 }
 pub(super) fn style_charge(style: &TextStyle) -> Option<usize> {
@@ -482,6 +681,108 @@ mod physical_retention_tests {
         format!("{:?}", d)
     }
     #[test]
+    fn shared_replay_moves_the_selected_document_without_a_full_copy() {
+        let session = PhysicalLayoutSession::new();
+        let provider = Provider::new();
+        let body = body();
+        let replay = |session: &PhysicalLayoutSession| {
+            replay_shared(
+                &body,
+                TagIntrospector::empty(),
+                provider.clone(),
+                NullImageSizer,
+                11.0,
+                PageRunningLayoutInputs { math: None, par_line: None, running: None },
+                session,
+            )
+            .ok()
+            .expect("complete replay")
+        };
+        let first = replay(&session);
+        let selected = replay(&session);
+        assert_eq!(
+            session.1.load(Ordering::Relaxed),
+            0,
+            "replay copied the full document"
+        );
+        assert!(Arc::ptr_eq(&first, &selected));
+        assert!(Arc::ptr_eq(&selected.trace.data.source, &body.plan));
+        let expected = signature(&first.document);
+        drop(first);
+        let allocation = selected.document.pages.as_ptr();
+        let output = finish_replay(selected, &session);
+        assert_eq!(output.pages.as_ptr(), allocation);
+        assert_eq!(signature(&output), expected);
+        assert_eq!(session.1.load(Ordering::Relaxed), 0);
+
+        let selected = replay(&session);
+        let other_reader = selected.clone();
+        let mut output = finish_replay(selected, &session);
+        output.pages.clear();
+        assert_eq!(signature(&other_reader.document), expected);
+        assert_eq!(session.1.load(Ordering::Relaxed), 1);
+
+        let obsolete = replay(&session);
+        let current_body = self::body();
+        let current = replay_shared(
+            &current_body,
+            TagIntrospector::empty(),
+            provider.clone(),
+            NullImageSizer,
+            11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: None },
+            &session,
+        )
+        .ok()
+        .expect("complete replay for new plan");
+        finish_replay(obsolete, &session);
+        let again = replay_shared(
+            &current_body,
+            TagIntrospector::empty(),
+            provider,
+            NullImageSizer,
+            11.0,
+            PageRunningLayoutInputs { math: None, par_line: None, running: None },
+            &session,
+        )
+        .ok()
+        .expect("same current replay");
+        assert!(Arc::ptr_eq(&current, &again), "publication evicted another product");
+    }
+
+    #[test]
+    fn discovery_avoids_full_document_clones() {
+        let session = PhysicalLayoutSession::new();
+        let provider = Provider::new();
+        let body = body();
+        for _ in 0..2 {
+            let trace = discover(
+                &body,
+                TagIntrospector::empty(),
+                provider.clone(),
+                NullImageSizer,
+                11.0,
+                PageRunningLayoutInputs { math: None, par_line: None, running: None },
+                &session,
+            )
+            .ok()
+            .expect("complete discovery");
+            assert!(trace.data.complete);
+            assert!(Arc::ptr_eq(&trace.data.source, &body.plan));
+        }
+        assert_eq!(session.stats(), (1, 1, 0));
+        assert_eq!(
+            session.1.load(Ordering::Relaxed),
+            0,
+            "discovery cloned the full document"
+        );
+        let hot = run(&body, provider.clone(), &session);
+        let cold = run(&body, provider, &PhysicalLayoutSession::new());
+        assert_eq!(signature(&hot.document), signature(&cold.document));
+        assert_eq!(session.1.load(Ordering::Relaxed), 1);
+    }
+
+    #[test]
     fn physical_retention_same_plan_avoids_the_physical_coordinator() {
         let session = PhysicalLayoutSession::new();
         let p = Provider::new();
@@ -612,6 +913,78 @@ mod physical_retention_tests {
         assert_eq!(footer(&result.document), footer(&cold.document));
         assert_eq!(session.stats().0, 0);
     }
+    #[test]
+    fn seeded_page_replay_keeps_only_equivalent_effective_numbering() {
+        use std::num::NonZeroUsize;
+        let p = Provider::new();
+        let content = Content::sequence(vec![
+            Content::SetPage(Arc::new(crate::entities::content::SetPageDelta {
+                numbering: Some(Some("1 / 1".into())),
+                ..Default::default()
+            })),
+            Content::text("Body"),
+        ]);
+        let mut arena = ContextOccurrenceArena::new(&content);
+        let mut frame = arena.frame();
+        let mut ctx = EvalContext::new();
+        let body = arena
+            .evaluate(&mut frame, &mut ctx, |ctx| {
+                prepare_page_running_body(&content, ctx)
+            })
+            .unwrap();
+        let make_store = |total: usize, number| PageStore::from_realized(
+            NonZeroUsize::new(total).unwrap(),
+            vec![None; total],
+            vec![number; total],
+            vec![crate::entities::span::Span::detached(); total],
+            vec![None; total],
+            vec![None; total],
+            vec![Content::text("Page"); total],
+        );
+        let compile = |store, session: &PhysicalLayoutSession| {
+            let mut index = TagIntrospector::empty();
+            index.page_store = store;
+            layout(
+                &body, index, p.clone(), NullImageSizer, 11.0,
+                PageRunningLayoutInputs { math: None, par_line: None, running: None },
+                session,
+            ).into_result().ok().expect("complete numbered body")
+        };
+        let session = PhysicalLayoutSession::new();
+        let first = compile(make_store(1, 1), &session);
+        let stable = compile(PageStore::from_total_pages(NonZeroUsize::new(2).unwrap()), &session);
+        let cold = compile(PageStore::from_total_pages(NonZeroUsize::new(2).unwrap()), &PhysicalLayoutSession::new());
+        assert_eq!(signature(&stable.document), signature(&cold.document));
+        assert_eq!(signature(&first.document), signature(&stable.document));
+        assert_eq!(session.stats().0, 1, "seeded replay repeated the physical traversal");
+
+        let moved = compile(make_store(2, 9), &session);
+        let cold = compile(make_store(2, 9), &PhysicalLayoutSession::new());
+        assert_eq!(signature(&moved.document), signature(&cold.document));
+        assert_ne!(signature(&stable.document), signature(&moved.document));
+        assert_eq!(session.stats().0, 1);
+        let unseeded = compile(PageStore::empty(), &session);
+        let cold = compile(PageStore::empty(), &PhysicalLayoutSession::new());
+        assert_eq!(signature(&unseeded.document), signature(&cold.document));
+        assert_eq!(session.stats().0, 1);
+
+        let session = PhysicalLayoutSession::new();
+        let unseeded = compile(PageStore::empty(), &session);
+        let seeded = compile(make_store(1, 1), &session);
+        let cold = compile(make_store(1, 1), &PhysicalLayoutSession::new());
+        assert_eq!(signature(&seeded.document), signature(&cold.document));
+        assert_eq!(signature(&seeded.document), signature(&unseeded.document));
+        assert_eq!(session.stats().0, 1, "first complete unseeded traversal was repeated");
+
+        let session = PhysicalLayoutSession::new();
+        compile(PageStore::empty(), &session);
+        let seeded = compile(make_store(1, 9), &session);
+        let cold = compile(make_store(1, 9), &PhysicalLayoutSession::new());
+        assert_eq!(signature(&seeded.document), signature(&cold.document));
+        assert_ne!(signature(&seeded.document), signature(&unseeded.document));
+        assert_eq!(session.stats().0, 0);
+    }
+
     #[test]
     fn physical_retention_font_size_and_running_presence_are_part_of_input() {
         let session = PhysicalLayoutSession::new();

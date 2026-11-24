@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link_capture.md
-//! @prompt-hash b0fe7e37
+//! @prompt-hash 84c1e0e4
 //! @layer L1
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -95,30 +95,45 @@ fn same_target(a: &LinkTarget, b: &LinkTarget) -> bool {
         | (LinkTarget::Destination(_), LinkTarget::Url(_)) => false,
     }
 }
-fn remove_redundant(items: Vec<FrameItem>, target: &LinkTarget) -> Vec<FrameItem> {
-    let mut out = vec![];
-    for mut item in items {
-        match item {
-            FrameItem::Link { target: ref inner, .. } if same_target(inner, target) => {
-                let FrameItem::Link { items, .. } = item else { unreachable!() };
-                out.extend(remove_redundant(items, target));
-                continue;
-            }
-            FrameItem::Group { ref mut items, .. }
-            | FrameItem::Semantic { ref mut items, .. }
-            | FrameItem::TextReplacement { ref mut items, .. } => {
-                *items = remove_redundant(std::mem::take(items), target);
-            }
-            FrameItem::Link { .. }
-            | FrameItem::Text { .. }
-            | FrameItem::TextShaped { .. }
-            | FrameItem::TextSeparator { .. }
-            | FrameItem::Glyph { .. }
-            | FrameItem::Line { .. }
-            | FrameItem::Shape { .. }
-            | FrameItem::Image { .. } => {}
+fn clean_link_child(item: &mut FrameItem, target: &LinkTarget) -> bool {
+    match item {
+        FrameItem::Link { target: inner, .. } => same_target(inner, target),
+        FrameItem::Group { items, .. }
+        | FrameItem::Semantic { items, .. }
+        | FrameItem::TextReplacement { items, .. } => {
+            *items = remove_redundant(std::mem::take(items), target);
+            false
         }
-        out.push(item);
+        FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::TextSeparator { .. }
+        | FrameItem::Glyph { .. }
+        | FrameItem::Line { .. }
+        | FrameItem::Shape { .. }
+        | FrameItem::Image { .. } => false,
+    }
+}
+
+fn promote_link(item: FrameItem, target: &LinkTarget) -> Vec<FrameItem> {
+    let FrameItem::Link { items, .. } = item else { unreachable!() };
+    remove_redundant(items, target)
+}
+
+fn remove_redundant(mut items: Vec<FrameItem>, target: &LinkTarget) -> Vec<FrameItem> {
+    let Some(first) = items.iter_mut().position(|item| clean_link_child(item, target)) else {
+        return items;
+    };
+
+    let mut out = Vec::with_capacity(items.len());
+    let mut items = items.into_iter();
+    out.extend(items.by_ref().take(first));
+    out.extend(promote_link(items.next().expect("first redundant link"), target));
+    for mut item in items {
+        if clean_link_child(&mut item, target) {
+            out.extend(promote_link(item, target));
+        } else {
+            out.push(item);
+        }
     }
     out
 }
@@ -334,6 +349,67 @@ mod tests {
             fill_rule: FillRule::NonZero,
             parent_bbox_at_emit: None,
         }
+    }
+
+    fn nested_link(target: &LinkTarget, items: Vec<FrameItem>) -> FrameItem {
+        use crate::entities::layout_types::Size;
+        FrameItem::Link {
+            target: target.clone(),
+            items,
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            size: Size { width: Pt(1.0), height: Pt(1.0) },
+        }
+    }
+
+    fn envelope(items: Vec<FrameItem>) -> FrameItem {
+        FrameItem::Semantic {
+            kind: SemanticKind::Artifact(ArtifactKind::Other),
+            alt: None,
+            placement: SemanticPlacement::Inline,
+            items,
+        }
+    }
+
+    #[test]
+    fn redundant_links_keep_buffers_with_the_same_direct_children() {
+        let outer = LinkTarget::Url("https://example.test/outer".into());
+        let distinct = LinkTarget::Url("https://example.test/distinct".into());
+        let mut sibling = Vec::with_capacity(17);
+        sibling.push(rectangle(1.0));
+        let sibling_buffer = (sibling.as_ptr(), sibling.capacity());
+        let mut parent = Vec::with_capacity(23);
+        parent.push(envelope(sibling));
+        parent.push(envelope(vec![
+            nested_link(&outer, vec![rectangle(2.0)]),
+            nested_link(&distinct, vec![nested_link(&outer, vec![rectangle(3.0)])]),
+            nested_link(&outer, vec![]),
+            rectangle(4.0),
+        ]));
+        let parent_buffer = (parent.as_ptr(), parent.capacity());
+
+        let result = remove_redundant(parent, &outer);
+
+        let [FrameItem::Semantic { items: sibling, .. }, FrameItem::Semantic { items: changed, .. }] =
+            result.as_slice()
+        else {
+            panic!("expected the two original wrappers");
+        };
+        let [
+            FrameItem::Shape { pos: first, .. },
+            FrameItem::Link { target, items, .. },
+            FrameItem::Shape { pos: last, .. },
+        ] = changed.as_slice()
+        else {
+            panic!("expected promoted content, distinct link, and trailing shape");
+        };
+        assert_eq!((first.x, last.x), (Pt(2.0), Pt(4.0)));
+        assert!(same_target(target, &distinct));
+        assert!(matches!(
+            items.as_slice(),
+            [FrameItem::Link { target, .. }] if same_target(target, &outer)
+        ));
+        assert_eq!((result.as_ptr(), result.capacity()), parent_buffer);
+        assert_eq!((sibling.as_ptr(), sibling.capacity()), sibling_buffer);
     }
 
     #[test]

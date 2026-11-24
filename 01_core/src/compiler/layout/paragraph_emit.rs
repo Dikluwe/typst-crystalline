@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_emit.md
-//! @prompt-hash 2e790fe0
+//! @prompt-hash 62e5ef05
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -33,16 +33,34 @@ pub(super) fn emit_product<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
 ) {
+    let _ = emit_source_product(l, product, width, justify, false);
+}
+
+// Only the terminal line can hand its retained width to the source boundary.
+pub(super) fn emit_source_product<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    product: &super::paragraph_session::Product,
+    width: f64,
+    justify: bool,
+    lend: bool,
+) -> Option<super::paragraph_paint::CloseTail> {
     let identity = product.paintable.then_some(&product.paint_id);
     match (&product.hyphenated, identity) {
-        (Some(lines), Some(id)) => emit_prepared_impl(l, lines, width, justify, Some(id)),
-        (Some(lines), None) => emit_prepared_lines(l, lines, width, justify),
+        (Some(lines), Some(id)) => emit_prepared_impl(l, lines, width, justify, Some(id), lend),
         (None, Some(id)) => {
-            emit_impl(l, &product.prepared, &product.lines, width, justify, Some(id))
+            emit_impl(l, &product.prepared, &product.lines, width, justify, Some(id), lend)
         }
-        (None, None) => emit(l, &product.prepared, &product.lines, width, justify),
+        (Some(lines), None) => {
+            emit_prepared_lines(l, lines, width, justify);
+            None
+        }
+        (None, None) => {
+            emit(l, &product.prepared, &product.lines, width, justify);
+            None
+        }
     }
 }
+
 pub(super) fn emit<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     p: &Prepared,
@@ -50,7 +68,7 @@ pub(super) fn emit<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
 ) {
-    emit_impl(l, p, lines, width, justify, None);
+    let _ = emit_impl(l, p, lines, width, justify, None, false);
 }
 fn emit_impl<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
@@ -59,13 +77,15 @@ fn emit_impl<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
     identity: Option<&std::sync::Arc<()>>,
-) {
+    lend: bool,
+) -> Option<super::paragraph_paint::CloseTail> {
     super::paragraph_indent::start(l);
+    let mut tail = None;
     let saved = l.style.clone();
     let pagination = super::paragraph_pagination::certify_selected(l, p, lines);
     for (index, &line) in lines.iter().enumerate() {
         super::paragraph_pagination::admit(l, pagination, index, lines.len());
-        emit_line(
+        tail = emit_line(
             l,
             p,
             line,
@@ -73,9 +93,11 @@ fn emit_impl<M: FontMetrics, S: ImageSizer>(
             justify,
             index + 1 < lines.len(),
             identity.map(|id| (id, index)),
+            lend,
         );
     }
     l.style = saved;
+    tail
 }
 fn emit_line<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
@@ -85,7 +107,8 @@ fn emit_line<M: FontMetrics, S: ImageSizer>(
     justify: bool,
     continued: bool,
     identity: Option<(&std::sync::Arc<()>, usize)>,
-) {
+    lend: bool,
+) -> Option<super::paragraph_paint::CloseTail> {
     let width = super::paragraph_indent::current_width(l, width);
     let m = measure(p, line);
     let original_delta = width + p.right_overhang - m.width;
@@ -140,18 +163,22 @@ fn emit_line<M: FontMetrics, S: ImageSizer>(
             emit_gap(l, gap, gap.width);
         }
     };
-    if let Some((id, index)) = identity.filter(|_| next < line.end) {
+    let tail = if let Some((id, index)) = identity.filter(|_| next < line.end) {
         let language = p.words[next..line.end]
             .iter()
             .flat_map(|w| &w.fragments)
             .find_map(|f| f.style.lang);
-        super::paragraph_paint::tail(l, id, index, [proportional, extra], language, run);
+        super::paragraph_paint::tail_with_close(
+            l, id, index, [proportional, extra], language, lend && !continued, run,
+        )
     } else {
         run(l);
-    }
+        None
+    };
     if continued {
         l.flush_line();
     }
+    tail
 }
 
 fn emit_word<M: FontMetrics, S: ImageSizer>(
@@ -189,7 +216,7 @@ pub(super) fn emit_prepared_lines<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
 ) {
-    emit_prepared_impl(l, lines, width, justify, None);
+    let _ = emit_prepared_impl(l, lines, width, justify, None, false);
 }
 fn emit_prepared_impl<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
@@ -197,13 +224,15 @@ fn emit_prepared_impl<M: FontMetrics, S: ImageSizer>(
     width: f64,
     justify: bool,
     identity: Option<&std::sync::Arc<()>>,
-) {
+    lend: bool,
+) -> Option<super::paragraph_paint::CloseTail> {
     super::paragraph_indent::start(l);
+    let mut tail = None;
     let saved = l.style.clone();
     let pagination = super::paragraph_pagination::certify_prepared(l, lines);
     for (i, p) in lines.iter().enumerate() {
         super::paragraph_pagination::admit(l, pagination, i, lines.len());
-        emit_line(
+        tail = emit_line(
             l,
             p,
             Line { start: 0, end: p.words.len() },
@@ -211,9 +240,11 @@ fn emit_prepared_impl<M: FontMetrics, S: ImageSizer>(
             justify,
             i + 1 < lines.len(),
             identity.map(|id| (id, i)),
+            lend,
         );
     }
     l.style = saved;
+    tail
 }
 
 #[cfg(test)]

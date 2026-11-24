@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/page_commit.md
-//! @prompt-hash 44e70c5b
+//! @prompt-hash 5fc99cbb
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -21,11 +21,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let page_numbering = self.page_config.numbering.clone();
         let page_number = self.pages.len() + 1;
         let page = std::num::NonZeroUsize::new(page_number).unwrap();
-        let margin_number = self
-            .runtime
-            .known_page_store
-            .logical_number_for_page(page)
-            .unwrap_or(page_number);
+        let margin_number = self.effective_runtime_page_number(page);
 
         super::divider::resolve(self, page_width);
         self.close_link_items();
@@ -107,11 +103,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 page_numbering,
                 Some(crate::entities::numbering::Numbering::Func(_))
             ) {
-                if let Some(content) = self
-                    .runtime
-                    .known_page_store
-                    .visible_numbering_for_page(page)
-                    .cloned()
+                if let Some(content) =
+                    self.exact_runtime_page_store().visible_numbering_for_page(page).cloned()
                 {
                     marginal_items.extend(super::page_running::realized_numbering_layer(
                         self,
