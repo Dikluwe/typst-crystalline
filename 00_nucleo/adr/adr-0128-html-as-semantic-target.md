@@ -17,6 +17,14 @@ An intrinsic `html.frame` is a local layout island inside semantic HTML. Preserv
 
 Feature selection is independent of target and serialization. Features default to empty. An HTML extension, output format or serialization choice cannot enable `Feature::Html`. The public HTML binding, expansion and export require explicit enablement. A bundle containing HTML requires the applicable bundle and HTML features. The approved amendment requires `info` to report effective feature state. [00_nucleo/prompts/_nuclei/compiler-feature-gates.toml](../prompts/_nuclei/compiler-feature-gates.toml)
 
-## Open discrepancy and verification
+## Feature reporting and verification
 
-The 2026-11-24 review observed divergent `features.html` reports under `TYPST_FEATURES=html` in the pinned reference and the identified local release. The L2 and L4 info owners describe the current limited report. Keep the approved rule and the discrepancy separately identifiable pending reconciliation of those owners. This consolidation changes no CLI behavior. Verify feature-disabled and feature-enabled compilation, effective reporting, unsupported variants, and the intrinsic-frame exception through their public entry points. [Review and executable receipts](../diagnostics/architecture-review-2026-11-24.pt-BR.md) · [00_nucleo/prompts/shell/info.md](../prompts/shell/info.md) · [00_nucleo/prompts/wiring/info.md](../prompts/wiring/info.md)
+The 2026-11-24 review observed divergent `features.html` reports for
+`TYPST_FEATURES=html`. The info owners now project recognized names from the
+environment snapshot while preserving the serialized field names. The compile,
+watch and eval commands govern their own explicit feature selection. The
+follow-up found that compilation accepts `--features html` and still ignores
+`TYPST_FEATURES=html`. Its environment activation policy is a separate
+compatibility decision. Verify disabled and enabled compilation, effective
+reporting, unsupported variants and the intrinsic-frame exception through
+their public entry points. [Prompt review and controls](../diagnostics/prompt-review-after-adr-consolidation-2026-11-24.pt-BR.md) · [00_nucleo/prompts/shell/info.md](../prompts/shell/info.md) · [00_nucleo/prompts/wiring/info.md](../prompts/wiring/info.md)

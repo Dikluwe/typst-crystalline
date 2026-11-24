@@ -15,7 +15,7 @@ At the uncommitted working tree captured in `lab/results/construction/diagnostic
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 
 `lab/results/construction/diagnostics/matrix-morfologia-2026-10-06/final.json.gz` records

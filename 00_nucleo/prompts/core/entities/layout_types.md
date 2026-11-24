@@ -35,7 +35,7 @@ Paint-root evidence in `lab/results/construction/diagnostics/paint-root-2026-10-
 
 V16 evidence in `lab/results/construction/diagnostics/tekt-frame-items-2026-10-16/{before.json.gz,classification.json}` records the same dirty HEAD, exact state/config/hashes/UTC and AST spans/patterns/guards/bodies/complements for 70 cases across 26 owners. F051 is visit_item at layout_types.rs:1392. Exhaustiveness mechanics can change without new language semantics or inferred upstream intent.
 
-All historical pins and numbers above retain their original state limits and do not certify current target `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Source observations are not automatically intent. Preserve provenance sufficient to reproduce every number used for a decision.
+All historical pins and numbers above retain their original state limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Source observations are not automatically intent. Preserve provenance sufficient to reproduce every number used for a decision.
 
 ## Core coordinates, frames and current traversal
 

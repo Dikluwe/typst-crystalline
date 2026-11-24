@@ -17,4 +17,4 @@ statement = "Bundle uses actual ordered document targets and one global semantic
 [[claims]]
 id = "acceptance"
 level = "must"
-statement = "Require actual language RED to GREEN for terminal page styles and Outline with Ref, keeping source words/pages, 0.001pt positions and independent PDF/SVG paint, original source identity and effects, dormant/hidden/None/Content controls, all technical and historic/JPEG resource gates. Eligibility itself proves neither completeness nor parity of other debts."
+statement = "Require actual language RED to GREEN for terminal page styles and Outline with Ref, keeping source words/pages, 0.001pt positions and independent PDF/SVG paint, original source identity and effects, dormant/hidden/None/Content controls, and the existing technical validation gates. Eligibility itself proves neither completeness nor parity of other debts."

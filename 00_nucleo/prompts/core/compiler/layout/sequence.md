@@ -7,8 +7,8 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:ace259e7d5754e74aba13c5ee64698b7d296f51b8905fc17dbe8b62ee1f01564
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 
 
 

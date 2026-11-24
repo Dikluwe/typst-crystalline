@@ -5,7 +5,7 @@ title = "Paragraph boundaries and causal line closure"
 [[claims]]
 id = "physical-lines"
 level = "must"
-statement = "A line continued by new material uses par.justify for space justification; final line, parbreak and linebreak false keep natural width. linebreak true requests justification independently of paragraph."
+statement = "A line continued by new material uses par.justify for space justification. A final line, parbreak and linebreak false do not request justification expansion. A selected prepared final line can still reduce spaces within the existing bounds on overflow under paragraph-selection. linebreak true requests justification independently of the paragraph setting."
 [[claims]]
 id = "paragraph-node"
 level = "must"

@@ -64,7 +64,13 @@ The current human formatter does not print `env`. The prior same-categories acce
 
 Collection is read-only: do not download packages or trigger a complete font scan. L3 resolves Typst package paths from XDG locations, falling back to HOME-based locations, and supplies configured font paths. The environment allowlist is `TYPST_FEATURES`, `TYPST_FONT_PATHS`, `TYPST_ROOT`, `XDG_CACHE_HOME`, `XDG_DATA_HOME`; absent or non-UTF-8 values are null. Do not expose proxy credentials, certificate paths/bytes or arbitrary environment values. Custom CA is represented only by a boolean.
 
-The current command has no feature-selection option, so effective feature booleans are false and system-font configuration is true. `TYPST_FEATURES` is informational here, not an activation source.
+The command has no feature-selection option. Format the effective feature
+booleans supplied by [00_nucleo/prompts/wiring/info.md](../wiring/info.md) from
+the allowlisted environment snapshot. The paired `TYPST_FEATURES=html`
+measurement in the [prompt review](../../diagnostics/prompt-review-after-adr-consolidation-2026-11-24.pt-BR.md)
+showed that the old constant booleans diverged from the pinned oracle and the
+approved rule in ADR-0128. Preserve the JSON spelling, human labels and
+current system-font projection.
 
 Success exits 0. JSON serialization failure and stdout write failure exit 2, with respectively `error: failed to serialize info: {error}` and `error: failed to write info: {error}`.
 

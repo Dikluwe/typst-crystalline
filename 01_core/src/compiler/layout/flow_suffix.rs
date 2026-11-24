@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/flow_suffix.md
-//! @prompt-hash b978efe2
+//! @prompt-hash d0ed467f
 //! @layer L1
 //! @updated 2026-09-25
 //!

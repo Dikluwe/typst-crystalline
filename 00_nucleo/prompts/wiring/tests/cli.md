@@ -1,5 +1,5 @@
 # L0 — wiring/tests/cli
-Hash do Código: dae0495e
+Hash do Código: edb0ce0b
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/cli.rs`
@@ -329,3 +329,16 @@ Source `04_wiring/src/init.rs:18-19` uses unchecked println for the two success 
 Own Linux real-process init-output regression tests using local-only package fixtures in fresh isolated destination/data/cache roots. Assert exact healthy success stdout bytes/order, empty healthy stderr and exit0, healthy initialization error stderr and exit1, failed used stdout or stderr as operational exit2 without panic, and preserved initialized file bytes after notification failure. Cover /dev/full stdout and both channels plus a deterministically closed output descriptor producing BrokenPipe. Success with only unused stderr failed remains0. Never mutate global process environment or use registry/network acquisition. Reuse the existing transactional-init fixture/helper and retain its prior validations. These tests observe the CARGO_BIN_EXE_typst process, not private implementation calls.
 
 This is an expressly requested internal robustness correction under continuous-flow ADR-0127. No public entity field, trait/signature, product mode/flag/default/channel, compatibility break or pipeline phase change. L0 precedes code and resealing; retain RED failures and all existing warnings/contracts. Complete required suites/builds/Clippy/rustdoc/fmt/path/forward/reverse/Nucleus validation.
+
+
+## Effective feature reporting
+
+The [paired info probe](../../../diagnostics/prompt-review-after-adr-consolidation-2026-11-24.pt-BR.md)
+records the former constant false projection against the pinned oracle.
+Exercise the public binary in separate processes with `TYPST_FEATURES` removed
+and supplied. Check the three JSON booleans with the existing field names for
+an empty value, each known name, a case-insensitive comma-separated combination
+with an empty entry and an unknown name next to a known name. Confirm success,
+the sourced unknown-feature diagnostic and active valid peers on mixed input.
+Check the same effective state through the human feature labels. Preserve the
+separate certificate secrecy controls.

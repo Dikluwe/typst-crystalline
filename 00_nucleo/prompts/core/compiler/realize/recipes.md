@@ -149,7 +149,7 @@ and Located's prepared identity.
 
 ### Measurement and classification before decision
 
-The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. Current-pin oracle is `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
+The frozen proposal at baseline `731f0ffdf4c7c152f590551e72ff63f7bd85ef85` in `lab/results/v16-corrections-2026-10-19/figure-kind/review.md`, its `agents/contracts/design.md`, `agents/contracts/semantic-partition.json`, and `agents/counter/design.md` bind measurements and full source/oracle provenance. The oracle for this measurement was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Constructor inference loses typed identity and lexical occurrence styles; semantic inspection and final supplement need separate phases. These are language semantics and causal effects, not a requirement for upstream Rust mechanics. The human explicitly approved the exact public carriers, phase changes and compatibility migration in the current session under ADR-0127.
 
 ### Exclusive responsibility
 
@@ -362,7 +362,7 @@ parity, hashes and lineage without suppressions or changed tolerances.
 Measurement: pre-E inputs and bilateral reflection in
 `lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
 The owner approved the native Symbol declaration on 2026-10-23.
-Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Apply the pinned Symbol claims in this consumer’s existing exhaustive projections and match arms.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
 
 Measured symbol-render-v2-before/receipt.json and pinned typst-realize/src/lib.rs:242-260,317-345 show the kind-dependent boundary precedes native show rules: outside math convert direct/source-wrapped Symbol to Text before root rules and textual grouping; inside math retain Symbol and apply textual regex per element before native element rules. Preserve source spans, wrappers, guards and existing realization order without phase migration. Adjacent textual runs may span the converted symbol.

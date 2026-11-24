@@ -17,7 +17,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/text/constructor.rs`
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 Hyphenation policy 52 controls, hardcoded overhang 20, configured costs 66 and widow/orphan 78+24 source/state/initial/before receipts are preserved in correcao-politica-hifenizacao/correcao-hardcode-paragrafo/correcao-custos-paragrafo/correcao-viuvas-orfas-2026-09-28 diagnostics. They distinguish ignored versus typed policy, shared exterior costs from partial run styles and certified regional protection. first-policy-green.log has 5policy tests passing but 4long-type errors: local helper needed integer versus global type_mismatch int; existing length helper already uses language names. after-first-resultados/proveniencia refutes refusing glyph-neutral cost channels while integral Styled factoring already occurs before Par. No intent inferred.
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/power.md
-//! @prompt-hash 129ad68f
+//! @prompt-hash b9a56b82
 //! @layer L1
 //! @updated 2026-09-30
 

@@ -22,7 +22,7 @@ Núcleos Tekt:
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 Table presence before/presence-refuters/cast-refuters/raw-options measure omitted versus Auto/None and component-presence with causal spans; human 2026-10-07 table-cell-presenca-aprovacao receipt covers lexical fields only. Resolved-insertion approval `lab/history/construction/records/00_nucleo/materialization/table-cell-realizacao-d08b3-2026-10-07.md:3` confirms manifest `5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b`; standalone follow-up `table-cell-isolada-d08b3b-2026-10-07.md:3` confirms `3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df`. Former proposed gates are satisfied only for their distinct scopes, no conflation.
 
@@ -120,7 +120,7 @@ or broadening/loss of existing diagnostics or negative controls.
 Measurement: pre-E inputs and bilateral reflection in
 `lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
 The owner approved the native Symbol declaration on 2026-10-23.
-Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Apply the pinned Symbol claims in this consumer’s existing exhaustive projections and match arms.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
 
 

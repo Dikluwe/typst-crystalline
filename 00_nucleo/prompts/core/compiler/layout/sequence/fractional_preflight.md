@@ -5,7 +5,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml sha256:0177da7d5af56bbce26198ac775e603cec4529be91fb3567373c243543fa85e3
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:68203377765579bc29327c7d8fded6f4f831d11682b6b7c9abbf2dbf65b28bad
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:ace259e7d5754e74aba13c5ee64698b7d296f51b8905fc17dbe8b62ee1f01564
 
 ## Evidence before specification
 

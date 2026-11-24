@@ -5,7 +5,7 @@ title = "Preparation, selection and emission of certified paragraphs"
 [[claims]]
 id = "strategy-transport"
 level = "must"
-statement = "Validated linebreaks preserves Auto or simple/optimized in private par.linebreaks; auto uses optimized for justify=true, simple otherwise."
+statement = "Validated linebreaks preserves Auto or simple/optimized in private par.linebreaks. Omission and Auto resolve to optimized when par.justify is true and simple otherwise. Explicit simple and optimized select their respective strategies. The planner may use absence independently when deciding whether prepared emission is admissible."
 [[claims]]
 id = "prepared-input"
 level = "must"

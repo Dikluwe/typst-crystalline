@@ -8,7 +8,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 
 
 **Layer:** L1
@@ -19,7 +19,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/text.rs:20`, `01_core/src/compiler/layout/text.rs:209`, `01_core/src/compiler/layout/text.rs:237`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new run.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. Historical pins do not certify later snapshots. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for a new comparison.
 
 Source→PDF RED probes in `lab/results/construction/diagnostics/fatia-funcional-tekt-2026-09-28/` and handler inspection precede separator transport; public carrier approval in `00_nucleo/prompts/core/entities/layout_types.md` was received 2026-09-28/recorded in materialization provenance.
 

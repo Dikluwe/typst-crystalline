@@ -3,13 +3,21 @@ Hash do Código: 80d7324c
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/engine.rs`
-**Governance:** ADR-0036, ADR-0037, ADR-0042, ADR-0043, ADR-0044.
+**Governance:** ADR-0029, ADR-0072, ADR-0109, ADR-0127, and retained ADR-0042 through ADR-0044.
 
 ## Purpose and contract
 
-Engine aggregates evaluator state after responsibilities have been extracted.
-The archive preserves the original extraction/aggregation sequence; it is
-not an instruction to repeat those construction steps.
+This owner specifies the evaluator aggregate in
+`01_core/src/entities/engine.rs`. The similarly named unit carrier in
+`01_core/src/entities/world_types.rs` belongs to
+[00_nucleo/prompts/core/entities/world_types.md](world_types.md).
+
+The [original Engine decision](../../../adr/adr-0044-engine-eval-state-aggregator.md)
+covers aggregation and individually tracked handles. The
+[font-metrics decision](https://github.com/Dikluwe/typst-crystalline/blob/634bf6943f6352a8bf63c72561d7ecc8d891932d/00_nucleo/diagnosticos/typst-passo-858-relatorio.md#L11)
+records the owner's choice of the required `&dyn FontMetrics` field.
+The original aggregation receipt and the later font-metrics decision cover
+different revisions of the public shape.
 
 ```rust
 pub struct Engine<'a> {
@@ -44,10 +52,7 @@ these lifetime/tracking and propagation properties without introducing I/O.
 ## Deferred ownership reconciliation
 
 The original schema lists introspector, routines, and traced only as future
-stubs. Its declared expansion rule requires an applicable ADR when a subsystem
-is introduced and upstream-aligned field names. Their implementation status
-must be reconciled with the relevant current owners; this cleanup does not
-turn stubs into fields, remove newer fields, or authorize a new public API.
+stubs. Their current ownership and public provenance must be reconciled separately. Apply ADR-0127 when changing an interface and record a new decision when the change establishes an architectural choice outside the existing ADRs.
 
 ## Historical record
 

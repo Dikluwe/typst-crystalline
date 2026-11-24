@@ -4,7 +4,7 @@ Hash do Código: 2fd97910
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/bundle-numbering-input.toml sha256:2e87970ea88f2802436705618856cc6aff0563d0fdbe8724d3d0221e59d494d9
-- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:40b07110378aa324ef3e1b534bd6a7d948128d1cdbb318ed0e84ed79e211c5ac
+- 00_nucleo/prompts/_nuclei/layout/physical-number-outline-eligibility.toml sha256:ab006ebec30a3716a79ce2f93bc1716f7ed6f09a49ed370450865897e613de56
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 
 

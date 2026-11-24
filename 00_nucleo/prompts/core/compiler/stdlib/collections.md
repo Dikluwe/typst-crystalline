@@ -14,7 +14,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/collections.rs`
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 `lab/results/construction/diagnostics/atomizacao-stdlib-collections-2026-09-30-before.json.gz` records uncommitted 3542-line original, L1 suite 6401 pass/2 ignored; structural extraction, not benchmark/new parity. caminhos-residuais-ci-2026-10-13/before.json.gz records unused wrapper/import spans 519/553, dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/status/stat/sources/L0/uses.
 

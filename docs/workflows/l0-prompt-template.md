@@ -1,9 +1,15 @@
 # L0 Prompt: [Component Name]
+Hash do Código: 00000000
 
 **Layer:** L[n] — [Core | Shell | Infrastructure | Wiring]
 **Created:** YYYY-MM-DD
 **Exclusive consumer:** `[exact productive consumer path]`
 **Technique** *(optional; use only when the mechanism has a named computer-science technique; do not force one into every prompt)*: [technique/area] — [one sentence or reference to the standard concept]. Example: “Term rewriting system — termination by cycle detection, not by a maximum depth.” This field can make the prompt useful as study material as well as a specification.
+
+The second line illustrates the required reverse seal. Replace the example
+value with the seal generated for the exclusive consumer. Keep the field in
+the opening preamble before its first blank line, and validate both lineage
+directions before submitting the owner.
 
 The prompt’s canonical path is the owner path used by lineage metadata. A materializable prompt owns exactly one productive consumer; one consumer has exactly one owner. Put shared invariants in Tekt nuclei, pinned by their consuming prompts. A nucleus is not an owner and does not authorize code by itself.
 
@@ -24,6 +30,12 @@ Describe relevant existing system behavior, the domain problem this work address
 - State what the component must not do.
 - List dependencies forbidden in the target layer.
 - Preserve existing public API, behavior, and phase unless a separately authorized change says otherwise.
+
+## Evidence
+
+Before specifying a measured change, record the source, symbol and revision or
+the observable and its reproduction command. Identify the current oracle
+through the parity manifest. Keep historical evidence at its measured revision.
 
 ## Instruction
 

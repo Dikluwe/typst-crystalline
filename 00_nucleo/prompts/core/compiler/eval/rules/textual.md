@@ -359,7 +359,7 @@ values and Raw/Sequence transport. Nominal Content complement retains visible V1
 Measurement: pre-E inputs and bilateral reflection in
 `lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
 The owner approved the native Symbol declaration on 2026-10-23.
-Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Apply the pinned Symbol claims in this consumer’s existing exhaustive projections and match arms.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
 
 Symbol has a textual projection for compatible captured runs and coalescing. Mathematical realization excludes cross-element grouping explicitly using the existing recipe_math_depth; explicit math-symbol regex matching remains per element. Preserve textual consumption and guard rules.

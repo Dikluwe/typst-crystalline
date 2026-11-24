@@ -15,7 +15,7 @@ The uncommitted working tree captured in `lab/results/construction/diagnostics/a
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 `lab/results/construction/diagnostics/native-math-catalogue-2026-10-17/` before.json.gz fixes dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/diff HEAD --stat and protected consumer/L0/config hashes. before-measurement.json.gz is verified reuse, not fresh execution: baseline-reuse.json proves identical source/Tekt binary to 3956 function cases/eight feature profiles.26 math where/kind routes differ against historical 9f2b6e871; before-batch.json.gz has 227 field/exclusion/partial-alias/counter cases with hashes/commands/binaries/outputs. batch-schema.json preserves pinned source blocks/SHA/file:line/Tekt ABI; typst-macros elem.rs:410-421 excludes internal/external field_id, and 26 elem annotations are Mathy/non-Locatable. Public-language form/semantics, not Rust Func equality or intent inferred from rendering.
 

@@ -6,15 +6,15 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:00e900edd4f7f3d6cd9aef545f6631615d612b377b17e9dd37f0254c4fd7cf51
 
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
-- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:802ff8f08c2cc2e7a81987f63f980ddc1254d4ff4f8c972804d6bb3e84b4c484
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:ace259e7d5754e74aba13c5ee64698b7d296f51b8905fc17dbe8b62ee1f01564
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/par.rs`
 
 ## Evidence before specification
 
-Native Par/Parbreak share upstream model/par.rs. Actual body co-change c98ffc8ac inserts only Par after unchanged Quote; old flow cluster was false attribution, not evidence to group Quote/Footnote. Quiet body history plus separating source responsibility determines current owner. Parent catalog `00_nucleo/prompts/core/compiler/stdlib/structural/mod.md` and common `00_nucleo/prompts/core/compiler/stdlib/mod.md` are boundary references. Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Native Par/Parbreak share upstream model/par.rs. Actual body co-change c98ffc8ac inserts only Par after unchanged Quote; old flow cluster was false attribution, not evidence to group Quote/Footnote. Quiet body history plus separating source responsibility determines current owner. Parent catalog `00_nucleo/prompts/core/compiler/stdlib/structural/mod.md` and common `00_nucleo/prompts/core/compiler/stdlib/mod.md` are boundary references. Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 Historical Parbreak probes 2026-08-24T13:20:36-03:00/dirty HEAD 45b547073d7686cdd5d3e3030c82de3e22ec395f againsta51e02804 and par.rs:697-728 measure function/repr parbreak()/zero-arg errors; no fields or parameter algorithm. Hyphenation policy/composition/selector diagnostics 2026-09-28 preserve 52/34input snapshots and distinction between ignored options, typed Styles and actual Par boundary. Initial type_mismatch long-name discrepancy is measured, local helper refines that cast only.
 

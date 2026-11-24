@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/bidi_origin.md
-//! @prompt-hash d09d12ec
+//! @prompt-hash f92bc33a
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{

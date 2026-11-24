@@ -47,6 +47,22 @@ The internal tracked warn_diagnostic channel preserves the entire
 SourceDiagnostic (hints,severity,trace,span) when forwarding realization
 warnings to the existing sink; deduplication stays in Sink::record.
 
+## Current type boundaries
+
+`01_core/src/entities/world_types.rs` declares the public unit carriers
+`Routines` and `Engine`, the optional-span wrapper `Traced`, and the
+tracked route chain. The evaluator aggregate in
+[00_nucleo/prompts/core/entities/engine.md](engine.md) has a distinct contract.
+The [original Route design](https://github.com/Dikluwe/typst-crystalline/blob/58f30f0127615f89bdf111295aa48a46e92d46c7/00_nucleo/materialization/typst-passo-90.md#L50)
+records the concrete tracked chain. Treat later public methods and depth-limit
+checks as separate provenance items.
+
+The tracked `Sink` methods live in this consumer. The
+[original warning-channel decision](../../../adr/adr-0043-sink-output-channel.md)
+establishes caller ownership. The direct warning API, record storage and
+first occurrence ordering belong to
+[00_nucleo/prompts/core/entities/sink.md](sink.md).
+
 ## Acceptance and specification debt
 
 Bytes[1,2,3] returns that slice; empty Bytes is_empty true. Check NotFound and

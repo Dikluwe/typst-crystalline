@@ -11,7 +11,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/calc.rs`
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 After behavior atomization, this exclusive consumer owns make_calc_module composition and historical tests. Child owners under `00_nucleo/prompts/core/compiler/stdlib/calc/` implement abs/power-root/round/extrema/trig/hyperbolic/log/integer/combinatorics/norm/erf/helpers. The following numeric clauses are preserved composition boundary criteria, not extra productive ownership.
 

@@ -20,7 +20,7 @@ Núcleos Tekt:
 
 The current consumer implements the operations specified below at `01_core/src/compiler/layout/measurement.rs:27`, `01_core/src/compiler/layout/measurement.rs:64`, `01_core/src/compiler/layout/measurement.rs:354`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify the current ratified reference `bd5ebec285505889e8ff1d4f68804ab147a699f3` without a new measurement.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify later snapshots. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for a new comparison.
 
 Pinned bilateral `lab/results/construction/diagnostics/grid-vanilla-phase-2026-10-03.md` measured four Auto-column starts with accumulated 0/2.5/5.0/7.5pt drift. With fixed columns, all 320 starts matched x within 0.001pt. Language probe measured 2.5pt space at Libertinus Serif 10pt in both engines. `measurement.rs:70-96` adds a space after every word, including last; `grid/tracks.rs:79` uses it for Auto. Pinned vanilla `lab/typst-original/crates/typst-layout/src/grid/layouter.rs:967-1100` measures cell frame. Causality still requires ablation/RED→GREEN; complex-cell equivalence is not established.
 
@@ -208,7 +208,7 @@ rustdoc, formatting, canonical paths and both lineage directions.
 Measurement: pre-E inputs and bilateral reflection in
 `lab/results/symbol-identity-2026-10-23/{baseline.json,before/receipt.json,additional/receipt.json}`.
 The owner approved the native Symbol declaration on 2026-10-23.
-Handle Symbol explicitly as a native childless textual leaf in exhaustive complements and existing projections. Preserve the complete Unicode payload and reconstruct the same variant when mapping. Do not silently classify Symbol as a bare equation outside math.
+Apply the pinned Symbol claims in this consumer’s existing exhaustive projections and match arms.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
 
 

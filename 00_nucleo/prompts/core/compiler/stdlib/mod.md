@@ -32,7 +32,7 @@ gates. It does not resolve the separate native_flush visibility discrepancy.
 
 
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 Equation-where-2026-10-06/before.json.gz preserves dirty HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, UTC/stat/binary hashes/source/pin: Equation public fields/filter/alias/composition/show differ while internal size/unknown/partial/closure reject. Pinned func 433-462/equation 58-170 and existing block/body snapshots support internal bridge, not new public API. matrix-morfologia-2026-10-06/before.json.gz shows missing rows/getters/func identity despite existing carrier, not render proof. imports-ci-2026-10-13/before.json.gz distinguishes unused hub alias from used matrix-local implementation. Native-math candidate-1 strict-details/state receipts isolate items_after_test_module order after otherwise-passed focus matrix; changed final source needs final revalidation, old run is historical.
 

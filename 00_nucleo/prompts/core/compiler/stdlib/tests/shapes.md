@@ -11,7 +11,7 @@ Hash do Código: 4048c68c
 
 stroke-paint-2026-10-14/before/results.json.gz preserves HEAD/dirty tree/diffstat/UTC/sources/owners/commands/both binary hashes. Named paint is Color-only; old shape caster accepts Length/Color/Stroke and rect discards Dict. Uniform control draws 1pt black; Gradient/Tiling/Auto named and circle Gradient reject despite oracle acceptance. Empty Dict draws black versus no stroke in oracle. Pinned stroke.rs:236-243/sides.rs:238-258 separates smart Paint/empty/uniform Dict. square(size:...) fails dimensions, so proves nothing about stroke casting; those defaults/dimensions remain open.
 
-Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
+Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
 ## Exclusive test contract
 

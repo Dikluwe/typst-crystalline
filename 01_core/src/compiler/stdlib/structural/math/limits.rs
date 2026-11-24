@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/limits.md
-//! @prompt-hash a752e4b5
+//! @prompt-hash 9129a145
 //! @layer L1
 //! @updated 2026-09-30
 //!

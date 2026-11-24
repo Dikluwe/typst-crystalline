@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash e1d4cf6a
+//! @prompt-hash f8fc6137
 //! @layer L1
 //! @updated 2026-10-07
 

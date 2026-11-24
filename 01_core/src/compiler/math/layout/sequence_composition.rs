@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/sequence_composition.md
-//! @prompt-hash 48b55688
+//! @prompt-hash a2455972
 //! @layer L1
 //! @updated 2026-10-31
 

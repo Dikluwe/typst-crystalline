@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/info.md
-//! @prompt-hash 19f20036
+//! @prompt-hash e9ced980
 //! @layer L4
 //! @updated 2026-09-26
 
@@ -17,6 +17,21 @@ pub(super) fn run_info(intent: InfoIntent) -> std::io::Result<ExitCode> {
     };
 
     let snapshot = typst_infra::runtime_info::snapshot();
+    let env = snapshot.env.into_iter().collect::<BTreeMap<_, _>>();
+    let selected = env.get("TYPST_FEATURES").and_then(|value| value.as_deref());
+    let mut features = FeatureInfo { html: false, a11y_extras: false, bundle: false };
+    for feature in selected
+        .unwrap_or_default()
+        .split(',')
+        .filter(|name| !name.is_empty())
+    {
+        match feature.to_ascii_lowercase().as_str() {
+            "html" => features.html = true,
+            "a11y-extras" => features.a11y_extras = true,
+            "bundle" => features.bundle = true,
+            _ => write_stderr(&format!("error: unknown runtime feature: `{feature}`\n"))?,
+        }
+    }
     let info = InfoData {
         version: format!(
             "{}.{}.{}",
@@ -29,7 +44,7 @@ pub(super) fn run_info(intent: InfoIntent) -> std::io::Result<ExitCode> {
                 arch: std::env::consts::ARCH.to_owned(),
             },
         },
-        features: FeatureInfo { html: false, a11y_extras: false, bundle: false },
+        features,
         fonts: FontInfo {
             system: true,
             font_paths: snapshot
@@ -46,7 +61,7 @@ pub(super) fn run_info(intent: InfoIntent) -> std::io::Result<ExitCode> {
             custom_ca_configured: intent.cert_path.is_some()
                 || snapshot.custom_cert_configured,
         },
-        env: snapshot.env.into_iter().collect::<BTreeMap<_, _>>(),
+        env,
     };
     let output = match intent.format {
         Some(InfoFormat::Json) => {

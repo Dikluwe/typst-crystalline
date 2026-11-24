@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/round.md
-//! @prompt-hash cfe2dbb9
+//! @prompt-hash 0aab4619
 //! @layer L1
 //! @updated 2026-09-30
 

@@ -8,7 +8,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 - 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:9e606cf207ae72ade678378bb4fe6c0aa4d1daa77b9c8fc2817b7c2afd4c8ea6
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 
 
 
@@ -61,7 +61,7 @@ Pass already-selected emit ranges or emit_prepared_lines slice into private pagi
 
 `00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md` exclusively certifies vertical geometry/groups/regional admission from already-selected ranges, without reselection/glyph emission/duplicate new_page. Initial scope is prepared uniform vertical metrics/zero baseline offset/constant paginated geometry, outside columns/cells/subframes/notes/floats/active regional transaction; refused contexts retain fallback. Full certification precedes emission. Initial size/edges/leading match exterior, bold/italic allowed when metrics equal, finite nonnegative top/descent/leading. Later same-size/leading mixed-face certificate refines only edge uniformity as specified by that owner. Auto bounds need no protection; honor initial baseline/block collapse before real need versus page_bottom_limit. Next-region capacity uses next physical-page resolved margins; advance only with material now and group fitting there. Too-tall groups use ordinary progress/full content, never a new_page loop.
 
-Private text_costs resolves widow/orphan independently of hyphenation/runt via FIELDS, default Ratio 1 and strict>0. Ordinary paragraph without linebreaks defaults to Simple to enable default protection; automatic-by-justify and all refused contexts remain. Preserve justification/carriers/terminal-open line/boundaries/lexical restore; do not apply incomplete protection to notes/columns.
+Private text_costs resolves widow/orphan independently of hyphenation/runt via FIELDS, default Ratio 1 and strict>0. Preserve justification/carriers/terminal-open line/boundaries/lexical restore; do not apply incomplete protection to notes/columns.
 
 Ratified bidi references use None in uncertified constructors and `..` in read patterns, preserving language and pinned transforms without extending phase/API.
 

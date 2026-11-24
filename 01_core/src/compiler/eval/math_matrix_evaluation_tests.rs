@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/math_matrix_evaluation_tests.md
-//! @prompt-hash 56094a47
+//! @prompt-hash 975e798d
 //! @layer L1
 #![cfg(test)]
 

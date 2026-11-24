@@ -10,7 +10,7 @@ Núcleos Tekt:
 
 ## Evidence and its limits
 
-Historical implementation evidence comes from `typst-library/src/math/{accent,cancel,op,underover,style}.rs` at `586e1bd43fae6c9a973218163d3165c53ab8d16d`. Later catalog work targeted `9f2b6e8715237cb086899a42873660fe744622e8`; both are historical snapshots. They do not certify current `bd5ebec285505889e8ff1d4f68804ab147a699f3` without remeasurement. Semantics, syntax, morphology, and observable diagnostics govern parity; a closed table, Rust identity, and module structure are mechanics. Do not infer upstream intent from observed behavior.
+Historical implementation evidence comes from `typst-library/src/math/{accent,cancel,op,underover,style}.rs` at `586e1bd43fae6c9a973218163d3165c53ab8d16d`. Later catalog work targeted `9f2b6e8715237cb086899a42873660fe744622e8`; both are historical snapshots. They do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Semantics, syntax, morphology, and observable diagnostics govern parity; a closed table, Rust identity, and module structure are mechanics. Do not infer upstream intent from observed behavior.
 
 The `liminf`/`limsup` correction measured source `op.rs:88–89`, baseline `3f081…` and the pinned oracle before changing operator text to `lim\u{2009}inf` and `lim\u{2009}sup`. Other operators remain unchanged; an unexplained failure blocks closure. The old codex 0.3 inventory (334 symbols, two modules, 1206 records) is historical. The codex Git `2e43…` mirror includes chess, keyboard and ordinal additions (21 children, 19 variants) and twelve legacy aliases retained as compatibility extensions; those counts are snapshot evidence, not a current completeness certificate.
 

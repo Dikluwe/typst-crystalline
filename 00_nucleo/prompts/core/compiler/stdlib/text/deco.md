@@ -18,4 +18,4 @@ Only Value::Color is a color value here: a string such as "red" is not a color a
 
 ## Acceptance
 
-Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, for documentation-only maintenance. Preserve the pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0109, ADR-0127, ADR-0129 and ADR-0132. Historical evidence does not establish parity against a newer snapshot.

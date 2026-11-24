@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/emptiness.md
-//! @prompt-hash 698f684e
+//! @prompt-hash ad0187d9
 //! @layer L1
 //! @updated 2026-10-07
 

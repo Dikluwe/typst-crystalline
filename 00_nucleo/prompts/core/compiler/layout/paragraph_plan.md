@@ -7,7 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 - 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:9e606cf207ae72ade678378bb4fe6c0aa4d1daa77b9c8fc2817b7c2afd4c8ea6
 - 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:dc3d1eff8516cab7b246430e867fd906289164509c4533e071be543f33b210b6
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 
 
 
@@ -56,13 +56,20 @@ Isolated Text may try; Sequence tries entire set before sibling descent and supp
 
 For borrowed parts, split only immediate-level explicit Parbreak. Certify every segment before any emission, with Empty/Space/SpaceFromNewline-only segments neutral. Plan/emit each nonempty segment and invoke parbreak between them. Opaque content anywhere rejects entire global attempt. Strategy/font-size/width remain exterior-scope constants.
 
-If any Word has candidates, select through paragraph_hyphen and emit through paragraph_emit; otherwise retain prior certified word-end selector. In absent linebreaks, auto/Simple for par.justify false permits Simple hyphenation at line origin. All segments remain certified before first emission.
+If any Word has candidates, select through paragraph_hyphen and emit through paragraph_emit; otherwise retain prior certified word-end selector. The existing Simple route allows hyphenation at line origin for these admitted inputs. Under the shared strategy rule, omission and Auto select Simple when justification is false. All segments remain certified before first emission.
 
 Resolve private LineCosts once from shared entry chain and pass to both selectors; ranges/emission stay unchanged. `00_nucleo/prompts/core/compiler/text_costs.md` exclusively owns cast/component transport/shared resolution. Shared hyphenation/runt are effective; widow/orphan only within independently certified regional subset. Partial-fragment costs do not override shared costs. Only four validated cost channels are glyph-neutral in prepare whitelist, recognized via private is_channel/FIELDS; integral Styles remains realization-factored before Par, never manually promoted from partial fragment. Preserve defaults, no glyph-based inferred cost/word boundary/extra space.
 
 `00_nucleo/prompts/core/compiler/layout/paragraph_pagination.md` exclusively certifies vertical geometry/groups/regional admission from already-selected ranges, without reselection/glyph emission/duplicate new_page. Initial scope is prepared uniform vertical metrics/zero baseline offset/constant paginated geometry, outside columns/cells/subframes/notes/floats/active regional transaction; refused contexts retain fallback. Full certification precedes emission. Initial size/edges/leading match exterior, bold/italic allowed when metrics equal, finite nonnegative top/descent/leading. Later same-size/leading mixed-face certificate refines only edge uniformity as specified by that owner. Auto bounds need no protection; honor initial baseline/block collapse before real need versus page_bottom_limit. Next-region capacity uses next physical-page resolved margins; advance only with material now and group fitting there. Too-tall groups use ordinary progress/full content, never a new_page loop.
 
-Private text_costs resolves widow/orphan independently of hyphenation/runt via FIELDS, default Ratio 1 and strict>0. Ordinary paragraph without linebreaks defaults to Simple to enable default protection; automatic-by-justify and all refused contexts remain. Preserve justification/carriers/terminal-open line/boundaries/lexical restore; do not apply incomplete protection to notes/columns.
+Private text_costs resolves widow/orphan independently of hyphenation/runt via FIELDS, default Ratio 1 and strict>0. Resolve strategy under the paragraph-selection nucleus. The implicit regional guard below is an admission decision after strategy resolution. Preserve justification/carriers/terminal-open line/boundaries/lexical restore; do not apply incomplete protection to notes/columns.
+
+The [2026-11-24 comparison](../../../../diagnostics/prompt-review-after-adr-consolidation-2026-11-24.pt-BR.md)
+at clean HEAD `3548bf20f95f27ad467dd1a592851bfcd0af9232` compares the four
+linebreak settings through paged output. With justification enabled, omission,
+`auto` and `optimized` agree and `simple` changes the first break in the
+discriminating fixture. `paragraph_plan.rs:13–32` resolves strategy and
+`:44–47` checks implicit regional admission.
 
 For implicit strategy without justify/hyphenate true, certify/select but retain incremental path if every segment selects only one line. Explicit flags/previously admitted cases remain. Narrow exception: a fully certified single gapless word with no leading/internal gap, width exceeding budget and one selected line still emits prepared under regional_only; a terminal separator adds no internal break. Other single-line inputs keep fallback. Never introduce fragment-boundary breaks/change hyphenation or affect refused scopes.
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 61dd5e45
+//! @prompt-hash 19c9455f
 //! @layer L4
 //! @updated 2026-10-06
 //!
@@ -511,6 +511,51 @@ fn p1137_info_json_expoe_schema_e_commit_integral() {
         "/tmp/crystalline-info-cache/typst/packages"
     );
     assert!(stdout.ends_with('\n'));
+}
+
+#[test]
+fn info_reports_effective_environment_features() {
+    for (setting, expected, diagnostic) in [
+        (None, [false, false, false], ""),
+        (Some(""), [false, false, false], ""),
+        (Some("html"), [true, false, false], ""),
+        (Some("a11y-extras"), [false, true, false], ""),
+        (Some("bundle"), [false, false, true], ""),
+        (Some("HTML,,A11Y-EXTRAS,bundle"), [true, true, true], ""),
+        (
+            Some("bundle,unknown"),
+            [false, false, true],
+            "error: unknown runtime feature: `unknown`\n",
+        ),
+    ] {
+        let mut command = Command::new(BIN);
+        command
+            .args(["info", "--format", "json"])
+            .env_remove("TYPST_FEATURES");
+        if let Some(setting) = setting {
+            command.env("TYPST_FEATURES", setting);
+        }
+        let result = command.output().expect("run info JSON");
+        assert_eq!(result.status.code(), Some(0), "{setting:?}");
+        let value: serde_json::Value =
+            serde_json::from_slice(&result.stdout).expect("valid JSON");
+        let [html, a11y_extras, bundle] = expected;
+        assert_eq!(
+            value["features"],
+            serde_json::json!({"html": html, "a11y_extras": a11y_extras, "bundle": bundle}),
+            "{setting:?}",
+        );
+        assert_eq!(String::from_utf8_lossy(&result.stderr), diagnostic, "{setting:?}");
+    }
+
+    let result = Command::new(BIN)
+        .arg("info")
+        .env("TYPST_FEATURES", "html,bundle")
+        .output()
+        .expect("run human info");
+    assert!(result.status.success() && result.stderr.is_empty());
+    let output = String::from_utf8_lossy(&result.stdout);
+    assert!(output.contains("  HTML: true\n  A11y extras: false\n  Bundle: true\n"));
 }
 
 #[test]

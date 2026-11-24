@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/info.md
-//! @prompt-hash 01274902
+//! @prompt-hash d5ceb8a8
 //! @layer L2
 
 use std::collections::BTreeMap;
