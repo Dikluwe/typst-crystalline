@@ -6,7 +6,7 @@ Thank you for contributing to this experimental Typst fork. The project preserve
 
 For a bug fix or feature that spans responsibilities, open an issue or discuss the design before implementation. Start with a focused change and identify the owning layer and its current L0 prompt. Read [`CLAUDE.md`](CLAUDE.md), the relevant ADRs in [`00_nucleo/adr/`](00_nucleo/adr), and the complete owner prompt under [`00_nucleo/prompts/`](00_nucleo/prompts).
 
-L0 is the causal specification for productive code. Keep the one-prompt-to-one-consumer ownership rule; shared obligations belong in pinned Tekt Nuclei. Follow ADR-0127: public contracts, default product behavior, pipeline phase changes, and compatibility breaks require an explicit human decision. Internal corrections within an authorized scope follow continuous flow with L0 updated first, then RED→GREEN evidence and revalidation.
+L0 is the causal specification for productive code. Keep the one-prompt-to-one-consumer ownership rule; shared obligations belong in pinned Tekt Nuclei. Follow ADR-0127: protected contracts, default product behavior, pipeline phase changes, and breaks in supported use require an explicit human decision. Internal corrections within an authorized scope follow continuous flow with L0 updated first, then RED→GREEN evidence and revalidation.
 
 ## Make and validate a change
 
