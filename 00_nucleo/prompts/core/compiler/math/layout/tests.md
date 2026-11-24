@@ -1,5 +1,5 @@
 # L0 — math/layout/tests
-Hash do Código: df2f0b5f
+Hash do Código: 32ece94f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0

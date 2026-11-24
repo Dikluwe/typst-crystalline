@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/text.md
-//! @prompt-hash 8a6c7ea1
+//! @prompt-hash 6e86adbd
 //! @layer L1
 //! @updated 2026-11-01
 //!
 //! Branch `#set text`.
 
 use super::*;
+use crate::compiler::stdlib::reject_self_relative;
 
 pub(super) fn eval_set_text(
     set: SetRule<'_>,
@@ -29,11 +30,22 @@ pub(super) fn eval_set_text(
         }
         let index = remaining.items.iter().position(|value| match property {
             "size" => matches!(value, Value::Length(_)),
-            "fill" => matches!(value, Value::Color(_)),
+            "fill" => matches!(value, Value::Color(_) | Value::Gradient(_)),
             _ => unreachable!(),
         });
         if let Some(index) = index {
+            let value_span = remaining
+                .occurrence_sequence()
+                .iter()
+                .filter(|arg| arg.name.is_none())
+                .nth(index)
+                .map(|arg| arg.value_span)
+                .filter(|span| !span.is_detached())
+                .unwrap_or(args.span);
             let value = remaining.remove_positional(index).unwrap();
+            if let Value::Gradient(gradient) = &value {
+                reject_self_relative(gradient, value_span)?;
+            }
             *engine.styles = engine.styles.push_custom(format!("text.{property}"), value);
         }
     }
@@ -96,8 +108,14 @@ pub(super) fn eval_set_text(
                         *engine.styles =
                             engine.styles.push_custom("text.fill", Value::Color(c))
                     }
-                    Value::Gradient(_) | Value::Tiling(_) => {
-                        // Existing partial transport; Paint needs its own contract.
+                    Value::Gradient(gradient) => {
+                        reject_self_relative(&gradient, value_span)?;
+                        *engine.styles = engine
+                            .styles
+                            .push_custom("text.fill", Value::Gradient(gradient))
+                    }
+                    Value::Tiling(_) => {
+                        // Tiling needs a prepared cell; it has no text carrier.
                     }
                     other => {
                         return Err(vec![SourceDiagnostic::error(

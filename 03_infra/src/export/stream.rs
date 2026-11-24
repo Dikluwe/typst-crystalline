@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 38806a90
+//! @prompt-hash 83d7ffd9
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -29,7 +29,8 @@ pub(super) use self::text::{
 use self::text::{emit_verbose_text_run, verbose_run_end};
 mod shape;
 use self::shape::{
-    emit_fill_paint, line_cap_prefix, paint_effective_bbox, spot_fill_operator,
+    emit_fill_paint, line_cap_prefix, local_text_color, paint_effective_bbox,
+    spot_fill_operator, text_paint_prefix,
 };
 pub(super) use self::shape::{
     emit_rounded_rect_ops, emit_shape_path_local, emit_stroke_paint, fill_rg_prefix,
@@ -115,6 +116,8 @@ pub(crate) struct PageContext<'a> {
     /// (o vanilla nunca funde glifos math — `oracle.md` §P983).
     /// `false` no caminho normal.
     pub oracle: bool,
+    /// Raiz de pintura de texto da ocorrência corrente (página, Group ou célula).
+    pub(super) text_root: std::cell::Cell<usize>,
 }
 
 impl<'a> PageContext<'a> {
@@ -138,6 +141,7 @@ impl<'a> PageContext<'a> {
             semantic_mcids: HashMap::new(),
             ua1: false,
             oracle: false,
+            text_root: std::cell::Cell::new(0),
         }
     }
 
@@ -661,7 +665,7 @@ mod stream_tests {
         let pat_refs: Vec<PatternRef> = vec![];
         let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
         let mut red = TextStyle::regular(Pt(11.0));
-        red.fill = Some(Color::rgb(255, 0, 0));
+        red.fill = Some(Color::rgb(255, 0, 0).into());
         let page = p956_page_800(vec![
             p956_text_item(10.0, 20.0, "A", red),
             p956_text_item(30.0, 40.0, "B", TextStyle::regular(Pt(11.0))),

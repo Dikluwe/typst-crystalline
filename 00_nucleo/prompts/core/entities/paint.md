@@ -1,6 +1,9 @@
 # Prompt L0 — `entities/paint`
 Hash do Código: 41cc159a
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
+
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/paint.rs`
 **Governance:** ADR-0086, ADR-0083, ADR-0039.
@@ -45,3 +48,11 @@ current consumer.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/paint.md`. Historical observations are not a new parity certification.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Paint is the declarative union Solid(Color), Gradient(Gradient), Tiling(Tiling), deriving Debug, Clone and PartialEq. It is not Copy. This reconciles the Solid-only subset above with the approved FrameItem and stroke consumers and supersedes its Copy and Solid-only clauses, and its preservation of TextStyle.fill and Style::Fill as Color. Constructors solid, gradient and tiling, conversions from Color, Gradient and Tiling, and total to_color are retained. Text and line carriers use Solid and Gradient only.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

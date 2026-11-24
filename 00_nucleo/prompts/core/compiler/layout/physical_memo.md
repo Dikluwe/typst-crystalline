@@ -1,9 +1,10 @@
 # L0 — core/compiler/layout/physical_memo
-Hash do Código: d8ecdef6
+Hash do Código: 287e183b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
 - 00_nucleo/prompts/_nuclei/layout/physical-result-retention.toml sha256:b8cd832698d034ec483a2af5f682eb01f21106e9178be0d79e0baee773139f0b
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 
 **Layer:** L1
@@ -179,3 +180,11 @@ and all existing page-read certificates, bounds, traces, callbacks,
 dependencies and Pending outcomes. Test discovery without a document
 clone, actual page allocation transfer, defensive isolation and an
 obsolete publication alongside a different retained product.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Line and text Paint with gradient is outside the bounded key and stays cold; solid behavior is unchanged.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

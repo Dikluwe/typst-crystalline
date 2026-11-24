@@ -1,10 +1,11 @@
 # L0 — Effective inline text style
-Hash do Código: e5d25e77
+Hash do Código: 64009a2b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/immutable-family-list.toml sha256:f33ff33fa820aa3914d7de26e3abe47e4c453971161347e6c71ab028ebbac468
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:24f0b69fa1db115ff13a786121c80cb7be3abfa2028a9a473075374a6815cfd4
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 
 
@@ -288,3 +289,11 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Resolve paint through `StyleChain::fill` across both declaration channels. Keep the active TextStyle fill as fallback when the chain has no declaration. A bilateral SVG probe on the gradient-package candidate over HEAD `88672ddc7d4e50019564ba14b7a6476e4cd35209` assigns the inner set paint to BB in the oracle but applies the entire outer constructor paint in the candidate. The inverse solid/gradient control distinguishes the two channels. Require painted inner glyphs and restoration on both sides.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

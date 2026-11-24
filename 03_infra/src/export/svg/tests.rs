@@ -855,7 +855,8 @@ fn text_shaped_emits_glyph_paths_not_text() {
                 y_offset: 0,
                 cluster: 0,
                 char_code: ' ',
-            }].into(),
+            }]
+            .into(),
             style,
             text: EcoString::from(" "),
             units_per_em: 1000,
@@ -1341,7 +1342,7 @@ fn p1249_fixture() -> (FrameItem, FontKey, GlyphFontRequest) {
     let mut style = typst_core::entities::layout_types::TextStyle::regular(Pt(20.0));
     style.font = Some(family.clone());
     style.math = true;
-    style.fill = Some(Color::rgba(255, 0, 0, 64));
+    style.fill = Some(Color::rgba(255, 0, 0, 64).into());
     let request = GlyphFontRequest::new('∑', &style);
     let key = ((family, FontVariant::default(), FontVariations::default()), bytes);
     let item = FrameItem::Glyph {
@@ -1738,7 +1739,8 @@ mod readiness_variable_contours {
                 y_offset: 0,
                 cluster: 0,
                 char_code: 'A',
-            }].into(),
+            }]
+            .into(),
             style,
             text: "A".into(),
             units_per_em: face.units_per_em(),

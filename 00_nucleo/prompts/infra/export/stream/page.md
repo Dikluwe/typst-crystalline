@@ -1,9 +1,10 @@
 # L0 — stream/page
-Hash do Código: 45b3a5aa
+Hash do Código: 111a8262
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/word-joiner-unicode.toml sha256:3fbe26365aae1904cecc40eb2cb61bd6c73ea0f6a4d84ca9ba7a8820f028075f
 - 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:afd5a809b6e3f2ac1f9a752fb1f6c6d704139eb1f71b085d430d9417f826b04e
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/stream/page.rs`
@@ -97,3 +98,11 @@ Unicode/ALT/ligature/space/bidi/UA1 controls and independent PDF/SVG painting.
 Require V15/V26 before resealing, forward/reverse lineage, full technical gates
 and final historical/JPEG resource validation. This does not certify general
 Unicode extraction, PDF-UA, HTML, bibliography or overall product readiness.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. The page establishes the initial text paint root. Fused text runs use the same paint envelope.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

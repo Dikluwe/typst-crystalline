@@ -33989,7 +33989,7 @@ mod regressions {
 
     mod r3_t1_style_acceptance {
         use super::*;
-        use crate::entities::layout_types::{Color, FrameItem};
+        use crate::entities::layout_types::FrameItem;
 
         #[allow(deprecated)] // Pure layout fixtures exercise both text carriers.
         fn painted_colors(
@@ -34000,11 +34000,14 @@ mod regressions {
                 match item {
                     FrameItem::Text { text, style, .. }
                     | FrameItem::TextShaped { text, style, .. } => {
-                        colors.extend(
-                            text.chars()
-                                .filter(|ch| !ch.is_whitespace())
-                                .map(|_| style.fill.as_ref().map(Color::to_srgb)),
-                        );
+                        colors.extend(text.chars().filter(|ch| !ch.is_whitespace()).map(
+                            |_| {
+                                style
+                                    .fill
+                                    .as_ref()
+                                    .map(|paint| paint.to_color().to_srgb())
+                            },
+                        ));
                     }
                     FrameItem::Group { items, .. }
                     | FrameItem::Link { items, .. }

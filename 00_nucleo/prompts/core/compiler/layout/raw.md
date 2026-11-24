@@ -1,5 +1,5 @@
 # L0 — raw highlight
-Hash do Código: c9fbb837
+Hash do Código: 2de14bbd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -10,6 +10,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:a0d3cae81e77da5875204a94bc2fbd707009f0d751cf50ed870c416a01187a22
 - 00_nucleo/prompts/_nuclei/layout/typc-length-display.toml sha256:37f7c44553aaf173c60a6d9a525e196042143ccb52ec617a29d8bc62ea7dfeea
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/raw.rs`
@@ -43,7 +44,7 @@ Pinned source: `typst-realize/src/lib.rs:1061–1085,1190–1219` distinguishes 
 
 Own only `01_core/src/compiler/layout/raw.rs`, not another renderer/parser. Use embedded two_face syntax definitions/existing Typst Light scope theme, with only immutable lazy syntax/theme sharing. Apply supported foreground/bold/italic token styles and restore exterior. Existing split_whitespace token emission remains an explicit unresolved text/whitespace discrepancy, not license to normalize/fix/weaken it. Unknown syntax/highlight failure uses existing plain-token fallback, refined below only for block explicit line breaks.
 
-Current Raw defaults supersede older clear-fill/100%/font-inheritance clauses: Mono family, size 0.8 of exterior, bold/italic disabled and exterior fill inherited. For fill read custom text.fill before TextStyle.fill fallback, including replacement scope; do not alter global StyleChain contract. Direct Raw applies/restores defaults. Show-product Raw defaults travel in private raw.defaults Styles outside overrides; mark raw.defaults.active only within that scope to prevent double application when returning it. Relative text.size Length resolves against prior size within Raw defaults scope, preserving absolute/relative composition and chain restore. No copied show/matching/guard algorithm or new public type/trait/signature/phase.
+Current Raw defaults supersede older clear-fill/100%/font-inheritance clauses: Mono family, size 0.8 of exterior, bold/italic disabled and exterior fill inherited. Resolve the nearest text fill through StyleChain, with the exterior TextStyle as fallback, including replacement scope. Direct Raw applies/restores defaults. Show-product Raw defaults travel in private raw.defaults Styles outside overrides; mark raw.defaults.active only within that scope to prevent double application when returning it. Relative text.size Length resolves against prior size within Raw defaults scope, preserving absolute/relative composition and chain restore. No copied show/matching/guard algorithm or new public type/trait/signature/phase.
 
 For unsupported-grammar typc true/false/auto atoms, use existing palette constant.language foreground#d73948 while retaining Raw morphology. Cross-owner boundaries: `00_nucleo/prompts/core/compiler/eval/markup_stream.md` maps Auto only to Raw(lang:typc,block:false); this owner colors atom auto alongside true/false; `00_nucleo/prompts/infra/export/html/inline.md` serializes those atoms with code/constant span and delegates existing escape/mode. No other Value presentation, new grammar or general arbitrary/language Raw HTML support is authorized.
 
@@ -295,3 +296,11 @@ No productive behavior/API/phase/dependency changes; ADR-0127 continuous
 flow. L0 and its forward seal precede tests; reseal only this owner pair,
 then run Raw tests, build, full lint and reverse lineage with Cargo artifacts
 and temporary files confined to the existing exclusive #9015 tmpfs target.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Raw inherits the nearest text fill through StyleChain. Token colors override the inherited paint with Solid Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

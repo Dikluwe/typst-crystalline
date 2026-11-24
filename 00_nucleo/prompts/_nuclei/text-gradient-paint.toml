@@ -1,0 +1,20 @@
+tekt = 1
+kind = "nucleus"
+id = "text-gradient-paint"
+title = "Gradient paint carried by text and its inherited lines"
+[[claims]]
+id = "carrier"
+level = "must"
+statement = "Text style and inherited line paint transport solid or gradient Paint without evaluating it. Tiling is outside this carrier: it needs a prepared cell and must never be stored in text fill or line paint by a language route."
+[[claims]]
+id = "parent-root"
+level = "must"
+statement = "Gradient text resolves auto or parent relative to the effective paint root of the glyph occurrence. Page, tiling cell and Group with paint_root true are roots; other Groups inherit their root. Gradient is continuous across glyphs, runs and lines under that root. Root coordinates are Y-down unit space scaled by root width and height."
+[[claims]]
+id = "identity"
+level = "must"
+statement = "Distinct gradients or distinct roots never share an emitted resource, reused text product or layout key. Equal gradients in the same root may share one. Reuse that cannot key a gradient stays cold."
+[[claims]]
+id = "geometry"
+level = "must-not"
+statement = "Change glyph selection, advances, positions, shaping, line breaking, solid paint output or the existing shape gradient contract because text carries a gradient."

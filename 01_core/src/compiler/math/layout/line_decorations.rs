@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/line_decorations.md
-//! @prompt-hash 9e0c2065
+//! @prompt-hash 05e11067
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -47,7 +47,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let descent = body_box.descent;
 
         let line_y = -(body_box.ascent + gap + thickness / 2.0);
-        let color = stroke.or(style.fill.clone());
+        let color =
+            stroke.map(crate::entities::paint::Paint::from).or(style.fill.clone());
 
         let mut items = body_box.items;
         items.push(FrameItem::Line {
@@ -88,7 +89,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let descent = body_box.descent + extra_height;
 
         let line_y = body_box.descent + gap + thickness / 2.0;
-        let color = stroke.or(style.fill.clone());
+        let color =
+            stroke.map(crate::entities::paint::Paint::from).or(style.fill.clone());
 
         let mut items = body_box.items;
         items.push(FrameItem::Line {

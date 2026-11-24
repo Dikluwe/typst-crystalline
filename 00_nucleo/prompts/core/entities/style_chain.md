@@ -1,7 +1,8 @@
 # Prompt L0 — StyleChain
-Hash do Código: f7bcdf66
+Hash do Código: 589507ec
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 **Layer:** L1, pure RAM; no system I/O. **Exclusive consumer:** `01_core/src/entities/style_chain.rs`.
@@ -92,3 +93,11 @@ compares the returned deltas and retains opaque Unproven values.
 
 ## R8 approved resolved carrier bridge
 Measurement: src/entities/style_chain.rs:827–855 constructs the full resolved TextStyle. The approved layout_types.md R8 contract adds superscript_native: Option<bool>. From<&StyleChain> must initialize None: this is resolved render provenance, never a new StyleDelta property. No public StyleChain signature changes.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. StyleDelta.fill and StyleChain::fill use Option<Paint>, with the nearest declaration winning across the typed and custom `text.fill` carriers. Check both channels at each node before stepping outward. A typed fill takes precedence within the same delta. Valid custom declarations carry Color or Gradient. Preserve the winning carrier when collapsing nodes so capture and replay keep the same effective Paint. Resolved TextStyle receives that Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

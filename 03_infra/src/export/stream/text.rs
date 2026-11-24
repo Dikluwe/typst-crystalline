@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 5e6a5835
+//! @prompt-hash 673678d3
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -418,8 +418,13 @@ pub(super) fn verbose_block_prefix(
     ops: &mut String,
     pos_x: f64,
     base_y: f64,
-    fill: &Option<typst_core::entities::layout_types::Color>,
+    fill: &Option<typst_core::entities::paint::Paint>,
 ) {
+    if matches!(fill, Some(typst_core::entities::paint::Paint::Gradient(_))) {
+        ops.push_str(&format!("q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\nBT\n"));
+        return;
+    }
+    let fill = &fill.as_ref().and_then(super::local_text_color);
     let alpha = fill.as_ref().map(|c| c.to_rgba_f32().3).unwrap_or(1.0);
     let opacity = super::opacity_operator(alpha, alpha);
     if let Some(op) = fill.as_ref().and_then(spot_fill_operator) {
@@ -761,7 +766,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
     actualtext_open: Option<&str>,
     actualtext_close: bool,
 ) {
-    if let Some(c) = &style.fill {
+    if let Some(c) = &style.fill.as_ref().and_then(super::local_text_color) {
         if let Some(op) = spot_fill_operator(c) {
             ops.push_str(&op);
         } else {

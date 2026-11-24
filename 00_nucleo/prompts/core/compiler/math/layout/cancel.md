@@ -1,9 +1,10 @@
 # L0 — math/layout/cancel
-Hash do Código: baa817bb
+Hash do Código: b288d9ab
 
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/cancel.rs`
@@ -104,3 +105,11 @@ Keep all other values, field-presence, validation/error priority, behavior and
 previous approvals. Point-only fixtures retain exactly their numeric values.
 The approved public/phase contract is bound in approval.json. RED→GREEN and
 full proportional validation plus forward/reverse lineage remain required.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. A default cancel line inherits the text Paint. An explicit stroke keeps its resolved color.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

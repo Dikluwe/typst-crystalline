@@ -1,5 +1,8 @@
 # L0 — compiler/math/layout/line_decorations
-Hash do Código: e5ed28df
+Hash do Código: 67ce3c48
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 ## Evidence before decision
 
@@ -12,3 +15,11 @@ Layer L1. Exclusive productive consumer: `01_core/src/compiler/math/layout/line_
 ## Acceptance
 
 Dispatch remains static. L1 tests, build and crystalline-lint must pass. Do not infer performance gains from separation.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Inherited line paint is the text Paint; explicit color is Solid.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

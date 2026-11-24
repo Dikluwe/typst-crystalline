@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_paint.md
-//! @prompt-hash d586a61d
+//! @prompt-hash 0a748d25
 //! @layer L1
 use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::{
@@ -98,7 +98,13 @@ impl PaintSession {
 }
 fn supported_style(style: &TextStyle) -> Option<usize> {
     if style.highlight.is_some()
-        || matches!(style.fill, Some(crate::entities::color::Color::Spot(_)))
+        || match &style.fill {
+            Some(crate::entities::paint::Paint::Solid(color)) => {
+                matches!(color, crate::entities::color::Color::Spot(_))
+            }
+            Some(_) => true,
+            None => false,
+        }
     {
         return None;
     }

@@ -1,5 +1,5 @@
 # L0 — core/compiler/layout/footnote_flush
-Hash do Código: b4f91ec2
+Hash do Código: 017d7852
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -395,3 +395,9 @@ Migrate legacy image literals to the approved optional format/SVG metadata; do n
 Choose separator/usable width by the actual per-column note scope, not column_mode alone. Page-wide standalone queues flush on the merged physical page, per-column queues on their referencing column. Keep captured entries, separator settings, source anchors, finite continuation and original bodies without rerendering.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`. The default separator color is Solid Paint with unchanged output.
+Verify a gradient case that asserts paint and a solid control.

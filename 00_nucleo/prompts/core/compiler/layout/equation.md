@@ -1,5 +1,5 @@
 # L0 — equation
-Hash do Código: 44671e6c
+Hash do Código: 19cc255f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -531,3 +531,9 @@ Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
 with exact source/UTC/diffstat provenance and restricted resealing after a
 valid V15/V26 graph. Preserve all concurrent changes and every other owner
 responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`. Math inherits the effective text Paint, including a fill declared by set. The measured RED showed solid red math painted black under set text while upstream painted it red.
+Verify a gradient case that asserts paint and a solid control.

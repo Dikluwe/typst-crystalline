@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/mod.md
-//! @prompt-hash dccf0035
+//! @prompt-hash d74869e0
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -147,6 +147,7 @@ pub use crate::compiler::stdlib::structural::{
     native_table_footer, native_table_header, native_table_hline, native_table_vline,
     native_terms, native_terms_item, native_title, native_underover,
 };
+pub(in crate::compiler) use crate::compiler::stdlib::text::reject_self_relative;
 pub use crate::compiler::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_replace,
     native_smallcaps, native_smartquote, native_strike, native_subscript,

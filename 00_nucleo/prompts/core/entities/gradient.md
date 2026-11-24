@@ -1,6 +1,9 @@
 # L0 — Gradient facade and shared semantic contract
 Hash do Código: 1482e2f0
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
+
 **Layer:** L1. **Exclusive consumer:** `01_core/src/entities/gradient.rs`.
 The facade owns GradientStop, RelativeTo, public reexports and historical local
 tests. Separate owners define offsets, variants, kind and interpolation:
@@ -491,3 +494,11 @@ Construction records remain under
 `lab/history/construction/records/00_nucleo/materialization/`; identifiers
 P262–P274/P273.5–P273.17, P1145/P1253/P1269/P1271/P1482/P1483 identify archived
 provenance and bounded supersessions, not an active execution-step hierarchy.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. This package supersedes only the clause preserving TextStyle.fill as Option<Color>. Gradient itself is unchanged.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

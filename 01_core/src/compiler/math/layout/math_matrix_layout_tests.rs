@@ -530,7 +530,8 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
                 FrameItem::Line { color, .. } => color.clone(),
                 _ => None,
             })
-            .all(|color| color == Color::rgb(255, 0, 0)),
+            .all(|color| color
+                == crate::entities::paint::Paint::from(Color::rgb(255, 0, 0))),
         "P29 color: {debug}"
     );
     assert!(debug.contains("Round"), "P29/P34 custom cap: {debug}");

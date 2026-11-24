@@ -592,7 +592,7 @@ mod styled_language_tests {
             sized("A", Length::pt(24.0)),
             Content::styled(
                 Box::new(Content::text("A")),
-                Styles::from_iter([Style::Fill(Color::rgb(0, 0, 255))]),
+                Styles::from_iter([Style::Fill(Color::rgb(0, 0, 255).into())]),
             ),
         ] {
             assert_ne!(a, b, "Rust equality must remain structural");

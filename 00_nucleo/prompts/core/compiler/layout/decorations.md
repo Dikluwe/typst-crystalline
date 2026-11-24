@@ -1,11 +1,12 @@
 # L0 — decorations
-Hash do Código: ee02434a
+Hash do Código: 34865ce5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/decorations.rs`
@@ -203,3 +204,11 @@ Unresolved-piece, prefix/ordinary inline/multiline and Strike/Overline keep thei
 old routes. Add actual CAP stroke geometry assertions (10pt FixedMetrics:
 start CAP x, end x+18, y CAP baseline+1, thickness0.5) as well as following TAIL;
 require real source PDF/SVG and wider Auto-parent with complete paint.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. In the bilateral SVG probe on the gradient-package candidate over HEAD `88672ddc7d4e50019564ba14b7a6476e4cd35209`, the glyphs in strike and overline with a local gradient are painted correctly but the lines stay black. Underline already follows the actual local runs. Inherit paint from the materialized decorated text. Emit separate line paint over runs with different fills on the settled inline path, preserving the existing strike and overline offsets and thickness. Preserve outer extent and exact single-paint segment geometry. Uniform committed text can also supply its paint to the existing collector. An explicit stroke takes precedence over inherited paint. Keep the established fallback for geometry that cannot be identified from the existing frame material.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/external_bridge.md
-//! @prompt-hash ad2200b3
+//! @prompt-hash 19fd7c41
 //! @layer L1
 //! @updated 2026-11-01
 

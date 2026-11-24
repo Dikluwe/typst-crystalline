@@ -1,5 +1,8 @@
 # L0 — math/layout/frac
-Hash do Código: f6e87bdd
+Hash do Código: 78183fd0
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 
 **Layer:** L1
@@ -110,3 +113,11 @@ normalization; slash text extraction remains open unless independently fixed
 and remeasured. This is an internal formula correction under continuous
 ADR-0127; no public signature/field/trait, new default intent or phase move.
 Full twelve gates, history and unchanged JPEG timing/RSS criteria remain required.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. The fraction bar inherits the text Paint, as upstream does. None remains black. This supersedes its unconditional None.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

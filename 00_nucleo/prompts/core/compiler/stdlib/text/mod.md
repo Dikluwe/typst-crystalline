@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/text/mod
-Hash do Código: 6e816955
+Hash do Código: 82cf9adc
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/text/mod.rs`
@@ -19,3 +19,9 @@ There is no dispatch table or native wrapper in this hub. Regex lives in `00_nuc
 ## Acceptance
 
 Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`. Reexport the crate-private self-relative check for set text.
+Verify a gradient case that asserts paint and a solid control.

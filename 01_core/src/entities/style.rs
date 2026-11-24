@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/style.md
-//! @prompt-hash b6454f90
+//! @prompt-hash 3175c1b5
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -42,7 +42,7 @@ pub enum Style {
     /// Tamanho declarado da fonte, preservando a parte absoluta e em.
     Size(Length),
     /// Cor de preenchimento do texto. Forward-compat (Passo 99).
-    Fill(Color),
+    Fill(crate::entities::paint::Paint),
     /// Nível de heading (1..=6). Forward-compat (Passo 99).
     HeadingLevel(u8),
     /// Lang ISO 639-1/2/3 (Passo 288 — fecha assimetria Tabela B.3 vs B.4).
@@ -429,7 +429,7 @@ mod tests {
             Style::bold(true),
             Style::italic(true),
             Style::Size(crate::entities::layout_types::Length::pt(18.0)),
-            Style::Fill(red.clone()),
+            Style::Fill(red.clone().into()),
             Style::HeadingLevel(3),
             Style::Lang(Lang::ENGLISH),
             Style::Weight(700),
@@ -446,7 +446,7 @@ mod tests {
         assert_eq!(d.bold, Some(true));
         assert_eq!(d.italic, Some(true));
         assert_eq!(d.size, Some(Length::pt(18.0)));
-        assert_eq!(d.fill, Some(red));
+        assert_eq!(d.fill, Some(red.into()));
         assert_eq!(d.heading_level, Some(3));
         assert_eq!(d.lang, Some(Lang::ENGLISH));
         assert_eq!(d.weight, Some(700));
@@ -495,7 +495,7 @@ mod tests {
             Style::bold(true),
             Style::italic(false),
             Style::Size(crate::entities::layout_types::Length::pt(12.0)),
-            Style::Fill(Color::rgb(0, 0, 0)),
+            Style::Fill(Color::rgb(0, 0, 0).into()),
             Style::HeadingLevel(1),
             Style::Lang(Lang::ENGLISH),       // P288
             Style::Weight(700),               // P289

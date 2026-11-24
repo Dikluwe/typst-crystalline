@@ -1,8 +1,9 @@
 # L0 — core/compiler/layout/paragraph_paint
-Hash do Código: 442cd2a9
+Hash do Código: d2a585ef
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-line-products.toml sha256:9e606cf207ae72ade678378bb4fe6c0aa4d1daa77b9c8fc2817b7c2afd4c8ea6
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 
 **Layer:** L1
@@ -78,3 +79,11 @@ substituição, e PDFs frescos do último candidato como controle.
 Store a finite horizontal extent in the bounded Paint product together with
 its immutable metric epoch. The width witness owns the matching Paint and item
 range. Recompute geometry on cold, unretained or invalidated paint.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Spot and gradient text fill remain outside the supported style.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

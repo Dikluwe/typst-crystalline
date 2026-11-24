@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_session.md
-//! @prompt-hash 58bc255a
+//! @prompt-hash cb688fb5
 //! @layer L1
 //! @updated 2026-11-12
 use super::{
@@ -413,7 +413,12 @@ pub(super) fn style_payload(style: &TextStyle, bits: &mut Vec<u64>) -> Option<us
             TextEdge::Metric(name) => size = size.checked_add(name.len())?,
         }
     }
-    for color in style.fill.iter().chain(style.highlight.iter()) {
+    let fill = match &style.fill {
+        Some(crate::entities::paint::Paint::Solid(color)) => Some(color),
+        Some(_) => return None,
+        None => None,
+    };
+    for color in fill.into_iter().chain(style.highlight.iter()) {
         size = size.checked_add(color_payload(color, bits)?)?;
     }
     if let Some(fonts) = &style.font {

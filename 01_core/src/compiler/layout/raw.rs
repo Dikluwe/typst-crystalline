@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/raw.md
-//! @prompt-hash 351a9fad
+//! @prompt-hash 8ca39bd9
 //! @layer L1
 //! @updated 2026-10-31
 //!
@@ -165,10 +165,7 @@ pub(super) fn default_style(
         font: Some(crate::entities::font_list::FontList::single(
             "DejaVu Sans Mono".into(),
         )),
-        fill: match chain.custom("text.fill") {
-            Some(crate::entities::value::Value::Color(c)) => Some(c.clone()),
-            _ => outer.fill.clone(),
-        },
+        fill: chain.fill().or_else(|| outer.fill.clone()),
         ..outer.clone()
     }
 }
@@ -379,22 +376,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     base_style.math = false;
     let block_font = base_style.size.val();
     let raw_indent_state = owns_block.then(|| begin_block(layouter, block_font, &prev));
-    if let Some(crate::entities::value::Value::Color(c)) =
-        layouter.chain.custom("text.fill")
-    {
-        base_style.fill = Some(c.clone());
-    }
+    base_style.fill = layouter.chain.fill().or(base_style.fill);
     // A gramática typc não é disponibilizada por todas as bundles two-face.
     // Átomos Auto/Bool conservam a cor constant.language da paleta Typst Light.
     if e.lang.as_deref() == Some("typc")
         && matches!(e.text.as_str(), "true" | "false" | "auto")
     {
-        base_style.fill = Some(Color::Srgb {
-            r: 0xd7 as f32 / 255.0,
-            g: 0x39 as f32 / 255.0,
-            b: 0x48 as f32 / 255.0,
-            a: 1.0,
-        });
+        base_style.fill = Some(
+            Color::Srgb {
+                r: 0xd7 as f32 / 255.0,
+                g: 0x39 as f32 / 255.0,
+                b: 0x48 as f32 / 255.0,
+                a: 1.0,
+            }
+            .into(),
+        );
     }
 
     if !e.block && e.lang.as_deref() == Some("typc") {
@@ -412,9 +408,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 } else {
                     layouter.style.fill =
                         Some(if matches!(kind, SyntaxKind::Plus | SyntaxKind::Minus) {
-                            Color::rgb(0xd7, 0x39, 0x48)
+                            Color::rgb(0xd7, 0x39, 0x48).into()
                         } else {
-                            Color::rgb(0xb6, 0x01, 0x57)
+                            Color::rgb(0xb6, 0x01, 0x57).into()
                         });
                     layouter.layout_word(text);
                 }
@@ -479,12 +475,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                         && synt_style.foreground
                             != (synt::Color { r: 0, g: 0, b: 0, a: 0 })
                     {
-                        tok_style.fill = Some(Color::Srgb {
-                            r: synt_style.foreground.r as f32 / 255.0,
-                            g: synt_style.foreground.g as f32 / 255.0,
-                            b: synt_style.foreground.b as f32 / 255.0,
-                            a: synt_style.foreground.a as f32 / 255.0,
-                        });
+                        tok_style.fill = Some(
+                            Color::Srgb {
+                                r: synt_style.foreground.r as f32 / 255.0,
+                                g: synt_style.foreground.g as f32 / 255.0,
+                                b: synt_style.foreground.b as f32 / 255.0,
+                                a: synt_style.foreground.a as f32 / 255.0,
+                            }
+                            .into(),
+                        );
                     }
 
                     layouter.style = tok_style;
@@ -554,7 +553,12 @@ mod remaining_typc_length_tests {
             })
             .collect();
         assert!(!fills.is_empty());
-        assert!(fills.iter().all(|fill| fill.as_ref() == Some(&expected)), "{fills:?}");
+        assert!(
+            fills
+                .iter()
+                .all(|fill| fill.as_ref() == Some(&expected.clone().into())),
+            "{fills:?}"
+        );
     }
 
     #[test]
@@ -698,7 +702,14 @@ mod issue_9015_tests {
             for item in super::super::tests::frame_items_recursive(&page.items) {
                 if let FrameItem::Text { text, style, pos, .. } = item {
                     result.extend(text.chars().map(|c| {
-                        (c, style.fill.clone().unwrap_or(Color::rgb(0, 0, 0)), pos.y.0)
+                        (
+                            c,
+                            style
+                                .fill
+                                .as_ref()
+                                .map_or(Color::rgb(0, 0, 0), |p| p.to_color()),
+                            pos.y.0,
+                        )
                     }));
                 }
             }
@@ -811,7 +822,7 @@ mod issue_9015_tests {
             11.0,
             (&intr as &dyn Introspector).track(),
         );
-        l.style.fill = Some(Color::rgb(0x80, 0x20, 0x60));
+        l.style.fill = Some(Color::rgb(0x80, 0x20, 0x60).into());
         l.style.bold = true;
         l.style.italic = true;
         let exterior = l.style.clone();
@@ -896,7 +907,8 @@ mod issue_9015_tests {
                         if c != (synt::Color { r: 0, g: 0, b: 0, a: 255 })
                             && c != (synt::Color { r: 0, g: 0, b: 0, a: 0 })
                         {
-                            sample.style.fill = Some(Color::rgba(c.r, c.g, c.b, c.a));
+                            sample.style.fill =
+                                Some(Color::rgba(c.r, c.g, c.b, c.a).into());
                         }
                         index += 1;
                     }

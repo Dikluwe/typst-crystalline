@@ -1,5 +1,5 @@
 # L0 — math/layout/matrix
-Hash do Código: c362d893
+Hash do Código: 3fa30a90
 
 
 
@@ -9,6 +9,7 @@ Hash do Código: c362d893
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 
 ## Consumer evidence
@@ -244,3 +245,11 @@ Keep all other values, field-presence, validation/error priority, behavior and
 previous approvals. Point-only fixtures retain exactly their numeric values.
 The approved public/phase contract is bound in approval.json. RED→GREEN and
 full proportional validation plus forward/reverse lineage remain required.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Augment line color is projected to Solid Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/complete_session.md
-//! @prompt-hash e194edd8
+//! @prompt-hash 790e1899
 //! @layer L3
 use ecow::EcoString;
 use std::{
@@ -435,7 +435,12 @@ fn style_identity(style: &TextStyle) -> Option<(Vec<u64>, usize)> {
         }
     }
     // Complex spot-color owners are outside this bounded key; their output stays cold.
-    for color in style.fill.iter().chain(style.highlight.iter()) {
+    let fill = match &style.fill {
+        Some(typst_core::entities::paint::Paint::Solid(color)) => Some(color),
+        Some(_) => return None,
+        None => None,
+    };
+    for color in fill.into_iter().chain(style.highlight.iter()) {
         if matches!(color, typst_core::entities::color::Color::Spot(_)) {
             return None;
         }

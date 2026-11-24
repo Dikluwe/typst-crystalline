@@ -1140,7 +1140,7 @@ mod v16_c_effect_tests {
         let red = Color::rgb(255, 0, 0);
         let result = style_code_tail(
             constructor.with_source_span(span),
-            Styles::from_iter([Style::Fill(red.clone())]),
+            Styles::from_iter([Style::Fill(red.clone().into())]),
         );
         assert_eq!(result.elem_name(), "styled");
         assert_eq!(result.source_span(), span);
@@ -1148,7 +1148,7 @@ mod v16_c_effect_tests {
         let Content::Styled(outer) = result.source_body() else {
             panic!("external set must retain its Styled language object")
         };
-        assert_eq!(outer.styles.delta().fill, Some(red));
+        assert_eq!(outer.styles.delta().fill, Some(red.into()));
         assert!(!outer
             .styles
             .delta()
@@ -1173,7 +1173,7 @@ mod v16_c_effect_tests {
         let red = Color::rgb(255, 0, 0);
         let blue = Color::rgb(0, 0, 255);
         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
-            let mut inner_styles = Styles::from_iter([Style::Fill(blue.clone())]);
+            let mut inner_styles = Styles::from_iter([Style::Fill(blue.clone().into())]);
             if let Some(marker) = marker {
                 inner_styles = inner_styles
                     .push_custom("equation.constructor", Value::Bool(true))
@@ -1181,13 +1181,13 @@ mod v16_c_effect_tests {
             }
             let result = style_code_tail(
                 Content::styled(Content::text("ordinary"), inner_styles),
-                Styles::from_iter([Style::Fill(red.clone())]),
+                Styles::from_iter([Style::Fill(red.clone().into())]),
             );
             let Content::Styled(merged) = result else {
                 panic!("ordinary styles retain the existing merge")
             };
             assert!(matches!(merged.body, Content::Text(_)));
-            assert_eq!(merged.styles.delta().fill, Some(blue.clone()));
+            assert_eq!(merged.styles.delta().fill, Some(blue.clone().into()));
             assert_eq!(merged.body.elem_name(), "text");
         }
     }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/footnote_flush.md
-//! @prompt-hash e7881feb
+//! @prompt-hash e51d8459
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -39,7 +39,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     start: Point { x: Pt(left_x), y: Pt(0.0) },
                     end: Point { x: Pt(left_x + width * 0.3), y: Pt(0.0) },
                     thickness: entry.style.size.0 * 0.05,
-                    color: Some(crate::entities::color::Color::rgb(0, 0, 0)),
+                    color: Some(crate::entities::color::Color::rgb(0, 0, 0).into()),
                     cap: crate::entities::geometry::LineCap::Butt,
                 }],
                 Vec::new(),

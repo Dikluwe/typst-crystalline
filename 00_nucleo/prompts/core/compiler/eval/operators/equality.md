@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/equality
-Hash do Código: 9126a6cf
+Hash do Código: 896f76b8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29

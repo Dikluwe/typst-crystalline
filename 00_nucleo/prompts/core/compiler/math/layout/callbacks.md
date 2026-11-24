@@ -4,6 +4,7 @@ Hash do Código: 4029b4ca
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:4e7dbee80ff21b100bdac46801ecf462152c6743aad29b6cb6119d409c8db030
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/callbacks.rs`
@@ -131,3 +132,11 @@ push. Reseal only after implementation and a valid graph. RG1 remains independen
 
 Already-resolved TextStyle.size Pt becomes absolute Length in StyleDelta.size.
 Preserve shape/payload, callback demand and replay without multiplying em again.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Style snapshots preserve the text Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

@@ -1,11 +1,12 @@
 # L0 — infra/export/gradients/mod
-Hash do Código: 6b373abf
+Hash do Código: 20e4f793
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/pdf-conic-mesh.toml sha256:27b85cbce9a73d495cf7b2d9fe13c4ce3f8cba9e555970b86c9f919ae02db232
 - 00_nucleo/prompts/_nuclei/pdf-conic-placement.toml sha256:3d2d44a53e9fb6a6c8d59ddee7b362412ae0ab05fac0e37e50ddf731d987c132
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
@@ -211,3 +212,11 @@ public signature+field/value transport unchanged, PNG/SVG/PDF/preference/diagnos
 resource/MCID controls, no global mutation, no relaxed fixtures/expectations/private-
 carrier mirror tests. Full workspace suite/build/all-target Clippy/unfulfilled
 expectations/Rustdoc/fmt/strict-reverse lineage under12GiB/zero swap/one job.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Scan text, separators, glyphs and lines for gradients. Allocate one pattern per gradient identity and paint root, with the root-to-PDF matrix. Unit coordinates follow the parent-root claim. Linear angle is aspect-corrected and radial geometry is evaluated in unit space, as the raster sampler does. Conic reuses its placed mesh with the root as reference box. Shape keys and matrices are unchanged. Page resources include the text patterns.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

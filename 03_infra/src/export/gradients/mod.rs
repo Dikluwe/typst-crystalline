@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/mod.md
-//! @prompt-hash dd9d0afb
+//! @prompt-hash 78e84755
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -86,6 +86,63 @@ pub(super) struct GradientObject {
     pub(super) page_height_at_emit: f64,
     pub(super) conic_matrix: Option<TransformMatrix>,
     pub(super) conic_domain: ConicDomain,
+    /// Raiz de pintura, somente para padrões de texto e linhas herdadas.
+    pub(super) text_root: Option<TextRoot>,
+}
+
+/// Unit Y-down root space to the initial PDF stream space, with physical size.
+#[derive(Clone, Copy)]
+pub(super) struct TextRoot {
+    pub(super) matrix: TransformMatrix,
+    pub(super) size: (f64, f64),
+}
+
+/// Gradient carried by a text leaf or by a line that inherited text paint.
+pub(super) fn text_gradient(
+    item: &FrameItem,
+) -> Option<&typst_core::entities::gradient::Gradient> {
+    use typst_core::entities::paint::Paint;
+    let paint = match item {
+        FrameItem::Text { style, .. }
+        | FrameItem::TextSeparator { style, .. }
+        | FrameItem::TextShaped { style, .. }
+        | FrameItem::Glyph { style, .. } => style.fill.as_ref(),
+        FrameItem::Line { color, .. } => color.as_ref(),
+        FrameItem::Shape { .. }
+        | FrameItem::Group { .. }
+        | FrameItem::Image { .. }
+        | FrameItem::Link { .. }
+        | FrameItem::Semantic { .. }
+        | FrameItem::TextReplacement { .. } => None,
+    };
+    match paint {
+        Some(Paint::Gradient(gradient)) => Some(gradient),
+        Some(Paint::Solid(_) | Paint::Tiling(_)) | None => None,
+    }
+}
+
+/// One text pattern per gradient identity and paint root occurrence.
+pub(super) fn text_dedup_key(
+    g: &typst_core::entities::gradient::Gradient,
+    root: usize,
+) -> DedupKey {
+    let mut key = dedup_key_for(g, None);
+    key.occurrence = Some(root);
+    key
+}
+
+/// Axis of a linear gradient in Y-down unit space, corrected for `aspect`.
+pub(super) fn unit_axis(
+    angle: typst_core::entities::layout_types::Angle,
+    aspect: f64,
+) -> (f64, f64, f64, f64) {
+    let radians = angle.to_rad();
+    let corrected = libm::atan2(libm::sin(radians) / aspect.abs(), libm::cos(radians));
+    let (sin, cos) = (libm::sin(corrected), libm::cos(corrected));
+    let length = sin.abs() + cos.abs();
+    let x0 = if cos < 0.0 { 1.0 } else { 0.0 };
+    let y0 = if sin < 0.0 { 1.0 } else { 0.0 };
+    (x0, y0, x0 + cos * length, y0 + sin * length)
 }
 
 /// **P273.12** — Quantização de `Rect` em milipontos para chave HashMap.
@@ -325,14 +382,67 @@ pub(super) fn scan_all_gradients(
         counter: usize,
     }
 
+    #[derive(Clone, Copy)]
+    struct Root {
+        key: usize,
+        placement: ConicPlacement,
+    }
+
+    fn register_text(item: &FrameItem, root: Root, collector: &mut Collector) {
+        let Some(g) = text_gradient(item) else { return };
+        let key = text_dedup_key(g, root.key);
+        if collector.ptr_to_idx.contains_key(&key) {
+            return;
+        }
+        let area = root.placement.parent;
+        let (conic_matrix, conic_domain) = if let Gradient::Conic(conic) = g {
+            (
+                Some(root.placement.matrix(conic, area, Some(area))),
+                root.placement.domain(conic, area, Some(area)),
+            )
+        } else {
+            (None, ConicDomain::default())
+        };
+        // Conic keeps its Y-up mesh convention; the others use Y-down unit space.
+        let matrix = conic_matrix.unwrap_or_else(|| {
+            root.placement
+                .to_pdf
+                .concat(&TransformMatrix::scale(area.w.0, area.h.0))
+        });
+        let id = collector.next_id;
+        collector.next_id += 3;
+        let name = format!("P{}", collector.counter);
+        collector.counter += 1;
+        collector.ptr_to_idx.insert(key, collector.refs.len());
+        collector.refs.push(PatternRef { pattern_obj_id: id + 2, name });
+        collector.grad_objs.push(GradientObject {
+            kind: match g {
+                Gradient::Linear(l) => GradientObjectKind::Linear(l.clone()),
+                Gradient::Radial(r) => GradientObjectKind::Radial(r.clone()),
+                Gradient::Conic(c) => GradientObjectKind::Conic(c.clone()),
+            },
+            function_id: id,
+            shading_id: id + 1,
+            pattern_id: id + 2,
+            parent_bbox_at_emit: None,
+            paint_bbox_at_emit: None,
+            page_height_at_emit: area.h.0,
+            conic_matrix,
+            conic_domain,
+            text_root: Some(TextRoot { matrix, size: (area.w.0, area.h.0) }),
+        });
+    }
+
     fn walk(
         items: &[FrameItem],
         parent_bbox_override: Option<Rect>,
         page_height: f64,
         placement: ConicPlacement,
+        root: Root,
         collector: &mut Collector,
     ) {
         for item in items {
+            register_text(item, root, collector);
             match item {
                 FrameItem::Shape {
                     pos,
@@ -357,7 +467,17 @@ pub(super) fn scan_all_gradients(
                                 },
                                 canvas: (w, h),
                             };
-                            walk(&cell.frame.items, None, h, cell_placement, collector);
+                            walk(
+                                &cell.frame.items,
+                                None,
+                                h,
+                                cell_placement,
+                                Root {
+                                    key: &cell.frame as *const _ as usize,
+                                    placement: cell_placement,
+                                },
+                                collector,
+                            );
                         }
                     }
                     for g in fill
@@ -411,6 +531,7 @@ pub(super) fn scan_all_gradients(
                             parent_bbox_at_emit: effective_bbox,
                             paint_bbox_at_emit: paint_bbox,
                             page_height_at_emit: page_height,
+                            text_root: None,
                             conic_domain: if let Gradient::Conic(conic) = g {
                                 placement.domain(
                                     conic,
@@ -444,6 +565,7 @@ pub(super) fn scan_all_gradients(
                     }
                 }
                 FrameItem::Group {
+                    paint_root,
                     pos,
                     matrix,
                     inner_width,
@@ -456,23 +578,41 @@ pub(super) fn scan_all_gradients(
                     // P278 — helper `group_bbox_from_fields` consolidação 6 sítios.
                     let group_bbox =
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
-                    walk(
-                        items,
-                        Some(group_bbox),
-                        page_height,
-                        placement.group(*pos, *matrix, *inner_width, *inner_height),
-                        collector,
-                    );
+                    let inner =
+                        placement.group(*pos, *matrix, *inner_width, *inner_height);
+                    let root = if *paint_root {
+                        Root {
+                            key: item as *const FrameItem as usize,
+                            placement: inner,
+                        }
+                    } else {
+                        root
+                    };
+                    walk(items, Some(group_bbox), page_height, inner, root, collector);
                 }
                 // **P425-A7**: gradients dentro de Link também devem ser registados.
                 FrameItem::Link { items, .. } => {
-                    walk(items, parent_bbox_override, page_height, placement, collector);
+                    walk(
+                        items,
+                        parent_bbox_override,
+                        page_height,
+                        placement,
+                        root,
+                        collector,
+                    );
                 }
                 FrameItem::TextReplacement { items, .. }
                 | FrameItem::Semantic { items, .. } => {
-                    walk(items, parent_bbox_override, page_height, placement, collector);
+                    walk(
+                        items,
+                        parent_bbox_override,
+                        page_height,
+                        placement,
+                        root,
+                        collector,
+                    );
                 }
-                // intencional: texto, linhas, glifos e imagens não contêm gradientes vetoriais de Shape
+                // texto e linhas já registados acima; imagens não contêm gradientes
                 FrameItem::TextSeparator { .. }
                 | FrameItem::Text { .. }
                 | FrameItem::TextShaped { .. }
@@ -495,7 +635,15 @@ pub(super) fn scan_all_gradients(
         // P273.10 — top-level: parent_bbox_override = None (gradient só
         // recebe override se descobrir Group em rota descendente).
         for items in [&page.background, &page.items, &page.foreground] {
-            walk(items, None, page.height, ConicPlacement::page(page), &mut collector);
+            let placement = ConicPlacement::page(page);
+            walk(
+                items,
+                None,
+                page.height,
+                placement,
+                Root { key: page as *const Page as usize, placement },
+                &mut collector,
+            );
         }
     }
     (collector.refs, collector.ptr_to_idx, collector.grad_objs)
@@ -517,12 +665,21 @@ pub(super) fn pattern_resources_for_page(
     fn walk(
         items: &[FrameItem],
         parent_bbox_override: Option<Rect>,
+        root: usize,
         ptr_to_idx: &HashMap<DedupKey, usize>,
         refs: &[PatternRef],
         entries: &mut Vec<String>,
         seen: &mut BTreeSet<usize>,
     ) {
         for item in items {
+            if let Some(&idx) =
+                text_gradient(item).and_then(|g| ptr_to_idx.get(&text_dedup_key(g, root)))
+            {
+                if seen.insert(idx) {
+                    let r = &refs[idx];
+                    entries.push(format!("/{} {} 0 R", r.name, r.pattern_obj_id));
+                }
+            }
             match item {
                 FrameItem::Shape {
                     pos,
@@ -538,6 +695,7 @@ pub(super) fn pattern_resources_for_page(
                             walk(
                                 &cell.frame.items,
                                 None,
+                                &cell.frame as *const _ as usize,
                                 ptr_to_idx,
                                 refs,
                                 entries,
@@ -571,18 +729,38 @@ pub(super) fn pattern_resources_for_page(
                         }
                     }
                 }
-                FrameItem::Group { pos, inner_width, inner_height, items, .. } => {
+                FrameItem::Group {
+                    paint_root,
+                    pos,
+                    inner_width,
+                    inner_height,
+                    items,
+                    ..
+                } => {
                     // P278 — helper `group_bbox_from_fields` consolidação 6 sítios.
                     let group_bbox =
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
-                    walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
+                    let root = if *paint_root {
+                        item as *const FrameItem as usize
+                    } else {
+                        root
+                    };
+                    walk(items, Some(group_bbox), root, ptr_to_idx, refs, entries, seen);
                 }
                 FrameItem::TextReplacement { items, .. }
                 | FrameItem::Semantic { items, .. }
                 | FrameItem::Link { items, .. } => {
-                    walk(items, parent_bbox_override, ptr_to_idx, refs, entries, seen);
+                    walk(
+                        items,
+                        parent_bbox_override,
+                        root,
+                        ptr_to_idx,
+                        refs,
+                        entries,
+                        seen,
+                    );
                 }
-                // intencional: texto, linhas, glifos e imagens não definem recursos /Pattern
+                // padrões de texto e linhas já recolhidos acima
                 FrameItem::TextSeparator { .. }
                 | FrameItem::Text { .. }
                 | FrameItem::TextShaped { .. }
@@ -596,7 +774,8 @@ pub(super) fn pattern_resources_for_page(
     let mut entries: Vec<String> = Vec::new();
     let mut seen: BTreeSet<usize> = Default::default();
     for items in [&page.background, &page.items, &page.foreground] {
-        walk(items, None, ptr_to_idx, refs, &mut entries, &mut seen);
+        let root = page as *const Page as usize;
+        walk(items, None, root, ptr_to_idx, refs, &mut entries, &mut seen);
     }
     if entries.is_empty() {
         return String::new();

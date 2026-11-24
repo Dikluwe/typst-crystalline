@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 06a8a850
+Hash do Código: a92afec3
 
 
 

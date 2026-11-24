@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/root.md
-//! @prompt-hash bf7093af
+//! @prompt-hash 58127d9d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -169,8 +169,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 y: Pt(overline_y),
             },
             thickness: line_thickness,
-            // P285: sqrt overline preto default (paridade matemática).
-            color: None,
+            color: style.fill.clone(),
             cap: crate::entities::geometry::LineCap::Butt,
         });
 

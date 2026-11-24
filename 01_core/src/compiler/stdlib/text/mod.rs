@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/text/mod.md
-//! @prompt-hash 9719514b
+//! @prompt-hash ae0c61bf
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -23,6 +23,7 @@ mod smartquote;
 
 pub use case::{native_lower, native_replace, native_upper};
 pub use constructor::native_text;
+pub(in crate::compiler) use constructor::reject_self_relative;
 pub use deco::{native_highlight, native_overline, native_strike, native_underline};
 pub use lorem::native_lorem;
 pub use shift::{native_subscript, native_superscript};

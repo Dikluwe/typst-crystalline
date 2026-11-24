@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/equation.md
-//! @prompt-hash aa79c9ae
+//! @prompt-hash b4c21119
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -96,6 +96,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             math_size: if block { MathSize::Display } else { MathSize::Text },
             font: Some(FontList::single(EcoString::from("New Computer Modern Math"))),
             weight: Some(450),
+            // `#set text(fill:)` viaja no canal custom, como no texto comum.
+            fill: super::text::effective_style(self).fill,
             ..self.style.clone()
         };
         // **P893** — `&math_style` propagado para que `FallbackFontMetrics`

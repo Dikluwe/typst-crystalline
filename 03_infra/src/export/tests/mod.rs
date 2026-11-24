@@ -8620,12 +8620,12 @@ fn p285_underline_herda_fill_do_texto_quando_stroke_none() {
     // Construir: Styled([Fill(red)], Underline { stroke: None, ... })
     let inner = Content::underline(Content::text("h"), None, None, None);
     let style = TextStyle {
-        fill: Some(Color::rgb(255, 0, 0)),
+        fill: Some(Color::rgb(255, 0, 0).into()),
         ..TextStyle::default()
     };
     let styled = Content::styled(
         Box::new(inner),
-        Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0))]),
+        Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0).into())]),
     );
     let _ = style; // capturado conceptualmente; teste real usa Styles.
     let doc = layout(&styled);
@@ -9843,7 +9843,7 @@ mod p979_tests {
     fn p979_fill_diferente_nao_funde() {
         let style = TextStyle::regular(Pt(12.0));
         let mut style2 = TextStyle::regular(Pt(12.0));
-        style2.fill = Some(typst_core::entities::color::Color::rgb(255, 0, 0));
+        style2.fill = Some(typst_core::entities::color::Color::rgb(255, 0, 0).into());
         let items = vec![
             shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
             shaped_item(107.2, 700.0, vec![glyph(11, 600)], &style2),

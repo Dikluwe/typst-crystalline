@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/paints.md
-//! @prompt-hash 3f4b15db
+//! @prompt-hash b9eb6902
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -20,6 +20,8 @@ use xmlwriter::XmlWriter;
 pub(super) struct PaintDefs {
     paints: Vec<SvgPaintDef>,
     pub(super) local_to_root: TransformMatrix,
+    /// Physical size of the current paint root, for text gradients.
+    pub(super) root_size: (f64, f64),
     pub(super) decorative: bool,
 }
 
@@ -31,6 +33,8 @@ struct SvgPaintDef {
     y: f64,
     width: f64,
     height: f64,
+    /// Index of the text gradient base this definition places.
+    text_base: Option<usize>,
 }
 
 pub(super) struct PaintReference {
@@ -38,7 +42,75 @@ pub(super) struct PaintReference {
     pub(super) fallback: Option<&'static str>,
 }
 
+/// Marks a definition as a text gradient base in unit root space.
+const TEXT_BASE: usize = usize::MAX;
+
 impl PaintDefs {
+    /// Paint of a text leaf or inherited line. `to_local` maps the user space
+    /// where the paint is applied to the current item coordinates.
+    pub(super) fn text_reference(
+        &mut self,
+        paint: Option<&typst_core::entities::paint::Paint>,
+        to_local: TransformMatrix,
+    ) -> PaintReference {
+        use typst_core::entities::paint::Paint as Declared;
+        let gradient = match paint {
+            None => {
+                return PaintReference { value: "#000000".to_string(), fallback: None }
+            }
+            Some(Declared::Gradient(gradient)) => gradient,
+            Some(paint @ (Declared::Solid(_) | Declared::Tiling(_))) => {
+                return PaintReference {
+                    value: color_to_css(paint.to_color()),
+                    fallback: None,
+                }
+            }
+        };
+        let paint = Paint::Gradient(gradient.clone());
+        let (width, height) = self.root_size;
+        let matrix = super::super::tiling::inverse(self.local_to_root.concat(&to_local))
+            .map(|inverse| inverse.concat(&TransformMatrix::scale(width, height)));
+        let (true, Some(matrix)) = (paint_is_svg_native(&paint), matrix) else {
+            return PaintReference {
+                value: color_to_css(gradient.first_stop_color()),
+                fallback: Some(unsupported_paint_reason(&paint)),
+            };
+        };
+        let base = self.text_definition(&paint, TransformMatrix::identity(), TEXT_BASE);
+        let index = self.text_definition(&paint, matrix, base);
+        PaintReference { value: format!("url(#p{index})"), fallback: None }
+    }
+
+    fn text_definition(
+        &mut self,
+        paint: &Paint,
+        matrix: TransformMatrix,
+        base: usize,
+    ) -> usize {
+        let (width, height) = self.root_size;
+        self.paints
+            .iter()
+            .position(|candidate| {
+                candidate.text_base == Some(base)
+                    && candidate.matrix == matrix
+                    && candidate.width.to_bits() == width.to_bits()
+                    && candidate.height.to_bits() == height.to_bits()
+                    && same_paint(&candidate.paint, paint)
+            })
+            .unwrap_or_else(|| {
+                self.paints.push(SvgPaintDef {
+                    paint: paint.clone(),
+                    matrix,
+                    x: 0.0,
+                    y: 0.0,
+                    width,
+                    height,
+                    text_base: Some(base),
+                });
+                self.paints.len() - 1
+            })
+    }
+
     pub(super) fn reference(
         &mut self,
         paint: &Paint,
@@ -91,7 +163,8 @@ impl PaintDefs {
             .paints
             .iter()
             .position(|candidate| {
-                same_paint(&candidate.paint, paint)
+                candidate.text_base.is_none()
+                    && same_paint(&candidate.paint, paint)
                     && candidate.matrix == matrix
                     && candidate.x.to_bits() == paint_x.to_bits()
                     && candidate.y.to_bits() == paint_y.to_bits()
@@ -106,6 +179,7 @@ impl PaintDefs {
                     y: paint_y,
                     width: paint_width,
                     height: paint_height,
+                    text_base: None,
                 });
                 self.paints.len() - 1
             });
@@ -143,7 +217,8 @@ impl PaintDefs {
                 xml.start_element("g");
                 xml.write_attribute("id", &format!("{id}cell"));
                 xml.write_attribute("clip-path", &format!("url(#{clip})"));
-                let previous = (self.local_to_root, self.decorative);
+                let previous = (self.local_to_root, self.decorative, self.root_size);
+                self.root_size = (size.width.0, size.height.0);
                 self.local_to_root = TransformMatrix::identity();
                 self.decorative = true;
                 {
@@ -161,7 +236,7 @@ impl PaintDefs {
                         super::render_item(xml, item, &mut session);
                     }
                 }
-                (self.local_to_root, self.decorative) = previous;
+                (self.local_to_root, self.decorative, self.root_size) = previous;
                 xml.end_element();
                 xml.start_element("pattern");
                 xml.write_attribute("id", &id);
@@ -202,6 +277,8 @@ impl PaintDefs {
                     xml.end_element();
                 }
                 xml.end_element();
+            } else if let Some(base) = definition.text_base {
+                write_text_gradient(xml, &id, &definition, base);
             } else {
                 write_paint_def(
                     xml,
@@ -271,6 +348,73 @@ pub(super) fn paint_is_svg_native(paint: &Paint) -> bool {
         ),
         Paint::Tiling(_) => true,
     }
+}
+
+/// A base holds the gradient in unit root space; a placement references it.
+fn write_text_gradient(
+    xml: &mut XmlWriter,
+    id: &str,
+    definition: &SvgPaintDef,
+    base: usize,
+) {
+    let Paint::Gradient(gradient) = &definition.paint else {
+        unreachable!("text definitions carry gradients only")
+    };
+    if base != TEXT_BASE {
+        let m = definition.matrix;
+        let transform =
+            format!("matrix({} {} {} {} {} {})", m.a, m.b, m.c, m.d, m.tx, m.ty);
+        let (element, attribute) = match gradient {
+            Gradient::Linear(_) => ("linearGradient", "gradientTransform"),
+            Gradient::Radial(_) => ("radialGradient", "gradientTransform"),
+            Gradient::Conic(_) => ("pattern", "patternTransform"),
+        };
+        // The conic base pattern is named with a `b` suffix by its writer.
+        let suffix = if matches!(gradient, Gradient::Conic(_)) { "b" } else { "" };
+        let href = format!("#p{base}{suffix}");
+        xml.start_element(element);
+        xml.write_attribute("id", id);
+        xml.write_attribute(attribute, &transform);
+        xml.write_attribute("href", &href);
+        xml.write_attribute("xlink:href", &href);
+        xml.end_element();
+        return;
+    }
+    let (stops, offsets) = match gradient {
+        Gradient::Linear(value) => {
+            let (x1, y1, x2, y2) = super::super::gradients::unit_axis(
+                value.angle,
+                definition.width / definition.height,
+            );
+            xml.start_element("linearGradient");
+            xml.write_attribute("id", id);
+            xml.write_attribute("gradientUnits", "userSpaceOnUse");
+            xml.write_attribute("x1", &x1);
+            xml.write_attribute("y1", &y1);
+            xml.write_attribute("x2", &x2);
+            xml.write_attribute("y2", &y2);
+            (&value.stops, value.effective_offsets())
+        }
+        Gradient::Radial(value) => {
+            xml.start_element("radialGradient");
+            xml.write_attribute("id", id);
+            xml.write_attribute("gradientUnits", "userSpaceOnUse");
+            xml.write_attribute("cx", &value.center.x.get());
+            xml.write_attribute("cy", &value.center.y.get());
+            xml.write_attribute("r", &value.radius.get());
+            xml.write_attribute("fx", &value.focal_center.x.get());
+            xml.write_attribute("fy", &value.focal_center.y.get());
+            xml.write_attribute("fr", &value.focal_radius.get());
+            (&value.stops, value.effective_offsets())
+        }
+        Gradient::Conic(value) => {
+            let (width, height) = (definition.width, definition.height);
+            write_conic_paint_def(xml, id, value, 0.0, 0.0, width, height);
+            return;
+        }
+    };
+    write_svg_gradient_stops(xml, &definition.paint, stops, &offsets);
+    xml.end_element();
 }
 
 fn write_paint_def(
