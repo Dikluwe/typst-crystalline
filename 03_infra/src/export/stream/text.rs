@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 5e6a5835
+//! @prompt-hash 4a246895
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -177,6 +177,28 @@ pub(crate) fn font_index_for_style(
         .unwrap_or(0)
 }
 
+/// Opens a graphics state for a compact block's local color, so that it cannot
+/// reach later uncolored content. Empty when the block sets no color.
+fn compact_color_scope(style: &typst_core::entities::layout_types::TextStyle) -> String {
+    let color = fill_rg_prefix(&style.fill);
+    if color.is_empty() {
+        color
+    } else {
+        format!("q\n{color}")
+    }
+}
+
+/// Closes a nonempty compact scope, or reports that the caller must.
+fn close_compact_scope(ops: &mut String, open: &str, restore: bool) -> bool {
+    if open.is_empty() {
+        return false;
+    }
+    if restore {
+        ops.push_str("Q\n");
+    }
+    !restore
+}
+
 /// **P281** — emit Text PDF dispatched por `FontScenario`.
 ///
 /// `base_y` é a coordenada Y final em PDF (top-level: `page_height -
@@ -212,8 +234,7 @@ fn emit_text_pdf_inner(
     scenario: &FontScenario,
     restore: bool,
 ) -> bool {
-    let mut deferred = false;
-    let rg = fill_rg_prefix(&style.fill);
+    let mut scope = compact_color_scope(style);
     match scenario {
         FontScenario::Type1 => {
             let safe = escape_pdf_string(text);
@@ -233,18 +254,16 @@ fn emit_text_pdf_inner(
                 String::new()
             };
             let stroke_pt = style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K);
-            deferred = stroke_pt > f64::EPSILON && !restore;
-            let (q_open, q_close, bold_ops) = if stroke_pt > f64::EPSILON {
-                (
-                    "q\n",
-                    if restore { "Q\n" } else { "" },
-                    format!("2 Tr\n{:.3} w\n", stroke_pt),
-                )
+            let bold_ops = if stroke_pt > f64::EPSILON {
+                if scope.is_empty() {
+                    scope.push_str("q\n");
+                }
+                format!("2 Tr\n{:.3} w\n", stroke_pt)
             } else {
-                ("", "", String::new())
+                String::new()
             };
             ops.push_str(&format!(
-                "{rg}{q_open}BT\n/{font_ref} {} Tf\n{tc_op}{bold_ops}{:.5} {:.5} Td\n({safe}) Tj\nET\n{q_close}",
+                "{scope}BT\n/{font_ref} {} Tf\n{tc_op}{bold_ops}{:.5} {:.5} Td\n({safe}) Tj\nET\n",
                 font_size(style.size.val()), pos_x, base_y
             ));
         }
@@ -254,7 +273,7 @@ fn emit_text_pdf_inner(
             }
             let hex_str = text_to_hex_string(text, char_to_gid);
             ops.push_str(&format!(
-                "{rg}BT\n/F1 {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
+                "{scope}BT\n/F1 {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
                 font_size(style.size.val()),
                 pos_x,
                 base_y
@@ -267,7 +286,7 @@ fn emit_text_pdf_inner(
             let fi = font_index_for_style(fonts, style);
             let hex_str = text_to_hex_string(text, &per_font_char_to_gid[fi]);
             ops.push_str(&format!(
-                "{rg}BT\n/F{} {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
+                "{scope}BT\n/F{} {} Tf\n{:.5} {:.5} Td\n{hex_str} Tj\nET\n",
                 fi + 1,
                 font_size(style.size.val()),
                 pos_x,
@@ -276,7 +295,7 @@ fn emit_text_pdf_inner(
         }
     }
 
-    deferred
+    close_compact_scope(ops, &scope, restore)
 }
 
 /// **P482/P485** — emit TextShaped PDF via operador `TJ` com avanços explícitos.
@@ -579,15 +598,13 @@ pub(super) fn emit_shaped_pdf_inner(
     font: Option<&typst_core::entities::world_types::Font>,
     zero_alias: bool,
 ) -> bool {
-    let mut deferred = false;
     if glyphs.is_empty() {
         return false;
     }
     let upm = units_per_em as f64;
     match scenario {
         FontScenario::Type1 => {
-            deferred =
-                emit_text_pdf_inner(ops, pos_x, base_y, text, style, scenario, restore);
+            emit_text_pdf_inner(ops, pos_x, base_y, text, style, scenario, restore)
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
@@ -616,8 +633,8 @@ pub(super) fn emit_shaped_pdf_inner(
                 );
                 return false;
             }
-            let rg = fill_rg_prefix(&style.fill);
-            ops.push_str(&format!("{rg}BT\n/F1 {} Tf\n", font_size(style.size.val())));
+            let scope = compact_color_scope(style);
+            ops.push_str(&format!("{scope}BT\n/F1 {} Tf\n", font_size(style.size.val())));
             if zero_alias {
                 ops.push_str("0 Tz\n");
             }
@@ -632,6 +649,7 @@ pub(super) fn emit_shaped_pdf_inner(
                 Some(style),
             );
             ops.push_str("] TJ\nET\n");
+            close_compact_scope(ops, &scope, restore)
         }
         FontScenario::Multifont {
             fonts,
@@ -677,9 +695,9 @@ pub(super) fn emit_shaped_pdf_inner(
             }
             let glyph_mapping = &per_font_glyph_mapping[fi];
             let glyph_to_nominal = &per_font_glyph_to_nominal[fi];
-            let rg = fill_rg_prefix(&style.fill);
+            let scope = compact_color_scope(style);
             ops.push_str(&format!(
-                "{rg}BT\n/F{} {} Tf\n",
+                "{scope}BT\n/F{} {} Tf\n",
                 fi + 1,
                 font_size(style.size.val())
             ));
@@ -697,10 +715,9 @@ pub(super) fn emit_shaped_pdf_inner(
                 Some(style),
             );
             ops.push_str("] TJ\nET\n");
+            close_compact_scope(ops, &scope, restore)
         }
     }
-
-    deferred
 }
 
 /// Type1 silently ignored (sem TrueType embebida); CIDFont/Multifont
@@ -761,14 +778,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
     actualtext_open: Option<&str>,
     actualtext_close: bool,
 ) {
-    if let Some(c) = &style.fill {
-        if let Some(op) = spot_fill_operator(c) {
-            ops.push_str(&op);
-        } else {
-            let (r, g, b, _) = c.to_rgba_f32();
-            ops.push_str(&format!("{r:.3} {g:.3} {b:.3} rg\n"));
-        }
-    }
+    let scope = compact_color_scope(style);
     match scenario {
         FontScenario::Type1 => {
             // Sem fonte TrueType → glyph_id sem significado. Ignored.
@@ -779,6 +789,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
             } else {
                 crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
             };
+            ops.push_str(&scope);
             ops.push_str("BT\n");
             if let Some(text) = actualtext_open {
                 super::text_replacement::opening(ops, text);
@@ -794,6 +805,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
                 super::text_replacement::closing(ops);
             }
             ops.push_str("ET\n");
+            close_compact_scope(ops, &scope, true);
         }
         FontScenario::Multifont {
             per_font_glyph_reverse,
@@ -810,6 +822,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
             } else {
                 crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
             };
+            ops.push_str(&scope);
             ops.push_str("BT\n");
             if let Some(text) = actualtext_open {
                 super::text_replacement::opening(ops, text);
@@ -826,6 +839,7 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
                 super::text_replacement::closing(ops);
             }
             ops.push_str("ET\n");
+            close_compact_scope(ops, &scope, true);
         }
     }
 }
@@ -1512,6 +1526,69 @@ mod tests {
                 (xy[0] - 12.34567).abs() < 1e-7 && (xy[1] - 23.45678).abs() < 1e-7,
                 "{ops}"
             );
+        }
+    }
+
+    #[test]
+    fn compact_color_is_scoped_to_its_text_block() {
+        use typst_core::entities::layout_types::{Color, Pt, TextStyle};
+        let plain = TextStyle::regular(Pt(12.0));
+        let mut red = plain.clone();
+        red.fill = Some(Color::rgb(255, 0, 0));
+        let check = |mut ops: String, pending: bool, deferred: bool, colored: bool| {
+            if !colored {
+                assert!(!pending && !ops.contains("rg\n"), "{ops}");
+                return;
+            }
+            assert_eq!(pending, deferred, "{ops}");
+            if pending {
+                ops.push_str("Q\n");
+            }
+            assert!(ops.starts_with("q\n1.000 0.000 0.000 rg\nBT\n"), "{ops}");
+            assert!(ops.ends_with("ET\nQ\n"), "{ops}");
+            assert_eq!(ops.lines().filter(|l| *l == "q").count(), 1, "{ops}");
+            assert_eq!(ops.lines().filter(|l| *l == "Q").count(), 1, "{ops}");
+        };
+        for (style, colored) in [(&plain, false), (&red, true)] {
+            let mut bold = style.clone();
+            bold.bold = true;
+            bold.weight = Some(700);
+            for (style, restore) in
+                [(style, true), (style, false), (&bold, true), (&bold, false)]
+            {
+                if !colored && style.bold {
+                    continue;
+                }
+                let mut ops = String::new();
+                let pending = emit_text_pdf_inner(
+                    &mut ops,
+                    1.0,
+                    2.0,
+                    "A",
+                    style,
+                    &FontScenario::Type1,
+                    restore,
+                );
+                check(ops, pending, !restore, colored);
+            }
+            tracking_controls(|scenario, _, glyphs| {
+                for restore in [true, false] {
+                    let mut ops = String::new();
+                    let pending = emit_text_pdf_inner(
+                        &mut ops, 1.0, 2.0, "A", style, scenario, restore,
+                    );
+                    check(ops, pending, !restore, colored);
+                    let mut ops = String::new();
+                    let pending = emit_shaped_pdf_inner(
+                        &mut ops, 1.0, 2.0, &glyphs, "AA", style, scenario, 1000,
+                        restore, None, false,
+                    );
+                    check(ops, pending, !restore, colored);
+                }
+                let mut ops = String::new();
+                emit_glyph_pdf(&mut ops, 1.0, 2.0, 1, style.size, style, scenario);
+                check(ops, false, false, colored);
+            });
         }
     }
 

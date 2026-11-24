@@ -1,5 +1,5 @@
 # L0 — stream/text
-Hash do Código: 180fda71
+Hash do Código: 28a14f17
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/shaped-text-products.toml sha256:f856f51068f7a213d8eca2c9d609bfad9338c169650af1388ec939ee0c9a99b3
@@ -486,3 +486,31 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Compact solid-color isolation
+
+Measured on 2026-11-24 at clean `88672ddc7`, debug `typst` sha256 prefix
+`cea6c890ce68819d`, 20:54:34 UTC, compact versus verbose through
+`pdftoppm -r 144` (8×4cm page): the probe
+`a #text(fill:red)[b#text(fill:green)[c]d] e` differs in 187 RGB bytes (maximum
+255). In `03_infra/src/export/stream/text.rs`, `emit_text_pdf_inner`,
+`emit_shaped_pdf_inner` and `emit_glyph_pdf_marked` set the fill color outside
+`q`/`Q` and emit none for absent fill, so absent fill inherits the previous run.
+ADR-0126 requires compact to match verbose ink, including graphics-state
+transitions. This is an internal continuous-flow correction under ADR-0127.
+
+Every compact Text, outline TextShaped and Glyph emission that emits a local
+color operator wraps that operator and its text block in one `q`/`Q`. Type1 faux
+bold reuses the same scope. A deferred emission returns the pending restoration
+instead of emitting `Q`, through the existing tail contract. Emissions without a
+local color operator keep their current bytes, including the uncolored compact
+envelope and snapshots, and inherit the enclosing state. One private helper owns
+the color scope. Verbose, bitmap/Type3 and ActualText boundaries do not change.
+
+The page fill in `00_nucleo/prompts/infra/export/stream/page.md` is also emitted
+outside `q`/`Q`; its isolation is incomplete here and belongs to that owner.
+
+Require RED→GREEN for the carriers across Type1/CIDFont/Multifont where each
+applies, balanced normal/deferred scopes, uncolored byte controls, unchanged
+verbose output and equal compact/verbose rasterization of the probe and of
+`#text(fill: red)[$a/b$] e`.
