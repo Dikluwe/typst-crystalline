@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash e6098b7e
+//! @prompt-hash 165ac6d7
 //! @layer L3
 //! @updated 2026-09-28
 //! SVG facade and exhaustive renderer dispatcher.
@@ -186,6 +186,7 @@ fn export_svg_with_fonts_inner(
 
     let mut glyph_defs = GlyphDefs::default();
     let mut paint_defs = PaintDefs::default();
+    paint_defs.root_size = (page.width, page.height);
     let mut clip_next_id = 0usize;
     let mut session = SvgRenderSession {
         fonts,
@@ -247,19 +248,25 @@ fn render_item(
     match item {
         FrameItem::TextSeparator { pos, style, .. } => {
             if session.html_frame {
-                render_html_text(xml, pos, &ecow::EcoString::from(" "), style);
+                render_html_text(
+                    xml,
+                    pos,
+                    &ecow::EcoString::from(" "),
+                    style,
+                    session.paint_defs,
+                );
             }
         }
         FrameItem::Text { pos, text, style, .. } => {
             if session.html_frame {
-                render_html_text(xml, pos, text, style);
+                render_html_text(xml, pos, text, style, session.paint_defs);
             }
         }
         FrameItem::TextShaped {
             pos, glyphs, style, text, units_per_em, font, ..
         } => {
             if session.html_frame {
-                render_html_text(xml, pos, text, style);
+                render_html_text(xml, pos, text, style, session.paint_defs);
             } else if let Some(fonts) = session.fonts {
                 render_text_shaped(
                     xml,
@@ -269,12 +276,13 @@ fn render_item(
                     *units_per_em,
                     fonts,
                     session.glyph_defs,
+                    session.paint_defs,
                     font.as_ref(),
                 );
             }
         }
         FrameItem::Line { start, end, thickness, color, .. } => {
-            render_line(xml, start, end, *thickness, color.clone());
+            render_line(xml, start, end, *thickness, color.as_ref(), session.paint_defs);
         }
         FrameItem::Glyph { pos, glyph_id, size, style, base_char, .. } => {
             if let Some(fonts) = session.fonts {
@@ -288,6 +296,7 @@ fn render_item(
                     fonts.original_fonts(),
                     session.glyph_fonts,
                     session.glyph_defs,
+                    session.paint_defs,
                 );
             } else {
                 write_glyph_fallback(xml, pos, "fontless-wrapper");
@@ -332,6 +341,10 @@ fn render_item(
             items,
         } => {
             let previous_root = session.paint_defs.local_to_root;
+            let previous_size = session.paint_defs.root_size;
+            if *paint_root {
+                session.paint_defs.root_size = (*inner_width, *inner_height);
+            }
             session.paint_defs.local_to_root = if *paint_root {
                 TransformMatrix::identity()
             } else {
@@ -349,6 +362,7 @@ fn render_item(
                 session,
             );
             session.paint_defs.local_to_root = previous_root;
+            session.paint_defs.root_size = previous_size;
         }
         FrameItem::Link { items, .. } if session.paint_defs.decorative => {
             let previous_html_frame = session.html_frame;

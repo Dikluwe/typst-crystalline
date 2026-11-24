@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/resources.md
-//! @prompt-hash ce468d52
+//! @prompt-hash 897272d2
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -136,28 +136,28 @@ fn page_spot_colorants(
             if let FrameItem::TextSeparator { style, .. }
             | FrameItem::Text { style, .. } = item
             {
-                if let Some(c) = &style.fill {
-                    self.color(c);
+                if let Some(paint) = &style.fill {
+                    self.paint(paint);
                 }
             }
         }
         fn visit_text_shaped(&mut self, item: &FrameItem) {
             if let FrameItem::TextShaped { style, .. } = item {
-                if let Some(c) = &style.fill {
-                    self.color(c);
+                if let Some(paint) = &style.fill {
+                    self.paint(paint);
                 }
             }
         }
         fn visit_glyph(&mut self, item: &FrameItem) {
             if let FrameItem::Glyph { style, .. } = item {
-                if let Some(c) = &style.fill {
-                    self.color(c);
+                if let Some(paint) = &style.fill {
+                    self.paint(paint);
                 }
             }
         }
         fn visit_line(&mut self, item: &FrameItem) {
             if let FrameItem::Line { color: Some(c), .. } = item {
-                self.color(c);
+                self.paint(c);
             }
         }
         fn visit_shape(&mut self, item: &FrameItem) {
@@ -295,6 +295,15 @@ pub(super) fn merge_bitmap_xobjects(
     }
 }
 
+/// Aspect-corrected axis in the Y-down unit space of a text paint root.
+fn text_axis(
+    angle: typst_core::entities::layout_types::Angle,
+    root: Option<crate::export::gradients::TextRoot>,
+) -> (f64, f64, f64, f64) {
+    let (w, h) = root.map_or((1.0, 1.0), |root| root.size);
+    crate::export::gradients::unit_axis(angle, w / h)
+}
+
 impl PdfBuilder {
     /// Emite todos os XObjects de imagem pré-processados para o builder.
     ///
@@ -326,6 +335,7 @@ impl PdfBuilder {
                 page_height_at_emit,
                 conic_matrix,
                 conic_domain,
+                text_root,
             } = go;
             let spot_pdf_bbox = paint_bbox_at_emit.map(|rect| {
                 (rect.x.0, page_height_at_emit - rect.y.0 - rect.h.0, rect.w.0, rect.h.0)
@@ -347,6 +357,8 @@ impl PdfBuilder {
                 } else {
                     (0.0, 0.0, page_w as f32, page_h as f32)
                 };
+            // Text patterns use unit root coordinates and pad past their ends.
+            let (p, extend) = if text_root.is_some() { (6, true) } else { (3, false) };
             // P265 + P268 — branching Linear / Radial / Conic.
             match &kind {
                 GradientObjectKind::Linear(linear) => {
@@ -375,6 +387,11 @@ impl PdfBuilder {
                         let (tx0, ty0, tx1, ty1) =
                             apply_parent_transform(local, Some(effective_parent_bbox));
                         (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
+                    } else {
+                        (x0, y0, x1, y1)
+                    };
+                    let (x0, y0, x1, y1) = if text_root.is_some() {
+                        text_axis(linear.angle, text_root)
                     } else {
                         (x0, y0, x1, y1)
                     };
@@ -422,15 +439,15 @@ impl PdfBuilder {
                             })
                             .unwrap_or((x0, y0, x1, y1));
                         self.add(shading_id, format!(
-                            "<< /ShadingType 2 /ColorSpace {} /Coords [{x0:.3} {y0:.3} {x1:.3} {y1:.3}] /Function {function_id} 0 R /Extend [true true] >>",
+                            "<< /ShadingType 2 /ColorSpace {} /Coords [{x0:.p$} {y0:.p$} {x1:.p$} {y1:.p$}] /Function {function_id} 0 R /Extend [true true] >>",
                             pdf_spot_space(colorant, icc_profile_id)
                         ));
                     } else if linear.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_linear_cmyk(linear, 16);
                         let shading_dict = format!(
                             "<< /ShadingType 2 /ColorSpace /DeviceCMYK \
-                               /Coords [{:.3} {:.3} {:.3} {:.3}] \
-                               /Function {} 0 R /Extend [false false] >>",
+                               /Coords [{:.p$} {:.p$} {:.p$} {:.p$}] \
+                               /Function {} 0 R /Extend [{extend} {extend}] >>",
                             x0, y0, x1, y1, function_id,
                         );
                         let (func_dict, sub_objs) = emit_function_dict_cmyk(
@@ -451,8 +468,8 @@ impl PdfBuilder {
                         let stops = multispace_sample_stops(linear, n);
                         let shading_dict = format!(
                             "<< /ShadingType 2 /ColorSpace /DeviceRGB \
-                               /Coords [{:.3} {:.3} {:.3} {:.3}] \
-                               /Function {} 0 R /Extend [false false] >>",
+                               /Coords [{:.p$} {:.p$} {:.p$} {:.p$}] \
+                               /Function {} 0 R /Extend [{extend} {extend}] >>",
                             x0, y0, x1, y1, function_id,
                         );
                         let (func_dict, sub_objs) =
@@ -493,6 +510,18 @@ impl PdfBuilder {
                     } else {
                         (x0, y0, x1, y1)
                     };
+                    let (x0, y0, r0, x1, y1, r1) = if text_root.is_some() {
+                        (
+                            radial.focal_center.x.0,
+                            radial.focal_center.y.0,
+                            radial.focal_radius.0,
+                            radial.center.x.0,
+                            radial.center.y.0,
+                            radial.radius.0,
+                        )
+                    } else {
+                        (x0, y0, r0, x1, y1, r1)
+                    };
                     // P1483 — função radial spot, com uma única componente.
                     if let ColorSpace::Spot(colorant) = &radial.space {
                         let stops: Vec<f32> = (0..16)
@@ -518,14 +547,14 @@ impl PdfBuilder {
                             })
                             .unwrap_or((x0, y0, r0, x1, y1, r1));
                         self.add(shading_id, format!(
-                            "<< /ShadingType 3 /ColorSpace {} /Coords [{x0:.3} {y0:.3} {r0:.3} {x1:.3} {y1:.3} {r1:.3}] /Function {function_id} 0 R /Extend [true true] >>",
+                            "<< /ShadingType 3 /ColorSpace {} /Coords [{x0:.p$} {y0:.p$} {r0:.p$} {x1:.p$} {y1:.p$} {r1:.p$}] /Function {function_id} 0 R /Extend [true true] >>",
                             pdf_spot_space(colorant, icc_profile_id)
                         ));
                     } else if radial.space == ColorSpace::Cmyk {
                         let stops_cmyk = multispace_sample_stops_radial_cmyk(radial, 16);
                         let shading_dict = format!(
                             "<< /ShadingType 3 /ColorSpace /DeviceCMYK \
-                               /Coords [{:.3} {:.3} {:.3} {:.3} {:.3} {:.3}] \
+                               /Coords [{:.p$} {:.p$} {:.p$} {:.p$} {:.p$} {:.p$}] \
                                /Function {} 0 R /Extend [true true] >>",
                             x0, y0, r0, x1, y1, r1, function_id,
                         );
@@ -545,7 +574,7 @@ impl PdfBuilder {
                         let stops = multispace_sample_stops_radial(radial, n);
                         let shading_dict = format!(
                             "<< /ShadingType 3 /ColorSpace /DeviceRGB \
-                               /Coords [{:.3} {:.3} {:.3} {:.3} {:.3} {:.3}] \
+                               /Coords [{:.p$} {:.p$} {:.p$} {:.p$} {:.p$} {:.p$}] \
                                /Function {} 0 R /Extend [true true] >>",
                             x0, y0, r0, x1, y1, r1, function_id,
                         );
@@ -603,7 +632,13 @@ impl PdfBuilder {
                 }
             };
             // Emit Pattern dict.
-            let matrix = if let Some(m) = conic_matrix {
+            let matrix = if let Some(root) = text_root {
+                let m = root.matrix;
+                format!(
+                    "[{:.6} {:.6} {:.6} {:.6} {:.6} {:.6}]",
+                    m.a, m.b, m.c, m.d, m.tx, m.ty
+                )
+            } else if let Some(m) = conic_matrix {
                 if m.b == 0.0 && m.c == 0.0 {
                     format!("[{:.3} 0 0 {:.3} {:.3} {:.3}]", m.a, m.d, m.tx, m.ty)
                 } else {

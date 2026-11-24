@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/layout_types.md
-//! @prompt-hash 41bb1c65
+//! @prompt-hash c21ea7eb
 //! @layer L1
 //! @updated 2026-11-07
 //!
@@ -176,8 +176,8 @@ pub struct TextStyle {
     pub semantic_strong: bool,
     pub semantic_emph: bool,
     pub size: Pt,
-    /// Cor de preenchimento — ADR-0038/0039 forward-compat.
-    pub fill: Option<Color>,
+    /// Pintura sólida ou gradiente; tiling não usa este portador.
+    pub fill: Option<crate::entities::paint::Paint>,
     /// Nível de heading — ADR-0038/0039 forward-compat.
     pub heading_level: Option<u8>,
 
@@ -432,7 +432,7 @@ pub enum FrameItem {
         start: Point,
         end: Point,
         thickness: f64,
-        color: Option<Color>,
+        color: Option<crate::entities::paint::Paint>,
         /// P1431 — terminal da linha, preservado até raster/PDF.
         cap: crate::entities::geometry::LineCap,
     },

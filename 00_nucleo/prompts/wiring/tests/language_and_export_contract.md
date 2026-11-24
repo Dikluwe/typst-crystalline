@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 2d6ea4e4
+Hash do Código: 185eb934
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -138,3 +138,16 @@ indexes, strict V1/V5/V15/V26/reverse lineage and diff --check. L0 first; reseal
 limited to authorized owners/code. Heavy jobs sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1; freeze sources/L0/configuration during commands.
 No import-syntax mirror tests, unmeasured RAM/AI-gain claims or release publication.
+
+## Approved text gradient package
+
+Own the black-box cases of the owner-approved package in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`: every
+input route and scope asserts painted gradient in SVG and colored ink in PNG,
+PDF emits its pattern, gradients in different paint roots stay distinct,
+diagnostics for relative self match, and solid, invalid and tiling controls
+keep their results. Process success alone is not acceptance.
+
+### Gradient review regressions
+
+Use the bilateral SVG cases from the gradient review over HEAD `88672ddc7d4e50019564ba14b7a6476e4cd35209`. Test an inner set gradient inside solid text and an inner set solid inside gradient text. Compare glyph fills in order and confirm the outer fill returns after the inner scope. For strike and overline, verify local gradient, solid nested under a gradient, mixed inline paints and explicit stroke precedence. Inspect painted stroke values. The raster owner tests bounded mask coverage and the review fixture exercises rotated text at 72 and 144 ppi.

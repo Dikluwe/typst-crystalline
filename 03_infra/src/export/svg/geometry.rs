@@ -1,14 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/geometry.md
-//! @prompt-hash 061856af
+//! @prompt-hash 03bce314
 //! @layer L3
 //! @updated 2026-09-26
 
 use super::paints::PaintDefs;
-use super::serialization::{color_to_css, fmt_num, fmt_pair};
+use super::serialization::{fmt_num, fmt_pair};
 use typst_core::entities::frame_paint::{FramePaint as Paint, FrameStroke as Stroke};
 use typst_core::entities::geometry::{PathItem, ShapeKind};
-use typst_core::entities::layout_types::{Color, Point};
+use typst_core::entities::layout_types::{Point, TransformMatrix};
 use xmlwriter::XmlWriter;
 
 pub(super) fn render_line(
@@ -16,7 +16,8 @@ pub(super) fn render_line(
     start: &Point,
     end: &Point,
     thickness: f64,
-    color: Option<Color>,
+    color: Option<&typst_core::entities::paint::Paint>,
+    paint_defs: &mut PaintDefs,
 ) {
     xml.start_element("line");
     xml.write_attribute("fill", "none");
@@ -24,7 +25,11 @@ pub(super) fn render_line(
     xml.write_attribute("y1", &fmt_num(start.y.0));
     xml.write_attribute("x2", &fmt_num(end.x.0));
     xml.write_attribute("y2", &fmt_num(end.y.0));
-    xml.write_attribute("stroke", &color_to_css(color.unwrap_or(Color::rgb(0, 0, 0))));
+    let stroke = paint_defs.text_reference(color, TransformMatrix::identity());
+    xml.write_attribute("stroke", &stroke.value);
+    if let Some(reason) = stroke.fallback {
+        xml.write_attribute("data-crystalline-stroke-fallback", reason);
+    }
     xml.write_attribute("stroke-width", &fmt_num(thickness));
     xml.write_attribute("stroke-linecap", "butt");
     xml.end_element();
@@ -324,8 +329,9 @@ pub(super) fn path_items_to_svg(items: &[PathItem], offset: &Point) -> String {
 
 #[cfg(test)]
 mod remaining_line_paint_tests {
+    use super::super::serialization::color_to_css;
     use super::*;
-    use typst_core::entities::layout_types::Pt;
+    use typst_core::entities::layout_types::{Color, Pt};
 
     #[test]
     fn remaining_svg_line_is_stroke_only_under_inherited_fill() {
@@ -338,7 +344,8 @@ mod remaining_line_paint_tests {
                 &Point { x: Pt(2.0), y: Pt(3.0) },
                 &Point { x: Pt(9.0), y: Pt(3.0) },
                 0.7,
-                color.clone(),
+                color.clone().map(Into::into).as_ref(),
+                &mut PaintDefs::default(),
             );
             xml.end_element();
             let svg = xml.end_document();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/style_chain.md
-//! @prompt-hash 83dbe8c7
+//! @prompt-hash 6b0409a0
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -52,7 +52,7 @@ pub struct StyleDelta {
     pub italic_from_emph: Option<bool>,
     pub size: Option<Length>, // tamanho declarado abs + em
     /// Cor de preenchimento do texto (Passo 99, ADR-0038, forward-compat).
-    pub fill: Option<crate::entities::layout_types::Color>,
+    pub fill: Option<crate::entities::paint::Paint>,
     /// Nível de heading quando aplicado via `#set heading(level: N)` futuro
     /// (Passo 99, ADR-0038, forward-compat).
     pub heading_level: Option<u8>,
@@ -389,6 +389,7 @@ impl StyleChain {
         let mut out = StyleDelta::empty();
         let mut size = None;
         let mut typed_size = false;
+        let mut fill_defined = false;
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             let d = &n.delta;
@@ -408,8 +409,11 @@ impl StyleChain {
                 size = Some(size.map_or(outer, |inner| compose_size(inner, outer)));
                 typed_size |= d.size.is_some();
             }
-            if out.fill.is_none() {
-                out.fill = d.fill.clone();
+            if !fill_defined {
+                if let Some(fill) = &d.fill {
+                    out.fill = Some(fill.clone());
+                    fill_defined = true;
+                }
             }
             if out.heading_level.is_none() {
                 out.heading_level = d.heading_level;
@@ -433,6 +437,15 @@ impl StyleChain {
                 // Valid sizes were folded into the typed carrier above.
                 if k.as_str() == "text.size" && matches!(v, Value::Length(_)) {
                     continue;
+                }
+                if k.as_str() == "text.fill" {
+                    if fill_defined {
+                        continue;
+                    }
+                    if matches!(v, Value::Color(_) | Value::Gradient(_)) {
+                        out.custom.retain(|(key, _)| key != k);
+                        fill_defined = true;
+                    }
                 }
                 if !out.custom.iter().any(|(ek, _)| ek == k) {
                     out.custom.push((k.clone(), v.clone()));
@@ -462,18 +475,15 @@ impl StyleChain {
         None
     }
 
-    /// Resolve `fill` (cor de texto) percorrendo a cadeia até ao primeiro
-    /// delta que o define. Forward-compat — ainda não consumido pelo
-    /// Layouter/export (ver DEBT-Style sucessor em DEBT.md).
-    pub fn fill(&self) -> Option<crate::entities::layout_types::Color> {
-        let mut node = self.0.as_deref();
-        while let Some(n) = node {
-            if let Some(v) = n.delta.fill.clone() {
-                return Some(v);
-            }
-            node = n.parent.as_deref();
-        }
-        None
+    /// Resolve the nearest text paint across typed and custom declarations.
+    pub fn fill(&self) -> Option<crate::entities::paint::Paint> {
+        self.raw_deltas().find_map(|delta| {
+            delta.fill.clone().or_else(|| match delta_custom(delta, "text.fill") {
+                Some(Value::Color(color)) => Some(color.clone().into()),
+                Some(Value::Gradient(gradient)) => Some(gradient.clone().into()),
+                _ => None,
+            })
+        })
     }
 
     /// Resolve `heading_level` percorrendo a cadeia até ao primeiro delta
@@ -1288,8 +1298,37 @@ mod tests {
         let base = StyleChain::default_chain();
         assert_eq!(base.fill(), None, "sem Fill, None");
         let red = Color::rgb(255, 0, 0);
-        let child = base.push_styles(&Styles::from_iter([Style::Fill(red.clone())]));
-        assert_eq!(child.fill(), Some(red));
+        let child =
+            base.push_styles(&Styles::from_iter([Style::Fill(red.clone().into())]));
+        assert_eq!(child.fill(), Some(red.into()));
+    }
+
+    #[test]
+    fn nearest_fill_keeps_its_carrier_when_collapsed() {
+        let typed = Color::rgb(255, 0, 0);
+        let custom = Color::rgb(0, 0, 255);
+        let base = StyleChain::empty();
+        let styles = Styles::from_iter([Style::Fill(typed.clone().into())]);
+        let outer_typed = base.push_styles(&styles);
+        let inner_custom =
+            outer_typed.push_custom("text.fill", Value::Color(custom.clone()));
+        let outer_custom = base.push_custom("text.fill", Value::Color(custom.clone()));
+        let inner_typed = outer_custom.push_styles(&styles);
+        let same_node = base.push_styles(
+            &styles.clone().push_custom("text.fill", Value::Color(custom.clone())),
+        );
+        for (chain, expected, typed_carrier) in [
+            (inner_custom, custom, false),
+            (inner_typed, typed.clone(), true),
+            (same_node, typed, true),
+        ] {
+            assert_eq!(chain.fill(), Some(expected.into()));
+            let collapsed = chain.collapse();
+            assert_eq!(collapsed.fill.is_some(), typed_carrier);
+            assert_eq!(delta_custom(&collapsed, "text.fill").is_some(), !typed_carrier);
+            let captured = base.push(collapsed);
+            assert_eq!(captured.fill(), chain.fill());
+        }
     }
 
     #[test]
@@ -1303,13 +1342,13 @@ mod tests {
     #[test]
     fn chain_aninhada_fill_heading_level_top_wins() {
         let base = StyleChain::default_chain().push_styles(&Styles::from_iter([
-            Style::Fill(Color::rgb(0, 0, 255)),
+            Style::Fill(Color::rgb(0, 0, 255).into()),
             Style::HeadingLevel(1),
         ]));
-        let child =
-            base.push_styles(&Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0))]));
+        let child = base
+            .push_styles(&Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0).into())]));
         // Fill: o topo define — ganha.
-        assert_eq!(child.fill(), Some(Color::rgb(255, 0, 0)));
+        assert_eq!(child.fill(), Some(Color::rgb(255, 0, 0).into()));
         // HeadingLevel: o topo não define — herda do pai.
         assert_eq!(child.heading_level(), Some(1));
     }

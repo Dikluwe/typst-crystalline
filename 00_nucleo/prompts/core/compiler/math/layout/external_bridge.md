@@ -4,6 +4,7 @@ Hash do Código: 7b15f222
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:a4a76bdb3fa5069232468af724106217bcd1dc85231c9d2cf54b4da69e241425
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 ## Ownership and evidence
 
@@ -125,3 +126,11 @@ Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
 with exact source/UTC/diffstat provenance and restricted resealing after a
 valid V15/V26 graph. Preserve all concurrent changes and every other owner
 responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. External styles preserve the text Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

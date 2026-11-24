@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash ae4dc9f6
+//! @prompt-hash 60a5f671
 //! @layer L3
 //! @updated 2026-11-07
 //!
@@ -251,7 +251,7 @@ fn render_item(
             }
         }
         FrameItem::Line { start, end, thickness, color, cap } => {
-            render_line(canvas, state, start, end, *thickness, color.clone(), *cap);
+            render_line(canvas, state, start, end, *thickness, color.as_ref(), *cap);
         }
         FrameItem::Glyph { .. } => {}
         FrameItem::Image {
@@ -366,8 +366,7 @@ fn render_text_shaped(
     let upem = units_per_em.max(1) as f64;
     let size = style.size.0;
     let scale = size / upem;
-    let fill = style.fill.clone().unwrap_or(Color::rgb(0, 0, 0));
-    let sk_color = color_to_sk(fill);
+    let Some(paint) = TextPaint::new(style.fill.as_ref(), state) else { return };
 
     let mut x = 0.0f64;
     let y = 0.0f64;
@@ -379,7 +378,7 @@ fn render_text_shaped(
         let gx = (pos.x.0 + x_offset) as f32;
         let gy = (pos.y.0 - y_offset) as f32;
 
-        render_glyph(canvas, state, &face, gid, gx, gy, size as f32, sk_color);
+        render_glyph(canvas, state, &face, gid, gx, gy, size as f32, &paint);
 
         x += glyph.x_advance as f64 * scale;
     }
@@ -397,7 +396,7 @@ fn render_glyph(
     x: f32,
     y: f32,
     size: f32,
-    color: sk::Color,
+    text_paint: &TextPaint<'_>,
 ) {
     let ts = state.transform;
     let ppem = size * ts.sy;
@@ -432,6 +431,13 @@ fn render_glyph(
         };
         let scale = size / f32::from(face.units_per_em());
         let transform = ts.pre_translate(x, y).pre_scale(scale, -scale);
+        let color = match text_paint {
+            TextPaint::Solid(color) => *color,
+            TextPaint::Gradient { .. } => {
+                paint_gradient_path(canvas, state.mask, path, transform, text_paint);
+                return;
+            }
+        };
         let mut paint = sk::Paint::default();
         paint.set_color(color);
         canvas.fill_path(&path, &paint, sk::FillRule::Winding, transform, state.mask);
@@ -453,14 +459,6 @@ fn render_glyph(
     let right = left + mw;
     let bottom = top + mh;
 
-    let color_u8 = sk::ColorU8::from_rgba(
-        (color.red() * 255.0).round() as u8,
-        (color.green() * 255.0).round() as u8,
-        (color.blue() * 255.0).round() as u8,
-        (color.alpha() * 255.0).round() as u8,
-    );
-    let color_premul = color_u8.premultiply();
-    let color_u32: u32 = bytemuck::cast(color_premul);
     let pixels = bytemuck::cast_slice_mut::<u8, u32>(canvas.data_mut());
 
     for px in left.clamp(0, cw)..right.clamp(0, cw) {
@@ -475,8 +473,131 @@ fn render_glyph(
                 continue;
             }
 
-            let applied = alpha_mul(color_u32, cov as u32);
+            let applied = alpha_mul(text_paint.pixel(px, py), cov as u32);
             pixels[pi] = blend_src_over(applied, pixels[pi]);
+        }
+    }
+}
+
+/// Solid color or gradient sampled per device pixel in the text paint root.
+enum TextPaint<'a> {
+    Solid(sk::Color),
+    Gradient {
+        gradient: &'a typst_core::entities::gradient::Gradient,
+        device_to_unit: sk::Transform,
+        aspect: f32,
+    },
+}
+
+impl<'a> TextPaint<'a> {
+    fn new(
+        paint: Option<&'a typst_core::entities::paint::Paint>,
+        state: State<'_>,
+    ) -> Option<Self> {
+        use typst_core::entities::paint::Paint;
+        let Some(paint) = paint else {
+            return Some(Self::Solid(color_to_sk(Color::rgb(0, 0, 0))));
+        };
+        let gradient = match paint {
+            Paint::Gradient(gradient) => gradient,
+            Paint::Solid(_) | Paint::Tiling(_) => {
+                return Some(Self::Solid(color_to_sk(paint.to_color())));
+            }
+        };
+        let (width, height) = state.root_size;
+        let device_to_unit = state
+            .transform
+            .invert()?
+            .post_concat(sk_transform(state.local_to_root))
+            .post_scale(1.0 / width, 1.0 / height);
+        Some(Self::Gradient { gradient, device_to_unit, aspect: width / height })
+    }
+
+    /// Premultiplied pixel, ready for coverage blending.
+    fn pixel(&self, x: i32, y: i32) -> u32 {
+        let color = match self {
+            Self::Solid(color) => *color,
+            Self::Gradient { gradient, device_to_unit, aspect } => {
+                let mut point = sk::Point::from_xy(x as f32, y as f32);
+                device_to_unit.map_point(&mut point);
+                color_to_sk(gradient_sample(gradient, point.x, point.y, *aspect))
+            }
+        };
+        bytemuck::cast(
+            sk::ColorU8::from_rgba(
+                (color.red() * 255.0).round() as u8,
+                (color.green() * 255.0).round() as u8,
+                (color.blue() * 255.0).round() as u8,
+                (color.alpha() * 255.0).round() as u8,
+            )
+            .premultiply(),
+        )
+    }
+}
+
+/// Rasterizes the path in a device-space rectangle with room for antialiasing.
+fn gradient_path_mask(
+    path: sk::Path,
+    transform: sk::Transform,
+    (width, height): (u32, u32),
+) -> Option<(sk::Mask, i32, i32)> {
+    let path = path.transform(transform)?;
+    let bounds = path.bounds();
+    let lower =
+        |value: f32, limit| (value.floor() as i32).saturating_sub(1).clamp(0, limit);
+    let upper =
+        |value: f32, limit| (value.ceil() as i32).saturating_add(1).clamp(0, limit);
+    let (width, height) = (width as i32, height as i32);
+    let left = lower(bounds.left(), width);
+    let top = lower(bounds.top(), height);
+    let right = upper(bounds.right(), width);
+    let bottom = upper(bounds.bottom(), height);
+    let mut mask = sk::Mask::new((right - left) as u32, (bottom - top) as u32)?;
+    let origin = sk::Transform::from_translate(-(left as f32), -(top as f32));
+    mask.fill_path(&path, sk::FillRule::Winding, true, origin);
+    Some((mask, left, top))
+}
+
+fn paint_gradient_path(
+    canvas: &mut sk::Pixmap,
+    clip: Option<&sk::Mask>,
+    path: sk::Path,
+    transform: sk::Transform,
+    paint: &TextPaint<'_>,
+) {
+    let size = (canvas.width(), canvas.height());
+    if let Some((mask, left, top)) = gradient_path_mask(path, transform, size) {
+        paint_mask(canvas, &mask, clip, paint, left, top);
+    }
+}
+
+/// Blends the cropped coverage while sampling paint and clip in canvas coordinates.
+fn paint_mask(
+    canvas: &mut sk::Pixmap,
+    mask: &sk::Mask,
+    clip: Option<&sk::Mask>,
+    paint: &TextPaint<'_>,
+    left: i32,
+    top: i32,
+) {
+    let width = canvas.width() as usize;
+    let mask_width = mask.width() as usize;
+    let pixels = bytemuck::cast_slice_mut::<u8, u32>(canvas.data_mut());
+    for (dy, row) in mask.data().chunks_exact(mask_width).enumerate() {
+        let y = top + dy as i32;
+        let start = y as usize * width + left as usize;
+        for (dx, (pixel, &coverage)) in
+            pixels[start..start + mask_width].iter_mut().zip(row).enumerate()
+        {
+            let coverage = clip.map_or(coverage, |clip| {
+                ((u16::from(coverage) * u16::from(clip.data()[start + dx]) + 127) / 255)
+                    as u8
+            });
+            if coverage != 0 {
+                let applied =
+                    alpha_mul(paint.pixel(left + dx as i32, y), u32::from(coverage));
+                *pixel = blend_src_over(applied, *pixel);
+            }
         }
     }
 }
@@ -487,7 +608,7 @@ fn render_line(
     start: &Point,
     end: &Point,
     thickness: f64,
-    color: Option<Color>,
+    color: Option<&typst_core::entities::paint::Paint>,
     cap: LineCap,
 ) {
     let mut pb = sk::PathBuilder::new();
@@ -495,10 +616,7 @@ fn render_line(
     pb.line_to(end.x.0 as f32, end.y.0 as f32);
     let Some(path) = pb.finish() else { return };
 
-    let paint = sk::Paint {
-        shader: sk::Shader::SolidColor(color_to_sk(color.unwrap_or(Color::rgb(0, 0, 0)))),
-        ..Default::default()
-    };
+    let Some(text_paint) = TextPaint::new(color, state) else { return };
     let stroke = sk::Stroke {
         width: thickness as f32,
         line_cap: match cap {
@@ -508,7 +626,27 @@ fn render_line(
         },
         ..Default::default()
     };
-    canvas.stroke_path(&path, &paint, &stroke, state.transform, state.mask);
+    match &text_paint {
+        TextPaint::Solid(color) => {
+            let paint = sk::Paint {
+                shader: sk::Shader::SolidColor(*color),
+                ..Default::default()
+            };
+            canvas.stroke_path(&path, &paint, &stroke, state.transform, state.mask);
+        }
+        TextPaint::Gradient { .. } => {
+            let scale = sk::PathStroker::compute_resolution_scale(&state.transform);
+            if let Some(outline) = path.stroke(&stroke, scale) {
+                paint_gradient_path(
+                    canvas,
+                    state.mask,
+                    outline,
+                    state.transform,
+                    &text_paint,
+                );
+            }
+        }
+    }
 }
 
 fn render_image(
@@ -1282,6 +1420,63 @@ mod tests {
         ))
     }
 
+    #[test]
+    fn gradient_path_mask_matches_full_page_with_transform_and_clip() {
+        let FramePaint::Gradient(gradient) = gradient_fill() else { unreachable!() };
+        let paint = TextPaint::Gradient {
+            gradient: &gradient,
+            device_to_unit: sk::Transform::from_scale(1.0 / 240.0, 1.0 / 240.0),
+            aspect: 1.0,
+        };
+        let mut outline = sk::PathBuilder::new();
+        outline.move_to(0.0, 0.0);
+        outline.quad_to(11.0, -3.0, 18.0, 10.0);
+        outline.line_to(2.0, 15.0);
+        outline.close();
+        let outline = outline.finish().unwrap();
+        let mut clip = sk::Mask::new(600, 800).unwrap();
+        let clip_path = sk::PathBuilder::from_rect(
+            sk::Rect::from_xywh(0.0, 160.5, 225.25, 64.0).unwrap(),
+        );
+        clip.fill_path(
+            &clip_path,
+            sk::FillRule::Winding,
+            true,
+            sk::Transform::identity(),
+        );
+
+        let mut line = sk::PathBuilder::new();
+        line.move_to(0.0, 1.0);
+        line.line_to(18.0, 9.0);
+        let stroke = sk::Stroke {
+            width: 1.5,
+            line_cap: sk::LineCap::Round,
+            ..Default::default()
+        };
+        let stroke_outline = line.finish().unwrap().stroke(&stroke, 1.0).unwrap();
+
+        for path in [&outline, &stroke_outline] {
+            for x in [-5.5, 214.5] {
+                let transform =
+                    sk::Transform::from_row(1.0, 0.375, -0.25, 1.0, x, 191.25);
+                let mut cropped = sk::Pixmap::new(600, 800).unwrap();
+                let (mask, left, top) =
+                    gradient_path_mask(path.clone(), transform, (600, 800)).unwrap();
+                assert!(mask.width() <= 24 && mask.height() <= 28);
+                assert_eq!(left == 0, x < 0.0);
+                assert!(top > 0);
+                paint_mask(&mut cropped, &mask, Some(&clip), &paint, left, top);
+
+                let mut full = sk::Pixmap::new(600, 800).unwrap();
+                let mut full_mask = sk::Mask::new(600, 800).unwrap();
+                full_mask.fill_path(path, sk::FillRule::Winding, true, transform);
+                paint_mask(&mut full, &full_mask, Some(&clip), &paint, 0, 0);
+                assert!(full.data().iter().any(|channel| *channel > 0));
+                assert!(cropped.data() == full.data(), "different pixels at x={x}");
+            }
+        }
+    }
+
     fn gradient_rect(fill: FramePaint) -> FrameItem {
         FrameItem::Shape {
             pos: point(8.0, 8.0),
@@ -1728,7 +1923,7 @@ mod mask_regressions {
             start: point(0.0, 10.0),
             end: point(50.0, 10.0),
             thickness: 4.0,
-            color: Some(Color::rgb(255, 0, 0)),
+            color: Some(Color::rgb(255, 0, 0).into()),
             cap: LineCap::Round,
         };
         let c = canvas(&[group(
@@ -1866,7 +2061,8 @@ mod mask_regressions {
                 y_offset: 0,
                 cluster: 0,
                 char_code: 'M',
-            }].into(),
+            }]
+            .into(),
             style: style.clone(),
             text: "M".into(),
             units_per_em: face.units_per_em(),
@@ -1977,7 +2173,7 @@ mod affine_glyph_regressions {
             30.0,
             50.0,
             30.0,
-            sk::Color::from_rgba8(20, 40, 80, 160),
+            &TextPaint::Solid(sk::Color::from_rgba8(20, 40, 80, 160)),
         );
         canvas
     }

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: c1656fc9
+Hash do Código: a725bafa
 
 
 

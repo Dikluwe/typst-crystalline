@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: 6c5381b8
+Hash do Código: 171b4d15
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -156,3 +156,9 @@ L0 precedes actual functional RED, then implementation/GREEN; preserve old tests
 source-bound bilateral PDF/SVG/error/effect controls, full core/workspace, build,
 strict lint/Clippy/rustdoc/fmt and both lineage directions. Validate V15/V26 before
 resealing. No completion/performance/JPEG qualification from a finite call fix.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`. Reexport the crate-private self-relative check for set text.
+Verify a gradient case that asserts paint and a solid control.

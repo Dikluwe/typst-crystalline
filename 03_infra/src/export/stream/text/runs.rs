@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash dcf87d9c
+//! @prompt-hash f03105b9
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -120,6 +120,11 @@ pub(in crate::export::stream) fn emit_verbose_text_run(
 ) {
     let FrameItem::TextShaped { pos: pos0, style, font, .. } = &run[0] else { return };
     let base_y = page_height - pos0.y.val();
+    let paint = super::super::text_paint_prefix(&run[0], ctx);
+    if !paint.is_empty() {
+        ops.push_str("q\n");
+        ops.push_str(&paint);
+    }
     verbose_block_prefix(ops, pos0.x.val(), base_y, &style.fill);
     ops.push_str(&shaped_tr_ops(style, font.as_ref()));
     push_shaped_spacing(ops);
@@ -155,6 +160,11 @@ Q
                 style,
                 font.as_ref(),
             ) else {
+                // Unreachable after verbose_run_end; keep the envelope balanced.
+                ops.push_str("ET\nQ\n");
+                if !paint.is_empty() {
+                    ops.push_str("Q\n");
+                }
                 return;
             };
             ops.push_str(&format!(
@@ -181,6 +191,9 @@ Q
             );
         }
         FontScenario::Type1 => unreachable!("runs Type1 não se formam — verbose_run_end"),
+    }
+    if !paint.is_empty() {
+        ops.push_str("Q\n");
     }
 }
 

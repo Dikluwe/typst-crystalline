@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 98ca1756
+//! @prompt-hash 6e38834f
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -825,4 +825,223 @@ fn p1293_d_preexisting_arity_and_serializer_transcript_is_preserved() {
             stderr: String::new(),
         },
     );
+}
+
+const TEXT_GRADIENT: &str = "gradient.linear(red, blue)";
+
+fn compile_text(body: &str, format: &str) -> (Transcript, Vec<u8>) {
+    let scratch = Scratch::new("text-gradient");
+    let input = scratch.0.join("text-paint.typ");
+    let output = scratch.0.join(format!("text-paint.{format}"));
+    fs::write(
+        &input,
+        format!("#set page(width: 120pt, height: 60pt, margin: 5pt)\n{body}"),
+    )
+    .unwrap();
+    let transcript =
+        run(BIN, &["compile", input.to_str().unwrap(), output.to_str().unwrap()]);
+    (transcript, fs::read(&output).unwrap_or_default())
+}
+
+fn text_svg(body: &str) -> String {
+    let (transcript, bytes) = compile_text(body, "svg");
+    assert!(transcript.success(), "{body}: {transcript:#?}");
+    String::from_utf8(bytes).unwrap()
+}
+
+#[test]
+fn text_gradient_paints_every_input_route() {
+    for body in [
+        format!("#text(fill: {TEXT_GRADIENT})[ok]"),
+        format!("#text({TEXT_GRADIENT})[ok]"),
+        format!("#set text(fill: {TEXT_GRADIENT})\nok"),
+        format!("#set text({TEXT_GRADIENT})\nok"),
+        "#set text(fill: gradient.radial(red, blue))\nok".into(),
+        "#set text(fill: gradient.conic(red, blue))\nok".into(),
+        "#text(fill: gradient.linear(red, blue, relative: \"parent\"))[ok]".into(),
+        format!("#show strong: set text(fill: {TEXT_GRADIENT})\n*ok*"),
+        format!("#set text(fill: {TEXT_GRADIENT})\n#rotate(20deg)[ok] #box[ok]"),
+        format!("#set text(fill: {TEXT_GRADIENT})\n$x^2$"),
+    ] {
+        let svg = text_svg(&body);
+        assert!(svg.contains("fill=\"url(#"), "{body}: {svg}");
+        assert!(!svg.contains("fill=\"#000000\""), "{body}: black glyph remains");
+    }
+}
+
+#[test]
+fn text_gradient_respects_scope_and_solid_overrides() {
+    let svg = text_svg(&format!(
+        "a #[#set text(fill: {TEXT_GRADIENT}); b #text(fill: green)[c]] d"
+    ));
+    assert_eq!(svg.matches("fill=\"url(#").count(), 1, "{svg}");
+    assert_eq!(svg.matches("fill=\"#2ecc40\"").count(), 1, "{svg}");
+    assert_eq!(svg.matches("fill=\"#000000\"").count(), 2, "{svg}");
+}
+
+#[test]
+fn text_gradient_uses_nearest_fill_across_constructor_and_set() {
+    for (outer, inner, expected) in [
+        ("red", TEXT_GRADIENT, ["#ff4136", "gradient", "#ff4136"]),
+        (TEXT_GRADIENT, "green", ["gradient", "#2ecc40", "gradient"]),
+    ] {
+        let body = format!("#text(fill: {outer})[A #[#set text(fill: {inner}); B] C]");
+        let svg = text_svg(&body);
+        let paints = svg
+            .split("<use ")
+            .skip(1)
+            .map(|glyph| {
+                let (_, fill) = glyph.split_once(" fill=\"").unwrap();
+                let value = fill.split_once('"').unwrap().0;
+                if value.starts_with("url(#") {
+                    "gradient"
+                } else {
+                    value
+                }
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(paints, expected, "{body}: {svg}");
+    }
+}
+
+#[test]
+fn text_gradient_decorations_follow_local_paint_and_stroke_precedence() {
+    for name in ["strike", "overline"] {
+        for (body, expected) in [
+            (format!("#{name}[#text(fill: {TEXT_GRADIENT})[ABC]]"), vec!["gradient"]),
+            (
+                format!(
+                    "#set text(fill: {TEXT_GRADIENT})\n#{name}[#text(fill: green)[ABC]]"
+                ),
+                vec!["#2ecc40"],
+            ),
+            (
+                format!(
+                    "#{name}[#text(fill: {TEXT_GRADIENT})[AB]#text(fill: green)[CD]]"
+                ),
+                vec!["gradient", "#2ecc40"],
+            ),
+            (
+                format!("#{name}(stroke: red)[#text(fill: {TEXT_GRADIENT})[ABC]]"),
+                vec!["#ff4136"],
+            ),
+        ] {
+            let svg = text_svg(&body);
+            let strokes = svg
+                .split(" stroke=\"")
+                .skip(1)
+                .map(|stroke| {
+                    let value = stroke.split_once('"').unwrap().0;
+                    if value.starts_with("url(#") {
+                        "gradient"
+                    } else {
+                        value
+                    }
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(strokes, expected, "{body}: {svg}");
+        }
+    }
+}
+
+#[test]
+fn text_gradient_reaches_decorations_and_math_bars() {
+    for body in ["#underline[ok]", "$a/b$", "$sqrt(a)$"] {
+        let svg = text_svg(&format!("#set text(fill: {TEXT_GRADIENT})\n{body}"));
+        assert!(svg.contains("stroke=\"url(#"), "{body}: {svg}");
+    }
+    for body in ["$a/b$", "$sqrt(a)$"] {
+        let svg = text_svg(&format!("#set text(fill: red)\n{body}"));
+        assert!(svg.contains("stroke=\"#ff4136\""), "{body}: {svg}");
+    }
+}
+
+#[test]
+fn text_gradient_emits_pdf_patterns_per_root() {
+    let pattern = |body: &str, flag: &[&str]| {
+        let scratch = Scratch::new("text-gradient");
+        let input = scratch.0.join("p.typ");
+        let output = scratch.0.join("p.pdf");
+        fs::write(&input, body).unwrap();
+        let mut args = vec!["compile", input.to_str().unwrap(), output.to_str().unwrap()];
+        args.extend(flag);
+        assert!(run(BIN, &args).success());
+        let bytes = fs::read(&output).unwrap();
+        String::from_utf8_lossy(&bytes).matches("/PatternType 2").count()
+    };
+    let src = format!(
+        "#let g = {TEXT_GRADIENT}\n#set text(fill: g)\nok #box(width: 30pt, height: 20pt)[in] $a/b$"
+    );
+    for flag in [&[][..], &["--compact"][..]] {
+        assert_eq!(pattern(&src, flag), 2, "page and box roots stay distinct");
+        assert_eq!(pattern("#text(fill: red)[ok]", flag), 0);
+    }
+}
+
+#[test]
+fn text_gradient_diagnostics_and_limits() {
+    for body in [
+        "#text(fill: gradient.linear(red, blue, relative: \"self\"))[ok]",
+        "#set text(fill: gradient.linear(red, blue, relative: \"self\"))\nok",
+        "#set text(gradient.linear(red, blue, relative: \"self\"))\nok",
+    ] {
+        let (transcript, _) = compile_text(body, "svg");
+        assert!(!transcript.success(), "{body}");
+        assert!(
+            transcript
+                .stderr
+                .contains("gradients and tilings on text must be relative to the parent"),
+            "{body}: {transcript:#?}"
+        );
+        assert!(
+            transcript
+                .stderr
+                .contains("make sure to set `relative: auto` on your text fill"),
+            "{body}: {transcript:#?}"
+        );
+    }
+    let tiling = "tiling(size: (4pt, 4pt), rect(width: 2pt, height: 2pt, fill: red))";
+    assert!(!compile_text(&format!("#text(fill: {tiling})[ok]"), "svg").0.success());
+    let silent = text_svg(&format!("#set text(fill: {tiling})\nok"));
+    assert!(!silent.contains("url(#"), "{silent}");
+    for body in ["#set text(fill: 3)\nok", "#text(fill: none)[ok]"] {
+        let (transcript, _) = compile_text(body, "svg");
+        assert!(transcript.stderr.contains("expected color, gradient, or tiling"));
+    }
+}
+
+#[test]
+fn text_gradient_keeps_geometry_and_paints_png() {
+    let body = |paint: &str| {
+        format!("#set text(fill: {paint})\noffice #box(width: 30pt)[in] #rotate(9deg)[x]")
+    };
+    let placements = |svg: &str| {
+        svg.split("<use ")
+            .skip(1)
+            .map(|tag| tag.split(" fill=").next().unwrap().to_owned())
+            .collect::<Vec<_>>()
+    };
+    let gradient = text_svg(&body(TEXT_GRADIENT));
+    let solid = text_svg(&body("red"));
+    assert!(!placements(&solid).is_empty());
+    assert_eq!(placements(&gradient), placements(&solid));
+
+    let png = |paint: &str| {
+        let (transcript, bytes) = compile_text(&body(paint), "png");
+        assert!(transcript.success(), "{transcript:#?}");
+        bytes
+    };
+    let painted = png(TEXT_GRADIENT);
+    for solid in ["black", "red", "blue"] {
+        assert_ne!(painted, png(solid), "PNG text must be painted by the gradient");
+    }
+    assert_ne!(painted, png("gradient.linear(blue, red)"));
+}
+
+#[test]
+fn text_gradient_identity_separates_resources() {
+    let svg = text_svg(
+        "#text(fill: gradient.linear(red, blue))[same] #text(fill: gradient.linear(blue, red))[same]",
+    );
+    assert_eq!(svg.matches("gradientUnits=\"userSpaceOnUse\"").count(), 2, "{svg}");
 }

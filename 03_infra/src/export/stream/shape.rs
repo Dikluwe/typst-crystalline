@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/shape.md
-//! @prompt-hash de741ae5
+//! @prompt-hash 063375ec
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -27,6 +27,11 @@ pub(in crate::export) fn solid_opacity(
 ) -> (f32, f32) {
     use typst_core::entities::{frame_paint::FramePaint, layout_types::FrameItem};
     let color_alpha = |c: &typst_core::entities::color::Color| c.to_rgba_f32().3;
+    let text_paint_alpha = |p: &typst_core::entities::paint::Paint| match p {
+        typst_core::entities::paint::Paint::Solid(c) => color_alpha(c),
+        typst_core::entities::paint::Paint::Gradient(_)
+        | typst_core::entities::paint::Paint::Tiling(_) => 1.0,
+    };
     let paint_alpha = |p: &FramePaint| match p {
         FramePaint::Solid(c) => color_alpha(c),
         FramePaint::Gradient(_) | FramePaint::Tiling(_) => 1.0,
@@ -40,11 +45,11 @@ pub(in crate::export) fn solid_opacity(
         | FrameItem::TextSeparator { style, .. }
         | FrameItem::TextShaped { style, .. }
         | FrameItem::Glyph { style, .. } => {
-            let a = style.fill.as_ref().map(color_alpha).unwrap_or(1.0);
+            let a = style.fill.as_ref().map(text_paint_alpha).unwrap_or(1.0);
             (a, a)
         }
         FrameItem::Line { color, .. } => {
-            (1.0, color.as_ref().map(color_alpha).unwrap_or(1.0))
+            (1.0, color.as_ref().map(text_paint_alpha).unwrap_or(1.0))
         }
         FrameItem::Group { .. }
         | FrameItem::Link { .. }
@@ -113,17 +118,49 @@ pub(super) fn spot_stroke_operator(
 /// linha 2236-2238). Formato canónico `{:.3} {:.3} {:.3} RG `, trailing
 /// space inclusivo para concatenar imediatamente antes de `{:.3} w`.
 pub(in crate::export) fn line_rg_prefix(
-    color: &Option<typst_core::entities::layout_types::Color>,
+    color: &Option<typst_core::entities::paint::Paint>,
 ) -> String {
-    match color {
+    match color.as_ref().and_then(local_text_color) {
         None => String::new(),
         Some(c) => {
+            let c = &c;
             if let Some(op) = spot_stroke_operator(c) {
                 return op.replace('\n', " ");
             }
             let (r, g, b, _) = c.to_rgba_f32();
             format!("{:.3} {:.3} {:.3} RG ", r, g, b)
         }
+    }
+}
+
+/// The color a text or line leaf sets itself. A gradient inherits the pattern
+/// installed by `text_paint_prefix` in the enclosing graphics state.
+pub(super) fn local_text_color(
+    paint: &typst_core::entities::paint::Paint,
+) -> Option<typst_core::entities::layout_types::Color> {
+    use typst_core::entities::paint::Paint;
+    match paint {
+        Paint::Solid(color) => Some(color.clone()),
+        Paint::Gradient(_) => None,
+        Paint::Tiling(_) => Some(paint.to_color()),
+    }
+}
+
+/// Graphics-state operators for gradient text or an inherited gradient line.
+pub(in crate::export::stream) fn text_paint_prefix(
+    item: &typst_core::entities::layout_types::FrameItem,
+    ctx: &PageContext,
+) -> String {
+    let Some(gradient) = crate::export::gradients::text_gradient(item) else {
+        return String::new();
+    };
+    let key = crate::export::gradients::text_dedup_key(gradient, ctx.text_root.get());
+    if let Some(&idx) = ctx.pat_ptr_to_idx.get(&key) {
+        let name = &ctx.pat_refs[idx].name;
+        format!("/Pattern cs\n/{name} scn\n/Pattern CS\n/{name} SCN\n")
+    } else {
+        let (r, g, b, _) = gradient.first_stop_color().to_rgba_f32();
+        format!("{r:.3} {g:.3} {b:.3} rg\n{r:.3} {g:.3} {b:.3} RG\n")
     }
 }
 
@@ -137,11 +174,12 @@ pub(super) fn line_cap_prefix(cap: LineCap) -> &'static str {
 }
 
 pub(in crate::export) fn fill_rg_prefix(
-    color: &Option<typst_core::entities::layout_types::Color>,
+    color: &Option<typst_core::entities::paint::Paint>,
 ) -> String {
-    match color {
+    match color.as_ref().and_then(local_text_color) {
         None => String::new(),
         Some(c) => {
+            let c = &c;
             if let Some(op) = spot_fill_operator(c) {
                 return op;
             }

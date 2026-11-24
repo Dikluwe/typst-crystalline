@@ -129,12 +129,15 @@ fn remaining_math_raw_uses_real_token_styles_and_baseline() {
         );
         assert_eq!(
             emitted.fill,
-            Some(crate::entities::color::Color::Srgb {
-                r: 0xb6 as f32 / 255.0,
-                g: 0x01 as f32 / 255.0,
-                b: 0x57 as f32 / 255.0,
-                a: 1.0,
-            })
+            Some(
+                crate::entities::color::Color::Srgb {
+                    r: 0xb6 as f32 / 255.0,
+                    g: 0x01 as f32 / 255.0,
+                    b: 0x57 as f32 / 255.0,
+                    a: 1.0,
+                }
+                .into()
+            )
         );
         assert!(!emitted.italic);
         assert!(!emitted.bold);

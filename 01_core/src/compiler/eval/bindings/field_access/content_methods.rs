@@ -1656,7 +1656,7 @@ mod v16_e_reflection_tests {
             equation_styles(),
         );
         let styles = Styles::from_iter([crate::entities::style::Style::Fill(
-            crate::entities::color::Color::rgb(255, 0, 0),
+            crate::entities::color::Color::rgb(255, 0, 0).into(),
         )]);
         let external = Content::styled(equation, styles);
         for field in ["body", "block", "numbering", "alt"] {

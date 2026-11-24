@@ -1,7 +1,8 @@
 # L0 — svg/paints
-Hash do Código: e496e1b6
+Hash do Código: 6ff6c2f1
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
@@ -152,3 +153,11 @@ RED→GREEN/no suppression/threshold change, old expectations/body/value transpo
 Grid/Table/outline/SVG-tiling controls before-after/full workspace suite/build/
 all-target Clippy/Rustdoc/fmt/strict-reverse lineage/Tekt no new warnings under12GiB/
 zero swap/one job; no carrier-mirror/global-parity/PDF-UA claims.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Provide text paint references: one base definition per gradient and aspect in unit root space and one derived definition per glyph placement matrix. Non-native spaces use the existing color fallback and marker.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

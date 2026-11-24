@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/layout_context
-Hash do Código: 0529aade
+Hash do Código: a2fd1a1d
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/layout_context.rs`

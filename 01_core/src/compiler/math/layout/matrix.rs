@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/matrix.md
-//! @prompt-hash 2734bdf9
+//! @prompt-hash cbbee5b6
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -184,6 +184,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
 
         if let Some(augment) = effective.augment {
             let (thickness, color, cap) = augment_stroke(&augment, font);
+            let color = color.map(crate::entities::paint::Paint::from);
             for offset in augment.hline {
                 if let Some(y) = geometry.horizontal_boundary(offset, -axis_shift) {
                     items.push(FrameItem::Line {

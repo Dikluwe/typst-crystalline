@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/subtree_session.md
-//! @prompt-hash ecd7d2c7
+//! @prompt-hash caf8da7d
 //! @layer L1
 //! @updated 2026-11-12
 
@@ -418,7 +418,12 @@ fn style_payload(delta: &StyleDelta, bits: &mut Vec<u64>) -> Option<usize> {
             bits.extend([length.abs.to_pt().to_bits(), length.em.to_bits()]);
         }
     }
-    for color in delta.fill.iter().chain(delta.highlight.iter().flatten()) {
+    let fill = match &delta.fill {
+        Some(crate::entities::paint::Paint::Solid(color)) => Some(color),
+        Some(_) => return None,
+        None => None,
+    };
+    for color in fill.into_iter().chain(delta.highlight.iter().flatten()) {
         charge = charge.checked_add(color_payload(color, bits)?)?;
     }
     if let Some(fonts) = &delta.font {

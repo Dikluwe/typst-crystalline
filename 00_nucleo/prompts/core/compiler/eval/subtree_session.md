@@ -1,5 +1,5 @@
 # L0 — Bounded evaluation products across source revisions
-Hash do Código: 9dfcc0bb
+Hash do Código: bd549fd4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-root-retention.toml sha256:08e9f23ba773c1fd5ed43bf67a985c2593f0c002b0fb6084ef9f883a0ef020c7
@@ -271,3 +271,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`. Gradient text fill is outside the bounded style payload and stays cold.
+Verify a gradient case that asserts paint and a solid control.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/draw.md
-//! @prompt-hash 3746993e
+//! @prompt-hash 429d6a2b
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -11,7 +11,8 @@ use super::{
     emit_shaped_pdf_verbose_deferred, emit_stroke_paint, emit_text_pdf,
     emit_text_pdf_deferred, emit_text_pdf_verbose, emit_text_pdf_verbose_deferred,
     group_bbox_from_fields, line_cap_prefix, line_rg_prefix, opacity_operator,
-    paint_effective_bbox, pdf_defaults, solid_opacity, PageContext, PdfTags, StreamMode,
+    paint_effective_bbox, pdf_defaults, solid_opacity, text_paint_prefix, PageContext,
+    PdfTags, StreamMode,
 };
 use std::sync::Arc;
 use typst_core::entities::elements::pdf_artifact::ArtifactKind;
@@ -389,7 +390,8 @@ fn draw_item_top_inner(
         ops.push_str("/Artifact << /Type /Layout >> BDC\n");
     }
     let (fill_alpha, stroke_alpha) = solid_opacity(item);
-    let opacity = opacity_operator(fill_alpha, stroke_alpha);
+    let opacity =
+        opacity_operator(fill_alpha, stroke_alpha) + &text_paint_prefix(item, ctx);
     if !opacity.is_empty() {
         ops.push_str("q\n");
         ops.push_str(&opacity);
@@ -831,7 +833,7 @@ fn draw_item_top_inner(
             ops.push_str("Q\n");
         }
         FrameItem::Group {
-            paint_root: _,
+            paint_root,
             pos,
             matrix,
             clip_mask,
@@ -839,6 +841,10 @@ fn draw_item_top_inner(
             inner_height,
             items,
         } => {
+            let outer_root = ctx.text_root.get();
+            if *paint_root {
+                ctx.text_root.set(item as *const FrameItem as usize);
+            }
             let pdf_y = page_height - pos.y.val();
 
             // O layouter usa Y-down; o PDF usa Y-up.
@@ -869,6 +875,7 @@ fn draw_item_top_inner(
                 inside_replacement,
                 defer_restore,
             );
+            ctx.text_root.set(outer_root);
             if defer_restore {
                 container_restores = child_restores + 1;
             } else {
@@ -900,7 +907,8 @@ fn draw_item_top_inner(
                     let open = (index == 0).then_some(text.as_str());
                     let close = index + 1 == items.len();
                     let (f, s) = solid_opacity(child);
-                    let glyph_opacity = opacity_operator(f, s);
+                    let glyph_opacity =
+                        opacity_operator(f, s) + &text_paint_prefix(child, ctx);
                     if !glyph_opacity.is_empty() {
                         ops.push_str("q\n");
                         ops.push_str(&glyph_opacity);
@@ -1076,7 +1084,8 @@ fn draw_item_local_inner(
         ops.push_str("/Artifact << /Type /Layout >> BDC\n");
     }
     let (fill_alpha, stroke_alpha) = solid_opacity(item);
-    let opacity = opacity_operator(fill_alpha, stroke_alpha);
+    let opacity =
+        opacity_operator(fill_alpha, stroke_alpha) + &text_paint_prefix(item, ctx);
     if !opacity.is_empty() {
         ops.push_str("q\n");
         ops.push_str(&opacity);
@@ -1337,7 +1346,7 @@ fn draw_item_local_inner(
         // P273.13 — arm Group; nested Groups via recursão.
         // P281 — cascade único `&PageContext` (substitui 4 params P279).
         FrameItem::Group {
-            paint_root: _,
+            paint_root,
             pos,
             matrix,
             clip_mask,
@@ -1345,6 +1354,10 @@ fn draw_item_local_inner(
             inner_height,
             items,
         } => {
+            let outer_root = ctx.text_root.get();
+            if *paint_root {
+                ctx.text_root.set(item as *const FrameItem as usize);
+            }
             // The outer group already established Y-down coordinates. Compose
             // this local affine transform without a second page reflection.
             ops.push_str("q\n");
@@ -1370,6 +1383,7 @@ fn draw_item_local_inner(
                 inside_replacement,
                 defer_restore,
             );
+            ctx.text_root.set(outer_root);
             if defer_restore {
                 restores += child_restores + 1;
             } else {
@@ -1562,7 +1576,8 @@ fn draw_item_local_inner(
                     let open = (index == 0).then_some(text.as_str());
                     let close = index + 1 == items.len();
                     let (f, s) = solid_opacity(child);
-                    let glyph_opacity = opacity_operator(f, s);
+                    let glyph_opacity =
+                        opacity_operator(f, s) + &text_paint_prefix(child, ctx);
                     if !glyph_opacity.is_empty() {
                         ops.push_str("q\n");
                         ops.push_str(&glyph_opacity);
@@ -1762,7 +1777,8 @@ mod tests {
                     cluster: 3,
                     char_code: '1',
                 },
-            ].into(),
+            ]
+            .into(),
             units_per_em: face.units_per_em(),
             bidi: None,
             font: Some(Font::from_data(bytes.to_vec())),
@@ -2437,14 +2453,14 @@ mod tests {
                 start: Point::ZERO,
                 end: Point { x: Pt(10.0), y: Pt(0.0) },
                 thickness: 1.0,
-                color: Some(Color::srgb_f32(1.0, 0.0, 0.0, 0.5)),
+                color: Some(Color::srgb_f32(1.0, 0.0, 0.0, 0.5).into()),
                 cap: typst_core::entities::geometry::LineCap::Butt,
             };
             let text = FrameItem::Text {
                 pos: Point { x: Pt(3.0), y: Pt(12.0) },
                 text: "A".into(),
                 style: TextStyle {
-                    fill: Some(Color::srgb_f32(0.0, 0.0, 1.0, 0.25)),
+                    fill: Some(Color::srgb_f32(0.0, 0.0, 1.0, 0.25).into()),
                     ..Default::default()
                 },
                 bidi: None,

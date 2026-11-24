@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/products.md
-//! @prompt-hash ccfd41ce
+//! @prompt-hash 92b2083e
 //! @layer L3
 use super::super::FontScenario;
 use std::{
@@ -9,6 +9,7 @@ use std::{
     sync::{Arc, Mutex, OnceLock},
 };
 use typst_core::entities::layout_types::{Color, ShapedGlyph, TextStyle};
+use typst_core::entities::paint::Paint;
 use typst_core::entities::world_types::Font;
 
 const MAX_ENTRIES: usize = 4096;
@@ -56,10 +57,15 @@ impl<'a> Request<'a> {
             || !i.position.1.is_finite()
             || !i.style.size.0.is_finite()
             || i.style.size.0 <= 0.0
-            || matches!(i.style.fill, Some(Color::Spot { .. }))
         {
             return None;
         }
+        let fill = match &i.style.fill {
+            Some(Paint::Solid(Color::Spot { .. }))
+            | Some(Paint::Gradient(_) | Paint::Tiling(_)) => return None,
+            Some(Paint::Solid(color)) => Some(color),
+            None => None,
+        };
         let tracking = match i.style.tracking {
             Some(t) => {
                 if !t.abs.to_pt().is_finite() || !t.em.is_finite() {
@@ -104,12 +110,7 @@ impl<'a> Request<'a> {
                 return None
             }
         };
-        let (r, g, b, a) = i
-            .style
-            .fill
-            .as_ref()
-            .map(Color::to_rgba_f32)
-            .unwrap_or((0.0, 0.0, 0.0, 1.0));
+        let (r, g, b, a) = fill.map(Color::to_rgba_f32).unwrap_or((0.0, 0.0, 0.0, 1.0));
         Some(Self {
             facts: Facts {
                 position: [i.position.0.to_bits(), i.position.1.to_bits()],
@@ -399,7 +400,10 @@ mod tests {
                 2 => style.tracking = Some(Length::pt(0.2)),
                 3 => style.tracking = Some(Length::em(-0.02)),
                 4 => style.weight = Some(700),
-                5 => style.fill = Some(Color::Srgb { r: 0.3, g: 0.5, b: 0.7, a: 0.4 }),
+                5 => {
+                    style.fill =
+                        Some(Color::Srgb { r: 0.3, g: 0.5, b: 0.7, a: 0.4 }.into())
+                }
                 6 => position.0 = -0.0,
                 7 => position.0 = 0.0,
                 8 => position.1 = 21.0,

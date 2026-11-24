@@ -126,7 +126,7 @@ fn glyph_fixture() -> (FrameItem, FontKey, GlyphFontRequest) {
     let mut style = TextStyle::regular(Pt(20.0));
     style.font = Some(family.clone());
     style.math = true;
-    style.fill = Some(Color::rgba(255, 0, 0, 64));
+    style.fill = Some(Color::rgba(255, 0, 0, 64).into());
     let request = GlyphFontRequest::new('∑', &style);
     let key = ((family, FontVariant::default(), FontVariations::default()), bytes);
     (

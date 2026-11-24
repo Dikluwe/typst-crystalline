@@ -11,7 +11,7 @@ Read the decisions that apply to the change, then the component’s owning L0. E
 | [ADR-0107](adr-0107-language-parity-not-mechanics.md) | Language parity, observables and the pinned reference |
 | [ADR-0109](adr-0109-atomization.md) | Native representation, static dispatch and responsibility by layer |
 | [ADR-0126](adr-0126-verbose-pdf-default-compact-option.md) | PDF defaults and validation of compact output |
-| [ADR-0127](adr-0127-l0-gate-stop-vs-continuous-flow.md) | Approval for public contracts, defaults, phase and compatibility |
+| [ADR-0127](adr-0127-l0-gate-stop-vs-continuous-flow.md) | Approval for protected contracts, defaults, phase and compatibility |
 | [ADR-0128](adr-0128-html-as-semantic-target.md) | Semantic HTML, target selection and bundles |
 | [ADR-0129](adr-0129-l0-owners-and-shared-tekt-nuclei.md) | L0 ownership, canonical paths and pinned shared nuclei |
 | [ADR-0132](adr-0132-evidence-for-maintained-changes.md) | Evidence, verification and measurement provenance |

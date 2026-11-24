@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 24520c40
+//! @prompt-hash ffb1598c
 //! @layer L3
 //! @updated 2026-11-07
 
@@ -437,8 +437,13 @@ pub(super) fn verbose_block_prefix(
     ops: &mut String,
     pos_x: f64,
     base_y: f64,
-    fill: &Option<typst_core::entities::layout_types::Color>,
+    fill: &Option<typst_core::entities::paint::Paint>,
 ) {
+    if matches!(fill, Some(typst_core::entities::paint::Paint::Gradient(_))) {
+        ops.push_str(&format!("q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\nBT\n"));
+        return;
+    }
+    let fill = &fill.as_ref().and_then(super::local_text_color);
     let alpha = fill.as_ref().map(|c| c.to_rgba_f32().3).unwrap_or(1.0);
     let opacity = super::opacity_operator(alpha, alpha);
     if let Some(op) = fill.as_ref().and_then(spot_fill_operator) {
@@ -1534,7 +1539,7 @@ mod tests {
         use typst_core::entities::layout_types::{Color, Pt, TextStyle};
         let plain = TextStyle::regular(Pt(12.0));
         let mut red = plain.clone();
-        red.fill = Some(Color::rgb(255, 0, 0));
+        red.fill = Some(typst_core::entities::paint::Paint::Solid(Color::rgb(255, 0, 0)));
         let check = |mut ops: String, pending: bool, deferred: bool, colored: bool| {
             if !colored {
                 assert!(!pending && !ops.contains("rg\n"), "{ops}");

@@ -1,11 +1,12 @@
 # Prompt L0 — layout_types
-Hash do Código: 9d7c7391
+Hash do Código: 1c29011a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:88391e330334a2221170109c82b5dbf1fb60c4d2f6e2660e732df24b67554d9f
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 
@@ -330,3 +331,11 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. TextStyle.fill and FrameItem::Line.color are Option<Paint>. All geometric operations preserve them. None keeps black. This supersedes only the Color type of those two fields. highlight stays Color.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

@@ -493,7 +493,7 @@ fn ts1_text_positional_size_fill_body_permutations() {
         assert_eq!(styled.body.plain_text(), "A");
         let chain = StyleChain::default_chain().push_styles(&styled.styles);
         assert_eq!(chain.size(), 22.0);
-        assert_eq!(chain.fill(), Some(Color::rgb(255, 0, 0)));
+        assert_eq!(chain.fill(), Some(Color::rgb(255, 0, 0).into()));
     }
 }
 

@@ -1,5 +1,5 @@
 # L0 — infra/tests/svg_composite_graph
-Hash do Código: e8f1483a
+Hash do Código: c5cd0bc9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896

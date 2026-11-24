@@ -1,5 +1,5 @@
 # L0 — svg/glyphs
-Hash do Código: 2125a523
+Hash do Código: 9cbac1d5
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/svg/glyphs.rs`
@@ -7,6 +7,7 @@ Hash do Código: 2125a523
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:fe41319c4bf27b69b635c5666e46f5b8b9b99160323926fb83889b0f09b97417
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 ## Consumer evidence
 
@@ -179,3 +180,11 @@ Evidence at baseline `0a15ccebf861e3cc0ea16d0397d55dc057664556`: `layout_types.r
 
 
 Only test fixture compatibility is authorized here: convert finished Vec fixtures with .into(), add explicit Vec collection types when necessary, and explicitly copy to Vec in test helpers. For the existing malformed-glyph negative test, thaw a private test copy, perform the same mutations, then replace the complete frozen payload. Preserve every assertion, input, tolerance and cfg.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Gradient glyph fill uses the definition for the actual glyph user space. Solid output is unchanged.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

@@ -1,7 +1,8 @@
 # L0 — svg/geometry
-Hash do Código: 37de4684
+Hash do Código: 8c596e0c
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L3
@@ -137,3 +138,11 @@ through enclosing groups. Test default and explicit stroke colors inside a
 colored enclosing group. Re-run the unchanged effective-paint comparison; font
 metrics remain the layout/provider owners' responsibility. This is an internal
 export parity correction under ADR-0127 continuous flow.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Line stroke accepts Paint and uses the text gradient definition for its local space.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

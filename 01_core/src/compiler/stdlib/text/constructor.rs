@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/text/constructor.md
-//! @prompt-hash 1722182c
+//! @prompt-hash 9b748599
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -71,8 +71,12 @@ pub fn native_text(
             .filter(|arg| arg.name.as_deref() == Some("fill"))
         {
             match &arg.value {
-                Value::Color(color) => styles.push(Style::Fill(color.clone())),
-                Value::Gradient(_) | Value::Tiling(_) => return Err(vec![SourceDiagnostic::error(args.span,
+                Value::Color(color) => styles.push(Style::Fill(color.clone().into())),
+                Value::Gradient(gradient) => {
+                    reject_self_relative(gradient, argument_span(arg.value_span, args.span))?;
+                    styles.push(Style::Fill(gradient.clone().into()));
+                }
+                Value::Tiling(_) => return Err(vec![SourceDiagnostic::error(args.span,
                     format!("text(fill:) espera color, recebeu {}", arg.value.type_name()))]),
                 other => return Err(vec![SourceDiagnostic::error(argument_span(arg.value_span, args.span),
                     format!("expected color, gradient, or tiling, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)))]),
@@ -82,10 +86,21 @@ pub fn native_text(
     } else if let Some(index) = remaining
         .items
         .iter()
-        .position(|value| matches!(value, Value::Color(_)))
+        .position(|value| matches!(value, Value::Color(_) | Value::Gradient(_)))
     {
-        if let Some(Value::Color(color)) = remaining.remove_positional(index) {
-            styles.push(Style::Fill(color));
+        let value_span = remaining
+            .occurrence_sequence()
+            .iter()
+            .filter(|arg| arg.name.is_none())
+            .nth(index)
+            .map_or(args.span, |arg| argument_span(arg.value_span, args.span));
+        match remaining.remove_positional(index) {
+            Some(Value::Color(color)) => styles.push(Style::Fill(color.into())),
+            Some(Value::Gradient(gradient)) => {
+                reject_self_relative(&gradient, value_span)?;
+                styles.push(Style::Fill(gradient.into()));
+            }
+            _ => unreachable!("position selected a color or gradient"),
         }
     }
 
@@ -290,6 +305,27 @@ pub fn native_text(
     let styled =
         if styles.is_empty() { body } else { Content::styled(Box::new(body), styles) };
     Ok(Value::Content(styled))
+}
+
+/// Text paint has no own box: an explicit `relative: "self"` is invalid.
+pub(in crate::compiler) fn reject_self_relative(
+    gradient: &crate::entities::gradient::Gradient,
+    span: Span,
+) -> SourceResult<()> {
+    use crate::entities::gradient::{Gradient, RelativeTo};
+    let relative = match gradient {
+        Gradient::Linear(g) => g.relative,
+        Gradient::Radial(g) => g.relative,
+        Gradient::Conic(g) => g.relative,
+    };
+    if relative == Some(RelativeTo::Self_) {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "gradients and tilings on text must be relative to the parent",
+        )
+        .with_hint("make sure to set `relative: auto` on your text fill")]);
+    }
+    Ok(())
 }
 
 fn argument_span(origin: Span, fallback: Span) -> Span {

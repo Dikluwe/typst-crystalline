@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/physical_memo.md
-//! @prompt-hash 36ac85d3
+//! @prompt-hash d632f69e
 //! @layer L1
 //! @updated 2026-11-13
 
@@ -479,8 +479,15 @@ pub(super) fn frame_charge(items: &[&FrameItem]) -> Result<usize, &'static str> 
                 (0, Some(items.as_slice()))
             }
             FrameItem::Line { color, .. } => {
-                if matches!(color, Some(crate::entities::color::Color::Spot(_))) {
-                    return Err("spot line");
+                match color {
+                    Some(crate::entities::paint::Paint::Solid(
+                        crate::entities::color::Color::Spot(_),
+                    )) => return Err("spot line"),
+                    Some(
+                        crate::entities::paint::Paint::Gradient(_)
+                        | crate::entities::paint::Paint::Tiling(_),
+                    ) => return Err("gradient line"),
+                    Some(crate::entities::paint::Paint::Solid(_)) | None => {}
                 }
                 (0, None)
             }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/pdf_tiling.md
-//! @prompt-hash 26d613ce
+//! @prompt-hash 7e3ff98d
 //! @layer L3
 
 use std::collections::HashMap;
@@ -149,11 +149,12 @@ impl<'a> Patterns<'a> {
         resources: &str,
     ) -> Vec<(usize, Vec<u8>)> {
         let mut objects = Vec::new();
-        let (tags, ua1) = (ctx.tags, ctx.ua1);
+        let (tags, ua1, text_root) = (ctx.tags, ctx.ua1, ctx.text_root.get());
         ctx.tags = super::PdfTags::Disabled;
         ctx.ua1 = false;
         for pattern in self.patterns.iter().filter(|p| p.page == page) {
             let size = pattern.cell.frame.size;
+            ctx.text_root.set(&pattern.cell.frame as *const _ as usize);
             let bytes = super::stream::build_cell_stream(&pattern.cell.frame.items, ctx);
             let m = pattern.matrix;
             let descendants = pattern
@@ -198,6 +199,7 @@ impl<'a> Patterns<'a> {
         }
         ctx.tags = tags;
         ctx.ua1 = ua1;
+        ctx.text_root.set(text_root);
         objects
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/decorations.md
-//! @prompt-hash 293f84d9
+//! @prompt-hash c356dfb3
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -10,7 +10,8 @@
 //! function recebe `&Content` e re-match interno. Content-preserving.
 
 use crate::entities::content::Content;
-use crate::entities::layout_types::{FrameItem, Point, Pt};
+use crate::entities::layout_types::{Color, FrameItem, Length, Point, Pt};
+use crate::entities::paint::Paint;
 
 use super::{DecoSegment, FontMetrics, ImageSizer, Layouter};
 
@@ -56,11 +57,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
     let thickness = (font_pt * 0.05).max(0.4);
     // P285 §A.3: utilizador explícito > herança do texto > default.
-    let color = stroke.clone().or(layouter.style.fill.clone());
+    let mut color = stroke
+        .clone()
+        .map(Paint::from)
+        .or(super::text::effective_style(layouter).fill);
+    let underline = matches!(content, Content::Underline(_));
 
     // P286 — snapshot inicial + activa collector.
     let initial_line_len = layouter.regions.current.current_line.len();
     let initial_committed_len = layouter.regions.current.current_items.len();
+    let initial_pages = layouter.pages.len();
     let material_prefix =
         super::html_frame::items_have_material(&layouter.regions.current.current_line);
     let cursor_x_initial = layouter.regions.current.cursor_x;
@@ -78,38 +84,57 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.decoration_lines_collector = prev_collector;
 
     // A settled no-flush slice has exact original append boundaries. Its
-    // actual local text runs, rather than a provisional outer cursor, own
-    // underline position and width. No source is replayed or reconstructed.
-    let no_outer_flush = layouter.regions.current.current_line.len() >= initial_line_len
+    // actual local text runs own decoration paint and can provide run bounds.
+    let current = &layouter.regions.current;
+    let committed = current.current_items.get(initial_committed_len..);
+    let same_page = layouter.pages.len() == initial_pages;
+    let no_outer_flush = same_page
         && (initial_line_len == 0 || material_prefix)
-        && layouter.regions.current.current_items[initial_committed_len..]
-            .iter()
-            .all(super::html_frame::is_context_marker)
-        && layouter.regions.current.pending_fr.is_empty()
+        && committed
+            .is_some_and(|items| items.iter().all(super::html_frame::is_context_marker))
+        && current.current_line.len() >= initial_line_len
+        && current.pending_fr.is_empty()
         && layouter.pending_repeats.is_empty();
-    if matches!(content, Content::Underline(_))
-        && no_outer_flush
-        && inline_runs_supported(
-            &layouter.regions.current.current_line[initial_line_len..],
-        )
-        && has_inline_text(&layouter.regions.current.current_line[initial_line_len..])
-    {
-        let paint = underline_runs(
-            &mut layouter.regions.current.current_line[initial_line_len..],
-            &layouter.metrics,
-            &stroke,
-            offset,
-            extent,
-        );
-        for item in paint {
-            let line = super::repeat::piece_line(layouter);
-            super::repeat::register_piece_paint(layouter, line);
-            layouter.regions.current.current_line.push(item);
+    let mut mixed = false;
+    if !underline && stroke.is_none() && same_page {
+        let inherited = if no_outer_flush {
+            inherited_paint(current.current_line[initial_line_len..].iter())
+        } else if let (false, Some(items)) = (material_prefix, committed) {
+            inherited_paint(items.iter().chain(&current.current_line))
+        } else {
+            InheritedPaint::Empty
+        };
+        match inherited {
+            InheritedPaint::Uniform(fill) => color = fill.cloned(),
+            InheritedPaint::Mixed => mixed = true,
+            InheritedPaint::Empty => {}
         }
-        return;
+    }
+    if no_outer_flush && (underline || mixed) {
+        let line = &current.current_line[initial_line_len..];
+        if inline_runs_supported(line) && has_inline_text(line) {
+            let geometry = if underline {
+                RunGeometry::Underline { offset, extent }
+            } else {
+                RunGeometry::Fixed { offset: offset_pt, extent: extent_pt, thickness }
+            };
+            let paint = decoration_runs(
+                &mut layouter.regions.current.current_line[initial_line_len..],
+                &layouter.metrics,
+                &stroke,
+                geometry,
+            );
+            for item in paint {
+                let line = super::repeat::piece_line(layouter);
+                super::repeat::register_piece_paint(layouter, line);
+                layouter.regions.current.current_line.push(item);
+            }
+            return;
+        }
     }
 
-    let completed_flow = matches!(content, Content::Underline(_))
+    let completed_flow = underline
+        && same_page
         && !material_prefix
         && layouter.block_chain_active
         && layouter.flow_placement_y().is_some()
@@ -122,7 +147,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         uniform_closed_frame_text(
             &layouter.regions.current.current_items[initial_committed_len..],
         )
-    } else if matches!(content, Content::Underline(_)) && !material_prefix {
+    } else if underline && !material_prefix && same_page && committed.is_some() {
         uniform_multiline_text(
             layouter.regions.current.current_items[initial_committed_len..]
                 .iter()
@@ -139,7 +164,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             offset.map_or(font_offset.0, |value| value.resolve_pt(style.size.0)),
             extent.map_or(0.0, |value| value.resolve_pt(style.size.0)),
             thickness.0,
-            stroke.or(style.fill),
+            stroke.map(Paint::from).or(style.fill),
         )
     } else {
         (offset_pt, extent_pt, thickness, color)
@@ -207,6 +232,45 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.regions.current.current_line.push(paint);
         }
     }
+}
+
+enum InheritedPaint<'a> {
+    Empty,
+    Uniform(Option<&'a Paint>),
+    Mixed,
+}
+
+fn inherited_paint<'a>(items: impl Iterator<Item = &'a FrameItem>) -> InheritedPaint<'a> {
+    use InheritedPaint::{Empty, Mixed, Uniform};
+
+    let mut paint = Empty;
+    for item in items {
+        let local = match item {
+            FrameItem::Text { text, style, .. } if !text.is_empty() => {
+                Uniform(style.fill.as_ref())
+            }
+            FrameItem::TextShaped { glyphs, style, .. } if !glyphs.is_empty() => {
+                Uniform(style.fill.as_ref())
+            }
+            FrameItem::Glyph { style, .. } => Uniform(style.fill.as_ref()),
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::TextReplacement { items, .. } => inherited_paint(items.iter()),
+            FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Image { .. } => Empty,
+        };
+        paint = match (paint, local) {
+            (Empty, other) | (other, Empty) => other,
+            (Uniform(a), Uniform(b)) if a == b => Uniform(a),
+            (Mixed, _) | (_, Mixed) | (Uniform(_), Uniform(_)) => return Mixed,
+        };
+    }
+    paint
 }
 
 fn append_closed_frame_paint(
@@ -387,7 +451,7 @@ fn inline_runs_supported(items: &[FrameItem]) -> bool {
     })
 }
 
-struct UnderlineRun {
+struct DecorationRun {
     start: Point,
     end_x: f64,
     next_x: f64,
@@ -395,41 +459,55 @@ struct UnderlineRun {
     text: String,
 }
 
-fn underline_runs<M: FontMetrics>(
+#[derive(Clone, Copy)]
+enum RunGeometry {
+    Underline { offset: Option<Length>, extent: Option<Length> },
+    Fixed { offset: f64, extent: f64, thickness: f64 },
+}
+
+fn decoration_runs<M: FontMetrics>(
     items: &mut [FrameItem],
     metrics: &M,
-    stroke: &Option<crate::entities::layout_types::Color>,
-    offset: Option<crate::entities::layout_types::Length>,
-    extent: Option<crate::entities::layout_types::Length>,
+    stroke: &Option<Color>,
+    geometry: RunGeometry,
 ) -> Vec<FrameItem> {
     fn close<M: FontMetrics>(
-        current: &mut Option<UnderlineRun>,
+        current: &mut Option<DecorationRun>,
         out: &mut Vec<FrameItem>,
         metrics: &M,
-        stroke: &Option<crate::entities::layout_types::Color>,
-        offset: Option<crate::entities::layout_types::Length>,
-        extent: Option<crate::entities::layout_types::Length>,
+        stroke: &Option<Color>,
+        geometry: RunGeometry,
     ) {
         let Some(run) = current.take() else { return };
         if run.end_x <= run.start.x.0 {
             return;
         }
-        let (font_offset, thickness) =
-            metrics.underline_metrics(&run.text, run.style.size, &run.style);
-        let offset =
-            offset.map_or(font_offset.0, |value| value.resolve_pt(run.style.size.0));
-        let extent = extent.map_or(0.0, |value| value.resolve_pt(run.style.size.0));
+        let (offset, extent, thickness) = match geometry {
+            RunGeometry::Underline { offset, extent } => {
+                let size = run.style.size;
+                let (font_offset, thickness) =
+                    metrics.underline_metrics(&run.text, size, &run.style);
+                (
+                    offset.map_or(font_offset.0, |value| value.resolve_pt(size.0)),
+                    extent.map_or(0.0, |value| value.resolve_pt(size.0)),
+                    thickness.0,
+                )
+            }
+            RunGeometry::Fixed { offset, extent, thickness } => {
+                (offset, extent, thickness)
+            }
+        };
         let y = run.start.y + Pt(offset);
         out.push(FrameItem::Line {
             start: Point { x: Pt(run.start.x.0 - extent), y },
             end: Point { x: Pt(run.end_x + extent), y },
-            thickness: thickness.0,
-            color: stroke.clone().or(run.style.fill),
+            thickness,
+            color: stroke.clone().map(Paint::from).or(run.style.fill),
             cap: crate::entities::geometry::LineCap::Butt,
         });
     }
     let mut out = Vec::new();
-    let mut current: Option<UnderlineRun> = None;
+    let mut current: Option<DecorationRun> = None;
     for item in items.iter_mut() {
         if super::html_frame::is_context_marker(item) {
             continue;
@@ -444,8 +522,8 @@ fn underline_runs<M: FontMetrics>(
                     run.end_x = end;
                     run.next_x = end;
                 } else {
-                    close(&mut current, &mut out, metrics, stroke, offset, extent);
-                    current = Some(UnderlineRun {
+                    close(&mut current, &mut out, metrics, stroke, geometry);
+                    current = Some(DecorationRun {
                         start: *pos,
                         end_x: end,
                         next_x: end,
@@ -466,15 +544,15 @@ fn underline_runs<M: FontMetrics>(
                         run.end_x = run.next_x;
                     }
                 } else {
-                    close(&mut current, &mut out, metrics, stroke, offset, extent);
+                    close(&mut current, &mut out, metrics, stroke, geometry);
                 }
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
             | FrameItem::Semantic { items, .. }
             | FrameItem::TextReplacement { items, .. } => {
-                close(&mut current, &mut out, metrics, stroke, offset, extent);
-                let nested = underline_runs(items, metrics, stroke, offset, extent);
+                close(&mut current, &mut out, metrics, stroke, geometry);
+                let nested = decoration_runs(items, metrics, stroke, geometry);
                 // The existing carrier owns the complete local frame and its
                 // transform; added paint cannot escape that frame's geometry.
                 items.extend(nested);
@@ -484,11 +562,11 @@ fn underline_runs<M: FontMetrics>(
             | FrameItem::Line { .. }
             | FrameItem::Shape { .. }
             | FrameItem::Image { .. } => {
-                close(&mut current, &mut out, metrics, stroke, offset, extent);
+                close(&mut current, &mut out, metrics, stroke, geometry);
             }
         }
     }
-    close(&mut current, &mut out, metrics, stroke, offset, extent);
+    close(&mut current, &mut out, metrics, stroke, geometry);
     out
 }
 
@@ -575,9 +653,12 @@ mod remaining_underline_tests {
     fn lines(items: &[FrameItem], out: &mut Vec<(Point, Point, f64, Option<Color>)>) {
         for item in items {
             match item {
-                FrameItem::Line { start, end, thickness, color, .. } => {
-                    out.push((*start, *end, *thickness, color.clone()))
-                }
+                FrameItem::Line { start, end, thickness, color, .. } => out.push((
+                    *start,
+                    *end,
+                    *thickness,
+                    color.as_ref().map(|p| p.to_color()),
+                )),
                 FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. }
                 | FrameItem::Semantic { items, .. }

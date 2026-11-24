@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text/style.md
-//! @prompt-hash 9a0af52d
+//! @prompt-hash 206eb974
 //! @layer L1
 //! @updated 2026-11-08
 
@@ -73,10 +73,6 @@ fn resolve_parts(
     let cs = |k: &str| chain.custom(k);
     let ns_bold = matches!(cs("text.bold"), Some(Value::Bool(true)));
     let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
-    let ns_fill = match cs("text.fill") {
-        Some(Value::Color(c)) => Some(c.clone()),
-        _ => None,
-    };
     let ns_weight = match cs("text.weight") {
         Some(Value::Int(n)) => u16::try_from(*n).ok(),
         _ => None,
@@ -283,7 +279,7 @@ fn resolve_parts(
         semantic_strong: style.semantic_strong,
         semantic_emph: style.semantic_emph,
         size: style.size,
-        fill: style.fill.clone().or(ns_fill),
+        fill: chain.fill().or_else(|| style.fill.clone()),
         heading_level: style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).
         weight: style.weight.or(ns_weight),

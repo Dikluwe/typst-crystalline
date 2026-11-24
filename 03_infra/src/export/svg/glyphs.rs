@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/glyphs.md
-//! @prompt-hash 0be34903
+//! @prompt-hash 2c6a5454
 //! @layer L3
 //! @updated 2026-11-07
 
-use super::serialization::{color_to_css, fmt_num};
+use super::paints::{PaintDefs, PaintReference};
+use super::serialization::fmt_num;
 use super::{FontKey, GlyphFontIdentity};
 use crate::font_variant::{
     axis_variations_for_font_variant, merge_explicit_variations,
@@ -15,7 +16,7 @@ use ttf_parser::{Face, GlyphId, OutlineBuilder};
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::layout_types::{Point, Pt};
+use typst_core::entities::layout_types::{Point, Pt, TransformMatrix};
 use typst_core::entities::shaped_glyph::ShapedGlyph;
 use xmlwriter::XmlWriter;
 
@@ -288,6 +289,7 @@ pub(super) fn render_direct_glyph(
     fonts: &[FontKey],
     glyph_fonts: &SvgGlyphFontContext,
     glyph_defs: &mut GlyphDefs,
+    paint_defs: &mut PaintDefs,
 ) {
     if !pos.x.0.is_finite() || !pos.y.0.is_finite() || !size.0.is_finite() {
         write_glyph_fallback(xml, pos, "invalid-geometry");
@@ -326,13 +328,13 @@ pub(super) fn render_direct_glyph(
         "transform",
         &format!("matrix(1 0 0 -1 {} {})", fmt_num(pos.x.0), fmt_num(pos.y.0)),
     );
-    xml.write_attribute(
-        "fill",
-        &style
-            .fill
-            .clone()
-            .map(color_to_css)
-            .unwrap_or_else(|| "#000000".to_string()),
+    let flip = TransformMatrix { d: -1.0, ..TransformMatrix::identity() };
+    write_text_fill(
+        xml,
+        paint_defs.text_reference(
+            style.fill.as_ref(),
+            TransformMatrix::translate(pos.x.0, pos.y.0).concat(&flip),
+        ),
     );
     xml.end_element();
 }
@@ -349,6 +351,7 @@ pub(super) fn render_text_shaped(
     units_per_em: u16,
     fonts: &super::super::font_binding::PreparedFonts,
     glyph_defs: &mut GlyphDefs,
+    paint_defs: &mut PaintDefs,
     font: Option<&typst_core::entities::world_types::Font>,
 ) {
     let Some((font_idx, font_key)) = fonts.get_original(style, font) else { return };
@@ -367,11 +370,8 @@ pub(super) fn render_text_shaped(
         &format!("matrix(1 0 0 -1 {} {})", fmt_num(pos.x.0), fmt_num(pos.y.0)),
     );
 
-    let fill = style
-        .fill
-        .clone()
-        .map(color_to_css)
-        .unwrap_or_else(|| "#000000".to_string());
+    let flip = TransformMatrix { d: -1.0, ..TransformMatrix::identity() };
+    let baseline = TransformMatrix::translate(pos.x.0, pos.y.0).concat(&flip);
     let mut x = 0.0;
     let y = 0.0;
     for (index, glyph) in glyphs.iter().enumerate() {
@@ -394,7 +394,13 @@ pub(super) fn render_text_shaped(
         xml.write_attribute("xlink:href", &format!("#{id}"));
         xml.write_attribute("x", &fmt_num(x + x_offset));
         xml.write_attribute("y", &fmt_num(y + y_offset));
-        xml.write_attribute("fill", &fill);
+        write_text_fill(
+            xml,
+            paint_defs.text_reference(
+                style.fill.as_ref(),
+                baseline.concat(&TransformMatrix::translate(x + x_offset, y + y_offset)),
+            ),
+        );
         xml.end_element();
 
         x += f64::from(glyph.x_advance) * scale
@@ -408,23 +414,27 @@ pub(super) fn render_text_shaped(
 
     xml.end_element();
 }
+fn write_text_fill(xml: &mut XmlWriter, reference: PaintReference) {
+    xml.write_attribute("fill", &reference.value);
+    if let Some(reason) = reference.fallback {
+        xml.write_attribute("data-crystalline-fill-fallback", reason);
+    }
+}
+
 pub(super) fn render_html_text(
     xml: &mut XmlWriter,
     pos: &Point,
     text: &ecow::EcoString,
     style: &typst_core::entities::layout_types::TextStyle,
+    paint_defs: &mut PaintDefs,
 ) {
     xml.start_element("text");
     xml.write_attribute("x", &fmt_num(pos.x.0));
     xml.write_attribute("y", &fmt_num(pos.y.0));
     xml.write_attribute("font-size", &format!("{}pt", fmt_num(style.size.0)));
-    xml.write_attribute(
-        "fill",
-        &style
-            .fill
-            .clone()
-            .map(color_to_css)
-            .unwrap_or_else(|| "#000000".to_string()),
+    write_text_fill(
+        xml,
+        paint_defs.text_reference(style.fill.as_ref(), TransformMatrix::identity()),
     );
     xml.write_text(text.as_str());
     xml.end_element();

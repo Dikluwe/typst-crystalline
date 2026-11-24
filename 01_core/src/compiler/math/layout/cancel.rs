@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/cancel.md
-//! @prompt-hash 80f3e0e2
+//! @prompt-hash 2cdcf750
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -102,7 +102,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let (thickness, color) = match &elem.stroke {
                 Some(stroke) => (
                     stroke.thickness.resolve_pt(style.size.val()),
-                    Some(stroke.paint.to_color()),
+                    Some(stroke.paint.to_color().into()),
                 ),
                 None => (0.05 * style.size.val(), style.fill.clone()),
             };

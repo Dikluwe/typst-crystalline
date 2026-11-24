@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/math/layout/frac.md
-//! @prompt-hash ba0cc57e
+//! @prompt-hash 17509845
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -348,8 +348,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             start: Point { x: Pt(rule_x0), y: Pt(rule_local_y) },
             end: Point { x: Pt(rule_x0 + line_width), y: Pt(rule_local_y) },
             thickness: rule_thickness,
-            // P285: math frac sem stroke explícito — preserva preto bit-exact.
-            color: None,
+            color: style.fill.clone(),
             cap: crate::entities::geometry::LineCap::Butt,
         });
 

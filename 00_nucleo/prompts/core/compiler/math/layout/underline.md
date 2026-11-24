@@ -4,6 +4,7 @@ Hash do Código: 08f6bbc3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:b1f5e8d937f80e207e7cb5f1cd7ee03f3a3eebc89af5bfc0e13ebd95c615ecd0
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/underline.rs`
@@ -93,3 +94,11 @@ strict/reverse V1/V5/V15/V26 lineage, SARIF and diff --check. Freeze sources/L0/
 configuration during heavy sequential commands under MemoryMax 12 GiB,
 MemorySwapMax0/CARGO_BUILD_JOBS1. Structural sanitation proves neither global
 parity nor RAM/AI-reading benefit.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Math underline and overline inherit the text Paint.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

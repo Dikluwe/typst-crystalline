@@ -4977,7 +4977,7 @@ fn p1074_heading_inherits_italic_and_other_styles() {
         Box::new(Content::heading(1, Content::text("Italic"))),
         Styles::from_iter([
             Style::Italic { value: true, from_emph: false },
-            Style::Fill(red.clone()),
+            Style::Fill(red.clone().into()),
         ]),
     );
     let doc_styled = layout(&h_styled);
@@ -4989,7 +4989,7 @@ fn p1074_heading_inherits_italic_and_other_styles() {
     if let FrameItem::Text { style, .. } = item_styled {
         assert!(style.bold, "heading sob italic deve continuar bold");
         assert!(style.italic, "heading sob italic deve herdar italic=true (P1074)");
-        assert_eq!(style.fill, Some(red), "heading sob fill deve herdar fill");
+        assert_eq!(style.fill, Some(red.into()), "heading sob fill deve herdar fill");
     }
 }
 
@@ -19007,7 +19007,7 @@ mod p284_decoration_tests {
         for page in &doc.pages {
             for item in &page.items {
                 if let FrameItem::Line { color, .. } = item {
-                    return color.clone();
+                    return color.as_ref().map(|p| p.to_color());
                 }
             }
         }
@@ -19055,7 +19055,7 @@ mod p284_decoration_tests {
         // texto" (P285 §A.3 opção β).
         let styled = Content::styled(
             Box::new(inner),
-            Styles::from_iter([Style::Fill(blue.clone())]),
+            Styles::from_iter([Style::Fill(blue.clone().into())]),
         );
         let doc = layout(&styled);
         assert_eq!(
@@ -19077,7 +19077,7 @@ mod p284_decoration_tests {
             Content::underline(Content::text("y"), Some(green.clone()), None, None);
         let styled = Content::styled(
             Box::new(inner),
-            Styles::from_iter([Style::Fill(red)]), // ← fill red herdado
+            Styles::from_iter([Style::Fill(red.into())]), // ← fill red herdado
         );
         let doc = layout(&styled);
         assert_eq!(
@@ -19098,7 +19098,12 @@ mod p284_decoration_tests {
         for page in &doc.pages {
             for item in &page.items {
                 if let FrameItem::Line { start, end, thickness, color, .. } = item {
-                    out.push((*start, *end, *thickness, color.clone()));
+                    out.push((
+                        *start,
+                        *end,
+                        *thickness,
+                        color.as_ref().map(|p| p.to_color()),
+                    ));
                 }
             }
         }

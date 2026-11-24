@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/page.md
-//! @prompt-hash 8b15b607
+//! @prompt-hash 4862f9d3
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -17,6 +17,7 @@ use typst_core::entities::layout_types::Page;
 pub(in crate::export) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
+    ctx.text_root.set(page as *const Page as usize);
 
     if let typst_core::entities::page_canvas::PageFill::Paint(paint) = &page.fill {
         if ctx.ua1 {

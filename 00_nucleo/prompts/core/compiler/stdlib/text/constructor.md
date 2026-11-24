@@ -1,10 +1,11 @@
 # L0 — stdlib/text/constructor
-Hash do Código: 0648ac73
+Hash do Código: 417f17ce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:d6c54bdd10c4ee5884a9a46bbdabaad3ffdea3aa0e4ad905411f6b43d1b6286b
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
+- 00_nucleo/prompts/_nuclei/text-gradient-paint.toml sha256:fa3c28e2415136777f2f215bb4e3e2cf8501a15ecb41b063d5368e232e7ccd4d
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 Layer: L1
@@ -84,3 +85,11 @@ responsibility; no commit/push, new public API, Nucleus or phase is authorized.
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Capture the existing boolean text.fallback property in the existing custom style channel for the approved SVG preparation context, including alias/set/constructor scopes. Invalid values report expected boolean; no public field or signature is added. Ordinary text fallback remains outside this SVG feature and is not silently certified. Preserve all other text casts and behavior.
+
+## Approved text gradient package
+
+On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
+`00_nucleo/diagnostics/text-gradient-fill-package-2026-11-24.pt-BR.md`, including
+the measured RED cases and the limits. Named fill accepts Color and Gradient; positional fill selects the first Color or Gradient. A gradient with explicit relative self is rejected at its argument with `gradients and tilings on text must be relative to the parent` and hint `make sure to set `relative: auto` on your text fill`. Tiling keeps the previous error. Other values keep the paint cast error.
+Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
+paint, a solid control and the absence of tiling on this route.

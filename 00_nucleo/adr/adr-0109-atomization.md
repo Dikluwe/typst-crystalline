@@ -3,6 +3,7 @@
 **Status:** ACCEPTED
 **Decision owner:** Repository owner
 **Consolidated:** 2026-11-24
+**Amended:** 2026-11-24 — visibility scope clarified. Approved by the owner on 2026-11-24 (“Aprovo”, in chat, after review of the wording).
 
 ## Evidence
 
@@ -10,7 +11,9 @@ Moving layout into an entity's data file would require an import from entities b
 
 ## Decision
 
-Group behavior by responsibility within its owning layer. In L1 the closed `Content` enum stores sequences as `Arc<[Content]>` for constant-time cloning and retains the approved representations of individual element payloads. Native dispatch uses an exhaustive static match with a short arm per feature. A layout arm delegates to a free function such as `heading::layout(layouter, heading)` in the layout subtree (Form B). The descendant accesses layouter state through module descent. Keep entity data independent of rendering. Moving behavior into the data struct (Form A), widening state to `pub(crate)`, adding a vtable or removing exhaustive dispatch does not implement this decision.
+Group behavior by responsibility within its owning layer. In L1 the closed `Content` enum stores sequences as `Arc<[Content]>` for constant-time cloning and retains the approved representations of individual element payloads. Native dispatch uses an exhaustive static match with a short arm per feature. A layout arm delegates to a free function such as `heading::layout(layouter, heading)` in the layout subtree (Form B). The descendant accesses layouter state through module descent. Keep entity data independent of rendering. Moving behavior into the data struct (Form A), widening `Layouter` state to `pub(crate)`, adding a vtable or removing exhaustive dispatch does not implement this decision.
+
+The visibility restriction covers `Layouter` state. Use the narrowest visibility that reaches the actual consumer. A layout operation or its parameter type needed by a sibling module can use `pub(in crate::compiler)`, or `pub(crate)` when the consumer or signature requires it. Crate visibility elsewhere follows the owning responsibility and is not prohibited by this decision. Existing state fields visible in `compiler` through `pub(super)` keep their current scope, and new external access should prefer an operation.
 
 The E1 extension approved under ADR-0106 is confined to `Content::Dynamic(Arc<dyn DynElement>)`. Preserve the native trait bridge, stable kind, typed field access, structural dynamic equality and the documented realization responsibilities. The native elements retain static dispatch. ADR-0105 remains in force for the conditional transition to PropMap. Starting that transition requires a decision on the mechanism that preserves exhaustive handler coverage. [00_nucleo/prompts/core/entities/elements/dynamic.md](../prompts/core/entities/elements/dynamic.md) · [00_nucleo/prompts/core/compiler/layout/dynamic.md](../prompts/core/compiler/layout/dynamic.md)
 
