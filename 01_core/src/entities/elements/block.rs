@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/block.md
-//! @prompt-hash fe0ba483
+//! @prompt-hash a3180a99
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -26,6 +26,26 @@ pub enum BlockHeight {
     Fractional(f64),
 }
 
+/// Bits de `BlockElem::omitted`.
+pub(crate) mod omitted {
+    /// Presente em todo valor do construtor nativo.
+    pub(crate) const NATIVE: u32 = 1 << 31;
+    pub(crate) const WIDTH: u32 = 1;
+    pub(crate) const HEIGHT: u32 = 1 << 1;
+    /// Quatro bits: esquerda, topo, direita, base.
+    pub(crate) const INSET: u32 = 1 << 2;
+    pub(crate) const OUTSET: u32 = 1 << 6;
+    pub(crate) const RADIUS: u32 = 1 << 10;
+    pub(crate) const BREAKABLE: u32 = 1 << 11;
+    pub(crate) const CLIP: u32 = 1 << 12;
+    pub(crate) const FILL: u32 = 1 << 13;
+    pub(crate) const STROKE: u32 = 1 << 14;
+    pub(crate) const SPACING: u32 = 1 << 15;
+    pub(crate) const ABOVE: u32 = 1 << 16;
+    pub(crate) const BELOW: u32 = 1 << 17;
+    pub(crate) const STICKY: u32 = 1 << 18;
+}
+
 /// Container block (`block`). `body` + 13 cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BlockElem {
@@ -43,6 +63,8 @@ pub struct BlockElem {
     pub above: Option<Length>,
     pub below: Option<Length>,
     pub sticky: bool,
+    /// Propriedades omitidas no construtor; zero conta todas como dadas.
+    pub(crate) omitted: u32,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length`/`Sides`/`Corners`/
@@ -119,6 +141,7 @@ mod tests {
 
     fn ex() -> BlockElem {
         BlockElem {
+            omitted: 0,
             body: Content::text("a"),
             width: None,
             height: None,

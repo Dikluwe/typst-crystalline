@@ -752,7 +752,7 @@ fn p227_table_variant_aceita_stroke() {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
-        crate::entities::elements::table::TableElem {
+        crate::entities::elements::table::TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -853,7 +853,7 @@ fn p228_grid_variant_aceita_fill() {
 fn p228_table_variant_aceita_fill() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
-        crate::entities::elements::table::TableElem {
+        crate::entities::elements::table::TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -1086,7 +1086,7 @@ fn p231_block_variant_aceita_outset_radius_clip() {
     use crate::entities::corners::Corners;
     use crate::entities::sides::Sides;
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem {
+        crate::entities::elements::block::BlockElem { omitted: 0,
             body: Content::text("body"),
             width: None,
             height: None,
@@ -1150,7 +1150,7 @@ fn p231_block_partial_eq_inclui_3_fields() {
     use crate::entities::corners::Corners;
     use crate::entities::sides::Sides;
     let mk = |clip: bool| {
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
             body: Content::text("."),
             width: None,
             height: None,
@@ -1178,7 +1178,7 @@ fn p247_block_variant_aceita_fill_stroke() {
     use crate::entities::layout_types::Color;
     use crate::entities::sides::Sides;
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem {
+        crate::entities::elements::block::BlockElem { omitted: 0,
             body: Content::text("p247"),
             width: None,
             height: None,
@@ -1254,7 +1254,7 @@ fn p247_block_partial_eq_inclui_fill_stroke() {
     use crate::entities::layout_types::Color;
     use crate::entities::sides::Sides;
     let mk = |fill: Option<Color>| {
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
             body: Content::text("p247eq"),
             width: None,
             height: None,

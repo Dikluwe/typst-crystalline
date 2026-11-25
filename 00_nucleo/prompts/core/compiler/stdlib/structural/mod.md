@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/structural/mod
-Hash do Código: 428c4f70
+Hash do Código: 24db5776
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735

@@ -13,6 +13,35 @@ use super::*;
 /// Anti-recursão via `active_guards` (stack de RuleId) em vez de booleano global.
 /// Permite composição entre regras distintas; snapshot explícito evita borrow
 /// conflict durante a travessia (DEBT-22).
+/// Aplica o `heading.offset` declarado a um heading recém-construído.
+pub(crate) fn offset_heading(
+    content: Content,
+    styles: &crate::entities::style_chain::StyleChain,
+) -> Content {
+    let Some(Value::Int(offset)) = styles.custom("heading.offset") else {
+        return content;
+    };
+    if let Content::Source(source) = &content {
+        return offset_heading(source.body.clone(), styles)
+            .with_source_span(source.span);
+    }
+    if let Content::Heading(heading) = &content {
+        if let Some(heading) = heading.with_offset(*offset) {
+            return Content::Heading(Arc::new(heading));
+        }
+    } else if let Content::Styled(styled) = &content {
+        if let Content::Heading(heading) = &styled.body {
+            if let Some(heading) = heading.with_offset(*offset) {
+                return Content::styled(
+                    Content::Heading(Arc::new(heading)),
+                    styled.styles.clone(),
+                );
+            }
+        }
+    }
+    content
+}
+
 pub(crate) fn intercept_content(
     mut content: Content,
     ctx: &mut EvalContext,

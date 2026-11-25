@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/math_set.md
-//! @prompt-hash 045196dc
+//! @prompt-hash f7bf008e
 //! @layer L1
 //! @updated 2026-10-31
 //!
@@ -131,8 +131,20 @@ pub(crate) fn eval_set_math_rule(
             )]);
         }
 
+        let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+        super::set::schema::check(
+            &format!("math.{elem}"),
+            &Args::from_occurrences(
+                named.expr().span(),
+                vec![crate::entities::args::ArgOccurrence {
+                    name: Some(nome.into()),
+                    value: val.clone(),
+                    span: named.name().to_untyped().span(),
+                    value_span: named.expr().span(),
+                }],
+            ),
+        )?;
         if MATH_SET_LIGADOS.contains(&(elem, nome)) {
-            let val = eval_expr(named.expr(), scopes, ctx, engine)?;
             if (elem, nome) == ("frac", "style") {
                 match &val {
                     Value::Str(value)

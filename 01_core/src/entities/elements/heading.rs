@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/heading.md
-//! @prompt-hash 30641b81
+//! @prompt-hash e13aaaea
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -38,6 +38,8 @@ pub struct HeadingElem {
     /// O field access `it.level` (show rules) NÃO consulta esta máscara —
     /// continua a devolver o valor baked.
     pub set_fields: u8,
+    /// Profundidade lógica, quando um offset produziu o nível.
+    pub(crate) depth: Option<u8>,
 }
 
 /// **P829** — `level:` assente explicitamente (`#heading(2, [H])` ou
@@ -67,6 +69,7 @@ impl HeadingElem {
             bookmarked: None,
             // Caminho do markup (`= H`) — paridade vanilla: assenta `depth`.
             set_fields: HEADING_SET_DEPTH,
+            depth: None,
         }
     }
 
@@ -92,6 +95,7 @@ impl HeadingElem {
             outlined,
             bookmarked: None,
             set_fields: HEADING_SET_DEPTH,
+            depth: None,
         }
     }
 
@@ -111,7 +115,24 @@ impl HeadingElem {
             outlined,
             bookmarked,
             set_fields: 0,
+            depth: None,
         }
+    }
+
+    pub(crate) fn logical_depth(&self) -> u8 {
+        self.depth.unwrap_or(self.level)
+    }
+
+    /// Aplica um offset a um heading cujo nível ainda é a profundidade.
+    pub(crate) fn with_offset(&self, offset: i64) -> Option<Self> {
+        if self.depth.is_some()
+            || self.set_fields & HEADING_SET_LEVEL != 0
+            || offset <= 0
+        {
+            return None;
+        }
+        let level = (i64::from(self.level) + offset).clamp(1, 6) as u8;
+        Some(Self { level, depth: Some(self.level), ..self.clone() })
     }
 
     /// **P606** — valor efectivo de `bookmarked`: explicitamente definido ou segue `outlined`.
@@ -130,6 +151,7 @@ impl HeadingElem {
             outlined: self.outlined,
             bookmarked: self.bookmarked,
             set_fields: self.set_fields,
+            depth: self.depth,
         }
     }
 }

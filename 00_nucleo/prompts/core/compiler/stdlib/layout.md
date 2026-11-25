@@ -1,5 +1,5 @@
 # L0 — stdlib/layout — layout façade and alignment
-Hash do Código: 23c8b00d
+Hash do Código: 32c4aff6
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/layout.rs`

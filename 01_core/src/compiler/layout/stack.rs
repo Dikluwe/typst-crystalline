@@ -822,7 +822,7 @@ mod stack_image_tests {
     fn math_stack_width_block_inset_retains_its_local_math_origin() {
         let zero = Length::ZERO;
         let block =
-            Content::Block(Arc::new(crate::entities::elements::block::BlockElem {
+            Content::Block(Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
                 body: display_math("x"),
                 width: None,
                 height: None,

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: 70cfb482
+Hash do Código: f9c13706
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -17,6 +17,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:00e900edd4f7f3d6cd9aef545f6631615d612b377b17e9dd37f0254c4fd7cf51
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:7cea0505e4f98de6425e650b3617635e6d6baa3646b1cf8572d930c9b282b4dd
 - 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
 - 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
@@ -719,3 +720,27 @@ This is internal convergence/restoration of existing language behavior under ADR
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Unblock integrated validation of the shared tree: the footnote lexical-pattern test must access ordinary Module content through the existing optional content() accessor and assert presence before traversing. Do not alter footnote implementation or Module API. This mechanical fixture correction follows the observed E0615 compiler failure.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+This owner resolves the target, evaluates arguments once, checks them with
+`00_nucleo/prompts/core/compiler/eval/rules/set/schema.md` and dispatches. A target
+that is not a function fails with `expected function, found TYPE`; a function that is
+not an element, a partial application included, fails with
+`only element functions can be used in set rules`. Aliases of an element behave as the
+element. Spread arguments are equal to written ones.
+
+This supersedes, for every target, the fallback that warned without evaluating and the
+arms that skipped unlisted names. An admitted property without effect warns
+`set: ELEMENT.PROPERTY ainda não tem efeito`; nothing else is dropped. A conversion
+the constructor does not support yet is treated the same way, never as an error.
+Declarations take effect together, after the whole rule was admitted.
+
+Declared here with effect: table columns, rows, fill, stroke, inset and align; block's
+constructor properties; heading numbering, supplement and offset; figure kind,
+supplement, numbering, placement and gap; footnote numbering. `set block(spacing:)`
+declares above and below as well. A stroke declaration is stored folded over the
+current one, inset and outset by side. Other owners keep their targets.
+The ratified explicit rejection of alignment functions in `set table` remains an error.
+A document title given as content is stored as its plain text.

@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_grid
-Hash do Código: 52bba44c
+Hash do Código: 9cfff1de
 
 
 
@@ -9,6 +9,7 @@ Exclusive consumer: `01_core/src/compiler/stdlib/structural/table_grid.rs`
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
@@ -193,3 +194,8 @@ forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
 target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
 remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
 require a new gate; the approved fields are not inferred from diagnostics.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+native_table records which of columns, rows, fill, stroke and inset were omitted.

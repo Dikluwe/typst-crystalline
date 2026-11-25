@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/table.md
-//! @prompt-hash 26a3ebc4
+//! @prompt-hash dd06d456
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -45,6 +45,19 @@ pub struct TableElem {
     pub summary: Option<EcoString>,
     pub inset: Sides<Length>,
     pub align: Option<TableAlignment>,
+    /// Propriedades omitidas no construtor; zero conta todas como dadas.
+    pub(crate) omitted: u32,
+}
+
+/// Bits de `TableElem::omitted`.
+pub(crate) mod omitted {
+    /// Presente em todo valor do construtor nativo.
+    pub(crate) const NATIVE: u32 = 1 << 31;
+    pub(crate) const COLUMNS: u32 = 1;
+    pub(crate) const ROWS: u32 = 1 << 1;
+    pub(crate) const FILL: u32 = 1 << 2;
+    pub(crate) const STROKE: u32 = 1 << 3;
+    pub(crate) const INSET: u32 = 1 << 4;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -228,7 +241,7 @@ impl Element for TableElem {
             table.caption = self.caption.as_ref().map(|c| c.map_text(transform));
             return Content::Table(Arc::new(table));
         }
-        Content::Table(Arc::new(TableElem {
+        Content::Table(Arc::new(TableElem { omitted: self.omitted,
             items: self.items.clone(),
             source_span: self.source_span,
             resolved: self.resolved.clone(),
@@ -272,7 +285,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> TableElem {
-        TableElem {
+        TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -301,7 +314,7 @@ mod tests {
     #[test]
     fn is_empty_so_sem_children() {
         assert!(!ex().is_empty());
-        assert!(TableElem {
+        assert!(TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -347,7 +360,7 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = TableElem {
+        let outro = TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,

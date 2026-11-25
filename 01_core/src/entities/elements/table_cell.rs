@@ -103,9 +103,9 @@ impl TableCellProperties {
     ) -> crate::entities::style_chain::StyleChain {
         let mut delta = styles.delta().clone();
         for (key, value) in &mut delta.custom {
-            if key.as_str() == "cell.stroke" {
+            if matches!(key.as_str(), "cell.stroke" | "table.stroke" | "block.stroke") {
                 if let crate::entities::value::Value::Stroke(stroke) = value {
-                    let inherited = match base.custom("cell.stroke") {
+                    let inherited = match base.custom(key) {
                         Some(crate::entities::value::Value::Stroke(s)) => {
                             Some(s.as_ref())
                         }

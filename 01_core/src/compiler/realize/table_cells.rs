@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/table_cells.md
-//! @prompt-hash e9e5d79a
+//! @prompt-hash f6b0d275
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -1275,6 +1275,8 @@ fn prepare_table(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    let declared = crate::compiler::stdlib::declared_table(e, engine.styles);
+    let e = &declared;
     let inherited_alignment = if e.align.is_none() {
         engine
             .styles

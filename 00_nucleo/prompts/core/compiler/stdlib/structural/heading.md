@@ -1,8 +1,9 @@
 # L0 — stdlib/structural/heading
-Hash do Código: 5c5a9f70
+Hash do Código: e5edb1a8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml sha256:af78eb902348b843414064edfa2fd67612f8eb8ffba669f804dcf1d1be8f1da4
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/heading.rs`
@@ -80,3 +81,9 @@ No new public contract/default/phase or compatibility change is intended, so thi
 internal diagnostic parity correction follows ADR-0127 continuous flow after
 L0 graph validation and resealing. Figure/Equation producer obligations remain
 separate; this snapshot does not certify their diagnostics or general reflection.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+native_heading admits depth and offset. An explicit level wins; otherwise the level is
+offset plus depth, with the declared offset used only when the argument is omitted.

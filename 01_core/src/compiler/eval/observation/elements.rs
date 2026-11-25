@@ -487,11 +487,13 @@ impl ObservationEq for crate::entities::elements::table::TableElem {
             summary: _,
             inset: _,
             align: _,
+            omitted: _,
         } = self;
         ObservationRelation::Same
             .and(self.source_span.observation_relation(&other.source_span))
             .and(self.items.observation_relation(&other.items))
             .and(self.rows_explicit.observation_relation(&other.rows_explicit))
+            .and(self.omitted.observation_relation(&other.omitted))
             .and(self.resolved.observation_relation(&other.resolved))
             .and(self.columns.observation_relation(&other.columns))
             .and(self.rows.observation_relation(&other.rows))
@@ -605,6 +607,7 @@ impl ObservationEq for crate::entities::elements::block::BlockElem {
             above: _,
             below: _,
             sticky: _,
+            omitted: _,
         } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
@@ -621,6 +624,7 @@ impl ObservationEq for crate::entities::elements::block::BlockElem {
             .and(self.above.observation_relation(&other.above))
             .and(self.below.observation_relation(&other.below))
             .and(self.sticky.observation_relation(&other.sticky))
+            .and(self.omitted.observation_relation(&other.omitted))
     }
 }
 impl ObservationEq for crate::entities::elements::block::BlockHeight {
@@ -1142,6 +1146,7 @@ impl ObservationEq for crate::entities::elements::heading::HeadingElem {
             outlined: _,
             bookmarked: _,
             set_fields: _,
+            depth: _,
         } = self;
         ObservationRelation::Same
             .and(self.level.observation_relation(&other.level))
@@ -1149,6 +1154,7 @@ impl ObservationEq for crate::entities::elements::heading::HeadingElem {
             .and(self.outlined.observation_relation(&other.outlined))
             .and(self.bookmarked.observation_relation(&other.bookmarked))
             .and(self.set_fields.observation_relation(&other.set_fields))
+            .and(self.depth.observation_relation(&other.depth))
     }
 }
 impl ObservationEq for crate::entities::elements::counter_display::CounterDisplayElem {

@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/tables
-Hash do Código: d1584545
+Hash do Código: c6bfb67f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc

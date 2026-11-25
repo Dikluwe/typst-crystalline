@@ -1,5 +1,5 @@
 # L0 — columns
-Hash do Código: 6f8bfb70
+Hash do Código: e331d136
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/column-note-regions.toml sha256:ce40781bf12cee5ae49390769448b1ca10968af4eaa5a109399374beab99e619

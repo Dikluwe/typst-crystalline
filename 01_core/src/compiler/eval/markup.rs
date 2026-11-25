@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup.md
-//! @prompt-hash 1aebda78
+//! @prompt-hash 0f296d8c
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -109,7 +109,7 @@ pub(super) fn eval_heading(
     // (§3a.8), que embrulha a cauda do markup onde este heading nasce. O
     // consumidor (layout/introspect) lê o gate da chain. Fonte única.
     // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
-    let content = Content::heading(level, body);
+    let content = rules::offset_heading(Content::heading(level, body), engine.styles);
     let content =
         rules::intercept_content(content, ctx, engine).map_err(|mut errors| {
             for error in &mut errors {

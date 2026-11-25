@@ -53,6 +53,7 @@ pub(crate) use self::apply::apply_show_rules;
 pub(crate) use self::intercept::intercept_content;
 pub(crate) use self::intercept::intercept_labelled;
 pub(crate) use self::intercept::intercept_paragraphs;
+pub(crate) use self::intercept::offset_heading;
 use self::math_set::eval_set_math_rule;
 use self::math_set::unsupported_property_warn;
 use self::math_set::unsupported_target_warn;

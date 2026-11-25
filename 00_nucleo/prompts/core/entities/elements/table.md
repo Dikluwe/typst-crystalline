@@ -1,8 +1,9 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: cce6fde5
+Hash do Código: bfb5f8c6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/table/declarative-alignment.toml sha256:011aad6ca3199e192d8eb8eecd55d718b4d7ce7097f7987f982cb7a5f12f9a10
 
@@ -248,3 +249,10 @@ require a new gate; the approved fields are not inferred from diagnostics.
 Raw Some(items) retains the existing structural emptiness rule: test vector
 emptiness, not whether every cell's body is empty. Complete plans keep their
 existing visual emptiness rule.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Add one crate-private record of omitted columns, rows, fill, stroke and inset, zero
+meaning that every property counts as supplied. It takes part in equality, hash and
+observation and has no getter.

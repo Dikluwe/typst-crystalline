@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/intercept — Content interception
-Hash do Código: 36c1f7d9
+Hash do Código: e6a72705
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec

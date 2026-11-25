@@ -241,7 +241,7 @@ pub(super) fn content_field(
             }
             "depth" => {
                 if h.set_fields & HEADING_SET_DEPTH != 0 {
-                    ContentField::Set(Value::Int(h.level as i64))
+                    ContentField::Set(Value::Int(h.logical_depth() as i64))
                 } else {
                     ContentField::Undeclared
                 }

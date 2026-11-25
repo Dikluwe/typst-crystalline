@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sequence.md
-//! @prompt-hash 3505d417
+//! @prompt-hash 55aa9528
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -368,7 +368,9 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         }
 
         // P250 — sticky pre-layout lookahead 1-block.
-        if matches!(part, Content::Block(e) if e.sticky) {
+        if matches!(part, Content::Block(e)
+            if super::block::effective(layouter, e).map_or(e.sticky, |e| e.sticky))
+        {
             if let Some(next) = iter.peek() {
                 let avail_w = layouter.available_width();
                 let (_, part_h) = layouter.measure_content_constrained(part, avail_w);
@@ -709,7 +711,7 @@ mod p1375_tests {
     use super::fractional_block;
 
     fn fractional(weight: f64) -> Content {
-        Content::Block(Arc::new(BlockElem {
+        Content::Block(Arc::new(BlockElem { omitted: 0,
             body: Content::text("body"),
             width: None,
             height: Some(BlockHeight::Fractional(weight)),

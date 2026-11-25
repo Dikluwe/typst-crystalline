@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr
-Hash do Código: 48d4f6b5
+Hash do Código: 2396d0ec
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/repr.rs`

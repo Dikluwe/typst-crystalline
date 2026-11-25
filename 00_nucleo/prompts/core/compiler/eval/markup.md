@@ -1,8 +1,9 @@
 # L0 — compiler/eval/markup
-Hash do Código: ff5e74c4
+Hash do Código: ae5a98b3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/markup.rs`
@@ -43,3 +44,8 @@ the real heading span only to detached diagnostics. Never infer origin from the
 message, body or approximate position; do not change other adapters, matching
 or recursion limits. These historical observations retain their original
 provenance and do not establish current-pin parity.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+A markup heading's level is its depth plus the declared heading.offset at evaluation.

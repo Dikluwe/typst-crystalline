@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/invoke
-Hash do Código: 1ec60315
+Hash do Código: f0bbfc82
 
 
 Núcleos Tekt:
@@ -7,6 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
 - 00_nucleo/prompts/_nuclei/math/selected-symbol-accent-call.toml sha256:c6ef1be7fbad9f9513c172b144b3dbe314ba24a6d4c8c09a26a9bca6c6f8b48b
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 ## Ownership and extraction evidence
@@ -367,3 +368,9 @@ L0 precedes actual functional RED, then implementation/GREEN; preserve old tests
 source-bound bilateral PDF/SVG/error/effect controls, full core/workspace, build,
 strict lint/Clippy/rustdoc/fmt and both lineage directions. Validate V15/V26 before
 resealing. No completion/performance/JPEG qualification from a finite call fix.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+A heading returned by its native without level or offset receives the declared
+heading.offset before interception.

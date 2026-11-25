@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: 4f62da31
+Hash do Código: a0cb8955
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
@@ -556,3 +556,10 @@ styles into morphology. A guarded Quote(true) arm retains Quote in the exhaustiv
 false complement. Root own-show still decides before actual body scope. Terms
 and TermItem use the measured external body scope; standalone Cell/GridCell stay
 inherited. These amendments refine the earlier finite list, not a public API.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Table declarations of the insertion point overlay the chain captured with the content,
+so a table captured before a template's set rule receives it. Declarations inside the
+captured content still apply after both. Other captured styles are unchanged.

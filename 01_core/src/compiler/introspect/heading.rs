@@ -57,13 +57,18 @@ pub(super) fn snapshot_fields(
     fields.insert("level".into(), Value::Int(heading.level as i64));
     fields.insert(
         "depth".into(),
-        Value::Int(if heading.set_fields & HEADING_SET_DEPTH != 0 {
-            heading.level as i64
-        } else {
-            1
-        }),
+        Value::Int(
+            if heading.depth.is_some() || heading.set_fields & HEADING_SET_DEPTH != 0 {
+                heading.logical_depth() as i64
+            } else {
+                1
+            },
+        ),
     );
-    fields.insert("offset".into(), Value::Int(0));
+    fields.insert(
+        "offset".into(),
+        Value::Int(i64::from(heading.level) - i64::from(heading.logical_depth())),
+    );
     fields.insert("numbering".into(), numbering);
     fields.insert(
         "supplement".into(),

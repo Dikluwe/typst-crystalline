@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash cbadabc5
+//! @prompt-hash b5b78d27
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -116,10 +116,20 @@ pub(super) fn collapse_margin(
 }
 
 /// Layout do container `Block` (P156G/P242/P243/P247/P248/P250/P252/P273.6).
+/// Bloco com as propriedades declaradas, se alguma se aplica.
+pub(super) fn effective<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+    e: &BlockElem,
+) -> Option<BlockElem> {
+    crate::compiler::stdlib::declared_block(e, &layouter.chain)
+}
+
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BlockElem,
 ) {
+    let declared = effective(layouter, e);
+    let e = declared.as_ref().unwrap_or(e);
     let (
         body,
         width,
@@ -866,7 +876,7 @@ mod literal_extent_regression {
             let right = l.regions.current.width - l.page_config.margin.right;
             let text = format!("ABC{}", " ".repeat(spaces));
             let expected = l.metrics.text_width(&text, l.style.size, &l.style).0;
-            let b = BlockElem {
+            let b = BlockElem { omitted: 0,
                 body: Content::styled(
                     Content::text(text),
                     Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
@@ -1027,7 +1037,7 @@ mod a2_margin_priority_tests {
     use std::sync::Arc;
 
     fn block(text: &str) -> BlockElem {
-        BlockElem {
+        BlockElem { omitted: 0,
             body: Content::text(text),
             width: None,
             height: None,

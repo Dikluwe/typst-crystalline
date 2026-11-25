@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash edffb318
+//! @prompt-hash 2ecda114
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -84,6 +84,7 @@ pub(super) fn invoke_resolved_call(
                 } else {
                     None
                 };
+                let c = rules::offset_heading(c, engine.styles);
                 let intercepted = rules::intercept_content(c, ctx, engine);
                 if let Some(previous) = captured_styles {
                     *engine.styles = previous;

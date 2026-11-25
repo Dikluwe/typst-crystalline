@@ -429,25 +429,16 @@ fn semantic_table_preserves_header_spans_and_cell_escaping() {
         breakable: None,
         kind: TableCellKind::Auto,
     }));
-    let table = Content::Table(Arc::new(TableElem {
-        items: None,
-        source_span: typst_core::entities::span::Span::detached(),
-        resolved: None,
-        rows_explicit: false,
-        columns: vec![TrackSizing::Auto, TrackSizing::Auto],
-        rows: vec![],
-        children: vec![cell],
-        hlines: vec![],
-        vlines: vec![],
-        header: Some(Content::sequence(vec![Content::text("H1"), Content::text("H2")])),
-        footer: None,
-        stroke: None,
-        fill: None,
-        caption: None,
-        summary: None,
-        inset: Sides::uniform(Length::pt(0.0)),
-        align: None,
-    }));
+    let mut table = Content::table(
+        vec![TrackSizing::Auto, TrackSizing::Auto],
+        vec![],
+        vec![cell],
+    );
+    let Content::Table(element) = &mut table else { unreachable!() };
+    let element: &mut TableElem = Arc::make_mut(element);
+    element.header =
+        Some(Content::sequence(vec![Content::text("H1"), Content::text("H2")]));
+    element.inset = Sides::uniform(Length::pt(0.0));
     for mode in [HtmlSerializationMode::Crystalline, HtmlSerializationMode::Vanilla] {
         let compact = export_html_with_serialization(&table, mode).unwrap();
         assert!(compact.contains("<table><thead><tr><th>H1</th><th>H2</th></tr></thead><tbody><tr><td colspan=\"2\" rowspan=\"3\">&lt;&amp;</td></tr></tbody></table>"));

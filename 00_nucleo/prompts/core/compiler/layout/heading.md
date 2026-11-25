@@ -1,11 +1,12 @@
 # L0 — heading
-Hash do Código: 59020455
+Hash do Código: 20d9c320
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
 - 00_nucleo/prompts/_nuclei/layout/block-margin-priority.toml sha256:67e2de824eb08850828b20d39da52b8d33c59ced2138ddb4e8a2a9113aaa3cf1
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:c8570ec5f4f32c0805587230cafc796f35e5ee7c9f8e634e13d807db2afb6e00
 
 **Layer:** L1
@@ -164,3 +165,10 @@ remaining metrics/layout difference remains a negative; no margin fitted from
 18.18299pt. Full lineage/lint/technical/historic/JPEG gates remain mandatory.
 ADR-0127 continuous internal origin-formula/parity correction; separate from
 the pending physical-phase gate.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Read above and below from heading.block.above, below and spacing, resolved at the
+heading's own text size; without them keep the existing defaults. An ambient set
+block does not change heading spacing.

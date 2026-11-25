@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash 64a44fb4
+//! @prompt-hash 103d9755
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -23,6 +23,7 @@ use crate::entities::value::Value;
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
 use super::table_lines::default_hline_stroke;
+use crate::entities::elements::table::{omitted, TableElem};
 
 /// `table(columns?, rows?, ...children)` → `Content::Table`.
 ///
@@ -416,8 +417,127 @@ pub fn native_table(
             summary: None,
             inset,
             align,
+            omitted: TABLE_PROPERTIES
+                .iter()
+                .filter(|(name, _)| !args.named.contains_key(*name))
+                .fold(omitted::NATIVE, |bits, (_, bit)| bits | bit),
         },
     ))))
+}
+
+const TABLE_PROPERTIES: &[(&str, u32)] = &[
+    ("columns", omitted::COLUMNS),
+    ("rows", omitted::ROWS),
+    ("fill", omitted::FILL),
+    ("stroke", omitted::STROKE),
+    ("inset", omitted::INSET),
+];
+
+/// Valor a transportar por `#set table`, ou `None` se ainda não tem efeito.
+pub(in crate::compiler) fn declare_table(
+    name: &str,
+    value: &Value,
+    inherited: Option<&Value>,
+) -> Option<Value> {
+    use crate::compiler::stdlib::layout::{
+        declare_sides, declare_stroke, extract_tracks,
+    };
+    match name {
+        "columns" | "rows" => extract_tracks(Some(value), Span::detached())
+            .ok()
+            .map(|_| value.clone()),
+        "fill" => matches!(value, Value::Color(_) | Value::None).then(|| value.clone()),
+        "stroke" => declare_stroke(value, inherited, "table"),
+        "inset" => declare_sides(value, inherited),
+        _ => None,
+    }
+}
+
+/// Sobrepõe a uma cadeia capturada as declarações do ponto de inserção.
+pub(in crate::compiler) fn insert_table_declarations(
+    captured: &crate::entities::style_chain::StyleChain,
+    insertion: &crate::entities::style_chain::StyleChain,
+) -> crate::entities::style_chain::StyleChain {
+    let mut out = captured.clone();
+    for (name, _) in TABLE_PROPERTIES {
+        let key = format!("table.{name}");
+        if let Some(value) = insertion.custom(&key) {
+            if out.custom(&key) != Some(value) {
+                out = out.push_custom(key, value.clone());
+            }
+        }
+    }
+    out
+}
+
+/// Preenche as propriedades omitidas com as declaradas na cadeia.
+pub(in crate::compiler) fn declared_table(
+    e: &TableElem,
+    chain: &crate::entities::style_chain::StyleChain,
+) -> TableElem {
+    use crate::compiler::stdlib::layout::extract_tracks;
+    use crate::entities::elements::table_cell::TableCellProperties;
+    use crate::entities::layout_types::TrackSizing;
+    let mut out = e.clone();
+    let declared = |name: &str| chain.custom(&format!("table.{name}"));
+    let tracks = |name: &str| {
+        let mut tracks = extract_tracks(declared(name), e.source_span).ok()?;
+        if tracks.is_empty() {
+            tracks = vec![TrackSizing::Auto];
+        }
+        declared(name).map(|_| tracks)
+    };
+    if e.omitted & omitted::COLUMNS != 0 {
+        if let Some(columns) = tracks("columns") {
+            let count = columns.len();
+            out.columns = columns;
+            // Com colunas omitidas a linha foi contada numa só coluna.
+            for line in &mut out.hlines {
+                if line.row % count != 0 && line.position == "top" {
+                    line.position = "bottom".into();
+                }
+                line.row /= count;
+            }
+        }
+    }
+    if e.omitted & omitted::ROWS != 0 {
+        if let Some(rows) = tracks("rows") {
+            out.rows = rows;
+            out.rows_explicit = true;
+        }
+    }
+    if e.omitted & omitted::FILL != 0 {
+        if let Some(Value::Color(color)) = declared("fill") {
+            out.fill = Some(color.clone());
+        }
+    }
+    let omitted_stroke = e.omitted & omitted::STROKE != 0;
+    if let Some(Value::Stroke(base)) = declared("stroke") {
+        if omitted_stroke {
+            out.stroke = Some(TableCellProperties::fold_stroke(
+                base,
+                Some(&default_hline_stroke()),
+            ));
+        } else if let (Some(stroke), true) =
+            (&e.stroke, e.omitted & omitted::NATIVE != 0)
+        {
+            out.stroke = Some(TableCellProperties::fold_stroke(stroke, Some(base)));
+        }
+    } else if omitted_stroke && matches!(declared("stroke"), Some(Value::None)) {
+        out.stroke = None;
+    }
+    if e.omitted & omitted::INSET != 0 {
+        if let Some(sides) = declared("inset").and_then(TableCellProperties::style_inset)
+        {
+            out.inset = crate::entities::sides::Sides::new(
+                sides.left.unwrap_or(e.inset.left),
+                sides.top.unwrap_or(e.inset.top),
+                sides.right.unwrap_or(e.inset.right),
+                sides.bottom.unwrap_or(e.inset.bottom),
+            );
+        }
+    }
+    out
 }
 
 // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────────────

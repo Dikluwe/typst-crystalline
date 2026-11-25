@@ -1,5 +1,5 @@
 # L0 — introspect/heading
-Hash do Código: 2fc48e32
+Hash do Código: e860228a
 
 ```text
 Núcleos Tekt:

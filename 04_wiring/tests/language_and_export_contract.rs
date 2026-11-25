@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash e38fe239
+//! @prompt-hash b4a0a3fd
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1443,4 +1443,359 @@ fn equality_joins_integer_and_decimal() {
     ] {
         calc_repr(expression, expected);
     }
+}
+
+// Expectations: approved set contract package.
+fn set_svg(label: &str, body: &str) -> (Transcript, String) {
+    let scratch = Scratch::new(&format!("set-{label}"));
+    let input = scratch.0.join("main.typ");
+    let output = scratch.0.join("main.svg");
+    fs::write(
+        &input,
+        format!("#set page(width: 200pt, height: 260pt, margin: 10pt)\n{body}"),
+    )
+    .unwrap();
+    let run = run(
+        BIN,
+        &[
+            "compile",
+            input.to_str().unwrap(),
+            output.to_str().unwrap(),
+            "--format",
+            "svg",
+        ],
+    );
+    let svg = fs::read_to_string(&output).unwrap_or_default();
+    (run, svg)
+}
+
+fn set_equals(label: &str, declared: &str, explicit: &str) {
+    let (first, declared_svg) = set_svg(label, declared);
+    let (second, explicit_svg) = set_svg(label, explicit);
+    assert!(first.success() && second.success(), "{label}: {first:#?} {second:#?}");
+    assert!(!first.stderr.contains("ainda não"), "{label}: {}", first.stderr);
+    assert!(declared_svg == explicit_svg, "{label}: {declared}");
+}
+
+fn set_differs(label: &str, first: &str, second: &str) {
+    assert_ne!(set_svg(label, first).1, set_svg(label, second).1, "{label}");
+}
+
+#[test]
+fn set_admission_rejects_what_the_language_rejects() {
+    for (source, message) in [
+        ("#set table(nao: 1)", "unexpected argument: nao"),
+        ("#set table([a])", "unexpected argument"),
+        ("#set block(body: [a])", "unexpected argument: body"),
+        ("#set figure(nao: 1)", "unexpected argument: nao"),
+        ("#set heading(nao: 1)", "unexpected argument: nao"),
+        ("#set par(nao: 1)", "unexpected argument: nao"),
+        ("#set document(nao: 1)", "unexpected argument: nao"),
+        ("#set smartquote(nao: 1)", "unexpected argument: nao"),
+        ("#set list(nao: 1)", "unexpected argument: nao"),
+        ("#set math.vec(nao: 1)", "unexpected argument: nao"),
+        (
+            "#set rect(fill: \"lixo\")",
+            "expected color, gradient, tiling, or none, found string",
+        ),
+        ("#set block(breakable: 1)", "expected boolean, found integer"),
+        ("#set table(stroke: auto)", "expected length, color, gradient, tiling, dictionary, stroke, none, array, or function, found auto"),
+        ("#set image(fit: \"x\")", "expected \"cover\", \"contain\", or \"stretch\""),
+        (
+            "#set image(fit: 1)",
+            "expected \"cover\", \"contain\", or \"stretch\", found integer",
+        ),
+        ("#set math.vec(gap: \"a\")", "expected relative length, found string"),
+        ("#set calc.abs(1)", "only element functions can be used in set rules"),
+        ("#let f() = 1\n#set f()", "only element functions can be used in set rules"),
+        (
+            "#let r = rect.with(fill: red)\n#set r()",
+            "only element functions can be used in set rules",
+        ),
+        ("#let x = 1\n#set x(a: 1)", "expected function, found integer"),
+        ("#set table(fill: red, fill: blue)", "duplicate argument: fill"),
+        ("#let t = table\n#set t(nao: 1)", "unexpected argument: nao"),
+        ("#let d = (nao: 1)\n#set table(..d)", "unexpected argument: nao"),
+    ] {
+        let (output, _) = set_svg("admission", source);
+        assert!(!output.success(), "{source}: {output:#?}");
+        assert!(output.stderr.contains(message), "{source}: {}", output.stderr);
+    }
+    let (output, _) = set_svg("false", "#set table(nao: 1) if false\nok");
+    assert!(output.success(), "{output:#?}");
+}
+
+#[test]
+fn set_admission_keeps_every_element_settable() {
+    for element in [
+        "align",
+        "bibliography",
+        "block",
+        "box",
+        "circle",
+        "cite",
+        "colbreak",
+        "columns",
+        "curve",
+        "document",
+        "ellipse",
+        "emph",
+        "enum",
+        "figure",
+        "figure.caption",
+        "footnote",
+        "footnote.entry",
+        "grid",
+        "grid.cell",
+        "grid.footer",
+        "grid.header",
+        "grid.hline",
+        "grid.vline",
+        "h",
+        "heading",
+        "hide",
+        "highlight",
+        "image",
+        "line",
+        "linebreak",
+        "link",
+        "list",
+        "math.accent",
+        "math.cancel",
+        "math.cases",
+        "math.equation",
+        "math.frac",
+        "math.lr",
+        "math.mat",
+        "math.op",
+        "math.vec",
+        "move",
+        "outline",
+        "outline.entry",
+        "overline",
+        "pad",
+        "page",
+        "pagebreak",
+        "par",
+        "par.line",
+        "place",
+        "polygon",
+        "quote",
+        "raw",
+        "rect",
+        "ref",
+        "repeat",
+        "rotate",
+        "scale",
+        "skew",
+        "smallcaps",
+        "smartquote",
+        "square",
+        "stack",
+        "strike",
+        "strong",
+        "sub",
+        "super",
+        "table",
+        "table.cell",
+        "table.footer",
+        "table.header",
+        "table.hline",
+        "table.vline",
+        "terms",
+        "text",
+        "title",
+        "underline",
+        "v",
+    ] {
+        let (output, _) = set_svg("element", &format!("#set {element}()\nok"));
+        assert!(output.success(), "{element}: {output:#?}");
+    }
+    // Valid declarations without effect warn and never fail.
+    for (source, name) in [
+        ("#set rect(fill: red)", "rect.fill"),
+        ("#set list(marker: [x])", "list.marker"),
+        ("#set table(fill: gradient.linear(red, blue))", "table.fill"),
+        ("#set table(gutter: 3pt)", "table.gutter"),
+        ("#set block(fill: gradient.linear(red, blue))", "block.fill"),
+        ("#set outline(depth: 2)", "outline.depth"),
+        ("#set heading(outlined: false)", "heading.outlined"),
+        ("#set figure(scope: \"parent\")", "figure.scope"),
+        ("#set document(date: auto)", "document.date"),
+        ("#set underline(stroke: 1pt)", "underline.stroke"),
+        ("#set grid.cell(fill: red)", "grid.cell.fill"),
+    ] {
+        let (output, _) = set_svg("warn", &format!("{source}\nok"));
+        assert!(output.success(), "{source}: {output:#?}");
+        assert!(output.stderr.contains(name), "{source}: {}", output.stderr);
+        assert!(output.stderr.contains("ainda não tem efeito"), "{source}");
+    }
+}
+
+#[test]
+fn set_table_properties_equal_the_constructor() {
+    let cells = "[a][b][c][d]";
+    for (property, value) in [
+        ("columns", "2"),
+        ("columns", "(1fr, 30pt)"),
+        ("rows", "40pt"),
+        ("fill", "red"),
+        ("fill", "none"),
+        ("stroke", "3pt"),
+        ("stroke", "red"),
+        ("stroke", "2pt + blue"),
+        ("stroke", "none"),
+        ("inset", "12pt"),
+    ] {
+        set_equals(
+            "table",
+            &format!("#set table({property}: {value})\n#table{cells}"),
+            &format!("#table({property}: {value}){cells}"),
+        );
+        // Explicit value wins.
+        set_equals(
+            "table-explicit",
+            &format!("#set table(columns: 3, fill: blue, stroke: 9pt + green, inset: 1pt, rows: 9pt)\n#table(columns: 2, rows: auto, fill: none, stroke: none, inset: 5pt){cells}"),
+            &format!("#table(columns: 2, rows: auto, fill: none, stroke: none, inset: 5pt){cells}"),
+        );
+    }
+    let target = "#table(fill: red)[a]";
+    for (label, source) in [
+        ("late", "#let t = table[a]\n#set table(fill: red)\n#t"),
+        ("alias", "#let t = table\n#set t(fill: red)\n#table[a]"),
+        ("spread", "#let d = (fill: red)\n#set table(..d)\n#table[a]"),
+        ("show-set", "#show table: set table(fill: red)\n#table[a]"),
+        ("template", "#let w(b) = { set table(fill: red); b }\n#show: w\n#table[a]"),
+        ("function", "#let w(b) = { set table(fill: red); b }\n#w(table[a])"),
+        ("nearest", "#set table(fill: blue)\n#set table(fill: red)\n#table[a]"),
+    ] {
+        set_equals(label, source, target);
+    }
+    set_equals(
+        "scope",
+        "#[#set table(fill: red)\n#table[a]]\n\n#table[b]",
+        "#[#table(fill: red)[a]]\n\n#table[b]",
+    );
+    for source in [
+        "#set table(stroke: red)\n#set table(stroke: 3pt)\n#table[a]",
+        "#set table(stroke: red)\n#table(stroke: 3pt)[a]",
+        "#set table(stroke: 3pt)\n#table(stroke: red)[a]",
+        "#show table: set table(stroke: red)\n#table(stroke: 3pt)[a]",
+    ] {
+        set_equals("fold", source, "#table(stroke: 3pt + red)[a]");
+    }
+    set_equals(
+        "inset-fold",
+        "#set table(inset: (x: 20pt))\n#set table(inset: (y: 2pt))\n#table[a]",
+        "#set table.cell(inset: (x: 20pt, y: 2pt))\n#table[a]",
+    );
+    set_equals(
+        "hline",
+        "#set table(columns: 2)\n#table([a], [b], table.hline(stroke: 4pt), [c], [d])",
+        "#table(columns: 2, [a], [b], table.hline(stroke: 4pt), [c], [d])",
+    );
+}
+
+#[test]
+fn set_block_properties_equal_the_constructor() {
+    for (property, value) in [
+        ("width", "60pt"),
+        ("height", "40pt"),
+        ("inset", "9pt"),
+        ("inset", "(x: 20pt)"),
+        ("outset", "6pt"),
+        ("radius", "4pt"),
+        ("clip", "true"),
+        ("fill", "red"),
+        ("stroke", "3pt + blue"),
+        ("spacing", "50pt"),
+        ("above", "50pt"),
+        ("below", "50pt"),
+        ("breakable", "false"),
+        ("sticky", "true"),
+    ] {
+        let extra =
+            if matches!(property, "radius" | "outset") { ", fill: red" } else { "" };
+        let body = |args: &str| {
+            format!("x\n\n#block({args})[#lorem(5)]\n\n#block({args})[b]\n\ny")
+        };
+        set_equals(
+            property,
+            &format!("#set block({property}: {value}{extra})\n{}", body("")),
+            &body(&format!("{property}: {value}{extra}")),
+        );
+    }
+    set_equals(
+        "block-explicit",
+        "#set block(fill: red, stroke: 2pt, inset: 9pt, radius: 5pt)\n#block(fill: none, stroke: none, inset: 0pt, radius: 0pt)[a]",
+        "#block[a]",
+    );
+    set_equals(
+        "block-sides",
+        "#set block(inset: (x: 20pt, top: 3pt), fill: red)\n#block(inset: (left: 1pt))[a]",
+        "#block(inset: (left: 1pt, right: 20pt, top: 3pt), fill: red)[a]",
+    );
+    set_equals(
+        "block-stroke",
+        "#set block(stroke: red)\n#block(stroke: 3pt)[a]",
+        "#set block(stroke: 3pt)\n#block(stroke: red)[a]",
+    );
+    set_equals(
+        "block-show-set",
+        "#show block: set block(fill: red)\n#block[a]",
+        "#block(fill: red)[a]",
+    );
+    set_equals(
+        "block-spacing-last",
+        "#set block(above: 50pt)\n#set block(spacing: 5pt)\nx #block[a] y",
+        "x #block(spacing: 5pt)[a] y",
+    );
+    // The same value under two scopes.
+    set_equals(
+        "block-reuse",
+        "#let b = block[a]\n#b #[#set block(fill: red)\n#b] #b",
+        "#block[a] #[#block(fill: red)[a]] #block[a]",
+    );
+}
+
+#[test]
+fn set_heading_figure_and_footnote_properties_take_effect() {
+    set_equals("offset", "#set heading(offset: 1)\n= A\n== B", "== A\n=== B");
+    set_equals(
+        "offset-native",
+        "#set heading(offset: 1, numbering: \"1.\")\n= Z\n#heading[A]\n#heading(level: 1)[B]\n#heading(depth: 2)[C]",
+        "#set heading(numbering: \"1.\")\n== Z\n#heading(level: 2)[A]\n#heading(level: 1)[B]\n#heading(level: 3)[C]",
+    );
+    set_equals("offset-arg", "#heading(offset: 2)[A]", "=== A");
+    set_equals(
+        "offset-select",
+        "#set heading(offset: 1)\n#show heading.where(level: 2): set text(red)\n= A",
+        "#show heading.where(level: 2): set text(red)\n== A",
+    );
+    set_equals(
+        "gap-default",
+        "#set figure(gap: 0.65em)\n#figure(caption: [c])[b]",
+        "#figure(caption: [c])[b]",
+    );
+    set_differs(
+        "gap",
+        "#set figure(gap: 40pt)\n#figure(caption: [c])[b]",
+        "#figure(caption: [c])[b]",
+    );
+    set_equals(
+        "footnote",
+        "#set footnote(numbering: \"a\")\nx#footnote[n]",
+        "x#footnote(numbering: \"a\")[n]",
+    );
+    set_differs(
+        "heading-above",
+        "#show heading: set block(above: 80pt)\nx\n= A",
+        "x\n= A",
+    );
+    set_differs(
+        "heading-below",
+        "#show heading: set block(below: 80pt)\n= A\nx",
+        "= A\nx",
+    );
+    set_equals("heading-ambient", "#set block(above: 80pt)\nx\n= A", "x\n= A");
 }

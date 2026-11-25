@@ -1010,7 +1010,7 @@ mod v16_d_boundaries {
     fn v16_d_nested_table_is_a_measurement_projection_barrier() {
         use crate::entities::elements::table::{TableElem, TableGridResolved};
         let child = prepared(Content::text("Visible"));
-        let table = Arc::new(TableElem {
+        let table = Arc::new(TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             rows_explicit: false,

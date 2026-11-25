@@ -1,5 +1,5 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: 489c9f9c
+Hash do Código: fc3443ed
 
 
 
@@ -11,6 +11,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/math/external-flow-body.toml sha256:2f215ea73f3cbfdeb8c8ae01cfb8fe41814609a80bf1a98b1d936599be6155b5
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:bba33b336e651ccd6d41f88b0e16449932d0a986de1ee2cc3c1fdf5c8fb8c6dc
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:041abef9e300ff0412d9631dced12480f8e0e6e65fb9cc3733f290e6664f649b
@@ -885,3 +886,12 @@ forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
 target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
 remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
 require a new gate; the approved fields are not inferred from diagnostics.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Before planning, project omitted table properties from the insertion chain: columns,
+rows, fill, stroke folded over the default, inset by side. Declared rows count as
+explicit. A horizontal line whose table omitted columns is placed again for the
+declared column count. Limit: a vertical line without x in such a table keeps the
+column it had.

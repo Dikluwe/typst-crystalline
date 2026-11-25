@@ -1,5 +1,8 @@
 # L0 — compiler/eval/rules/math_set — Mathematical set rules
-Hash do Código: ecf2f031
+Hash do Código: ab2d4353
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/eval/rules/math_set.rs`
@@ -69,3 +72,9 @@ and invalid-value acceptance, then pass for absolute/ratio/mixed/zero/negative
 values, duplicate/unknown/type errors, lexical restoration, single expression
 evaluation, empty set, explicit size versus inherited size and morphology.
 The official input must compile without the ignored-property warning.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Admission of math element names and values uses the schema owner. Existing effects,
+messages of unlisted names and the warning for properties without effect remain.

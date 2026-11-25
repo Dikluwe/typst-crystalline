@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/apply.md
-//! @prompt-hash c966b6bf
+//! @prompt-hash 75b7337f
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -581,6 +581,17 @@ fn mark_heading_show_set(
                 return matches!(content, Content::Heading(_));
             }
         }
+    }
+    if is_heading(original) && is_heading(visual) {
+        let own: Vec<_> = delta
+            .custom
+            .iter()
+            .filter(|(key, _)| {
+                matches!(key.as_str(), "block.above" | "block.below" | "block.spacing")
+            })
+            .map(|(key, value)| (format!("heading.{key}").into(), value.clone()))
+            .collect();
+        delta.custom.extend(own);
     }
     if is_heading(original)
         && is_heading(visual)

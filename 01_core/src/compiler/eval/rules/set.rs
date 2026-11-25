@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 6e9ecce5
+//! @prompt-hash 570d6f8e
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -10,6 +10,7 @@ use super::*;
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 
 mod page;
+pub(super) mod schema;
 mod text;
 
 use self::page::eval_set_page;
@@ -98,38 +99,26 @@ pub(crate) fn eval_set_rule(
         }
     }
     let target_function = if pure_path(set.target()) {
-        let value = eval_expr(set.target(), scopes, ctx, engine)?;
-        if let Value::Func(function) = value {
-            Some(function)
-        } else {
-            None
+        match eval_expr(set.target(), scopes, ctx, engine)? {
+            Value::Func(function) => Some(function),
+            Value::Type(_) => return Err(not_an_element(&set)),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    set.target().span(),
+                    format!("expected function, found {}", vanilla_type_name(&other)),
+                )])
+            }
         }
     } else {
         None
     };
-    if let Some(f) = &target_function {
-        let mut base = f;
-        while let crate::entities::func::FuncRepr::With(bound) = base.repr() {
-            base = &bound.0;
-        }
-        if !std::ptr::eq(base, f)
-            && base.native_fn_addr().is_some_and(|call| {
-                [
-                    crate::compiler::eval::bindings::native_sequence
-                        as fn(_, _, _, _) -> _,
-                    crate::compiler::stdlib::native_move as fn(_, _, _, _) -> _,
-                    crate::compiler::stdlib::native_rotate as fn(_, _, _, _) -> _,
-                    crate::compiler::stdlib::native_scale as fn(_, _, _, _) -> _,
-                    crate::compiler::stdlib::native_skew as fn(_, _, _, _) -> _,
-                ]
-                .into_iter()
-                .any(|candidate| std::ptr::fn_addr_eq(call, candidate))
-            })
-        {
-            return Err(vec![SourceDiagnostic::error(
-                set.target().span(),
-                "only element functions can be used in set rules",
-            )]);
+    let element = target_function.as_ref().and_then(schema::element_key);
+    if let Some(function) = &target_function {
+        let settable = element.is_some()
+            || function.element_name().is_some()
+            || matches!(function.repr(), crate::entities::func::FuncRepr::Format(..));
+        if !settable {
+            return Err(not_an_element(&set));
         }
     }
     let native_target = target_function.as_ref().and_then(|f| f.native_fn_addr());
@@ -142,21 +131,16 @@ pub(crate) fn eval_set_rule(
         let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
         let mut styles = engine.styles.clone();
         for arg in args.occurrence_sequence() {
-            if arg.name.as_deref() != Some("numbering")
-                || matches!(arg.value, Value::Func(_))
-            {
-                let target = set.target().to_untyped().text_str().to_owned();
-                let target_span = set.target().to_untyped().span();
-                let (message, hint) = unsupported_target_warn(&target);
-                engine.sink.warn_note(target_span, &message, &hint);
-                return Ok(Value::None);
+            // `none` e função: extensão existente e alcance ainda sem efeito.
+            if !matches!(
+                (arg.name.as_deref(), &arg.value),
+                (Some("numbering"), Value::None)
+            ) {
+                schema::check("footnote", &args)?;
             }
-            if !matches!(arg.value, Value::Str(_) | Value::None) {
-                return Err(vec![type_mismatch(
-                    "string or none",
-                    &arg.value,
-                    arg.value_span,
-                )]);
+            if matches!(arg.value, Value::Func(_)) {
+                warn_no_effect(engine, "footnote", &arg, args.span);
+                continue;
             }
             styles = styles.push_custom("footnote.numbering", arg.value);
         }
@@ -338,6 +322,18 @@ pub(crate) fn eval_set_rule(
                 }
             }
         }
+        // Valores da linguagem que a célula ainda não consome.
+        for occurrence in args.occurrence_sequence() {
+            let name = occurrence.name.as_deref().unwrap_or_default();
+            let paint = matches!(occurrence.value, Value::Gradient(_) | Value::Tiling(_));
+            let dictionary = matches!(occurrence.value, Value::Dict(_));
+            if (matches!(name, "fill" | "stroke") && paint)
+                || (name == "stroke" && dictionary)
+            {
+                warn_no_effect(engine, "table.cell", &occurrence, args.span);
+                args.named.shift_remove(name);
+            }
+        }
         let mut declared = args.named.clone();
         if let Some(value) = args.named.get("inset") {
             if !matches!(value,Value::Auto) && crate::entities::elements::table_cell::TableCellProperties::style_inset(value).is_none() {
@@ -374,74 +370,61 @@ pub(crate) fn eval_set_rule(
     // Extrair target — deve ser um Ident (ex: "text").
     // Targets suportados: heading, page, figure, text. Outros emitem
     // warning via Sink (Passo 107, encerra DEBT-49).
-    let target = set.target().to_untyped().text_str().to_owned();
+    let written = set.target().to_untyped().text_str().to_owned();
+    let target = match (element, set.target()) {
+        (Some(element), Expr::Ident(_)) => element.to_owned(),
+        _ => written,
+    };
     let target_span = set.target().to_untyped().span();
-    let native_block = scopes
-        .get(&target)
-        .and_then(|v| if let Value::Func(f) = v { f.native_fn_addr() } else { None })
-        .is_some_and(|f| {
-            std::ptr::fn_addr_eq(
-                f,
-                crate::compiler::stdlib::native_block as fn(_, _, _, _) -> _,
-            )
-        });
-    if native_block {
-        let mut values = Vec::new();
-        let mut supported = true;
-        for arg in set.args().items() {
-            let Arg::Named(named) = arg else {
-                supported = false;
-                break;
+    if target == "block" {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("block", &args)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            let name = arg.name.as_deref().unwrap_or_default();
+            let keys: &[&str] = match name {
+                "spacing" => &["block.spacing", "block.above", "block.below"],
+                _ => &[],
             };
-            let name = named.name().as_str();
-            if !matches!(name, "spacing" | "above" | "below") {
-                supported = false;
-                break;
+            let key = format!("block.{name}");
+            match crate::compiler::stdlib::declare_block(
+                name,
+                &arg.value,
+                styles.custom(&key),
+            ) {
+                Some(value) => {
+                    for key in keys {
+                        styles = styles.push_custom(*key, value.clone());
+                    }
+                    if keys.is_empty() {
+                        styles = styles.push_custom(key, value);
+                    }
+                }
+                None => warn_no_effect(engine, "block", &arg, args.span),
             }
-            let value = eval_expr(named.expr(), scopes, ctx, engine)?;
-            if !matches!(value, Value::Length(_) | Value::Auto) {
-                supported = false;
-                break;
-            }
-            values.push((format!("block.{name}"), value));
         }
-        if supported {
-            let mut styles = engine.styles.clone();
-            for (key, value) in values {
-                styles = styles.push_custom(key, value);
-            }
-            *engine.styles = styles;
-            return Ok(Value::None);
-        }
+        *engine.styles = styles;
+        return Ok(Value::None);
     }
 
     if target == "outline" {
-        for arg in set.args().items() {
-            let Arg::Named(named) = arg else {
-                return Err(vec![SourceDiagnostic::error(
-                    target_span,
-                    "unexpected argument",
-                )]);
-            };
-            let key = named.name().as_str();
-            if key != "indent" {
-                return Err(vec![SourceDiagnostic::error(
-                    named.name().to_untyped().span(),
-                    format!("unexpected argument: {key}"),
-                )]);
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        for arg in args.occurrence_sequence() {
+            // `indent: true` é extensão existente.
+            if arg.name.as_deref() == Some("indent")
+                && matches!(arg.value, Value::Bool(_))
+            {
+                *engine.styles = engine.styles.push_custom("outline.indent", arg.value);
+                continue;
             }
-            let value = eval_expr(named.expr(), scopes, ctx, engine)?;
-            if !matches!(
-                value,
-                Value::Length(_) | Value::Func(_) | Value::Auto | Value::Bool(_)
-            ) {
-                return Err(vec![type_mismatch(
-                    "length, function, auto, or bool",
-                    &value,
-                    named.expr().span(),
-                )]);
+            schema::check("outline", &single(&args, &arg))?;
+            if arg.name.as_deref() == Some("indent")
+                && matches!(arg.value, Value::Length(_) | Value::Func(_) | Value::Auto)
+            {
+                *engine.styles = engine.styles.push_custom("outline.indent", arg.value);
+            } else {
+                warn_no_effect(engine, "outline", &arg, args.span);
             }
-            *engine.styles = engine.styles.push_custom("outline.indent", value);
         }
         return Ok(Value::None);
     }
@@ -453,6 +436,21 @@ pub(crate) fn eval_set_rule(
             ctx,
             engine,
         )?;
+        schema::check("heading", &args)?;
+        for arg in args.occurrence_sequence() {
+            if !matches!(
+                arg.name.as_deref(),
+                Some("numbering" | "supplement" | "offset")
+            ) || matches!(
+                (arg.name.as_deref(), &arg.value),
+                (Some("numbering"), Value::Func(_))
+            ) {
+                warn_no_effect(engine, "heading", &arg, args.span);
+            }
+        }
+        if let Some(value @ Value::Int(_)) = args.named.get("offset") {
+            *engine.styles = engine.styles.push_custom("heading.offset", value.clone());
+        }
         if let Some(value) = args.named.get("numbering") {
             let active = matches!(value, Value::Str(_));
             *engine.styles =
@@ -947,7 +945,10 @@ pub(crate) fn eval_set_rule(
                         format!("unexpected argument: {key}"),
                     )]);
                 }
-                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                let value = match eval_expr(named.expr(), scopes, ctx, engine)? {
+                    Value::Str(text) => Value::Content(Content::text(text.as_str())),
+                    value => value,
+                };
                 if !matches!(value, Value::Content(_) | Value::None) {
                     return Err(vec![type_mismatch(
                         "content or none",
@@ -1120,6 +1121,9 @@ pub(crate) fn eval_set_rule(
                     }
                 }
                 crate::entities::value::Value::None => Ok(None),
+                crate::entities::value::Value::Content(content) if !allow_array => {
+                    Ok(Some(content.plain_text().into()))
+                }
                 other => {
                     let expected =
                         if allow_array { "string or array of strings" } else { "string" };
@@ -1128,11 +1132,13 @@ pub(crate) fn eval_set_rule(
             }
         }
 
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
-                let span = named.expr().span();
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("document", &args)?;
+        for arg in args.occurrence_sequence() {
+            {
+                let key = arg.name.as_deref().unwrap_or_default();
+                let val = arg.value.clone();
+                let span = arg.value_span;
                 match key {
                     // P637: no vanilla, title é Option<Content> (não array);
                     // author/keywords são OneOrMultiple<EcoString>.
@@ -1146,7 +1152,7 @@ pub(crate) fn eval_set_rule(
                         ctx.document_info.keywords =
                             value_to_eco_string(&val, span, true)?
                     }
-                    _ => {}
+                    _ => warn_no_effect(engine, "document", &arg, args.span),
                 }
             }
         }
@@ -1162,15 +1168,19 @@ pub(crate) fn eval_set_rule(
     }
 
     if target == "figure" {
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                let name = named.name();
-                let name = name.as_str();
-                if !matches!(name, "kind" | "supplement" | "numbering" | "placement") {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("figure", &args)?;
+        for arg in args.occurrence_sequence() {
+            if let Some(name) = arg.name.as_deref() {
+                if !matches!(
+                    name,
+                    "kind" | "supplement" | "numbering" | "placement" | "gap"
+                ) {
+                    warn_no_effect(engine, "figure", &arg, args.span);
                     continue;
                 }
-                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
-                let span = named.expr().span();
+                let value = arg.value.clone();
+                let span = arg.value_span;
                 match name {
                     "placement" => {
                         crate::compiler::realize::figure::placement_from_value(
@@ -1199,6 +1209,7 @@ pub(crate) fn eval_set_rule(
                             return Err(vec![SourceDiagnostic::error(span, format!("expected string, function, or none, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(&value)))]);
                         }
                     }
+                    "gap" => {}
                     _ => unreachable!("Figure property filter is closed"),
                 }
                 *engine.styles =
@@ -1215,6 +1226,7 @@ pub(crate) fn eval_set_rule(
         )
     }) {
         let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("table", &args)?;
         let mut styles = engine.styles.clone();
         for arg in args.occurrence_sequence() {
             match arg.name.as_deref() {
@@ -1232,7 +1244,18 @@ pub(crate) fn eval_set_rule(
                     }
                     styles = styles.push_custom("table.numbering", arg.value);
                 }
-                _ => {}
+                Some(name @ ("columns" | "rows" | "fill" | "stroke" | "inset")) => {
+                    let key = format!("table.{name}");
+                    match crate::compiler::stdlib::declare_table(
+                        name,
+                        &arg.value,
+                        styles.custom(&key),
+                    ) {
+                        Some(value) => styles = styles.push_custom(key, value),
+                        None => warn_no_effect(engine, "table", &arg, args.span),
+                    }
+                }
+                _ => warn_no_effect(engine, "table", &arg, args.span),
             }
         }
         *engine.styles = styles;
@@ -1253,12 +1276,14 @@ pub(crate) fn eval_set_rule(
         // F-5b fatia 2 (P373): `leading` migra de `StyleDelta` tipado para o canal
         // `custom` `"par.leading"` (morph-transparente, transportado). O layout
         // (merge arm) decodifica de volta.
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                let key = named.name().as_str().to_owned();
-                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        for arg in args.occurrence_sequence() {
+            schema::check("par", &single(&args, &arg))?;
+            {
+                let key = arg.name.as_deref().unwrap_or_default().to_owned();
+                let val = arg.value.clone();
                 if key == "hanging-indent" && !matches!(&val, Value::Length(_)) {
-                    return Err(vec![expected_length_error(&val, named.expr().span())]);
+                    return Err(vec![expected_length_error(&val, arg.value_span)]);
                 }
                 match key.as_str() {
                     "hanging-indent" => {
@@ -1295,7 +1320,7 @@ pub(crate) fn eval_set_rule(
                             *engine.styles =
                                 engine.styles.push_custom("par.justify", Value::Bool(b));
                             if b {
-                                engine.sink.warn_note(named.expr().span(),
+                                engine.sink.warn_note(arg.value_span,
                                     "par: seleção global tem suporte parcial",
                                     "seleção global certificada para palavras latinas de estilo e política uniformes em largura constante; demais casos mantêm seleção incremental");
                             }
@@ -1304,7 +1329,7 @@ pub(crate) fn eval_set_rule(
                             return Err(vec![break_policy_error(
                                 "expected boolean",
                                 &other,
-                                named.expr().span(),
+                                arg.value_span,
                             )])
                         }
                     },
@@ -1316,7 +1341,7 @@ pub(crate) fn eval_set_rule(
                                 if matches!(name.as_str(), "simple" | "optimized") => {}
                             Value::Str(_) => {
                                 return Err(vec![SourceDiagnostic::error(
-                                    named.expr().span(),
+                                    arg.value_span,
                                     expected,
                                 )])
                             }
@@ -1324,19 +1349,14 @@ pub(crate) fn eval_set_rule(
                                 return Err(vec![break_policy_error(
                                     expected,
                                     other,
-                                    named.expr().span(),
+                                    arg.value_span,
                                 )])
                             }
                         }
                         *engine.styles = engine.styles.push_custom("par.linebreaks", val);
                     }
                     _ => {
-                        let (msg, hint) = unsupported_property_warn("par", &key, None);
-                        engine.sink.warn_note(
-                            named.name().to_untyped().span(),
-                            &msg,
-                            &hint,
-                        );
+                        warn_no_effect(engine, "par", &arg, args.span);
                     }
                 }
             }
@@ -1345,11 +1365,11 @@ pub(crate) fn eval_set_rule(
     }
 
     if target == "smartquote" {
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
-                let span = named.expr().span();
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        for arg in args.occurrence_sequence() {
+            if let Some(key) = arg.name.as_deref() {
+                let val = arg.value.clone();
+                let span = arg.value_span;
                 match key {
                     "double" | "enabled" => match val {
                         Value::Bool(b) => {
@@ -1378,13 +1398,8 @@ pub(crate) fn eval_set_rule(
                             engine.styles.push_custom("smartquote.quotes", val);
                     }
                     _ => {
-                        let (msg, hint) =
-                            unsupported_property_warn("smartquote", key, None);
-                        engine.sink.warn_note(
-                            named.name().to_untyped().span(),
-                            &msg,
-                            &hint,
-                        );
+                        schema::check("smartquote", &single(&args, &arg))?;
+                        warn_no_effect(engine, "smartquote", &arg, args.span);
                     }
                 }
             }
@@ -1415,12 +1430,49 @@ pub(crate) fn eval_set_rule(
     }
 
     if target != "text" {
-        let (msg, hint) = unsupported_target_warn(&target);
-        engine.sink.warn_note(target_span, &msg, &hint);
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        let Some(element) = element else {
+            let (msg, hint) = unsupported_target_warn(&target);
+            engine.sink.warn_note(target_span, &msg, &hint);
+            return Ok(Value::None);
+        };
+        schema::check(element, &args)?;
+        for arg in args.occurrence_sequence() {
+            warn_no_effect(engine, element, &arg, args.span);
+        }
         return Ok(Value::None);
     }
 
     eval_set_text(set, scopes, ctx, engine)
+}
+
+fn not_an_element(set: &SetRule<'_>) -> Vec<SourceDiagnostic> {
+    vec![SourceDiagnostic::error(
+        set.target().span(),
+        "only element functions can be used in set rules",
+    )]
+}
+
+/// Uma ocorrência isolada, para conferir na ordem dos efeitos.
+fn single(args: &Args, arg: &crate::entities::args::ArgOccurrence) -> Args {
+    Args::from_occurrences(args.span, vec![arg.clone()])
+}
+
+fn warn_no_effect(
+    engine: &mut Engine<'_>,
+    element: &str,
+    arg: &crate::entities::args::ArgOccurrence,
+    span: Span,
+) {
+    let property = arg
+        .name
+        .as_deref()
+        .map_or_else(|| element.to_owned(), |name| format!("{element}.{name}"));
+    engine.sink.warn_note(
+        arg.span.or(span),
+        &format!("set: {property} ainda não tem efeito"),
+        "a declaração foi aceita e será ignorada",
+    );
 }
 
 #[cfg(test)]

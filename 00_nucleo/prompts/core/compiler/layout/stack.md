@@ -1,5 +1,5 @@
 # L0 — stack
-Hash do Código: 9efbb2f9
+Hash do Código: cb14006c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:029c2929c9e294efceb796a5358a6f425f02ae91c519314080f413374f4f4403

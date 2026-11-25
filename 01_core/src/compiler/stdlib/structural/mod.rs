@@ -123,7 +123,9 @@ pub use outline::{
 };
 pub use par::{native_par, native_par_line, native_parbreak};
 pub use quote::native_quote;
-pub(in crate::compiler) use table_grid::{table_alignment, table_alignment_at};
+pub(in crate::compiler) use table_grid::{
+    declare_table, declared_table, insert_table_declarations, table_alignment, table_alignment_at,
+};
 
 pub use table_grid::{
     native_grid_cell, native_grid_footer, native_grid_header, native_table,

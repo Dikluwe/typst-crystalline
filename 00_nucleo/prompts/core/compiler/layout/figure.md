@@ -1,11 +1,12 @@
 # L0 — figure
-Hash do Código: 5aa0f387
+Hash do Código: d002f3e1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
 - 00_nucleo/prompts/_nuclei/layout/intrinsic-piece-alignment.toml sha256:8af39497a64b3dba29c94647c57301b023766aaa012268687421cf1fe6e4ecfb
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/figure.rs`
@@ -316,3 +317,8 @@ The new issue8890 frame observer must enumerate every FrameItem complement,
 including nonmatching guarded Text/Shape cases; an empty wildcard is V16.
 Replace that observer-only wildcard with its typed exhaustive complement without
 changing a fixture, expectation or productive renderer.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+The space between body and caption is the declared figure.gap, else the existing 0.65em.

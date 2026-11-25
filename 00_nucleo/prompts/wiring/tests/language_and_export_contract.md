@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: a46f2ab0
+Hash do Código: f4a53abc
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -165,3 +165,9 @@ control does. Declared divergences are expected here, not parity.
 Own the black-box cases of `00_nucleo/diagnostics/value-comparison-package-2026-11-24.pt-BR.md`:
 NaN ordering errors, sorted families, stability and absence of panic, Int/Decimal
 equality, dedup and negated equality. Declared divergences are expected here.
+
+## Approved set contract package
+
+Own the black-box cases of `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`: admission errors with
+span, warnings, scope, late insertion, folding, show-set, aliases and effect of the
+declared properties against the equal explicit constructor, through PNG and SVG.

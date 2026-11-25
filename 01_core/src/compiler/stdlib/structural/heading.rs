@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/heading.md
-//! @prompt-hash 9a5e496e
+//! @prompt-hash a311f0e0
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -178,7 +178,41 @@ pub fn native_heading(
         set_fields |= crate::entities::elements::heading::HEADING_SET_OUTLINED;
     }
 
-    let content = Content::heading_native(level, body, outlined, bookmarked, set_fields);
+    let integer = |name: &str, min: i64| match args.named.get(name) {
+        Some(Value::Int(n)) if *n >= min => Ok(Some(*n)),
+        Some(Value::Int(_)) => Err(vec![SourceDiagnostic::error(
+            args.span,
+            if min == 0 {
+                "number must be at least zero"
+            } else {
+                "number must be positive"
+            },
+        )]),
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("expected integer, found {}", other.type_name()),
+        )]),
+        None => Ok(None),
+    };
+    let (depth, offset) = (integer("depth", 1)?, integer("offset", 0)?);
+    let mut level = level;
+    if let (Some(depth), 0) =
+        (depth, set_fields & crate::entities::elements::heading::HEADING_SET_LEVEL)
+    {
+        level = depth.min(6) as u8;
+        set_fields |= crate::entities::elements::heading::HEADING_SET_DEPTH;
+    }
+    let mut content =
+        Content::heading_native(level, body, outlined, bookmarked, set_fields);
+    if let (Some(offset), Content::Heading(heading)) = (offset, &mut content) {
+        if set_fields & crate::entities::elements::heading::HEADING_SET_LEVEL == 0 {
+            let heading = std::sync::Arc::make_mut(heading);
+            match heading.with_offset(offset) {
+                Some(shifted) => *heading = shifted,
+                None => heading.depth = Some(heading.level),
+            }
+        }
+    }
     let mut styles = crate::entities::style::Styles::new();
     if args.named.contains_key("numbering") {
         styles =

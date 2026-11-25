@@ -1381,7 +1381,7 @@ impl Content {
             })),
             Content::Table(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem { items: None,
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem { omitted: e.omitted, items: None,
             source_span: e.source_span,
             resolved: e.resolved.clone(),
             rows_explicit: e.rows_explicit,

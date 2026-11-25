@@ -1,5 +1,5 @@
 # L0 — html/tests
-Hash do Código: b9444ab7
+Hash do Código: 3b2858cc
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/tests.rs`

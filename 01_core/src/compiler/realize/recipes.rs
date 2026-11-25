@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash 57bf1ef7
+//! @prompt-hash 0d154320
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -701,6 +701,11 @@ fn realize_pending(
     let rules = textual::compose_rules(pending, engine.show_rules);
     let previous_styles =
         std::mem::replace(engine.styles, textual::captured_styles(pending));
+    // As declarações da inserção envolvem o conteúdo capturado antes delas.
+    *engine.styles = crate::compiler::stdlib::insert_table_declarations(
+        engine.styles,
+        &previous_styles,
+    );
     let previous_rules = std::mem::replace(engine.show_rules, rules);
     let mut guards = engine.active_guards.clone();
     for id in &pending.guards {

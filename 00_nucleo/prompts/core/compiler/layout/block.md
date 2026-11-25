@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: 865a0940
+Hash do Código: 3aefe95d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -16,6 +16,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
 - 00_nucleo/prompts/_nuclei/layout/single-region-stack.toml sha256:cf78ebaac0d5f3c4adbdc6ca2e6853ccd6b9ca565ec814e9f81b75a546089024
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
 **Layer:** L1
@@ -376,3 +377,12 @@ before the local cap, or inherit a still-valid ancestor witness. Auto inherits;
 page/column identity validates it and existing LIFO/checkpoint/subframe context
 restores it. Expose a private query for text owners. Do not change StackBoundary,
 allows_fragmentation, PlaceRegion, dimensions or body/publication formulae.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Before layout, project the block through the declared-property owner with the current
+chain. A chain without block declarations is the unchanged path. Internal readers of
+sticky, fractional height, measure and text alignment use the same projection.
+Limit: a block reached only through a style wrapper in those preflights is projected
+when laid out, not in the preflight.

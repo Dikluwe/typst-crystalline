@@ -1,5 +1,5 @@
 # L0 — placement
-Hash do Código: bab8d943
+Hash do Código: 65c5e0cb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47

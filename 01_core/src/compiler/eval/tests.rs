@@ -7703,8 +7703,7 @@ mod regressions {
         let diags = sink.into_diagnostics();
         // Warning é sobre PROPRIEDADE 'first-line-indent', não sobre target 'par'.
         assert!(
-            diags.iter().any(|d| d.message.contains("par:")
-                && d.message.contains("'first-line-indent'")),
+            diags.iter().any(|d| d.message.contains("par.first-line-indent")),
             "par deve emitir warning de propriedade first-line-indent; diagnostics: {:?}",
             diags
         );

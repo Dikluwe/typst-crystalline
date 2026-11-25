@@ -16,7 +16,7 @@ impl Content {
         rows: Vec<TrackSizing>,
         children: Vec<Content>,
     ) -> Self {
-        Self::Table(Arc::new(TableElem {
+        Self::Table(Arc::new(TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -47,7 +47,7 @@ impl Content {
         children: Vec<Content>,
         caption: Option<Content>,
     ) -> Self {
-        Self::Table(Arc::new(TableElem {
+        Self::Table(Arc::new(TableElem { omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,

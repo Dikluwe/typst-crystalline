@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "set-declared-properties"
+title = "Declared element properties in set rules"
+[[claims]]
+id = "admission"
+level = "must"
+statement = "A set target is resolved by function identity and must be an element function. Every supplied name belongs to the element's settable schema and every value belongs to the types that schema lists; otherwise the rule fails before any declaration takes effect. Arguments are evaluated once, in source order."
+[[claims]]
+id = "no-silent-loss"
+level = "must"
+statement = "A valid property or value that has no effect yet produces a warning naming element and property. It is never an error and never silent."
+[[claims]]
+id = "transport"
+level = "must"
+statement = "A declaration travels in the lexical StyleChain under element.property and reaches each occurrence at insertion, including values constructed earlier and show-set rules. It never mutates the lexical value or leaks out of its scope."
+[[claims]]
+id = "precedence"
+level = "must"
+statement = "A property the constructor received, none included, wins over every declaration. The nearest declaration wins among declarations. Stroke folds by specified component and inset or outset by side, constructor over nearest over outer declaration over the element default."
+[[claims]]
+id = "presence"
+level = "must"
+statement = "The element records which properties its constructor omitted. Values built without that record count every property as supplied."

@@ -1,8 +1,9 @@
 # Prompt L0 — `entities/elements/block` — `BlockElem`
-Hash do Código: 98716040
+Hash do Código: d64753f6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/block.rs`
@@ -118,3 +119,10 @@ visit order, and their specific preservation obligations.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/block.md` preserves the original evidence and chronology.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Add one crate-private record of omitted properties, zero meaning that every property
+counts as supplied. It takes part in equality, hash and observation and has no getter.
+The public constructor functions build it; literals outside the crate use them.

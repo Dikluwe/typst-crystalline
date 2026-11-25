@@ -3014,13 +3014,13 @@ mod integration {
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
         assert!(
-            warnings[0].message.contains("'list'"),
+            warnings[0].message.contains("list.indent"),
             "mensagem deve identificar o target 'list'; obteve: {:?}",
             warnings[0].message
         );
         assert!(
-            warnings[0].message.contains("target"),
-            "mensagem deve indicar que é um problema de target; obteve: {:?}",
+            warnings[0].message.contains("ainda não tem efeito"),
+            "mensagem deve indicar que é uma propriedade sem efeito; obteve: {:?}",
             warnings[0].message
         );
     }

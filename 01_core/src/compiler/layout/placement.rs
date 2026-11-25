@@ -1183,7 +1183,7 @@ mod block_align_regressions {
             l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
             l.style = TextStyle::from(&l.chain);
             let right = l.regions.current.width - l.page_config.margin.right;
-            let b = BlockElem {
+            let b = BlockElem { omitted: 0,
                 body: Content::styled(
                     Content::text("ABC"),
                     Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),

@@ -613,7 +613,7 @@ mod tests {
 
     #[test]
     fn repr_content_heading() {
-        let h = Content::Heading(Arc::new(HeadingElem {
+        let h = Content::Heading(Arc::new(HeadingElem { depth: None,
             level: 2,
             body: Content::text("Title"),
             outlined: true,

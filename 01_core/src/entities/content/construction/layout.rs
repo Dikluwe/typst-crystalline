@@ -317,6 +317,7 @@ impl Content {
             above: None,
             below: None,
             sticky: false,
+            omitted: 0,
         }))
     }
 

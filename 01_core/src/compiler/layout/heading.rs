@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/heading.md
-//! @prompt-hash 03d8745f
+//! @prompt-hash 13be2757
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -42,10 +42,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let heading_size = layouter.style.size * scale;
 
     let above_em = if *level == 1 { 1.8 } else { 1.44 };
-    let above_pt = font_base * above_em;
+    let declared = |edge: &str| {
+        [edge, "heading.block.spacing"].into_iter().find_map(|key| {
+            match layouter.chain.custom(key) {
+                Some(Value::Length(length)) => Some(length.resolve_pt(heading_size.val())),
+                _ => None,
+            }
+        })
+    };
+    let declared_above = declared("heading.block.above");
+    let declared_below = declared("heading.block.below");
+    let above_pt = declared_above.unwrap_or(font_base * above_em);
     // **P1063** — below é relativo ao tamanho base do corpo (0.75 * font_base),
     // simétrico à divisão por escala de `above`. Provado pelo avanço com block(above: 2em).
-    let below_pt = font_base * 0.75;
+    let below_pt = declared_below.unwrap_or(font_base * 0.75);
 
     let prev = layouter.style.clone();
     let prev_chain = layouter.chain.clone();
@@ -183,7 +193,7 @@ mod a2_margin_priority_tests {
         l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(ambient)));
         let original_size = l.style.size;
         if !initial {
-            let block = crate::entities::elements::block::BlockElem {
+            let block = crate::entities::elements::block::BlockElem { omitted: 0,
                 body: Content::text("BEFORE"),
                 width: None,
                 height: None,

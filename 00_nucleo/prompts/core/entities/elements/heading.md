@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 722975bb
+Hash do Código: 46b6f95e
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/heading.rs`
@@ -116,3 +119,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Declared set properties
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
+Add one crate-private logical depth, present when an offset produced the level. The
+depth field and projection report it; level remains the effective level, 1 to 6.

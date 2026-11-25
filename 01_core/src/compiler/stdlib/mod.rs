@@ -132,7 +132,10 @@ pub(crate) use crate::compiler::stdlib::structural::{
     math_underparen_from_args, math_undershell_from_args, realize_outline_entry_page,
     sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
-pub(in crate::compiler) use structural::{table_alignment, table_alignment_at};
+pub(in crate::compiler) use layout::{declare_block, declared_block};
+pub(in crate::compiler) use structural::{
+    declare_table, declared_table, insert_table_declarations, table_alignment, table_alignment_at,
+};
 
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,

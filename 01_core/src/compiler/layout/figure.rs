@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/figure.md
-//! @prompt-hash 87755da4
+//! @prompt-hash cfe54aed
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -247,7 +247,13 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
     let width = body_piece.width.max(caption_piece.width);
     // ref: lab/typst-original/crates/typst-library/src/model/figure.rs:303
     let gap = if body_piece.height > 0.0 && caption_piece.height > 0.0 {
-        0.65 * layouter.style.size.0
+        match layouter.chain.custom("figure.gap") {
+            Some(crate::entities::value::Value::Length(gap)) => {
+                gap.resolve_pt(layouter.style.size.0)
+            }
+            // ref: lab/typst-original/crates/typst-library/src/model/figure.rs:303
+            _ => 0.65 * layouter.style.size.0,
+        }
     } else {
         0.0
     };
@@ -909,7 +915,7 @@ mod readiness_frame_geometry {
             use crate::entities::{
                 corners::Corners, elements::block::BlockElem, sides::Sides,
             };
-            Content::Block(Arc::new(BlockElem {
+            Content::Block(Arc::new(BlockElem { omitted: 0,
                 body: figure,
                 width: None,
                 height: None,

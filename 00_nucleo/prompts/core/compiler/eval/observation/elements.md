@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 5716d307
+Hash do Código: 05eccccb
 
 
 **Layer:** L1
