@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/ellipse
-Hash do Código: 95ae11dc
+Hash do Código: 7a48a10d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml sha256:016cad80570d8133fcb275e6e0f693e088dc921e4d6d907a51888898ae8b00ce
@@ -155,3 +155,9 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Construction delegates to the shapes frame owner. Positional sizes of square are no
+longer admitted: the positional argument is the body.

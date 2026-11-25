@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: f9c13706
+Hash do Código: 062b794b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -744,3 +744,9 @@ declares above and below as well. A stroke declaration is stored folded over the
 current one, inset and outset by side. Other owners keep their targets.
 The ratified explicit rejection of alignment functions in `set table` remains an error.
 A document title given as content is stored as its plain text.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+rect, square, circle, ellipse, line, polygon, curve and box declare through their
+construction owners. radius declares width and height of circle, size those of square.

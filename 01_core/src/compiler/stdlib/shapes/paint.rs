@@ -63,6 +63,33 @@ pub(super) fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Str
     crate::compiler::stdlib::layout::extract_stroke(val, fn_name, "stroke")
 }
 
+/// Preenchimento, regra e traço de um caminho.
+pub(super) fn path_paint(
+    named: &super::frame::Named,
+    element: &str,
+    span: &dyn Fn(&str) -> Span,
+) -> SourceResult<(Option<Paint>, FillRule, Option<Stroke>)> {
+    let fill = named
+        .get("fill")
+        .map(|value| parse_paint(value, span("fill")))
+        .transpose()?
+        .flatten();
+    let fill_rule = match named.get("fill-rule") {
+        None => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
+        Some(Value::Str(value)) if value.as_str() == "even-odd" => FillRule::EvenOdd,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                span("fill-rule"),
+                format!("{element}(fill-rule): valor inesperado {}", other.type_name()),
+            )]);
+        }
+    };
+    let stroke =
+        super::frame::stroke_or_default(named.get("stroke"), fill.is_some(), element)?;
+    Ok((fill, fill_rule, stroke))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

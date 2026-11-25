@@ -26,6 +26,7 @@ use crate::entities::value::Value;
 mod coordinates;
 mod curve;
 mod ellipse;
+pub(crate) mod frame;
 mod line;
 mod paint;
 mod polygon;
@@ -42,6 +43,7 @@ use self::paint::parse_shape_stroke;
 pub(super) use self::paint::{parse_color, parse_paint};
 pub use self::polygon::{native_polygon, native_polygon_regular};
 pub use self::rect::{native_rect, native_square};
+pub(super) use self::rect::rect_side_strokes as box_strokes;
 
 #[cfg(test)]
 mod atomization_test_support {

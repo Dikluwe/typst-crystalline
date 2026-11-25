@@ -90,15 +90,10 @@ impl ObservationEq for crate::entities::elements::footnote_entry::FootnoteEntryE
 }
 impl ObservationEq for crate::entities::elements::shape::ShapeOrigin {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        match self {
-            Self::Geometry => match other {
-                Self::Geometry => ObservationRelation::Same,
-                Self::Circle => ObservationRelation::Different,
-            },
-            Self::Circle => match other {
-                Self::Geometry => ObservationRelation::Different,
-                Self::Circle => ObservationRelation::Same,
-            },
+        if self == other {
+            ObservationRelation::Same
+        } else {
+            ObservationRelation::Different
         }
     }
 }
@@ -123,6 +118,7 @@ impl ObservationEq for crate::entities::elements::shape::ShapeElem {
             fill: _,
             stroke: _,
             fill_rule: _,
+            extra: _,
         } = self;
         ObservationRelation::Same
             .and(self.origin.observation_relation(&other.origin))
@@ -135,6 +131,11 @@ impl ObservationEq for crate::entities::elements::shape::ShapeElem {
             .and(self.fill.observation_relation(&other.fill))
             .and(self.stroke.observation_relation(&other.stroke))
             .and(self.fill_rule.observation_relation(&other.fill_rule))
+            .and(if self.extra == other.extra {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Different
+            })
     }
 }
 impl ObservationEq for crate::entities::elements::grid::GridChildOrder {
@@ -608,6 +609,7 @@ impl ObservationEq for crate::entities::elements::block::BlockElem {
             below: _,
             sticky: _,
             omitted: _,
+            shape: _,
         } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
@@ -625,6 +627,11 @@ impl ObservationEq for crate::entities::elements::block::BlockElem {
             .and(self.below.observation_relation(&other.below))
             .and(self.sticky.observation_relation(&other.sticky))
             .and(self.omitted.observation_relation(&other.omitted))
+            .and(match (&self.shape, &other.shape) {
+                (Some(a), Some(b)) => a.observation_relation(b),
+                (None, None) => ObservationRelation::Same,
+                (Some(_), None) | (None, Some(_)) => ObservationRelation::Different,
+            })
     }
 }
 impl ObservationEq for crate::entities::elements::block::BlockHeight {
@@ -847,6 +854,7 @@ impl ObservationEq for crate::entities::elements::boxed::BoxedElem {
             clip: _,
             fill: _,
             stroke: _,
+            extra: _,
         } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
@@ -860,6 +868,11 @@ impl ObservationEq for crate::entities::elements::boxed::BoxedElem {
             .and(self.clip.observation_relation(&other.clip))
             .and(self.fill.observation_relation(&other.fill))
             .and(self.stroke.observation_relation(&other.stroke))
+            .and(if self.extra == other.extra {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Different
+            })
     }
 }
 impl ObservationEq for crate::entities::elements::cite::CiteElem {

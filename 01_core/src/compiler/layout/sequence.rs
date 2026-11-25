@@ -711,7 +711,7 @@ mod p1375_tests {
     use super::fractional_block;
 
     fn fractional(weight: f64) -> Content {
-        Content::Block(Arc::new(BlockElem { omitted: 0,
+        Content::Block(Arc::new(BlockElem { shape: None, omitted: 0,
             body: Content::text("body"),
             width: None,
             height: Some(BlockHeight::Fractional(weight)),

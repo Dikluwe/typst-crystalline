@@ -688,7 +688,7 @@ fn compose_native_body<M: FontMetrics, S: ImageSizer>(
     }
 }
 
-fn measure_native_body<M: FontMetrics, S: ImageSizer>(
+pub(super) fn measure_native_body<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     content: &crate::entities::content::Content,
     width: f64,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash ca9854ea
+//! @prompt-hash e0c17c63
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -9,6 +9,7 @@
 //! 1011 conforme ADR-0109 (atomização — forma B, free function no arquivo da
 //! unidade).
 
+use crate::entities::elements::shape::ShapeOrigin;
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::func::Func;
@@ -393,7 +394,19 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::Ref(_) => native!(native_ref),
         Content::Image(_) => native!(native_image),
         Content::Align(_) => native!(native_align),
-        Content::Block(_) => native!(native_block),
+        Content::Block(block) => match &block.shape {
+            Some(shape) => match shape.origin {
+                ShapeOrigin::Geometry => false,
+                ShapeOrigin::Rect => native!(native_rect),
+                ShapeOrigin::Square => native!(native_square),
+                ShapeOrigin::Circle => native!(native_circle),
+                ShapeOrigin::Ellipse => native!(native_ellipse),
+                ShapeOrigin::Line => native!(native_line),
+                ShapeOrigin::Polygon => native!(native_polygon),
+                ShapeOrigin::Curve => native!(native_curve),
+            },
+            None => native!(native_block),
+        },
         Content::Boxed(_) => native!(native_box),
         Content::Columns(_) => native!(native_columns),
         Content::Pad(_) => native!(native_pad),
@@ -422,11 +435,15 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         // The antecedent erased constructor identity in these representations.
         // P1339 does not infer square/rect, circle/ellipse or transforms from geometry.
         Content::Shape(shape) => match shape.origin {
-            crate::entities::elements::shape::ShapeOrigin::Circle => {
-                native!(native_circle)
-            }
-            crate::entities::elements::shape::ShapeOrigin::Geometry => false,
-        },
+                ShapeOrigin::Geometry => false,
+                ShapeOrigin::Rect => native!(native_rect),
+                ShapeOrigin::Square => native!(native_square),
+                ShapeOrigin::Circle => native!(native_circle),
+                ShapeOrigin::Ellipse => native!(native_ellipse),
+                ShapeOrigin::Line => native!(native_line),
+                ShapeOrigin::Polygon => native!(native_polygon),
+                ShapeOrigin::Curve => native!(native_curve),
+            },
         Content::Transform(e) => match e.operation {
             crate::entities::elements::transform::TransformOperation::Matrix(_) => false,
             crate::entities::elements::transform::TransformOperation::Move { .. } => {

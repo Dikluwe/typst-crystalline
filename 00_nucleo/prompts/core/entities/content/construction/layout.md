@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/layout
-Hash do Código: 45a661d0
+Hash do Código: be895d3e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c

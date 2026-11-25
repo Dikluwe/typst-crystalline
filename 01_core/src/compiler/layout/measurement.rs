@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash 0a028854
+//! @prompt-hash fa1d8384
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -16,6 +16,25 @@ use super::metrics::FontMetrics;
 use super::{block, curve, sub_frame, Layouter, COLUMNS_DEFAULT_GUTTER_RATIO};
 
 /// Positive certificate for sequences whose children share an inline flow.
+/// O conteúdo é só uma forma, cujo tamanho é o da sua moldura.
+fn outlined(content: &Content) -> bool {
+    if let Content::Block(block) = content.source_body() {
+        block.shape.is_some()
+    } else if let Content::Shape(shape) = content.source_body() {
+        super::shape::framed(shape)
+    } else if let Content::Styled(styled) = content.source_body() {
+        outlined(&styled.body)
+    } else if let Content::Located(located) = content.source_body() {
+        outlined(&located.body)
+    } else if let Content::Realized(realized) = content.source_body() {
+        outlined(&realized.visual)
+    } else if let Content::Sequence(parts) = content.source_body() {
+        parts.len() == 1 && outlined(&parts[0])
+    } else {
+        false
+    }
+}
+
 fn inline_flow(content: &Content) -> bool {
     if matches!(
         content,
@@ -364,7 +383,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Insets belong to track allocation, not to the measured body.
             Content::GridCell(e) => self.measure_content_constrained(&e.body, max_width),
 
+            Content::Shape(e) if super::shape::framed(e) => {
+                super::shape::measure(self, e, None, max_width)
+            }
             Content::Shape(e) => {
+                let declared =
+                    crate::compiler::stdlib::shape_frame::declared_shape(e, &self.chain);
+                let e = declared.as_ref().unwrap_or(e);
                 let relative_height = self
                     .block_place_region
                     .filter(|region| region.h.0.is_finite())
@@ -480,6 +505,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // measurement. Análogo a Block (mesma lógica width/height/
             // inset; baseline ignorado em medição).
             Content::Boxed(e) => {
+                let declared = super::boxed::effective(
+                    self,
+                    e,
+                    (max_width, super::shape::relative_height(self)),
+                );
+                let e = declared.as_ref().unwrap_or(e);
                 let (body, width, height, inset) =
                     (&e.body, &e.width, &e.height, &e.inset);
                 let font = self.style.size.val();
@@ -494,8 +525,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     (max_width - inset_l - inset_r).max(0.0)
                 };
                 let (bw, bh) = self.measure_content_constrained(body, body_max);
-                let natural_w = bw + inset_l + inset_r;
-                let natural_h = bh + inset_t + inset_b;
+                let (natural_w, natural_h) = match e.extra.inset {
+                    Some(sides) => {
+                        let grow = |inner: f64, abs: f64, rel: f64| {
+                            let share = 1.0 - rel;
+                            if share > 0.0 {
+                                (inner + abs) / share
+                            } else {
+                                0.0
+                            }
+                        };
+                        (
+                            grow(
+                                bw,
+                                sides.left.abs.resolve_pt(font)
+                                    + sides.right.abs.resolve_pt(font),
+                                sides.left.rel + sides.right.rel,
+                            ),
+                            grow(
+                                bh,
+                                sides.top.abs.resolve_pt(font)
+                                    + sides.bottom.abs.resolve_pt(font),
+                                sides.top.rel + sides.bottom.rel,
+                            ),
+                        )
+                    }
+                    None => (bw + inset_l + inset_r, bh + inset_t + inset_b),
+                };
                 let (total_w, total_h) = if e.width_fraction.is_none() {
                     (
                         width.map_or(natural_w, |w| w.resolve_pt(font).max(0.0)),
@@ -540,6 +596,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;
             // width: Some(w) prefere essa largura mas constrained por max.
+            Content::Block(e) if e.shape.is_some() => {
+                let shape = e.shape.as_ref().expect("outlined block");
+                super::shape::measure(self, shape, Some(&e.body), max_width)
+            }
             Content::Block(e) => {
                 let (body, width, height, inset) =
                     (&e.body, &e.width, &e.height, &e.inset);
@@ -793,7 +853,10 @@ pub(in crate::compiler) fn measure_content_real_with_baseline(
         },
     );
 
-    let width = if items.is_empty() {
+    let width = if outlined(content) {
+        // A moldura da forma, não a sua tinta.
+        layouter.last_sub_frame_flow_width
+    } else if items.is_empty() {
         0.0
     } else {
         let refs: Vec<&FrameItem> = items.iter().collect();
@@ -822,7 +885,7 @@ pub(in crate::compiler) fn measure_content_real_with_baseline(
         let ascent = text_ascent.max(inline_ascent);
         let descent = text_descent.max(inline_descent);
         (ascent + descent, ascent)
-    } else if !text.is_empty() {
+    } else if !text.is_empty() && !outlined(content) {
         (text_ascent + text_descent, text_ascent)
     } else if height > 0.0 {
         (height, height)
@@ -916,7 +979,7 @@ mod v16_d_tests {
         Content::Equation(Arc::new(EquationElem::new(body, false)))
     }
     fn shape() -> Content {
-        Content::Shape(Arc::new(ShapeElem {
+        Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

@@ -638,7 +638,7 @@ fn p1373_full_height_block_moves_following_line_without_losing_it() {
     use crate::entities::sides::Sides;
 
     let full = |body| {
-        Content::Block(std::sync::Arc::new(BlockElem { omitted: 0,
+        Content::Block(std::sync::Arc::new(BlockElem { shape: None, omitted: 0,
             body,
             width: None,
             height: Some(crate::entities::elements::block::BlockHeight::Relative(
@@ -5289,7 +5289,7 @@ fn p772f_measure_content_constrained_block_largura_explicita_nao_colapsa() {
         alignment: Align2D::from_string("top-left"),
         body: Content::text("x"),
     }));
-    let block = Content::Block(std::sync::Arc::new(BlockElem { omitted: 0,
+    let block = Content::Block(std::sync::Arc::new(BlockElem { shape: None, omitted: 0,
         body,
         width: Some(block_width_pt(85.039)), // 3cm
         height: None,
@@ -10533,7 +10533,7 @@ mod tests_show_rule_integration {
     fn p231_block_outset_radius_clip_layout_preservado() {
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p231block"),
                 width: None,
                 height: None,
@@ -10589,7 +10589,7 @@ mod tests_show_rule_integration {
     fn p231_boxed_cosmeticos_paridade_block() {
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p231boxed"),
                 width: None,
                 width_fraction: None,
@@ -10632,7 +10632,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("clipped"),
                 width: None,
                 height: None,
@@ -10676,7 +10676,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("clipped-rect"),
                 width: None,
                 height: None,
@@ -10718,7 +10718,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("not-clipped"),
                 width: None,
                 height: None,
@@ -10793,7 +10793,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p243block"),
                 width: Some(block_width_pt(150.0)), // Block.width efectivo P243.
                 height: None,
@@ -10832,7 +10832,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let boxed = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p243boxed"),
                 width: Some(Length::pt(80.0)), // Boxed.width efectivo P243.
                 width_fraction: None,
@@ -10872,7 +10872,7 @@ mod tests_show_rule_integration {
         use crate::entities::paint::Paint;
         use crate::entities::sides::Sides;
         let boxed = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("a"),
                 width: Some(Length::pt(40.0)),
                 width_fraction: None,
@@ -10919,7 +10919,7 @@ mod tests_show_rule_integration {
         use crate::entities::paint::Paint;
         use crate::entities::sides::Sides;
         let boxed = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("a"),
                 width: None,
                 width_fraction: None,
@@ -10972,7 +10972,7 @@ mod tests_show_rule_integration {
             },
         );
         let block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: inner_pad,
                 width: Some(block_width_pt(200.0)),
                 height: None,
@@ -11015,7 +11015,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p247fill"),
                 width: Some(block_width_pt(50.0)),
                 height: None,
@@ -11056,7 +11056,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p247stroke"),
                 width: Some(block_width_pt(40.0)),
                 height: None,
@@ -11103,7 +11103,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p247rounded"),
                 width: Some(block_width_pt(60.0)),
                 height: None,
@@ -11147,7 +11147,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p247outset"),
                 width: Some(block_width_pt(50.0)),
                 height: Some(block_height_pt(20.0)),
@@ -11198,7 +11198,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("backcompat"),
                 width: None,
                 height: None,
@@ -11237,7 +11237,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p247boxfill"),
                 width: Some(Length::pt(30.0)),
                 width_fraction: None,
@@ -11287,7 +11287,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         // breakable=true (default P156G): emit normal sem antecipar break.
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248brkt"),
                 width: None,
                 height: None,
@@ -11325,7 +11325,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         // breakable=false + body pequeno: cabe na actual; sem new_page.
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248brkf"),
                 width: None,
                 height: None,
@@ -11359,7 +11359,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         // height enorme — excede página (~595pt default test).
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248overlong"),
                 width: None,
                 height: Some(block_height_pt(10_000.0)),
@@ -11402,7 +11402,7 @@ mod tests_show_rule_integration {
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(650.0), false),
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text("p248new"),
                     width: None,
                     height: Some(block_height_pt(100.0)),
@@ -11437,7 +11437,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248cross"),
                 width: Some(block_width_pt(60.0)),
                 height: None,
@@ -11478,7 +11478,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p248bxnone"),
                 width: None,
                 width_fraction: None,
@@ -11514,7 +11514,7 @@ mod tests_show_rule_integration {
         // Body com height natural > 5pt (line_height ~12pt default);
         // height=5pt força overflow.
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p248bxovf"),
                 width: Some(Length::pt(50.0)),
                 width_fraction: None,
@@ -11558,7 +11558,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p248bxnoc"),
                 width: Some(Length::pt(50.0)),
                 width_fraction: None,
@@ -11603,7 +11603,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("x"), // texto curto < height
                 width: Some(Length::pt(50.0)),
                 width_fraction: None,
@@ -11716,7 +11716,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("ovf"),
                 width: None,
                 height: Some(block_height_pt(100.0)), // força >> cell_h
@@ -11804,7 +11804,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("fillovf"),
                 width: None,
                 height: Some(block_height_pt(80.0)),
@@ -11908,7 +11908,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("cross"),
                 width: None,
                 height: Some(block_height_pt(60.0)), // excede cell row
@@ -11992,7 +11992,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248inset"),
                 width: None,
                 height: Some(block_height_pt(50.0)),
@@ -12034,7 +12034,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p248cross"),
                 width: Some(Length::pt(40.0)),
                 width_fraction: None,
@@ -12091,7 +12091,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let inner = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("inner"),
                 width: None,
                 height: Some(block_height_pt(150.0)),
@@ -12111,7 +12111,7 @@ mod tests_show_rule_integration {
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(600.0), false),
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: inner,
                     width: None,
                     height: None,
@@ -12142,7 +12142,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("radius cross"),
                 width: None,
                 height: Some(block_height_pt(80.0)),
@@ -12226,7 +12226,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("inset"),
                 width: Some(Length::pt(40.0)),
                 width_fraction: None,
@@ -12274,7 +12274,7 @@ mod tests_show_rule_integration {
                 let seq = Content::Sequence(std::sync::Arc::from(vec![
                     Content::v_space(Length::pt(620.0), false),
                     Content::Block(std::sync::Arc::new(
-                        crate::entities::elements::block::BlockElem { omitted: 0,
+                        crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                             body: Content::text("p248outset"),
                             width: None,
                             height: Some(block_height_pt(height)),
@@ -12308,7 +12308,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let mk = |clip: bool| {
             Content::Boxed(std::sync::Arc::new(
-                crate::entities::elements::boxed::BoxedElem {
+                crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                     body: Content::text("diff"),
                     width: Some(Length::pt(40.0)),
                     width_fraction: None,
@@ -12344,7 +12344,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p248edge"),
                 width: None,
                 height: None, // sem height min
@@ -12378,7 +12378,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("a"),
                 width: None,
                 height: None,
@@ -12421,7 +12421,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body,
             width: None,
             height: height.map(|abs| {
@@ -12454,7 +12454,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body,
             width: None,
             height: None,
@@ -12704,7 +12704,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::sides::Sides;
         let b1 = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("sk1"),
                 width: None,
                 height: Some(block_height_pt(20.0)),
@@ -12926,7 +12926,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("a4completo"),
                 width: Some(block_width_pt(80.0)),
                 height: Some(block_height_pt(40.0)),
@@ -12993,7 +12993,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("fxd"),
                 width: None,
                 height: Some(block_height_pt(100.0)), // excede cell
@@ -13084,7 +13084,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("auto"),
                 width: None,
                 height: Some(block_height_pt(50.0)),
@@ -13248,7 +13248,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("tail"),
                 width: None,
                 height: Some(block_height_pt(100.0)),
@@ -13330,7 +13330,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let inner_block = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("filltail"),
                 width: None,
                 height: Some(block_height_pt(80.0)),
@@ -13441,7 +13441,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         let mk_cell = |label: &str| -> Content {
             let inner = Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text(label),
                     width: None,
                     height: Some(block_height_pt(40.0)),
@@ -13571,7 +13571,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p252lit"),
                 width: Some(block_width_pt(50.0)),
                 height: Some(block_height_pt(30.0)),
@@ -13618,7 +13618,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Block(std::sync::Arc::new(
-            crate::entities::elements::block::BlockElem { omitted: 0,
+            crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("p252ov"),
                 width: Some(block_width_pt(50.0)),
                 height: Some(block_height_pt(30.0)),
@@ -13664,7 +13664,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::sides::Sides;
         let b = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body: Content::text("p252box"),
                 width: Some(Length::pt(40.0)),
                 width_fraction: None,
@@ -18417,7 +18417,7 @@ mod p273_7_boxed_parent_bbox {
     }
 
     fn boxed_dimensioned(body: Content, w_pt: f64, h_pt: f64) -> Content {
-        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem {
+        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
             body,
             width: Some(Length { abs: Abs(w_pt), em: 0.0 }),
             width_fraction: None,
@@ -18433,7 +18433,7 @@ mod p273_7_boxed_parent_bbox {
     }
 
     fn boxed_dimensionless(body: Content) -> Content {
-        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem {
+        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
             body,
             width: None,
             width_fraction: None,
@@ -18584,7 +18584,7 @@ mod p273_7_boxed_parent_bbox {
         use crate::entities::layout_types::Color;
         let body = Content::text("X"); // qualquer body simples
         let boxed = Content::Boxed(std::sync::Arc::new(
-            crate::entities::elements::boxed::BoxedElem {
+            crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
                 body,
                 width: Some(Length { abs: Abs(150.0), em: 0.0 }),
                 width_fraction: None,
@@ -22013,7 +22013,7 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
 
     let margin = 15.0;
     let tall_height = 200.0;
-    let tall_block = Content::Block(std::sync::Arc::new(BlockElem { omitted: 0,
+    let tall_block = Content::Block(std::sync::Arc::new(BlockElem { shape: None, omitted: 0,
         body: Content::text("TALL"),
         width: None,
         height: Some(block_height_pt(tall_height)),
@@ -22183,7 +22183,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
             )),
             // Bloco alto para dar corpo à altura final da página.
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text("TALL"),
                     width: None,
                     height: Some(block_height_pt(200.0)),
@@ -22614,7 +22614,7 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
                 },
             )),
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text("TALL"),
                     width: None,
                     height: Some(block_height_pt(200.0)),
@@ -22735,7 +22735,7 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
                 },
             )),
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text("TALL"),
                     width: None,
                     height: Some(block_height_pt(200.0)),
@@ -22863,7 +22863,7 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                 },
             )),
             Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem { omitted: 0,
+                crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                     body: Content::text("TALL"),
                     width: None,
                     height: Some(block_height_pt(200.0)),
@@ -25737,7 +25737,7 @@ mod paint_root_transport {
         }
     }
     fn shape() -> Content {
-        Content::Shape(Arc::new(ShapeElem {
+        Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

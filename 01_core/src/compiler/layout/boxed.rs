@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/boxed.md
-//! @prompt-hash 71177431
+//! @prompt-hash c8e52491
 //! @layer L1
 //! @updated 2026-10-21
 //!
@@ -13,10 +13,33 @@ use crate::entities::layout_types::{FrameItem, Pt};
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Compose an inline Box using its actual body frame.
+/// Caixa com as declarações e partes relativas da região, se houver.
+pub(super) fn effective<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+    e: &BoxedElem,
+    region: (f64, f64),
+) -> Option<BoxedElem> {
+    crate::compiler::stdlib::declared_box(
+        e,
+        &layouter.chain,
+        layouter.style.size.val(),
+        region,
+    )
+}
+
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BoxedElem,
 ) {
+    let declared = effective(
+        layouter,
+        e,
+        (
+            super::paragraph_indent::current_width(layouter, layouter.available_width()),
+            super::shape::relative_height(layouter),
+        ),
+    );
+    let e = declared.as_ref().unwrap_or(e);
     if !super::html_frame::items_have_material(&layouter.regions.current.current_line) {
         if layouter.block_chain_active {
             let gap = if layouter.prev_margin_is_parbreak {
@@ -468,11 +491,37 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
             s.bottom.resolve_pt(font),
         )
     };
-    let inset = resolve(e.inset);
-    let outset = resolve(e.outset);
+    let mut inset = resolve(e.inset);
+    let mut outset = resolve(e.outset);
     let explicit_w =
         assigned_width.or_else(|| e.width.map(|v| v.resolve_pt(font).max(0.0)));
     let explicit_h = e.height.map(|v| v.resolve_pt(font).max(0.0));
+    let part = |value: crate::entities::rel::Rel<Length>, reference: f64| {
+        let relative = value.rel * reference;
+        value.abs.resolve_pt(font) + if relative.is_finite() { relative } else { 0.0 }
+    };
+    let at = |sides: crate::entities::sides::Sides<crate::entities::rel::Rel<Length>>,
+              w: f64,
+              h: f64| {
+        crate::entities::sides::Sides::new(
+            part(sides.left, w),
+            part(sides.top, h),
+            part(sides.right, w),
+            part(sides.bottom, h),
+        )
+    };
+    if let Some(sides) = e.extra.inset {
+        inset = at(
+            sides,
+            explicit_w.unwrap_or_else(|| {
+                super::paragraph_indent::current_width(
+                    layouter,
+                    layouter.available_width(),
+                )
+            }),
+            explicit_h.unwrap_or(0.0),
+        );
+    }
     let inner_w = (explicit_w.unwrap_or_else(|| {
         super::paragraph_indent::current_width(layouter, layouter.available_width())
     }) - inset.left
@@ -517,8 +566,31 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     layouter.parent_bbox = saved_bbox;
     let natural_w = super::helpers::line_content_right(&body, &layouter.metrics)
         .max(layouter.last_sub_frame_width);
-    let box_w = explicit_w.unwrap_or((inset.left + natural_w + inset.right).max(0.0));
-    let box_h = explicit_h.unwrap_or((inset.top + body_h + inset.bottom).max(0.0));
+    let mut box_w =
+        explicit_w.unwrap_or((inset.left + natural_w + inset.right).max(0.0));
+    let mut box_h = explicit_h.unwrap_or((inset.top + body_h + inset.bottom).max(0.0));
+    if let Some(sides) = e.extra.inset {
+        // A moldura cresce até que o espaço relativo a inclua.
+        let grow = |inner: f64, sides: [crate::entities::rel::Rel<Length>; 2]| {
+            let abs: f64 = sides.iter().map(|side| side.abs.resolve_pt(font)).sum();
+            let share = 1.0 - sides.iter().map(|side| side.rel).sum::<f64>();
+            if share > 0.0 {
+                ((inner + abs) / share).max(0.0)
+            } else {
+                0.0
+            }
+        };
+        if explicit_w.is_none() {
+            box_w = grow(natural_w, [sides.left, sides.right]);
+        }
+        if explicit_h.is_none() {
+            box_h = grow(body_h, [sides.top, sides.bottom]);
+        }
+        inset = at(sides, box_w, box_h);
+    }
+    if let Some(sides) = e.extra.outset {
+        outset = at(sides, box_w, box_h);
+    }
     let final_inner_w = (box_w - inset.left - inset.right).max(0.0);
     let final_inner_h = (box_h - inset.top - inset.bottom).max(0.0);
 
@@ -541,7 +613,15 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
         Some(None) => box_h,
         None => first_baseline(&body).map_or(box_h, |p| inset.top + p.y.0),
     };
-    let baseline = natural_baseline - e.baseline.resolve_pt(font);
+    use crate::entities::layout_types::VAlign;
+    let shifted = natural_baseline
+        - e.baseline.resolve_pt(font)
+        - e.extra.baseline.map_or(0.0, |baseline| part(baseline, box_h));
+    let baseline = e.extra.align.map_or(shifted, |align| match align {
+        VAlign::Top => 0.0,
+        VAlign::Horizon => box_h / 2.0,
+        VAlign::Bottom => box_h,
+    });
     if layouter.initial_baseline_pending {
         // A first box installs its own ascent; zero is a valid installed value.
         let ascent = baseline.max(0.0);
@@ -584,7 +664,30 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
         other => other,
     };
     let mut contents = Vec::new();
-    if e.fill.is_some() || e.stroke.is_some() {
+    if let Some(strokes) = &e.extra.strokes {
+        let outline = crate::entities::elements::shape::ShapeElem {
+            origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+            kind: ShapeKind::Rect,
+            relative_line: None,
+            rect_radius: None,
+            rect_stroke: Some(strokes.clone()),
+            width: None,
+            height: None,
+            fill: e.fill.clone().map(crate::entities::paint::Paint::Solid),
+            stroke: None,
+            fill_rule: Default::default(),
+            extra: Default::default(),
+        };
+        let before = layouter.regions.current.current_items.len();
+        super::shape::emit_sides(
+            layouter,
+            &outline,
+            Point { x: Pt(-outset.left), y: Pt(-outset.top) },
+            (paint_w, paint_h),
+            kind.clone(),
+        );
+        contents.extend(layouter.regions.current.current_items.drain(before..));
+    } else if e.fill.is_some() || e.stroke.is_some() {
         let prepared_stroke = super::tiling::resolve_stroke(layouter, e.stroke.as_ref());
         contents.push(FrameItem::Shape {
             pos: Point { x: Pt(-outset.left), y: Pt(-outset.top) },
@@ -928,7 +1031,7 @@ mod composition_regressions {
     use std::sync::Arc;
 
     fn box_element(body: Content) -> BoxedElem {
-        BoxedElem {
+        BoxedElem { extra: Default::default(),
             body,
             width: Some(Length::pt(20.0)),
             width_fraction: None,
@@ -943,7 +1046,7 @@ mod composition_regressions {
         }
     }
     fn shape(width: f64, height: f64) -> Content {
-        Content::Shape(Arc::new(ShapeElem {
+        Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

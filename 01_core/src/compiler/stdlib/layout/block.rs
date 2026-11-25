@@ -252,7 +252,7 @@ fn parse_block(args: &Args) -> SourceResult<BlockElem> {
             },
         };
     }
-    Ok(BlockElem {
+    Ok(BlockElem { shape: None,
         body,
         width,
         height,

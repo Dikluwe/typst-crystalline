@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/block.md
-//! @prompt-hash a3180a99
+//! @prompt-hash b8220853
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -65,6 +65,8 @@ pub struct BlockElem {
     pub sticky: bool,
     /// Propriedades omitidas no construtor; zero conta todas como dadas.
     pub(crate) omitted: u32,
+    /// Contorno de `rect`, `square`, `circle` ou `ellipse` com corpo.
+    pub(crate) shape: Option<Arc<crate::entities::elements::shape::ShapeElem>>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length`/`Sides`/`Corners`/
@@ -105,6 +107,46 @@ impl Element for BlockElem {
 }
 
 impl BlockElem {
+    /// Corpo de uma forma, com o seu contorno.
+    pub(crate) fn outlined(
+        body: Content,
+        shape: Arc<crate::entities::elements::shape::ShapeElem>,
+    ) -> Self {
+        Self {
+            body,
+            width: None,
+            height: None,
+            inset: Sides::uniform(Length::ZERO),
+            breakable: false,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
+            omitted: 0,
+            shape: Some(shape),
+        }
+    }
+
+    /// Nome do elemento quando o bloco é o corpo de uma forma.
+    pub fn outline_name(&self) -> Option<&'static str> {
+        use crate::entities::elements::shape::ShapeOrigin;
+        self.shape.as_ref().map(|shape| match shape.origin {
+            ShapeOrigin::Square => "square",
+            ShapeOrigin::Circle => "circle",
+            ShapeOrigin::Ellipse => "ellipse",
+            ShapeOrigin::Rect
+            | ShapeOrigin::Geometry
+            | ShapeOrigin::Line
+            | ShapeOrigin::Polygon
+            | ShapeOrigin::Curve => "rect",
+        })
+    }
+
     pub(crate) fn map_content_if_changed<F>(
         &self,
         transform: &mut F,
@@ -140,7 +182,7 @@ mod tests {
     }
 
     fn ex() -> BlockElem {
-        BlockElem {
+        BlockElem { shape: None,
             omitted: 0,
             body: Content::text("a"),
             width: None,

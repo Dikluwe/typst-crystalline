@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/shape` — `ShapeElem`
-Hash do Código: fcf408e5
+Hash do Código: a0e57038
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/shape.rs`
@@ -310,3 +310,12 @@ side dictionaries. These are language geometry/paint losses.
 Add exactly the approved rect_radius and rect_stroke fields. Preserve clone,
 terminal maps, structural hash and pure entity responsibilities. Existing
 literals use None. Preserve all other fields, APIs, approvals and defaults.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+ShapeOrigin distinguishes Rect, Square, Circle, Ellipse, Line, Polygon and Curve;
+Geometry remains for shapes built internally. Add one crate-private record with inset,
+outset and the lexical named arguments, neutral by default; it takes part in equality,
+hash and observation. This supersedes the bare-line zero default and the clause that a
+shape has no content body: the body lives in the Block that carries the outline.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md
-//! @prompt-hash 06a19a8c
+//! @prompt-hash a108eecc
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -116,6 +116,27 @@ fn curve_segments_to_path_items(
     }
 }
 
+/// Segmento dentro dos invólucros que uma regra `show` activa acrescenta.
+fn segment(value: &Value) -> Option<&crate::entities::elements::curve::CurveElem> {
+    let Value::Content(content) = value else { return None };
+    let mut content = content.source_body();
+    loop {
+        if let Content::Curve(curve) = content {
+            return Some(curve.as_ref());
+        } else if let Content::ShowRecipe(recipe) = content {
+            content = recipe.body.source_body();
+        } else if let Content::Located(located) = content {
+            content = located.body.source_body();
+        } else if let Content::Realized(realized) = content {
+            content = realized.visual.source_body();
+        } else if let Content::Styled(styled) = content {
+            content = styled.body.source_body();
+        } else {
+            return None;
+        }
+    }
+}
+
 /// `curve(seg1, seg2, ...; fill?, stroke?)` → `Content::Shape { kind: Path }`
 ///
 /// Cada segmento posicional é um array com tipo + coordenadas:
@@ -141,7 +162,7 @@ pub fn native_curve(
     let mut last_point: Point = Point::ZERO;
 
     for (i, val) in args.items.iter().enumerate() {
-        if let Value::Content(Content::Curve(e)) = val {
+        if let Some(e) = segment(val) {
             curve_segments_to_path_items(&e.segments, &mut last_point, &mut path_items);
             continue;
         }
@@ -295,44 +316,8 @@ pub fn native_curve(
         )]);
     }
 
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-    let fill_rule = match args.named.get("fill-rule") {
-        None => FillRule::NonZero,
-        Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
-        Some(Value::Str(value)) if value.as_str() == "even-odd" => FillRule::EvenOdd,
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("curve(fill-rule): valor inesperado {}", other.type_name()),
-            )]);
-        }
-    };
-    let parsed_stroke = args
-        .named
-        .get("stroke")
-        .map(|value| parse_shape_stroke(value, "curve"))
-        .transpose()?;
-
-    // P727 — fallback determinístico (paridade vanilla `Smart::Auto`,
-    // lab/typst-original/crates/typst-layout/src/shapes.rs:126-129):
-    // sem fill nem stroke → stroke preta de 1pt; com fill sem stroke →
-    // sem stroke. Idêntico ao fallback de `native_rect` — sem ele a
-    // curva renderiza página em branco (path no PDF sem pintura).
-    let stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
+    let (fill, fill_rule, stroke) =
+        super::paint::path_paint(&args.named, "curve", &|_| args.span)?;
 
     // P277 — `path_bbox` analítica reusada sem alteração.
     let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
@@ -342,7 +327,7 @@ pub fn native_curve(
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
-        origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+        origin: crate::entities::elements::shape::ShapeOrigin::Curve,
         rect_radius: None,
         rect_stroke: None,
         relative_line: None,
@@ -352,6 +337,10 @@ pub fn native_curve(
         fill,
         stroke,
         fill_rule,
+        extra: crate::entities::elements::shape::ShapeExtra {
+            named: Some(Arc::new(args.named.clone())),
+            ..Default::default()
+        },
     }))))
 }
 

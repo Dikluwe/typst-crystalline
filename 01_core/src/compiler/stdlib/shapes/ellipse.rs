@@ -1,192 +1,30 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md
-//! @prompt-hash 6458e909
+//! @prompt-hash 1907a54f
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
+use crate::entities::elements::shape::ShapeOrigin;
 
-/// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
-///
-/// Mesmo padrão de fallback que `native_rect`.
+/// `ellipse(body?, width?, height?, fill?, stroke?, inset?, outset?)`.
 pub fn native_ellipse(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    for key in args.named.keys() {
-        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("argumento nomeado inesperado em ellipse(): '{}'", key),
-            )]);
-        }
-    }
-
-    let width = args.named.get("width").cloned().map(Box::new);
-    let height = args.named.get("height").cloned().map(Box::new);
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-
-    let parsed_stroke = args
-        .named
-        .get("stroke")
-        .filter(|value| !matches!(value, Value::None))
-        .map(|value| parse_shape_stroke(value, "ellipse"))
-        .transpose()?;
-
-    let final_stroke = if fill.is_none()
-        && parsed_stroke.is_none()
-        && !matches!(args.named.get("stroke"), Some(Value::None))
-    {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
-
-    Ok(Value::Content(Content::shape(
-        ShapeKind::Ellipse,
-        width,
-        height,
-        fill,
-        final_stroke,
-    )))
+    super::frame::native(ShapeOrigin::Ellipse, args)
 }
 
-/// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
-///
-/// Preserve full radius length until layout; numeric radii remain point extensions.
+/// `circle(body?, radius?, width?, height?, fill?, stroke?, inset?, outset?)`.
 pub fn native_circle(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    for key in args.named.keys() {
-        if !["radius", "fill", "stroke"].contains(&key.as_str()) {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("argumento nomeado inesperado em circle(): '{}'", key),
-            )]);
-        }
-    }
-
-    fn radius_length(value: &Value, span: Span) -> SourceResult<Length> {
-        use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
-        match value {
-            Value::Float(value) => Ok(Length::pt(*value)),
-            Value::Int(value) => Ok(Length::pt(*value as f64)),
-            Value::Length(length) => Ok(*length),
-            // Retained default-sizing debt: explicit Auto shares canonical zero.
-            Value::Auto => Ok(Length::ZERO),
-            Value::None
-            | Value::Bool(_)
-            | Value::Str(_)
-            | Value::Array(_)
-            | Value::Dict(_)
-            | Value::Module(_)
-            | Value::Datetime(_)
-            | Value::Func(_)
-            | Value::Content(_)
-            | Value::LocatedContent(_, _)
-            | Value::Relative(_)
-            | Value::Ratio(_)
-            | Value::Angle(_)
-            | Value::Color(_)
-            | Value::Stroke(_)
-            | Value::Fraction(_)
-            | Value::Align(_)
-            | Value::Location(_)
-            | Value::Gradient(_)
-            | Value::Regex(_)
-            | Value::Tiling(_)
-            | Value::Bytes(_)
-            | Value::Decimal(_)
-            | Value::Duration(_)
-            | Value::Version(_)
-            | Value::Selector(_)
-            | Value::Symbol(_)
-            | Value::Args(_)
-            | Value::State(_)
-            | Value::Counter(_)
-            | Value::Label(_)
-            | Value::Dir(_)
-            | Value::Path(_)
-            | Value::Type(_)
-            | Value::SpotColorant(_) => Err(vec![SourceDiagnostic::error(
-                span,
-                format!("expected length or auto, found {}", vanilla_type_name(value)),
-            )]),
-        }
-    }
-    let value_span = |name: &str| {
-        args.occurrences
-            .as_ref()
-            .and_then(|occurrences| {
-                occurrences.iter().rev().find(|arg| arg.name.as_deref() == Some(name))
-            })
-            .map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span))
-    };
-
-    let (width, height) = match args.named.get("radius") {
-        Some(radius) => {
-            let diameter =
-                Value::Length(radius_length(radius, value_span("radius"))? * 2.0);
-            (Some(Box::new(diameter.clone())), Some(Box::new(diameter)))
-        }
-        None => (None, None),
-    };
-
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-
-    let parsed_stroke = args
-        .named
-        .get("stroke")
-        .filter(|value| !matches!(value, Value::None))
-        .map(|value| parse_shape_stroke(value, "circle"))
-        .transpose()?;
-
-    let final_stroke = if fill.is_none()
-        && parsed_stroke.is_none()
-        && !matches!(args.named.get("stroke"), Some(Value::None))
-    {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
-
-    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
-        origin: crate::entities::elements::shape::ShapeOrigin::Circle,
-        rect_radius: None,
-        rect_stroke: None,
-        relative_line: None,
-        kind: ShapeKind::Ellipse,
-        width,
-        height,
-        fill,
-        stroke: final_stroke,
-        fill_rule: FillRule::NonZero,
-    }))))
+    super::frame::native(ShapeOrigin::Circle, args)
 }
 
 #[cfg(test)]
@@ -574,24 +412,22 @@ mod circle_origin_tests {
     }
 
     #[test]
-    fn circle_origin_retains_explicit_auto_zero_and_omission_debt() {
+    fn circle_origin_auto_radius_equals_omission() {
         let auto = circle(Value::Auto);
         for zero in [Value::Int(0), Value::Float(0.0), Value::Length(Length::ZERO)] {
-            assert_language(&auto, &circle(zero), true);
+            assert_language(&auto, &circle(zero), false);
         }
         assert_language(
             &auto,
             &call(native_circle, Args::positional(vec![])).unwrap(),
-            false,
+            true,
         );
-        assert_eq!(
-            measure_content_real_with_baseline(
-                &content(auto),
-                &StyleChain::default_chain(),
-                &FixedMetrics
-            ),
-            (0.0, 0.0, 0.0)
+        let (width, height, _) = measure_content_real_with_baseline(
+            &content(auto),
+            &StyleChain::default_chain(),
+            &FixedMetrics,
         );
+        assert!((width - 30.0).abs() < 1e-9 && (height - 30.0).abs() < 1e-9);
     }
 
     #[test]
@@ -666,7 +502,8 @@ mod circle_origin_tests {
             assert_eq!(shape.origin, ShapeOrigin::Circle);
             assert_eq!(shape.kind, ShapeKind::Ellipse);
             assert_eq!(shape.width, shape.height);
-            if index == 0 {
+            // Omissão e `auto` deixam o tamanho livre.
+            if index <= 1 {
                 assert!(shape.width.is_none());
             } else {
                 assert!(matches!(shape.width.as_deref(), Some(Value::Length(_))));
@@ -676,7 +513,7 @@ mod circle_origin_tests {
         else {
             panic!("shape")
         };
-        assert_eq!(shape.origin, ShapeOrigin::Geometry);
+        assert_eq!(shape.origin, ShapeOrigin::Ellipse);
         for generic in [
             Content::shape(ShapeKind::Ellipse, None, None, None, None),
             Content::shape_with_radius(

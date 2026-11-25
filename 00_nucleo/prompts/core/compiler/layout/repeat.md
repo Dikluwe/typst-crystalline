@@ -1,5 +1,5 @@
 # L0 — repeat
-Hash do Código: 7b2b2ce4
+Hash do Código: db1e1719
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184

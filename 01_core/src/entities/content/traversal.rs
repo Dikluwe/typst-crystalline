@@ -1223,7 +1223,7 @@ impl Content {
         })))),
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
-            Content::Boxed(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Boxed(Arc::new(BoxedElem {
+            Content::Boxed(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Boxed(Arc::new(BoxedElem { extra: e.extra.clone(),
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             width: e.width,
             width_fraction: e.width_fraction,

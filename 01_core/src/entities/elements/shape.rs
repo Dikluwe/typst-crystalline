@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/shape.md
-//! @prompt-hash 168c84fb
+//! @prompt-hash 59c5b603
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -15,12 +15,21 @@ use crate::entities::geometry::{FillRule, ShapeKind, Stroke};
 use crate::entities::paint::Paint;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
+use crate::entities::{layout_types::Length, rel::Rel, sides::Sides};
+use ecow::EcoString;
+use indexmap::IndexMap;
 
 /// Semantic constructor family, independent of rendered geometry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ShapeOrigin {
     Geometry,
     Circle,
+    Rect,
+    Square,
+    Ellipse,
+    Line,
+    Polygon,
+    Curve,
 }
 
 /// Unresolved affine endpoints for a source line. Layout resolves each axis.
@@ -48,6 +57,16 @@ pub struct ShapeElem {
     pub fill: Option<Paint>,
     pub stroke: Option<Stroke>,
     pub fill_rule: FillRule,
+    pub(crate) extra: ShapeExtra,
+}
+
+/// Espaço em torno do corpo e argumentos lexicais do construtor.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub(crate) struct ShapeExtra {
+    pub(crate) inset: Sides<Rel<Length>>,
+    pub(crate) outset: Sides<Rel<Length>>,
+    pub(crate) named:
+        Option<Arc<IndexMap<EcoString, Value, rustc_hash::FxBuildHasher>>>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Value` (width/height)
@@ -87,7 +106,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> ShapeElem {
-        ShapeElem {
+        ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,
@@ -122,7 +141,7 @@ mod tests {
         assert_eq!(ex(), ex());
         assert_ne!(
             ex(),
-            ShapeElem {
+            ShapeElem { extra: Default::default(),
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 rect_radius: None,
                 rect_stroke: None,
@@ -145,7 +164,7 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = ShapeElem {
+        let outro = ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

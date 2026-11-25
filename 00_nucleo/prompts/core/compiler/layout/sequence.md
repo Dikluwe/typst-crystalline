@@ -1,5 +1,5 @@
 # L0 — sequence
-Hash do Código: 4db5364c
+Hash do Código: 960bd151
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065

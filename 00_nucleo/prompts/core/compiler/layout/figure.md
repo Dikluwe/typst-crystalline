@@ -1,5 +1,5 @@
 # L0 — figure
-Hash do Código: d002f3e1
+Hash do Código: d316f02a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0

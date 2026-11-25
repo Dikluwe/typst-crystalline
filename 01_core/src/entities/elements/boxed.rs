@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/boxed.md
-//! @prompt-hash 38320728
+//! @prompt-hash 879f501d
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -16,6 +16,9 @@ use crate::entities::geometry::Stroke;
 use crate::entities::layout_types::{Color, Length};
 use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
+use crate::entities::{layout_types::VAlign, rel::Rel, value::Value};
+use ecow::EcoString;
+use indexmap::IndexMap;
 
 /// Container inline (`box`). `body` + 9 cosméticos de caixa.
 #[derive(Debug, Clone, PartialEq)]
@@ -31,6 +34,21 @@ pub struct BoxedElem {
     pub clip: bool,
     pub fill: Option<Color>,
     pub stroke: Option<Stroke>,
+    pub(crate) extra: BoxExtra,
+}
+
+/// Partes que só a região resolve, e os argumentos lexicais.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub(crate) struct BoxExtra {
+    pub(crate) width: Option<Rel<Length>>,
+    pub(crate) height: Option<Rel<Length>>,
+    pub(crate) inset: Option<Sides<Rel<Length>>>,
+    pub(crate) outset: Option<Sides<Rel<Length>>>,
+    pub(crate) baseline: Option<Rel<Length>>,
+    pub(crate) align: Option<VAlign>,
+    pub(crate) strokes: Option<Sides<Option<Stroke>>>,
+    pub(crate) named:
+        Option<Arc<IndexMap<EcoString, Value, rustc_hash::FxBuildHasher>>>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length`/`Sides`/`Corners`/
@@ -63,7 +81,7 @@ impl Element for BoxedElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Boxed(Arc::new(BoxedElem {
+        Content::Boxed(Arc::new(BoxedElem { extra: self.extra.clone(),
             body: self.body.map_text(transform),
             width: self.width,
             width_fraction: self.width_fraction,
@@ -106,7 +124,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> BoxedElem {
-        BoxedElem {
+        BoxedElem { extra: Default::default(),
             body: Content::text("a"),
             width: None,
             width_fraction: None,

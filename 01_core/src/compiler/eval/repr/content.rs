@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/content.md
-//! @prompt-hash 6de8f473
+//! @prompt-hash bf4d214f
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -685,7 +685,10 @@ pub fn repr_content(c: &Content) -> String {
             ),
             None => format!("box[{}]", repr_content(&b.body)),
         },
-        Content::Block(b) => format!("block[{}]", repr_content(&b.body)),
+        Content::Block(b) => match b.outline_name() {
+            Some(name) => format!("{name}(body: {})", repr_content(&b.body)),
+            None => format!("block[{}]", repr_content(&b.body)),
+        },
         Content::TableCell(_) => "table.cell".to_string(),
         Content::Bibliography(b) => {
             let path = b.path.as_ref().map(|p| p.as_str()).unwrap_or("");

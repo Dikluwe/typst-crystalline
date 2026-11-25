@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/curve
-Hash do Código: cf110326
+Hash do Código: 9572c78e
 
 ## Ownership and evidence
 
@@ -79,3 +79,11 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+`stroke: none` removes the stroke and `stroke: auto` is the default. Record identity
+and lexical arguments.
+Segments are found through the carriers an active show rule adds; before this, any
+show rule made every curve fail.

@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/shapes
-Hash do Código: 4048c68c
+Hash do Código: aaaebbb4
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/shapes.rs`

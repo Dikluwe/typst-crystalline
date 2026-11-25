@@ -93,7 +93,7 @@ impl Content {
             }
             other => other,
         };
-        Self::Shape(Arc::new(ShapeElem {
+        Self::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,
@@ -290,7 +290,7 @@ impl Content {
         inset: Sides<Length>,
         breakable: bool,
     ) -> Self {
-        Self::Block(Arc::new(BlockElem {
+        Self::Block(Arc::new(BlockElem { shape: None,
             body,
             width: width.map(|abs| crate::entities::rel::Rel { rel: 0.0, abs }),
             height: height.map(|abs| {
@@ -331,7 +331,7 @@ impl Content {
         inset: Sides<Length>,
         baseline: Length,
     ) -> Self {
-        Self::Boxed(Arc::new(BoxedElem {
+        Self::Boxed(Arc::new(BoxedElem { extra: Default::default(),
             body,
             width,
             width_fraction: None,
@@ -354,7 +354,7 @@ impl Content {
     }
 
     pub fn boxed_fractional(body: Content, width_fraction: f64) -> Self {
-        Self::Boxed(Arc::new(BoxedElem {
+        Self::Boxed(Arc::new(BoxedElem { extra: Default::default(),
             body,
             width: None,
             width_fraction: Some(width_fraction),

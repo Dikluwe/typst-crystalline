@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash b5b78d27
+//! @prompt-hash 17ec1360
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -128,6 +128,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &BlockElem,
 ) {
+    if let Some(shape) = &e.shape {
+        return super::shape::layout_outlined(layouter, shape, Some(&e.body));
+    }
     let declared = effective(layouter, e);
     let e = declared.as_ref().unwrap_or(e);
     let (
@@ -876,7 +879,7 @@ mod literal_extent_regression {
             let right = l.regions.current.width - l.page_config.margin.right;
             let text = format!("ABC{}", " ".repeat(spaces));
             let expected = l.metrics.text_width(&text, l.style.size, &l.style).0;
-            let b = BlockElem { omitted: 0,
+            let b = BlockElem { shape: None, omitted: 0,
                 body: Content::styled(
                     Content::text(text),
                     Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
@@ -1037,7 +1040,7 @@ mod a2_margin_priority_tests {
     use std::sync::Arc;
 
     fn block(text: &str) -> BlockElem {
-        BlockElem { omitted: 0,
+        BlockElem { shape: None, omitted: 0,
             body: Content::text(text),
             width: None,
             height: None,

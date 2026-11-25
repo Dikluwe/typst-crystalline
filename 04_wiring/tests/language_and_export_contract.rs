@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash b4a0a3fd
+//! @prompt-hash cc602f42
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1613,7 +1613,7 @@ fn set_admission_keeps_every_element_settable() {
     }
     // Valid declarations without effect warn and never fail.
     for (source, name) in [
-        ("#set rect(fill: red)", "rect.fill"),
+        ("#set grid(fill: red)", "grid.fill"),
         ("#set list(marker: [x])", "list.marker"),
         ("#set table(fill: gradient.linear(red, blue))", "table.fill"),
         ("#set table(gutter: 3pt)", "table.gutter"),
@@ -1798,4 +1798,388 @@ fn set_heading_figure_and_footnote_properties_take_effect() {
         "= A\nx",
     );
     set_equals("heading-ambient", "#set block(above: 80pt)\nx\n= A", "x\n= A");
+}
+
+// Expectations: approved shapes package. Sizes measured on the pinned reference.
+fn shape_size(prelude: &str, expression: &str) -> String {
+    // A bounded page: measurement itself is unbounded.
+    let source = format!(
+        "#set page(width: 200pt, height: 220pt, margin: 10pt)\n{prelude}\n#context {{ let m = measure({expression}); [#metadata((m.width, m.height)) <m>] }}"
+    );
+    let scratch = Scratch::new("shape-size");
+    let input = scratch.0.join("main.typ");
+    fs::write(&input, source).unwrap();
+    let output =
+        run(BIN, &["query", input.to_str().unwrap(), "<m>", "--field", "value", "--one"]);
+    assert!(output.success(), "{prelude} {expression}: {output:#?}");
+    output.stdout.split_whitespace().collect::<String>()
+}
+
+#[test]
+fn shapes_keep_their_body_and_its_effects() {
+    for shape in [
+        "rect",
+        "square",
+        "circle",
+        "ellipse",
+        "rect.with(width: 60pt, height: 40pt)",
+        "square.with(size: 60pt)",
+        "circle.with(radius: 30pt)",
+        "rect.with(fill: red)",
+    ] {
+        let (with, svg) = set_svg("body", &format!("#let s = {shape}\n#s[MW]"));
+        let (_, empty) = set_svg("body", &format!("#let s = {shape}\n#s()"));
+        assert!(with.success(), "{shape}: {with:#?}");
+        let glyphs = |svg: &str| svg.matches("<use ").count();
+        assert_eq!(glyphs(&svg), glyphs(&empty) + 2, "{shape}");
+    }
+    let counted = "#let c = counter(\"k\")\n#rect[#c.step() a#footnote[n] #metadata(1) <m>]\n#circle[#c.step()]\n#context c.get()";
+    for (query, expected) in [
+        ("<m>", 1),
+        ("heading", 1),
+        ("footnote", 1),
+        ("figure", 1),
+    ] {
+        let scratch = Scratch::new("shape-query");
+        let input = scratch.0.join("main.typ");
+        fs::write(
+            &input,
+            "#set heading(numbering: \"1.\")\n#rect[#metadata(1) <m> \n= T <t>\n a#footnote[n] #figure(caption: [c])[b] @t #link(\"https://a.b\")[l]]",
+        )
+        .unwrap();
+        let output = run(BIN, &["query", input.to_str().unwrap(), query]);
+        assert!(output.success(), "{query}: {output:#?}");
+        let found = output.stdout.matches("\"func\"").count();
+        assert!(found >= expected, "{query}: {}", output.stdout);
+    }
+    let (output, _) = set_svg(
+        "shape-counter",
+        &format!("{counted}\n#context assert.eq(c.get(), (2,))"),
+    );
+    assert!(output.success(), "{output:#?}");
+    for source in [
+        "#show rect: it => it.body\n#rect[MW]",
+        "#rect(\"MW\")",
+        "#rect([MW], fill: none)",
+        "#rect[#rect[MW]]",
+        "#table(rect[MW])",
+        "#set page(header: rect[MW])\nx",
+        "#context rect[MW]",
+        "#rect[#context [MW]]",
+        "#box(rect[MW])",
+        "#align(center, rect[MW])",
+        "#rotate(0deg, rect[MW])",
+        "#grid(columns: 2, circle[MW], square[x])",
+        "#place(top, ellipse[MW])",
+        "#figure(rect[MW])",
+        "#let r = rect[MW]\n#r",
+    ] {
+        let (output, svg) = set_svg("shape-inside", source);
+        assert!(output.success(), "{source}: {output:#?}");
+        assert!(svg.matches("<use ").count() >= 2, "{source}");
+    }
+    let (output, _) = set_svg("fields", "#assert.eq(rect[a].fields(), (body: [a]))\n#assert.eq(rect[a].func(), rect)\n#assert(rect[a] != block[a])");
+    assert!(output.success(), "{output:#?}");
+}
+
+#[test]
+fn shapes_measure_like_the_language() {
+    for (expression, expected) in [
+        ("rect(width: 60pt)[abc]", ("60pt", None)),
+        ("rect(height: 60pt)[abc]", ("", Some("60pt"))),
+        ("rect()", ("45pt", Some("30pt"))),
+        ("square()", ("30pt", Some("30pt"))),
+        ("circle()", ("30pt", Some("30pt"))),
+        ("ellipse()", ("45pt", Some("30pt"))),
+        ("square(size: 40pt)[abc]", ("40pt", Some("40pt"))),
+        ("square(width: 40pt)[abc]", ("40pt", Some("40pt"))),
+        ("square(height: 40pt)[abc]", ("40pt", Some("40pt"))),
+        ("square(width: 40pt, height: 20pt)[a]", ("40pt", Some("20pt"))),
+        ("circle(radius: 20pt)[abc]", ("40pt", Some("40pt"))),
+        ("circle(width: 50pt)[a]", ("50pt", Some("50pt"))),
+        ("circle(height: 30pt)[a]", ("30pt", Some("30pt"))),
+        ("rect(inset: 0pt, box(width: 20pt, height: 10pt))", ("20pt", Some("10pt"))),
+        ("rect(box(width: 20pt, height: 10pt))", ("30pt", Some("20pt"))),
+        ("rect(inset: 10%, box(width: 20pt, height: 10pt))", ("25pt", Some("12.5pt"))),
+        ("rect(inset: (x: 8pt), box(width: 20pt, height: 10pt))", ("36pt", Some("20pt"))),
+        ("rect(outset: 9pt, box(width: 20pt, height: 10pt))", ("30pt", Some("20pt"))),
+        ("rect(stroke: 9pt, box(width: 20pt, height: 10pt))", ("30pt", Some("20pt"))),
+        ("square(box(width: 20pt, height: 10pt))", ("30pt", Some("30pt"))),
+        ("circle(radius: -5pt)", ("0pt", Some("0pt"))),
+        ("rect(width: -5pt, height: 5pt)", ("0pt", Some("5pt"))),
+        ("line()", ("30pt", Some("0pt"))),
+        ("line(length: 50%)", ("0pt", Some("0pt"))),
+        ("line(end: none, length: 12pt)", ("12pt", Some("0pt"))),
+        ("line(start: (5pt, 5pt), length: 20pt, angle: 90deg)", ("5pt", Some("25pt"))),
+        ("box(baseline: 5pt, width: 20pt, height: 10pt)", ("20pt", Some("10pt"))),
+        (
+            "box(width: auto, height: auto, rect(width: 9pt, height: 8pt))",
+            ("9pt", Some("8pt")),
+        ),
+        ("box(inset: 10%, box(width: 20pt, height: 10pt))", ("25pt", Some("12.5pt"))),
+    ] {
+        let size = shape_size("", expression);
+        let (width, height) = expected;
+        assert!(size.contains(width), "{expression}: {size}");
+        if let Some(height) = height {
+            let exact = if width.is_empty() {
+                size.contains(&format!("\"{height}\""))
+            } else {
+                size == format!("[\"{width}\",\"{height}\"]")
+            };
+            assert!(exact, "{expression}: {size}");
+        }
+    }
+    for (prelude, expression, expected) in [
+        ("#set circle(radius: 20pt)", "circle[a]", "[\"40pt\",\"40pt\"]"),
+        ("#set circle(radius: 20pt)", "circle(width: 10pt)[a]", "[\"10pt\",\"40pt\"]"),
+        ("#set circle(width: 60pt)", "circle(radius: 5pt)[a]", "[\"10pt\",\"10pt\"]"),
+        ("#set square(size: 40pt)", "square(width: 10pt)[a]", "[\"10pt\",\"40pt\"]"),
+        ("#set square(width: 40pt)", "square(size: 10pt)[a]", "[\"10pt\",\"10pt\"]"),
+        (
+            "#set rect(inset: (x: 20pt))",
+            "rect(inset: (y: 1pt), box(width: 20pt, height: 10pt))",
+            "[\"60pt\",\"12pt\"]",
+        ),
+        ("#set line(length: 12pt)", "line()", "[\"12pt\",\"0pt\"]"),
+        ("#set line(end: (10pt, 7pt))", "line(length: 5pt)", "[\"10pt\",\"7pt\"]"),
+        ("#set box(width: 33pt, height: 12pt)", "box[a]", "[\"33pt\",\"12pt\"]"),
+    ] {
+        assert_eq!(shape_size(prelude, expression), expected, "{prelude} {expression}");
+    }
+}
+
+#[test]
+fn shapes_admit_what_the_language_admits() {
+    for (source, message) in [
+        ("#rect([a], [b])", "unexpected argument"),
+        ("#rect(1)", "unexpected argument"),
+        ("#square(4pt)", "unexpected argument"),
+        ("#circle(4pt)", "unexpected argument"),
+        ("#circle(radius: 5pt, width: 9pt)", "unexpected argument: width"),
+        ("#square(size: 5pt, height: 9pt)", "unexpected argument: height"),
+        ("#circle(radius: 50%)", "expected length or auto, found ratio"),
+        ("#rect(width: \"a\")", "expected relative length or auto, found string"),
+        ("#rect(inset: \"a\")", "expected relative length or dictionary, found string"),
+        ("#box(baseline: left)", "expected `top`, `horizon`, or `bottom`, found left"),
+    ] {
+        let (output, _) = set_svg("shape-admission", source);
+        assert!(!output.success(), "{source}: {output:#?}");
+        assert!(output.stderr.contains(message), "{source}: {}", output.stderr);
+    }
+    for source in [
+        "#rect(stroke: auto)[a]",
+        "#square(stroke: (left: 2pt))[a]",
+        "#circle(stroke: auto, inset: 1pt, outset: (y: 2pt))[a]",
+        "#ellipse(inset: 10%, outset: 1pt)[a]",
+        "#rect(inset: (x: 1pt, rest: 3pt), outset: 5%)[a]",
+        "#square(size: auto)[a]",
+        "#circle(width: auto, height: 20%)[a]",
+        "#line(end: none)",
+        "#polygon(stroke: none, fill: red, (0pt, 0pt), (9pt, 9pt), (0pt, 9pt))",
+        "#polygon(stroke: auto, (0pt, 0pt), (9pt, 9pt), (0pt, 9pt))",
+        "#curve(stroke: none, fill: red, curve.line((9pt, 9pt)))",
+        "#curve(stroke: auto, curve.line((9pt, 9pt)))",
+        "#box(width: auto, height: auto)[a]",
+        "#box(stroke: (paint: red, dash: \"dashed\"))[a]",
+        "#box(stroke: (left: 2pt))[a]",
+        "#box(baseline: top)[a]",
+        "#box(width: 50%, height: 20%, inset: 5%, outset: 1%)[a]",
+        "#rect(none)",
+    ] {
+        let (output, _) = set_svg("shape-accept", source);
+        assert!(output.success(), "{source}: {output:#?}");
+    }
+}
+
+#[test]
+fn shapes_declared_properties_equal_the_constructor() {
+    for (element, properties) in [
+        (
+            "rect",
+            &[
+                "width: 50pt",
+                "width: 50%",
+                "height: 30pt",
+                "fill: red",
+                "fill: gradient.linear(red, blue)",
+                "stroke: 3pt",
+                "stroke: red",
+                "stroke: none",
+                "stroke: (left: 2pt)",
+                "radius: 5pt",
+                "radius: 20%",
+                "inset: 12pt",
+                "inset: (x: 12pt)",
+                "outset: 6pt",
+            ][..],
+        ),
+        (
+            "square",
+            &[
+                "size: 40pt",
+                "width: 50pt",
+                "fill: red",
+                "stroke: 3pt",
+                "stroke: (left: 2pt)",
+                "radius: 5pt",
+                "inset: 12pt",
+                "outset: 6pt",
+            ],
+        ),
+        (
+            "circle",
+            &[
+                "radius: 20pt",
+                "width: 50pt",
+                "height: 30pt",
+                "fill: red",
+                "stroke: 3pt + blue",
+                "inset: 12pt",
+                "outset: 6pt",
+            ],
+        ),
+        (
+            "ellipse",
+            &[
+                "width: 50pt",
+                "height: 30pt",
+                "fill: red",
+                "stroke: 3pt",
+                "inset: 12pt",
+                "outset: 6pt",
+            ],
+        ),
+        (
+            "box",
+            &[
+                "width: 50pt",
+                "width: 50%",
+                "height: 30pt",
+                "fill: red",
+                "stroke: 3pt",
+                "stroke: (left: 2pt)",
+                "radius: 5pt",
+                "inset: 12pt",
+                "outset: 6pt",
+                "baseline: 6pt",
+                "baseline: top",
+                "clip: true",
+            ],
+        ),
+    ] {
+        for property in properties {
+            set_equals(
+                element,
+                &format!("#set {element}({property})\nx #{element}[ab] y"),
+                &format!("x #{element}({property})[ab] y"),
+            );
+            set_equals(
+                element,
+                &format!(
+                    "#show {element}: set {element}({property})\nx #{element}[ab] y"
+                ),
+                &format!("x #{element}({property})[ab] y"),
+            );
+        }
+    }
+    let points = "(0pt, 0pt), (20pt, 20pt), (40pt, 0pt), (0pt, 10pt), (40pt, 10pt)";
+    for property in
+        ["fill: red", "stroke: 3pt", "stroke: none", "fill-rule: \"even-odd\""]
+    {
+        set_equals(
+            "polygon",
+            &format!("#set polygon({property})\n#polygon({points})"),
+            &format!("#polygon({property}, {points})"),
+        );
+        set_equals(
+            "curve",
+            &format!("#set curve({property})\n#curve(curve.line((20pt, 9pt)), curve.line((3pt, 9pt)))"),
+            &format!("#curve({property}, curve.line((20pt, 9pt)), curve.line((3pt, 9pt)))"),
+        );
+    }
+    for property in [
+        "length: 80pt",
+        "length: 50%",
+        "angle: 30deg",
+        "stroke: 3pt",
+        "start: (5pt, 5pt)",
+        "end: (20pt, 20pt)",
+    ] {
+        set_equals(
+            "line",
+            &format!("#set line({property})\n#line()"),
+            &format!("#line({property})"),
+        );
+    }
+    for (declared, explicit) in [
+        (
+            "#set rect(stroke: red)\n#rect(stroke: 3pt)[a]",
+            "#set rect(stroke: 3pt)\n#rect(stroke: red)[a]",
+        ),
+        ("#set rect(stroke: 3pt)\n#rect(stroke: auto)[a]", "#rect[a]"),
+        ("#set rect(fill: red)\n#rect(stroke: auto)[a]", "#rect(fill: red)[a]"),
+        (
+            "#set rect(fill: red, width: 9pt)\n#rect(fill: none, width: auto)[a]",
+            "#rect[a]",
+        ),
+        (
+            "#set rect(stroke: none)\n#rect(stroke: (left: 3pt))[a]",
+            "#rect(stroke: (left: 3pt))[a]",
+        ),
+        (
+            "#set rect(inset: (x: 20pt))\n#set rect(inset: (y: 1pt))\n#rect[a]",
+            "#rect(inset: (x: 20pt, y: 1pt))[a]",
+        ),
+        ("#let r = rect[a]\n#set rect(fill: red)\n#r", "#rect(fill: red)[a]"),
+        ("#set rect(fill: red)\n#square[a]", "#square[a]"),
+        ("#set block(fill: red)\n#rect[a]", "#rect[a]"),
+        ("#set ellipse(fill: red)\n#circle[a]", "#circle[a]"),
+        ("#set rect(fill: red)\n#block[a]", "#block[a]"),
+    ] {
+        set_equals("shape-set", declared, explicit);
+    }
+    for (shape, call) in [
+        ("rect", "#rect()"),
+        ("rect", "#rect[a]"),
+        ("square", "#square()"),
+        ("square", "#square[a]"),
+        ("circle", "#circle[a]"),
+        ("ellipse", "#ellipse()"),
+        ("ellipse", "#ellipse[a]"),
+        ("line", "#line()"),
+        ("polygon", "#polygon((0pt, 0pt), (9pt, 9pt), (0pt, 9pt))"),
+        ("curve", "#curve(curve.line((9pt, 9pt)))"),
+        ("box", "#box[a]"),
+    ] {
+        set_equals(
+            "show",
+            &format!("#show {shape}: [MW]\n{call}"),
+            "#show \"z\": []\nMW",
+        );
+    }
+    set_equals("show-other", "#show rect: [MW]\n#square[a]", "#square[a]");
+    set_equals("show-block", "#show block: [MW]\n#rect[a]", "#rect[a]");
+}
+
+#[test]
+fn shapes_stay_explicit_in_html() {
+    let scratch = Scratch::new("shape-html");
+    let input = scratch.0.join("main.typ");
+    let output = scratch.0.join("main.html");
+    fs::write(&input, "#rect[MW]").unwrap();
+    let result = run(
+        BIN,
+        &[
+            "compile",
+            input.to_str().unwrap(),
+            output.to_str().unwrap(),
+            "--features",
+            "html",
+            "--format",
+            "html",
+        ],
+    );
+    let html = fs::read_to_string(&output).unwrap_or_default();
+    assert!(!result.success() || html.contains("MW"), "{result:#?} {html}");
 }

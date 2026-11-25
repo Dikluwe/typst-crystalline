@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/polygon
-Hash do Código: 334f19f0
+Hash do Código: 1f2f6966
 
 ## Ownership and evidence
 
@@ -79,3 +79,9 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+`stroke: none` removes the stroke and `stroke: auto` is the default. Record identity
+and lexical arguments.

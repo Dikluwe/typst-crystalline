@@ -193,7 +193,7 @@ mod a2_margin_priority_tests {
         l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(ambient)));
         let original_size = l.style.size;
         if !initial {
-            let block = crate::entities::elements::block::BlockElem { omitted: 0,
+            let block = crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: Content::text("BEFORE"),
                 width: None,
                 height: None,

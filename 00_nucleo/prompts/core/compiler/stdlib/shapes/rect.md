@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/rect
-Hash do Código: 77cad9c0
+Hash do Código: 39e0a14d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/rectangle-decoration.toml sha256:dbc5dd8b047bdebcd6adf912663a2d5e50b50ad46d4af6c6cf7beff23097ded8
@@ -58,3 +58,9 @@ strokes with explicit-side > axis > rest precedence. Preserve complete Stroke,
 empty/None/omission behavior, uniform dictionaries and the legacy absolute
 route. Unknown mixed keys/types fail instead of being dropped. This approved
 scope supersedes its prior rect per-side entity gap, not square/container debt.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Construction delegates to the shapes frame owner. Positional sizes of square are no
+longer admitted: the positional argument is the body.

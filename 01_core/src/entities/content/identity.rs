@@ -263,7 +263,7 @@ impl Content {
             Self::Pad(_) => "pad",
             Self::Columns(_) => "columns",
             Self::Boxed(_) => "box",
-            Self::Block(_) => "block",
+            Self::Block(block) => block.outline_name().unwrap_or("block"),
             Self::Table(_) => "table",
             Self::TableCell(_) => "cell",
             Self::TableHeader(_) => "table.header",

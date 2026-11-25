@@ -1,183 +1,34 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/rect.md
-//! @prompt-hash 6c97e617
+//! @prompt-hash 4ab2749f
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
+use crate::entities::elements::shape::ShapeOrigin;
 
-fn absent_stroke(value: &Value) -> bool {
+pub(super) fn absent_stroke(value: &Value) -> bool {
     matches!(value, Value::None) || matches!(value, Value::Dict(dict) if dict.is_empty())
 }
 
-/// `rect(width?, height?, fill?, stroke?, radius?)` → `Content::Shape`.
-///
-/// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
-/// Este é o único local onde este fallback existe — nem o layouter nem o
-/// exportador têm permissão para inventar cores ou espessuras.
+/// `rect(body?, width?, height?, fill?, stroke?, radius?, inset?, outset?)`.
 pub fn native_rect(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    for key in args.named.keys() {
-        if !["width", "height", "fill", "stroke", "radius"].contains(&key.as_str()) {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("argumento nomeado inesperado em rect(): '{}'", key),
-            )]);
-        }
-    }
-
-    let width = args.named.get("width").cloned().map(Box::new);
-    let height = args.named.get("height").cloned().map(Box::new);
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-
-    let rect_stroke = rect_side_strokes(args.named.get("stroke"), args.span)?;
-    let parsed_stroke = if rect_stroke.is_some() {
-        None
-    } else {
-        args.named
-            .get("stroke")
-            .filter(|v| !absent_stroke(v))
-            .map(|v| parse_shape_stroke(v, "rect"))
-            .transpose()?
-    };
-
-    // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
-    let final_stroke = if fill.is_none()
-        && parsed_stroke.is_none()
-        && rect_stroke.is_none()
-        && !args.named.get("stroke").is_some_and(absent_stroke)
-    {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
-
-    let rect_radius = relative_rect_radius(args.named.get("radius"), args.span)?;
-    let radius = if rect_radius.is_some() {
-        Corners::uniform(Length::ZERO)
-    } else {
-        match args.named.get("radius") {
-            Some(value) => crate::compiler::stdlib::layout::extract_corners_length_value(
-                value, "rect",
-            )?,
-            None => Corners::uniform(Length::ZERO),
-        }
-    };
-    let mut content = Content::shape_with_radius(
-        ShapeKind::Rect,
-        width,
-        height,
-        fill,
-        final_stroke,
-        radius,
-    );
-    if let Content::Shape(shape) = &mut content {
-        let shape = Arc::make_mut(shape);
-        shape.rect_radius = rect_radius;
-        shape.rect_stroke = rect_stroke;
-    }
-    Ok(Value::Content(content))
+    super::frame::native(ShapeOrigin::Rect, args)
 }
 
-/// `square(width, height: auto, fill?, stroke?, radius?)` → `Content::Shape { kind: Rect, ... }`.
-///
-/// Helper morfológico sobre `Rect`: `square(w)` é equivalente a
-/// `rect(width: w, height: w)`. Se `height` for omitido, assume o valor de
-/// `width`. O fallback de stroke preta 1pt segue o mesmo determinismo de
-/// `native_rect`.
+/// `square(body?, size?, width?, height?, fill?, stroke?, radius?, inset?, outset?)`.
 pub fn native_square(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    for key in args.named.keys() {
-        if !["width", "height", "fill", "stroke", "radius"].contains(&key.as_str()) {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("argumento nomeado inesperado em square(): '{}'", key),
-            )]);
-        }
-    }
-
-    let width = if let Some(w) = args.items.first() {
-        Some(Box::new(w.clone()))
-    } else {
-        args.named.get("width").cloned().map(Box::new)
-    };
-
-    let Some(width) = width else {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "square() requer um argumento de largura",
-        )]);
-    };
-
-    let height = args
-        .named
-        .get("height")
-        .cloned()
-        .map(Box::new)
-        .unwrap_or_else(|| width.clone());
-
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-
-    let parsed_stroke = args
-        .named
-        .get("stroke")
-        .filter(|value| !absent_stroke(value))
-        .map(|value| parse_shape_stroke(value, "square"))
-        .transpose()?;
-
-    // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
-    let final_stroke = if fill.is_none()
-        && parsed_stroke.is_none()
-        && !args.named.get("stroke").is_some_and(absent_stroke)
-    {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
-
-    let radius = match args.named.get("radius") {
-        Some(val) => {
-            crate::compiler::stdlib::layout::extract_corners_length_value(val, "square")?
-        }
-        None => Corners::uniform(Length::ZERO),
-    };
-
-    Ok(Value::Content(Content::shape_with_radius(
-        ShapeKind::Rect,
-        Some(width),
-        Some(height),
-        fill,
-        final_stroke,
-        radius,
-    )))
+    super::frame::native(ShapeOrigin::Square, args)
 }
 
 #[cfg(test)]
@@ -192,7 +43,7 @@ mod tests {
             Value::Content(Content::Shape(_))
         ));
         assert!(matches!(
-            call(native_square, Args::positional(vec![Value::Length(Length::pt(4.0))]))
+            call(native_square, Args::positional(vec![]))
                 .unwrap(),
             Value::Content(Content::Shape(_))
         ));
@@ -225,7 +76,7 @@ mod optional_stroke_regressions {
         };
         assert!(shape.stroke.is_some(), "omission keeps the unfilled default");
         for fill in [None, Some(Value::Color(Color::rgb(0, 0, 0)))] {
-            let mut args = Args::positional(vec![Value::Length(Length::pt(20.0))]);
+            let mut args = Args::positional(vec![]);
             args.named.insert("stroke".into(), Value::None);
             if let Some(fill) = fill {
                 args.named.insert("fill".into(), fill);
@@ -238,8 +89,7 @@ mod optional_stroke_regressions {
             assert!(shape.stroke.is_none());
         }
         let Value::Content(Content::Shape(shape)) =
-            call(native_square, Args::positional(vec![Value::Length(Length::pt(20.0))]))
-                .unwrap()
+            call(native_square, Args::positional(vec![])).unwrap()
         else {
             panic!("expected shape");
         };
@@ -309,7 +159,7 @@ fn affine_radius(
     }
     Ok(value)
 }
-fn relative_rect_radius(
+pub(super) fn relative_rect_radius(
     value: Option<&Value>,
     span: Span,
 ) -> SourceResult<Option<Corners<crate::entities::rel::Rel<Length>>>> {
@@ -363,7 +213,7 @@ fn relative_rect_radius(
         Ok(Some(Corners::uniform(affine_radius(value, span)?)))
     }
 }
-fn rect_side_strokes(
+pub(in crate::compiler::stdlib) fn rect_side_strokes(
     value: Option<&Value>,
     span: Span,
 ) -> SourceResult<Option<crate::entities::sides::Sides<Option<Stroke>>>> {

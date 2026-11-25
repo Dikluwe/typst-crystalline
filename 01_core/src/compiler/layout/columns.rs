@@ -436,7 +436,7 @@ mod p1379_tests {
     };
 
     fn fractional(text: &str, weight: f64) -> Content {
-        Content::Block(Arc::new(BlockElem { omitted: 0,
+        Content::Block(Arc::new(BlockElem { shape: None, omitted: 0,
             body: Content::text(text),
             width: None,
             height: Some(BlockHeight::Fractional(weight)),

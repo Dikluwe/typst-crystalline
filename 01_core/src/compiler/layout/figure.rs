@@ -915,7 +915,7 @@ mod readiness_frame_geometry {
             use crate::entities::{
                 corners::Corners, elements::block::BlockElem, sides::Sides,
             };
-            Content::Block(Arc::new(BlockElem { omitted: 0,
+            Content::Block(Arc::new(BlockElem { shape: None, omitted: 0,
                 body: figure,
                 width: None,
                 height: None,

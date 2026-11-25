@@ -1,5 +1,5 @@
 # L0 — equation
-Hash do Código: 19cc255f
+Hash do Código: 816aec3c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b

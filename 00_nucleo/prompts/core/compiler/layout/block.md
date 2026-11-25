@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: 3aefe95d
+Hash do Código: 1b876dd6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -386,3 +386,8 @@ chain. A chain without block declarations is the unchanged path. Internal reader
 sticky, fractional height, measure and text alignment use the same projection.
 Limit: a block reached only through a style wrapper in those preflights is projected
 when laid out, not in the preflight.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+A block with an outline delegates its whole layout to the shape owner.

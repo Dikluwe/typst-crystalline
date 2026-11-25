@@ -649,7 +649,7 @@ fn p231_block_map_content_preserva_3_fields() {
     let outset_orig = Sides::uniform(Length::pt(7.0));
     let radius_orig = Corners::uniform(Length::pt(2.0));
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem { omitted: 0,
+        crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("b"),
             width: None,
             height: None,
@@ -695,7 +695,7 @@ fn p247_block_map_content_preserva_fill_stroke() {
         ..Stroke::default()
     });
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem { omitted: 0,
+        crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("p247map"),
             width: None,
             height: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md
-//! @prompt-hash fc0e2211
+//! @prompt-hash 9fff3b85
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -42,45 +42,8 @@ pub fn native_polygon(
 
     path_items.push(PathItem::ClosePath);
 
-    let fill = args
-        .named
-        .get("fill")
-        .map(|value| parse_paint(value, args.span))
-        .transpose()?
-        .flatten();
-    let fill_rule = match args.named.get("fill-rule") {
-        None => FillRule::NonZero,
-        Some(Value::Str(value)) if value.as_str() == "non-zero" => FillRule::NonZero,
-        Some(Value::Str(value)) if value.as_str() == "even-odd" => FillRule::EvenOdd,
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("polygon(fill-rule): valor inesperado {}", other.type_name()),
-            )]);
-        }
-    };
-    let parsed_stroke = args
-        .named
-        .get("stroke")
-        .map(|value| parse_shape_stroke(value, "polygon"))
-        .transpose()?;
-
-    // P732 — fallback determinístico (paridade vanilla `Smart::Auto`,
-    // lab/typst-original/crates/typst-layout/src/shapes.rs:336-339),
-    // idêntico ao de `native_curve` (P727): sem fill nem stroke → stroke
-    // preta de 1pt; com fill sem stroke → sem stroke. Sem ele o polígono
-    // renderiza página em branco (path no PDF sem operador de pintura —
-    // medido: 0 px não-brancos no cristalino vs 898 px no vanilla).
-    let stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke {
-            paint: Paint::Solid(Color::rgb(0, 0, 0)),
-            thickness: crate::entities::layout_types::Length::pt(1.0),
-            overhang: false,
-            ..Stroke::default()
-        })
-    } else {
-        parsed_stroke
-    };
+    let (fill, fill_rule, stroke) =
+        super::paint::path_paint(&args.named, "polygon", &|_| args.span)?;
 
     // P277 — DEBT-33 CLOSED: usar geometry::path_bbox para bbox.
     // Para LineTo-only paths preserva bit-exact min/max behavior.
@@ -91,7 +54,7 @@ pub fn native_polygon(
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
-        origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
+        origin: crate::entities::elements::shape::ShapeOrigin::Polygon,
         rect_radius: None,
         rect_stroke: None,
         relative_line: None,
@@ -101,6 +64,10 @@ pub fn native_polygon(
         fill,
         stroke,
         fill_rule,
+        extra: crate::entities::elements::shape::ShapeExtra {
+            named: Some(Arc::new(args.named.clone())),
+            ..Default::default()
+        },
     }))))
 }
 
@@ -256,7 +223,7 @@ pub fn native_polygon_regular(
     let height =
         if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
+    Ok(Value::Content(Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
         origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
         rect_radius: None,
         rect_stroke: None,

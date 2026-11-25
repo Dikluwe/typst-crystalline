@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes — geometric primitive façade
-Hash do Código: 327466fd
+Hash do Código: 9486515a
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/shapes.rs`

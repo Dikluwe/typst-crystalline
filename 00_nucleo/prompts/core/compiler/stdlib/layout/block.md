@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/block — block
-Hash do Código: 514bb08d
+Hash do Código: ab389340
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744

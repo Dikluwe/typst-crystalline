@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 745aa3e7
+Hash do Código: f29626fa
 
 
 
@@ -700,3 +700,8 @@ flow covers raster admission and the measured internal WebP color correction.
 PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
 
 Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+A Block with an outline exposes body only, and its func is the shape's constructor.

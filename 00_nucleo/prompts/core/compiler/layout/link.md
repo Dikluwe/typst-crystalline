@@ -1,5 +1,5 @@
 # L0 — link
-Hash do Código: 42df7c90
+Hash do Código: 196c9f59
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57

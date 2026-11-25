@@ -42,6 +42,7 @@ mod stroke;
 
 pub(super) use self::block::extract_parity;
 pub use self::block::native_block;
+pub(crate) use self::box_elem::{declare_box, declared_box};
 pub(crate) use self::block::{
     declare_block, declare_sides, declare_stroke, declared_block,
 };

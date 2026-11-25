@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/line
-Hash do Código: ce9018bc
+Hash do Código: 0cca905d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
@@ -105,3 +105,9 @@ remains scalar. Keep all existing semantic assertions; update only their
 representation as necessary. Producers preserve full Length; layout consumers
 resolve against effective font size before scalar geometry. Repr preserves
 absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Without legacy dx or dy the extent is length 30pt at angle 0 when nothing is given.
+`end: none` equals omission. Record identity and lexical arguments.

@@ -1,5 +1,5 @@
 # L0 — boxed
-Hash do Código: e8015553
+Hash do Código: c1cb99a7
 
 
 **Layer:** L1
@@ -777,3 +777,12 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Project the box at entry with the chain and the inline region: declarations, relative
+sizes and baseline become concrete before any existing reader. An aligned baseline of
+top, horizon or bottom places that part of the frame on the line's baseline. Sides
+with different strokes paint through the rectangle owner. The declared fraction width
+keeps its constructor-only effect.

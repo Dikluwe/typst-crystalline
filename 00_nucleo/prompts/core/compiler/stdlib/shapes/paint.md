@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/paint
-Hash do Código: 7c1c0ff8
+Hash do Código: f64c916f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:b92ae8f26e4ebe8d5b7d0f1ee0e346e97210a9afb4c00ed1c9c184f690a263a8

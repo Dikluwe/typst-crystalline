@@ -880,7 +880,7 @@ mod realization_measurement_tests {
         use crate::entities::elements::shape::ShapeElem;
         use crate::entities::locator::Locator;
         use std::sync::Arc;
-        let shape = Content::Shape(Arc::new(ShapeElem {
+        let shape = Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,
@@ -934,7 +934,7 @@ mod v16_d_tests {
 
     #[test]
     fn v16_d_legacy_projection_preserves_generated_shape_and_true_absence() {
-        let shape = Content::Shape(Arc::new(ShapeElem {
+        let shape = Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

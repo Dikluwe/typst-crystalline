@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash bc6e8eae
+//! @prompt-hash 8f56ee61
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -117,6 +117,10 @@ pub(super) fn content_field(
                 .get_field(field)
                 .map(ContentField::Set)
                 .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::Block(block) if block.shape.is_some() => match field {
+            "body" => ContentField::Set(Value::Content(block.body.clone())),
             _ => ContentField::Undeclared,
         },
         Content::Block(_) => match field {
@@ -398,6 +402,7 @@ pub(super) fn content_set_fields(
         Content::Empty | Content::Sequence(_) => &["children"],
         Content::HSpace(_) | Content::VSpace(_) => &["amount", "weak"],
         Content::Boxed(_) => &["width", "height"],
+        Content::Block(block) if block.shape.is_some() => &["body"],
         Content::Block(_) => &["width", "height", "body"],
         Content::FigureCaption(_) => &["position", "separator", "body"],
         Content::MathVec(_) => &["delim", "align", "gap", "children"],
@@ -919,6 +924,14 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
                 crate::compiler::stdlib::native_skew
             }
         },
+        Content::Block(block) if block.shape.is_some() => {
+            match block.outline_name() {
+                Some("square") => crate::compiler::stdlib::native_square,
+                Some("circle") => crate::compiler::stdlib::native_circle,
+                Some("ellipse") => crate::compiler::stdlib::native_ellipse,
+                _ => crate::compiler::stdlib::native_rect,
+            }
+        }
         Content::Figure(_) => crate::compiler::stdlib::native_figure,
         Content::FigureCaption(_) => crate::compiler::stdlib::native_figure_caption,
         Content::Link(_) => crate::compiler::stdlib::native_link,

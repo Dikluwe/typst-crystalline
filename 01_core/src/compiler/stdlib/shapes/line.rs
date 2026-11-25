@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/line.md
-//! @prompt-hash e4d780a2
+//! @prompt-hash 9d143844
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -18,6 +18,21 @@ pub fn native_line(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    Ok(Value::Content(Content::Shape(Arc::new(parse_line(args)?))))
+}
+
+/// Argumentos de `line`, partilhados por construtor e declarações.
+pub(super) fn parse_line(args: &Args) -> SourceResult<ShapeElem> {
+    let Value::Content(Content::Shape(shape)) = line_content(args)? else {
+        unreachable!("line constructor")
+    };
+    let mut shape = shape.as_ref().clone();
+    shape.origin = crate::entities::elements::shape::ShapeOrigin::Line;
+    shape.extra.named = Some(Arc::new(args.named.clone()));
+    Ok(shape)
+}
+
+fn line_content(args: &Args) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "stroke", "start", "end", "length", "angle"]
             .contains(&key.as_str())
@@ -151,9 +166,10 @@ pub fn native_line(
     // end: (1cm, 1cm))` compila no vanilla com `length` ignorado). Sem
     // `end`: `dx = cos(angle)·length`, `dy = sin(angle)·length`
     // (vanilla `layout_line`); default `length: 30pt`, `angle: 0deg`.
-    let has_polar_extent = args.named.contains_key("length")
-        || args.named.contains_key("angle")
-        || args.named.contains_key("start");
+    let has_polar_extent = ["length", "angle", "start"]
+        .iter()
+        .any(|name| args.named.contains_key(*name))
+        || (!args.named.contains_key("dx") && !args.named.contains_key("dy"));
     // Legacy offsets retain their explicitly scoped point-only projection.
     if !args.named.contains_key("end") && !has_polar_extent {
         let dx = args
@@ -206,6 +222,7 @@ pub fn native_line(
     let explicit_end = args
         .named
         .get("end")
+        .filter(|value| !matches!(value, Value::None))
         .map(|v| parse_coordinate(v, "end"))
         .transpose()?;
     let start = match args.named.get("start") {
@@ -347,7 +364,11 @@ mod batch_f_tests {
         else {
             panic!("line")
         };
-        assert!(matches!(shape.kind, ShapeKind::Line { dx: 0.0, dy: 0.0 }));
+        assert_eq!(
+            shape.width.as_deref(),
+            Some(&Value::Length(Length::pt(30.0))),
+            "bare line follows the language default"
+        );
     }
     #[test]
     fn batch_f_line_preserves_stroke_and_conflict_precedence() {

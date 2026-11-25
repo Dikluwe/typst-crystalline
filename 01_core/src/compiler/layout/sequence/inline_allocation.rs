@@ -1025,7 +1025,7 @@ mod tests {
     }
 
     fn boxed(body: Content, width: Option<f64>, weight: Option<f64>) -> Content {
-        Content::Boxed(Arc::new(BoxedElem {
+        Content::Boxed(Arc::new(BoxedElem { extra: Default::default(),
             body,
             width: width.map(Length::pt),
             width_fraction: weight,

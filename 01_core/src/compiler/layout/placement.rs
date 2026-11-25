@@ -19,7 +19,7 @@ use crate::entities::value::Value;
 
 fn independent_block(content: &Content) -> bool {
     match content {
-        Content::Block(_) => true,
+        Content::Block(block) => block.shape.is_none(),
         Content::Source(e) => independent_block(&e.body),
         Content::Styled(e) => independent_block(&e.body),
         Content::Located(e) => independent_block(&e.body),
@@ -192,7 +192,8 @@ fn text_alignment_body_in(content: &Content, actual_align_scope: bool) -> bool {
         return text_alignment_body_in(&e.body, actual_align_scope);
     }
     if let Content::Block(e) = content {
-        return !e.clip
+        return e.shape.is_none()
+            && !e.clip
             && e.fill.is_none()
             && e.stroke.is_none()
             && e.inset
@@ -1183,7 +1184,7 @@ mod block_align_regressions {
             l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
             l.style = TextStyle::from(&l.chain);
             let right = l.regions.current.width - l.page_config.margin.right;
-            let b = BlockElem { omitted: 0,
+            let b = BlockElem { shape: None, omitted: 0,
                 body: Content::styled(
                     Content::text("ABC"),
                     Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),

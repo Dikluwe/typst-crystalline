@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: 83f8cc5d
+Hash do Código: 7a5a6583
 
 
 **Layer:** L1
@@ -13,6 +13,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/relative-line.toml sha256:4d97941169e8f16d10287bb1cb938752181434dab2c76b72cf90f355073c59b9
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:06c0f9a3e9b81ea332d57174938fda46c0865535787945094cea27ee5afbd562
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:2e0595153eaf379004fd35fe6a3887a7d62532bec78700833e8b8569e672137e
+- 00_nucleo/prompts/_nuclei/set/declared-properties.toml sha256:b4b40ae19e8c22e62a22af00459e257fa4a6c9d8c518d101cd0798cbf4f97744
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
 
@@ -336,3 +337,18 @@ assertion, layout and export behavior. Do not change the old admitted-input
 set, source acquisition, phases or defaults as part of this storage repair.
 This clause authorizes only this consumer's mechanical adaptation; entity
 representation is exclusively owned by core/entities/tiling.md.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Lay out a shape with or without a body. Sizes: an explicit relative size resolves
+against its region, negative resolves to zero, and an unbounded region contributes
+zero. Without body the default is 45pt by 30pt, or 30pt for square and circle, limited
+by the region. With body the region shrinks by the inset, round shapes add
+0.5 - sqrt(2)/4 of relative inset, the body is laid out at its natural size when auto
+and the frame grows back as (body + absolute) / (1 - relative). Square and circle use
+the smaller given side, else the larger natural side; they paint square and occupy the
+given sizes. outset enlarges only the paint. The body is measured before the page
+decision, laid out once after it, above the paint, with alignment resolved in the
+inner size. Shapes remain unbreakable. Negative sizes of the reference, which measure
+negative, are not reproduced.

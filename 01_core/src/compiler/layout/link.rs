@@ -522,7 +522,7 @@ mod fragment_regressions {
     }
     #[test]
     fn fragment_link_rich_box_preserves_local_coordinates() {
-        let body = Content::Boxed(Arc::new(BoxedElem {
+        let body = Content::Boxed(Arc::new(BoxedElem { extra: Default::default(),
             body: lines(),
             width: Some(Length::pt(60.0)),
             width_fraction: None,
@@ -542,7 +542,7 @@ mod fragment_regressions {
     }
     #[test]
     fn link_nominal_box_hit_area_uses_frame_top_and_size() {
-        let body = Content::Boxed(Arc::new(BoxedElem {
+        let body = Content::Boxed(Arc::new(BoxedElem { extra: Default::default(),
             body: Content::text("AB"),
             width: Some(Length::pt(60.0)),
             width_fraction: None,

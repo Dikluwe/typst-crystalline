@@ -1037,7 +1037,7 @@ mod overflow_isolation {
     #[test]
     fn bounded_subframe_retains_oversized_shape_without_parent_page() {
         check_isolation(
-            Content::Shape(Arc::new(ShapeElem {
+            Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 rect_radius: None,
                 rect_stroke: None,

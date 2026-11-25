@@ -624,7 +624,7 @@ mod stack_image_tests {
             .collect()
     }
     fn math_box(body: Content, width: Option<f64>) -> Content {
-        Content::Boxed(Arc::new(crate::entities::elements::boxed::BoxedElem {
+        Content::Boxed(Arc::new(crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
             body,
             width: width.map(Length::pt),
             width_fraction: None,
@@ -822,7 +822,7 @@ mod stack_image_tests {
     fn math_stack_width_block_inset_retains_its_local_math_origin() {
         let zero = Length::ZERO;
         let block =
-            Content::Block(Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
+            Content::Block(Arc::new(crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
                 body: display_math("x"),
                 width: None,
                 height: None,

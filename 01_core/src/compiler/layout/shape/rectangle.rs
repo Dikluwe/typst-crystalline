@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape/rectangle.md
-//! @prompt-hash 4527f10a
+//! @prompt-hash 723fd700
 //! @layer L1
 
 use super::super::{FontMetrics, ImageSizer, Layouter};

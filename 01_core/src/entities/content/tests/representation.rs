@@ -1086,7 +1086,7 @@ fn p231_block_variant_aceita_outset_radius_clip() {
     use crate::entities::corners::Corners;
     use crate::entities::sides::Sides;
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem { omitted: 0,
+        crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("body"),
             width: None,
             height: None,
@@ -1121,7 +1121,7 @@ fn p231_boxed_variant_aceita_outset_radius_clip() {
     use crate::entities::corners::Corners;
     use crate::entities::sides::Sides;
     let b = Content::Boxed(std::sync::Arc::new(
-        crate::entities::elements::boxed::BoxedElem {
+        crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
             body: Content::text("body"),
             width: None,
             width_fraction: None,
@@ -1150,7 +1150,7 @@ fn p231_block_partial_eq_inclui_3_fields() {
     use crate::entities::corners::Corners;
     use crate::entities::sides::Sides;
     let mk = |clip: bool| {
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("."),
             width: None,
             height: None,
@@ -1178,7 +1178,7 @@ fn p247_block_variant_aceita_fill_stroke() {
     use crate::entities::layout_types::Color;
     use crate::entities::sides::Sides;
     let b = Content::Block(std::sync::Arc::new(
-        crate::entities::elements::block::BlockElem { omitted: 0,
+        crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("p247"),
             width: None,
             height: None,
@@ -1218,7 +1218,7 @@ fn p247_boxed_variant_aceita_fill_stroke() {
     use crate::entities::layout_types::Color;
     use crate::entities::sides::Sides;
     let b = Content::Boxed(std::sync::Arc::new(
-        crate::entities::elements::boxed::BoxedElem {
+        crate::entities::elements::boxed::BoxedElem { extra: Default::default(),
             body: Content::text("p247"),
             width: None,
             width_fraction: None,
@@ -1254,7 +1254,7 @@ fn p247_block_partial_eq_inclui_fill_stroke() {
     use crate::entities::layout_types::Color;
     use crate::entities::sides::Sides;
     let mk = |fill: Option<Color>| {
-        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { omitted: 0,
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { shape: None, omitted: 0,
             body: Content::text("p247eq"),
             width: None,
             height: None,

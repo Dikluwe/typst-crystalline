@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/boxed` — `BoxedElem`
-Hash do Código: 8fc0fef5
+Hash do Código: 327a46fb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -87,3 +87,10 @@ Do not infer a universal improvement from isolated cases.
 The shared proof of absence of change follows the pinned nucleus claims.
 This prompt and its sole consumer still own the algorithm, transformed fields,
 visit order, and their specific preservation obligations.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Add one crate-private record with relative parts, aligned baseline, side strokes and
+lexical named arguments, neutral by default; it takes part in equality, hash and
+observation.

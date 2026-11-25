@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/shape.md
-//! @prompt-hash bcea890e
+//! @prompt-hash 2a745ecf
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -14,9 +14,12 @@
 
 mod rectangle;
 
-use crate::entities::elements::shape::ShapeElem;
+use crate::entities::content::Content;
+use crate::entities::elements::shape::{ShapeElem, ShapeOrigin};
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
+use crate::entities::rel::Rel;
+use crate::entities::value::Value;
 
 #[cfg(test)]
 use crate::entities::paint::Paint;
@@ -31,9 +34,9 @@ pub(super) fn resolve_relative_line(
 ) -> (ShapeKind, f64, f64) {
     let resolve = |point: [crate::entities::rel::Rel<Length>; 2]| Point {
         x: Pt(point[0].abs.resolve_pt(font)
-            + if point[0].rel == 0.0 { 0.0 } else { point[0].rel * width }),
+            + if point[0].rel == 0.0 { 0.0 } else { finite(point[0].rel * width) }),
         y: Pt(point[1].abs.resolve_pt(font)
-            + if point[1].rel == 0.0 { 0.0 } else { point[1].rel * height }),
+            + if point[1].rel == 0.0 { 0.0 } else { finite(point[1].rel * height) }),
     };
     let start = resolve(line.start);
     let end = resolve(line.end);
@@ -79,7 +82,6 @@ pub(super) fn resolve_dimension(
     font: f64,
     fallback: f64,
 ) -> f64 {
-    use crate::entities::value::Value;
     let relative = |ratio: f64| {
         let value = ratio * reference;
         if value.is_finite() {
@@ -153,7 +155,7 @@ mod prepared_paint_regressions {
             })));
             tile.size = Some(Size { width: Pt(8.0), height: Pt(6.0) });
             let paint = Paint::Tiling(tile);
-            let elem = ShapeElem {
+            let elem = ShapeElem { extra: Default::default(),
                 origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
                 rect_radius: None,
                 rect_stroke: None,
@@ -208,6 +210,165 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &ShapeElem,
 ) {
+    layout_outlined(layouter, e, None);
+}
+
+/// Formas cujo tamanho segue o corpo ou um padrão quadrado.
+pub(super) fn framed(e: &ShapeElem) -> bool {
+    matches!(
+        e.origin,
+        ShapeOrigin::Rect | ShapeOrigin::Square | ShapeOrigin::Circle | ShapeOrigin::Ellipse
+    )
+}
+
+/// Tamanho pintado e ocupado de uma forma, e a região do corpo.
+struct Frame {
+    paint: (f64, f64),
+    size: (f64, f64),
+    /// Canto do corpo, e a sua região interna.
+    origin: (f64, f64),
+    inner: (f64, f64),
+    forced_height: bool,
+}
+
+fn finite(value: f64) -> f64 {
+    if value.is_finite() {
+        value
+    } else {
+        0.0
+    }
+}
+
+fn frame<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &ShapeElem,
+    body: Option<&Content>,
+    region: (f64, f64),
+) -> Frame {
+    let font = layouter.style.size.val();
+    let quadratic = matches!(e.origin, ShapeOrigin::Square | ShapeOrigin::Circle);
+    let round = matches!(e.origin, ShapeOrigin::Circle | ShapeOrigin::Ellipse);
+    let given = |value: Option<&Value>, reference: f64| {
+        value
+            .filter(|value| !matches!(value, Value::Auto | Value::Fraction(_)))
+            .map(|value| {
+                finite(resolve_dimension(Some(value), finite(reference), font, 0.0)).max(0.0)
+            })
+    };
+    let width = given(e.width.as_deref(), region.0);
+    let height = given(e.height.as_deref(), region.1);
+    let both = |a: Option<f64>, b: Option<f64>| match (a, b) {
+        (Some(a), Some(b)) => Some(a.min(b)),
+        (a, b) => a.or(b),
+    };
+    let Some(body) = body else {
+        let default = (45.0_f64.min(region.0.max(0.0)), 30.0_f64.min(region.1.max(0.0)));
+        let paint = if quadratic {
+            let side =
+                both(width, height).unwrap_or_else(|| default.0.min(default.1));
+            (side, side)
+        } else {
+            (width.unwrap_or(default.0), height.unwrap_or(default.1))
+        };
+        return Frame {
+            paint,
+            size: (width.unwrap_or(paint.0), height.unwrap_or(paint.1)),
+            origin: (0.0, 0.0),
+            inner: paint,
+            forced_height: true,
+        };
+    };
+    // ref: lab/typst-original/crates/typst-layout/src/shapes.rs:503-540
+    let extra = if round { 0.5 - std::f64::consts::SQRT_2 / 4.0 } else { 0.0 };
+    let side = |value: Rel<Length>| (value.abs.resolve_pt(font), value.rel + extra);
+    let inset = &e.extra.inset;
+    let (left, top, right, bottom) =
+        (side(inset.left), side(inset.top), side(inset.right), side(inset.bottom));
+    let (abs_x, rel_x) = (left.0 + right.0, left.1 + right.1);
+    let (abs_y, rel_y) = (top.0 + bottom.0, top.1 + bottom.1);
+    let shrink = |outer: f64, abs: f64, rel: f64| {
+        if outer.is_finite() {
+            (outer - abs - rel * outer).max(0.0)
+        } else {
+            outer
+        }
+    };
+    let pod_w = shrink(width.unwrap_or(region.0), abs_x, rel_x);
+    let pod_h = height.map(|height| shrink(height, abs_y, rel_y));
+    let mut natural = |pod_w: f64, pod_h: Option<f64>| {
+        super::transform::measure_native_body(layouter, body, pod_w, pod_h)
+            .unwrap_or((0.0, 0.0))
+    };
+    let (inner, forced_height) = if quadratic {
+        let given = both(width.map(|_| pod_w), pod_h);
+        let length = given.unwrap_or_else(|| {
+            let (w, h) = natural(pod_w, None);
+            w.max(h).min(pod_w).min(shrink(region.1, abs_y, rel_y))
+        });
+        ((length, length), true)
+    } else {
+        let (natural_w, natural_h) = match (width, pod_h) {
+            (Some(_), Some(height)) => (pod_w, height),
+            (_, pod_h) => natural(pod_w, pod_h),
+        };
+        (
+            (
+                if width.is_some() { pod_w } else { natural_w.min(pod_w) },
+                pod_h.unwrap_or(natural_h),
+            ),
+            pod_h.is_some(),
+        )
+    };
+    let grow = |inner: f64, abs: f64, rel: f64| {
+        let share = 1.0 - rel;
+        if share > 0.0 {
+            (inner + abs) / share
+        } else {
+            0.0
+        }
+    };
+    let paint = (grow(inner.0, abs_x, rel_x), grow(inner.1, abs_y, rel_y));
+    Frame {
+        paint,
+        size: (width.unwrap_or(paint.0), height.unwrap_or(paint.1)),
+        origin: (left.0 + left.1 * paint.0, top.0 + top.1 * paint.1),
+        inner,
+        forced_height,
+    }
+}
+
+/// Tamanho ocupado, para medida.
+pub(super) fn measure<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &ShapeElem,
+    body: Option<&Content>,
+    max_width: f64,
+) -> (f64, f64) {
+    let declared =
+        crate::compiler::stdlib::shape_frame::declared_shape(e, &layouter.chain);
+    let e = declared.as_ref().unwrap_or(e);
+    let height = relative_height(layouter);
+    frame(layouter, e, body, (max_width, height)).size
+}
+
+pub(super) fn relative_height<M: FontMetrics, S: ImageSizer>(layouter: &Layouter<M, S>) -> f64 {
+    layouter
+        .block_place_region
+        .filter(|region| region.h.0.is_finite())
+        .map(|region| region.h.0)
+        .or(layouter.relative_region_size.map(|size| size.1))
+        .unwrap_or_else(|| layouter.available_height())
+}
+
+/// Layout de uma forma, com ou sem corpo.
+pub(super) fn layout_outlined<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &ShapeElem,
+    body: Option<&Content>,
+) {
+    let declared =
+        crate::compiler::stdlib::shape_frame::declared_shape(e, &layouter.chain);
+    let e = declared.as_ref().unwrap_or(e);
     // A fresh block starts at a geometric top, including root Place.
     // Legacy baseline-origin subframes arrive with the pending flag cleared.
     let fresh_block = layouter.initial_baseline_pending
@@ -229,17 +390,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let available_w = layouter.available_width();
     let relative_width = layouter.block_place_region.map_or(available_w, |r| r.w.0);
     let font = layouter.style.size.val();
-    let relative_height = layouter
-        .block_place_region
-        .filter(|r| r.h.0.is_finite())
-        .map(|r| r.h.0)
-        .or(layouter.relative_region_size.map(|size| size.1))
-        .unwrap_or_else(|| layouter.available_height());
+    let relative_height = relative_height(layouter);
     let relative_geometry = e
         .relative_line
         .map(|line| resolve_relative_line(line, relative_width, relative_height, font));
     let kind = relative_geometry.as_ref().map_or(kind, |geometry| &geometry.0);
-    let (resolved_w, resolved_h) = if let Some((_, width, height)) = &relative_geometry {
+    let outline = framed(e)
+        .then(|| frame(layouter, e, body, (relative_width, relative_height)));
+    let (resolved_w, resolved_h) = if let Some(outline) = &outline {
+        outline.size
+    } else if let Some((_, width, height)) = &relative_geometry {
         (*width, *height)
     } else {
         match kind {
@@ -296,6 +456,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if in_main_flow {
         // A forma de bloco alinha-se à margem esquerda do contentor.
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
+        let rtl = super::paragraph::chain_direction(&layouter.chain)
+            == crate::entities::dir::Dir::RTL;
+        if rtl
+            && outline.is_some()
+            && layouter.explicit_line_alignment.is_none()
+            && layouter.piece_alignment.is_none()
+            && available_w.is_finite()
+        {
+            layouter.regions.current.cursor_x += Pt((available_w - resolved_w).max(0.0));
+        }
     }
 
     // A shape occupies a geometric frame. A preceding text line supplies its
@@ -333,6 +503,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         y: shape_base,
     };
     let resolved_kind = resolve_shape_kind(kind, layouter.style.size);
+    let pos_outer = pos;
+    let (pos, resolved_w, resolved_h) = match &outline {
+        Some(outline) => {
+            let side = |value: Rel<Length>, reference: f64| {
+                value.abs.resolve_pt(font) + value.rel * reference
+            };
+            let (w, h) = outline.paint;
+            let outset = &e.extra.outset;
+            let (left, top) = (side(outset.left, w), side(outset.top, h));
+            (
+                Point { x: pos.x - Pt(left), y: pos.y - Pt(top) },
+                w + left + side(outset.right, w),
+                h + top + side(outset.bottom, h),
+            )
+        }
+        None => (pos, resolved_w, resolved_h),
+    };
     if !((e.rect_radius.is_some() || e.rect_stroke.is_some())
         && rectangle::emit(
             layouter,
@@ -357,6 +544,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     }
 
+    let pos = pos_outer;
+    let mut baseline = None;
+    let (resolved_w, resolved_h) =
+        outline.as_ref().map_or((resolved_w, resolved_h), |outline| outline.size);
+    if let (Some(outline), Some(body)) = (&outline, body) {
+        emit_body(layouter, body, outline, pos);
+        baseline = layouter
+            .last_sub_frame_baseline
+            .flatten()
+            .map(|y| pos.y.0 + outline.origin.1 + y);
+    }
+
     // The frame end is causal; below remains pending for the next block.
     if in_main_flow {
         let end = shape_base.0 + resolved_h;
@@ -370,9 +569,79 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         layouter.regions.current.cursor_y += Pt(resolved_h);
     }
-    layouter.record_flow_baseline(None);
+    layouter.record_flow_baseline(baseline);
     layouter.record_flow_placement_end(shape_base.0 + resolved_h);
     layouter.record_flow_width_at(pos.x.0, resolved_w);
+}
+
+/// Retângulo com traços por lado.
+pub(super) fn emit_sides<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &ShapeElem,
+    pos: Point,
+    size: (f64, f64),
+    kind: ShapeKind<Pt>,
+) {
+    rectangle::emit(layouter, e, pos, size.0, size.1, kind);
+}
+
+/// Compõe o corpo uma vez, acima da pintura.
+fn emit_body<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    outline: &Frame,
+    pos: Point,
+) {
+    let planned = layouter.planned_child_cursor(
+        crate::compiler::introspect::page_running::PlanEdge::BlockBody,
+    );
+    let (inner_w, inner_h) = outline.inner;
+    let (_, mut items, deco, align_x, align_y) = layouter.layout_sub_frame_planned(
+        body,
+        super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            // A folga evita quebrar a linha que mediu esta largura.
+            width: inner_w + 1e-6,
+            height: outline.forced_height.then_some(inner_h),
+            align_rtl: true,
+            unconstrained_height: !outline.forced_height,
+        },
+        true,
+        planned,
+    );
+    let saved_x = std::mem::replace(&mut layouter.pending_align_centering, align_x);
+    layouter.apply_pending_align_fixups(
+        &mut items,
+        inner_w + layouter.page_config.margin.horizontal(),
+    );
+    layouter.pending_align_centering = saved_x;
+    let saved_y = std::mem::replace(&mut layouter.pending_align_v_centering, align_y);
+    layouter.apply_pending_align_v_fixups(
+        &mut items,
+        inner_h + layouter.page_config.margin.bottom,
+    );
+    layouter.pending_align_v_centering = saved_y;
+    let origin =
+        Point { x: pos.x + Pt(outline.origin.0), y: pos.y + Pt(outline.origin.1) };
+    if let Some(collector) = layouter.decoration_lines_collector.as_mut() {
+        for segment in deco {
+            collector.push(super::DecoSegment {
+                start_x: segment.start_x + origin.x,
+                end_x: segment.end_x + origin.x,
+                baseline_y: segment.baseline_y + origin.y,
+                piece_line: segment.piece_line,
+            });
+        }
+    }
+    layouter.regions.current.current_items.push(FrameItem::Group {
+        paint_root: false,
+        pos: origin,
+        matrix: crate::entities::layout_types::TransformMatrix::identity(),
+        clip_mask: None,
+        inner_width: inner_w,
+        inner_height: inner_h,
+        items,
+    });
 }
 
 #[cfg(test)]
@@ -407,7 +676,7 @@ mod initial_nontext_block_regressions {
         layouter.is_sub_frame = subframe;
         layouter.initial_baseline_pending = !subframe;
         let origin = layouter.regions.current.cursor_y.0;
-        let elem = crate::entities::elements::shape::ShapeElem {
+        let elem = crate::entities::elements::shape::ShapeElem { extra: Default::default(),
             origin: crate::entities::elements::shape::ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

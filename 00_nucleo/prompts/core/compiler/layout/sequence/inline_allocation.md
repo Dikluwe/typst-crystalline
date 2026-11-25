@@ -1,5 +1,5 @@
 # L0 — certified inline fractional allocation
-Hash do Código: 622dd2d0
+Hash do Código: acd1dfd5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/symbol-identity.toml sha256:5060f0989415e92d54eab2a82afd84ba11472aef635d15830f9fb6ee3469aea9

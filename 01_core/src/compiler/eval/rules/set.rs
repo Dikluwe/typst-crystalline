@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 570d6f8e
+//! @prompt-hash c579a1a2
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -1437,9 +1437,35 @@ pub(crate) fn eval_set_rule(
             return Ok(Value::None);
         };
         schema::check(element, &args)?;
+        let mut styles = engine.styles.clone();
         for arg in args.occurrence_sequence() {
-            warn_no_effect(engine, element, &arg, args.span);
+            let name = arg.name.as_deref().unwrap_or_default();
+            let declared = if element == "box" {
+                let key = format!("box.{name}");
+                crate::compiler::stdlib::declare_box(
+                    name,
+                    &arg.value,
+                    styles.custom(&key),
+                )
+                .map(|value| vec![(key, value)])
+            } else {
+                crate::compiler::stdlib::shape_frame::declare(
+                    element,
+                    name,
+                    &arg.value,
+                    &|key| styles.custom(key).cloned(),
+                )
+            };
+            match declared {
+                Some(values) => {
+                    for (key, value) in values {
+                        styles = styles.push_custom(key, value);
+                    }
+                }
+                None => warn_no_effect(engine, element, &arg, args.span),
+            }
         }
+        *engine.styles = styles;
         return Ok(Value::None);
     }
 

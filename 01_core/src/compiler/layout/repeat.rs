@@ -708,7 +708,7 @@ mod nested_inline_repeat_tests {
             locator::Locator,
         };
         let location = Locator::new().next();
-        let shape = Content::Shape(std::sync::Arc::new(ShapeElem {
+        let shape = Content::Shape(std::sync::Arc::new(ShapeElem { extra: Default::default(),
             origin: ShapeOrigin::Geometry,
             rect_radius: None,
             rect_stroke: None,

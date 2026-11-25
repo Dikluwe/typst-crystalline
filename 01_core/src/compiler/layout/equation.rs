@@ -1522,7 +1522,7 @@ mod block_math_advance_tests {
         find(items).expect("a displayed formula must have a measured frame")
     }
     fn following_line<M: FontMetrics>(l: &mut Layouter<M, NullImageSizer>) -> f64 {
-        l.layout_content(&Content::Shape(Arc::new(ShapeElem {
+        l.layout_content(&Content::Shape(Arc::new(ShapeElem { extra: Default::default(),
             origin: ShapeOrigin::Geometry,
             kind: ShapeKind::Line { dx: 30.0, dy: 0.0 },
             rect_radius: None,

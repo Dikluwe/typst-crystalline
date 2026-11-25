@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: 4dfc3d83
+Hash do Código: 3aebd613
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97

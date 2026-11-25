@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: f4a53abc
+Hash do Código: 4c606b9a
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -171,3 +171,8 @@ equality, dedup and negated equality. Declared divergences are expected here.
 Own the black-box cases of `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`: admission errors with
 span, warnings, scope, late insertion, folding, show-set, aliases and effect of the
 declared properties against the equal explicit constructor, through PNG and SVG.
+
+## Approved shapes package
+
+Own the black-box cases of `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`: retained bodies and their effects, measured sizes,
+constructor admission, declarations against constructors, show rules and boxes.

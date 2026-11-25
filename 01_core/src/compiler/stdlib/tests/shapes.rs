@@ -102,12 +102,12 @@ fn rect_radius_zero_mantem_rect() {
 }
 
 #[test]
-fn square_posicional_1cm_produz_rect_lados_iguais() {
+fn square_size_1cm_produz_rect_lados_iguais() {
     use crate::entities::geometry::ShapeKind;
     null_ctx!(ctx);
     let w = Value::Length(Length::pt(Length::PT_PER_CM));
     let result =
-        native_square(&mut ctx, &p(vec![w.clone()]), &null_world(), test_file_id())
+        native_square(&mut ctx, &pn(vec![], "size", w.clone()), &null_world(), test_file_id())
             .unwrap();
     if let Value::Content(Content::Shape(e)) = result {
         assert!(matches!(e.kind, ShapeKind::Rect));
@@ -124,7 +124,8 @@ fn square_com_height_diferente_aceita_fallback() {
     null_ctx!(ctx);
     let w = Value::Length(Length::pt(Length::PT_PER_CM));
     let h = Value::Length(Length::pt(2.0 * Length::PT_PER_CM));
-    let mut args = Args::positional(vec![w.clone()]);
+    let mut args = Args::positional(vec![]);
+    args.named.insert("width".into(), w.clone());
     args.named.insert("height".into(), h.clone());
     let result = native_square(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Shape(e)) = result {
@@ -137,10 +138,10 @@ fn square_com_height_diferente_aceita_fallback() {
 }
 
 #[test]
-fn square_sem_width_gera_erro() {
+fn square_sem_width_tem_tamanho_automatico() {
     null_ctx!(ctx);
     let result = native_square(&mut ctx, &p(vec![]), &null_world(), test_file_id());
-    assert!(result.is_err(), "square() sem width deve retornar Err");
+    assert!(matches!(result, Ok(Value::Content(Content::Shape(_)))));
 }
 
 #[test]
@@ -157,7 +158,7 @@ fn square_sem_cores_tem_stroke_preta_1pt() {
     null_ctx!(ctx);
     let result = native_square(
         &mut ctx,
-        &p(vec![Value::Length(Length::pt(10.0))]),
+        &p(vec![]),
         &null_world(),
         test_file_id(),
     )

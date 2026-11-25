@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: 19031bb5
+Hash do Código: e028929d
 
 
 
@@ -537,3 +537,9 @@ forward/reverse lineage/lint. All compilation/tests use only the exclusive RAM
 target /dev/shm/typst-crystalline-8954-target; no fallback to disk. Rich interactions
 remain bounded; no global parity or PDF/UA claim. Additional public/phase changes
 require a new gate; the approved fields are not inferred from diagnostics.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+A shape matches the native function of its origin, with or without body; a Block with
+an outline does not match block.

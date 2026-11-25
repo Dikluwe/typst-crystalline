@@ -1,5 +1,5 @@
 # L0 — entities/content/tests/representation
-Hash do Código: 5a719f42
+Hash do Código: 0c2a43f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c

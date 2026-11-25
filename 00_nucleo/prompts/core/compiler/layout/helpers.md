@@ -1,5 +1,5 @@
 # L0 — helpers
-Hash do Código: b4405f17
+Hash do Código: 4a6b6098
 
 
 

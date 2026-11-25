@@ -1,5 +1,5 @@
 # L0 — measurement
-Hash do Código: 72eca353
+Hash do Código: 347ec051
 
 
 
@@ -364,3 +364,9 @@ Migrate only existing Figure fixture literals/destructures for the approved two-
 ### Gates and limits
 
 L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+A block with an outline and a leaf shape are measured by the shape owner's sizes. Box
+sizes use the projected box; baseline does not change measured height.

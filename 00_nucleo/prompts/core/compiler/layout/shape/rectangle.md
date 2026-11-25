@@ -48,3 +48,8 @@ side dictionaries. These are language geometry/paint losses.
 
 Apply the approved rectangle contour construction above, preserving all
 coefficients until owning layout and all prepared paint/style fields.
+
+## Approved shapes package
+
+Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
+Paint size and origin include the outset. Square uses the same per-side route.
