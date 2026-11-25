@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 0ff10d04
+Hash do Código: a46f2ab0
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -159,3 +159,9 @@ conversions, extrema, Decimal divisions and clamp, non-finite propagation, norm 
 erf, through the public eval command with independent expected values, messages and
 diagnostic columns. Non-finite calc results reaching layout end as the operator
 control does. Declared divergences are expected here, not parity.
+
+## Approved value comparison package
+
+Own the black-box cases of `00_nucleo/diagnostics/value-comparison-package-2026-11-24.pt-BR.md`:
+NaN ordering errors, sorted families, stability and absence of panic, Int/Decimal
+equality, dedup and negated equality. Declared divergences are expected here.

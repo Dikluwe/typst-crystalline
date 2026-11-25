@@ -21,8 +21,8 @@ through operators, so the result depended on the syntax used.
    [ADR-0107](adr-0107-language-parity-not-mechanics.md). Overflow, NaN, domain
    errors and conversions are decided per function. No general finite-result guard
    applies.
-2. A conversion that cannot represent its value fails. It never saturates. NaN to
-   Int gives 0 only where the owner declares it, as `floor`, `ceil` and `trunc` do.
+2. A conversion that cannot represent its value fails. It never saturates,
+   and NaN has no integer value.
 3. Each divergence is declared by the function's exclusive L0 owner with its
    measurement and reason. A clear reference defect is not reproduced.
 4. Operators keep propagating IEEE values. Division by a literal zero keeps failing.

@@ -11,7 +11,9 @@ Núcleos Tekt:
 ## Contract
 
 `floor`, `ceil` and `trunc` return Int. Int is identity. Float rounds and then
-uses the checked conversion of `numeric`; NaN gives 0 and -2^63 is accepted.
+uses the checked conversion of `numeric`; -2^63 is accepted. NaN fails
+with `the result is not a real number`: the reference returns 0, a cast artifact that
+names a wrong integer, and is not reproduced (owner decision of 2026-11-24).
 Decimal rounds and converts. Out of i64 range fails with `the result is too large`
 at the call's argument span. Never saturate.
 

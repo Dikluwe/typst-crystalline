@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash f3b27690
+//! @prompt-hash e38fe239
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1090,7 +1090,11 @@ fn calc_conversions_never_saturate() {
                 None,
             );
         }
-        calc_repr(&format!("calc.{function}(float.nan)"), "0");
+        calc_error(
+            &format!("calc.{function}(float.nan)"),
+            "the result is not a real number",
+            None,
+        );
         calc_repr(
             &format!("calc.{function}(-9223372036854775808.0) == {CALC_MIN}"),
             "true",
@@ -1221,7 +1225,7 @@ fn calc_real_functions_propagate_non_finite_results() {
     ] {
         calc_error(expression, "the result is not a real number", None);
     }
-    calc_error("calc.ln(float.inf)", "result close to -inf", None);
+    calc_error("calc.ln(float.inf)", "the result is not a real number", None);
     for value in ["float.inf", "float.nan"] {
         calc_error(
             &format!("calc.exp({value})"),
@@ -1294,5 +1298,149 @@ fn calc_non_finite_results_reach_layout_without_panic() {
                 .success()
         };
         assert_eq!(outcome("calc", body), outcome("control", &control), "{body}");
+    }
+}
+
+// Expectations: approved value comparison package.
+#[test]
+fn comparison_rejects_unordered_values() {
+    for operator in ["<", "<=", ">", ">="] {
+        for (left, right, message) in [
+            ("1", "float.nan", "cannot compare 1.0 with float.nan"),
+            ("float.nan", "1", "cannot compare float.nan with 1.0"),
+            ("float.nan", "float.nan", "cannot compare float.nan with float.nan"),
+            ("float.inf", "float.nan", "cannot compare float.inf with float.nan"),
+            (
+                "9007199254740993",
+                "float.nan",
+                "cannot compare 9007199254740993 with float.nan",
+            ),
+            ("(1,)", "(float.nan,)", "cannot compare 1.0 with float.nan"),
+            ("1em", "(0% + 1pt)", "cannot compare 1em with 1pt"),
+        ] {
+            calc_error(&format!("{left} {operator} {right}"), message, Some(0));
+        }
+    }
+    for expression in [
+        "if 1 < float.nan { 1 } else { 2 }",
+        "{ let i = 0; while i < float.nan { i += 1 }; i }",
+        "range(3).filter(x => x < float.nan)",
+    ] {
+        assert!(!run(BIN, &["eval", expression]).success(), "{expression}");
+    }
+    calc_repr("false and 1 < float.nan", "false");
+    calc_repr(
+        "(1 < 1.5, 2.0 >= 2, 1 > 1, 2 <= decimal(\"2\"))",
+        "(true, true, false, true)",
+    );
+    calc_error("calc.max(float.nan, 1)", "cannot compare 1.0 with float.nan", Some(20));
+}
+
+#[test]
+fn sorted_uses_language_ordering_without_panic() {
+    for (expression, expected) in [
+        ("(true, false).sorted()", "(false, true)"),
+        ("(2pt, 1pt).sorted()", "(1pt, 2pt)"),
+        ("(2deg, 1deg).sorted()", "(1deg, 2deg)"),
+        ("(2%, 1%).sorted()", "(1%, 2%)"),
+        ("(2fr, 1fr).sorted()", "(1fr, 2fr)"),
+        ("((2, 1), (1, 2)).sorted()", "((1, 2), (2, 1))"),
+        (
+            "(duration(days: 2), duration(days: 1)).sorted().map(x => x.days())",
+            "(1.0, 2.0)",
+        ),
+        (
+            "(datetime(year: 2021, month: 1, day: 1), datetime(year: 2020, month: 1, day: 1)).sorted().first() == datetime(year: 2020, month: 1, day: 1)",
+            "true",
+        ),
+        ("(decimal(\"2\"), 1).sorted()", "(1, decimal(\"2\"))"),
+        ("(\"b\", \"a\").sorted()", "(\"a\", \"b\")"),
+        ("((k: 2), (k: 1)).sorted(key: d => (d.k,))", "((k: 1), (k: 2))"),
+        ("().sorted()", "()"),
+        ("(float.nan,).sorted()", "(float.nan,)"),
+        ("range(100).rev().sorted() == range(100)", "true"),
+        ("range(100).sorted(by: (a, b) => a > b) == range(100).rev()", "true"),
+        (
+            "range(200).map(x => calc.rem(x * 37, 101)).sorted(by: (a, b) => calc.rem(a * b, 3) == 0).len()",
+            "200",
+        ),
+        ("range(50).sorted(by: (a, b) => true) == range(50)", "true"),
+        ("range(50).sorted(by: (a, b) => false) == range(50)", "true"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    // Stable with strict and inclusive callbacks, with and without key.
+    for (operator, expected) in
+        [("<", "bdac"), ("<=", "bdac"), (">", "acbd"), (">=", "acbd")]
+    {
+        let items = "((2, \"a\"), (1, \"b\"), (2, \"c\"), (1, \"d\"))";
+        for sorted in [
+            format!("{items}.sorted(by: (l, r) => l.at(0) {operator} r.at(0))"),
+            format!("{items}.sorted(key: x => x.at(0), by: (l, r) => l {operator} r)"),
+        ] {
+            calc_repr(
+                &format!("{sorted}.map(x => x.at(1)).join()"),
+                &format!("\"{expected}\""),
+            );
+        }
+    }
+    for (expression, message) in [
+        ("(2, float.nan, 1).sorted()", "cannot compare float.nan with 2.0"),
+        ("(1, \"a\").sorted()", "cannot compare string and integer"),
+        ("(1pt, 1em).sorted()", "cannot compare 1em with 1pt"),
+        ("(3, 1.5, decimal(\"2\")).sorted()", "cannot compare decimal and float"),
+        ("(1, 2).sorted(key: x => float.nan)", "cannot compare float.nan with float.nan"),
+        (
+            "(1, 2).sorted(by: (l, r) => l < float.nan)",
+            "cannot compare 1.0 with float.nan",
+        ),
+        ("(1, 2).sorted(by: (l, r) => 1)", "expected boolean, found integer"),
+    ] {
+        calc_error(expression, message, None);
+    }
+    for element in ["\"a\"", "float.nan", "none"] {
+        let output = run(
+            BIN,
+            &[
+                "eval",
+                &format!(
+                    "range(60).map(x => if calc.rem(x * 7, 5) == 0 {{ {element} }} else {{ calc.rem(x * 37, 61) }}).sorted()"
+                ),
+            ],
+        );
+        assert!(!output.success() && !output.stderr.contains("panicked"), "{output:#?}");
+        assert!(output.stderr.contains("cannot compare"), "{output:#?}");
+    }
+}
+
+#[test]
+fn equality_joins_integer_and_decimal() {
+    for (expression, expected) in [
+        ("1 == decimal(\"1.00\")", "true"),
+        ("decimal(\"1\") != 1", "false"),
+        ("1 == decimal(\"1.5\")", "false"),
+        ("9007199254740993 == decimal(\"9007199254740992\")", "false"),
+        ("1.0 == decimal(\"1\")", "false"),
+        ("decimal(\"1\") in (1,)", "true"),
+        ("decimal(\"1\") not in (1,)", "false"),
+        ("(1,).contains(decimal(\"1\"))", "true"),
+        ("(1, 2, 3).split(2.0)", "((1,), (3,))"),
+        ("(1, 2, 3).split(decimal(\"2\"))", "((1,), (3,))"),
+        ("(1,).contains(1.0)", "true"),
+        ("(a: (1,)) == (a: (decimal(\"1\"),))", "true"),
+        ("{ assert.eq(1, decimal(\"1\")); true }", "true"),
+        ("(1, 1.0, decimal(\"1\")).dedup()", "(1,)"),
+        ("(1.0, decimal(\"1\"), 1).dedup()", "(1.0, decimal(\"1\"))"),
+        ("(10%, 10% + 0pt).dedup().len()", "1"),
+        ("(1pt, 1pt + 0%).dedup().len()", "1"),
+        ("(1, 1.0, 2).dedup(key: x => x)", "(1, 2)"),
+        ("(float.nan, float.nan).dedup().len()", "2"),
+        ("(3, 1, 3, \"a\", \"a\").dedup()", "(3, 1, \"a\")"),
+        ("float.nan * 1% != 50% + 0pt", "true"),
+        ("50% + 0pt != float.nan * 1%", "true"),
+        ("float.nan * 1% == 50% + 0pt", "false"),
+        ("50% != 50% + 0pt", "false"),
+    ] {
+        calc_repr(expression, expected);
     }
 }

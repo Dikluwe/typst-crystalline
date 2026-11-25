@@ -1,5 +1,5 @@
 # L0 — stdlib/collections/array_sequence — Array sequence transformations
-Hash do Código: 6095335d
+Hash do Código: f9130f0c
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/collections/array_sequence.rs`
@@ -17,3 +17,10 @@ Bound-method dispatch and type exposure remain in the parent owner; both must ca
 ## Acceptance
 
 The L1 suite and `crystalline-lint .` must remain regression-free. Vanilla comparison must measure semantics, syntax and morphology under ADR-0107/0108 without assuming mechanical equality. Ownership remains 1:1 under ADR-0129/0130.
+
+## Value equality
+
+`split` compares elements with the language equality owned by
+`00_nucleo/prompts/core/compiler/eval/operators/equality.md`, never Rust equality.
+Measured and approved in
+`00_nucleo/diagnostics/value-comparison-package-2026-11-24.pt-BR.md`.

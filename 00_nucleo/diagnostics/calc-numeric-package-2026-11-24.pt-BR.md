@@ -103,3 +103,7 @@ As 79 diferenças de aceitação ou valor são as divergências mantidas, a graf
 **Ajustes internos.** O operador `<` do cristalino devolve `false` com NaN, e o vanilla erra. Operadores estavam fora do pacote; `extrema` trata o caso e o declara. `rem(-9223372036854775808, -1)` passou de erro a `0`, como no vanilla. `exp(+inf)` e `exp(NaN)` continuam recusados, com a mensagem do vanilla. Erros de tipo e de divisor zero das funções da parte C usam texto e posição do vanilla. A posição dos erros no span da chamada (decimal com float, resultado grande demais) continua a dos argumentos.
 
 **Pendências.** Comparação de NaN nos operadores, potência por `libm` em `pow` e `root`, grafia de floats, ângulo NaN e idioma das mensagens.
+
+**Correção posterior.** `ln(float.inf)` deixou de copiar o texto `result close to -inf` do vanilla, errado para infinito positivo. Veja o [pacote de comparação](value-comparison-package-2026-11-24.pt-BR.md).
+
+**Decisão posterior.** Em 24/11/2026 o dono decidiu (“Sim, erro”) que `floor`, `ceil` e `trunc` de NaN falham com `the result is not a real number`, em vez de `0`. Isso substitui a divergência mantida acima. Documentos que dependiam do `0` passam a errar.

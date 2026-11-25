@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/extrema
-Hash do Código: 37a0ba9a
+Hash do Código: 26c068db
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/calc/extrema.rs`
@@ -9,11 +9,11 @@ Hash do Código: 37a0ba9a
 
 `min` and `max` take at least one positional value and fold left. Each later value
 is compared with the retained extremum, later value on the left, by the
-language's ordering operator (Lt for min, Gt for max). Replace only on true, so
-equality retains the first. A NaN against
-any Int or Float is not ordered: fail with `cannot compare A with B`, both shown as
-Float, since the operator currently answers false for that pair. The returned value is the original argument: kind,
-precision and sign are untouched. A comparison failure keeps the operator's
+language ordering owned by
+`00_nucleo/prompts/core/compiler/eval/operators/ordering.md`. Replace only when it is
+strictly less for min or greater for max, so equality retains the first.
+The returned value is the original argument: kind,
+precision and sign are untouched. A comparison failure keeps the ordering's
 message and is reported at the later argument's value span. One argument is
 returned without comparison. Resolve no em against fonts and invent no order.
 

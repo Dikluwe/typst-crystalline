@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md
-//! @prompt-hash f5e82ddb
+//! @prompt-hash 989abf98
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -45,10 +45,7 @@ pub(crate) fn calc_ln(
             }
             let r = libm::log(x);
             if r.is_infinite() {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    "result close to -inf",
-                )]);
+                return Err(not_a_real_number(args.span));
             }
             Ok(Value::Float(r))
         }

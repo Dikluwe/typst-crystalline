@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/equality
-Hash do Código: 896f76b8
+Hash do Código: 506dd75d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
@@ -35,13 +35,16 @@ retained in the assigned history diagnostic, not asserted as a fresh measurement
 ## Contract
 
 Own Eq/Neq/In/NotIn, values_eq and value_eq. This is language equality, not
-derived Rust PartialEq or ObservationEq. Coerce Int/Float recursively, including
-array/dictionary values. Containers preserve their existing key/cardinality
+derived Rust PartialEq or ObservationEq. Coerce Int/Float and Int/Decimal
+recursively, including array/dictionary values; Int/Decimal is exact and
+Decimal/Float never coerces. Approved on 2026-11-24:
+`00_nucleo/diagnostics/value-comparison-package-2026-11-24.pt-BR.md`. Containers preserve their existing key/cardinality
 comparison; raw Content uses morph_canon and ignores baked render style while
 retaining semantic morphology. Version compares all components with zero padding.
 Length equals Relative only with zero relative component; Ratio equals Relative
 only with zero absolute component and |rel-ratio| < 1e-9. Other existing families
-retain their derived fallback. Neq is the negation of the same relation.
+retain their derived fallback. Neq is the negation of the same relation, with no
+separate formula; NaN operands are unequal to everything, themselves included.
 
 For any comparison involving LocatedContent Some, use the pinned snapshot
 contract: compare canonical element function and linguistic field sets excluding

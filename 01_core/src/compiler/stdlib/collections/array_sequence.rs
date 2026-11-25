@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections/array_sequence.md
-//! @prompt-hash 78b88be0
+//! @prompt-hash 68f2bf37
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Algoritmos de `collections::array_sequence`.
 
 use super::*;
+use crate::compiler::eval::operators::equality::values_eq;
 
 pub(super) fn array_rev(arr: Vec<Value>) -> Value {
     Value::Array(arr.into_iter().rev().collect())
@@ -233,7 +234,7 @@ pub(super) fn array_split(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
     let mut groups = Vec::new();
     let mut current = Vec::new();
     for value in arr {
-        if &value == separator {
+        if values_eq(&value, separator) {
             groups.push(Value::Array(std::mem::take(&mut current)));
         } else {
             current.push(value);

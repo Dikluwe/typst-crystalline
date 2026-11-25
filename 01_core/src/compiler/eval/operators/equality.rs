@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/equality.md
-//! @prompt-hash c60680a1
+//! @prompt-hash d494a49c
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -46,15 +46,6 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // sem qualquer tratamento especial de `pre`/`build` (não existem no Typst).
         (BinOp::Eq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a == b)),
         (BinOp::Neq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a != b)),
-        // P785b — Comparação Ratio ↔ Relative (com abs zero, ex: 50% == (10pt + 50%).ratio)
-        (BinOp::Eq, Value::Ratio(r), Value::Relative(rel))
-        | (BinOp::Eq, Value::Relative(rel), Value::Ratio(r)) => {
-            Ok(Value::Bool(rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9))
-        }
-        (BinOp::Neq, Value::Ratio(r), Value::Relative(rel))
-        | (BinOp::Neq, Value::Relative(rel), Value::Ratio(r)) => {
-            Ok(Value::Bool(!rel.abs.is_zero() || (rel.rel - r.0).abs() >= 1e-9))
-        }
         (BinOp::Eq, a, b) => Ok(Value::Bool(values_eq(&a, &b))),
         (BinOp::Neq, a, b) => Ok(Value::Bool(!values_eq(&a, &b))),
         // ── P706 — `in` / `not in` ────────────────────────────────────────────
@@ -106,6 +97,9 @@ pub(crate) fn values_eq(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Int(i), Value::Float(f)) | (Value::Float(f), Value::Int(i)) => {
             (*i as f64) == *f
+        }
+        (Value::Int(i), Value::Decimal(d)) | (Value::Decimal(d), Value::Int(i)) => {
+            crate::entities::decimal::Decimal::from_i64(*i) == *d
         }
         (
             Value::Color(Color::Srgb { r: r0, g: g0, b: b0, a: a0 }),

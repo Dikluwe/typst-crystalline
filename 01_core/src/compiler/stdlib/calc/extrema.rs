@@ -1,13 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/extrema.md
-//! @prompt-hash 07154aec
+//! @prompt-hash 4b0d899f
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
-use crate::compiler::eval::operators::eval_binary_op;
-use crate::compiler::eval::repr::repr_value;
-use crate::entities::ast::expr::BinOp;
+use crate::compiler::eval::operators::ordering::compare;
+use std::cmp::Ordering;
 
 pub(crate) fn calc_min(
     _ctx: &mut EvalContext,
@@ -15,7 +14,7 @@ pub(crate) fn calc_min(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    extremum("calc.min", args, BinOp::Lt)
+    extremum("calc.min", args, Ordering::Less)
 }
 
 pub(crate) fn calc_max(
@@ -24,51 +23,26 @@ pub(crate) fn calc_max(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    extremum("calc.max", args, BinOp::Gt)
+    extremum("calc.max", args, Ordering::Greater)
 }
 
 /// Compara cada valor com o extremo retido pela ordenação da linguagem e
 /// devolve o argumento original.
-fn extremum(name: &str, args: &Args, op: BinOp) -> SourceResult<Value> {
+fn extremum(name: &str, args: &Args, goal: Ordering) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let Some((first, rest)) = args.items.split_first() else {
         return err(format!("{name}() requer pelo menos 1 argumento"));
     };
     let mut result = first;
     for (index, value) in rest.iter().enumerate() {
-        let compared = match unordered_numbers(value, result) {
-            Some(message) => Err(message),
-            None => eval_binary_op(op, value.clone(), result.clone()),
-        };
-        let replaces = compared.map_err(|message| {
+        let ordering = compare(value, result).map_err(|message| {
             vec![SourceDiagnostic::error(positional_span(args, index + 1), message)]
         })?;
-        if replaces == Value::Bool(true) {
+        if ordering == goal {
             result = value;
         }
     }
     Ok(result.clone())
-}
-
-/// O operador devolve `false` para NaN; um extremo precisa de ordem.
-fn unordered_numbers(a: &Value, b: &Value) -> Option<String> {
-    let number = |value: &Value| {
-        if let Value::Float(f) = value {
-            Some(*f)
-        } else if let Value::Int(i) = value {
-            Some(*i as f64)
-        } else {
-            None
-        }
-    };
-    let (a, b) = (number(a)?, number(b)?);
-    (a.is_nan() || b.is_nan()).then(|| {
-        format!(
-            "cannot compare {} with {}",
-            repr_value(&Value::Float(a)),
-            repr_value(&Value::Float(b))
-        )
-    })
 }
 
 pub(crate) fn calc_clamp(

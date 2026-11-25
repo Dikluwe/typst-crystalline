@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections/array_access.md
-//! @prompt-hash 03b9b169
+//! @prompt-hash a1185108
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Algoritmos de `collections::array_access`.
 
 use super::*;
+use crate::compiler::eval::operators::equality::values_eq;
 
 pub(super) fn array_len(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
     ensure_no_args(&args)?;
@@ -141,5 +142,5 @@ pub(super) fn array_contains(arr: Vec<Value>, args: Args) -> SourceResult<Value>
             },
         )]);
     }
-    Ok(Value::Bool(arr.iter().any(|item| item == &args.items[0])))
+    Ok(Value::Bool(arr.iter().any(|item| values_eq(item, &args.items[0]))))
 }

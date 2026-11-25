@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/numeric.md
-//! @prompt-hash e99e2637
+//! @prompt-hash dba9e13e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -36,10 +36,10 @@ pub(super) fn too_large(span: Span) -> Vec<SourceDiagnostic> {
     vec![SourceDiagnostic::error(span, "the result is too large")]
 }
 
-/// Converte um valor já arredondado. NaN dá 0; fora de i64 falha.
+/// Converte um valor já arredondado. NaN e valores fora de i64 falham.
 pub(super) fn float_to_int(f: f64, span: Span) -> SourceResult<Value> {
     if f.is_nan() {
-        return Ok(Value::Int(0));
+        return Err(not_a_real_number(span));
     }
     if (-9_223_372_036_854_775_808.0..9_223_372_036_854_775_808.0).contains(&f) {
         Ok(Value::Int(f as i64))
@@ -174,12 +174,12 @@ mod tests {
             float_to_int(9_223_372_036_854_774_784.0, span).unwrap(),
             Value::Int(9_223_372_036_854_774_784)
         );
-        assert_eq!(float_to_int(f64::NAN, span).unwrap(), Value::Int(0));
         for value in [
             9_223_372_036_854_775_808.0,
             -9_223_372_036_854_777_856.0,
             f64::INFINITY,
             f64::NEG_INFINITY,
+            f64::NAN,
         ] {
             assert!(float_to_int(value, span).is_err());
         }

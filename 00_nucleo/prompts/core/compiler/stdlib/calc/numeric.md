@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/numeric
-Hash do Código: 48259346
+Hash do Código: 2c86970d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/calc/numeric.rs`
@@ -16,8 +16,8 @@ Own the private numeric projections shared by the calc children:
   long name. Decimal and Int combine as Decimal, Int and Float as Float. Decimal
   and Float never combine: `cannot apply this operation to a decimal and a float`
   with the hint `if loss of precision is acceptable, explicitly cast the decimal to a float with `float(value)``.
-- Checked Float to Int conversion of an already rounded value: NaN gives 0, the
-  closed-open interval [-2^63, 2^63) converts exactly, anything else fails with
+- Checked Float to Int conversion of an already rounded value: NaN fails with
+  `the result is not a real number`, the closed-open interval [-2^63, 2^63) converts exactly, anything else fails with
   `the result is too large`.
 - The NaN-result rejection `the result is not a real number`, only for the
   owners that name it. There is no general finite-result guard.

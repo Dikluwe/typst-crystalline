@@ -7,7 +7,6 @@
 //! Despacho exaustivo e catálogo estático dos métodos de coleção.
 //! Os algoritmos residem nos módulos filhos por comportamento.
 
-use std::cmp::Ordering;
 
 use ecow::EcoString;
 use indexmap::IndexMap;

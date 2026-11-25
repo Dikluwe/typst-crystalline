@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/logarithms
-Hash do Código: 0d61c1fc
+Hash do Código: 3ba7180b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/calc/logarithms.rs`
@@ -15,8 +15,9 @@ negative infinity gives 0.0. Positive infinity and NaN exponents fail with
 named base and the legacy second positional are mutually exclusive; the base must
 be finite, positive and different from 1. Bases e, 2 and 10 use their exact
 branches before the generic quotient. A non-finite `log` result fails with
-`the result is not a real number`. An infinite `ln` result fails with
-`result close to -inf`; NaN propagates through `ln`.
+`the result is not a real number`. An infinite `ln` result fails with the
+same message: the reference says `result close to -inf` for positive infinity, which
+is wrong and is not reproduced. NaN propagates through `ln`.
 
 `log10` (positive value, same result rule as `log`), `deg` and `rad` (plain numbers,
 IEEE result) are deliberate crystalline extensions.

@@ -1,12 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md
-//! @prompt-hash f3ca852e
+//! @prompt-hash a4127ad9
 //! @layer L1
 //! @updated 2026-09-30
 //!
 //! Algoritmos de `collections::array_predicate`.
 
 use super::*;
+use crate::compiler::eval::operators::equality::values_eq;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+use crate::compiler::eval::operators::ordering::compare;
+use std::cmp::Ordering;
 
 pub(super) fn array_sorted(
     arr: Vec<Value>,
@@ -62,52 +66,57 @@ pub(super) fn array_sorted(
     }
 
     if let Some(by) = by {
-        // Stable insertion sort keeps callback evaluation deterministic and
-        // lets evaluation errors escape without hiding them in `Ord` glue.
-        for index in 1..keyed.len() {
-            let mut cursor = index;
-            while cursor > 0 {
-                let result = apply_func(
-                    by.clone(),
-                    Args::positional(vec![
-                        keyed[cursor].0.clone(),
-                        keyed[cursor - 1].0.clone(),
-                    ]),
-                    scopes,
-                    ctx,
-                    engine,
-                )?;
-                match result {
-                    Value::Bool(true) => keyed.swap(cursor, cursor - 1),
-                    Value::Bool(false) => break,
-                    other => {
-                        return Err(vec![SourceDiagnostic::error(
-                            args.span,
-                            format!(
-                                "expected boolean, found {}",
-                                crate::compiler::eval::operators::error_formatting::vanilla_type_name(&other)
-                            ),
-                        )])
-                    }
-                }
-                cursor -= 1;
+        let mut call = |a: &Value, b: &Value| -> SourceResult<bool> {
+            match apply_func(
+                by.clone(),
+                Args::positional(vec![a.clone(), b.clone()]),
+                scopes,
+                ctx,
+                engine,
+            )? {
+                Value::Bool(value) => Ok(value),
+                other => Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("expected boolean, found {}", vanilla_type_name(&other)),
+                )]),
             }
-        }
+        };
+        // Só troca quando o par inverso está em ordem: `<` e `<=` são estáveis.
+        keyed = merge_sort(keyed, &mut |earlier, later| {
+            Ok(call(&earlier.0, &later.0)? || !call(&later.0, &earlier.0)?)
+        })?;
     } else {
-        let mut cmp_err: Option<EcoString> = None;
-        keyed.sort_by(|a, b| match value_cmp(&a.0, &b.0) {
-            Ok(ordering) => ordering,
-            Err(error) => {
-                cmp_err = Some(error);
-                Ordering::Equal
-            }
-        });
-        if let Some(error) = cmp_err {
-            return Err(vec![SourceDiagnostic::error(args.span, error)]);
-        }
+        keyed = merge_sort(keyed, &mut |earlier, later| {
+            compare(&later.0, &earlier.0)
+                .map(Ordering::is_ge)
+                .map_err(|error| vec![SourceDiagnostic::error(args.span, error)])
+        })?;
     }
 
     Ok(Value::Array(keyed.into_iter().map(|(_, value)| value).collect()))
+}
+
+/// Ordenação estável que devolve o primeiro erro e aceita relações
+/// inconsistentes sem pânico.
+fn merge_sort<T>(
+    mut items: Vec<T>,
+    in_order: &mut impl FnMut(&T, &T) -> SourceResult<bool>,
+) -> SourceResult<Vec<T>> {
+    if items.len() < 2 {
+        return Ok(items);
+    }
+    let right = items.split_off(items.len().div_ceil(2));
+    let capacity = items.len() + right.len();
+    let mut left = merge_sort(items, in_order)?.into_iter().peekable();
+    let mut right = merge_sort(right, in_order)?.into_iter().peekable();
+    let mut merged = Vec::with_capacity(capacity);
+    while let (Some(earlier), Some(later)) = (left.peek(), right.peek()) {
+        let take_left = in_order(earlier, later)?;
+        merged.extend(if take_left { left.next() } else { right.next() });
+    }
+    merged.extend(left);
+    merged.extend(right);
+    Ok(merged)
 }
 
 pub(super) fn array_filter(
@@ -339,7 +348,7 @@ pub(super) fn array_dedup(
         } else {
             item.clone()
         };
-        if !keys.contains(&item_key) {
+        if !keys.iter().any(|key| values_eq(key, &item_key)) {
             keys.push(item_key);
             result.push(item);
         }
@@ -350,40 +359,9 @@ pub(super) fn array_dedup(
 pub(super) fn array_dedup_values(arr: Vec<Value>) -> Value {
     let mut result = Vec::new();
     for item in arr {
-        if !result.contains(&item) {
+        if !result.iter().any(|kept| values_eq(kept, &item)) {
             result.push(item);
         }
     }
     Value::Array(result)
-}
-
-/// Comparação parcial entre valores, alinhada com o Typst vanilla para os
-/// tipos primitivos suportados em P466: `int`, `float` e `str`.
-///
-/// **P652** — devolve `Err` quando os valores não são comparáveis (tipos
-/// incompatíveis ou `NaN`), em vez de assumir `Ordering::Equal` em silêncio.
-pub(super) fn value_cmp(a: &Value, b: &Value) -> Result<Ordering, EcoString> {
-    match (a, b) {
-        (Value::Int(a), Value::Int(b)) => {
-            a.partial_cmp(b).ok_or_else(|| "cannot compare integers".into())
-        }
-        (Value::Int(i), Value::Float(f)) => (*i as f64)
-            .partial_cmp(f)
-            .ok_or_else(|| "cannot compare integer and float".into()),
-        (Value::Float(f), Value::Int(i)) => f
-            .partial_cmp(&(*i as f64))
-            .ok_or_else(|| "cannot compare float and integer".into()),
-        (Value::Float(a), Value::Float(b)) => {
-            a.partial_cmp(b).ok_or_else(|| "cannot compare floats".into())
-        }
-        (Value::Decimal(a), Value::Decimal(b)) => Ok(a.cmp(b)),
-        (Value::Version(a), Value::Version(b)) => Ok(a.cmp(b)),
-        (Value::Str(a), Value::Str(b)) => Ok(a.cmp(b)),
-        _ => Err(format!(
-            "cannot compare {} and {}",
-            crate::compiler::eval::operators::error_formatting::vanilla_type_name(b),
-            crate::compiler::eval::operators::error_formatting::vanilla_type_name(a)
-        )
-        .into()),
-    }
 }

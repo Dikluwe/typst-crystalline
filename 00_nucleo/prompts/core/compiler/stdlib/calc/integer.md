@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/integer
-Hash do Código: c52db627
+Hash do Código: dd181e71
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/calc/integer.rs`

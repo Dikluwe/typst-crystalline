@@ -131,13 +131,7 @@ pub(crate) fn calc_quo(
             let negative = (a < 0) != (b < 0) && a % b != 0;
             Ok(Value::Int(if negative { q - 1 } else { q }))
         }
-        DecNumPair::Float(a, b) => {
-            let q = (a / b).floor();
-            if q.is_nan() {
-                return Err(not_a_real_number(span));
-            }
-            float_to_int(q, span)
-        }
+        DecNumPair::Float(a, b) => float_to_int((a / b).floor(), span),
         DecNumPair::Decimal(a, b) => a
             .checked_div(b)
             .and_then(|q| q.floor().to_i64())
