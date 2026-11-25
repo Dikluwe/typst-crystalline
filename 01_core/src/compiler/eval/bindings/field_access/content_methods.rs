@@ -1,9 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 8f56ee61
+//! @prompt-hash d02a219f
 //! @layer L1
 //! @updated 2026-10-07
 
+use crate::entities::elements::terms::ListKind;
 use super::*;
 
 // ── P829 — métodos de `content`: func/has/at/fields/location ───────────────
@@ -229,6 +230,41 @@ pub(super) fn content_field(
             "text" => ContentField::Set(Value::Str(t.clone())),
             _ => ContentField::Undeclared,
         },
+        Content::ListItem(e) => match field {
+            "body" => ContentField::Set(Value::Content(e.body.clone())),
+            _ => ContentField::Undeclared,
+        },
+        Content::EnumItem(e) => match field {
+            "body" => ContentField::Set(Value::Content(e.body.clone())),
+            "number" => ContentField::Set(
+                e.number.map_or(Value::Auto, |number| Value::Int(number.into())),
+            ),
+            _ => ContentField::Undeclared,
+        },
+        Content::TermItem(e) => match field {
+            "term" => ContentField::Set(Value::Content(e.term.clone())),
+            "description" => ContentField::Set(Value::Content(e.description.clone())),
+            _ => ContentField::Undeclared,
+        },
+        Content::Terms(e) => {
+            let names = crate::compiler::stdlib::list_like::names(e.kind);
+            if field == "children" {
+                ContentField::Set(Value::Array(
+                    e.children().iter().cloned().map(Value::Content).collect(),
+                ))
+            } else if !names.contains(&field) {
+                ContentField::Undeclared
+            } else if let Some(value) = e.lexical(field) {
+                ContentField::Set(value.clone())
+            } else if !e.guards.is_empty() {
+                // Numa regra de exibição todos os campos são conhecidos.
+                ContentField::Set(crate::compiler::stdlib::list_like::default(
+                    e.kind, field,
+                ))
+            } else {
+                ContentField::Unset
+            }
+        }
         Content::Linebreak(e) => match field {
             "justify" if e.justify_explicit => ContentField::Set(Value::Bool(e.justify)),
             "justify" => ContentField::Unset,
@@ -287,8 +323,6 @@ pub(super) fn content_field(
         | Content::HtmlElem(..)
         | Content::HtmlFrame(..)
         | Content::Par { .. }
-        | Content::ListItem(..)
-        | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
         | Content::MathIdent(..)
@@ -335,8 +369,6 @@ pub(super) fn content_field(
         | Content::Place(..)
         | Content::Flush(..)
         | Content::Divider(..)
-        | Content::Terms(..)
-        | Content::TermItem(..)
         | Content::Quote(..)
         | Content::Document { .. }
         | Content::Asset { .. }
@@ -397,6 +429,20 @@ pub(super) fn content_set_fields(
         Content::Realized(e) => return content_set_fields(&e.visual),
         Content::Figure(_) => &["body", "caption", "kind", "supplement", "placement"],
         Content::Image(_) => &["source"],
+        Content::ListItem(_) => &["body"],
+        Content::EnumItem(e) if e.number.is_none() => &["body"],
+        Content::EnumItem(_) => &["number", "body"],
+        Content::TermItem(_) => &["term", "description"],
+        Content::Terms(e) => {
+            return crate::compiler::stdlib::list_like::names(e.kind)
+                .iter()
+                .chain(&["children"])
+                .filter_map(|name| match content_field(c, name) {
+                    ContentField::Set(value) => Some((*name, value)),
+                    ContentField::Unset | ContentField::Undeclared => None,
+                })
+                .collect();
+        }
         Content::Metadata(_) => &["value"],
         Content::OutlineEntry(_) => &["level", "element", "fill"],
         Content::Empty | Content::Sequence(_) => &["children"],
@@ -516,8 +562,6 @@ pub(super) fn content_set_fields(
         | Content::Title(..)
         | Content::Strong(..)
         | Content::Emph(..)
-        | Content::ListItem(..)
-        | Content::EnumItem(..)
         | Content::Link(..)
         | Content::MathSequence(..)
         | Content::MathIdent(..)
@@ -556,8 +600,6 @@ pub(super) fn content_set_fields(
         | Content::Place(..)
         | Content::Flush(..)
         | Content::Divider(..)
-        | Content::Terms(..)
-        | Content::TermItem(..)
         | Content::Quote(..)
         | Content::Document { .. }
         | Content::Asset { .. }
@@ -932,6 +974,14 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
                 _ => crate::compiler::stdlib::native_rect,
             }
         }
+        Content::ListItem(_) => crate::compiler::stdlib::native_list_item,
+        Content::EnumItem(_) => crate::compiler::stdlib::native_enum_item,
+        Content::TermItem(_) => crate::compiler::stdlib::native_terms_item,
+        Content::Terms(e) => match e.kind {
+            ListKind::Terms => crate::compiler::stdlib::native_terms,
+            ListKind::List => crate::compiler::stdlib::native_list,
+            ListKind::Enum => crate::compiler::stdlib::native_enum,
+        },
         Content::Figure(_) => crate::compiler::stdlib::native_figure,
         Content::FigureCaption(_) => crate::compiler::stdlib::native_figure_caption,
         Content::Link(_) => crate::compiler::stdlib::native_link,
@@ -945,8 +995,6 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         | Content::HtmlElem(..)
         | Content::HtmlFrame(..)
         | Content::Par { .. }
-        | Content::ListItem(..)
-        | Content::EnumItem(..)
         | Content::MathSequence(..)
         | Content::MathIdent(..)
         | Content::MathText(..)
@@ -996,8 +1044,6 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         | Content::Place(..)
         | Content::Flush(..)
         | Content::Divider(..)
-        | Content::Terms(..)
-        | Content::TermItem(..)
         | Content::Quote(..)
         | Content::Document { .. }
         | Content::Asset { .. }

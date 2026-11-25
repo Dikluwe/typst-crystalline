@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash 0d154320
+//! @prompt-hash 4bdfef09
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -526,6 +526,14 @@ fn is_par(mut node: &Content) -> bool {
     }
 }
 
+fn container(node: &Content) -> Option<&crate::entities::elements::terms::TermsElem> {
+    if let Content::Terms(e) = node.source_body() {
+        Some(e)
+    } else {
+        None
+    }
+}
+
 fn eligible_root_rule(
     node: &Content,
     rule: &ShowRule,
@@ -538,7 +546,8 @@ fn eligible_root_rule(
         && !selector_matching::is_sequence_rule(&rule.selector)
         && (!selector_matching::is_par_rule(&rule.selector) || is_par(node))
         && ((extract_payload(node).is_some() && !protected)
-            || !engine.active_guards.contains(&rule.id))
+            || container(node).is_some_and(|e| !e.guards.contains(&rule.id))
+            || container(node).is_none() && !engine.active_guards.contains(&rule.id))
 }
 
 pub(in crate::compiler) fn has_root_effect(
@@ -604,7 +613,13 @@ fn realize_root(
         .with_hint("maybe there are too deeply nested elements")]);
     }
     let old_guards = engine.active_guards.len();
-    engine.active_guards.extend(guards);
+    let result = if let Content::Terms(_) = node.source_body() {
+        // A guarda é da ocorrência: conjuntos interiores seguem a regra.
+        guard_container(result, &guards)
+    } else {
+        engine.active_guards.extend(guards);
+        result
+    };
     ctx.occurrence_show_depth += 1;
     if ctx.full_error {
         ctx.occurrence_show_path.push(node.morph_canon());
@@ -646,6 +661,20 @@ fn styled_body(
     result
 }
 
+/// Marca as regras no próprio conjunto que a regra de estilo envolveu.
+fn guard_container(content: Content, guards: &[crate::entities::show::RuleId]) -> Content {
+    if let Content::Styled(styled) = &content {
+        return Content::styled(
+            guard_container(styled.body.clone(), guards),
+            styled.styles.clone(),
+        );
+    }
+    let Content::Terms(e) = &content else { return content };
+    let mut guarded = e.as_ref().clone();
+    guarded.guards.extend(guards.iter().filter(|id| !e.guards.contains(id)));
+    Content::Terms(Arc::new(guarded))
+}
+
 fn realize_parts(
     mut parts: Vec<Content>,
     ctx: &mut EvalContext,
@@ -655,6 +684,19 @@ fn realize_parts(
         for part in &mut parts {
             if let Some(text) = symbol_text(part) {
                 *part = text;
+            }
+        }
+    }
+    if !engine.show_rules.is_empty() {
+        let grouped = super::lists::group_parts(&parts, &mut |made| {
+            Ok::<_, Vec<SourceDiagnostic>>(made)
+        })?;
+        if let Some(grouped) = grouped {
+            let matters = grouped.iter().any(|part| {
+                container(part).is_some() && super::lists::matches_rule(part, engine)
+            });
+            if matters {
+                parts = grouped;
             }
         }
     }

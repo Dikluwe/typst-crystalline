@@ -3002,20 +3002,20 @@ mod integration {
     /// `list` (continua unknown).
     #[test]
     fn debt49_set_target_desconhecido_emite_warning() {
-        let (world, _dir) = world_from_str("#set list(indent: 10pt)");
+        let (world, _dir) = world_from_str("#set underline(offset: 10pt)");
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(
             warnings.len(),
             1,
-            "target desconhecido 'list' deve gerar 1 warning; obteve {}: {:?}",
+            "propriedade sem efeito deve gerar 1 warning; obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
         assert!(
-            warnings[0].message.contains("list.indent"),
-            "mensagem deve identificar o target 'list'; obteve: {:?}",
+            warnings[0].message.contains("underline.offset"),
+            "mensagem deve identificar a propriedade; obteve: {:?}",
             warnings[0].message
         );
         assert!(

@@ -1,5 +1,5 @@
 # L0 — term item
-Hash do Código: c5e0829e
+Hash do Código: 6557b6c1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -9,29 +9,18 @@ Núcleos Tekt:
 **Exclusive consumer:** `01_core/src/compiler/layout/term_item.rs`
 **Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Evidence before specification
+## Contract
 
-The current consumer implements the operations specified below at `01_core/src/compiler/layout/term_item.rs:19`.
+Lay out a term item found outside a term list, from the line start of the active
+region: strong term, separator, description. The default separator is a weak space of
+0.6em; a list passes its own. Children follow `TermItemTerm` and
+`TermItemDescription`.
 
-Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `lab/results/construction/diagnostics/sanitization-layout-history.md`. The former reference `9f2b6e8715237cb086899a42873660fe744622e8` and older vanilla pins are historical snapshots. They do not certify later snapshots. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for a new comparison.
+## Acceptance
 
-## Ownership and contract
+Existing item tests; an item in an inset region starts at that region.
 
-This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/core/compiler/layout/mod.md`; the contract below defines this unit's operations, not ownership of that hub.
+## Evidence
 
-Close preceding horizontally pending text and start at the left margin. Dispatch the term under a temporary Bold style-chain delta, restore the outer chain/style, emit `: `, dispatch the description and close its line. Restore the margin cursor. Bold here is a visual term style, not evidence of Strong markup provenance.
-
-## Acceptance and limits
-
-Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
-
-
-## Approved physical page occurrence protocol
-
-### Evidence before decision
-
-At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source/owner snapshot and applicable ADRs are retained in `lab/results/set-page-header-2026-10-21/agents/core/source-evidence.json.gz` and its supplement. `baseline-parity/receipt.json` there binds current-pin physical query/state/counter/page observations and inert overwritten templates. `ambient-baseline/receipt.json` refutes freezing creation10pt styles: insertion uses actual page20/30pt ambient style. These are language observations; the source plan, packet transcript and rollback representation are mechanics. The exact five facades, opaque types and Paged discovery/realization/source-construction phase were explicitly approved in `lab/results/set-page-header-2026-10-21/review.md` (SHA-256 `cb4a684b483e7f9f6ac3f7eef52277f7ada405033a24e4e66e55811e93c12039`), recorded in `lab/results/set-page-header-implementation-2026-10-21/approval.json`. Only conflicting no-new-phase clauses for this exact protocol are superseded; legacy signatures/defaults and unrelated limits remain.
-
-### Exclusive protocol responsibility
-
-Route this feature's actual source children through closed typed plan edges `TermItemTerm, TermItemDescription`, retaining their field/index and original source authority. Generated markers, punctuation and decorations remain explicitly unplanned; do not turn equal-looking generated content into source children. Preserve all existing geometry, style, hiding, count, spacing, diagnostics and restoration formulas. Hidden bodies retain causal admissions even though their paint is removed; no execution is introduced. Source-route coverage is checked independently from paint.
+Approved on 2026-11-24 (“Aprovo A–G”): `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`. The previous text and its
+measurements are in commit `f2c737125`.

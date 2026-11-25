@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash f8fc6137
+//! @prompt-hash 88255fac
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -135,9 +135,9 @@ pub(super) fn materialize_time(
         ),
 
         // Modelo D (Lote 3 P318): Terms/TermItem delegam reconstrução ao construtor.
-        Content::Terms(e) => Content::terms(
+        Content::Terms(e) => Content::Terms(std::sync::Arc::new(e.with_items(
             e.items.iter().map(|c| materialize_time(c, intr, location)).collect(),
-        ),
+        ))),
         Content::TermItem(e) => Content::term_item(
             materialize_time(&e.term, intr, location),
             materialize_time(&e.description, intr, location),

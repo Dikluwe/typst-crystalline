@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash cc602f42
+//! @prompt-hash 34c7b7c0
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1614,7 +1614,7 @@ fn set_admission_keeps_every_element_settable() {
     // Valid declarations without effect warn and never fail.
     for (source, name) in [
         ("#set grid(fill: red)", "grid.fill"),
-        ("#set list(marker: [x])", "list.marker"),
+        ("#set underline(offset: 1pt)", "underline.offset"),
         ("#set table(fill: gradient.linear(red, blue))", "table.fill"),
         ("#set table(gutter: 3pt)", "table.gutter"),
         ("#set block(fill: gradient.linear(red, blue))", "block.fill"),
@@ -1834,12 +1834,8 @@ fn shapes_keep_their_body_and_its_effects() {
         assert_eq!(glyphs(&svg), glyphs(&empty) + 2, "{shape}");
     }
     let counted = "#let c = counter(\"k\")\n#rect[#c.step() a#footnote[n] #metadata(1) <m>]\n#circle[#c.step()]\n#context c.get()";
-    for (query, expected) in [
-        ("<m>", 1),
-        ("heading", 1),
-        ("footnote", 1),
-        ("figure", 1),
-    ] {
+    for (query, expected) in [("<m>", 1), ("heading", 1), ("footnote", 1), ("figure", 1)]
+    {
         let scratch = Scratch::new("shape-query");
         let input = scratch.0.join("main.typ");
         fs::write(
@@ -2182,4 +2178,213 @@ fn shapes_stay_explicit_in_html() {
     );
     let html = fs::read_to_string(&output).unwrap_or_default();
     assert!(!result.success() || html.contains("MW"), "{result:#?} {html}");
+}
+
+/// Text x positions, in emission order.
+fn list_xs(body: &str) -> Vec<f64> {
+    let (output, svg) = set_svg("list-x", body);
+    assert!(output.success(), "{body}: {output:#?}");
+    let mut shifts: Vec<f64> = Vec::new();
+    let mut found = Vec::new();
+    for tag in svg.split('<') {
+        if tag.starts_with("/g>") {
+            shifts.pop();
+        } else if tag.starts_with("g ") || tag.starts_with("g>") {
+            let numbers: Vec<f64> = tag
+                .split_once('(')
+                .and_then(|(_, rest)| rest.split_once(')'))
+                .map(|(inner, _)| {
+                    inner.split([' ', ',']).filter_map(|n| n.parse().ok()).collect()
+                })
+                .unwrap_or_default();
+            let x = match numbers.len() {
+                2 => numbers[0],
+                6 => numbers[4],
+                _ => 0.0,
+            };
+            shifts.push(x);
+            if tag.contains("matrix(1 0 0 -1") {
+                found.push(shifts.iter().sum());
+            }
+        }
+    }
+    found
+}
+
+#[test]
+fn lists_start_where_their_region_starts() {
+    // Nested markers step right and change by level.
+    set_differs("list-nest", "- a\n  - b", "- a\n- b");
+    set_equals(
+        "list-nest-marker",
+        "- a\n  - b\n    - c\n      - d",
+        "#list(marker: ([•], [‣], [–]))[a #list[b #list[c #list[d]]]]",
+    );
+    // A container moves the item as it moves a paragraph.
+    for wrap in ["#block(inset: (left: 20pt))[{}]", "#pad(left: 20pt)[{}]"] {
+        for body in ["- a", "+ a", "/ a: b", "#list.item[a]"] {
+            let inner = list_xs(&wrap.replace("{}", body));
+            let outer = list_xs(body);
+            assert!(
+                (inner[0] - outer[0] - 20.0).abs() < 0.01,
+                "{wrap} {body}: {inner:?} {outer:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn lists_group_their_items() {
+    // Loops, markup and constructors make the same list.
+    set_equals("list-loop", "#for i in range(3) [- #i\n]", "- 0\n- 1\n- 2");
+    set_equals("list-ctor", "#list[a][b]", "- a\n- b");
+    set_equals("enum-ctor", "#enum[a][b]", "+ a\n+ b");
+    set_equals("terms-ctor", "#terms(([a], [b]), ([c], [d]))", "/ a: b\n/ c: d");
+    set_equals("enum-wide", "#enum(tight: false)[a][b]", "+ a\n\n+ b");
+    // Numbers align to the widest one.
+    let xs = list_xs(&"+ a\n".repeat(10));
+    assert!(xs.iter().any(|x| (x - 10.0).abs() < 0.01) && xs[0] > 10.5, "{xs:?}");
+}
+
+#[test]
+fn lists_take_every_argument() {
+    for (first, second) in [
+        ("#list(marker: [X])[a]", "#list(marker: ([X], [Y]))[a]"),
+        (
+            "#list(marker: n => [#n])[a #list(marker: n => [#n])[b]]",
+            "#list(marker: ([0], [1]))[a #list(marker: ([0], [1]))[b]]",
+        ),
+        (
+            "#set list(marker: n => [#n])\n- a\n  - b",
+            "#set list(marker: ([0], [1]))\n- a\n  - b",
+        ),
+        ("#enum(numbering: n => [#n])[a][b]", "#enum(numbering: \"1\")[a][b]"),
+        ("#enum(start: 0)[a][b]", "#enum(enum.item(0)[a], [b])"),
+        ("#enum(start: auto)[a][b]", "#enum[a][b]"),
+        ("#enum(reversed: true)[a][b]", "#enum(enum.item(2)[a], enum.item(1)[b])"),
+        (
+            "#enum(reversed: true, [a], enum.item(7)[b], [c])",
+            "#enum(enum.item(3)[a], enum.item(7)[b], enum.item(6)[c])",
+        ),
+        (
+            "#set enum(full: true, numbering: \"1.a.\")\n+ a\n  + b",
+            "#enum(numbering: \"1.a.\")[a #enum(numbering: n => [1.a.])[b]]",
+        ),
+        (
+            "#terms(separator: [: ], terms.item[a][b])",
+            "#set terms(separator: [: ])\n/ a: b",
+        ),
+        ("#list(\"a\", \"1\")", "- a\n- 1"),
+        ("#list(list.item[a])", "- a"),
+        ("#terms(terms.item[a][b])", "/ a: b"),
+    ] {
+        set_equals("list-args", first, second);
+    }
+    for (with, without) in [
+        ("#list(spacing: 20pt)[a][b]", "#list[a][b]"),
+        ("#list(indent: 20pt)[a]", "#list[a]"),
+        ("#list(body-indent: 20pt)[a]", "#list[a]"),
+        ("#list(marker: (line(length: 9pt),))[a]", "#list[a]"),
+        (
+            "#enum(number-align: left)[a][b][c][d][e][f][g][h][i][j]",
+            "#enum[a][b][c][d][e][f][g][h][i][j]",
+        ),
+        ("#terms(indent: 20pt, ([a], [b]))", "#terms(([a], [b]))"),
+        ("#terms(hanging-indent: 40pt, ([a], lorem(20)))", "#terms(([a], lorem(20)))"),
+    ] {
+        set_differs("list-arg", with, without);
+    }
+    for (source, message) in [
+        ("enum.item(-1)[a]", "number must be at least zero"),
+        ("enum(start: -1)[a]", "number must be at least zero"),
+        ("list(marker: ())[a]", "array must contain at least one marker"),
+        ("list(nao: 1)[a]", "unexpected argument: nao"),
+        ("enum(nao: 1)[a]", "unexpected argument: nao"),
+        ("list(indent: 1)[a]", "expected length, found integer"),
+        ("enum(full: 1)[a]", "expected boolean, found integer"),
+        ("enum(numbering: 1)[a]", "expected string or function, found integer"),
+    ] {
+        calc_error(source, message, None);
+    }
+}
+
+#[test]
+fn lists_take_declarations() {
+    for (declared, explicit) in [
+        ("#set list(marker: [X])\n- a\n- b", "#list(marker: [X])[a][b]"),
+        ("#set list(indent: 20pt)\n- a", "#list(indent: 20pt)[a]"),
+        ("#set list(body-indent: 20pt)\n- a", "#list(body-indent: 20pt)[a]"),
+        ("#set list(spacing: 20pt)\n- a\n- b", "#list(spacing: 20pt)[a][b]"),
+        ("#set enum(numbering: \"a)\")\n+ a\n+ b", "#enum(numbering: \"a)\")[a][b]"),
+        ("#set enum(start: 5)\n+ a\n+ b", "#enum(start: 5)[a][b]"),
+        ("#set enum(reversed: true)\n+ a\n+ b", "#enum(reversed: true)[a][b]"),
+        (
+            "#set terms(hanging-indent: 0pt)\n/ a: b",
+            "#terms(hanging-indent: 0pt, ([a], [b]))",
+        ),
+        ("#set list(marker: [X])\n#list(marker: [Y])[a]", "#list(marker: [Y])[a]"),
+        ("#let l = list[a]\n#set list(marker: [X])\n#l", "#list(marker: [X])[a]"),
+        ("#[#set list(marker: [X])]\n- a", "- a"),
+        ("#show list: set list(marker: [X])\n- a", "#list(marker: [X])[a]"),
+        ("#set list(marker: [X])\n+ a", "+ a"),
+    ] {
+        set_equals("list-set", declared, explicit);
+    }
+}
+
+#[test]
+fn lists_answer_rules_and_fields() {
+    for (rule, plain) in [
+        ("#show list: [MW]\n- a\n- b", "#show \"z\": []\nMW"),
+        ("#show enum: [MW]\n+ a\n+ b", "#show \"z\": []\nMW"),
+        ("#show terms: [MW]\n/ a: b\n/ c: d", "#show \"z\": []\nMW"),
+        ("#show list: [MW]\n#for i in range(3) [- #i\n]", "#show \"z\": []\nMW"),
+        ("#show list: it => repr(it.children.len())\n- a\n- b", "#show \"z\": []\n2"),
+        ("#show enum: it => repr(it.start)\n#enum(start: 4)[a]", "#show \"z\": []\n4"),
+        ("#show list.item: it => it.body\n- MW", "#show \"z\": []\nMW"),
+        ("#show enum.item: it => [#it.number]\n7. MW", "#show \"z\": []\n7"),
+        ("#show terms.item: it => it.term\n/ MW: b", "#show \"z\": []\nMW"),
+        ("#show list: set text(red)\n- a\n- b", "#text(red)[- a\n- b]"),
+        ("#show list: it => it\n- a\n- b", "#show \"z\": []\n- a\n- b"),
+        ("#show: doc => { show list: [MW]; doc }\n- a\n- b", "#show \"z\": []\nMW"),
+        ("- a\n- b\n\n#show list: [MW]\n", "- a\n- b"),
+    ] {
+        set_equals("list-show", rule, plain);
+    }
+    calc_repr("list([a], [b])", "list(children: (item(body: [a]), item(body: [b])))");
+    calc_repr("[- a].fields()", "(body: [a])");
+    calc_repr("[/ a: b].fields()", "(term: [a], description: [b])");
+    calc_repr("enum.item(4)[a].fields()", "(number: 4, body: [a])");
+    calc_repr("list([a]).func() == list", "true");
+    calc_repr("enum([a]).func() == enum", "true");
+    calc_repr("terms(([a], [b])).func() == terms", "true");
+    calc_repr("[- a].func() == list.item", "true");
+    calc_repr("list([a]) == [- a]", "false");
+    calc_repr("list([a], [b]).children.len()", "2");
+}
+
+#[test]
+fn lists_keep_each_effect_once() {
+    for item in ["- ", "+ ", "/ a: "] {
+        let body = format!(
+            "#let c = counter(\"k\")\n{item}x #c.step()\n{item}y #c.step()\n\n#context assert.eq(c.get().first(), 2)\n#context c.final().first()"
+        );
+        let (output, _) = set_svg("list-count", &body);
+        assert!(output.success(), "{item}: {output:#?}");
+    }
+    for source in [
+        "- a #footnote[n]\n- b #footnote[m]",
+        "#table(columns: 1, table.header[- a], ..range(60).map(i => [+ #i]))",
+        "#columns(2)[#for i in range(40) [- #i\n]]",
+        "#context [- a\n- b]",
+        "#set text(dir: rtl)\n- a\n- b",
+        "- #rect[a]\n- $ x $\n- = H",
+        "#set list(marker: n => context [#counter(page).display()])\n- a",
+    ] {
+        let (output, _) = set_svg("list-effects", source);
+        assert!(
+            output.success() || output.stderr.contains("multiple"),
+            "{source}: {output:#?}"
+        );
+    }
 }

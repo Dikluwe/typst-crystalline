@@ -619,7 +619,11 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::HSpace(_)
         | Content::VSpace(_)
         | Content::Boxed(_)
-        | Content::Block(_) => true,
+        | Content::Block(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::TermItem(_)
+        | Content::Terms(_) => true,
         Content::Transform(e) => !matches!(
             e.operation,
             crate::entities::elements::transform::TransformOperation::Matrix(_)
@@ -643,8 +647,6 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::Strong(..)
         | Content::Emph(..)
         | Content::Raw(..)
-        | Content::ListItem(..)
-        | Content::EnumItem(..)
         | Content::Link(..)
         | Content::Equation(..)
         | Content::MathSequence(..)
@@ -702,8 +704,6 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::Place(..)
         | Content::Flush(..)
         | Content::Divider(..)
-        | Content::Terms(..)
-        | Content::TermItem(..)
         | Content::Quote(..)
         | Content::PdfAttach(..)
         | Content::PdfArtifact(..)

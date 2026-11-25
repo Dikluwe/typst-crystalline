@@ -513,6 +513,7 @@ fn eval_expr_inner(
         Expr::Raw(r) => markup::eval_raw(r, scopes, ctx, engine),
         Expr::Link(l) => markup::eval_link(l, &*engine.styles),
         Expr::ListItem(i) => markup::eval_list_item(i, scopes, ctx, engine),
+        Expr::TermItem(i) => markup::eval_term_item(i, scopes, ctx, engine),
         Expr::EnumItem(i) => markup::eval_enum_item(i, scopes, ctx, engine),
 
         Expr::FieldAccess(a) => bindings::eval_field_access(a, scopes, ctx, engine),
@@ -827,7 +828,6 @@ fn eval_expr_inner(
         | Expr::Space(_)
         | Expr::Parbreak(_)
         | Expr::SmartQuote(_)
-        | Expr::TermItem(_)
         | Expr::MathText(_)
         | Expr::MathIdent(_)
         | Expr::MathShorthand(_)

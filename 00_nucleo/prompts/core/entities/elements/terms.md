@@ -1,22 +1,22 @@
 # L0 — Term list carrier
-Hash do Código: bfac9537
+Hash do Código: f60a6513
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/terms.rs`
 
 ## Contract
 
+`TermsElem` carries consecutive items of one kind: term list, bullet list or numbered
+list. Besides `items` it holds, privately to the core, the kind, the lexical named
+arguments and how many trailing entries of `items` are labels prepared by realization.
+`with_items` rebuilds the element keeping all of that, and every traversal uses it.
+`children` are the items without the prepared labels. Plain text excludes the labels.
 
-`TermsElem` stores public items: Vec<Content>, with Debug/Clone/PartialEq
-and the specified hash obligation. Plain text joins item projections with
-newline. Emptiness checks whether the item vector is empty, not whether its
-items individually project to empty text. Both maps recurse in item order and
-preserve Terms identity. Fields/kind/payload default to None: non-locatable.
-Structural equality includes item contents and order.
+## Acceptance
 
+Traversal preserves kind, named arguments and labels; equality distinguishes kinds.
 
-The trait API/defaults belong to
-`00_nucleo/prompts/core/entities/elements/mod.md`. This owner specifies only
-this element consumer; language constructors and layout algorithms remain
-with their respective owners. Historical inline-arm evidence is retained in
-`lab/results/construction/diagnostics/sanitization-entities-contracts-history.md`.
+## Evidence
+
+Approved on 2026-11-24 (“Aprovo A–G”): `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`. The previous text and its
+measurements are in commit `f2c737125`.

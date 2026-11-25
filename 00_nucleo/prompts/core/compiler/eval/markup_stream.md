@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: 36ddb05b
+Hash do Código: c9343851
 
 
 
@@ -802,3 +802,11 @@ operator is specified here without authorizing eager selected-child application.
 Capture each direct selectorless ShowRule at its actual part index and declaration environment, evaluating no second body. Keep selected rules on the current path. Compose whole/style/Sequence boundaries in an iterative inside-out fold. A private whole-generation orders boundaries at equal original index; within one generation Whole closes before Sequence before Style, preserving reverse family serial order. Advancing a whole generation makes later styles/selected-Sequence captures stay inside it. With no Whole, preserve the original Sequence-before-Style fold exactly. Carry consumed masks with every split; remove no authored Empty/Source and keep label-tail boundaries/snapshots and once-only normalization. During a whole tail and callback, capture selected-child recipes rather than realizing hidden children; restore prior deferral even on error. No recursive evaluation per whole and no new depth limit. Reuse existing Table insertion, Sequence capture and textual local-output capture at the actual emitted product, never a second realization/callback.
 
 Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.
+
+## List containers (2026-11-24)
+
+Where a statement or the end of a markup body other than a content block closes a
+segment, loose items are grouped as in `compiler/realize/lists.md` and the show rules
+in force for that segment are applied once to each new container.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

@@ -250,7 +250,7 @@ impl Content {
             Self::Place(_) => "place",
             Self::Flush(_) => "flush",
             Self::Divider(_) => "divider",
-            Self::Terms(_) => "terms",
+            Self::Terms(e) => e.kind.name(),
             Self::TermItem(_) => "term.item",
             Self::Quote(_) => "quote",
             Self::SmartQuote(_) => "smartquote",

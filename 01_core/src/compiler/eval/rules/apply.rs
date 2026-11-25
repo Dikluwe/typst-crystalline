@@ -197,6 +197,8 @@ fn apply_show_rules_inner(
                         } else {
                             engine.active_guards.contains(&rule.id)
                         }
+                    } else if let Content::Terms(e) = work {
+                        e.guards.contains(&rule.id)
                     } else {
                         engine.active_guards.contains(&rule.id)
                     };
@@ -218,6 +220,10 @@ fn apply_show_rules_inner(
                             Transformation::Func(func) => {
                                 let argument=if let Content::TableCell(c)=work {
                                     if c.stage().is_some() {Content::TableCell(Arc::new(c.guarded(rule.id)))} else {work.clone()}
+                                } else if let Content::Terms(e) = work {
+                                    let mut guarded = e.as_ref().clone();
+                                    guarded.guards.push(rule.id);
+                                    Content::Terms(Arc::new(guarded))
                                 } else {work.clone()};
                                 let argument = crate::compiler::realize::reference_supplements::preserve_origin(&argument, engine.styles);
                                 let args = Args::positional(vec![Value::Content(argument)]);
@@ -304,7 +310,12 @@ fn apply_show_rules_inner(
             let mut any_set = false;
             for rule in &node_rules {
                 if let Transformation::Style(styles) = &rule.transform {
-                    if engine.active_guards.contains(&rule.id) {
+                    let guarded = if let Content::Terms(e) = node {
+                        e.guards.contains(&rule.id)
+                    } else {
+                        engine.active_guards.contains(&rule.id)
+                    };
+                    if guarded {
                         continue;
                     }
                     if selector_matching::selector_matches(node, &rule.selector) {

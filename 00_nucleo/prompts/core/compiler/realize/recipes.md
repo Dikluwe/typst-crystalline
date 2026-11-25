@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: a0cb8955
+Hash do Código: 5d4c32c3
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
@@ -563,3 +563,10 @@ Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract
 Table declarations of the insertion point overlay the chain captured with the content,
 so a table captured before a template's set rule receives it. Declarations inside the
 captured content still apply after both. Other captured styles are unchanged.
+
+## List containers (2026-11-24)
+
+While a list, enum or terms rule is in force, consecutive items of a sequence are
+grouped before they are visited.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

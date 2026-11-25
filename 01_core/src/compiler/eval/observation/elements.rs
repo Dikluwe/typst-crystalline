@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash e71594d0
+//! @prompt-hash 9caa1376
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -934,8 +934,14 @@ impl ObservationEq for crate::entities::elements::metadata::MetadataElem {
 }
 impl ObservationEq for crate::entities::elements::terms::TermsElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { items: _ } = self;
-        ObservationRelation::Same.and(self.items.observation_relation(&other.items))
+        let Self { items: _, kind: _, named: _, labels: _, guards: _ } = self;
+        ObservationRelation::exact(
+            self.kind == other.kind
+                && self.labels == other.labels
+                && self.guards == other.guards,
+        )
+        .and(ObservationRelation::exact(self.named == other.named))
+        .and(self.items.observation_relation(&other.items))
     }
 }
 impl ObservationEq for crate::entities::elements::state_display::StateDisplayElem {

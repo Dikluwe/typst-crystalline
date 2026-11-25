@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: 062b794b
+Hash do Código: cd793b07
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -750,3 +750,10 @@ A document title given as content is stored as its plain text.
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 rect, square, circle, ellipse, line, polygon, curve and box declare through their
 construction owners. radius declares width and height of circle, size those of square.
+
+## List containers (2026-11-24)
+
+The properties of `list`, `enum` and `terms` are declared through
+`compiler/stdlib/structural/lists.md`.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

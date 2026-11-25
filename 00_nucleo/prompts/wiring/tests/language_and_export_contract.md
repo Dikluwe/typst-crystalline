@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 4c606b9a
+Hash do Código: 6728b768
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -176,3 +176,10 @@ declared properties against the equal explicit constructor, through PNG and SVG.
 
 Own the black-box cases of `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`: retained bodies and their effects, measured sizes,
 constructor admission, declarations against constructors, show rules and boxes.
+
+## Lists (2026-11-24)
+
+Nested and contained lists start where their region starts; numbers align to a common
+width; bodies share the first baseline with their label; constructors, declared
+properties, show rules, fields and errors of `list`, `enum` and `terms` follow
+`00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

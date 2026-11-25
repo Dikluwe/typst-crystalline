@@ -77,6 +77,30 @@ impl std::hash::Hash for BlockElem {
     }
 }
 
+impl BlockElem {
+    /// Moldura sem pintura, sem medidas e sem declarações.
+    pub(crate) fn plain(body: Content) -> Self {
+        Self {
+            body,
+            width: None,
+            height: None,
+            inset: Sides::uniform(Length::ZERO),
+            breakable: true,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
+            omitted: 0,
+            shape: None,
+        }
+    }
+}
+
 impl Element for BlockElem {
     fn plain_text(&self) -> String {
         self.body.plain_text()

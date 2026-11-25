@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup
-Hash do Código: ae5a98b3
+Hash do Código: 6aade97a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
@@ -49,3 +49,10 @@ provenance and do not establish current-pin parity.
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
 A markup heading's level is its depth plus the declared heading.offset at evaluation.
+
+## List containers (2026-11-24)
+
+Markup items stay loose values with their own identity. A show rule that matches a
+list, enum or term item is applied when it is created. A number is kept as written.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

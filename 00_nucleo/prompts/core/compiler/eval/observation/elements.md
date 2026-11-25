@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 3831bc6d
+Hash do Código: 3cf8fa92
 
 
 **Layer:** L1
@@ -529,3 +529,9 @@ Migrate legacy image literals to the approved optional format/SVG metadata; do n
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Explicitly account for approved image metadata. Keep source/path/payload semantic observation; captured diagnostic span is not content morphology and does not bake occurrence render context into language equality.
+
+## List containers (2026-11-24)
+
+The list container compares kind, named arguments and label count besides its items.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

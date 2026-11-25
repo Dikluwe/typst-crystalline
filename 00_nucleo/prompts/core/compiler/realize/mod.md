@@ -1,5 +1,5 @@
 # L0 — compiler/realize/mod
-Hash do Código: 78d1574e
+Hash do Código: e6b1c03d
 
 **Layer:** L1.
 **Exclusive productive consumer:** `01_core/src/compiler/realize/mod.rs`.
@@ -537,3 +537,12 @@ Measurement: pre-E inputs and bilateral reflection in
 The owner approved the native Symbol declaration on 2026-10-23.
 Apply the pinned Symbol claims in this consumer’s existing exhaustive projections and match arms.
 Preserve the existing unit responsibility and all other variants/effects; no public contract beyond the approved Content addition or phase move.
+
+## List containers (2026-11-24)
+
+After occurrences are finished, labels given by functions or rich content are prepared
+by `compiler/realize/lists.md`.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+A contextual contribution in the paged target is grouped and prepared the same way.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/content.md
-//! @prompt-hash bf4d214f
+//! @prompt-hash 9354d6d7
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -89,8 +89,12 @@ pub fn repr_content(c: &Content) -> String {
         Content::Strong(s) => format!("strong(body: {})", repr_content(&s.body)),
         Content::Emph(e) => format!("emph(body: {})", repr_content(&e.body)),
         Content::Raw(r) => format!("`{}`", r.text),
-        Content::ListItem(li) => format!("- {}", repr_content(&li.body)),
-        Content::EnumItem(ei) => format!("+ {}", repr_content(&ei.body)),
+        Content::ListItem(li) => format!("item(body: {})", repr_content(&li.body)),
+        Content::EnumItem(ei) => {
+            let number =
+                ei.number.map(|number| format!("number: {number}, ")).unwrap_or_default();
+            format!("item({number}body: {})", repr_content(&ei.body))
+        }
         Content::Link(l) => format!("link(\"{}\")", l.url),
         Content::Equation(e) => {
             if e.block {
@@ -623,9 +627,26 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
         Content::Divider(_) => "divider".to_string(),
-        Content::Terms(_) => "terms".to_string(),
+        Content::Terms(e) => {
+            let children: Vec<_> = e.children().iter().map(repr_content).collect();
+            let mut fields: Vec<_> = e
+                .named
+                .iter()
+                .flat_map(|named| named.iter())
+                .map(|(name, value)| format!("{name}: {}", repr_value(value)))
+                .collect();
+            fields.push(format!(
+                "children: {}",
+                pretty_array_like(&children, children.len() == 1)
+            ));
+            format!("{}{}", e.kind.name(), pretty_array_like(&fields, false))
+        }
         Content::TermItem(ti) => {
-            format!("/ {}: {}", repr_content(&ti.term), repr_content(&ti.description))
+            format!(
+                "item(term: {}, description: {})",
+                repr_content(&ti.term),
+                repr_content(&ti.description)
+            )
         }
         Content::Quote(q) => format!("quote[{}]", repr_content(&q.body)),
         Content::SmartQuote(_) => "\"".to_string(),

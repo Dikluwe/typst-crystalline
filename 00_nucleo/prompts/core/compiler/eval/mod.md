@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: ad863add
+Hash do Código: 739e3d53
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -605,3 +605,10 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## List containers (2026-11-24)
+
+In the paged target the evaluated content is grouped once, as in
+`compiler/realize/lists.md`, before and after realization.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

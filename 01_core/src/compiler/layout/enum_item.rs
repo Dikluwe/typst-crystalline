@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/enum_item.md
-//! @prompt-hash 4caf29b6
+//! @prompt-hash 8efe614a
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -22,6 +22,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &EnumItemElem,
 ) {
+    if let Some(frame) = layouter.list_frame.take() {
+        super::terms::item_body(layouter, frame, &e.body, |layouter, body| {
+            layouter.layout_planned_child(
+                crate::compiler::introspect::page_running::PlanEdge::EnumItemBody,
+                body,
+            );
+        });
+        return;
+    }
     // **P751** — fixar a baseline inicial com o estilo activo antes de
     // posicionar o primeiro rótulo/texto real.
     layouter.ensure_initial_baseline();
@@ -29,7 +38,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.flush_line();
     }
 
-    let margin_pt = Pt(layouter.page_config.margin.left);
+    let margin_pt = layouter.regions.current.line_start_x;
     let font_size = layouter.style.size;
 
     // **P762** — espaçamento de parágrafo *entre* itens soltos usa o mesmo

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: f29d01d2
+Hash do Código: b6e7820a
 
 
 

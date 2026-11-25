@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash 174d322a
+//! @prompt-hash ae858470
 //! @layer L1
 //! @updated 2026-11-01
 
@@ -258,7 +258,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         };
                         let mut nested_table = false;
                         let _ = visual.map_content_pre(&mut |c| {
-                            if matches!(c, Content::Table(_) | Content::Raw(_)) {
+                            if matches!(c, Content::Table(_) | Content::Raw(_) | Content::Terms(_)) {
                                 nested_table = true;
                                 return Ok(Some(c.clone()));
                             }

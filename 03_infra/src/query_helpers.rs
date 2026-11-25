@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query_helpers.md
-//! @prompt-hash b2b5d960
+//! @prompt-hash 521e1264
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -255,6 +255,10 @@ fn count_list_groups(content: &Content) -> usize {
                 seq.iter().map(count_list_groups).sum()
             }
         }
+        Content::Terms(e) => {
+            usize::from(e.element_name() == "list")
+                + e.children().iter().map(count_list_groups).sum::<usize>()
+        }
         Content::ListItem(item) => count_list_groups(&item.body),
         Content::Source(_)
         | Content::ShowRecipe(_)
@@ -333,7 +337,6 @@ fn count_list_groups(content: &Content) -> usize {
         | Content::Flush(_)
         | Content::Styled(_)
         | Content::Divider(_)
-        | Content::Terms(_)
         | Content::TermItem(_)
         | Content::Quote(_)
         | Content::Document { .. }
@@ -386,6 +389,10 @@ fn count_enum_groups(content: &Content) -> usize {
             } else {
                 seq.iter().map(count_enum_groups).sum()
             }
+        }
+        Content::Terms(e) => {
+            usize::from(e.element_name() == "enum")
+                + e.children().iter().map(count_enum_groups).sum::<usize>()
         }
         Content::EnumItem(item) => count_enum_groups(&item.body),
         Content::Source(_)
@@ -465,7 +472,6 @@ fn count_enum_groups(content: &Content) -> usize {
         | Content::Flush(_)
         | Content::Styled(_)
         | Content::Divider(_)
-        | Content::Terms(_)
         | Content::TermItem(_)
         | Content::Quote(_)
         | Content::Document { .. }

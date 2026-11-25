@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash 10d30a69
+//! @prompt-hash 1d4f337b
 //! @layer L1
 //! @updated 2026-11-06
 //!
@@ -922,7 +922,13 @@ fn eval_with_subtree_session(
     let mut realization_introspector = None;
     let content = match value {
         Value::Content(content) => {
+            let content = if target == EvalTarget::Paged {
+                crate::compiler::realize::lists::group(&content)
+            } else {
+                content
+            };
             if has_recipes
+                || crate::compiler::realize::lists::needs_preparation(&content)
                 || crate::compiler::realize::bare_math::needs_preparation(&content)
                 || crate::compiler::realize::figure::needs_preparation(&content)
                 || crate::compiler::realize::page_running::needs_capture(&content)

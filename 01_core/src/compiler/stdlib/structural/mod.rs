@@ -25,7 +25,7 @@ mod divider;
 mod document;
 mod footnote;
 mod heading;
-mod lists;
+pub(in crate::compiler) mod lists;
 mod markup;
 mod math;
 mod outline;
@@ -678,10 +678,19 @@ mod tests {
         native_enum(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
     }
 
+    fn container(
+        result: SourceResult<Value>,
+    ) -> std::sync::Arc<crate::entities::elements::terms::TermsElem> {
+        match result {
+            Ok(Value::Content(Content::Terms(e))) => e,
+            other => panic!("esperado conjunto, obteve {other:?}"),
+        }
+    }
+
     #[test]
     fn list_sem_itens_devolve_empty() {
-        let result = call_list(Args::positional(vec![])).unwrap();
-        assert_eq!(result, Value::Content(Content::Empty));
+        let e = container(call_list(Args::positional(vec![])));
+        assert_eq!((e.kind.name(), e.children().len()), ("list", 0));
     }
 
     #[test]
@@ -690,24 +699,14 @@ mod tests {
             Value::Content(Content::text("a")),
             Value::Content(Content::text("b")),
         ]);
-        let result = call_list(args).unwrap();
-        if let Value::Content(Content::Sequence(seq)) = result {
-            assert_eq!(seq.len(), 2);
-            for item in seq.iter() {
-                if let Content::ListItem(li) = item {
-                    assert_eq!(li.marker, None);
-                } else {
-                    panic!("esperado ListItem");
-                }
-            }
-        } else {
-            panic!("esperado Sequence");
-        }
+        let e = container(call_list(args));
+        assert_eq!(e.children().len(), 2);
+        assert!(e.children().iter().all(|item| matches!(item, Content::ListItem(_))));
+        assert_eq!(e.lexical("marker"), None);
     }
 
     #[test]
     fn list_com_marker_custom() {
-        use crate::entities::list_marker::ListMarker;
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Str("→".into()));
         let args = Args {
@@ -716,12 +715,8 @@ mod tests {
             named,
             span: Span::detached(),
         };
-        let result = call_list(args).unwrap();
-        if let Value::Content(Content::ListItem(li)) = result {
-            assert_eq!(li.marker, Some(ListMarker::Custom("→".into())));
-        } else {
-            panic!("esperado ListItem com marker");
-        }
+        let e = container(call_list(args));
+        assert_eq!(e.lexical("marker"), Some(&Value::Content(Content::text("→"))));
     }
 
     #[test]
@@ -752,8 +747,8 @@ mod tests {
 
     #[test]
     fn enum_sem_itens_devolve_empty() {
-        let result = call_enum(Args::positional(vec![])).unwrap();
-        assert_eq!(result, Value::Content(Content::Empty));
+        let e = container(call_enum(Args::positional(vec![])));
+        assert_eq!((e.kind.name(), e.children().len()), ("enum", 0));
     }
 
     #[test]
@@ -762,30 +757,14 @@ mod tests {
             Value::Content(Content::text("a")),
             Value::Content(Content::text("b")),
         ]);
-        let result = call_enum(args).unwrap();
-        if let Value::Content(Content::Sequence(seq)) = result {
-            assert_eq!(seq.len(), 2);
-            let first = &seq[0];
-            if let Content::EnumItem(ei) = first {
-                assert_eq!(ei.number, Some(1));
-                assert_eq!(ei.numbering, None);
-            } else {
-                panic!("esperado EnumItem");
-            }
-            let second = &seq[1];
-            if let Content::EnumItem(ei) = second {
-                assert_eq!(ei.number, Some(2));
-            } else {
-                panic!("esperado EnumItem");
-            }
-        } else {
-            panic!("esperado Sequence");
-        }
+        let e = container(call_enum(args));
+        let chain = crate::entities::style_chain::StyleChain::default_chain();
+        assert_eq!(crate::compiler::realize::lists::numbers(&e, &chain), [1, 2]);
+        assert_eq!(e.lexical("numbering"), None);
     }
 
     #[test]
     fn enum_com_lower_alpha() {
-        use crate::entities::enum_numbering::EnumNumbering;
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Str("a)".into()));
         let args = Args {
@@ -797,16 +776,8 @@ mod tests {
             named,
             span: Span::detached(),
         };
-        let result = call_enum(args).unwrap();
-        if let Value::Content(Content::Sequence(seq)) = result {
-            if let Content::EnumItem(ei) = &seq[0] {
-                assert_eq!(ei.numbering, Some(EnumNumbering::LowerAlpha));
-            } else {
-                panic!("esperado EnumItem");
-            }
-        } else {
-            panic!("esperado Sequence");
-        }
+        let e = container(call_enum(args));
+        assert_eq!(e.lexical("numbering"), Some(&Value::Str("a)".into())));
     }
 
     #[test]
@@ -850,14 +821,10 @@ mod tests {
             named,
             span: Span::detached(),
         };
-        let result = call_list(args).unwrap();
-        if let Value::Content(Content::ListItem(li)) = result {
-            assert_eq!(li.indent, Some(Length::em(1.5)));
-            assert_eq!(li.body_indent, Some(Length::em(0.5)));
-            assert_eq!(li.tight, Some(false));
-        } else {
-            panic!("esperado ListItem");
-        }
+        let e = container(call_list(args));
+        assert_eq!(e.lexical("indent"), Some(&Value::Length(Length::em(1.5))));
+        assert_eq!(e.lexical("body-indent"), Some(&Value::Length(Length::em(0.5))));
+        assert_eq!(e.lexical("tight"), Some(&Value::Bool(false)));
     }
 
     #[test]
@@ -912,14 +879,10 @@ mod tests {
             named,
             span: Span::detached(),
         };
-        let result = call_enum(args).unwrap();
-        if let Value::Content(Content::EnumItem(ei)) = result {
-            assert_eq!(ei.indent, Some(Length::em(1.5)));
-            assert_eq!(ei.body_indent, Some(Length::em(0.5)));
-            assert_eq!(ei.tight, Some(false));
-        } else {
-            panic!("esperado EnumItem");
-        }
+        let e = container(call_enum(args));
+        assert_eq!(e.lexical("indent"), Some(&Value::Length(Length::em(1.5))));
+        assert_eq!(e.lexical("body-indent"), Some(&Value::Length(Length::em(0.5))));
+        assert_eq!(e.lexical("tight"), Some(&Value::Bool(false)));
     }
 
     #[test]
@@ -945,12 +908,9 @@ mod tests {
             named,
             span: Span::detached(),
         };
-        let result = call_enum(args).unwrap();
-        if let Value::Content(Content::EnumItem(ei)) = result {
-            assert_eq!(ei.number, Some(3));
-        } else {
-            panic!("esperado EnumItem");
-        }
+        let e = container(call_enum(args));
+        let chain = crate::entities::style_chain::StyleChain::default_chain();
+        assert_eq!(crate::compiler::realize::lists::numbers(&e, &chain), [3]);
     }
 
     // ── Passo 512 — grid/table hline/vline ───────────────────────────────────

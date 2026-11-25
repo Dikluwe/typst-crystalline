@@ -1155,7 +1155,7 @@ impl Content {
             // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
             Content::Terms(e) => rebuild_pre_node(|| Ok({ let items: SourceResult<Vec<Content>> =
             e.items.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Terms(Arc::new(TermsElem { items: items? })))? })),
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Terms(Arc::new(e.with_items(items?))))? })),
             Content::TermItem(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TermItem(Arc::new(TermItemElem {
             term: e.term.map_content_pre_with_origin_inner(transform, origin)?,
             description: e.description.map_content_pre_with_origin_inner(transform, origin)?,

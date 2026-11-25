@@ -113,6 +113,7 @@ pub use crate::compiler::stdlib::counter::{
     native_counter_step,
 };
 pub use crate::compiler::stdlib::label::native_label;
+pub(crate) use crate::compiler::stdlib::numbering::{numbering_level, numbering_text};
 pub use crate::compiler::stdlib::numbering::{native_numbering, realize_numbering};
 pub use crate::compiler::stdlib::panic::native_panic;
 pub use crate::compiler::stdlib::r#ref::native_ref;
@@ -136,6 +137,7 @@ pub(in crate::compiler) use layout::{
     declare_block, declare_box, declared_block, declared_box,
 };
 pub(in crate::compiler) use shapes::frame as shape_frame;
+pub(in crate::compiler) use structural::lists as list_like;
 pub(in crate::compiler) use structural::{
     declare_table, declared_table, insert_table_declarations, table_alignment, table_alignment_at,
 };

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup.md
-//! @prompt-hash 0f296d8c
+//! @prompt-hash 1db3e9d7
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -154,7 +154,7 @@ pub(super) fn eval_list_item(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, engine)?;
-    Ok(Value::Content(Content::list_item(body)))
+    self::item(Content::list_item(body), ctx, engine)
 }
 
 pub(super) fn eval_enum_item(
@@ -163,7 +163,34 @@ pub(super) fn eval_enum_item(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let number = item.number().map(|n| n as u32);
+    let number = item.number().map(|n| u32::try_from(n).unwrap_or(u32::MAX));
     let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, engine)?;
-    Ok(Value::Content(Content::enum_item(number, body)))
+    self::item(Content::enum_item(number, body), ctx, engine)
+}
+
+pub(super) fn eval_term_item(
+    node: markup::TermItem<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let term = eval_markup_body(node.term().to_untyped(), scopes, ctx, engine)?;
+    let description =
+        eval_markup_body(node.description().to_untyped(), scopes, ctx, engine)?;
+    item(Content::term_item(term, description), ctx, engine)
+}
+
+/// Item solto, entregue às regras que o seleccionam.
+pub(super) fn item(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    Ok(Value::Content(
+        if crate::compiler::realize::lists::matches_rule(&content, engine) {
+            rules::intercept_content(content, ctx, engine)?
+        } else {
+            content
+        },
+    ))
 }

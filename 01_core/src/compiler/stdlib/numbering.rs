@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/numbering.md
-//! @prompt-hash 7b7aa64b
+//! @prompt-hash a2e0e334
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -189,6 +189,59 @@ pub(crate) fn format_pattern(
 
     result.push_str(suffix);
     Ok(result)
+}
+
+fn pieces(pattern: &str) -> (Vec<(&str, char)>, &str) {
+    let mut pieces = Vec::new();
+    let mut handled = 0;
+    for (i, c) in pattern.char_indices() {
+        if matches!(c, '1' | 'a' | 'A' | 'i' | 'I' | 'א' | '①') {
+            pieces.push((&pattern[handled..i], c));
+            handled = i + c.len_utf8();
+        }
+    }
+    (pieces, &pattern[handled..])
+}
+
+/// Numeral sem avisos, para o layout; fora do sistema fica em decimal.
+fn plain_numeral(symbol: char, n: u32) -> String {
+    match symbol {
+        'a' => nth_alpha_char(n, false),
+        'A' => nth_alpha_char(n, true),
+        'i' => to_roman_numeral(n, false),
+        'I' => to_roman_numeral(n, true),
+        'א' if n > 0 => to_hebrew_numeral(n),
+        '①' if n <= 50 => to_circled_number(n),
+        _ => n.to_string(),
+    }
+}
+
+/// Todos os números segundo o padrão.
+pub(crate) fn numbering_text(pattern: &str, numbers: &[u32]) -> String {
+    let (pieces, suffix) = pieces(pattern);
+    let Some(&(last_prefix, last_symbol)) = pieces.last() else {
+        return numbers.iter().map(|n| format!("{n}.")).collect();
+    };
+    let mut text = String::new();
+    for (index, n) in numbers.iter().enumerate() {
+        let (prefix, symbol) = pieces.get(index).copied().unwrap_or((
+            if last_prefix.is_empty() { suffix } else { last_prefix },
+            last_symbol,
+        ));
+        text.push_str(prefix);
+        text.push_str(&plain_numeral(symbol, *n));
+    }
+    text + suffix
+}
+
+/// Um só número, com o símbolo do nível `level`.
+pub(crate) fn numbering_level(pattern: &str, level: usize, number: u32) -> String {
+    let (pieces, suffix) = pieces(pattern);
+    let (Some(first), Some(last)) = (pieces.first(), pieces.last()) else {
+        return format!("{number}.");
+    };
+    let (_, symbol) = pieces.get(level).unwrap_or(last);
+    format!("{}{}{suffix}", first.0, plain_numeral(*symbol, number))
 }
 
 fn format_numeral(

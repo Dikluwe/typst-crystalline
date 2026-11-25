@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash 87a58730
+//! @prompt-hash ad5c5bb1
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -229,6 +229,9 @@ fn flow_frame_alignment_body(content: &Content) -> bool {
     }
     if let Content::Realized(e) = content {
         return flow_frame_alignment_body(&e.visual);
+    }
+    if let Content::Terms(_) = content {
+        return true;
     }
     false
 }

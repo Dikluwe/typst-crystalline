@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/apply — Show rule application
-Hash do Código: 634881c6
+Hash do Código: 2409b549
 
 
 Layer: L1

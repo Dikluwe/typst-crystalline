@@ -1,5 +1,5 @@
 # L0 — stdlib/numbering
-Hash do Código: 7f644758
+Hash do Código: 7e7daed3
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/numbering.rs`
@@ -42,3 +42,12 @@ This ADR-0127 internal continuous-flow correction adds no public signature,
 product default or phase. Preserve language results/test expectations and
 revalidate all targets, core suite, build, Clippy and lineage. Do not replace
 the correction with warning suppression.
+
+## List labels (2026-11-24)
+
+`numbering_text` and `numbering_level` format a pattern without an engine, for layout:
+all numbers, or one number with the counting symbol of its level between the first
+prefix and the suffix. A number outside the numeral system, or a pattern without a
+counting symbol, reads as decimal.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

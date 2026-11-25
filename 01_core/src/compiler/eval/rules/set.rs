@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash c579a1a2
+//! @prompt-hash a1b35d70
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -1440,7 +1440,14 @@ pub(crate) fn eval_set_rule(
         let mut styles = engine.styles.clone();
         for arg in args.occurrence_sequence() {
             let name = arg.name.as_deref().unwrap_or_default();
-            let declared = if element == "box" {
+            let declared = if crate::compiler::stdlib::list_like::kind_of(element)
+                .is_some()
+            {
+                let span = arg.value_span.or(arg.span).or(args.span);
+                let value =
+                    crate::compiler::stdlib::list_like::admit(name, &arg.value, span)?;
+                Some(vec![(format!("{element}.{name}"), value)])
+            } else if element == "box" {
                 let key = format!("box.{name}");
                 crate::compiler::stdlib::declare_box(
                     name,

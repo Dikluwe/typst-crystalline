@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction.md
-//! @prompt-hash 1927fd9a
+//! @prompt-hash 89fc322b
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -282,7 +282,23 @@ impl Content {
         Self::Link(Arc::new(LinkElem { url: url.into(), body }))
     }
     pub fn terms(items: Vec<Content>) -> Self {
-        Self::Terms(Arc::new(TermsElem { items }))
+        Self::list_like(ListKind::Terms, items, None)
+    }
+    /// Conjunto de itens de qualquer espécie, com seus argumentos lexicais.
+    pub(crate) fn list_like(
+        kind: ListKind,
+        items: Vec<Content>,
+        named: Option<
+            Arc<
+                indexmap::IndexMap<
+                    EcoString,
+                    crate::entities::value::Value,
+                    rustc_hash::FxBuildHasher,
+                >,
+            >,
+        >,
+    ) -> Self {
+        Self::Terms(Arc::new(TermsElem { items, kind, named, labels: 0, guards: Vec::new() }))
     }
     pub fn term_item(term: Content, description: Content) -> Self {
         Self::TermItem(Arc::new(TermItemElem { term, description }))

@@ -85,7 +85,7 @@ use crate::entities::elements::enum_item::EnumItemElem;
 use crate::entities::elements::link::LinkElem;
 use crate::entities::elements::list_item::ListItemElem;
 use crate::entities::elements::term_item::TermItemElem;
-use crate::entities::elements::terms::TermsElem;
+use crate::entities::elements::terms::{ListKind, TermsElem};
 // Lote 4 P319 — decorações de texto (3 variantes).
 use crate::entities::elements::overline::OverlineElem;
 use crate::entities::elements::strike::StrikeElem;

@@ -404,3 +404,9 @@ operator is specified here without authorizing eager selected-child application.
 Factor the existing transformation evaluation/cast into one eval-internal helper shared by ordinary selected rules and the selectorless capture owner. Preserve selector evaluation before transformation, set-style scratch restoration, accepted Content/Str/Func/None/Style forms, ordinary legacy error text and RuleId registration order. Selectorless invalid transformation uses measured `expected content or function, found <type>` at the actual transform expression; ordinary errors stay unchanged. Selectorless capture allocates no RuleId and installs no selected rule. This unit does not apply the whole tail.
 
 Require actual source RED before code, then focused GREEN including identity/wrap/nested, style boundaries, prefix, single effects, scalar/None, rich morphology, hidden children, flow and real diagnostics. Preserve prior selected/Sequence/textual/Table/math/Source tests. Full warning-denying lint/fmt/lineage preflight precedes a stable final batch freeze; canonical integration/history/resource gates remain unchanged. Recorded physical14 timing failure stays open until the actual final product passes.
+
+## List containers (2026-11-24)
+
+`list.item`, `enum.item`, `terms` and `terms.item` are native element selectors.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

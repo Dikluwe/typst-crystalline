@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup_stream.md
-//! @prompt-hash 2e8c1fc5
+//! @prompt-hash b16d96c8
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -135,12 +135,21 @@ fn eval_markup_in_scope(
     let capture_origin = content_block_origin.is_some();
     let sequence_origin = content_block_origin.unwrap_or(node.span());
     let mut was_statement = false;
+    let mut list_scope_start = 0;
     for child in node.children().filter(move |child| {
         let keep = !was_statement || child.kind() != SyntaxKind::Space;
         was_statement = child.kind().is_stmt();
         keep
     }) {
         let snapshot = rules::textual::TextualSnapshot::capture(engine, ctx);
+        if matches!(child.kind(), SyntaxKind::SetRule | SyntaxKind::ShowRule)
+            && normalize_spaces
+        {
+            intercept_lists(&mut parts, list_scope_start, ctx, engine)?;
+            if let Some(last) = textual_snapshots.last().cloned() {
+            textual_snapshots.resize(parts.len(), last);
+        }
+        }
         match child.kind() {
             SyntaxKind::Text => {
                 // F-5b fatia 2 (P373): o render não é mais assado no node — viaja
@@ -325,6 +334,7 @@ fn eval_markup_in_scope(
             }
         }
         if matches!(child.kind(), SyntaxKind::SetRule | SyntaxKind::ShowRule) {
+            list_scope_start = parts.len();
             label_scope_start = parts.len();
             if ctx.apply_show_rules {
                 if let Some(scope) = crate::compiler::realize::sequences::snapshot(engine)
@@ -354,6 +364,12 @@ fn eval_markup_in_scope(
         }
     }
 
+    if normalize_spaces {
+        intercept_lists(&mut parts, list_scope_start, ctx, engine)?;
+        if let Some(last) = textual_snapshots.last().cloned() {
+            textual_snapshots.resize(parts.len(), last);
+        }
+    }
     // P373: fold de dentro para fora — cada fronteira embrulha a sua cauda
     // (`parts[idx..]`) no delta do seu `#set`, produzindo o aninhamento
     // `Styled(A, [X, Styled(B, [Y])])` (escopo léxico, fiel ao vanilla). `#set`
@@ -466,6 +482,22 @@ fn eval_markup_in_scope(
         ctx,
         engine,
     )?))
+}
+
+/// Agrupa os itens de um trecho e aplica as regras de conjunto em vigor.
+fn intercept_lists(
+    parts: &mut Vec<Content>,
+    start: usize,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<()> {
+    let tail = Content::Sequence(parts[start..].to_vec().into());
+    let shown = crate::compiler::realize::lists::intercept(tail, ctx, engine)?;
+    if let Content::Sequence(shown) = shown {
+        parts.truncate(start);
+        parts.extend(shown.iter().cloned());
+    }
+    Ok(())
 }
 
 /// Labels literais e valores Label têm a mesma associação no fluxo local.

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: f29626fa
+Hash do Código: 8a85911d
 
 
 
@@ -705,3 +705,10 @@ Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preservi
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 A Block with an outline exposes body only, and its func is the shape's constructor.
+
+## List containers (2026-11-24)
+
+A list container exposes `children` and its lexical properties, an item its `body`,
+`number` when given, `term` and `description`; `func` gives the constructor.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

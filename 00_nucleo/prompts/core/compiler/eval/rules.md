@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules
-Hash do Código: 101c07b3
+Hash do Código: 0731c73c
 
 
 **Layer:** L1

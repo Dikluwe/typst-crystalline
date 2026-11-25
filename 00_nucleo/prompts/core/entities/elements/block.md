@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/block` — `BlockElem`
-Hash do Código: 6383dbee
+Hash do Código: 818b9943
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043

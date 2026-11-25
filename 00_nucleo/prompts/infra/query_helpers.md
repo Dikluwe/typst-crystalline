@@ -1,5 +1,5 @@
 # L0 — Query parsing, summaries and located results
-Hash do Código: 9f6ceb5f
+Hash do Código: d5593bde
 
 
 **Layer:** L3
@@ -263,3 +263,10 @@ In this owner's existing traversal/certificate use Complete visual cells, else
 authoritative Some(items), else legacy children/header/footer, and caption once.
 No parallel visitation, new allocation, context evaluation, phase or public API.
 Retain existing policies and negative certificates for all other carriers.
+
+## List containers (2026-11-25)
+
+A list or enum count includes each container of that kind and those inside its items.
+Loose sequences keep their earlier approximate count.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

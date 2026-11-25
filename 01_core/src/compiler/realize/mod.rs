@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
-//! @prompt-hash 8d363c2c
+//! @prompt-hash b78561b7
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -12,6 +12,7 @@ pub mod page_running;
 pub(in crate::compiler) mod recipes;
 pub mod reference_supplements;
 pub(in crate::compiler) mod sequences;
+pub(crate) mod lists;
 mod table_cells;
 
 use crate::compiler::eval::{EvalContext, EvalTarget};
@@ -493,6 +494,14 @@ pub fn realize_document(
             sink: &mut tracked_sink,
         };
         recipes::realize(content, &mut ctx, &mut engine)
+            .map(|visual| {
+                if target == EvalTarget::Paged {
+                    lists::group(&visual)
+                } else {
+                    visual
+                }
+            })
+            .and_then(|visual| lists::prepare(&visual, &mut ctx, &mut engine))
             .and_then(|visual| finish_occurrences(&visual, &mut ctx))
             .and_then(|visual| normalize_insertions(&visual))
             .and_then(|visual| {
@@ -538,7 +547,13 @@ pub fn realize_math_insertions(
         }
         std::mem::replace(engine.active_guards, guards)
     });
-    let result = recipes::realize(&content, ctx, engine);
+    let result = recipes::realize(&content, ctx, engine).and_then(|content| {
+        if ctx.target == EvalTarget::Paged {
+            lists::prepare(&lists::group(&content), ctx, engine)
+        } else {
+            Ok(content)
+        }
+    });
     if let Some(rules) = previous_rules {
         *engine.show_rules = rules;
     }

@@ -405,3 +405,10 @@ following paragraph break under the same style chain.
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
 The sticky lookahead reads the projected block.
+
+## List containers (2026-11-24)
+
+A list container is an ordinary block-level part. Item grouping here concerns only
+loose items.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

@@ -479,6 +479,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// no overflow check (`cursor_y > height - margin -
     /// cursor_y_bottom_reserve`). Reset em `new_page`.
     pub(super) cursor_y_bottom_reserve: f64,
+    /// Geometria que o conjunto entrega ao seu próximo item.
+    pub(in crate::compiler::layout) list_frame: Option<terms::ItemFrame>,
     /// **P793** — Contador de itens de enum sequenciais.
     pub(super) enum_counter: Option<u32>,
     /// P1414 — estado privado da numeração das linhas físicas do fluxo raiz.
@@ -1073,6 +1075,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             floats_pending: Vec::new(),
             cursor_y_top_reserve: 0.0,
             cursor_y_bottom_reserve: 0.0,
+            list_frame: None,
             enum_counter: None,
             par_line_counter: 0,
             par_line_page: None,
@@ -1249,7 +1252,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Verifica tanto `current_items` (linhas já fechadas) como `current_line`
     /// (items ainda pendentes de flush) — uma linha não fechada ainda constitui
     /// conteúdo visível na página.
-    fn current_page_is_empty(&self) -> bool {
+    pub(super) fn current_page_is_empty(&self) -> bool {
         !html_frame::items_have_material(&self.regions.current.current_items)
             && !html_frame::items_have_material(&self.regions.current.current_line)
     }

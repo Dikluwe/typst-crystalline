@@ -1,5 +1,5 @@
 # L0 — introspect/materialize_time
-Hash do Código: c5288ca3
+Hash do Código: 02680360
 
 
 
@@ -280,3 +280,9 @@ resolved Top through materialize_time, then copy both e.placement and
 e.resolved_placement unchanged. Preserve all existing recursive time/counter
 freezing and origins, with no new callback or phase. This is the approved
 carrier's internal preservation correction; raw omission remains absent.
+
+## List containers (2026-11-24)
+
+A list container keeps its kind, named arguments and labels.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

@@ -1,5 +1,5 @@
 # L0 — entities/content
-Hash do Código: 7800c661
+Hash do Código: 2c622664
 
 
 **Layer:** L1

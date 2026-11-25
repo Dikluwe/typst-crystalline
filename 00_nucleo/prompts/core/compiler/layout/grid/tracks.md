@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: e78187e2
+Hash do Código: 21a86cef
 
 
 
@@ -304,3 +304,9 @@ Revalidate core/math/shaper tests, RAM-only build, lint and paired lineage,
 with exact source/UTC/diffstat provenance and restricted resealing after a
 valid V15/V26 graph. Preserve all concurrent changes and every other owner
 responsibility; no commit/push, new public API, Nucleus or phase is authorized.
+
+## List containers (2026-11-24)
+
+An automatic column measures a list container by laying it out.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

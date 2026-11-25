@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: 1b876dd6
+Hash do Código: dddca583
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -391,3 +391,10 @@ when laid out, not in the preflight.
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 A block with an outline delegates its whole layout to the shape owner.
+
+## List containers (2026-11-24)
+
+The body may follow a plan edge other than `BlockBody`, given by the caller that
+borrows this geometry.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

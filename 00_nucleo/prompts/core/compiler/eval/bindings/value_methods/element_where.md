@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods/element_where
-Hash do Código: 54ecc57c
+Hash do Código: cf658b10
 
 
 Núcleos Tekt:

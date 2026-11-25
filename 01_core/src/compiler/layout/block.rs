@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 17ec1360
+//! @prompt-hash 73581a43
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -133,6 +133,34 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     let declared = effective(layouter, e);
     let e = declared.as_ref().unwrap_or(e);
+    layout_frame(layouter, e, 0.0, |layouter, body| {
+        layouter.layout_planned_child(
+            crate::compiler::introspect::page_running::PlanEdge::BlockBody,
+            body,
+        );
+    });
+}
+
+/// Origem da moldura e regra de quem a emprestou.
+#[derive(Clone, Copy)]
+pub(super) struct FrameStart {
+    pub(super) page: usize,
+    pub(super) column: usize,
+    pub(super) y: f64,
+    /// Índice do primeiro item emitido nessa região.
+    pub(super) items: usize,
+    /// Deslocamento com que a coluna entra na página.
+    pub(super) column_dx: f64,
+}
+
+/// A moldura de bloco com o corpo emitido por `emit`; `room` é a altura
+/// mínima que a primeira região precisa oferecer.
+pub(super) fn layout_frame<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &BlockElem,
+    room: f64,
+    emit: impl FnOnce(&mut Layouter<M, S>, &crate::entities::content::Content),
+) -> FrameStart {
     let (
         body,
         width,
@@ -241,6 +269,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // else: cabe na actual OU overlong (emit normal — paridade vanilla).
     }
 
+    if room > 0.0
+        && allows_fragmentation(layouter)
+        && !layouter.current_page_is_empty()
+        && layouter.regions.current.cursor_y.0 + room > layouter.page_bottom_limit()
+    {
+        layouter.new_page();
+        if !layouter.initial_baseline_pending {
+            let (top, _) =
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+            layouter.regions.current.cursor_y = layouter.regions.current.cursor_y - top;
+        }
+    }
+
     // P247 — snapshot items_before para inserir Shape ANTES
     // do body (Z-order: fill+stroke atrás do conteúdo).
     let items_before = layouter.regions.current.current_items.len();
@@ -248,6 +289,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let column_before = layouter.current_column;
     let deco_before = layouter.decoration_lines_collector.as_ref().map_or(0, Vec::len);
 
+    let column_dx = if layouter.page_columns.is_some() {
+        layouter.column_origin_x - layouter.page_config.margin.left
+    } else {
+        0.0
+    };
     // Capture the physical frame origin before laying out its body.
     let start_y = layouter.regions.current.cursor_y.0;
     layouter.flow_placement_end = None;
@@ -396,10 +442,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if captured_parent && resolved_width.is_none() {
         layouter.piece_alignment = Some(super::repeat::PieceAlignment::new(inner_w));
     }
-    layouter.layout_planned_child(
-        crate::compiler::introspect::page_running::PlanEdge::BlockBody,
-        body,
-    );
+    emit(layouter, body);
     layouter.flush_line();
     let body_piece_alignment = layouter.piece_alignment.take();
     layouter.piece_alignment = saved_piece_alignment;
@@ -759,6 +802,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 }
             }
         }
+    }
+    FrameStart {
+        page: page_before,
+        column: column_before,
+        y: start_y,
+        items: items_before,
+        column_dx,
     }
 }
 

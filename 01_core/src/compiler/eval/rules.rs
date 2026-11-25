@@ -47,6 +47,14 @@ mod outline;
 mod pdf;
 mod realize;
 mod set;
+
+/// Admissão dos argumentos nomeados de um construtor declarável.
+pub(crate) fn check_declaration(
+    element: &str,
+    args: &crate::entities::args::Args,
+) -> crate::entities::source_result::SourceResult<()> {
+    set::schema::check(element, args)
+}
 mod show;
 
 pub(crate) use self::apply::apply_show_rules;

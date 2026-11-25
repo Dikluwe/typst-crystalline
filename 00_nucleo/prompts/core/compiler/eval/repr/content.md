@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr/content
-Hash do Código: f41e613b
+Hash do Código: 0e07e2db
 
 
 
@@ -106,3 +106,10 @@ Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preservi
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 A Block with an outline is represented by its element name with a body field.
+
+## List containers (2026-11-24)
+
+A container reads `list(tight: …, children: (…))`, with an item as `item(body: …)`,
+`item(number: …, body: …)` or `item(term: …, description: …)`.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

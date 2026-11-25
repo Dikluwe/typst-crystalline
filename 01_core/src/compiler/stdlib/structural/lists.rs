@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/lists.md
-//! @prompt-hash 1c14b35f
+//! @prompt-hash 847eb4ad
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -11,342 +11,243 @@
 
 use crate::entities::file_id::FileId;
 
+pub(crate) use crate::compiler::stdlib::shape_frame::Named;
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::elements::terms::{ListKind, TermsElem};
+use crate::entities::layout_types::{Align2D, HAlign, Length};
+use crate::entities::style_chain::StyleChain;
+use std::sync::Arc;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
-/// `terms(named: descrição, ...)` — emite `Content::Terms` com pares
-/// (chave nomeada, valor descrição). A ordem dos argumentos nomeados é
-/// preservada (IndexMap). Aceita `Value::Content` ou `Value::Str` como
-/// descrição. Posicionais não suportados (forma chave: descrição).
-///
-/// **P1473** — segunda forma de chamada (paridade vanilla): variádica
-/// posicional de `Content::TermItem` (produzida por `terms.item(...)` ou
-/// pela sintaxe de markup `/ termo: descrição`). Se `args.items` não
-/// estiver vazio, ignora `args.named` e constrói `Content::terms(items)`
-/// directamente a partir dos posicionais; combinar posicional não-vazio
-/// com named não-vazio é erro. A forma nomeada (acima) permanece
-/// inalterada quando `args.items` está vazio.
+/// `terms(..itens, …)` — itens, pares em array, ou pares nomeados (extensão).
 pub fn native_terms(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    if !args.items.is_empty() {
-        if !args.named.is_empty() {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "unexpected argument".to_string(),
-            )]);
-        }
-        let mut items = Vec::with_capacity(args.items.len());
-        for v in args.items.iter() {
-            match v {
-                Value::Content(c @ Content::TermItem(_)) => items.push(c.clone()),
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!(
-                            "terms(): item deve ser produzido por terms.item(...), recebeu {}",
-                            other.type_name()
-                        ),
-                    )]);
-                }
-            }
-        }
-        return Ok(Value::Content(Content::terms(items)));
-    }
-    let mut items = Vec::with_capacity(args.named.len());
-    for (key, value) in args.named.iter() {
-        let term = Content::text(key.as_str());
-        let description = match value {
-            Value::Content(c) => c.clone(),
-            Value::Str(s) => Content::text(s.as_str()),
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                    "terms(): descrição de '{}' deve ser content ou string, recebeu {}",
-                    key,
-                    other.type_name()
-                ),
-                )])
-            }
-        };
-        items.push(Content::term_item(term, description));
-    }
-    Ok(Value::Content(Content::terms(items)))
+    container(ListKind::Terms, args)
 }
 
-// ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────────────────
-
-/// `list(..items, marker:?, marker-align:?, indent:?, body-indent:?, tight:?)` —
-/// cria itens de lista não ordenada com marcador configurável (P470/P504/P505).
-/// Cada item posicional torna-se um `Content::ListItem`.
+/// `list(..itens, …)`.
 pub fn native_list(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::entities::layout_types::{Align2D, Length};
-    use crate::entities::list_marker::ListMarker;
-
-    for key in args.named.keys() {
-        if !matches!(
-            key.as_str(),
-            "marker" | "marker-align" | "indent" | "body-indent" | "tight"
-        ) {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("argumento nomeado inesperado '{}'", key),
-            )]);
-        }
-    }
-    let marker: Option<ListMarker> = match args.named.get("marker") {
-        None => None,
-        Some(Value::Str(s)) => Some(ListMarker::Custom(s.clone())),
-        Some(Value::Array(arr)) => {
-            // P494 — marker como array de strings/contents (ex: ([•], [–], [·])).
-            let mut markers = Vec::with_capacity(arr.len());
-            for v in arr.iter() {
-                match v {
-                    Value::Str(s) => markers.push(ListMarker::Custom(s.clone())),
-                    Value::Content(c) => {
-                        markers.push(ListMarker::Custom(c.plain_text().into()))
-                    }
-                    other => {
-                        return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
-                            format!(
-                                "list(marker:) array espera strings ou content, recebeu {}",
-                                other.type_name()
-                            ),
-                        )]);
-                    }
-                }
-            }
-            if markers.is_empty() {
-                None
-            } else {
-                Some(ListMarker::Array(markers))
-            }
-        }
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "list(marker:) espera string ou array, recebeu {}",
-                    other.type_name()
-                ),
-            )]);
-        }
-    };
-    // P504 — alinhamento do marker (aceite; efeito visual scope-out).
-    let marker_align: Option<Align2D> = match args.named.get("marker-align") {
-        None => None,
-        Some(Value::Align(a)) => Some(*a),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "list(marker-align:) espera alignment, recebeu {}",
-                    other.type_name()
-                ),
-            )]);
-        }
-    };
-    // P505 — parâmetros de indentação.
-    let indent: Option<Length> = match args.named.get("indent") {
-        None | Some(Value::None) => None,
-        Some(Value::Length(l)) => Some(*l),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("list(indent:) espera length, recebeu {}", other.type_name()),
-            )]);
-        }
-    };
-    let body_indent: Option<Length> = match args.named.get("body-indent") {
-        None | Some(Value::None) => None,
-        Some(Value::Length(l)) => Some(*l),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "list(body-indent:) espera length, recebeu {}",
-                    other.type_name()
-                ),
-            )]);
-        }
-    };
-    let tight: Option<bool> = match args.named.get("tight") {
-        None | Some(Value::None) => None,
-        Some(Value::Bool(b)) => Some(*b),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("list(tight:) espera bool, recebeu {}", other.type_name()),
-            )]);
-        }
-    };
-    if args.items.is_empty() {
-        return Ok(Value::Content(Content::Empty));
-    }
-    let mut items = Vec::with_capacity(args.items.len());
-    for v in args.items.iter() {
-        let body = match v {
-            Value::Content(c) => c.clone(),
-            Value::Str(s) => Content::text(s.as_str()),
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                        "list(): item deve ser content ou string, recebeu {}",
-                        other.type_name()
-                    ),
-                )]);
-            }
-        };
-        let item = Content::list_item_full(
-            body,
-            marker.clone(),
-            marker_align,
-            indent,
-            body_indent,
-            tight,
-        );
-        items.push(item);
-    }
-    Ok(Value::Content(if items.len() == 1 {
-        items.remove(0)
-    } else {
-        Content::Sequence(items.into())
-    }))
+    container(ListKind::List, args)
 }
 
-/// `enum(..items, numbering:?, start:?, indent:?, body-indent:?, tight:?)` —
-/// cria itens de lista ordenada com esquema de numeração configurável
-/// (P470/P505). Cada item posicional torna-se um `Content::EnumItem` com
-/// número 1-based respeitando `start`.
+/// `enum(..itens, …)`.
 pub fn native_enum(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::entities::enum_numbering::EnumNumbering;
-    use crate::entities::layout_types::Length;
+    container(ListKind::Enum, args)
+}
 
-    for key in args.named.keys() {
-        if !matches!(
-            key.as_str(),
-            "numbering" | "start" | "indent" | "body-indent" | "tight"
-        ) {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("argumento nomeado inesperado '{}'", key),
-            )]);
+/// Nomes declaráveis, na ordem de `fields()`.
+pub(crate) fn names(kind: ListKind) -> &'static [&'static str] {
+    match kind {
+        ListKind::Terms => {
+            &["tight", "separator", "indent", "hanging-indent", "spacing"]
         }
+        ListKind::List => {
+            &["tight", "marker", "indent", "body-indent", "spacing", "marker-align"]
+        }
+        ListKind::Enum => &[
+            "tight",
+            "numbering",
+            "start",
+            "full",
+            "reversed",
+            "indent",
+            "body-indent",
+            "spacing",
+            "number-align",
+        ],
     }
-    let numbering: Option<EnumNumbering> = match args.named.get("numbering") {
-        None => None,
-        Some(Value::Str(s)) => Some(EnumNumbering::from_pattern(s.as_str())),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("enum(numbering:) espera string, recebeu {}", other.type_name()),
-            )]);
-        }
-    };
-    let start: u32 = match args.named.get("start") {
-        None => 1,
-        Some(Value::Int(n)) if *n >= 1 => *n as u32,
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "enum(start:) espera inteiro >= 1, recebeu {}",
-                    other.type_name()
-                ),
-            )]);
-        }
-    };
-    // P505 — parâmetros de indentação.
-    let indent: Option<Length> = match args.named.get("indent") {
-        None | Some(Value::None) => None,
-        Some(Value::Length(l)) => Some(*l),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("enum(indent:) espera length, recebeu {}", other.type_name()),
-            )]);
-        }
-    };
-    let body_indent: Option<Length> = match args.named.get("body-indent") {
-        None | Some(Value::None) => None,
-        Some(Value::Length(l)) => Some(*l),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "enum(body-indent:) espera length, recebeu {}",
-                    other.type_name()
-                ),
-            )]);
-        }
-    };
-    let tight: Option<bool> = match args.named.get("tight") {
-        None | Some(Value::None) => None,
-        Some(Value::Bool(b)) => Some(*b),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("enum(tight:) espera bool, recebeu {}", other.type_name()),
-            )]);
-        }
-    };
-    if args.items.is_empty() {
-        return Ok(Value::Content(Content::Empty));
+}
+
+/// Valor padrão de uma propriedade.
+pub(crate) fn default(kind: ListKind, name: &str) -> Value {
+    match name {
+        "tight" => Value::Bool(true),
+        "full" | "reversed" => Value::Bool(false),
+        "indent" => Value::Length(Length::ZERO),
+        // ref: lab/typst-original/crates/typst-library/src/model/list.rs:100-102
+        "body-indent" => Value::Length(Length::em(0.5)),
+        // ref: lab/typst-original/crates/typst-library/src/model/terms.rs:76
+        "hanging-indent" => Value::Length(Length::em(2.0)),
+        "numbering" => Value::Str("1.".into()),
+        "marker" => Value::Array(
+            ["•", "‣", "–"]
+                .into_iter()
+                .map(|marker| Value::Content(Content::text(marker)))
+                .collect(),
+        ),
+        "marker-align" | "number-align" => Value::Align(Align2D {
+            h: Some(HAlign::End),
+            v: None,
+        }),
+        "separator" if kind == ListKind::Terms => Value::Content(separator()),
+        _ => Value::Auto,
     }
-    let mut items = Vec::with_capacity(args.items.len());
-    for (idx, v) in args.items.iter().enumerate() {
-        let body = match v {
-            Value::Content(c) => c.clone(),
-            Value::Str(s) => Content::text(s.as_str()),
-            other => {
+}
+
+/// O separador padrão de termo e descrição.
+pub(crate) fn separator() -> Content {
+    // ref: lab/typst-original/crates/typst-library/src/model/terms.rs:53
+    Content::HSpace(Arc::new(crate::entities::elements::h_space::HSpaceElem {
+        amount: crate::entities::elements::h_space::Spacing::Absolute(Length::em(0.6)),
+        weak: true,
+        weak_explicit: true,
+    }))
+}
+
+/// Propriedade em vigor: lexical, declarada ou padrão.
+pub(crate) fn property(e: &TermsElem, name: &str, chain: &StyleChain) -> Value {
+    e.lexical(name)
+        .or_else(|| chain.custom(&format!("{}.{name}", e.kind.name())))
+        .cloned()
+        .unwrap_or_else(|| default(e.kind, name))
+}
+
+pub(crate) fn kind_of(element: &str) -> Option<ListKind> {
+    [ListKind::Terms, ListKind::List, ListKind::Enum]
+        .into_iter()
+        .find(|kind| kind.name() == element)
+}
+
+/// Valor normalizado de uma propriedade cujo tipo já foi conferido.
+pub(crate) fn admit(name: &str, value: &Value, span: Span) -> SourceResult<Value> {
+    if name == "marker" {
+        if let Value::Array(markers) = value {
+            if markers.is_empty() {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                        "enum(): item deve ser content ou string, recebeu {}",
-                        other.type_name()
-                    ),
+                    span,
+                    "array must contain at least one marker",
                 )]);
             }
-        };
-        let number = Some((idx as u32) + start);
-        let item = Content::enum_item_full(
-            number,
-            body,
-            numbering.clone(),
-            indent,
-            body_indent,
-            tight,
-        );
-        items.push(item);
+            return Ok(Value::Array(
+                markers.iter().map(|marker| Value::Content(display(marker))).collect(),
+            ));
+        }
     }
-    Ok(Value::Content(if items.len() == 1 {
-        items.remove(0)
+    if matches!(name, "marker" | "separator") && !matches!(value, Value::Func(_)) {
+        return Ok(Value::Content(display(value)));
+    }
+    if let ("start", Value::Int(number)) = (name, value) {
+        admit_number(*number, span)?;
+    }
+    Ok(value.clone())
+}
+
+fn admit_number(number: i64, span: Span) -> SourceResult<u32> {
+    if number < 0 {
+        return Err(vec![SourceDiagnostic::error(span, "number must be at least zero")]);
+    }
+    u32::try_from(number)
+        .map_err(|_| vec![SourceDiagnostic::error(span, "number too large")])
+}
+
+fn display(value: &Value) -> Content {
+    crate::compiler::eval::value_to_display_content(value.clone())
+        .unwrap_or(Content::Empty)
+}
+
+/// Conteúdo admitido como corpo.
+fn content(value: &Value, span: Span) -> SourceResult<Content> {
+    if matches!(
+        value,
+        Value::Content(_)
+            | Value::LocatedContent(..)
+            | Value::Str(_)
+            | Value::Symbol(_)
+            | Value::None
+    ) {
+        Ok(display(value))
     } else {
-        Content::Sequence(items.into())
-    }))
+        Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected content, found {}", vanilla_type_name(value)),
+        )])
+    }
+}
+
+fn container(kind: ListKind, args: &Args) -> SourceResult<Value> {
+    let known = names(kind);
+    let mut named = Named::default();
+    let mut items = Vec::new();
+    for arg in args.occurrence_sequence() {
+        let span = arg.value_span.or(arg.span).or(args.span);
+        if let Some(name) = arg.name.as_deref() {
+            if kind == ListKind::Terms && !known.contains(&name) {
+                if args.occurrence_sequence().iter().any(|arg| arg.name.is_none()) {
+                    return Err(vec![SourceDiagnostic::error(span, "unexpected argument")]);
+                }
+                items.push(Content::term_item(
+                    Content::text(name),
+                    content(&arg.value, span)?,
+                ));
+                continue;
+            }
+            let single = Args::from_occurrences(args.span, vec![arg.clone()]);
+            crate::compiler::eval::rules::check_declaration(kind.name(), &single)?;
+            named.insert(name.into(), admit(name, &arg.value, span)?);
+            continue;
+        }
+        items.push(match kind {
+            ListKind::Terms => term(&arg.value, span)?,
+            ListKind::List | ListKind::Enum => {
+                let body = content(&arg.value, span)?;
+                if crate::compiler::realize::lists::item_kind(&body) == Some(kind) {
+                    body
+                } else if kind == ListKind::List {
+                    Content::list_item(body)
+                } else {
+                    Content::enum_item(None, body)
+                }
+            }
+        });
+    }
+    let order: Named = known
+        .iter()
+        .filter_map(|name| Some(((*name).into(), named.get(*name)?.clone())))
+        .collect();
+    let order = (!order.is_empty()).then(|| Arc::new(order));
+    Ok(Value::Content(Content::list_like(kind, items, order)))
+}
+
+fn term(value: &Value, span: Span) -> SourceResult<Content> {
+    if let Value::Array(pair) = value {
+        if let [term, description] = &pair[..] {
+            return Ok(Content::term_item(
+                content(term, span)?,
+                content(description, span)?,
+            ));
+        }
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "array must contain exactly two entries",
+        )]);
+    }
+    if let Value::Content(item) = value {
+        if crate::compiler::realize::lists::item_kind(item) == Some(ListKind::Terms) {
+            return Ok(item.clone());
+        }
+    }
+    Err(vec![SourceDiagnostic::error(span, "expected term item or array")])
 }
 
 // ── P1473 — `list.item`/`enum.item`/`terms.item` qualificados ───────────────
@@ -383,6 +284,7 @@ pub fn native_list_item(
     }
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
+        Some(value @ (Value::Str(_) | Value::Symbol(_))) => display(value),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -435,8 +337,14 @@ pub fn native_enum_item(
     let mut body: Option<Content> = None;
     for v in args.items.iter() {
         match v {
-            Value::Int(n) if number.is_none() => number = Some(*n as u32),
+            Value::Int(n) if number.is_none() => {
+                number = Some(admit_number(*n, args.span)?);
+            }
+            Value::Auto if number.or(body.as_ref().map(|_| 0)).is_none() => {}
             Value::Content(c) if body.is_none() => body = Some(c.clone()),
+            Value::Str(_) | Value::Symbol(_) if body.is_none() => {
+                body = Some(display(v));
+            }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -491,6 +399,7 @@ pub fn native_terms_item(
     }
     let term = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
+        Some(value @ (Value::Str(_) | Value::Symbol(_))) => display(value),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -506,6 +415,7 @@ pub fn native_terms_item(
     };
     let description = match args.items.get(1) {
         Some(Value::Content(c)) => c.clone(),
+        Some(value @ (Value::Str(_) | Value::Symbol(_))) => display(value),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),

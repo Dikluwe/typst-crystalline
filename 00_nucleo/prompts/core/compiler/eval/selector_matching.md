@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: e028929d
+Hash do Código: 9776297f
 
 
 
@@ -543,3 +543,10 @@ require a new gate; the approved fields are not inferred from diagnostics.
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 A shape matches the native function of its origin, with or without body; a Block with
 an outline does not match block.
+
+## List containers (2026-11-24)
+
+`list` and `enum` select the container of that kind; `terms` selects the term list.
+The items are selected only by their own functions. A loose sequence is no longer a list.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

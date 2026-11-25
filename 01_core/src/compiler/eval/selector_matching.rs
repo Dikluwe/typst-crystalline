@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash e0c17c63
+//! @prompt-hash 3fd5aecb
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -11,6 +11,7 @@
 
 use crate::entities::elements::shape::ShapeOrigin;
 use crate::entities::content::Content;
+use crate::entities::elements::terms::ListKind;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::func::Func;
 use crate::entities::selector::Selector as QuerySelector;
@@ -190,13 +191,11 @@ pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
             ) || matches!(
                 (work, kind),
                 (_, NodeKind::List)
-                    if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::ListItem(_))))
-                    || matches!(work, Content::ListItem(_))
+                    if matches!(work, Content::Terms(e) if e.kind == ListKind::List)
             ) || matches!(
                 (work, kind),
                 (_, NodeKind::Enum)
-                    if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::EnumItem(_))))
-                    || matches!(work, Content::EnumItem(_))
+                    if matches!(work, Content::Terms(e) if e.kind == ListKind::Enum)
             ) || matches!(
                 (work, kind),
                 (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false, false)
@@ -386,7 +385,11 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::Table(_) => native!(native_table),
         Content::Grid(_) => native!(native_grid),
         Content::Metadata(_) => native!(native_metadata),
-        Content::Terms(_) => native!(native_terms),
+        Content::Terms(e) => match e.kind {
+            ListKind::Terms => native!(native_terms),
+            ListKind::List => native!(native_list),
+            ListKind::Enum => native!(native_enum),
+        },
         Content::Outline(_) => native!(native_outline),
         Content::OutlineEntry(_) => native!(native_outline_entry),
         Content::Cite(_) => native!(native_cite),

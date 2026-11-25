@@ -1,5 +1,5 @@
 # L0 — entities/content/construction
-Hash do Código: 247dfa3a
+Hash do Código: 916df648
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
@@ -127,3 +127,9 @@ Apply the approved SVG extension while preserving original source and existing r
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+## List containers (2026-11-24)
+
+`Content::list_like` builds a container of any kind with its lexical arguments.
+
+Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.

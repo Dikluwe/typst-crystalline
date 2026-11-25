@@ -190,6 +190,12 @@ pub(crate) fn native_element_fields(
         ["path", "format", "title", "author", "description", "keywords", "date", "body"]
     );
     element!(native_divider, "divider", false, []);
+    element!(
+        native_terms,
+        "terms",
+        false,
+        ["tight", "separator", "indent", "hanging-indent", "spacing", "children"]
+    );
     element!(native_list_item, "item", false, ["body"]);
     element!(native_enum_item, "item", false, ["number", "body"]);
     element!(native_terms_item, "item", false, ["term", "description"]);
