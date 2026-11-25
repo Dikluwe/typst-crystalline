@@ -89,7 +89,7 @@ types = ["memoize", "track", "Track", "Tracked", "TrackedMut", "Validate", "anal
 
 # Matemática de calc: funções puras pinadas 0.2.11; decisão nos owners L0 trig/hyperbolic/logarithms (2026-10-13).
 [l1_allowed_external.libm]
-types = ["cbrtf", "fmaf", "powf", "cos", "sin", "tan", "asin", "acos", "atan", "atan2", "hypot", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "exp", "exp10", "log", "log2", "log10", "sinf", "cosf", "sincosf", "atan2f"]  # P1253 — paridade numérica com palette 0.7.6 no_std; cos/sin acrescentados em P1473 (geometria determinística de polygon.regular, mesma razão de disallowed-methods em clippy.toml: f64::cos/sin são não-determinísticos)
+types = ["cbrtf", "fmaf", "powf", "cos", "sin", "tan", "asin", "acos", "atan", "atan2", "hypot", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "exp", "exp10", "log", "log2", "log10", "pow", "erf", "sinf", "cosf", "sincosf", "atan2f"]  # P1253 — paridade numérica com palette 0.7.6 no_std; cos/sin acrescentados em P1473 (geometria determinística de polygon.regular, mesma razão de disallowed-methods em clippy.toml: f64::cos/sin são não-determinísticos)
 
 [l1_allowed_external.unicode_ident]
 types = ["is_xid_continue", "is_xid_start"]  # ADR-0010

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/norm.md
-//! @prompt-hash df38d956
+//! @prompt-hash d8ce9a78
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -36,20 +36,35 @@ pub(crate) fn calc_norm(
         return err(format!("calc.norm() argumento nomeado desconhecido: '{bad}'"));
     }
 
-    if args.items.is_empty() {
+    if p <= 0.0 {
+        let span = args
+            .occurrences
+            .as_ref()
+            .and_then(|items| {
+                items.iter().rev().find(|arg| arg.name.as_deref() == Some("p"))
+            })
+            .map(|arg| arg.value_span)
+            .unwrap_or_else(Span::detached);
+        return Err(vec![SourceDiagnostic::error(span, "p must be greater than zero")]);
+    }
+
+    let mut magnitudes = Vec::with_capacity(args.items.len());
+    for v in &args.items {
+        magnitudes.push(coerce_to_f64(v, "calc.norm() valor")?.abs());
+    }
+    if magnitudes.is_empty() {
         return Ok(Value::Float(0.0));
     }
-    let mut sum: f64 = 0.0;
-    for v in &args.items {
-        let x = coerce_to_f64(v, "calc.norm() valor")?;
-        // DEBT-libm: f64::powf banido — partilhado com calc_pow / calc_root.
-        #[allow(clippy::disallowed_methods)]
-        let term = x.abs().powf(p);
-        sum += term;
+    if magnitudes.iter().any(|m| m.is_nan()) {
+        return Ok(Value::Float(f64::NAN));
     }
-    #[allow(clippy::disallowed_methods)]
-    let r = sum.powf(1.0 / p);
-    guard_float(r)
+    let max = magnitudes.iter().copied().fold(0.0, f64::max);
+    if p.is_infinite() || max == 0.0 || (max.is_infinite() && !p.is_nan()) {
+        return Ok(Value::Float(max));
+    }
+    // A escala evita overflow quando a norma é representável.
+    let sum: f64 = magnitudes.iter().map(|m| libm::pow(m / max, p)).sum();
+    Ok(Value::Float(max * libm::pow(sum, 1.0 / p)))
 }
 
 #[cfg(test)]

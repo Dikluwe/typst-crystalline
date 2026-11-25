@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc.md
-//! @prompt-hash c574d0ec
+//! @prompt-hash c53948cf
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -60,7 +60,10 @@ pub(crate) use self::logarithms::{
     calc_deg, calc_exp, calc_ln, calc_log, calc_log10, calc_rad,
 };
 pub(crate) use self::norm::calc_norm;
-use self::numeric::{coerce_to_f64, guard_float};
+use self::numeric::{
+    coerce_to_f64, decimal_and_float, float_to_int, not_a_real_number, positional_span,
+    reject_nan, too_large, DecNum, DecNumPair,
+};
 pub(crate) use self::power::{calc_pow, calc_root, calc_sqrt};
 pub(crate) use self::round::{calc_ceil, calc_floor, calc_fract, calc_round, calc_trunc};
 pub(crate) use self::trig::{
@@ -86,9 +89,7 @@ use self::trig::{trig_op, unary_f64};
 /// `quo`, `gcd`, `lcm`, `fact`, `perm`, `binom`, `norm`, `root`).
 ///
 /// P308 fecha a paridade `calc` 41/41 = 100% com `erf` (função erro de
-/// Gauss). Vanilla delega a `libm::erf`; cristalino usa Caminho A
-/// (Abramowitz & Stegun 7.1.26, polinomial puro f64; erro máximo 1.5e-7
-/// — ADR-0054 graded). Diagnóstico inline em `stdlib.md` §"Função erro".
+/// Gauss), via `libm::erf`.
 pub fn make_calc_module() -> Value {
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     dict.insert("abs".into(), Value::Func(Func::native("abs", calc_abs)));

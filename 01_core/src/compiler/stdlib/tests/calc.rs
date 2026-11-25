@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/calc.md
-//! @prompt-hash 40a89674
+//! @prompt-hash 60a1f2ba
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -651,16 +651,14 @@ fn calc_exp_zero_e_um() {
 }
 
 #[test]
-fn calc_exp_overflow_retorna_err() {
+fn calc_exp_overflow_retorna_infinito() {
     null_ctx!(ctx);
-    // exp(1e10) → Inf → guard_float devolve Err.
-    assert!(calc_exp(
-        &mut ctx,
-        &p(vec![Value::Float(1e10)]),
-        &null_world(),
-        test_file_id()
-    )
-    .is_err());
+    // ADR-0101 revista: overflow segue a linguagem.
+    assert_eq!(
+        calc_exp(&mut ctx, &p(vec![Value::Float(1e10)]), &null_world(), test_file_id())
+            .unwrap(),
+        Value::Float(f64::INFINITY),
+    );
 }
 
 #[test]
@@ -1633,17 +1631,18 @@ fn calc_erf_infinito_short_circuit() {
 }
 
 #[test]
-fn calc_erf_nan_err() {
+fn calc_erf_nan_propaga() {
     null_ctx!(ctx);
-    // Divergência consciente vs vanilla `libm::erf(NaN) = NaN`:
-    // cristalino mapeia para Err (paridade convenção `guard_float`).
-    assert!(calc_erf(
+    let Value::Float(value) = calc_erf(
         &mut ctx,
         &p(vec![Value::Float(f64::NAN)]),
         &null_world(),
-        test_file_id()
+        test_file_id(),
     )
-    .is_err(),);
+    .unwrap() else {
+        panic!("erf must return float");
+    };
+    assert!(value.is_nan());
 }
 
 #[test]

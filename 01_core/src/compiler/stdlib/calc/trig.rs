@@ -1,15 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/trig.md
-//! @prompt-hash 4051bad6
+//! @prompt-hash 70146843
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
 
-/// Aplica uma função matemática pura e envolve o resultado em [`guard_float`].
+/// Aplica uma função matemática pura e devolve o resultado IEEE.
 /// As famílias transcendentais usam a versão pinada de `libm`.
 pub(super) fn trig_op(op: fn(f64) -> f64, x: f64) -> SourceResult<Value> {
-    guard_float(op(x))
+    Ok(Value::Float(op(x)))
 }
 
 /// Captura o padrão `expect_no_named + 1 arg + coerce_to_f64 + trig_op` que

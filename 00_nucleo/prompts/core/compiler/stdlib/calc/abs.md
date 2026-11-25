@@ -3,7 +3,7 @@ Hash do Código: dc254124
 
 ## Evidence before specification
 
-L1 exclusive consumer: `01_core/src/compiler/stdlib/calc/abs.rs`; former implementation at calc.rs:133-255. The clean HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` and `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz` preserve hashes/time/state before extracting algorithms by behavior. Static module composition and shared numeric boundary criteria remain in `00_nucleo/prompts/core/compiler/stdlib/calc.md`; this owner exclusively implements its declared consumer, without transferring composition ownership. Extraction changes no public signature/module function/phase/result/error policy and introduces no I/O or mutable globals. Preserve L1/calc tests, build and crystalline-lint with correct 1:1 lineage; no performance gain is inferred.
+L1 exclusive consumer: `01_core/src/compiler/stdlib/calc/abs.rs`; former implementation at calc.rs:133-255. The clean HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` and `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz` preserve hashes/time/state before extracting algorithms by behavior. Static module composition remains in `00_nucleo/prompts/core/compiler/stdlib/calc.md`; this owner exclusively implements its declared consumer, without transferring composition ownership. Extraction changes no public signature/module function/phase/result/error policy and introduces no I/O or mutable globals. Preserve L1/calc tests, build and crystalline-lint with correct 1:1 lineage; no performance gain is inferred.
 
 Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain their original snapshot limits and do not certify later pins. The October reference was `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Read `lab/parity/vanilla.json` for new comparisons. Language semantics, syntax, morphology and observable diagnostics govern acceptance; enum/match/algorithm structure is mechanics. Source inspection is not inferred upstream intent.
 
@@ -11,9 +11,17 @@ Historical probes against `9f2b6e8715237cb086899a42873660fe744622e8` retain thei
 
 ## Exclusive contract
 
-Implement calc.abs with causal argument/span priority as specified by the composition owner's numeric boundary criteria. Int uses checked_abs, Float/Decimal retain kind, dimensional values obey their magnitude restrictions. Preserve type/positional errors/hints, return kind, spans, extras boundary, signed zero and mixed-Length behavior. No runtime coercion/formula/API/default/phase change.
+Implement calc.abs with causal argument/span priority as specified below. Int uses checked_abs, Float/Decimal retain kind, dimensional values obey their magnitude restrictions. Preserve type/positional errors/hints, return kind, spans, extras boundary, signed zero and mixed-Length behavior. No runtime coercion/formula/API/default/phase change.
 
 Exhaustively enumerate Value in diagnostic-name match: Str→string, Bool→boolean, other 37 current variants→canonical type_name. This intentional V19 group shares vocabulary policy even for types admitted earlier; it does not expand numerical admission or mean one executed arm proves every alternative. Future Value requires compile classification. No V16 allow/expect or lint relaxation.
+
+### Value and diagnostic precedence
+
+Process the first positional value before rejecting leftovers. Int uses checked_abs, with overflow `the result is too large`; Float/Decimal keep their kind. Angle/Ratio/Fraction take scalar magnitude in the same kind, without context resolution or angle normalization. Length is supported only when its absolute or em component is zero; otherwise `cannot take absolute value of this length`, including same-sign mixed lengths. Abs does not use guard_float: constructed scalar NaN/infinities follow the local magnitude rule. Divergent construction of dimensional non-finites is not a parity witness.
+
+Content/LocatedContent and all unsupported types fail with `expected integer, float, length, angle, ratio, fraction, or decimal, found TYPE`; String/Bool use string/boolean, with current long names for the other types. No numeric-string or content coercion. Value failures use only the first positional occurrence's value_span, including detached; never substitute args.span, occurrence.span, text search or a function-name position.
+
+Without a positional, select the first named value occurrence even after another named: `the argument `value` is positional`, on its complete argument span, with the single hint `try removing `value:``. Otherwise `missing argument: value` uses the supplied args.span. After a valid positional, exclude only that occurrence and reject the first remaining occurrence in joint causal order: `unexpected argument` or `unexpected argument: NAME`, on its argument span. Synthetic None origins use positional-before-named views and detached individual spans. Preserve duplicate/order coherence; do not mutate Args. Eager argument-expression failures still precede native entry. Outer traces remain a dispatcher responsibility; no native trace/hints are added except the positional-name hint.
 
 ## Acceptance and limits
 

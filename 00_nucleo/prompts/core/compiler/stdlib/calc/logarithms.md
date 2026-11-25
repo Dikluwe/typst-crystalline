@@ -1,50 +1,46 @@
 # L0 — stdlib/calc/logarithms
-Hash do Código: f216c805
+Hash do Código: 0d61c1fc
 
-## Ownership and evidence
-
-Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/calc/logarithms.rs`. At HEAD `d9e851a850c66905bdb0c3ea4b155a6f36881106` with a clean tree, `01_core/src/compiler/stdlib/calc.rs:848-995` contains the corresponding behavior. SHA-256, time and state are recorded in `lab/results/construction/diagnostics/atomizacao-calc-2026-09-30-before.json.gz`. This decision only separates algorithms by behavior.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/stdlib/calc/logarithms.rs`
+**Governance:** ADR-0101, ADR-0107, ADR-0127, ADR-0129, ADR-0132.
 
 ## Contract
 
-Implement exp, ln, log, log10 and deg/rad extensions. log defaults to base 10, handles named/positional base and chooses exact e/2/10 branches before the generic quotient; preserve domains and diagnostics.
+`exp` returns the exponential. A finite exponent may overflow to infinity and
+negative infinity gives 0.0. Positive infinity and NaN exponents fail with
+`exponent may not be infinite, subnormal, or NaN`.
 
-Parity details, types, diagnostics and bindings remain in `00_nucleo/prompts/core/compiler/stdlib/calc.md`. Extraction preserves public signatures, module functions, phase, results and error policy. No I/O or mutable global state is permitted.
+`ln` and `log` require a strictly positive value. `log` defaults to base 10; the
+named base and the legacy second positional are mutually exclusive; the base must
+be finite, positive and different from 1. Bases e, 2 and 10 use their exact
+branches before the generic quotient. A non-finite `log` result fails with
+`the result is not a real number`. An infinite `ln` result fails with
+`result close to -inf`; NaN propagates through `ln`.
 
-## Acceptance
+`log10` (positive value, same result rule as `log`), `deg` and `rad` (plain numbers,
+IEEE result) are deliberate crystalline extensions.
 
-Preserve the L1 suite and calc tests, build, and pass `crystalline-lint .` with correct ownership and hashes. Do not infer performance gains from this separation.
+Preserve native signatures, binding, phase, eager argument order and the
+operands' kinds stated above. No I/O or mutable global state. Errors not named
+here keep their current text; the message language is a separate decision.
 
 ## Deterministic transcendental implementation
 
-### Evidence before decision
+Use the pure functions of the project-pinned libm 0.2.11, named in the
+`crystalline.toml` whitelist. No platform-dependent native transcendental and no
+local `disallowed_methods` exception is permitted in this consumer. The choice of
+implementation is mechanics; types, values, argument order and errors are
+language observables. Neither universal bit equality nor general parity is claimed.
 
-HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, uncommitted working tree;
-`lab/results/construction/diagnostics/matematica-ci-2026-10-13/before.json.gz`
-retains sources/SHA-256/UTC/status/diffstat. evidence.json.gz (before-probes.json)
-retains language probes and binary identity. Historical oracle pin:
-`9f2b6e8715237cb086899a42873660fe744622e8`, ratified SHA-256
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+## Acceptance
 
-clippy.toml:3–24 prohibits platform-dependent native transcendentals.
-01_core/Cargo.toml:42 and lab/typst-original/Cargo.lock:1620–1623 both pin libm
-0.2.11. Historical upstream foundations/calc.rs:313–608 and layout/angle.rs:81–113
-use libm for these families. Measured probes have matching types/quadrants/domain
-rejections, with final-digit differences in cosh(1), exp(1) and log(81,base:3).
-Error messages already differ between implementations.
+RED→GREEN for exp overflow and each non-finite exponent, ln/log/log10 of infinity
+and NaN, deg/rad of non-finites. Preserve base selection and domain controls.
 
-### Contract and acceptance
+## Evidence
 
-ADR-0127 internal continuous flow: use pure functions from already-pinned libm
-0.2.11 without a new dependency. Remove this consumer's local disallowed_methods
-exceptions. The whitelist names added functions. Transcendental implementation
-choice is mechanics; types, coercions, numeric values, argument order and errors
-are language observables. Require neither universal bit equality nor general
-parity inferred from probes. Preserve signatures, bindings, guards, messages,
-defaults, phase and extensions in `00_nucleo/prompts/core/compiler/stdlib/calc.md`.
-
-Use independent constants/explicit tolerances, result types/quadrants/domains,
-existing calc regressions, Clippy without prohibited methods or local exceptions,
-build and lineage. Quality-gate RED precedes repair; do not fabricate a language
-failure where the platform already passes. Later probes must record preexisting
-differences outside this correction.
+Package approved by the owner on 2026-11-24 (“Aprovo A–F”). Measurement, causes,
+scope and retained divergences: `00_nucleo/diagnostics/calc-numeric-package-2026-11-24.pt-BR.md`.
+The previous text of this owner, with its extraction and earlier repair records,
+is `00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md` at commit `f2c737125`.

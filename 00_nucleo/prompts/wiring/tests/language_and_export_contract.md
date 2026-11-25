@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 185eb934
+Hash do Código: 0ff10d04
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -151,3 +151,11 @@ keep their results. Process success alone is not acceptance.
 ### Gradient review regressions
 
 Use the bilateral SVG cases from the gradient review over HEAD `88672ddc7d4e50019564ba14b7a6476e4cd35209`. Test an inner set gradient inside solid text and an inner set solid inside gradient text. Compare glyph fills in order and confirm the outer fill returns after the inner scope. For strike and overline, verify local gradient, solid nested under a gradient, mixed inline paints and explicit stroke precedence. Inspect painted stroke values. The raster owner tests bounded mask coverage and the review fixture exercises rotated text at 72 and 144 ppi.
+
+## Approved calc numeric package
+
+Own the black-box cases of `00_nucleo/diagnostics/calc-numeric-package-2026-11-24.pt-BR.md`:
+conversions, extrema, Decimal divisions and clamp, non-finite propagation, norm and
+erf, through the public eval command with independent expected values, messages and
+diagnostic columns. Non-finite calc results reaching layout end as the operator
+control does. Declared divergences are expected here, not parity.

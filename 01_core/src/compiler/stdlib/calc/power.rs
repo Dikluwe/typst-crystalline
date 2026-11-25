@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/power.md
-//! @prompt-hash b9a56b82
+//! @prompt-hash 3db661a6
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -14,7 +14,7 @@ use super::*;
 /// - `(Int, Int<0)` → `Float` via `powi` (`calc.pow(2, -1) = 0.5`);
 /// - `(Decimal, Int)` → `Decimal` via `checked_powi`;
 /// - `(Decimal, Float)` → erro dedicado decimal×float + hint (verbatim vanilla);
-/// - resto → `Float` via `powf` (`guard_float`, ADR-0101: inf/NaN → Err).
+/// - resto → `Float` via `powf` (NaN → Err).
 pub(crate) fn calc_pow(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -80,7 +80,7 @@ pub(crate) fn calc_pow(
         }
         (PowerBase::Int(a), PowerExponent::Int(b)) => {
             #[allow(clippy::disallowed_methods)]
-            guard_float((a as f64).powi(b as i32))
+            reject_nan((a as f64).powi(b as i32), args.span)
         }
         (PowerBase::Decimal(d), PowerExponent::Int(b)) => d.checked_powi(b).map(Value::Decimal).ok_or_else(|| {
             vec![SourceDiagnostic::error(
@@ -96,17 +96,17 @@ pub(crate) fn calc_pow(
             "if loss of precision is acceptable, explicitly cast the decimal to a float with `float(value)`",
         )]),
         (PowerBase::Float(b), PowerExponent::Int(e)) => {
-            // Preserve the existing guarded floating path for floating bases.
+            // Preserve the existing floating path for floating bases.
             #[allow(clippy::disallowed_methods)]
-            guard_float(b.powf(e as f64))
+            reject_nan(b.powf(e as f64), args.span)
         }
         (PowerBase::Float(b), PowerExponent::Float(e)) => {
             #[allow(clippy::disallowed_methods)]
-            guard_float(b.powf(e))
+            reject_nan(b.powf(e), args.span)
         }
         (PowerBase::Int(b), PowerExponent::Float(e)) => {
             #[allow(clippy::disallowed_methods)]
-            guard_float((b as f64).powf(e))
+            reject_nan((b as f64).powf(e), args.span)
         }
     }
 }
@@ -184,7 +184,7 @@ pub(crate) fn calc_sqrt(
             if f < 0.0 {
                 return err("calc.sqrt() argumento negativo");
             }
-            guard_float(f.sqrt())
+            Ok(Value::Float(f.sqrt()))
         }
         _ => err(format!("calc.sqrt() requer 1 argumento, recebeu {}", args.items.len())),
     }
@@ -221,7 +221,7 @@ pub(crate) fn calc_root(
                 let v = xf.powf(inv);
                 v
             };
-            guard_float(r)
+            Ok(Value::Float(r))
         }
         [_, other] => {
             err(format!("calc.root() índice deve ser Int, recebeu {}", other.type_name()))

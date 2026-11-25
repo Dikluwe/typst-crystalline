@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/logarithms.md
-//! @prompt-hash ea406eb8
+//! @prompt-hash f5e82ddb
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -12,7 +12,20 @@ pub(crate) fn calc_exp(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.exp", args, libm::exp)
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => {
+            let x = coerce_to_f64(v, "calc.exp")?;
+            if x.is_nan() || x == f64::INFINITY {
+                return Err(vec![SourceDiagnostic::error(
+                    positional_span(args, 0),
+                    "exponent may not be infinite, subnormal, or NaN",
+                )]);
+            }
+            Ok(Value::Float(libm::exp(x)))
+        }
+        _ => err(format!("calc.exp() requer 1 argumento, recebeu {}", args.items.len())),
+    }
 }
 
 pub(crate) fn calc_ln(
@@ -31,7 +44,13 @@ pub(crate) fn calc_ln(
                 ));
             }
             let r = libm::log(x);
-            guard_float(r)
+            if r.is_infinite() {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "result close to -inf",
+                )]);
+            }
+            Ok(Value::Float(r))
         }
         _ => err(format!("calc.ln() requer 1 argumento, recebeu {}", args.items.len())),
     }
@@ -104,7 +123,15 @@ pub(crate) fn calc_log(
     } else {
         libm::log(x) / libm::log(base)
     };
-    guard_float(r)
+    finite_log(r, args.span)
+}
+
+fn finite_log(r: f64, span: Span) -> SourceResult<Value> {
+    if r.is_finite() {
+        Ok(Value::Float(r))
+    } else {
+        Err(not_a_real_number(span))
+    }
 }
 
 /// `calc.log10(x)` — logaritmo base 10.
@@ -123,7 +150,7 @@ pub(crate) fn calc_log10(
                     "calc.log10() valor deve ser estritamente positivo, recebeu {x}"
                 ));
             }
-            guard_float(libm::log10(x))
+            finite_log(libm::log10(x), args.span)
         }
         _ => {
             err(format!("calc.log10() requer 1 argumento, recebeu {}", args.items.len()))
@@ -182,6 +209,9 @@ mod tests {
         for base in [0, 1, -1] {
             assert!(call(calc_log, vec![Value::Int(8), Value::Int(base)]).is_err());
         }
-        assert!(call(calc_exp, vec![Value::Int(1000)]).is_err());
+        assert_eq!(
+            call(calc_exp, vec![Value::Int(1000)]).unwrap(),
+            Value::Float(f64::INFINITY)
+        );
     }
 }

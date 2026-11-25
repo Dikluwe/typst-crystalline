@@ -1,10 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/extrema.md
-//! @prompt-hash a059a310
+//! @prompt-hash 07154aec
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
+use crate::compiler::eval::operators::eval_binary_op;
+use crate::compiler::eval::repr::repr_value;
+use crate::entities::ast::expr::BinOp;
 
 pub(crate) fn calc_min(
     _ctx: &mut EvalContext,
@@ -12,42 +15,7 @@ pub(crate) fn calc_min(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
-    if args.items.is_empty() {
-        return err("calc.min() requer pelo menos 1 argumento");
-    }
-    let mut result = args.items[0].clone();
-    for v in &args.items[1..] {
-        result = match (&result, v) {
-            (Value::Int(a), Value::Int(b)) => Value::Int(*a.min(b)),
-            (Value::Float(a), Value::Float(b)) => Value::Float(a.min(*b)),
-            (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).min(*b)),
-            (Value::Float(a), Value::Int(b)) => Value::Float(a.min(*b as f64)),
-            (Value::Length(_), Value::Length(_)) => {
-                let comparison = crate::compiler::eval::operators::eval_binary_op(
-                    crate::entities::ast::expr::BinOp::Lt,
-                    v.clone(),
-                    result.clone(),
-                )
-                .map_err(|message| {
-                    vec![SourceDiagnostic::error(Span::detached(), message)]
-                })?;
-                if comparison == Value::Bool(true) {
-                    v.clone()
-                } else {
-                    result.clone()
-                }
-            }
-            (_, other) => {
-                return err(format!(
-                    "calc.min() tipos incompatíveis: {} e {}",
-                    result.type_name(),
-                    other.type_name()
-                ))
-            }
-        };
-    }
-    Ok(result)
+    extremum("calc.min", args, BinOp::Lt)
 }
 
 pub(crate) fn calc_max(
@@ -56,42 +24,51 @@ pub(crate) fn calc_max(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    extremum("calc.max", args, BinOp::Gt)
+}
+
+/// Compara cada valor com o extremo retido pela ordenação da linguagem e
+/// devolve o argumento original.
+fn extremum(name: &str, args: &Args, op: BinOp) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
-    if args.items.is_empty() {
-        return err("calc.max() requer pelo menos 1 argumento");
-    }
-    let mut result = args.items[0].clone();
-    for v in &args.items[1..] {
-        result = match (&result, v) {
-            (Value::Int(a), Value::Int(b)) => Value::Int(*a.max(b)),
-            (Value::Float(a), Value::Float(b)) => Value::Float(a.max(*b)),
-            (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).max(*b)),
-            (Value::Float(a), Value::Int(b)) => Value::Float(a.max(*b as f64)),
-            (Value::Length(_), Value::Length(_)) => {
-                let comparison = crate::compiler::eval::operators::eval_binary_op(
-                    crate::entities::ast::expr::BinOp::Gt,
-                    v.clone(),
-                    result.clone(),
-                )
-                .map_err(|message| {
-                    vec![SourceDiagnostic::error(Span::detached(), message)]
-                })?;
-                if comparison == Value::Bool(true) {
-                    v.clone()
-                } else {
-                    result.clone()
-                }
-            }
-            (_, other) => {
-                return err(format!(
-                    "calc.max() tipos incompatíveis: {} e {}",
-                    result.type_name(),
-                    other.type_name()
-                ))
-            }
+    let Some((first, rest)) = args.items.split_first() else {
+        return err(format!("{name}() requer pelo menos 1 argumento"));
+    };
+    let mut result = first;
+    for (index, value) in rest.iter().enumerate() {
+        let compared = match unordered_numbers(value, result) {
+            Some(message) => Err(message),
+            None => eval_binary_op(op, value.clone(), result.clone()),
         };
+        let replaces = compared.map_err(|message| {
+            vec![SourceDiagnostic::error(positional_span(args, index + 1), message)]
+        })?;
+        if replaces == Value::Bool(true) {
+            result = value;
+        }
     }
-    Ok(result)
+    Ok(result.clone())
+}
+
+/// O operador devolve `false` para NaN; um extremo precisa de ordem.
+fn unordered_numbers(a: &Value, b: &Value) -> Option<String> {
+    let number = |value: &Value| {
+        if let Value::Float(f) = value {
+            Some(*f)
+        } else if let Value::Int(i) = value {
+            Some(*i as f64)
+        } else {
+            None
+        }
+    };
+    let (a, b) = (number(a)?, number(b)?);
+    (a.is_nan() || b.is_nan()).then(|| {
+        format!(
+            "cannot compare {} with {}",
+            repr_value(&Value::Float(a)),
+            repr_value(&Value::Float(b))
+        )
+    })
 }
 
 pub(crate) fn calc_clamp(
@@ -101,66 +78,67 @@ pub(crate) fn calc_clamp(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
-    match args.items.as_slice() {
-        [Value::Int(v), Value::Int(lo), Value::Int(hi)] => {
-            if lo > hi {
-                return clamp_bound_error(
-                    args,
-                    2,
-                    "max must be greater than or equal to min",
-                );
-            }
-            Ok(Value::Int(if v < lo {
-                *lo
-            } else if v > hi {
-                *hi
-            } else {
-                *v
-            }))
+    if args.items.len() != 3 {
+        return err(format!(
+            "calc.clamp() requer 3 argumentos, recebeu {}",
+            args.items.len()
+        ));
+    }
+    let value = DecNum::from_arg(args, 0)?;
+    let min = DecNum::from_arg(args, 1)?;
+    let max = DecNum::from_arg(args, 2)?;
+    if min.is_nan() {
+        return bound_error(args, 1, "min must not be NaN");
+    }
+    if max.is_nan() {
+        return bound_error(args, 2, "max must not be NaN");
+    }
+    let reversed = match min.pair(max) {
+        Some(DecNumPair::Int(lo, hi)) => lo > hi,
+        Some(DecNumPair::Float(lo, hi)) => lo > hi,
+        Some(DecNumPair::Decimal(lo, hi)) => lo > hi,
+        None => false,
+    };
+    if reversed {
+        return bound_error(args, 2, "max must be greater than or equal to min");
+    }
+    match (value, min, max) {
+        (DecNum::Int(v), DecNum::Int(lo), DecNum::Int(hi)) => {
+            Ok(Value::Int(select(v, lo, hi)))
         }
-        [v, lo, hi] => {
-            let vf = coerce_to_f64(v, "calc.clamp() value")?;
-            let lof = coerce_to_f64(lo, "calc.clamp() min")?;
-            let hif = coerce_to_f64(hi, "calc.clamp() max")?;
-            if lof.is_nan() {
-                return clamp_bound_error(args, 1, "min must not be NaN");
-            }
-            if hif.is_nan() {
-                return clamp_bound_error(args, 2, "max must not be NaN");
-            }
-            if lof > hif {
-                return clamp_bound_error(
-                    args,
-                    2,
-                    "max must be greater than or equal to min",
-                );
-            }
-            Ok(Value::Float(if vf < lof {
-                lof
-            } else if vf > hif {
-                hif
-            } else {
-                vf
-            }))
+        (DecNum::Decimal(_), ..)
+        | (_, DecNum::Decimal(_), _)
+        | (_, _, DecNum::Decimal(_)) => {
+            let (Some(v), Some(lo), Some(hi)) =
+                (value.decimal(), min.decimal(), max.decimal())
+            else {
+                return Err(decimal_and_float(args.span));
+            };
+            Ok(Value::Decimal(select(v, lo, hi)))
         }
-        _ => {
-            err(format!("calc.clamp() requer 3 argumentos, recebeu {}", args.items.len()))
+        (DecNum::Int(_) | DecNum::Float(_), _, _) => {
+            let (Some(v), Some(lo), Some(hi)) = (value.float(), min.float(), max.float())
+            else {
+                return Err(decimal_and_float(args.span));
+            };
+            Ok(Value::Float(select(v, lo, hi)))
         }
     }
 }
 
-fn clamp_bound_error(
-    args: &Args,
-    positional: usize,
-    message: &str,
-) -> SourceResult<Value> {
-    let span = args
-        .occurrences
-        .as_ref()
-        .and_then(|items| items.iter().filter(|arg| arg.name.is_none()).nth(positional))
-        .map(|arg| arg.value_span)
-        .unwrap_or_else(Span::detached);
-    Err(vec![SourceDiagnostic::error(span, message)])
+/// Seleção total: um valor não ordenado (NaN) é devolvido.
+fn select<T: PartialOrd>(value: T, lo: T, hi: T) -> T {
+    if value < lo {
+        lo
+    } else if value > hi {
+        hi
+    } else {
+        value
+    }
+}
+
+fn bound_error(args: &Args, positional: usize, message: &str) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(positional_span(args, positional), message)])
 }
 
 #[cfg(test)]
@@ -335,7 +313,7 @@ mod tests {
         }
         assert_eq!(
             call(calc_min, vec![Value::Int(1), Value::Float(2.5)]).unwrap(),
-            Value::Float(1.0)
+            Value::Int(1)
         );
         assert_eq!(
             call(calc_clamp, vec![Value::Int(9), Value::Int(2), Value::Int(5)]).unwrap(),

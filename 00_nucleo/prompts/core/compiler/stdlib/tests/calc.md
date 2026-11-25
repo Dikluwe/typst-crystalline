@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/calc
-Hash do Código: 52260054
+Hash do Código: 21001c70
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/calc.rs`
@@ -14,3 +14,8 @@ Own only the calc regression tests and their local fixtures/assertions. Use the 
 Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
+
+## Approved calc numeric package
+
+The exp overflow and erf NaN cases follow the revised ADR-0101: infinity and NaN
+are returned. Other expectations in this consumer are unchanged.

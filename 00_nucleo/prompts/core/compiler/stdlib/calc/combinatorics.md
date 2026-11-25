@@ -9,7 +9,7 @@ Layer L1. Exclusive productive consumer: `01_core/src/compiler/stdlib/calc/combi
 
 Implement fact, perm and binom for nonnegative integers with checked arithmetic; perm/binom return zero when k>n.
 
-Parity details, types, diagnostics and bindings remain in `00_nucleo/prompts/core/compiler/stdlib/calc.md`. Extraction preserves public signatures, module functions, phase, results and error policy. No I/O or mutable global state is permitted.
+Accept only Int arguments and keep the existing diagnostics of this consumer. Module bindings remain in `00_nucleo/prompts/core/compiler/stdlib/calc.md`. Extraction preserves public signatures, module functions, phase, results and error policy. No I/O or mutable global state is permitted.
 
 ## Acceptance
 

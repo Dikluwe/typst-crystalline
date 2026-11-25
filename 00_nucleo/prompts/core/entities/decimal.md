@@ -1,5 +1,5 @@
 # Prompt L0 — `Decimal` — fixed-point decimal
-Hash do Código: eb3bae87
+Hash do Código: a041fb52
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/decimal.rs`
@@ -32,6 +32,14 @@ Keep from_str's Option and consumer-owned language diagnostics; do not invent Fr
 The formatting/construction package's base.json.gz freezes four implementations/L0/hash/HEAD/tree/UTC/diffstat. Option parsers and domain next methods were deliberately classified separately; the duration-before-probe documents its i128 range correction without copying an upstream defect. The owner approved manifest `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8` on 2026-10-16, receipt `lab/results/construction/diagnostics/clippy-enums-2026-10-16/approval-receipt.json`. This satisfies the former public/compatibility gate for three Display implementations, one FromIterator and three inherent-to-blanket ToString migrations, including T1–T5 but no release.
 
 Implement std::fmt::Display by delegating to InnerDecimal Display; remove only the inherent public to_string. Normal and UFCS ToString use the blanket trait. Preserve decimal text/scale/trailing zeros/signs and no new scientific notation. Earlier to_string examples now denote this ToString interface. Do not add FromStr, fields/variants/flags/defaults/phases/dependencies/suppressions or modify arithmetic/round/casts/Default. Generic trait reliance makes rollback a compatibility change.
+
+## Checked division for calc
+
+Approved on 2026-11-24 in `00_nucleo/diagnostics/calc-numeric-package-2026-11-24.pt-BR.md`.
+Provide crate-private `checked_div`, `checked_rem`, `checked_div_euclid` and
+`checked_rem_euclid`, returning None for a zero divisor, overflow or underflow.
+The Euclidean remainder is nonnegative; a zero remainder, whatever its sign bit,
+needs no adjustment. No operator, public method, cast or format changes.
 
 ## Acceptance and incomplete scope
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/round.md
-//! @prompt-hash 0aab4619
+//! @prompt-hash 19a5aa97
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -15,14 +15,11 @@ pub(crate) fn calc_floor(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
-        [Value::Float(f)] => Ok(Value::Int(f.floor() as i64)),
+        [Value::Float(f)] => float_to_int(f.floor(), args.span),
         // P817-D — paridade vanilla `calc.floor(decimal)` → int.
-        [Value::Decimal(d)] => d.floor().to_i64().map(Value::Int).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                args.span,
-                "calc.floor() resultado fora do alcance i64".to_string(),
-            )]
-        }),
+        [Value::Decimal(d)] => {
+            d.floor().to_i64().map(Value::Int).ok_or_else(|| too_large(args.span))
+        }
         [other] => err(format!(
             "calc.floor() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -42,14 +39,11 @@ pub(crate) fn calc_ceil(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
-        [Value::Float(f)] => Ok(Value::Int(f.ceil() as i64)),
+        [Value::Float(f)] => float_to_int(f.ceil(), args.span),
         // P817-D — paridade vanilla `calc.ceil(decimal)` → int.
-        [Value::Decimal(d)] => d.ceil().to_i64().map(Value::Int).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                args.span,
-                "calc.ceil() resultado fora do alcance i64".to_string(),
-            )]
-        }),
+        [Value::Decimal(d)] => {
+            d.ceil().to_i64().map(Value::Int).ok_or_else(|| too_large(args.span))
+        }
         [other] => {
             err(format!("calc.ceil() requer Int ou Float, recebeu {}", other.type_name()))
         }
@@ -107,11 +101,11 @@ pub(crate) fn calc_round(
         // P817-D — paridade vanilla: `round(Float)` → `Float` (não `Int`).
         [Value::Float(f)] => {
             let digits = digits.clamp(i64::from(i16::MIN), i64::from(i16::MAX)) as i32;
-            if digits == 0 {
+            if !f.is_finite() {
+                Ok(Value::Float(*f))
+            } else if digits == 0 {
                 Ok(Value::Float(f.round()))
-            } else if digits >= 15
-                || (digits > 0 && f.is_finite() && f.abs() >= 9_007_199_254_740_992.0)
-            {
+            } else if digits >= 15 || (digits > 0 && f.abs() >= 9_007_199_254_740_992.0) {
                 // Precisão ≥ 15 ou mantissa inteira já preenchida: no-op.
                 Ok(Value::Float(*f))
             } else if digits < -308 {
@@ -119,11 +113,11 @@ pub(crate) fn calc_round(
                 Ok(Value::Float(*f * 0.0))
             } else {
                 let factor = libm::exp10(f64::from(digits.abs()));
-                guard_float(if digits > 0 {
+                Ok(Value::Float(if digits > 0 {
                     (f * factor).round() / factor
                 } else {
                     (f / factor).round() * factor
-                })
+                }))
             }
         }
         // P817-D — paridade vanilla: `round(Decimal)` → `Decimal`
@@ -186,14 +180,11 @@ pub(crate) fn calc_trunc(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
-        [Value::Float(f)] => Ok(Value::Int(f.trunc() as i64)),
+        [Value::Float(f)] => float_to_int(f.trunc(), args.span),
         // P817-D — paridade vanilla `calc.trunc(decimal)` → int.
-        [Value::Decimal(d)] => d.trunc().to_i64().map(Value::Int).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                args.span,
-                "calc.trunc() resultado fora do alcance i64".to_string(),
-            )]
-        }),
+        [Value::Decimal(d)] => {
+            d.trunc().to_i64().map(Value::Int).ok_or_else(|| too_large(args.span))
+        }
         [other] => err(format!(
             "calc.trunc() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -297,25 +288,25 @@ mod tests {
     }
 
     #[test]
-    fn existing_nonfinite_and_overflow_policy_is_preserved() {
-        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-            assert!(round(Value::Float(value), 2).is_err());
+    fn nonfinite_operands_and_overflow_follow_the_language() {
+        for digits in [2, -2, 0, 15, i64::MAX, -309, i64::MIN] {
+            for value in [f64::INFINITY, f64::NEG_INFINITY] {
+                assert_eq!(
+                    round(Value::Float(value), digits).unwrap(),
+                    Value::Float(value)
+                );
+            }
+            let Value::Float(value) = round(Value::Float(f64::NAN), digits).unwrap()
+            else {
+                panic!("round(float) must preserve the language type");
+            };
+            assert!(value.is_nan());
         }
-        for value in [1.6e308, -1.6e308] {
-            assert!(round(Value::Float(value), -308).is_err());
+        for (value, expected) in [(1.6e308, f64::INFINITY), (-1.6e308, f64::NEG_INFINITY)]
+        {
+            assert_eq!(round(Value::Float(value), -308).unwrap(), Value::Float(expected));
         }
         assert!(round(Value::Int(i64::MAX), -1).is_err());
-        for digits in [0, 15, i64::MAX] {
-            assert_eq!(
-                round(Value::Float(f64::INFINITY), digits).unwrap(),
-                Value::Float(f64::INFINITY)
-            );
-        }
-        let Value::Float(value) = round(Value::Float(f64::INFINITY), -309).unwrap()
-        else {
-            panic!("round(float) must preserve the language type");
-        };
-        assert!(value.is_nan());
     }
 
     #[test]

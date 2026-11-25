@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/decimal.md
-//! @prompt-hash f2fd7713
+//! @prompt-hash e2c0c297
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -76,6 +76,35 @@ impl Decimal {
         i64::try_from(self.0).ok()
     }
 
+    pub(crate) fn checked_div(self, other: Self) -> Option<Self> {
+        self.0.checked_div(other.0).map(Self)
+    }
+
+    pub(crate) fn checked_rem(self, other: Self) -> Option<Self> {
+        self.0.checked_rem(other.0).map(Self)
+    }
+
+    pub(crate) fn checked_div_euclid(self, other: Self) -> Option<Self> {
+        let quotient = self.0.checked_div(other.0)?.trunc();
+        let remainder = self.0.checked_rem(other.0)?;
+        if remainder >= InnerDecimal::ZERO {
+            Some(Self(quotient))
+        } else if other.0.is_sign_positive() {
+            quotient.checked_sub(InnerDecimal::ONE).map(Self)
+        } else {
+            quotient.checked_add(InnerDecimal::ONE).map(Self)
+        }
+    }
+
+    pub(crate) fn checked_rem_euclid(self, other: Self) -> Option<Self> {
+        let remainder = self.0.checked_rem(other.0)?;
+        if remainder >= InnerDecimal::ZERO {
+            Some(Self(remainder))
+        } else {
+            remainder.checked_add(other.0.abs()).map(Self)
+        }
+    }
+
     /// Potência inteira com verificação de overflow (paridade vanilla
     /// `calc.pow(decimal, int)` → `rust_decimal::Decimal::checked_powi`).
     pub fn checked_powi(self, exp: i64) -> Option<Self> {
@@ -147,6 +176,24 @@ mod tests {
     }
 
     use super::*;
+
+    #[test]
+    fn checked_division_covers_signs_zero_and_overflow() {
+        let d = Decimal::from_i64;
+        for (a, b, quotient, remainder) in
+            [(7, 2, 3, 1), (-7, 2, -4, 1), (7, -2, -3, 1), (-7, -2, 4, 1), (-6, 2, -3, 0)]
+        {
+            assert_eq!(d(a).checked_div_euclid(d(b)), Some(d(quotient)));
+            assert_eq!(d(a).checked_rem_euclid(d(b)), Some(d(remainder)));
+        }
+        assert_eq!(d(-7).checked_rem(d(2)), Some(d(-1)));
+        assert_eq!(d(1).checked_div(d(0)), None);
+        assert_eq!(d(1).checked_rem(d(0)), None);
+        assert_eq!(d(1).checked_div_euclid(d(0)), None);
+        assert_eq!(d(1).checked_rem_euclid(d(0)), None);
+        let max = Decimal::from_str("79228162514264337593543950335").unwrap();
+        assert_eq!(max.checked_div(Decimal::new(1, 1)), None);
+    }
 
     #[test]
     fn decimal_new() {

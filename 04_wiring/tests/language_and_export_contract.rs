@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 6e38834f
+//! @prompt-hash f3b27690
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1044,4 +1044,255 @@ fn text_gradient_identity_separates_resources() {
         "#text(fill: gradient.linear(red, blue))[same] #text(fill: gradient.linear(blue, red))[same]",
     );
     assert_eq!(svg.matches("gradientUnits=\"userSpaceOnUse\"").count(), 2, "{svg}");
+}
+
+// Expectations: approved calc package (values measured on the pinned reference,
+// except the divergences declared by the function owners).
+const CALC_MIN: &str = "(-9223372036854775807 - 1)";
+
+fn calc_repr(expression: &str, expected: &str) {
+    let output = run(BIN, &["eval", &format!("repr({expression})")]);
+    assert!(output.success(), "{expression}: {output:#?}");
+    let quoted = format!("\"{}\"", expected.replace('"', "\\\""));
+    assert_eq!(output.stdout.trim(), quoted, "{expression}");
+}
+
+/// The marker is the byte column of the diagnostic inside `expression`, 0-based.
+fn calc_error(expression: &str, message: &str, column: Option<usize>) {
+    let output = run(BIN, &["eval", expression]);
+    assert!(!output.success(), "{expression}: {output:#?}");
+    assert!(
+        output.stderr.contains(&format!("error: {message}")),
+        "{expression}: {output:#?}"
+    );
+    if let Some(column) = column {
+        assert!(
+            output.stderr.contains(&format!(":1:{column}")),
+            "{expression}: {output:#?}"
+        );
+    }
+}
+
+#[test]
+fn calc_conversions_never_saturate() {
+    for function in ["floor", "ceil", "trunc"] {
+        for value in [
+            "1e300",
+            "-1e300",
+            "float.inf",
+            "-float.inf",
+            "9223372036854775808.0",
+            "decimal(\"79228162514264337593543950335\")",
+        ] {
+            calc_error(
+                &format!("calc.{function}({value})"),
+                "the result is too large",
+                None,
+            );
+        }
+        calc_repr(&format!("calc.{function}(float.nan)"), "0");
+        calc_repr(
+            &format!("calc.{function}(-9223372036854775808.0) == {CALC_MIN}"),
+            "true",
+        );
+        calc_repr(&format!("calc.{function}(9007199254740993)"), "9007199254740993");
+    }
+    calc_repr("(calc.floor(-2.5), calc.ceil(-2.5), calc.trunc(-2.5))", "(-3, -2, -2)");
+    calc_error("calc.quo(1e300, 0.5)", "the result is too large", None);
+    calc_error("calc.quo(float.nan, 2)", "the result is not a real number", None);
+}
+
+#[test]
+fn calc_extrema_use_language_comparison_and_keep_the_argument() {
+    for (expression, expected) in [
+        ("calc.max(9007199254740993, 1.0)", "9007199254740993"),
+        ("calc.max(1, 0.5)", "1"),
+        ("calc.min(2.5, 3)", "2.5"),
+        ("calc.max(2.5, 3)", "3"),
+        ("calc.max(1, 1.0)", "1"),
+        ("calc.max(1.0, 1)", "1.0"),
+        ("calc.max(float.nan)", "float.nan"),
+        ("calc.max(\"a\", \"b\")", "\"b\""),
+        ("calc.min(true, false)", "false"),
+        ("calc.min(1deg, 2deg)", "1deg"),
+        ("calc.max(10%, 20%)", "20%"),
+        ("calc.min(1fr, 2fr)", "1fr"),
+        ("calc.max((1, 2), (1, 3))", "(1, 3)"),
+        ("calc.max(version(1, 2), version(1, 3))", "version(1, 3)"),
+        ("calc.max(decimal(\"1\"), 2, decimal(\"1.5\"))", "2"),
+        ("calc.min(decimal(\"1.5\"), 2)", "decimal(\"1.5\")"),
+        ("calc.max(1em, 2em)", "2em"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    calc_error("calc.max(float.nan, 1)", "cannot compare 1.0 with float.nan", Some(20));
+    calc_error("calc.max(1, (2,))", "cannot compare array and integer", Some(12));
+    calc_error("calc.min(1em, 2pt)", "cannot compare 2pt with 1em", Some(14));
+}
+
+#[test]
+fn calc_divisions_and_clamp_accept_decimal() {
+    for (expression, expected) in [
+        ("calc.quo(decimal(\"7\"), 2)", "3"),
+        ("calc.quo(decimal(\"-7\"), 2)", "-4"),
+        ("calc.quo(7, decimal(\"2\"))", "3"),
+        ("calc.rem(decimal(\"2.5\"), decimal(\"2\"))", "decimal(\"0.5\")"),
+        ("calc.rem(-3, decimal(\"2\"))", "decimal(\"-1\")"),
+        ("calc.rem-euclid(-3, decimal(\"2\"))", "decimal(\"1\")"),
+        ("calc.div-euclid(-3, decimal(\"2\"))", "decimal(\"-2\")"),
+        ("calc.div-euclid(decimal(\"-6\"), 2)", "decimal(\"-3\")"),
+        ("calc.div-euclid(decimal(\"-7\"), -2)", "decimal(\"4\")"),
+        ("calc.clamp(5, 0, decimal(\"3\"))", "decimal(\"3\")"),
+        ("calc.clamp(decimal(\"2.5\"), 0, 3)", "decimal(\"2.5\")"),
+        ("calc.clamp(decimal(\"2.5\"), 3, 4)", "decimal(\"3\")"),
+        ("calc.rem((-9223372036854775807 - 1), -1)", "0"),
+        ("calc.quo(-7, 2)", "-4"),
+        ("calc.rem(-7.0, 2)", "-1.0"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    for function in ["quo", "rem", "rem-euclid", "div-euclid"] {
+        calc_error(
+            &format!("calc.{function}(decimal(\"1\"), 2.0)"),
+            "cannot apply this operation to a decimal and a float",
+            None,
+        );
+        for zero in ["0", "0.0", "decimal(\"0\")"] {
+            calc_error(
+                &format!("calc.{function}(7, {zero})"),
+                "divisor must not be zero",
+                Some(function.len() + 9),
+            );
+        }
+        calc_error(
+            &format!("calc.{function}(\"a\", 1)"),
+            "expected integer, float, or decimal, found string",
+            Some(function.len() + 6),
+        );
+    }
+    calc_error(
+        "calc.clamp(decimal(\"1\"), 0.0, 2)",
+        "cannot apply this operation to a decimal and a float",
+        None,
+    );
+    calc_error(
+        "calc.clamp(1, decimal(\"3\"), 2)",
+        "max must be greater than or equal to min",
+        Some(28),
+    );
+}
+
+#[test]
+fn calc_real_functions_propagate_non_finite_results() {
+    for (expression, expected) in [
+        ("calc.exp(1000)", "float.inf"),
+        ("calc.exp(5000000000)", "float.inf"),
+        ("calc.exp(-float.inf)", "0.0"),
+        ("calc.sin(float.inf)", "float.nan"),
+        ("calc.cos(float.nan)", "float.nan"),
+        ("calc.tan(-float.inf)", "float.nan"),
+        ("calc.sinh(-1e300)", "-float.inf"),
+        ("calc.cosh(1e300)", "float.inf"),
+        ("calc.tanh(float.nan)", "float.nan"),
+        ("calc.asinh(-float.inf)", "-float.inf"),
+        ("calc.acosh(float.inf)", "float.inf"),
+        ("calc.atanh(float.nan)", "float.nan"),
+        ("calc.sqrt(float.inf)", "float.inf"),
+        ("calc.sqrt(float.nan)", "float.nan"),
+        ("calc.root(-float.inf, 3)", "-float.inf"),
+        ("calc.root(0, -2)", "float.inf"),
+        ("calc.pow(0, -2)", "float.inf"),
+        ("calc.pow(-1e300, 3)", "-float.inf"),
+        ("calc.ln(float.nan)", "float.nan"),
+        ("calc.deg(1e308)", "float.inf"),
+        ("calc.round(float.inf, digits: 2)", "float.inf"),
+        ("calc.round(float.nan, digits: 2)", "float.nan"),
+        ("calc.round(1.6e308, digits: -308)", "float.inf"),
+        ("calc.round(-float.inf, digits: -309)", "-float.inf"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    for expression in [
+        "calc.pow(-8, 0.5)",
+        "calc.pow(float.nan, 2)",
+        "calc.log(float.nan)",
+        "calc.log(float.inf)",
+        "calc.log10(float.inf)",
+    ] {
+        calc_error(expression, "the result is not a real number", None);
+    }
+    calc_error("calc.ln(float.inf)", "result close to -inf", None);
+    for value in ["float.inf", "float.nan"] {
+        calc_error(
+            &format!("calc.exp({value})"),
+            "exponent may not be infinite, subnormal, or NaN",
+            Some(9),
+        );
+    }
+    for expression in ["calc.asin(float.nan)", "calc.acos(float.nan)"] {
+        assert!(!run(BIN, &["eval", expression]).success(), "{expression}");
+    }
+}
+
+#[test]
+fn calc_norm_and_erf_values() {
+    for (expression, expected) in [
+        ("calc.norm(p: float.inf, 1, -2)", "2.0"),
+        ("calc.norm(1e300, 0) == 1e300", "true"),
+        ("calc.norm(float.inf, 1)", "float.inf"),
+        ("calc.norm(p: 0.5, 1, -float.inf)", "float.inf"),
+        ("calc.norm(p: float.inf, float.nan, float.inf)", "float.nan"),
+        ("calc.norm(float.nan, float.inf)", "float.nan"),
+        ("calc.norm(p: float.nan, 1, 2)", "float.nan"),
+        ("calc.norm(p: float.nan, 1)", "1.0"),
+        ("calc.norm(p: float.nan, float.inf)", "float.nan"),
+        ("calc.norm()", "0.0"),
+        ("calc.norm(0, -0.0)", "0.0"),
+        ("calc.norm(3, 4)", "5.0"),
+        ("calc.erf(2.5)", "0.999593047982555"),
+        ("calc.erf(-3)", "-0.9999779095030014"),
+        ("calc.erf(5)", "0.9999999999984626"),
+        ("calc.erf(float.nan)", "float.nan"),
+        ("calc.erf(-float.inf)", "-1.0"),
+        ("calc.erf(-0.0)", "-0.0"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    for p in ["0", "-1", "-float.inf"] {
+        calc_error(
+            &format!("calc.norm(p: {p}, 1)"),
+            "p must be greater than zero",
+            Some(13),
+        );
+    }
+}
+
+#[test]
+fn calc_non_finite_results_reach_layout_without_panic() {
+    let scratch = Scratch::new("calc-non-finite");
+    for (index, body) in [
+        "#rect(width: calc.exp(1000) * 1pt)",
+        "#h(calc.sin(float.inf) * 1pt)x",
+        "#text(size: calc.exp(1000) * 1pt)[a]",
+        "#rotate(calc.sqrt(float.inf) * 1deg)[a]",
+        "#set page(width: calc.cosh(1e300) * 1pt); a",
+    ]
+    .iter()
+    .enumerate()
+    {
+        // The control reaches layout with the same value through operators.
+        let control = body
+            .replace("calc.exp(1000)", "float.inf")
+            .replace("calc.sin(float.inf)", "(float.inf - float.inf)")
+            .replace("calc.sqrt(float.inf)", "float.inf")
+            .replace("calc.cosh(1e300)", "float.inf");
+        let outcome = |name: &str, source: &str| {
+            let input = scratch.0.join(format!("{name}{index}.typ"));
+            let output = scratch.0.join(format!("{name}{index}.pdf"));
+            fs::write(&input, source).unwrap();
+            run(BIN, &["compile", input.to_str().unwrap(), output.to_str().unwrap()])
+                .success()
+        };
+        assert_eq!(outcome("calc", body), outcome("control", &control), "{body}");
+    }
 }
