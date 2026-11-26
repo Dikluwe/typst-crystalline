@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/polygon
-Hash do Código: 1f2f6966
+Hash do Código: 5c51ceb0
 
 ## Ownership and evidence
 
@@ -85,3 +85,9 @@ Do not materialize unrelated square/container features.
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 `stroke: none` removes the stroke and `stroke: auto` is the default. Record identity
 and lexical arguments.
+
+## Upstream suite panics
+
+A polygon's size is its largest vertex measured from the origin, never negative, as the language does. A vertex with an infinite coordinate reports `cannot create polygon with infinite size`.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

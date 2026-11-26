@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/curve
-Hash do Código: 9572c78e
+Hash do Código: d82d9346
 
 ## Ownership and evidence
 
@@ -87,3 +87,9 @@ Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-packa
 and lexical arguments.
 Segments are found through the carriers an active show rule adds; before this, any
 show rule made every curve fail.
+
+## Upstream suite panics
+
+A curve's size is its largest point measured from the origin, never negative, as the language does; a single point still gives a size. The layout never falls back to the region's width. A point with an infinite coordinate reports `cannot create curve with infinite size`.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

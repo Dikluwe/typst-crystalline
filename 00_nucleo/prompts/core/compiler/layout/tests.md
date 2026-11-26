@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: ca7897a4
+Hash do Código: a7e0275a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -642,3 +642,11 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Upstream suite panics
+
+Cover a single-point curve and a table on a `width: auto` page, a curve measured from the origin, a decorated block whose body moves to the next region, and fixed-height blocks after a break.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.
+
+Also cover fractional columns with a spanning cell on a `width: auto` page.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash dc8ebfbd
+//! @prompt-hash a6461cf6
 //! @layer L1
 //! @updated 2026-11-01
 
@@ -295,8 +295,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                             |c| matches!(c,Content::TableCell(e) if e.resolved.is_some()),
                         )
                     {
+                        // An infinite available width gives no rounding scale.
+                        let available_scale = if available_width.is_finite() {
+                            available_width.abs()
+                        } else {
+                            0.0
+                        };
                         max_w += f64::EPSILON
-                            * (available_width.abs()
+                            * (available_scale
                                 + self.regions.current.line_start_x.0.abs()
                                 + max_w.abs());
                     }
@@ -310,7 +316,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         }
 
         let remaining_w = (available_width - total_fixed_w).max(0.0);
-        if total_fr_w > 0.0 {
+        // ref: lab/typst-original/crates/typst-library/src/layout/fr.rs:56-63
+        // A share of an infinite remaining width is zero.
+        if total_fr_w > 0.0 && remaining_w.is_finite() {
             let per_fr = remaining_w / total_fr_w;
             for (i, sizing) in cols.iter().enumerate() {
                 if let TrackSizing::Fraction(fr) = sizing {

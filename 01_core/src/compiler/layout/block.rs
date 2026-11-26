@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 13042f35
+//! @prompt-hash ca0e8102
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -657,6 +657,19 @@ pub(super) fn layout_frame<M: FontMetrics, S: ImageSizer>(
 
     let body_flow_end = layouter.flow_placement_y();
 
+    // A body that ended in another region leaves only its last part here:
+    // geometry and the backing's insertion point are local to that region.
+    let column_dx_now = if layouter.page_columns.is_some() {
+        layouter.column_origin_x - layouter.page_config.margin.left
+    } else {
+        0.0
+    };
+    let (start_y, items_before, region_dx) = if same_region {
+        (start_y, items_before, 0.0)
+    } else {
+        (layouter.page_config.margin.top, 0, column_dx_now - column_dx)
+    };
+
     if let Some(allocated_h) = root_height {
         layouter.regions.current.cursor_y = Pt(start_y + allocated_h);
     } else {
@@ -680,7 +693,7 @@ pub(super) fn layout_frame<M: FontMetrics, S: ImageSizer>(
             + outset_top
             + outset_bottom;
         let mut pos = crate::entities::layout_types::Point {
-            x: block_origin_x - Pt(outset_left),
+            x: block_origin_x + Pt(region_dx) - Pt(outset_left),
             y: Pt(start_y - outset_top),
         };
         // P252 — stroke-overhang real activação Block.
@@ -712,7 +725,8 @@ pub(super) fn layout_frame<M: FontMetrics, S: ImageSizer>(
                 layouter.style.size,
             )
         };
-        for entry in &mut layouter.pending_align_centering[pending_x_before..] {
+        let pending_from = pending_x_before.min(layouter.pending_align_centering.len());
+        for entry in &mut layouter.pending_align_centering[pending_from..] {
             entry.0[0] += 1;
         }
         let prepared_stroke = super::tiling::resolve_stroke(layouter, stroke.as_ref());

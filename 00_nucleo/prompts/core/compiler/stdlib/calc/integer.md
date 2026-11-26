@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/integer
-Hash do Código: dd181e71
+Hash do Código: 7d65ccc3
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/calc/integer.rs`
@@ -39,3 +39,9 @@ Package approved by the owner on 2026-11-24 (“Aprovo A–F”). Measurement, c
 scope and retained divergences: `00_nucleo/diagnostics/calc-numeric-package-2026-11-24.pt-BR.md`.
 The previous text of this owner, with its extraction and earlier repair records,
 is `00_nucleo/prompts/core/compiler/stdlib/calc/integer.md` at commit `f2c737125`.
+
+## Upstream suite panics
+
+`calc.gcd` takes the remainder with overflow checks and the absolute value last; `calc.lcm` returns the absolute value when both are equal and otherwise divides by the gcd before multiplying. Any overflow reports `the result is too large`, as the language does.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/cast.md
-//! @prompt-hash e8179f4e
+//! @prompt-hash 1e2dbcdf
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -216,7 +216,11 @@ fn stepped_range(start: i64, end: i64, step: i64, inclusive: bool) -> Vec<Value>
     let mut x = start;
     while in_bounds(x) {
         out.push(Value::Int(x));
-        x += step;
+        // The language stops before a step would overflow `int`.
+        match x.checked_add(step) {
+            Some(next) => x = next,
+            None => break,
+        }
     }
     out
 }
@@ -592,6 +596,29 @@ mod tests_p704_range_step {
         assert_eq!(r(vec![Value::Int(3)], &[]), arr(&[0, 1, 2]));
         assert_eq!(r(vec![Value::Int(2), Value::Int(5)], &[]), arr(&[2, 3, 4]));
         assert_eq!(r(vec![Value::Int(5), Value::Int(2)], &[]), arr(&[]));
+    }
+
+    #[test]
+    fn range_stops_before_a_step_overflows() {
+        let max = Value::Int(i64::MAX);
+        let min = Value::Int(i64::MIN);
+        let incl = [("inclusive", Value::Bool(true))];
+        assert_eq!(r(vec![Value::Int(2), Value::Int(3)], &[("step", max.clone())]), arr(&[2]));
+        assert_eq!(r(vec![Value::Int(-2), Value::Int(-3)], &[("step", min.clone())]), arr(&[-2]));
+        let mut named = incl.to_vec();
+        named.push(("step", Value::Int(2)));
+        assert_eq!(
+            r(vec![Value::Int(i64::MAX - 1), max.clone()], &named),
+            arr(&[i64::MAX - 1])
+        );
+        assert_eq!(
+            r(vec![Value::Int(i64::MAX - 2), max.clone()], &incl),
+            arr(&[i64::MAX - 2, i64::MAX - 1, i64::MAX])
+        );
+        assert_eq!(
+            r(vec![Value::Int(i64::MIN + 2), min], &[("step", Value::Int(-1))]),
+            arr(&[i64::MIN + 2, i64::MIN + 1])
+        );
     }
 
     #[test]

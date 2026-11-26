@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md
-//! @prompt-hash a108eecc
+//! @prompt-hash d2ece143
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -320,11 +320,18 @@ pub fn native_curve(
         super::paint::path_paint(&args.named, "curve", &|_| args.span)?;
 
     // P277 — `path_bbox` analítica reusada sem alteração.
-    let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
-    let width =
-        if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
-    let height =
-        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+    let (_, _, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
+    if !max_x.is_finite() || !max_y.is_finite() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "cannot create curve with infinite size",
+        )]);
+    }
+    // ref: lab/typst-original/crates/typst-layout/src/shapes.rs:186-271
+    // The language measures a curve from the origin: its size is the largest
+    // point, never negative, even when the curve has a single point.
+    let width = Some(Box::new(Value::Float(max_x.max(0.0))));
+    let height = Some(Box::new(Value::Float(max_y.max(0.0))));
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Curve,
@@ -446,6 +453,17 @@ pub fn native_curve_close(
 mod tests {
     use super::super::atomization_test_support::call;
     use super::*;
+
+    #[test]
+    fn curve_rejects_an_infinite_size() {
+        let point = Value::Array(vec![
+            Value::Length(crate::entities::layout_types::Length::pt(0.0)),
+            Value::Length(crate::entities::layout_types::Length::pt(f64::INFINITY)),
+        ]);
+        let segment = call(native_curve_line, Args::positional(vec![point])).unwrap();
+        let error = call(native_curve, Args::positional(vec![segment])).unwrap_err();
+        assert_eq!(error[0].message.as_str(), "cannot create curve with infinite size");
+    }
 
     #[test]
     fn preserves_shape_behavior() {

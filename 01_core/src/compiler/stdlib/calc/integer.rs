@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/calc/integer.md
-//! @prompt-hash 5e570819
+//! @prompt-hash 269b321b
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -140,16 +140,24 @@ pub(crate) fn calc_quo(
     }
 }
 
-/// Algoritmo de Euclides iterativo sobre valores absolutos.
-fn gcd_impl(mut a: i64, mut b: i64) -> i64 {
-    a = a.abs();
-    b = b.abs();
+/// Euclid's algorithm as the language runs it: the remainder is checked and
+/// the absolute value is taken last, so `int.min` reports an overflow.
+// ref: lab/typst-original/crates/typst-library/src/foundations/calc.rs:748-784
+fn gcd_impl(a: i64, b: i64) -> Option<i64> {
+    let (mut a, mut b) = (a, b);
     while b != 0 {
-        let t = b;
-        b = a % b;
-        a = t;
+        let temp = b;
+        b = a.checked_rem(b)?;
+        a = temp;
     }
-    a
+    a.checked_abs()
+}
+
+fn lcm_impl(a: i64, b: i64) -> Option<i64> {
+    if a == b {
+        return a.checked_abs();
+    }
+    a.checked_div(gcd_impl(a, b)?)?.checked_mul(b)?.checked_abs()
 }
 
 pub(crate) fn calc_gcd(
@@ -160,7 +168,9 @@ pub(crate) fn calc_gcd(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(a), Value::Int(b)] => Ok(Value::Int(gcd_impl(*a, *b))),
+        [Value::Int(a), Value::Int(b)] => {
+            gcd_impl(*a, *b).map(Value::Int).ok_or_else(|| too_large(args.span))
+        }
         [_, _] => err("calc.gcd() requer 2 inteiros"),
         _ => err(format!("calc.gcd() requer 2 argumentos, recebeu {}", args.items.len())),
     }
@@ -175,29 +185,7 @@ pub(crate) fn calc_lcm(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *a == 0 || *b == 0 {
-                return Ok(Value::Int(0));
-            }
-            let g = gcd_impl(*a, *b);
-            // Dividir antes de multiplicar evita overflow intermédio.
-            let aa = a.checked_abs().ok_or_else(|| {
-                vec![SourceDiagnostic::error(
-                    args.span,
-                    "calc.lcm() valor fora do alcance i64".to_string(),
-                )]
-            })?;
-            let bb = b.checked_abs().ok_or_else(|| {
-                vec![SourceDiagnostic::error(
-                    args.span,
-                    "calc.lcm() valor fora do alcance i64".to_string(),
-                )]
-            })?;
-            (aa / g).checked_mul(bb).map(Value::Int).ok_or_else(|| {
-                vec![SourceDiagnostic::error(
-                    args.span,
-                    "calc.lcm() resultado fora do alcance i64".to_string(),
-                )]
-            })
+            lcm_impl(*a, *b).map(Value::Int).ok_or_else(|| too_large(args.span))
         }
         [_, _] => err("calc.lcm() requer 2 inteiros"),
         _ => err(format!("calc.lcm() requer 2 argumentos, recebeu {}", args.items.len())),
@@ -208,6 +196,19 @@ pub(crate) fn calc_lcm(
 mod tests {
     use super::super::calc_test_support::call;
     use super::*;
+
+    #[test]
+    fn gcd_and_lcm_report_an_overflowing_result() {
+        let too_large = |result: SourceResult<Value>| {
+            assert_eq!(result.unwrap_err()[0].message.as_str(), "the result is too large");
+        };
+        too_large(call(calc_gcd, vec![Value::Int(i64::MIN), Value::Int(-1)]));
+        too_large(call(calc_gcd, vec![Value::Int(i64::MIN), Value::Int(0)]));
+        too_large(call(calc_lcm, vec![Value::Int(i64::MIN), Value::Int(1)]));
+        assert_eq!(call(calc_gcd, vec![Value::Int(-12), Value::Int(18)]).unwrap(), Value::Int(6));
+        assert_eq!(call(calc_lcm, vec![Value::Int(-4), Value::Int(6)]).unwrap(), Value::Int(12));
+        assert_eq!(call(calc_lcm, vec![Value::Int(0), Value::Int(0)]).unwrap(), Value::Int(0));
+    }
 
     #[test]
     fn preserves_modeled_result() {

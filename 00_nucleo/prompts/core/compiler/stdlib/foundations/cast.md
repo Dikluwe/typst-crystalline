@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/cast
-Hash do Código: e42e72b6
+Hash do Código: 8038f8df
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/cast.rs`
@@ -29,3 +29,9 @@ Preserve the specified language semantics, syntax, morphology, diagnostics, span
 `range` reports `expected integer, found T`, `missing argument: end` and `unexpected argument`, as the language does.
 
 Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.
+
+## Upstream suite panics
+
+`range` stops before a step would overflow `int`; `range(2, 3, step: int.max)` is `(2,)`.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

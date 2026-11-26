@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: af7a77da
+Hash do Código: f5db5ffc
 
 
 
@@ -316,3 +316,9 @@ Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md
 A cell's measured width covers the gutters inside its span. Cell measurement opens a cell frame.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Upstream suite panics
+
+The rounding allowance added to an `auto` column of prepared table cells ignores an infinite available width, so a table on a `width: auto` page keeps a finite width. Fractional columns share an infinite remaining width as zero, as the language does.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

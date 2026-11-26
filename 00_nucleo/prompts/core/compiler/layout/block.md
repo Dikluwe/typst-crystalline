@@ -1,5 +1,5 @@
 # L0 — block
-Hash do Código: 3840a31d
+Hash do Código: 10516377
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -404,3 +404,9 @@ Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md
 A gap fixed by weak spacing is taken as is, without collapsing with the block's own spacing. A placement break still pending when the block's body ends is dropped: nothing in the block follows it.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Upstream suite panics
+
+When the body ends in another region, the backing covers the part in the final region from the top of its content and is inserted at that region's start; a fixed height does not move the cursor back to the earlier region.
+
+Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.

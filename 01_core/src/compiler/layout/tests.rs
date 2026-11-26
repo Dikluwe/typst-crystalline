@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash 6384cf5a
+//! @prompt-hash f08e5471
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -27341,6 +27341,76 @@ fn table_declarative_raw_columns_and_span_origins_match_explicit_cells() {
                     && (actual.2 - expected.2).abs() < 0.001,
                 "raw declaration differs for span={span}: {actual:?} vs {expected:?}"
             );
+        }
+    }
+}
+
+mod upstream_suite_panics {
+    use super::*;
+
+    fn text_y(doc: &PagedDocument, text: &str) -> f64 {
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text: t, .. } if t.as_str() == text => Some(pos.y.0),
+                _ => None,
+            })
+            .expect("required text on first page")
+    }
+
+    #[test]
+    fn a_single_point_curve_keeps_an_auto_page_finite() {
+        let doc = layout_test("#set page(width: auto)\n#curve(curve.line((40pt, 40pt)))");
+        assert!(doc.pages.iter().all(|page| page.width.is_finite()));
+    }
+
+    #[test]
+    fn a_curve_is_measured_from_the_origin() {
+        let page = "#set page(width: 200pt, height: 200pt, margin: 10pt)\n";
+        let offset = layout_test(&format!(
+            "{page}#curve(curve.move((20pt, 20pt)), curve.line((40pt, 40pt)))\nX"
+        ));
+        let origin = layout_test(&format!("{page}#curve(curve.line((40pt, 40pt)))\nX"));
+        assert!((text_y(&offset, "X") - text_y(&origin, "X")).abs() < 0.01);
+    }
+
+    #[test]
+    fn fractional_columns_keep_an_auto_page_finite() {
+        let doc = layout_test(
+            "#set page(width: auto)\n#table(columns: (1fr, 1fr, auto), table.cell(colspan: 3)[wide], [A], [B], [C])",
+        );
+        assert!(doc.pages.iter().all(|page| page.width.is_finite()));
+    }
+
+    #[test]
+    fn a_table_keeps_an_auto_page_finite() {
+        let doc = layout_test("#set page(width: auto)\n#table(columns: 2, [a], [b])");
+        assert!(doc.pages.iter().all(|page| page.width.is_finite()));
+    }
+
+    #[test]
+    fn a_decorated_block_moved_to_the_next_region_keeps_its_backing() {
+        let doc = layout_test(
+            "#set page(height: 5cm, margin: 1cm)\nNo item in the first region.\n#block(breakable: true, stroke: 1pt, inset: 0.5cm)[\n  #rect(height: 2cm, fill: gray)\n]",
+        );
+        let last = doc.pages.last().expect("pages");
+        let backing = last.items.iter().any(|item| {
+            matches!(item, FrameItem::Shape { pos, height, stroke: Some(_), .. }
+                if pos.y.0 >= 0.0 && pos.y.0 + height <= last.height)
+        });
+        assert!(doc.pages.len() >= 2 && backing);
+    }
+
+    #[test]
+    fn a_fixed_height_block_after_a_break_stays_in_its_region() {
+        let doc = layout_test(
+            "#set page(height: 65pt)\n#set block(fill: aqua, width: 25pt, height: 25pt, inset: 5pt)\n#block[A]\n#block[B]\n#block[C]",
+        );
+        for page in &doc.pages {
+            for item in &page.items {
+                let (_, y) = super::super::helpers::item_pos(item);
+                assert!(y <= page.height, "item below its page: {y} > {}", page.height);
+            }
         }
     }
 }

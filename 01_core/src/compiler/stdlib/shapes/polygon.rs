@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md
-//! @prompt-hash 9fff3b85
+//! @prompt-hash 4b84b56d
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -45,13 +45,18 @@ pub fn native_polygon(
     let (fill, fill_rule, stroke) =
         super::paint::path_paint(&args.named, "polygon", &|_| args.span)?;
 
-    // P277 — DEBT-33 CLOSED: usar geometry::path_bbox para bbox.
-    // Para LineTo-only paths preserva bit-exact min/max behavior.
-    let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
-    let width =
-        if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
-    let height =
-        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+    // ref: lab/typst-original/crates/typst-layout/src/shapes.rs:321-323
+    // The language measures a polygon from the origin: its size is the
+    // largest vertex, never negative, and an infinite size is an error.
+    let (_, _, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
+    if !max_x.is_finite() || !max_y.is_finite() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "cannot create polygon with infinite size",
+        )]);
+    }
+    let width = Some(Box::new(Value::Float(max_x.max(0.0))));
+    let height = Some(Box::new(Value::Float(max_y.max(0.0))));
 
     Ok(Value::Content(Content::Shape(Arc::new(ShapeElem {
         origin: crate::entities::elements::shape::ShapeOrigin::Polygon,
@@ -256,5 +261,26 @@ mod tests {
             call(native_polygon, args).unwrap(),
             Value::Content(Content::Shape(_))
         ));
+    }
+
+    fn vertex(x: f64, y: f64) -> Value {
+        Value::Array(vec![Value::Length(Length::pt(x)), Value::Length(Length::pt(y))])
+    }
+
+    #[test]
+    fn polygon_is_measured_from_the_origin() {
+        let args = Args::positional(vec![vertex(20.0, 20.0), vertex(40.0, 40.0), vertex(20.0, 40.0)]);
+        let Value::Content(Content::Shape(shape)) = call(native_polygon, args).unwrap() else {
+            panic!("polygon must be a shape");
+        };
+        assert_eq!(shape.width.as_deref(), Some(&Value::Float(40.0)));
+        assert_eq!(shape.height.as_deref(), Some(&Value::Float(40.0)));
+    }
+
+    #[test]
+    fn polygon_rejects_an_infinite_size() {
+        let args = Args::positional(vec![vertex(0.0, 0.0), vertex(0.0, f64::INFINITY)]);
+        let error = call(native_polygon, args).unwrap_err();
+        assert_eq!(error[0].message.as_str(), "cannot create polygon with infinite size");
     }
 }
