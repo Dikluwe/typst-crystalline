@@ -1,5 +1,5 @@
 # L0 — wiring/eval
-Hash do Código: 8dd2ecd2
+Hash do Código: eb298d84
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/eval.rs`
@@ -128,3 +128,9 @@ no suppression or weakened assertion is authorized.
 Eval honours `--root`, `--input`, `--font-path`, `--ignore-system-fonts`, `--ignore-embedded-fonts`, `--creation-timestamp` and the diagnostic format. `--target html` without the html feature reports the language's `html export is only available when `--features html` is passed` with its hint and exits 1; with the feature, evaluation uses the html target.
 
 Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.
+
+## Paths package
+
+`--in` with a missing input reports `input file not found (searched at <input as given>)` and the world's root errors, exiting 1.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

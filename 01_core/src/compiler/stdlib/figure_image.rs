@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
-//! @prompt-hash 7a678aea
+//! @prompt-hash 9afc9ad6
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -617,7 +617,7 @@ pub fn native_image(
             Err(msg) => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
-                    format!("image(): não foi possível ler: {}", msg),
+                    msg,
                 )]);
             }
         };

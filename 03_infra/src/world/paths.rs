@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/paths.md
-//! @prompt-hash a3abe059
+//! @prompt-hash ea785f92
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -159,7 +159,7 @@ impl SystemWorld {
             .map_err(|error| error.to_string())?;
         self.source(id).map_err(|error| match error {
             FileError::NotFound => {
-                format!("include: ficheiro não encontrado: {}", full_path.display())
+                format!("file not found (searched at {})", full_path.display())
             }
             other => other.to_string(),
         })
@@ -206,7 +206,7 @@ impl SystemWorld {
             .map_err(|error| error.to_string())?;
         self.source(id).map_err(|error| match error {
             FileError::NotFound => {
-                format!("include: ficheiro não encontrado: {}", abs_path.display())
+                format!("file not found (searched at {})", abs_path.display())
             }
             other => other.to_string(),
         })

@@ -1,5 +1,5 @@
 # L0 — wiring/tests/cli
-Hash do Código: 84df9a4b
+Hash do Código: 83065455
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/cli.rs`
@@ -348,3 +348,9 @@ separate certificate secrecy controls.
 Cover short diagnostics by flag and environment, every dependency format with failure and page collections, the accepted font, timestamp, jobs, features and eval options, the eval html target error, `fonts --ignore-embedded-fonts` and the `--pages` warning.
 
 Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.
+
+## Paths package
+
+The older root tests give the input path relative to the current directory, the missing-input test expects exit 1, and the missing-import test expects `file not found (searched at …)`, as in the language. Cover relative, dotted, parent and symlinked inputs, `eval --in`, every `--root` form, the root, containment and missing-input errors, path escape, and the file access messages of `image`, `read`, `json`, `include` and directories.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

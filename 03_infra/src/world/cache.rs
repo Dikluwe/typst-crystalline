@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/cache.md
-//! @prompt-hash 99de031f
+//! @prompt-hash c6a24291
 //! @layer L3
 //! @updated 2026-10-08
 
@@ -198,6 +198,9 @@ impl SystemWorld {
         let data = std::fs::read(path).map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
                 FileError::NotFound
+            } else if path.is_dir() {
+                // The language reports `failed to load file (is a directory)`.
+                FileError::Other("is a directory".to_owned())
             } else {
                 FileError::Other(e.to_string())
             }

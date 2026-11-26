@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/visualize.md
-//! @prompt-hash 513f2340
+//! @prompt-hash 8bda80c9
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -66,7 +66,7 @@ pub fn native_tiling(
                 Err(msg) => {
                     return Err(vec![SourceDiagnostic::error(
                         Span::detached(),
-                        format!("tiling(): não foi possível ler '{}': {}", path, msg),
+                        msg,
                     )]);
                 }
             };

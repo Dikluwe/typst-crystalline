@@ -1,5 +1,5 @@
 # L0 — stdlib/visualize — tiling constructor
-Hash do Código: 7201e9b8
+Hash do Código: c98f5ef2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/svg-preparation.toml sha256:fe0ab743c1021c51893406cde3ae40925535e1739888ef9b8287f66edfdaf896
@@ -72,3 +72,9 @@ assertion, layout and export behavior. Do not change the old admitted-input
 set, source acquisition, phases or defaults as part of this storage repair.
 This clause authorizes only this consumer's mechanical adaptation; entity
 representation is exclusively owned by core/entities/tiling.md.
+
+## Paths package
+
+Tiling file access errors are reported as the world gives them, without a `tiling()` prefix.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

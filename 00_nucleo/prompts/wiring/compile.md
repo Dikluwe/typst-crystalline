@@ -1,5 +1,5 @@
 # L0 — wiring/compile
-Hash do Código: 323a3f03
+Hash do Código: fad19004
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -439,3 +439,9 @@ Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-pa
 Compile honours the diagnostic format, selects fonts by `--ignore-system-fonts` and `--ignore-embedded-fonts`, and applies `--creation-timestamp` as `SOURCE_DATE_EPOCH` for the process before compiling. With `--deps`, the dependencies are written after the compilation like the language: json `{"inputs":[…],"outputs":[…]}` with `outputs` null when compilation fails and stdout outputs omitted; zero writes each input followed by NUL; make writes `outputs: inputs` with GCC-style escaping only when compilation succeeds and no output is stdout. Inputs are the world's dependencies relative to the current directory through the root; `-` writes to stdout. When `--pages` is given for PDF without `--pdf-tagged` or `--no-pdf-tags`, compile warns `using `--pages` implies `--pdf-tagged=false`` with the hints `the resulting PDF will be inaccessible` and `add `--pdf-tagged=false` to silence this warning`, and tags are disabled explicitly, so the document warning is not repeated. The dependency writer is shared with watch.
 
 Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.
+
+## Paths package
+
+The world receives the input's own path, not only its file name, so `--root` with an input in a subdirectory finds it. A missing input reports `input file not found (searched at <input as given>)`; the root and containment errors come from the world; all three exit 1.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

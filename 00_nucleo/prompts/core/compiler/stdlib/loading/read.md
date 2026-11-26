@@ -1,5 +1,5 @@
 # L0 — stdlib/loading/read
-Hash do Código: d7b6b74b
+Hash do Código: 1b460c8f
 
 ## Ownership and evidence
 
@@ -15,3 +15,9 @@ Detailed rules and historical behavior evidence remain in `00_nucleo/prompts/cor
 ## Acceptance
 
 Preserve language results and existing diagnostics. Build and pass the L1 suite and `crystalline-lint .` with valid ownership and hashes.
+
+## Paths package
+
+File access errors of `read` and the data loaders are reported as the world gives them, without a function prefix.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

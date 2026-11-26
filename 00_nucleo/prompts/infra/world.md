@@ -1,5 +1,5 @@
 # L0 — infra/world
-Hash do Código: 4133fd09
+Hash do Código: 9df0a33c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
@@ -196,3 +196,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Paths package
+
+`SystemWorld::new` canonicalizes the root, so a relative or symlinked root and a relative input resolve the same files as absolute ones. A missing root reports `root directory not found (searched at <root as given>)`, and a main file outside the canonical root reports `source file must be contained in project root`. The transient eval and stdin worlds canonicalize their root when it exists.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

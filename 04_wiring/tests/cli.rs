@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 31657972
+//! @prompt-hash cebe6371
 //! @layer L4
 //! @updated 2026-10-06
 //!
@@ -263,8 +263,8 @@ fn cli_erro_de_io_input_inexistente() {
 
     assert_eq!(
         result.status.code(),
-        Some(2),
-        "exit code esperado 2 (I/O); stderr:\n{}",
+        Some(1),
+        "a missing input exits 1, as in the language; stderr:\n{}",
         stderr
     );
     assert!(!stderr.is_empty(), "stderr deve ter mensagem de erro");
@@ -937,12 +937,12 @@ fn cli_font_path_inexistente_nao_falha() {
 fn cli_env_typst_root() {
     let input = temp_typ("env_root", "Olá");
     let root = input.parent().expect("tempdir tem parent").to_path_buf();
-    let file_name = input.file_name().expect("file_name").to_os_string();
+    // The input path is relative to the current directory, as in the language.
     let output = temp_pdf("env_root_out");
 
     let result = Command::new(BIN)
         .env("TYPST_ROOT", &root)
-        .arg(&file_name)
+        .arg(&input)
         .arg("-o")
         .arg(&output)
         .output()
@@ -967,13 +967,13 @@ fn cli_env_typst_root() {
 fn cli_flag_root_vence_env() {
     let input = temp_typ("root_prec", "Olá");
     let flag_root = input.parent().expect("tempdir").to_path_buf();
-    let file_name = input.file_name().expect("file_name").to_os_string();
+    // The input path is relative to the current directory, as in the language.
     let output = temp_pdf("root_prec_out");
 
     let result = Command::new(BIN)
         // env aponta para path inválido — se vencer, `SystemWorld::new` falha.
         .env("TYPST_ROOT", "/path/inexistente/xyz")
-        .arg(&file_name)
+        .arg(&input)
         .arg("--root")
         .arg(&flag_root)
         .arg("-o")
@@ -1230,11 +1230,11 @@ fn p1500_font_path_sem_argumento_continua_erro() {
 fn cli_root_explicito() {
     let input = temp_typ("root_explicit", "= Root test\n\nOk.");
     let root = input.parent().expect("tempdir tem parent").to_path_buf();
-    let file_name = input.file_name().expect("temp_typ cria file_name").to_os_string();
+    // The input path is relative to the current directory, as in the language.
     let output = temp_pdf("root_explicit_out");
 
     let result = Command::new(BIN)
-        .arg(&file_name)
+        .arg(&input)
         .arg("--root")
         .arg(&root)
         .arg("-o")
@@ -1734,8 +1734,8 @@ fn p772d_io_import_path_inexistente_nao_detached() {
     );
     assert!(stderr.contains("error:"), "stderr deve conter 'error:'; got:\n{}", stderr);
     assert!(
-        stderr.contains("ficheiro não encontrado"),
-        "stderr deve mencionar ficheiro não encontrado; got:\n{}",
+        stderr.contains("file not found (searched at "),
+        "stderr reports the language's file not found message; got:\n{}",
         stderr
     );
     assert!(
@@ -4650,5 +4650,99 @@ mod cli_options_package {
         assert!(text.contains("add `--pdf-tagged=false` to silence this warning"), "{text}");
         assert!(!text.contains("exporting a page range disables PDF tagging"), "{text}");
         fs::remove_dir_all(dir).unwrap();
+    }
+}
+
+mod paths_package {
+    use super::BIN;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::process::{Command, Output};
+
+    fn project(name: &str) -> PathBuf {
+        let base = std::env::temp_dir()
+            .join(format!("tekt-paths-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&base);
+        let proj = base.join("proj");
+        fs::create_dir_all(proj.join("sub")).unwrap();
+        fs::create_dir_all(proj.join("img")).unwrap();
+        fs::create_dir_all(base.join("other")).unwrap();
+        fs::write(
+            proj.join("img/a.svg"),
+            r#"<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>"#,
+        )
+        .unwrap();
+        fs::write(proj.join("main.typ"), "#image(\"img/a.svg\")\n#read(\"img/a.svg\").len()\n").unwrap();
+        fs::write(proj.join("sub/s.typ"), "#image(\"/img/a.svg\")\n").unwrap();
+        fs::write(proj.join("sub/up.typ"), "#image(\"../img/a.svg\")\n").unwrap();
+        fs::write(base.join("other/o.typ"), "x\n").unwrap();
+        base
+    }
+
+    fn run(dir: &Path, args: &[&str]) -> Output {
+        Command::new(BIN).current_dir(dir).args(args).env("NO_COLOR", "1").output().unwrap()
+    }
+
+    fn first_error(output: &Output) -> String {
+        String::from_utf8_lossy(&output.stderr).lines().next().unwrap_or_default().to_owned()
+    }
+
+    #[test]
+    fn relative_inputs_read_project_files() {
+        let base = project("relative");
+        let proj = base.join("proj");
+        for (dir, args) in [
+            (&proj, &["compile", "main.typ", "o.pdf"][..]),
+            (&proj, &["compile", "./main.typ", "o.pdf"]),
+            (&base, &["compile", "proj/main.typ", "o.pdf"]),
+            (&proj.join("sub"), &["compile", "../main.typ", "o.pdf"]),
+            (&proj, &["eval", "read(\"img/a.svg\").len()", "--in", "main.typ"]),
+            (&proj, &["compile", "--root", ".", "sub/s.typ", "o.pdf"]),
+            (&base, &["compile", "--root", "proj", "proj/sub/s.typ", "o.pdf"]),
+            (&proj.join("sub"), &["compile", "--root", "..", "s.typ", "o.pdf"]),
+        ] {
+            let output = run(dir, args);
+            assert!(output.status.success(), "{args:?}: {}", first_error(&output));
+        }
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&proj, base.join("link")).unwrap();
+            let output = run(&base, &["compile", "link/main.typ", "o.pdf"]);
+            assert!(output.status.success(), "symlink: {}", first_error(&output));
+        }
+        fs::remove_dir_all(base).unwrap();
+    }
+
+    #[test]
+    fn path_errors_follow_the_language() {
+        let base = project("errors");
+        let proj = base.join("proj");
+        for (dir, args, message) in [
+            (&base, &["compile", "--root", "nope", "proj/main.typ", "o.pdf"][..],
+             "error: root directory not found (searched at nope)"),
+            (&base, &["compile", "--root", "proj", "other/o.typ", "o.pdf"],
+             "error: source file must be contained in project root"),
+            (&base, &["compile", "proj/missing.typ", "o.pdf"],
+             "error: input file not found (searched at proj/missing.typ)"),
+            (&proj, &["compile", "sub/up.typ", "o.pdf"],
+             "error: path `\"../img/a.svg\"` would escape the project root"),
+        ] {
+            let output = run(dir, args);
+            assert_eq!(output.status.code(), Some(1), "{args:?}");
+            assert_eq!(first_error(&output), message, "{args:?}");
+        }
+        let missing = proj.join("missing");
+        for (source, message) in [
+            ("#image(\"nope.png\")", format!("error: file not found (searched at {})", missing.with_file_name("nope.png").display())),
+            ("#read(\"nope.txt\")", format!("error: file not found (searched at {})", missing.with_file_name("nope.txt").display())),
+            ("#json(\"nope.json\")", format!("error: file not found (searched at {})", missing.with_file_name("nope.json").display())),
+            ("#include \"nope.typ\"", format!("error: file not found (searched at {})", missing.with_file_name("nope.typ").display())),
+            ("#image(\"img\")", "error: failed to load file (is a directory)".to_owned()),
+        ] {
+            fs::write(proj.join("q.typ"), source).unwrap();
+            let output = run(&proj, &["compile", "q.typ", "o.pdf"]);
+            assert_eq!(first_error(&output), message, "{source}");
+        }
+        fs::remove_dir_all(base).unwrap();
     }
 }

@@ -1,5 +1,5 @@
 # L0 — stdlib/loading/csv
-Hash do Código: c368d28e
+Hash do Código: 50a4390b
 
 ## Ownership and evidence
 
@@ -34,3 +34,9 @@ Preserve productive routes, existing test names/bodies, external APIs, defaults
 and phase. This internal correction follows ADR-0127 continuous flow. Revalidate
 all workspace-target build/check, core suite, test inventory, Clippy and lineage;
 do not remove expectations to pass the gate.
+
+## Paths package
+
+File access errors are reported as the world gives them, without a `csv()` prefix.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

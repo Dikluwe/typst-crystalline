@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/csv.md
-//! @prompt-hash c52c004b
+//! @prompt-hash ef16c766
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -327,7 +327,7 @@ pub fn native_csv(
     }
     let (path, data) =
         crate::compiler::stdlib::read_path_value(source, world, current_file)
-            .map_err(|message| err(format!("csv(): não foi possível ler: {message}")))?;
+            .map_err(err)?;
     let origin = args
         .occurrences
         .as_ref()

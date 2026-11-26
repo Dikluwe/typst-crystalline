@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/eval.md
-//! @prompt-hash 5d789d4c
+//! @prompt-hash 50b60705
 //! @layer L4
 //! @updated 2026-10-06
 
@@ -104,8 +104,19 @@ pub(super) fn run_eval(intent: EvalIntent) -> std::io::Result<ExitCode> {
             let world = match SystemWorld::new(&root, &main) {
                 Ok(world) => configure(world),
                 Err(error) => {
-                    write_stderr(&format!("error: {error}\n"))?;
-                    return Ok(ExitCode::from(2));
+                    let (code, message) = match &error {
+                        typst_infra::world::SystemWorldError::MainNotFound(_) => (
+                            1,
+                            format!("input file not found (searched at {})", path.display()),
+                        ),
+                        typst_infra::world::SystemWorldError::RootNotFound(_)
+                        | typst_infra::world::SystemWorldError::OutsideRoot => {
+                            (1, error.to_string())
+                        }
+                        typst_infra::world::SystemWorldError::Io(_) => (2, error.to_string()),
+                    };
+                    write_stderr(&format!("error: {message}\n"))?;
+                    return Ok(ExitCode::from(code));
                 }
             };
             let source = match world.source(world.main()) {

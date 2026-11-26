@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world.md
-//! @prompt-hash 46b5ae5e
+//! @prompt-hash 457f889a
 //! @layer L3
 //! @updated 2026-10-08
 //!
@@ -39,6 +39,10 @@ use packages::default_package_cache_dir;
 pub enum SystemWorldError {
     /// O ficheiro principal não existe.
     MainNotFound(PathBuf),
+    /// The project root does not exist (the path as given).
+    RootNotFound(PathBuf),
+    /// The main file is not inside the project root.
+    OutsideRoot,
     /// Erro de I/O ao processar o ficheiro principal.
     Io(std::io::Error),
 }
@@ -47,6 +51,10 @@ impl std::fmt::Display for SystemWorldError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::MainNotFound(p) => write!(f, "main file not found: {}", p.display()),
+            Self::RootNotFound(p) => {
+                write!(f, "root directory not found (searched at {})", p.display())
+            }
+            Self::OutsideRoot => write!(f, "source file must be contained in project root"),
             Self::Io(e) => write!(f, "I/O error: {e}"),
         }
     }
@@ -111,6 +119,8 @@ impl SystemWorld {
     }
 
     fn with_transient_main(root: PathBuf, name: &str, text: String) -> Self {
+        // A canonical root lets files resolve the same way as in `new`.
+        let root = root.canonicalize().unwrap_or(root);
         let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
         let bytes = Arc::new(text.as_bytes().to_vec());
         let main_slot = Arc::new(SourceSlot::synthetic(main_id, root.join(name), text));
@@ -168,6 +178,14 @@ impl SystemWorld {
     ) -> Result<Self, SystemWorldError> {
         let main_path =
             if main.is_absolute() { main.to_path_buf() } else { root.join(main) };
+        // Files are compared with the root by canonical path, as the main file is.
+        let root = root.canonicalize().map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                SystemWorldError::RootNotFound(root.clone())
+            } else {
+                SystemWorldError::Io(e)
+            }
+        })?;
 
         let main_path_canon = main_path.canonicalize().map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
@@ -183,6 +201,10 @@ impl SystemWorld {
             main_path_canon.clone(),
             source_session.clone(),
         ));
+
+        if !main_path_canon.starts_with(&root) {
+            return Err(SystemWorldError::OutsideRoot);
+        }
 
         // Carrega eagerly para falhar rápido se o ficheiro não existir.
         main_slot

@@ -1,5 +1,5 @@
 # L0 — infra/system-world/paths
-Hash do Código: 0ec358ed
+Hash do Código: b8083112
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/world/paths.rs`
@@ -67,3 +67,9 @@ path. No new World trait method, source re-evaluation or resource I/O is added.
 
 
 Approval of this exact metadata correction is retained in `lab/results/world-metadata-errors-2026-10-22/approval.json`, review SHA-256 `31d632a54d40ca7df4139081c5297af774970a93b08cd605986b53e75e0ccc62`. The approved clauses supersede prior infallible signature/return preservation only for the two public APIs and the described private composition interfaces.
+
+## Paths package
+
+A missing included or imported file reports `file not found (searched at <path>)`, like other file access.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

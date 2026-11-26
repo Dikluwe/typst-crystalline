@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: a0d568f6
+Hash do Código: 1e5abd7d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -186,3 +186,9 @@ The full-suite RED native_image_formato_desconhecido_gera_erro shows extension-s
 `figure` accepts `gap` (length) and `outlined` (boolean), carried as the figure's own styles like `numbering`. A caption's own position travels with its body.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Paths package
+
+File access errors are reported as the world gives them, without an `image()` prefix.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

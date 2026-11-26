@@ -1,5 +1,5 @@
 # L0 — infra/system-world/cache
-Hash do Código: b38c9482
+Hash do Código: 19b9d0c1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:a54eea6def2bac71520060ddf084fc434983bb1ca20eb59dde942a0778a130cb
@@ -162,3 +162,9 @@ infallible dependency-enumeration signature under the recorded human approval.
 
 
 Approval of this exact metadata correction is retained in `lab/results/world-metadata-errors-2026-10-22/approval.json`, review SHA-256 `31d632a54d40ca7df4139081c5297af774970a93b08cd605986b53e75e0ccc62`. The approved clauses supersede prior infallible signature/return preservation only for the two public APIs and the described private composition interfaces.
+
+## Paths package
+
+Reading a directory fails with `is a directory`, which file access reports as `failed to load file (is a directory)`.
+
+Approved on 2026-11-26 (“Aprovo A–C”): `00_nucleo/diagnostics/paths-package-2026-11-26.pt-BR.md`.

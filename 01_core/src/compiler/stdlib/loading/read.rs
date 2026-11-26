@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/read.md
-//! @prompt-hash a41d86d4
+//! @prompt-hash bb1c52fa
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -38,11 +38,10 @@ fn read_bytes(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
     path: &Value,
-    fname: &str,
 ) -> SourceResult<(String, std::sync::Arc<Vec<u8>>)> {
     crate::compiler::stdlib::read_path_value(path, world, current_file)
         .map(|(path, bytes)| (path.vpath().get_with_slash().to_string(), bytes))
-        .map_err(|msg| err(format!("{fname}(): não foi possível ler: {msg}")))
+        .map_err(err)
 }
 
 /// P701 — resolve o 1º posicional de `json`/`yaml`/`toml`/`cbor`/`xml` como
@@ -57,7 +56,7 @@ pub(super) fn resolve_data(
 ) -> SourceResult<std::sync::Arc<Vec<u8>>> {
     match args.items.first() {
         Some(value @ (Value::Str(_) | Value::Path(_))) => {
-            read_bytes(world, current_file, value, fname).map(|(_, bytes)| bytes)
+            read_bytes(world, current_file, value).map(|(_, bytes)| bytes)
         }
         Some(Value::Bytes(b)) => Ok(std::sync::Arc::new(b.as_slice().to_vec())),
         Some(other) => {
@@ -100,7 +99,7 @@ pub fn native_read(
         }
     }
     let path_value = arg_read_path(args)?;
-    let (path, data) = read_bytes(world, current_file, path_value, "read")?;
+    let (path, data) = read_bytes(world, current_file, path_value)?;
     match args.named.get("encoding") {
         None => read_utf8(&data, &path),
         Some(Value::None) => Ok(Value::Bytes(Bytes::new(data.to_vec()))),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash 1ed5f77e
+//! @prompt-hash df54f6a7
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -366,8 +366,13 @@ pub(super) fn run_compile_observed_with_sessions(
         };
         SystemWorld::for_stdin(stdin_root, text)
     } else {
+        // The world receives the input's own path, so an explicit root keeps
+        // the input's place inside it.
         let main_path = match input.file_name() {
-            Some(name) => PathBuf::from(name),
+            Some(_) if input.is_absolute() => input.clone(),
+            Some(_) => std::env::current_dir()
+                .map(|cwd| cwd.join(&input))
+                .unwrap_or_else(|_| input.clone()),
             None => {
                 report_in_order(
                     || report_status(ExitCode::from(2), false),
@@ -392,11 +397,21 @@ pub(super) fn run_compile_observed_with_sessions(
         match created {
             Ok(world) => world,
             Err(error) => {
+                // ref: lab/typst-original/crates/typst-cli/src/world.rs
+                let (code, message) = match &error {
+                    typst_infra::world::SystemWorldError::MainNotFound(_) => (
+                        1,
+                        format!("input file not found (searched at {})", input.display()),
+                    ),
+                    typst_infra::world::SystemWorldError::RootNotFound(_)
+                    | typst_infra::world::SystemWorldError::OutsideRoot => (1, error.to_string()),
+                    typst_infra::world::SystemWorldError::Io(_) => (2, error.to_string()),
+                };
                 report_in_order(
-                    || report_status(ExitCode::from(2), false),
-                    || diagnostics::write_stderr(&format!("error: {error}\n")),
+                    || report_status(ExitCode::from(code), false),
+                    || diagnostics::write_stderr(&format!("error: {message}\n")),
                 )?;
-                return Ok((ExitCode::from(2), Ok(vec![input]), None));
+                return Ok((ExitCode::from(code), Ok(vec![input]), None));
             }
         }
     };
