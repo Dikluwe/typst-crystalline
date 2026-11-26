@@ -1,5 +1,5 @@
 # L0 — infra/system-world/fonts
-Hash do Código: c8c0f338
+Hash do Código: 8be9ade4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/immutable-metric-epoch.toml sha256:2ae956d6a0693c848353f4edfc70aea0888231adbb30b23765917b2bbb57d60e
@@ -223,3 +223,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## CLI options package
+
+`with_font_selection(paths, system, embedded)` composes the catalog in the usual order, embedded text, system, embedded math and code, project, leaving out the parts that are off. With both on it is `with_fonts_and_system`.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

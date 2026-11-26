@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/watch.md
-//! @prompt-hash 3dbadcad
+//! @prompt-hash 0dfd023f
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -75,6 +75,8 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
         let snapshot = {
             let mut compile = intent.compile.clone();
             compile.output = staging.clone();
+            // Dependencies name the published files, so watch writes them.
+            let deps = compile.deps.take();
             let (started, compiling) = prepare_watch_cycle();
             emit_watch_block(&compiling).map_err(|error| vec![error])?;
             let mut report_status = |exit_code, has_warnings| {
@@ -99,6 +101,7 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
                     )
                 },
             )?;
+            let deps_inputs = dependencies.clone();
             let armed = match with_dependencies(
                 dependencies,
                 &intent.compile.input,
@@ -117,6 +120,14 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
                 }
             };
 
+            let published_outputs: Vec<std::path::PathBuf> = if page_collection {
+                written_outputs
+                    .iter()
+                    .map(|staged| published_page(staged, &staging_suffix))
+                    .collect()
+            } else {
+                vec![destination.clone()]
+            };
             let snapshot = if exit_code == ExitCode::SUCCESS {
                 let publication = if intent.compile.output_format == OutputFormat::Bundle
                 {
@@ -155,6 +166,24 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
             } else {
                 armed.abandon(&staging)
             };
+
+            if let (Some((path, format)), Ok(inputs)) = (&deps, &deps_inputs) {
+                let outputs =
+                    (exit_code == ExitCode::SUCCESS).then_some(published_outputs.as_slice());
+                if let Err(error) = super::compile::write_deps(
+                    path,
+                    *format,
+                    &intent.compile.root,
+                    inputs,
+                    outputs,
+                ) {
+                    diagnostics::write_stderr(&format!(
+                        "error: failed to write dependencies {}: {error}\n",
+                        path.display()
+                    ))
+                    .map_err(|error| vec![error])?;
+                }
+            }
 
             if exit_code == ExitCode::SUCCESS {
                 if let (Some(server), Some(published)) = (&server, published) {

@@ -88,9 +88,9 @@ pub(super) fn run_query(intent: QueryIntent) -> std::io::Result<ExitCode> {
         Ok(elements) => elements,
         Err(CompiledQueryError::Compilation(errors)) => {
             let (error_text, mut metadata_errors) =
-                prepare(&world, &errors, &intent.input, intent.colored);
+                prepare(&world, &errors, &intent.input, intent.colored, false);
             let (warning_text, warning_errors) =
-                prepare(&world, &warnings, &intent.input, intent.colored);
+                prepare(&world, &warnings, &intent.input, intent.colored, false);
             metadata_errors.extend(warning_errors);
             write_stderr(&format!("{error_text}{warning_text}"))?;
             write_stderr(&format!(
@@ -126,7 +126,7 @@ pub(super) fn run_query(intent: QueryIntent) -> std::io::Result<ExitCode> {
         }
     };
     let (warning_text, metadata_errors) =
-        prepare(&world, &warnings, &intent.input, intent.colored);
+        prepare(&world, &warnings, &intent.input, intent.colored, false);
     if !metadata_errors.is_empty() {
         write_stderr(&warning_text)?;
         write_stderr(&format!(

@@ -1,5 +1,5 @@
 # L0 — wiring/query
-Hash do Código: 71e13d8b
+Hash do Código: fc43af4c
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/query.rs`

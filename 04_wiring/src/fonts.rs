@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/fonts.md
-//! @prompt-hash f99e86d4
+//! @prompt-hash b6ac941d
 //! @layer L4
 //! @updated 2026-09-26
 
@@ -11,7 +11,11 @@ use typst_shell::cli::FontsIntent;
 
 pub(super) fn run_fonts(intent: FontsIntent) -> std::io::Result<ExitCode> {
     let entries =
-        typst_infra::fonts::inventory_fonts(&intent.font_paths, intent.include_system)
+        typst_infra::fonts::inventory_fonts(
+            &intent.font_paths,
+            intent.include_system,
+            intent.include_embedded,
+        )
             .into_iter()
             .map(|entry| typst_shell::fonts::FontDisplayEntry {
                 family: entry.family,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 19c9455f
+//! @prompt-hash 31657972
 //! @layer L4
 //! @updated 2026-10-06
 //!
@@ -4520,5 +4520,135 @@ mod init_output_regressions {
             }
             fs::remove_dir_all(data).unwrap();
         }
+    }
+}
+
+mod cli_options_package {
+    use super::BIN;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::process::{Command, Output};
+
+    fn project(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir()
+            .join(format!("tekt-cli-options-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("lib.typ"), "#let z = 1\n").unwrap();
+        fs::write(dir.join("dep.typ"), "#import \"lib.typ\": z\n#z\n").unwrap();
+        fs::write(dir.join("err.typ"), "#let x = 1\n#(x + \"a\")\n").unwrap();
+        fs::write(
+            dir.join("two.typ"),
+            "#set page(width: 30pt, height: 30pt)\na\n#pagebreak()\nb\n",
+        )
+        .unwrap();
+        dir
+    }
+
+    fn run(dir: &Path, args: &[&str], env: &[(&str, &str)]) -> Output {
+        let mut command = Command::new(BIN);
+        command.current_dir(dir).args(args).env("NO_COLOR", "1");
+        for (key, value) in env {
+            command.env(key, value);
+        }
+        command.output().unwrap()
+    }
+
+    fn stderr(output: &Output) -> String {
+        String::from_utf8_lossy(&output.stderr).into_owned()
+    }
+
+    #[test]
+    fn short_diagnostics_follow_the_language() {
+        let dir = project("short");
+        for (args, env) in [
+            (&["compile", "err.typ", "o.pdf", "--diagnostic-format", "short"][..], &[][..]),
+            (&["compile", "err.typ", "o.pdf"], &[("TYPST_DIAGNOSTIC_FORMAT", "short")]),
+        ] {
+            let output = run(&dir, args, env);
+            assert_eq!(output.status.code(), Some(1));
+            assert_eq!(stderr(&output), "err.typ:2:2: error: cannot add integer and string\n");
+        }
+        let output = run(&dir, &["eval", "1 + \"a\"", "--diagnostic-format", "short"], &[]);
+        assert_eq!(output.status.code(), Some(1));
+        assert!(stderr(&output).ends_with(": error: cannot add integer and string\n"));
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn dependencies_are_written_in_every_format() {
+        let dir = project("deps");
+        let output = run(&dir, &["compile", "dep.typ", "o.pdf", "--deps", "d.json"], &[]);
+        assert!(output.status.success(), "{}", stderr(&output));
+        assert_eq!(
+            fs::read_to_string(dir.join("d.json")).unwrap(),
+            r#"{"inputs":["dep.typ","lib.typ"],"outputs":["o.pdf"]}"#
+        );
+        run(&dir, &["compile", "dep.typ", "o.pdf", "--deps", "d.d", "--deps-format", "make"], &[]);
+        assert_eq!(fs::read_to_string(dir.join("d.d")).unwrap(), "o.pdf: dep.typ lib.typ\n");
+        run(&dir, &["compile", "dep.typ", "o.pdf", "--deps", "d.z", "--deps-format", "zero"], &[]);
+        assert_eq!(fs::read(dir.join("d.z")).unwrap(), b"dep.typ\0lib.typ\0");
+        let output = run(&dir, &["compile", "dep.typ", "o.pdf", "--make-deps", "m.d"], &[]);
+        assert!(stderr(&output)
+            .contains("warning: --make-deps is deprecated, use --deps and --deps-format instead"));
+        assert_eq!(fs::read_to_string(dir.join("m.d")).unwrap(), "o.pdf: dep.typ lib.typ\n");
+        let output = run(&dir, &["compile", "err.typ", "o.pdf", "--deps", "f.json"], &[]);
+        assert_eq!(output.status.code(), Some(1));
+        assert_eq!(
+            fs::read_to_string(dir.join("f.json")).unwrap(),
+            r#"{"inputs":["err.typ"],"outputs":null}"#
+        );
+        let output = run(&dir, &["compile", "two.typ", "t-{p}.png", "--deps", "p.json"], &[]);
+        assert!(output.status.success(), "{}", stderr(&output));
+        assert_eq!(
+            fs::read_to_string(dir.join("p.json")).unwrap(),
+            r#"{"inputs":["two.typ"],"outputs":["t-1.png","t-2.png"]}"#
+        );
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn the_remaining_options_are_accepted() {
+        let dir = project("accepted");
+        let output = run(
+            &dir,
+            &["compile", "dep.typ", "o.pdf", "--creation-timestamp", "0", "--jobs", "2",
+              "--ignore-system-fonts", "--ignore-embedded-fonts"],
+            &[],
+        );
+        assert!(output.status.success(), "{}", stderr(&output));
+        let pdf = fs::read(dir.join("o.pdf")).unwrap();
+        assert!(String::from_utf8_lossy(&pdf).contains("D:19700101"));
+        let output = run(&dir, &["compile", "dep.typ", "o.pdf"], &[("TYPST_FEATURES", "html")]);
+        assert!(output.status.success(), "{}", stderr(&output));
+        for args in [
+            &["eval", "1+1", "--root", "."][..],
+            &["eval", "sys.inputs.k", "--input", "k=v"],
+            &["eval", "1+1", "--ignore-system-fonts", "--jobs", "1"],
+        ] {
+            let output = run(&dir, args, &[]);
+            assert!(output.status.success(), "{args:?}: {}", stderr(&output));
+        }
+        let output = run(&dir, &["eval", "sys.inputs.k", "--input", "k=v", "--format", "raw"], &[]);
+        assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "v");
+        let output = run(&dir, &["eval", "1+1", "--target", "html"], &[]);
+        assert_eq!(output.status.code(), Some(1));
+        assert!(stderr(&output)
+            .contains("html export is only available when `--features html` is passed"));
+        let output = run(&dir, &["fonts", "--ignore-system-fonts", "--ignore-embedded-fonts"], &[]);
+        assert!(output.status.success() && output.stdout.is_empty(), "{}", stderr(&output));
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn pages_imply_untagged_pdf_like_the_language() {
+        let dir = project("pages");
+        let output = run(&dir, &["compile", "two.typ", "o.pdf", "--pages", "1"], &[]);
+        assert!(output.status.success());
+        let text = stderr(&output);
+        assert!(text.contains("warning: using `--pages` implies `--pdf-tagged=false`"), "{text}");
+        assert!(text.contains("add `--pdf-tagged=false` to silence this warning"), "{text}");
+        assert!(!text.contains("exporting a page range disables PDF tagging"), "{text}");
+        fs::remove_dir_all(dir).unwrap();
     }
 }

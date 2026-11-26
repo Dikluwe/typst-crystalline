@@ -1,5 +1,5 @@
 # L0 — Font slots, metadata and inventory
-Hash do Código: 0f713c1c
+Hash do Código: 87af9228
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fonts.rs`
@@ -121,3 +121,9 @@ finish the incomplete is_italic sentence without inventing its missing rationale
 Internal ADR-0127: no public/default/phase/formula/acceptance changes or lint
 suppression. All-target compile/infra test names/execution/build/workspace Clippy/
 Rustdoc/lineage and scoped resealing; no import/comment-format mirror tests.
+
+## CLI options package
+
+`inventory_fonts` takes whether embedded fonts are listed.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

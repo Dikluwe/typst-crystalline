@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 95ac35ca
+//! @prompt-hash f3f22c9a
 //! @layer L3
 //! @updated 2026-10-08
 
@@ -68,6 +68,7 @@ pub struct FontInventoryEntry {
 pub fn inventory_fonts(
     font_paths: &[PathBuf],
     include_system: bool,
+    include_embedded: bool,
 ) -> Vec<FontInventoryEntry> {
     fn extend(
         out: &mut Vec<FontInventoryEntry>,
@@ -89,9 +90,11 @@ pub fn inventory_fonts(
     }
 
     let mut out = Vec::new();
-    let embedded = crate::embedded_fonts::load_embedded_fonts();
-    extend(&mut out, embedded.text_slots, embedded.text_book, true);
-    extend(&mut out, embedded.math_code_slots, embedded.math_code_book, true);
+    if include_embedded {
+        let embedded = crate::embedded_fonts::load_embedded_fonts();
+        extend(&mut out, embedded.text_slots, embedded.text_book, true);
+        extend(&mut out, embedded.math_code_slots, embedded.math_code_book, true);
+    }
     if include_system {
         let (slots, book) = crate::fontdb::load_system_fonts();
         extend(&mut out, slots, book, false);

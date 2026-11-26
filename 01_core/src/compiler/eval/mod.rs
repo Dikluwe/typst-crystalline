@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/mod.md
-//! @prompt-hash 1d4f337b
+//! @prompt-hash 3bcdf88c
 //! @layer L1
 //! @updated 2026-11-06
 //!
@@ -643,8 +643,26 @@ pub fn eval_source_with_features_and_introspector(
     features: crate::entities::compiler_features::Features,
     introspector: &crate::entities::introspector::TagIntrospector,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    eval_source_with_target_features_and_introspector(
+        world,
+        source,
+        features,
+        introspector,
+        EvalTarget::Paged,
+    )
+}
+
+/// Like [`eval_source_with_features_and_introspector`], for an explicit target.
+pub fn eval_source_with_target_features_and_introspector(
+    world: &dyn World,
+    source: &Source,
+    features: crate::entities::compiler_features::Features,
+    introspector: &crate::entities::introspector::TagIntrospector,
+    target: EvalTarget,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
     let mut ctx = EvalContext::new();
+    ctx.target = target;
     let (_, seed) = stdlib_snapshot::resolve(&ctx.stdlib_snapshot, &inputs, features);
     let library = Library::with_global(seed.expect("resolved builtin graph").global());
     let mut scopes = Scopes::new(Some(&library));

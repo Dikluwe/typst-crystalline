@@ -1,5 +1,5 @@
 # L0 — wiring/fonts
-Hash do Código: a216be89
+Hash do Código: 244dbe09
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/fonts.rs`
@@ -58,3 +58,9 @@ only, without public signature/flag/default mode or eval/layout phase change
 (ADR-0127). Retain healthy message bytes/order and all existing alerts/contracts.
 Require measured RED→GREEN, healthy parity, tests, hashes and direct/reverse lineage;
 no suppression or weakened assertion is authorized.
+
+## CLI options package
+
+`fonts --ignore-embedded-fonts` leaves out the embedded fonts.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

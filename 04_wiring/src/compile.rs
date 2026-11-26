@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash 419657a7
+//! @prompt-hash 1ed5f77e
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -30,7 +30,7 @@ const BUNDLE_EXPERIMENTAL_WARNING: &str = concat!(
     " = hint: do not rely on this feature for production use cases\n\n",
 );
 
-const HTML_EXPERIMENTAL_WARNING: &str = concat!(
+pub(super) const HTML_EXPERIMENTAL_WARNING: &str = concat!(
     "warning: html export is under active development and incomplete\n",
     " = hint: its behaviour may change at any time\n",
     " = hint: do not rely on this feature for production use cases\n",
@@ -155,7 +155,41 @@ pub(super) fn run_compile_observed_with_sessions(
         cert_path,
         pages,
         pdf_standard,
+        diagnostic_format,
+        include_system_fonts,
+        include_embedded_fonts,
+        creation_timestamp,
+        deps,
+        make_deps_deprecated,
     } = intent;
+    let short = diagnostic_format == typst_shell::cli::DiagnosticFormat::Short;
+    // The creation date reaches the PDF writer through `SOURCE_DATE_EPOCH`,
+    // which `--creation-timestamp` stands for in the language's CLI.
+    if let Some(timestamp) = creation_timestamp {
+        std::env::set_var("SOURCE_DATE_EPOCH", timestamp.to_string());
+    }
+    // ref: lab/typst-original/crates/typst-cli/src/compile.rs:155-180
+    let mut cli_warnings = Vec::new();
+    if make_deps_deprecated {
+        cli_warnings.push(SourceDiagnostic::warning(
+            typst_core::entities::span::Span::detached(),
+            "--make-deps is deprecated, use --deps and --deps-format instead",
+        ));
+    }
+    let pages_imply_untagged = output_format == OutputFormat::Pdf
+        && pages.is_some()
+        && pdf_tagged.is_none()
+        && !no_pdf_tags;
+    if pages_imply_untagged {
+        cli_warnings.push(
+            SourceDiagnostic::warning(
+                typst_core::entities::span::Span::detached(),
+                "using `--pages` implies `--pdf-tagged=false`",
+            )
+            .with_hint("the resulting PDF will be inaccessible")
+            .with_hint("add `--pdf-tagged=false` to silence this warning"),
+        );
+    }
 
     if output_format == OutputFormat::Bundle {
         if output == Path::new("-") {
@@ -366,9 +400,13 @@ pub(super) fn run_compile_observed_with_sessions(
             }
         }
     };
-    let world = match font_session {
-        Some(session) => world.with_font_catalog_session(session, &font_paths),
-        None => world.with_fonts_and_system(&font_paths),
+    let all_fonts = include_system_fonts && include_embedded_fonts;
+    let world = if !all_fonts {
+        world.with_font_selection(&font_paths, include_system_fonts, include_embedded_fonts)
+    } else if let Some(session) = font_session {
+        world.with_font_catalog_session(session, &font_paths)
+    } else {
+        world.with_fonts_and_system(&font_paths)
     }
     .with_inputs(inputs)
     .with_custom_ca(cert_path)
@@ -412,9 +450,10 @@ pub(super) fn run_compile_observed_with_sessions(
     // consultar `#set format.pdf(tagged: ...)` no documento (Núcleo
     // `format-option-precedence`); só colapsa a precedência **entre as duas
     // flags de CLI** (`--pdf-tagged` vence o legado `--no-pdf-tags`).
+    let untagged = no_pdf_tags || pages_imply_untagged;
     let pdf_tagged_override: Option<bool> = match pdf_tagged {
         Some(explicit) => Some(explicit),
-        None if no_pdf_tags => Some(false),
+        None if untagged => Some(false),
         None => None,
     };
     // **P980** — a flag `--oracle-pdf` (bool cru de L2) selecciona a
@@ -591,14 +630,15 @@ pub(super) fn run_compile_observed_with_sessions(
             (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
         }
     };
-    let has_warnings = !warnings.is_empty();
     let dependencies = world.dependencies();
     let (error_text, mut diagnostic_errors) = match &result {
-        Err(errors) => diagnostics::prepare(&world, errors, &input, colored),
+        Err(errors) => diagnostics::prepare(&world, errors, &input, colored, short),
         Ok(_) => (String::new(), Vec::new()),
     };
+    let warnings: Vec<_> = cli_warnings.into_iter().chain(warnings).collect();
+    let has_warnings = !warnings.is_empty();
     let (warning_text, warning_errors) =
-        diagnostics::prepare(&world, &warnings, &input, colored);
+        diagnostics::prepare(&world, &warnings, &input, colored, short);
     diagnostic_errors.extend(warning_errors);
     let mut operational_error = None;
 
@@ -728,7 +768,142 @@ pub(super) fn run_compile_observed_with_sessions(
         }
     }
 
+    if let (Some((path, format)), Ok(inputs)) = (&deps, &dependencies) {
+        let outputs = (exit_code == ExitCode::SUCCESS).then_some(written_outputs.as_slice());
+        if let Err(error) = write_deps(path, *format, &root, inputs, outputs) {
+            diagnostics::write_stderr(&format!(
+                "error: failed to write dependencies {}: {error}\n",
+                path.display()
+            ))?;
+        }
+    }
+
     Ok((exit_code, dependencies, published))
+}
+
+/// ref: lab/typst-original/crates/typst-cli/src/deps.rs
+/// Writes the compilation's dependencies in the language's three formats.
+/// Inputs are relative to the current directory through the root; `outputs`
+/// is `None` when the compilation failed.
+pub(super) fn write_deps(
+    destination: &Path,
+    format: typst_shell::cli::DepsFormat,
+    root: &Path,
+    dependencies: &[PathBuf],
+    outputs: Option<&[PathBuf]>,
+) -> std::io::Result<()> {
+    use std::io::Write;
+    use typst_shell::cli::DepsFormat;
+    let current = std::env::current_dir()?;
+    let absolute_root = if root.is_absolute() { root.to_path_buf() } else { current.join(root) };
+    let relative_root =
+        pathdiff::diff_paths(&absolute_root, &current).unwrap_or_else(|| absolute_root.clone());
+    let inputs: Vec<PathBuf> = dependencies
+        .iter()
+        .map(|dependency| {
+            dependency
+                .strip_prefix(&absolute_root)
+                .map_or_else(|_| dependency.clone(), |rest| relative_root.join(rest))
+        })
+        .collect();
+    let mut bytes = Vec::new();
+    match format {
+        DepsFormat::Json => {
+            let text = |path: &Path| {
+                path.to_str().map(str::to_owned).ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        format!("{path:?} is not valid UTF-8"),
+                    )
+                })
+            };
+            let inputs = inputs.iter().map(|p| text(p)).collect::<std::io::Result<Vec<_>>>()?;
+            let outputs = outputs
+                .map(|outputs| outputs.iter().map(|p| text(p)).collect::<std::io::Result<Vec<_>>>())
+                .transpose()?;
+            let list = |items: &[String]| {
+                let items: Vec<_> = items.iter().map(|item| json_string(item)).collect();
+                format!("[{}]", items.join(","))
+            };
+            let outputs = outputs.as_deref().map_or_else(|| "null".to_owned(), list);
+            let json = format!("{{\"inputs\":{},\"outputs\":{outputs}}}", list(&inputs));
+            bytes.extend_from_slice(json.as_bytes());
+        }
+        DepsFormat::Zero => {
+            for input in &inputs {
+                bytes.extend_from_slice(input.as_os_str().as_encoded_bytes());
+                bytes.push(0);
+            }
+        }
+        DepsFormat::Make => {
+            let Some(outputs) = outputs else { return Ok(()) };
+            let targets: Vec<_> = outputs.iter().filter_map(|p| p.to_str()).map(munge).collect();
+            bytes.extend_from_slice(targets.join(" ").as_bytes());
+            bytes.push(b':');
+            for input in inputs.iter().filter_map(|p| p.to_str()) {
+                bytes.push(b' ');
+                bytes.extend_from_slice(munge(input).as_bytes());
+            }
+            bytes.push(b'\n');
+        }
+    }
+    if destination == Path::new("-") {
+        let stdout = std::io::stdout();
+        let mut out = stdout.lock();
+        out.write_all(&bytes)?;
+        out.flush()
+    } else {
+        std::fs::write(destination, bytes)
+    }
+}
+
+/// A JSON string literal, escaped as `serde_json` does.
+fn json_string(value: &str) -> String {
+    let mut out = String::with_capacity(value.len() + 2);
+    out.push('"');
+    for c in value.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{08}' => out.push_str("\\b"),
+            '\u{0c}' => out.push_str("\\f"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+/// GCC-style escaping of a make dependency path (vanilla `deps.rs::munge`).
+fn munge(s: &str) -> String {
+    let mut res = String::with_capacity(s.len());
+    let mut slashes = 0;
+    for c in s.chars() {
+        match c {
+            '\\' => slashes += 1,
+            '$' => {
+                res.push('$');
+                slashes = 0;
+            }
+            ':' | '#' => {
+                res.push('\\');
+                slashes = 0;
+            }
+            ' ' | '\t' => {
+                for _ in 0..=slashes {
+                    res.push('\\');
+                }
+                slashes = 0;
+            }
+            _ => slashes = 0,
+        }
+        res.push(c);
+    }
+    res
 }
 
 #[cfg(test)]

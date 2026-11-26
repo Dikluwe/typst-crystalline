@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/diagnostic.md
-//! @prompt-hash 3208447c
+//! @prompt-hash be921dde
 //! @layer L2
 //! @updated 2026-08-23
 //!
@@ -115,6 +115,50 @@ pub fn format_diagnostic(
     colored: bool,
 ) -> String {
     format_diagnostic_impl(diag, sources, colored, false)
+}
+
+/// The language's short form: `path:line:column: severity: message`.
+/// Hints and traces are not printed; a diagnostic without a resolvable span
+/// keeps the human form.
+pub fn format_diagnostic_short(
+    diag: &SourceDiagnostic,
+    sources: &[DiagnosticSource],
+    colored: bool,
+) -> String {
+    use codespan_reporting::diagnostic::{Diagnostic, Label};
+    use codespan_reporting::term;
+    use codespan_reporting::term::termcolor::Buffer;
+
+    let files = DiagnosticFiles { sources };
+    let label = diag.span.id().and_then(|id| {
+        let item = sources.iter().find(|item| item.source.id() == id)?;
+        let range = item.source.span_byte_range(diag.span)?;
+        let text = item.source.text();
+        (range.start <= range.end
+            && range.end <= text.len()
+            && text.is_char_boundary(range.start)
+            && text.is_char_boundary(range.end))
+        .then(|| Label::primary(id, range))
+    });
+    let Some(label) = label else {
+        return format_diagnostic(diag, sources, colored);
+    };
+    let diagnostic = match diag.severity {
+        Severity::Error => Diagnostic::error(),
+        Severity::Warning => Diagnostic::warning(),
+    }
+    .with_message(diag.message.clone())
+    .with_labels(vec![label]);
+    let mut buffer = if colored { Buffer::ansi() } else { Buffer::no_color() };
+    let config = term::Config {
+        display_style: term::DisplayStyle::Short,
+        tab_width: 2,
+        ..Default::default()
+    };
+    match term::emit(&mut buffer, &config, &files, &diagnostic) {
+        Ok(()) => String::from_utf8_lossy(&buffer.into_inner()).into_owned(),
+        Err(_) => fallback_diagnostic(diag),
+    }
 }
 
 /// Format a diagnostic while retaining traces whose source is unavailable.

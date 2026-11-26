@@ -1,5 +1,5 @@
 # L0 — wiring/eval
-Hash do Código: 70f3bb17
+Hash do Código: 8dd2ecd2
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/eval.rs`
@@ -122,3 +122,9 @@ only, without public signature/flag/default mode or eval/layout phase change
 (ADR-0127). Retain healthy message bytes/order and all existing alerts/contracts.
 Require measured RED→GREEN, healthy parity, tests, hashes and direct/reverse lineage;
 no suppression or weakened assertion is authorized.
+
+## CLI options package
+
+Eval honours `--root`, `--input`, `--font-path`, `--ignore-system-fonts`, `--ignore-embedded-fonts`, `--creation-timestamp` and the diagnostic format. `--target html` without the html feature reports the language's `html export is only available when `--features html` is passed` with its hint and exits 1; with the feature, evaluation uses the html target.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

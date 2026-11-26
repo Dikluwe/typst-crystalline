@@ -1,5 +1,5 @@
 # L0 — Shell CLI parsing and semantic serialization
-Hash do Código: a8a4930b
+Hash do Código: 58940739
 
 
 **Layer:** L2
@@ -846,3 +846,9 @@ Migrate only existing Figure fixture literals/destructures for the approved two-
 ### Gates and limits
 
 L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+## CLI options package
+
+`compile`, `watch` and `eval` accept `--diagnostic-format human|short` (env `TYPST_DIAGNOSTIC_FORMAT`, default human), `--ignore-system-fonts` (env `TYPST_IGNORE_SYSTEM_FONTS`), `--ignore-embedded-fonts` (env `TYPST_IGNORE_EMBEDDED_FONTS`), `--creation-timestamp` (env `SOURCE_DATE_EPOCH`, Unix seconds) and `-j/--jobs` (positive integer, no observable effect). `--features` also reads `TYPST_FEATURES`. `compile` and `watch` accept `--deps FILE` with `--deps-format json|zero|make` (default json) and the hidden deprecated `--make-deps FILE`, which means make format and adds the warning `--make-deps is deprecated, use --deps and --deps-format instead`. `eval` accepts `--root`, `--input`, `--font-path` and `--target paged|html` (default paged). `fonts` accepts `--ignore-embedded-fonts`. The intents carry these raw choices to L4; L2 performs no I/O.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

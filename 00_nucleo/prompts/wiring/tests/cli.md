@@ -1,5 +1,5 @@
 # L0 — wiring/tests/cli
-Hash do Código: edb0ce0b
+Hash do Código: 84df9a4b
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/cli.rs`
@@ -342,3 +342,9 @@ with an empty entry and an unknown name next to a known name. Confirm success,
 the sourced unknown-feature diagnostic and active valid peers on mixed input.
 Check the same effective state through the human feature labels. Preserve the
 separate certificate secrecy controls.
+
+## CLI options package
+
+Cover short diagnostics by flag and environment, every dependency format with failure and page collections, the accepted font, timestamp, jobs, features and eval options, the eval html target error, `fonts --ignore-embedded-fonts` and the `--pages` warning.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

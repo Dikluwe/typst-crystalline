@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash b88b71e6
+//! @prompt-hash c38fb6f9
 //! @layer L2
 //! @updated 2026-11-10
 //!
@@ -224,6 +224,51 @@ pub enum OutputFormat {
     Bundle,
 }
 
+/// How diagnostics are printed (`--diagnostic-format`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum DiagnosticFormat {
+    #[default]
+    Human,
+    Short,
+}
+
+/// Format of the `--deps` file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum DepsFormat {
+    #[default]
+    Json,
+    Zero,
+    Make,
+}
+
+/// Target of `eval` (`--target`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum EvalTarget {
+    #[default]
+    Paged,
+    Html,
+}
+
+/// Options shared by commands that build a world, as in the language's CLI.
+#[derive(Debug, clap::Args)]
+struct WorldOptionArgs {
+    /// How to print diagnostics.
+    #[arg(long = "diagnostic-format", env = "TYPST_DIAGNOSTIC_FORMAT", value_enum, default_value_t)]
+    diagnostic_format: DiagnosticFormat,
+    /// Ensures system fonts won't be searched.
+    #[arg(long = "ignore-system-fonts", env = "TYPST_IGNORE_SYSTEM_FONTS")]
+    ignore_system_fonts: bool,
+    /// Ensures fonts embedded into Typst won't be considered.
+    #[arg(long = "ignore-embedded-fonts", env = "TYPST_IGNORE_EMBEDDED_FONTS")]
+    ignore_embedded_fonts: bool,
+    /// The document's creation date as a UNIX timestamp.
+    #[arg(long = "creation-timestamp", env = "SOURCE_DATE_EPOCH", value_name = "UNIX_TIMESTAMP")]
+    creation_timestamp: Option<i64>,
+    /// Number of parallel jobs; accepted for compatibility.
+    #[arg(long = "jobs", short = 'j', value_name = "JOBS")]
+    jobs: Option<std::num::NonZeroUsize>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
 enum FeatureArg {
     Html,
@@ -414,8 +459,19 @@ impl From<PdfStandardArg> for PdfStandard {
 #[derive(Debug, clap::Args)]
 struct CompileArgs {
     /// Enables in-development compiler features.
-    #[arg(long = "features", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
+    #[arg(long = "features", env = "TYPST_FEATURES", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
     features: Vec<FeatureArg>,
+    #[command(flatten)]
+    world: WorldOptionArgs,
+    /// File path to which a list of current compilation's dependencies will be written.
+    #[arg(long = "deps", value_name = "PATH")]
+    deps: Option<PathBuf>,
+    /// File format to use for dependencies.
+    #[arg(long = "deps-format", value_enum, default_value_t)]
+    deps_format: DepsFormat,
+    /// Deprecated: Makefile dependencies.
+    #[arg(long = "make-deps", value_name = "PATH", hide = true)]
+    make_deps: Option<PathBuf>,
     /// Input .typ file.
     input: Option<PathBuf>,
 
@@ -638,6 +694,9 @@ struct FontsArgs {
     /// Do not discover fonts installed in the operating system.
     #[arg(long)]
     ignore_system_fonts: bool,
+    /// Ensures fonts embedded into Typst won't be considered.
+    #[arg(long, env = "TYPST_IGNORE_EMBEDDED_FONTS")]
+    ignore_embedded_fonts: bool,
     /// Also list style variants of each font family.
     #[arg(long)]
     variants: bool,
@@ -678,8 +737,29 @@ struct EvalArgs {
     #[arg(long)]
     pretty: bool,
     /// Enables in-development compiler features.
-    #[arg(long = "features", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
+    #[arg(long = "features", env = "TYPST_FEATURES", value_enum, value_delimiter = ',', action = clap::ArgAction::Append)]
     features: Vec<FeatureArg>,
+    #[command(flatten)]
+    world: WorldOptionArgs,
+    /// Configures the project root (for absolute paths).
+    #[arg(long = "root", env = "TYPST_ROOT", value_name = "DIR")]
+    root: Option<PathBuf>,
+    /// Add a string key-value pair visible through `sys.inputs`.
+    #[arg(long = "input", value_name = "key=value", action = clap::ArgAction::Append)]
+    inputs: Vec<String>,
+    /// Adds additional directories that are recursively searched for fonts.
+    #[arg(
+        long = "font-path",
+        env = "TYPST_FONT_PATHS",
+        value_name = "DIR",
+        value_delimiter = ENV_PATH_SEP,
+        value_parser = font_path_value_parser(),
+        action = clap::ArgAction::Append,
+    )]
+    font_paths: Vec<Option<PathBuf>>,
+    /// The target to compile for.
+    #[arg(long = "target", value_enum, default_value_t)]
+    target: EvalTarget,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, Default)]
@@ -751,6 +831,17 @@ pub struct CompileIntent {
     /// `wiring.md`/`infra/pipeline.md` P1469). Vazio = ausente, delega ao
     /// documento/default.
     pub pdf_standard: Vec<PdfStandard>,
+    /// Raw `--diagnostic-format`.
+    pub diagnostic_format: DiagnosticFormat,
+    /// Whether system and embedded fonts are searched.
+    pub include_system_fonts: bool,
+    pub include_embedded_fonts: bool,
+    /// Raw `--creation-timestamp` in UNIX seconds.
+    pub creation_timestamp: Option<i64>,
+    /// `--deps` destination and format; `--make-deps` maps to make.
+    pub deps: Option<(PathBuf, DepsFormat)>,
+    /// Whether the deprecated `--make-deps` was used.
+    pub make_deps_deprecated: bool,
 }
 
 #[derive(Debug)]
@@ -762,6 +853,14 @@ pub struct EvalIntent {
     pub colored: bool,
     pub cert_path: Option<PathBuf>,
     pub features: typst_core::entities::compiler_features::Features,
+    pub diagnostic_format: DiagnosticFormat,
+    pub include_system_fonts: bool,
+    pub include_embedded_fonts: bool,
+    pub creation_timestamp: Option<i64>,
+    pub root: Option<PathBuf>,
+    pub inputs: Vec<(String, String)>,
+    pub font_paths: Vec<PathBuf>,
+    pub target: EvalTarget,
 }
 
 #[derive(Debug)]
@@ -813,6 +912,7 @@ pub fn query_deprecation_hint(intent: &QueryIntent) -> String {
 pub struct FontsIntent {
     pub font_paths: Vec<PathBuf>,
     pub include_system: bool,
+    pub include_embedded: bool,
     pub variants: bool,
 }
 
@@ -890,10 +990,19 @@ pub fn parse() -> RunIntent {
             pretty: eval.pretty,
             colored,
             cert_path,
+            diagnostic_format: eval.world.diagnostic_format,
+            include_system_fonts: !eval.world.ignore_system_fonts,
+            include_embedded_fonts: !eval.world.ignore_embedded_fonts,
+            creation_timestamp: eval.world.creation_timestamp,
+            root: eval.root,
+            inputs: parse_inputs(&eval.inputs),
+            font_paths: eval.font_paths.into_iter().flatten().collect(),
+            target: eval.target,
         }),
         Command::Fonts(fonts) => RunIntent::Fonts(FontsIntent {
             font_paths: fonts.font_paths.into_iter().flatten().collect(),
             include_system: !fonts.ignore_system_fonts,
+            include_embedded: !fonts.ignore_embedded_fonts,
             variants: fonts.variants,
         }),
         Command::Completions(args) => {
@@ -1003,17 +1112,12 @@ fn compile_intent(
 
     // P694 — validar `--input chave=valor` (split no primeiro `=`; chave não
     // vazia). Erro claro em L2 (exit 2) em entrada mal formada.
-    let mut inputs: Vec<(String, String)> = Vec::with_capacity(args.inputs.len());
-    for raw in &args.inputs {
-        match parse_input_entry(raw) {
-            Some(pair) => inputs.push(pair),
-            None => {
-                exit_argument_error(&format!(
-                    "error: invalid input '{raw}': expected the form key=value\n"
-                ));
-            }
-        }
-    }
+    let inputs = parse_inputs(&args.inputs);
+    let make_deps_deprecated = args.make_deps.is_some();
+    let deps = args
+        .deps
+        .map(|path| (path, args.deps_format))
+        .or_else(|| args.make_deps.map(|path| (path, DepsFormat::Make)));
 
     CompileIntent {
         features: resolve_features(&args.features),
@@ -1041,7 +1145,30 @@ fn compile_intent(
             .pages
             .map(|ranges| PageRanges::new(ranges.into_iter().map(|r| r.0).collect())),
         pdf_standard: args.pdf_standard.into_iter().map(PdfStandard::from).collect(),
+        diagnostic_format: args.world.diagnostic_format,
+        include_system_fonts: !args.world.ignore_system_fonts,
+        include_embedded_fonts: !args.world.ignore_embedded_fonts,
+        creation_timestamp: args.world.creation_timestamp,
+        deps,
+        make_deps_deprecated,
     }
+}
+
+/// P694 — validates `--input key=value` (split at the first `=`; the key is
+/// not empty). A malformed entry exits 2 in L2.
+fn parse_inputs(raw: &[String]) -> Vec<(String, String)> {
+    let mut inputs: Vec<(String, String)> = Vec::with_capacity(raw.len());
+    for entry in raw {
+        match parse_input_entry(entry) {
+            Some(pair) => inputs.push(pair),
+            None => {
+                exit_argument_error(&format!(
+                    "error: invalid input '{entry}': expected the form key=value\n"
+                ));
+            }
+        }
+    }
+    inputs
 }
 
 fn resolve_cert_path(flag: Option<PathBuf>, env: Option<OsString>) -> Option<PathBuf> {

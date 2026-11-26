@@ -1,5 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: b2c0d66d
+Hash do Código: c64d457b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -398,3 +398,9 @@ public interfaces nor phase order.
 Re-export `compile_to_png_output_files` with the other PNG facades.
 
 Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.
+
+## CLI options package (expression target)
+
+`eval_source_with_sink_target_features` evaluates a ready expression with an empty introspector for the paged or html target.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

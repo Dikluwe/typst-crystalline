@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/world/fonts.md
-//! @prompt-hash f4ac854f
+//! @prompt-hash 87740ce0
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -94,6 +94,39 @@ impl SystemWorld {
         self.font_loader = Box::new(move || Arc::new(fresh_catalog(&project_paths)));
         self.coverage_cache.get_mut().unwrap().clear();
         self
+    }
+
+    /// Builder: like `with_fonts_and_system`, leaving out system or embedded
+    /// fonts when they are off, in the same order.
+    pub fn with_font_selection(self, font_paths: &[PathBuf], system: bool, embedded: bool) -> Self {
+        if system && embedded {
+            return self.with_fonts_and_system(font_paths);
+        }
+        let mut world = self;
+        let project_paths = font_paths.to_vec();
+        world.font_prefix = None;
+        world.font_catalog = OnceLock::new();
+        world.font_loader = Box::new(move || {
+            let sets = if embedded {
+                crate::embedded_fonts::load_embedded_fonts()
+            } else {
+                crate::embedded_fonts::EmbeddedFontSets {
+                    text_slots: Vec::new(),
+                    text_book: FontBook::new(),
+                    math_code_slots: Vec::new(),
+                    math_code_book: FontBook::new(),
+                }
+            };
+            let system_fonts = if system {
+                crate::fontdb::load_system_fonts()
+            } else {
+                (Vec::new(), FontBook::new())
+            };
+            let project = crate::fonts::discover_fonts(&project_paths);
+            Arc::new(combine_catalog(sets, system_fonts, project))
+        });
+        world.coverage_cache.get_mut().unwrap().clear();
+        world
     }
 
     fn install_font_catalog(&mut self, catalog: (Vec<FontSlot>, FontBook)) {

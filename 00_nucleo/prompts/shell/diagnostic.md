@@ -1,5 +1,5 @@
 # L0 — Human source diagnostics
-Hash do Código: 7ad13784
+Hash do Código: 35c813c5
 
 **Layer:** L2
 **Exclusive consumer:** `02_shell/src/diagnostic.rs`
@@ -150,3 +150,9 @@ assumptions of the underlying codespan/UTF8 formatter are outside this change;
 no additional unwrap/expect/panic path or suppression is permitted.
 
 Approval receipt: `lab/results/world-metadata-errors-2026-10-22/trace-format-approval.json`; review SHA-256 `c7507b43112d46931bdafb95c26bd83f4fdc605e543911a163ca112c0c95cfb8`.
+
+## CLI options package
+
+`format_diagnostic_short` renders one diagnostic as the language's short form, `path:line:column: severity: message`, through codespan's short display style; hints and traces are not printed. Diagnostics without a resolvable span keep the human form.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

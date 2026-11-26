@@ -1,5 +1,5 @@
 # L0 — wiring/diagnostics
-Hash do Código: 390788e9
+Hash do Código: db7a14d2
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/src/diagnostics.rs`
@@ -125,3 +125,9 @@ Own private write_stderr(text: &str) -> std::io::Result<()> and its writer-injec
 The explicit user instruction and ADR-0127 classification are retained in
 `lab/results/stderr-watch-errors-2026-10-22/authorization-and-classification.json`.
 Only the described private exceptional-I/O assumptions are superseded.
+
+## CLI options package
+
+`prepare` and `prepare_with_primary` take the diagnostic format; the short format uses `format_diagnostic_short` for every diagnostic.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

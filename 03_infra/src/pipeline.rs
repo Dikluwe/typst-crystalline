@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 69810163
+//! @prompt-hash f85fcc64
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -204,6 +204,22 @@ pub fn eval_source_with_sink_features(
         expression,
         features,
         &typst_core::entities::introspector::TagIntrospector::empty(),
+    )
+}
+
+/// Evaluates the ready expression for an explicit target.
+pub fn eval_source_with_sink_target_features(
+    world: &dyn World,
+    expression: &Source,
+    features: typst_core::entities::compiler_features::Features,
+    html: bool,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    typst_core::compiler::eval::eval_source_with_target_features_and_introspector(
+        world,
+        expression,
+        features,
+        &typst_core::entities::introspector::TagIntrospector::empty(),
+        if html { EvalTarget::Html } else { EvalTarget::Paged },
     )
 }
 

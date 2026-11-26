@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/diagnostics.md
-//! @prompt-hash 8db8d8ae
+//! @prompt-hash a70fe393
 //! @layer L4
 //! @updated 2026-10-06
 
@@ -12,7 +12,8 @@ use typst_core::entities::source_result::SourceDiagnostic;
 use typst_core::entities::world_types::{FileError, FileResult};
 use typst_infra::world::SystemWorld;
 use typst_shell::diagnostic::{
-    format_diagnostic, format_diagnostic_with_unresolved_traces, DiagnosticSource,
+    format_diagnostic, format_diagnostic_short, format_diagnostic_with_unresolved_traces,
+    DiagnosticSource,
 };
 
 /// Prepare diagnostics before publication, retaining unavailable-source errors.
@@ -21,8 +22,9 @@ pub(super) fn prepare(
     diagnostics: &[SourceDiagnostic],
     input: &Path,
     colored: bool,
+    short: bool,
 ) -> (String, Vec<FileError>) {
-    prepare_with_primary(world, diagnostics, input, colored, None)
+    prepare_with_primary(world, diagnostics, input, colored, short, None)
 }
 
 pub(super) fn prepare_with_primary(
@@ -30,10 +32,11 @@ pub(super) fn prepare_with_primary(
     diagnostics: &[SourceDiagnostic],
     input: &Path,
     colored: bool,
+    short: bool,
     primary: Option<&Source>,
 ) -> (String, Vec<FileError>) {
     let cwd = std::env::current_dir().ok();
-    format_with_sources(world.main(), diagnostics, colored, |id| {
+    format_with_sources(world.main(), diagnostics, colored, short, |id| {
         let (source, path) = if let Some(source) = primary.filter(|s| s.id() == id) {
             (source.clone(), input.to_path_buf())
         } else {
@@ -60,6 +63,7 @@ fn format_with_sources(
     main_id: FileId,
     diagnostics: &[SourceDiagnostic],
     colored: bool,
+    short: bool,
     resolve: impl Fn(FileId) -> FileResult<Option<DiagnosticSource>>,
 ) -> (String, Vec<FileError>) {
     let mut text = String::new();
@@ -88,7 +92,9 @@ fn format_with_sources(
                 Err(error) => errors.push(error),
             }
         }
-        let formatted = if errors.len() > errors_before {
+        let formatted = if short {
+            format_diagnostic_short(diag, &sources, colored)
+        } else if errors.len() > errors_before {
             format_diagnostic_with_unresolved_traces(diag, &sources, colored)
         } else {
             format_diagnostic(diag, &sources, colored)
@@ -137,7 +143,7 @@ mod tests {
         let before = diagnostics.clone();
         let calls = Cell::new(0);
         let (text, errors) =
-            format_with_sources(source.id(), &diagnostics, false, |_| {
+            format_with_sources(source.id(), &diagnostics, false, false, |_| {
                 calls.set(calls.get() + 1);
                 Err(FileError::Other("source slots lock is poisoned".into()))
             });
@@ -164,7 +170,7 @@ mod tests {
             "unknown source",
         )];
         let (text, errors) =
-            format_with_sources(source.id(), &diagnostics, false, |_| Ok(None));
+            format_with_sources(source.id(), &diagnostics, false, false, |_| Ok(None));
         assert!(errors.is_empty());
         assert!(text.contains("unknown source"));
     }
@@ -176,7 +182,7 @@ mod tests {
         let diagnostics =
             [SourceDiagnostic::error(Span::from_range(source.id(), 0..1), "origin")];
         let (normal, errors) =
-            prepare(&world, &diagnostics, Path::new("unused.typ"), false);
+            prepare(&world, &diagnostics, Path::new("unused.typ"), false, false);
         assert!(errors.is_empty());
         assert!(normal.contains("actual/<stdin>"));
         assert!(!normal.contains("unused.typ"));
@@ -184,6 +190,7 @@ mod tests {
             &world,
             &diagnostics,
             Path::new("<input-expression>"),
+            false,
             false,
             Some(&source),
         );
@@ -203,7 +210,7 @@ mod tests {
             "original missing-source cause",
         )];
         let (text, errors) =
-            prepare(&world, &diagnostics, Path::new("unrelated.typ"), false);
+            prepare(&world, &diagnostics, Path::new("unrelated.typ"), false, false);
         assert_eq!(errors, vec![FileError::NotFound]);
         assert!(text.contains("original missing-source cause"));
         assert!(!text.contains("unrelated.typ"));
@@ -217,7 +224,7 @@ mod tests {
         diag.trace.push(Spanned::new(Tracepoint::Call(None), span));
         let calls = Cell::new(0);
         let (text, errors) =
-            format_with_sources(src.id(), &[diag.clone(), diag.clone()], false, |_| {
+            format_with_sources(src.id(), &[diag.clone(), diag.clone()], false, false, |_| {
                 let call = calls.get();
                 calls.set(call + 1);
                 if call == 0 {

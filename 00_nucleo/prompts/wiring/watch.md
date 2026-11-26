@@ -1,5 +1,5 @@
 # L0 — wiring/watch
-Hash do Código: 0a5a2190
+Hash do Código: e9c3a39c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
@@ -350,3 +350,9 @@ With PNG or SVG output and an indexable path, every written staged page is publi
 Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.
 
 Unit tests cover the staged page name and publication of every page.
+
+## CLI options package
+
+Watch writes `--deps` after each published cycle with the published destinations as outputs, through the compile owner's writer.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.

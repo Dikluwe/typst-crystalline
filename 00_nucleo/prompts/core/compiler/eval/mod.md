@@ -1,5 +1,5 @@
 # L0 — core/compiler/eval/mod
-Hash do Código: 739e3d53
+Hash do Código: 0470aedd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -612,3 +612,9 @@ In the paged target the evaluated content is grouped once, as in
 `compiler/realize/lists.md`, before and after realization.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## CLI options package
+
+`eval_source_with_target_features_and_introspector` evaluates a ready expression for an explicit target; the existing entry delegates with the paged target.
+
+Approved on 2026-11-26 (“Aprovo A–F”): `00_nucleo/diagnostics/cli-options-package-2026-11-26.pt-BR.md`.
