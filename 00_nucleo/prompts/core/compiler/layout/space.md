@@ -1,5 +1,5 @@
 # L0 — space
-Hash do Código: 0037b18e
+Hash do Código: e31c20f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -122,3 +122,9 @@ approved method, not another public contract/default/phase change.
 An immediately pending authored literal-script LF permits exactly the next original markup separator at the fresh line origin, retaining that separator's actual Markup/Newline provenance and effective outer style. Preserve its carrier and advance without creating a baseline by itself; consume the pending cause once. Keep ordinary initial/marker-only suppression, adjacent weak collapse, signed tracking, wrapping and terminal-bottom behavior unchanged.
 
 Require module RED→GREEN, expanded54-source matrix without changing thresholds or source membership, original15/R8/R9, A–H/R1–R7, full workspace/Clippy/fmt/Rustdoc/forward-reverse lineage, resource and preservation gates. Retain every failed candidate and its actual source state.
+
+## Grid and table package
+
+A trailing space that closes a line records that line for a following explicit break.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

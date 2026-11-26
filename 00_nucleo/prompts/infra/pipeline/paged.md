@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: eb75424c
+Hash do Código: b8d18429
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:966b8ac90f477d71d8a442f4139239da77c75c9f3e24e2c097a1609433cd7227
@@ -662,3 +662,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Grid and table package
+
+Test grids set the declared surface to none.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

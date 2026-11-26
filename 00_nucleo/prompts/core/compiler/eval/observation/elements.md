@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 3cf8fa92
+Hash do Código: 22a9197f
 
 
 **Layer:** L1
@@ -535,3 +535,9 @@ Explicitly account for approved image metadata. Keep source/path/payload semanti
 The list container compares kind, named arguments and label count besides its items.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+The declared surface of `grid` and `table` is observed as equal only when it is equal; otherwise unproven.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

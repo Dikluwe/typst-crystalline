@@ -1,5 +1,5 @@
 # L0 — sub frame
-Hash do Código: 5fb77cd9
+Hash do Código: b6bcd2c7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -635,3 +635,9 @@ Do not materialize unrelated square/container features.
 Retain zero/install/restore of the exterior footnote reserve and capture in LIFO. Track the pending-note count at entry. After restoring the complete parent region/state, if this actual subframe enqueued notes, refresh its parent's reservation through the existing footnote owner. Nested subframes still cannot reserve the wrong local region; refresh retains the existing guards for nested/column/page-column contexts. Discarded intrinsic Table probes remain enclosed by their existing complete measurement checkpoint, so no note or reserve may leak from measurement. Do not change return tuples, source admissions, body execution, or local dimensions. Require an actual nested note RED for restored-parent reserve and the original measurement/isolation controls.
 
 ADR-0127 continuous flow: this restores measured note semantics/pagination/morphology within existing layout, without public entity/trait/signature, new mode/default, pipeline phase or compatibility change. Preserve all approved #8935 identity/measurement/header replay work and concurrent Figure/math changes. L0 first, scoped reseal after V15/V26, minimal module/integrated RED before implementation, then GREEN. Revalidate all seven original #8935 tests, ordinary/Table/Box, repeat:false, later real note/query/counter/duplicate/hidden controls, general note/column/continuation pagination and complete PDF text plus PDF/SVG painting. Existing one-logical-member semantics intentionally differ from vanilla's repeated-header counter defect. Use exclusively the residual task's RAM target, one compilation job, 12GiB ceiling; leave combined workspace qualification to the coordinator.
+
+## Grid and table package
+
+A sub-frame opened by a grid cell is a cell frame: its top is the ascender less the text top, its first line reconciles like its last, and a closing block ends at its own bottom without trailing spacing. Other sub-frames keep their behavior.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

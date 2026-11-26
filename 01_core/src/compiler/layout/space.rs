@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/space.md
-//! @prompt-hash 5d6c10f9
+//! @prompt-hash d22eb7e7
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -80,6 +80,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 &layouter.regions.current.current_line,
             );
             layouter.flush_line();
+            layouter.space_wrap_line =
+                Some((layouter.pages.len(), layouter.regions.current.cursor_y.0));
             if had_causal_line && layouter.last_block_descent_y.is_none() {
                 // A trailing weak separator can close the final real line.
                 // Keep its causal bottom, not the predicted next baseline.

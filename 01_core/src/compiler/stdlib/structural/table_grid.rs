@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash 103d9755
+//! @prompt-hash 1247fbc3
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -60,12 +60,13 @@ pub fn native_table(
     for key in args.named.keys() {
         // P227 + P228 — accept stroke + fill (paridade native_grid).
         // P459 — accept caption para numeração automática.
-        if !["columns", "rows", "stroke", "fill", "caption", "align", "inset", "gutter"]
-            .contains(&key.as_str())
+        // P459 — `caption` is a crystalline extension kept for numbering.
+        if !crate::compiler::stdlib::layout::GRID_PROPERTIES.contains(&key.as_str())
+            && key.as_str() != "caption"
         {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
+                crate::compiler::stdlib::layout::named_value_span(args, key),
+                format!("unexpected argument: {key}"),
             )]);
         }
     }
@@ -107,9 +108,10 @@ pub fn native_table(
                 .filter_map(|value| match value {
                     Value::Content(c) => Some(c.clone()),
                     Value::Str(text) => Some(Content::text(text.as_str())),
+                    Value::None => Some(Content::Empty),
+                    Value::Symbol(symbol) => Some(Content::Symbol(symbol.value.clone())),
                     Value::Length(_)
                     | Value::Color(_)
-                    | Value::None
                     | Value::Bool(_)
                     | Value::Int(_)
                     | Value::Float(_)
@@ -135,7 +137,6 @@ pub fn native_table(
                     | Value::Duration(_)
                     | Value::Version(_)
                     | Value::Selector(_)
-                    | Value::Symbol(_)
                     | Value::Args(_)
                     | Value::State(_)
                     | Value::Counter(_)
@@ -160,22 +161,28 @@ pub fn native_table(
     let num_cols = columns.len().max(1);
     let mut row = 0usize;
     let mut col = 0usize;
-    for v in args.items.iter() {
+    for (index, v) in args.items.iter().enumerate() {
         let classified = match v {
             Value::Content(c) => Value::Content(c.source_body().clone()),
+            Value::None => Value::Content(Content::Empty),
+            Value::Symbol(symbol) => Value::Content(Content::Symbol(symbol.value.clone())),
             other => other.clone(),
         };
         match &classified {
             Value::Content(Content::TableHLine(e)) => {
                 let mut h = (**e).clone();
-                if h.position == "auto" {
-                    h.position = if col == 0 {
-                        EcoString::from("top")
-                    } else {
-                        EcoString::from("bottom")
-                    };
+                if h.row == usize::MAX {
+                    if h.position == "auto" {
+                        h.position = if col == 0 {
+                            EcoString::from("top")
+                        } else {
+                            EcoString::from("bottom")
+                        };
+                    }
+                    h.row = row;
+                } else if h.position == "auto" {
+                    h.position = EcoString::from("top");
                 }
-                h.row = row;
                 hlines.push(h);
             }
             Value::Content(Content::TableVLine(e)) => {
@@ -183,7 +190,9 @@ pub fn native_table(
                 if vline.position == "auto" {
                     vline.position = EcoString::from("left");
                 }
-                vline.col = col;
+                if vline.col == usize::MAX {
+                    vline.col = col;
+                }
                 vlines.push(vline);
             }
             Value::Content(c @ Content::TableHeader(_)) => {
@@ -262,14 +271,10 @@ pub fn native_table(
                     row += 1;
                 }
             }
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                        "table(): children devem ser content ou string, recebeu {}",
-                        other.type_name()
-                    ),
-                )])
+            // Every other value is rejected with its span.
+            invalid => {
+                crate::compiler::stdlib::layout::grid_child(args, index)?;
+                debug_assert!(!matches!(invalid, Value::Content(_) | Value::Str(_)));
             }
         }
     }
@@ -286,6 +291,8 @@ pub fn native_table(
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
         None => Some(default_hline_stroke()),
+        // Arrays, functions and sides apply per cell when the table is realized.
+        Some(Value::Array(_) | Value::Func(_) | Value::Dict(_)) => None,
         Some(val) => {
             let mut s = extract_stroke(val, "table", "stroke")?;
             match val {
@@ -342,17 +349,23 @@ pub fn native_table(
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(c.clone()),
-        Some(Value::None) | None => None,
+        Some(Value::None | Value::Array(_) | Value::Func(_)) | None => None,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("table(fill): espera Color, recebeu {}", other.type_name()),
+                crate::compiler::stdlib::layout::named_value_span(args, "fill"),
+                format!(
+                    "expected color, gradient, tiling, none, array, or function, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
             )])
         }
     };
     let align = args
         .named
         .get("align")
+        .filter(|value| !matches!(value, Value::Func(_)))
         .map(|value| {
             let span = args
                 .occurrences
@@ -375,11 +388,30 @@ pub fn native_table(
             None => crate::entities::sides::Sides::uniform(
                 crate::entities::layout_types::Length::pt(5.0),
             ),
+            Some(Value::Array(_) | Value::Func(_)) => crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(5.0),
+            ),
             Some(other) => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("table(inset): espera length, recebeu {}", other.type_name()),
-                )])
+                let sides =
+                    crate::entities::elements::table_cell::TableCellProperties::style_inset(
+                        other,
+                    )
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            crate::compiler::stdlib::layout::named_value_span(args, "inset"),
+                            format!(
+                                "expected relative length, dictionary, array, function, or none, found {}",
+                                crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)
+                            ),
+                        )]
+                    })?;
+                let five = crate::entities::layout_types::Length::pt(5.0);
+                crate::entities::sides::Sides::new(
+                    sides.left.unwrap_or(five),
+                    sides.top.unwrap_or(five),
+                    sides.right.unwrap_or(five),
+                    sides.bottom.unwrap_or(five),
+                )
             }
         };
     // P459 — caption opcional (Content ou Str); None se omitido.
@@ -421,6 +453,7 @@ pub fn native_table(
                 .iter()
                 .filter(|(name, _)| !args.named.contains_key(*name))
                 .fold(omitted::NATIVE, |bits, (_, bit)| bits | bit),
+            spec: Some(std::sync::Arc::new(crate::compiler::stdlib::layout::grid_spec(args)?)),
         },
     ))))
 }
@@ -1573,10 +1606,8 @@ pub(in crate::compiler) fn table_alignment(
             .map(|item| member(item, span))
             .collect::<SourceResult<Vec<_>>>()
             .map(TableAlignment::Columns),
-        Value::Func(_) => Err(vec![SourceDiagnostic::error(
-            span,
-            "table alignment functions are not supported",
-        )]),
+        // A function applies per cell when the table is realized.
+        Value::Func(_) => Ok(TableAlignment::Auto),
         other @ (Value::None
         | Value::Bool(..)
         | Value::Int(..)
@@ -2285,16 +2316,13 @@ mod declarative_alignment_tests {
         );
     }
     #[test]
-    fn table_declarative_function_set_is_explicitly_unsupported() {
-        let errors = run("#set table(align:(x,y)=>panic(\"MUST_NOT_EXECUTE\"))\nNONE")
-            .expect_err("function styles must not be silently ignored");
-        assert!(
-            errors
-                .iter()
-                .any(|e| e.message.contains("alignment functions are not supported")),
-            "{errors:?}"
-        );
-        assert!(!errors.iter().any(|e| e.message.contains("MUST_NOT_EXECUTE")));
+    fn table_declarative_function_set_applies_per_cell() {
+        // A declared alignment function runs per cell, and only for tables.
+        run("#set table(align:(x,y)=>panic(\"MUST_NOT_EXECUTE\"))\nNONE")
+            .expect("no table, no call");
+        let errors = run("#set table(align:(x,y)=>panic(\"CALLED\"))\n#table[A]")
+            .expect_err("the function runs for the cell");
+        assert!(errors.iter().any(|e| e.message.contains("CALLED")), "{errors:?}");
     }
     #[test]
     fn table_declarative_set_evaluates_argument_once() {

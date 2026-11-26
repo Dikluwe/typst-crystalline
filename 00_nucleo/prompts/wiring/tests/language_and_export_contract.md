@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 6728b768
+Hash do Código: eb549983
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -183,3 +183,12 @@ Nested and contained lists start where their region starts; numbers align to a c
 width; bodies share the first baseline with their label; constructors, declared
 properties, show rules, fields and errors of `list`, `enum` and `terms` follow
 `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Approved grid and table package
+
+Own the black-box cases of `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`:
+line positions in cells, content children and their errors with columns, fields and
+representations measured on the pinned reference, gutters against equal explicit
+tracks, per-cell arrays and functions against equal explicit cells, `set grid`,
+`set grid.cell` and `set table` against the equal constructor, and explicit line and
+cell positions.

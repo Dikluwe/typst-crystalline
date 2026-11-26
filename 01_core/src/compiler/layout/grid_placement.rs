@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_placement.md
-//! @prompt-hash ca21db56
+//! @prompt-hash 2283c894
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -74,6 +74,36 @@ pub(crate) fn place_cells(
 ) -> SourceResult<Vec<PlacedCell>> {
     place_cells_indexed(cells, num_cols)
         .map(|cells| cells.into_iter().map(|(_, cell)| cell).collect())
+}
+
+/// Source index, column and row of each placed grid cell.
+/// Also lists the free slots of the occupied rows as `(None, column, row)`.
+pub(crate) fn place_grid_cells(
+    cells: &[Content],
+    num_cols: usize,
+) -> SourceResult<Vec<(Option<usize>, usize, usize)>> {
+    let placed = place_cells_indexed(cells, num_cols)?;
+    let rows = placed.iter().map(|(_, p)| p.row + p.rowspan).max().unwrap_or(0);
+    let mut taken = vec![vec![false; num_cols]; rows];
+    for (_, p) in &placed {
+        for row in taken.iter_mut().take(p.row + p.rowspan).skip(p.row) {
+            for slot in row.iter_mut().take((p.col + p.colspan).min(num_cols)).skip(p.col) {
+                *slot = true;
+            }
+        }
+    }
+    let mut out: Vec<_> = placed
+        .into_iter()
+        .filter_map(|(index, p)| index.map(|index| (Some(index), p.col, p.row)))
+        .collect();
+    for (row, slots) in taken.iter().enumerate() {
+        for (col, used) in slots.iter().enumerate() {
+            if !used {
+                out.push((None, col, row));
+            }
+        }
+    }
+    Ok(out)
 }
 
 pub(super) fn place_cells_indexed(

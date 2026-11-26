@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 3160923e
+Hash do Código: 06a4a915
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47

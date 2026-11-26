@@ -612,7 +612,7 @@ fn p224_grid_variant_aceita_5_fields_aditivos() {
     use crate::entities::layout_types::{Align2D, HAlign, Length, TrackSizing, VAlign};
     use crate::entities::sides::Sides;
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -641,7 +641,7 @@ fn p224_grid_partial_eq_inclui_5_fields_novos() {
     use crate::entities::layout_types::{Length, TrackSizing};
     use crate::entities::sides::Sides;
     let mk = |gutter: Option<Length>| {
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -717,7 +717,7 @@ fn p227_grid_variant_aceita_stroke() {
     use crate::entities::layout_types::{Color, Length, TrackSizing};
     use crate::entities::sides::Sides;
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -752,7 +752,7 @@ fn p227_table_variant_aceita_stroke() {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
-        crate::entities::elements::table::TableElem { omitted: 0,
+        crate::entities::elements::table::TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -793,7 +793,7 @@ fn p227_grid_partial_eq_inclui_stroke() {
     use crate::entities::layout_types::{Color, Length, TrackSizing};
     use crate::entities::sides::Sides;
     let mk = |stroke: Option<Stroke>| {
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -827,7 +827,7 @@ fn p228_grid_variant_aceita_fill() {
     use crate::entities::layout_types::{Color, Length, TrackSizing};
     use crate::entities::sides::Sides;
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -853,7 +853,7 @@ fn p228_grid_variant_aceita_fill() {
 fn p228_table_variant_aceita_fill() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
-        crate::entities::elements::table::TableElem { omitted: 0,
+        crate::entities::elements::table::TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -887,7 +887,7 @@ fn p228_grid_partial_eq_inclui_fill() {
     use crate::entities::layout_types::{Color, Length, TrackSizing};
     use crate::entities::sides::Sides;
     let mk = |fill: Option<Color>| {
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],

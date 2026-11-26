@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 661c4adc
+Hash do Código: eb96ac5d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -895,3 +895,9 @@ This is an internal convergence observation.
 Allow a private optional borrowed physical journal on the root Layouter for
 exact runtime PageStore read recording. Leave fresh independent layouters
 on their default empty runtime input and existing checkpoint behavior.
+
+## Grid and table package
+
+The layouter carries the space-wrap line, the cell-frame request and flag, the cell frame's top and the row gutters of the grid being laid out.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

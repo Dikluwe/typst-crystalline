@@ -1,5 +1,5 @@
 # L0 — stdlib/layout — layout façade and alignment
-Hash do Código: 51e40f2b
+Hash do Código: d356d128
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/layout.rs`
@@ -103,3 +103,9 @@ non-dimensional track entries rather than silently dropping them. Preserve
 columns-before-rows validation and named-value spans; the facade retains static
 delegation only. Ratio/Relative omission or truncation remains the explicitly
 recorded carrier debt and is not replaced by rejection or claimed resolved.
+
+## Grid and table package
+
+Re-export the grid surface helpers to the compiler.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

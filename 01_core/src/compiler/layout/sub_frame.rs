@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash 48f0e987
+//! @prompt-hash 81fbe00d
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -416,6 +416,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.relative_region_size =
             Some((region.width, region.height.unwrap_or(parent_height)));
         let saved_sub_frame_origin_y = self.sub_frame_origin_y;
+        let saved_sub_frame_top_y = self.sub_frame_top_y;
+        let saved_in_cell_frame = self.in_cell_frame;
+        self.in_cell_frame = std::mem::take(&mut self.cell_frame_request);
         let saved_flow_placement_end = self.flow_placement_end.take();
         let saved_flow_baseline = self.flow_baseline.take();
         let saved_flow_frame_extent =
@@ -499,6 +502,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         };
         let start_y = self.regions.current.cursor_y.0;
         self.sub_frame_origin_y = start_y;
+        // Consumers rebase legacy text by the style's top edge, so a block
+        // placed at this local y lands on the parent region's top.
+        self.sub_frame_top_y = if geometric_origin || !self.in_cell_frame {
+            0.0
+        } else {
+            start_y - self.metrics.text_edges(self.style.size, &self.style).0 .0
+        };
         if !geometric_origin && !super::raw::terminal_block(content) {
             self.line_assumed_ascent = Some(start_y);
         }
@@ -636,7 +646,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         });
         if had_items {
             let text_top = self.metrics.text_edges(max_font_size, &max_style).0 .0;
-            let assumed = self.line_assumed_ascent.unwrap_or(text_top);
+            let assumed = if self.legacy_sub_frame_start() {
+                self.metrics.text_edges(self.style.size, &self.style).0 .0
+            } else {
+                self.line_assumed_ascent.unwrap_or(text_top)
+            };
             let actual =
                 self.line_inline_ascent.max(if direct_text { text_top } else { 0.0 });
             let extra = (actual - assumed).max(0.0);
@@ -683,15 +697,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.flow_placement_end
                     .map_or(0.0, |(end, _)| (end - start_y).max(0.0))
             } else if !had_items
-                && super::raw::terminal_block(content)
+                && (self.in_cell_frame || super::raw::terminal_block(content))
                 && self.last_block_descent_y.is_some()
             {
+                // A closed final block (raw, heading in a cell) ends at its
+                // own bottom; its trailing spacing does not belong to the frame.
                 let top = if geometric_origin {
                     start_y
+                } else if self.in_cell_frame {
+                    self.sub_frame_top_y
                 } else {
                     start_y - self.metrics.text_edges(self.style.size, &self.style).0 .0
                 };
-                (self.last_block_descent_y.unwrap() - top).max(0.0)
+                let height = (self.last_block_descent_y.unwrap() - top).max(0.0);
+                if self.in_cell_frame {
+                    height.min((self.regions.current.cursor_y.0 - start_y).max(0.0))
+                } else {
+                    height
+                }
             } else if had_items {
                 // P1050 — Altura real do conteúdo no sub-frame: da borda superior da primeira
                 // linha ao fundo da última linha (sem adicionar leading espúrio após a última linha).
@@ -771,6 +794,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_sub_frame = saved_is_sub_frame;
         self.relative_region_size = saved_relative_region;
         self.sub_frame_origin_y = saved_sub_frame_origin_y;
+        self.sub_frame_top_y = saved_sub_frame_top_y;
+        self.in_cell_frame = saved_in_cell_frame;
         self.flow_placement_end = saved_flow_placement_end;
         self.flow_baseline = saved_flow_baseline;
         self.flow_frame_extent = saved_flow_frame_extent;
@@ -937,6 +962,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.refresh_footnote_reservation();
         }
         (height, aligned_body_tail)
+    }
+}
+
+impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
+    /// The first line of a legacy sub-frame, still at the installed ascender.
+    pub(super) fn legacy_sub_frame_start(&self) -> bool {
+        self.in_cell_frame
+            && self.line_assumed_ascent == Some(self.sub_frame_origin_y)
+            && self.regions.current.cursor_y.0 == self.sub_frame_origin_y
     }
 }
 

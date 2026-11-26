@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/line_commit.md
-//! @prompt-hash 70d951b3
+//! @prompt-hash ad3f5e77
 //! @layer L1
 //! @updated 2026-10-26
 //!
@@ -618,7 +618,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else {
             inline_ascent.max(actual_text_top) - assumed_ascent
         };
-        let mut line_extra_ascent = if reconcile_text_top {
+        // A legacy sub-frame installs its first baseline at the ascender and
+        // its consumers rebase by the style's text top. Measure the first
+        // line against that top, as the sub-frame's last line does.
+        let legacy_sub_frame_start = self.legacy_sub_frame_start();
+        let line_extra_ascent = if legacy_sub_frame_start && had_items {
+            inline_ascent.max(actual_text_top)
+                - self.metrics.text_edges(self.style.size, &self.style).0 .0
+        } else {
+            line_extra_ascent
+        };
+        let mut line_extra_ascent = if reconcile_text_top || legacy_sub_frame_start {
             line_extra_ascent
         } else {
             line_extra_ascent.max(0.0)

@@ -1,5 +1,5 @@
 # L0 — compiler/realize/figure_kind
-Hash do Código: 60deaaef
+Hash do Código: d6e8638f
 
 Layer L1. Exclusive productive consumer: `01_core/src/compiler/realize/figure_kind.rs`.
 
@@ -70,3 +70,9 @@ Migrate only existing Figure fixture literals/destructures for the approved two-
 ### Gates and limits
 
 L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede repairs. Preserve all other ownership, previous clauses/ratifications and concurrent changes. Use only /dev/shm/typst-crystalline-8890-materialization-target for this amendment's compilation/test temporaries, one job, 12GiB virtual ceiling and zero swap. This target supersedes older task-specific target paths only for the present amendment. Record state/hash/UTC around every measurement. Revalidate original and link PDF/SVG, controls and finite progress with all A–E once; page count itself is not an oracle for a known vanilla defect. No new phase/default/compatibility change beyond the approved fields. Do not suppress lint, weaken tests, copy upstream defects, commit or claim global qualification from scoped checks.
+
+## Grid and table package
+
+Grid literals carry the declared surface unchanged.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

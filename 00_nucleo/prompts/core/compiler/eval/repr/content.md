@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr/content
-Hash do Código: 0e07e2db
+Hash do Código: 6c2d6c13
 
 
 
@@ -113,3 +113,9 @@ A container reads `list(tight: …, children: (…))`, with an item as `item(bod
 `item(number: …, body: …)` or `item(term: …, description: …)`.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+`grid`, `table` and their cells show as constructor calls over their set fields; cells show as `cell(...)`.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

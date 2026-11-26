@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash d02a219f
+//! @prompt-hash 302acd25
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -49,6 +49,24 @@ pub(super) fn content_field(
                 .map(ContentField::Set)
                 .unwrap_or(ContentField::Unset),
             _ => content_field(base, field),
+        };
+    }
+    // `grid`, `table` and grid cells read their declared surface.
+    if let Some(value) = crate::compiler::stdlib::grid_field(c, field) {
+        return value.map_or(ContentField::Unset, ContentField::Set);
+    }
+    if let Some(fields) = crate::compiler::stdlib::grid_cell_fields(c) {
+        return match fields.into_iter().find(|(name, _)| *name == field) {
+            Some((_, value)) => ContentField::Set(value),
+            None if [
+                "x", "y", "colspan", "rowspan", "fill", "align", "inset", "stroke",
+                "breakable",
+            ]
+            .contains(&field) =>
+            {
+                ContentField::Unset
+            }
+            None => ContentField::Undeclared,
         };
     }
     match c {
@@ -421,6 +439,11 @@ pub(super) fn content_set_fields(
         if crate::compiler::realize::figure::is_figure(&styled.body) {
             return content_set_fields(&styled.body);
         }
+    }
+    if let Some(fields) = crate::compiler::stdlib::grid_fields(c)
+        .or_else(|| crate::compiler::stdlib::grid_cell_fields(c))
+    {
+        return fields;
     }
     let candidates: &[&'static str] = match c {
         Content::Source(e) => return content_set_fields(&e.body),

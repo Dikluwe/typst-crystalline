@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/linebreak.md
-//! @prompt-hash 5f4a9153
+//! @prompt-hash f914e300
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -20,6 +20,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.smartquote_context.observe_text("\n");
     if let Some(cursor) = layouter.bidi_cursor.as_mut() {
         cursor.next();
+    }
+    // The trailing space hangs: the line it closed is the one this break ends.
+    let space_wrap_line = layouter.space_wrap_line.take();
+    if space_wrap_line == Some((layouter.pages.len(), layouter.regions.current.cursor_y.0))
+        && !super::html_frame::items_have_causal_line(&layouter.regions.current.current_line)
+    {
+        return;
     }
     if !super::html_frame::items_have_causal_line(&layouter.regions.current.current_line)
     {

@@ -1,5 +1,5 @@
 # L0 — placement
-Hash do Código: 332ba9b9
+Hash do Código: 954535bd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -306,3 +306,9 @@ responsibility; no commit/push, new public API, Nucleus or phase is authorized.
 A list container under `align` occupies the whole width and only its bodies move.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+Grid literals carry the declared surface unchanged.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

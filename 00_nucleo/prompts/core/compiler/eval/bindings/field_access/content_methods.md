@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 8a85911d
+Hash do Código: 6756eb30
 
 
 
@@ -712,3 +712,9 @@ A list container exposes `children` and its lexical properties, an item its `bod
 `number` when given, `term` and `description`; `func` gives the constructor.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+`grid`, `table` and grid cells answer their fields through the declared surface owned by `compiler/stdlib/layout/grid`: set fields only, in the language's declaration order.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

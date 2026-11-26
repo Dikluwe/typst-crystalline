@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md
-//! @prompt-hash a4133669
+//! @prompt-hash e73bc70c
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -94,7 +94,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let mut open_vsegments: Vec<Option<(f64, f64, Stroke)>> =
             vec![None; num_cols + 1];
 
-        let uniform_stroke = if paint_borders {
+        // With gutters every cell owns its whole outline: no edge is shared.
+        let gapped = (1..col_starts.len().min(resolved_widths.len())).any(|i| {
+            (col_starts[i] - col_starts[i - 1] - resolved_widths[i - 1]).abs() > 1e-9
+        }) || self
+            .grid_row_gaps
+            .iter()
+            .take(num_rows_produced_final.saturating_sub(1))
+            .any(|gap| *gap != 0.0);
+        let uniform_stroke = if paint_borders && !gapped {
             uniform_table_stroke(
                 placed_cells,
                 &grid_owner,
@@ -291,6 +299,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     });
                     self.current_location = location;
                     self.transported_root_location = transported;
+                    // The repeated header keeps the gutter that follows it.
+                    if let Some(gap) = self
+                        .grid_row_gaps
+                        .get(group.end - 1)
+                        .copied()
+                        .filter(|gap| *gap != 0.0)
+                    {
+                        self.regions.current.cursor_y += Pt(gap);
+                    }
                     if let Some((live, expected)) = legacy {
                         let end = self.locator.checkpoint();
                         self.locator = crate::entities::locator::Locator::from_seed(live);
@@ -375,6 +392,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     border_boundaries.push(row_start_y);
                 }
                 border_boundaries.push(row_start_y + row_h);
+            } else if paint_borders && gapped {
+                for &index in &cells_per_row[row_idx] {
+                    let placed = &placed_cells[index];
+                    let own = match &placed.body {
+                        Content::GridCell(cell) => cell.stroke.as_ref(),
+                        _ => None,
+                    };
+                    let Some(cell_stroke) = own.or(stroke).cloned() else { continue };
+                    let last = (placed.col + placed.colspan.max(1) - 1).min(num_cols - 1);
+                    let x0 = col_starts[placed.col];
+                    let x1 = col_starts[last] + resolved_widths[last];
+                    let rows = placed.row..placed.row + placed.rowspan.max(1);
+                    let y1 = row_start_y
+                        + rows
+                            .clone()
+                            .map(|row| row_heights.get(row).copied().unwrap_or(0.0))
+                            .sum::<f64>()
+                        + rows
+                            .take(placed.rowspan.max(1) - 1)
+                            .map(|row| self.grid_row_gaps.get(row).copied().unwrap_or(0.0))
+                            .sum::<f64>();
+                    emit_hsegment(self, x0, x1, row_start_y, cell_stroke.clone());
+                    emit_hsegment(self, x0, x1, y1, cell_stroke.clone());
+                    emit_vsegment(self, x0, row_start_y, y1, cell_stroke.clone());
+                    emit_vsegment(self, x1, row_start_y, y1, cell_stroke);
+                }
             } else if paint_borders {
                 let next_on_same_page =
                     !header_groups.iter().any(|g| g.end == row_idx + 1)
@@ -435,6 +478,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             // Avançar cursor para o fim da linha (altura conhecida).
             self.regions.current.cursor_y = Pt(row_start_y + row_h);
             self.record_flow_placement_end(row_start_y + row_h);
+            if row_idx + 1 < num_rows_produced_final {
+                if let Some(gap) = self.grid_row_gaps.get(row_idx).copied().filter(|g| *g != 0.0) {
+                    self.regions.current.cursor_y += Pt(gap);
+                }
+            }
             let right = col_starts
                 .iter()
                 .zip(resolved_widths)

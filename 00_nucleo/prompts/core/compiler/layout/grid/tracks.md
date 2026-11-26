@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: 21a86cef
+Hash do Código: af7a77da
 
 
 
@@ -310,3 +310,9 @@ responsibility; no commit/push, new public API, Nucleus or phase is authorized.
 An automatic column measures a list container by laying it out.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+A cell's measured width covers the gutters inside its span. Cell measurement opens a cell frame.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

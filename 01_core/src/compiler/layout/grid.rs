@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid.md
-//! @prompt-hash 2e7f080d
+//! @prompt-hash df0126bc
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -16,6 +16,7 @@ mod row_pagination;
 mod rules;
 mod tracks;
 use self::borders::*;
+use crate::entities::elements::grid::GridSpec;
 
 use super::PendingAlignYEntry;
 use crate::entities::elements::grid_hline::GridHLineElem;
@@ -136,7 +137,8 @@ pub(super) struct GridLayoutInput<'b, H: LayoutHLine, V: LayoutVLine> {
     pub(super) cells: &'b [Content],
     pub(super) hlines: &'b [H],
     pub(super) vlines: &'b [V],
-    pub(super) gutter: Option<Length>,
+    pub(super) column_gutter: &'b [crate::entities::rel::Rel<Length>],
+    pub(super) row_gutter: &'b [crate::entities::rel::Rel<Length>],
     pub(super) align: Option<Align2D>,
     pub(super) table_alignment:
         Option<&'b crate::entities::elements::table::TableAlignment>,
@@ -181,6 +183,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut super::Layouter<M, S>,
     e: &GridElem,
 ) {
+    // Elements built outside the constructor carry one uniform gutter.
+    let legacy: Vec<_> =
+        e.gutter.map(|abs| crate::entities::rel::Rel { rel: 0.0, abs }).into_iter().collect();
+    let (column_gutter, row_gutter) = match &e.spec {
+        Some(spec) => (spec.column_gutter.as_slice(), spec.row_gutter.as_slice()),
+        None => (legacy.as_slice(), legacy.as_slice()),
+    };
     layouter.layout_grid(GridLayoutInput {
         header_groups: &[],
         columns: &e.columns,
@@ -188,7 +197,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         cells: &e.cells,
         hlines: &e.hlines,
         vlines: &e.vlines,
-        gutter: e.gutter,
+        column_gutter,
+        row_gutter,
         align: e.align,
         table_alignment: None,
         inset: e.inset,
@@ -219,7 +229,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             cells,
             hlines,
             vlines,
-            gutter,
+            column_gutter,
+            row_gutter,
             align,
             table_alignment,
             inset,
@@ -305,6 +316,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     return;
                 }
             }
+        } else if !prepared {
+            // Tracks are measured at the cells' actual positions.
+            match super::grid_placement::place_cells_indexed(cells, num_cols) {
+                Ok(placed) => Some(placed),
+                Err(errors) => {
+                    self.layout_errors.extend(errors);
+                    self.cell_align = saved_cell_align;
+                    return;
+                }
+            }
         } else {
             None
         };
@@ -327,13 +348,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             table_alignment,
             positions: &measurement_positions,
         };
-        let gap = gutter.map_or(0.0, |value| value.resolve_pt(self.style.size.0));
-        let tracks_available = (available_width - (num_cols - 1) as f64 * gap).max(0.0);
+        // Gutters sit between tracks; relative ones resolve against the region.
+        let size = self.style.size.0;
+        let column_gaps: Vec<f64> = (0..num_cols.saturating_sub(1))
+            .map(|i| GridSpec::gutter_at(column_gutter, i, size, available_width))
+            .collect();
+        let tracks_available = (available_width - column_gaps.iter().sum::<f64>()).max(0.0);
         let (resolved_widths, mut col_starts) =
             self.resolve_grid_columns(&cols, cells, measurement, tracks_available);
+        let mut shift = 0.0;
         for (index, start) in col_starts.iter_mut().enumerate() {
-            *start += index as f64 * gap;
+            *start += shift;
+            shift += column_gaps.get(index).copied().unwrap_or(0.0);
         }
+        let region_height = self.regions.current.height - self.page_config.margin.vertical();
+        let row_gaps: Vec<f64> = (0..row_tracks.len().max(cells.len()))
+            .map(|i| GridSpec::gutter_at(row_gutter, i, size, region_height))
+            .collect();
+        let saved_row_gaps = std::mem::replace(&mut self.grid_row_gaps, row_gaps);
         let (mut row_heights, num_rows_produced, mut measured_cells) = self
             .resolve_grid_rows(
                 &row_tracks,
@@ -383,6 +415,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 Err(diagnostics) => {
                     self.layout_errors.extend(diagnostics);
                     self.cell_align = saved_cell_align;
+        self.grid_row_gaps = saved_row_gaps;
                     return;
                 }
             }
@@ -403,6 +436,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             ),
                         );
                         self.cell_align = saved_cell_align;
+        self.grid_row_gaps = saved_row_gaps;
                         return;
                     };
                     route.clone()
@@ -430,7 +464,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let track = &row_tracks[row_idx % row_tracks.len()];
             let h = match track {
                 TrackSizing::Fixed(pt) => *pt,
-                _ => 0.0,
+                // A row that only explicitly placed cells reach is as tall
+                // as its single-row cells.
+                _ => {
+                    let font = self.style.size.0;
+                    let mut tallest: f64 = 0.0;
+                    for placed in placed_cells
+                        .iter()
+                        .filter(|p| p.row == row_idx && p.rowspan == 1)
+                    {
+                        let (body, own_inset) = match &placed.body {
+                            Content::GridCell(cell) => (&cell.body, cell.inset),
+                            other => (other, None),
+                        };
+                        let pad = own_inset.unwrap_or(inset);
+                        let last = (placed.col + placed.colspan.max(1) - 1).min(num_cols - 1);
+                        let width = col_starts[last] + resolved_widths[last]
+                            - col_starts[placed.col]
+                            - pad.left.resolve_pt(font)
+                            - pad.right.resolve_pt(font);
+                        let (_, height) =
+                            self.measure_content_constrained(body, width.max(0.0));
+                        tallest = tallest.max(
+                            height + pad.top.resolve_pt(font) + pad.bottom.resolve_pt(font),
+                        );
+                    }
+                    tallest
+                }
             };
             row_heights.push(h);
         }
@@ -480,6 +540,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P232 — restore cell_align ao sair de Grid context (paridade
         // cell_origin_* save/restore pattern P84.6).
         self.cell_align = saved_cell_align;
+        self.grid_row_gaps = saved_row_gaps;
     }
 }
 

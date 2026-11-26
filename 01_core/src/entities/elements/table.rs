@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/table.md
-//! @prompt-hash dd06d456
+//! @prompt-hash 7b26243d
 //! @layer L1
 //! @updated 2026-10-10
 //!
@@ -47,6 +47,8 @@ pub struct TableElem {
     pub align: Option<TableAlignment>,
     /// Propriedades omitidas no construtor; zero conta todas como dadas.
     pub(crate) omitted: u32,
+    /// Declared surface shared with `grid`.
+    pub spec: Option<Arc<crate::entities::elements::grid::GridSpec>>,
 }
 
 /// Bits de `TableElem::omitted`.
@@ -241,7 +243,7 @@ impl Element for TableElem {
             table.caption = self.caption.as_ref().map(|c| c.map_text(transform));
             return Content::Table(Arc::new(table));
         }
-        Content::Table(Arc::new(TableElem { omitted: self.omitted,
+        Content::Table(Arc::new(TableElem { omitted: self.omitted, spec: self.spec.clone(),
             items: self.items.clone(),
             source_span: self.source_span,
             resolved: self.resolved.clone(),
@@ -285,7 +287,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> TableElem {
-        TableElem { omitted: 0,
+        TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -314,7 +316,7 @@ mod tests {
     #[test]
     fn is_empty_so_sem_children() {
         assert!(!ex().is_empty());
-        assert!(TableElem { omitted: 0,
+        assert!(TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -360,7 +362,7 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = TableElem { omitted: 0,
+        let outro = TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,

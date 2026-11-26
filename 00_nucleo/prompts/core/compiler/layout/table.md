@@ -1,5 +1,5 @@
 # L0 — table
-Hash do Código: 26ae6d54
+Hash do Código: dd1f5d6c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
@@ -225,3 +225,9 @@ into the existing parallel semantic rows, retaining explicit Header/Data roles;
 do not derive an empty body from dormant legacy children or duplicate headers.
 Keep the existing PDF/UA limits. Unprepared new ordered input must diagnose its
 missing logical preparation instead of silently rendering an empty table.
+
+## Grid and table package
+
+Tables pass the gutters of their declared surface to the grid layout.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

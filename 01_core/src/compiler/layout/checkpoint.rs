@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash 61de3de6
+//! @prompt-hash cc944f88
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -17,6 +17,7 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     text_horizontal_offset: Pt,
     superscript_source_break: bool,
     literal_script_break_pending: bool,
+    space_wrap_line: Option<(usize, f64)>,
     chain: StyleChain,
     text_tracking_state: text_tracking::State,
     page_config: PageConfig,
@@ -30,6 +31,9 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     is_sub_frame: bool,
     relative_region_size: Option<(f64, f64)>,
     sub_frame_origin_y: f64,
+    sub_frame_top_y: f64,
+    cell_frame_request: bool,
+    in_cell_frame: bool,
     flow_placement_end: Option<(f64, f64)>,
     flow_frame_extent: (f64, f64),
     last_sub_frame_flow_width: f64,
@@ -211,6 +215,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             text_horizontal_offset: self.text_horizontal_offset,
             superscript_source_break: self.superscript_source_break,
             literal_script_break_pending: self.literal_script_break_pending,
+            space_wrap_line: self.space_wrap_line,
             chain: self.chain.clone(),
             text_tracking_state: self.text_tracking_state.clone(),
             page_config: self.page_config.clone(),
@@ -224,6 +229,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             is_sub_frame: self.is_sub_frame,
             relative_region_size: self.relative_region_size,
             sub_frame_origin_y: self.sub_frame_origin_y,
+            sub_frame_top_y: self.sub_frame_top_y,
+            cell_frame_request: self.cell_frame_request,
+            in_cell_frame: self.in_cell_frame,
             flow_placement_end: self.flow_placement_end,
             flow_frame_extent: self.flow_frame_extent,
             last_sub_frame_flow_width: self.last_sub_frame_flow_width,
@@ -355,6 +363,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.text_horizontal_offset = checkpoint.text_horizontal_offset;
         self.superscript_source_break = checkpoint.superscript_source_break;
         self.literal_script_break_pending = checkpoint.literal_script_break_pending;
+        self.space_wrap_line = checkpoint.space_wrap_line;
         self.chain = checkpoint.chain;
         self.text_tracking_state = checkpoint.text_tracking_state;
         self.page_config = checkpoint.page_config;
@@ -375,6 +384,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_sub_frame = checkpoint.is_sub_frame;
         self.relative_region_size = checkpoint.relative_region_size;
         self.sub_frame_origin_y = checkpoint.sub_frame_origin_y;
+        self.sub_frame_top_y = checkpoint.sub_frame_top_y;
+        self.cell_frame_request = checkpoint.cell_frame_request;
+        self.in_cell_frame = checkpoint.in_cell_frame;
         self.flow_placement_end = checkpoint.flow_placement_end;
         self.flow_frame_extent = checkpoint.flow_frame_extent;
         self.last_sub_frame_flow_width = checkpoint.last_sub_frame_flow_width;

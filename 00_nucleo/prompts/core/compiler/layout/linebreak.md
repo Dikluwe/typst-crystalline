@@ -1,5 +1,5 @@
 # L0 — linebreak
-Hash do Código: eae927ee
+Hash do Código: 3bcdeace
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -53,3 +53,9 @@ This owner observes logical newline in quote context without erasing nesting or 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
 Require occurrence/UTF8/restoration/parbreak-origin tests and bilateral wraps. Empty-line controls cover one/two initial explicit breaks versus material-line advance, integration after Align and prior corpus. Semantic-quote ratification authorizes RED→GREEN with exclusive ownership/pinned nuclei and supersedes historical conflicts only within quotes. Preserve exact target/field/helper boundaries above.
+
+## Grid and table package
+
+An explicit break right after a line closed by a trailing space ends that line; it does not open an empty one.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

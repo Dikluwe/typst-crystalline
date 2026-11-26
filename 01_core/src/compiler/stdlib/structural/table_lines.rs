@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_lines.md
-//! @prompt-hash 53e80238
+//! @prompt-hash 3cfa8857
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -33,6 +33,22 @@ pub(super) fn default_hline_stroke() -> Stroke {
         thickness: crate::entities::layout_types::Length::pt(1.0),
         overhang: true,
         ..Stroke::default()
+    }
+}
+
+/// The explicit track of a line (`y` for hlines, `x` for vlines), or
+/// `usize::MAX` when the line follows the automatic position.
+fn line_track(args: &Args, name: &str) -> SourceResult<usize> {
+    match args.named.get(name) {
+        None | Some(Value::Auto) => Ok(usize::MAX),
+        Some(Value::Int(n)) if *n >= 0 => Ok(*n as usize),
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            crate::compiler::stdlib::layout::named_value_span(args, name),
+            format!(
+                "expected integer or auto, found {}",
+                crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)
+            ),
+        )]),
     }
 }
 
@@ -121,7 +137,7 @@ pub fn native_grid_hline(
             "grid.hline(position): deve ser 'top', 'bottom' ou 'auto'".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::grid_hline(start, end, 0, stroke, position)))
+    Ok(Value::Content(Content::grid_hline(start, end, line_track(args, "y")?, stroke, position)))
 }
 
 /// `grid.vline(start, end, stroke, position)` — Passo 512.
@@ -166,7 +182,7 @@ pub fn native_grid_vline(
             "grid.vline(position): deve ser 'left', 'right' ou 'auto'".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::grid_vline(start, end, 0, stroke, position)))
+    Ok(Value::Content(Content::grid_vline(start, end, line_track(args, "x")?, stroke, position)))
 }
 
 /// `table.hline(start, end, stroke, position)` — Passo 512.
@@ -211,7 +227,7 @@ pub fn native_table_hline(
             "table.hline(position): deve ser 'top', 'bottom' ou 'auto'".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::table_hline(start, end, 0, stroke, position)))
+    Ok(Value::Content(Content::table_hline(start, end, line_track(args, "y")?, stroke, position)))
 }
 
 /// `table.vline(start, end, stroke, position)` — Passo 512.
@@ -256,5 +272,5 @@ pub fn native_table_vline(
             "table.vline(position): deve ser 'left', 'right' ou 'auto'".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::table_vline(start, end, 0, stroke, position)))
+    Ok(Value::Content(Content::table_vline(start, end, line_track(args, "x")?, stroke, position)))
 }

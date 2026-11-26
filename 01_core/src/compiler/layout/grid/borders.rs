@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/borders.md
-//! @prompt-hash 95f2044c
+//! @prompt-hash b2449826
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -21,9 +21,14 @@ pub(super) fn cell_bounds(
 ) -> (f64, f64, f64, f64) {
     let x0 = col_starts.get(placed.col).copied().unwrap_or(0.0);
     let y0 = current_row_start_y;
-    let cell_w: f64 = (placed.col..placed.col + placed.colspan)
-        .map(|i| resolved_widths.get(i).copied().unwrap_or(0.0))
-        .sum();
+    // A span covers the gutters between its tracks.
+    let last = placed.col + placed.colspan.max(1) - 1;
+    let cell_w = match (col_starts.get(last), resolved_widths.get(last)) {
+        (Some(start), Some(width)) => start + width - x0,
+        _ => (placed.col..placed.col + placed.colspan)
+            .map(|i| resolved_widths.get(i).copied().unwrap_or(0.0))
+            .sum(),
+    };
     let cell_h: f64 = (placed.row..placed.row + placed.rowspan)
         .map(|i| row_heights.get(i).copied().unwrap_or(0.0))
         .sum();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/recipes.md
-//! @prompt-hash 4bdfef09
+//! @prompt-hash e6de6d2d
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -292,6 +292,21 @@ fn visit(
             return styled_body(styled, ctx, engine).map(Some);
         }
         Content::Located(located) if table_root(&located.body) => {
+            return super::realize_table_insertions(node.clone(), ctx, engine)
+                .and_then(|prepared| realize_children(&prepared, ctx, engine))
+                .map(Some);
+        }
+        // A grid no show rule selects is prepared like a table insertion; a
+        // selected grid keeps the ordinary recipe path.
+        Content::Grid(grid)
+            if super::grid::needs_preparation(grid)
+                && !engine.show_rules.iter().any(|rule| {
+                    crate::compiler::eval::selector_matching::selector_matches(
+                        node,
+                        &rule.selector,
+                    )
+                }) =>
+        {
             return super::realize_table_insertions(node.clone(), ctx, engine)
                 .and_then(|prepared| realize_children(&prepared, ctx, engine))
                 .map(Some);

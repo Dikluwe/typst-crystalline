@@ -1,5 +1,5 @@
 # L0 — line commit
-Hash do Código: 98a69506
+Hash do Código: d3403be7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -347,3 +347,9 @@ Combine the certified horizontal extent with live prefix and suffix
 measurements. Preserve the terminal literal-space rules. Require the exact
 metric epoch and the original item range. Refuse fractional expansion,
 interrupted paint and transactions. Keep vertical metrics and commit effects live.
+
+## Grid and table package
+
+In a cell frame the first line reconciles against the style's text top, as the frame's last line does, so a broken line stays where a single line would.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

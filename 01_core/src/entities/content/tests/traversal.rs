@@ -514,7 +514,7 @@ fn p228_grid_map_content_preserva_fill() {
     use crate::entities::sides::Sides;
     let fill_orig = Color::rgb(50, 50, 50);
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
@@ -550,7 +550,7 @@ fn p227_grid_map_content_preserva_stroke() {
         ..Stroke::default()
     };
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],

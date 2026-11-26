@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/grid` — `GridElem`
-Hash do Código: d032e282
+Hash do Código: a3a15391
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/grid.rs`
@@ -65,3 +65,9 @@ GridElem additionally has pub source_order: Option<Vec<GridChildOrder>>. Existin
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Grid and table package
+
+`GridSpec` is the declared surface shared by `grid` and `table`: named arguments as written, column and row gutters, and whether preparation ran. `GridElem.spec` is public because infrastructure tests build grids.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

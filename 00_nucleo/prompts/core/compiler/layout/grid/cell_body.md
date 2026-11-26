@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_body
-Hash do Código: e2fcc5f8
+Hash do Código: ad811519
 
 
 
@@ -219,3 +219,9 @@ Bottom/Horizon and mixed text/shape/Box/decorated bodies; compare original
 financial/native PDF/SVG/0.001pt, unchanged controls, full core and final gates.
 Vertical explicit movement remains meaningful and is not normalized away.
 This is ADR-0127 continuous formula/coordinate parity repair inside layout.
+
+## Grid and table package
+
+A row span covers the row gutters between its rows. The cell body opens a cell frame.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

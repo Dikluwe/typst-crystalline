@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash 88255fac
+//! @prompt-hash cce5c48b
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -467,7 +467,7 @@ mod figure_grid_carrier_tests {
             stroke: None,
             position: "left".into(),
         };
-        let grid = GridElem {
+        let grid = GridElem { spec: None,
             columns: vec![],
             rows: vec![],
             cells: vec![Content::text("cell")],

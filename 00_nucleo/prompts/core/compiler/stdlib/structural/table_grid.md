@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_grid
-Hash do Código: 9cfff1de
+Hash do Código: 3dccb1ce
 
 
 
@@ -199,3 +199,9 @@ require a new gate; the approved fields are not inferred from diagnostics.
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
 native_table records which of columns, rows, fill, stroke and inset were omitted.
+
+## Grid and table package
+
+`table` shares the grid surface: the same named arguments and child rules, per-cell arrays and functions, inset dictionaries, and `expected content, found T` for other children. An alignment function applies per cell.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

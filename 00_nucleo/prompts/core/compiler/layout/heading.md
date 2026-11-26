@@ -1,5 +1,5 @@
 # L0 — heading
-Hash do Código: 88cd24d9
+Hash do Código: b96844e5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -172,3 +172,9 @@ Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract
 Read above and below from heading.block.above, below and spacing, resolved at the
 heading's own text size; without them keep the existing defaults. An ambient set
 block does not change heading spacing.
+
+## Grid and table package
+
+Inside a cell frame a heading starts at the frame's top, not at the page margin.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

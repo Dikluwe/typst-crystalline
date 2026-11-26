@@ -1,5 +1,5 @@
 # L0 — compiler/layout/checkpoint
-Hash do Código: 41cb9c79
+Hash do Código: d1ae7f47
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -465,3 +465,9 @@ no commit/push/new branch. Other footnote/layout debts remain explicit.
 Capture and restore the new private column flow-end accumulator alongside the existing column transaction state, so rejected flow cannot retain a ghost height. Preserve complete source/queue/location rollback and original measurement behavior.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+## Grid and table package
+
+Checkpoints carry the space-wrap line, the sub-frame top and the cell-frame flags.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

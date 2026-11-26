@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/rules.md
-//! @prompt-hash 0ef314c7
+//! @prompt-hash e80807cf
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -43,8 +43,11 @@ pub(super) fn emit_explicit_rules<
             let Some(stroke) = h.stroke() else {
                 continue;
             };
+            // A line past the last row is that row's bottom edge.
+            let past = h.row() >= num_rows_produced_final;
             let row = h.row().min(num_rows_produced_final.saturating_sub(1));
             let y = match h.position() {
+                _ if past => row_bottom(row),
                 "bottom" => row_bottom(row),
                 _ => emitted_row_starts.get(row).copied().unwrap_or(0.0),
             };
@@ -74,8 +77,11 @@ pub(super) fn emit_explicit_rules<
 
         for v in vlines {
             let Some(stroke) = v.stroke() else { continue };
+            // A line past the last column is that column's right edge.
+            let past = v.col() >= num_cols;
             let col = v.col().min(num_cols.saturating_sub(1));
             let x = match v.position() {
+                _ if past => col_right(col),
                 "right" => col_right(col),
                 _ => col_starts.get(col).copied().unwrap_or(grid_left),
             };

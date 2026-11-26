@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_body.md
-//! @prompt-hash c3b5bffd
+//! @prompt-hash f52288d8
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -110,6 +110,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // resolved_widths + placed.row/rowspan × row_heights.
         let (cell_x, cell_y, cell_w, cell_h) =
             cell_bounds(placed, col_starts, resolved_widths, row_heights, row_start_y);
+        // A row span covers the gutters between its rows.
+        let cell_h = cell_h
+            + (placed.row..placed.row + placed.rowspan.max(1) - 1)
+                .map(|row| self.grid_row_gaps.get(row).copied().unwrap_or(0.0))
+                .sum::<f64>();
 
         // P230 + P235 — extrair per-cell 5 fields (stroke + fill
         // cosméticos P230; align + inset + breakable algorítmicos
@@ -394,6 +399,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let geometric_origin = effective_align.is_some();
         let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
             measured_product.unwrap_or_else(|| {
+                self.cell_frame_request = true;
                 self.layout_sub_frame_planned(
                     &cell_to_layout,
                     super::super::sub_frame::SubLayoutRegion {

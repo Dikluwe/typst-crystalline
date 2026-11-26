@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout.md
-//! @prompt-hash 1f1bbaf6
+//! @prompt-hash 72ca3491
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -54,12 +54,17 @@ pub(crate) use self::casting::extract_corners_length_value;
 pub(super) use self::casting::extract_length;
 pub(super) use self::casting::extract_sides_from_value;
 pub(super) use self::casting::extract_sides_lengths;
-pub(super) use self::casting::extract_stroke;
+pub(crate) use self::casting::extract_stroke;
 pub(super) use self::casting::page_type_error;
 pub use self::columns::native_colbreak;
 pub use self::columns::native_columns;
 pub(super) use self::grid::extract_tracks;
 pub use self::grid::native_grid;
+pub(crate) use self::grid::{
+    extract_gutters, grid_cell_fields, grid_child, grid_field, grid_fields, grid_spec,
+    named_value_span,
+    GRID_PROPERTIES,
+};
 pub use self::hide::native_hide;
 pub use self::measure::extract_measure_body;
 pub use self::measure::native_layout;

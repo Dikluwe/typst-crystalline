@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/identity.md
-//! @prompt-hash c700d1d1
+//! @prompt-hash d35b6a6f
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -242,7 +242,7 @@ impl Content {
             Self::Grid(_) => "grid",
             Self::GridHeader(_) => "grid.header",
             Self::GridFooter(_) => "grid.footer",
-            Self::GridCell(_) => "grid.cell",
+            Self::GridCell(_) => "cell",
             Self::GridHLine(_) => "grid.hline",
             Self::GridVLine(_) => "grid.vline",
             Self::SetPage(_) => "set.page",

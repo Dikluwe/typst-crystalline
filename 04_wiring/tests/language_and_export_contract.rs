@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 34c7b7c0
+//! @prompt-hash 9fe02f52
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -743,7 +743,8 @@ fn p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved() {
             stderr: String::new(),
         },
     );
-    let payload = "\"(\\n  grid.cell,\\n  grid.header,\\n  grid.footer,\\n  grid.hline,\\n  grid.vline,\\n  table.cell,\\n  table.header,\\n  table.footer,\\n  table.hline,\\n  table.vline,\\n)\"";
+    // Cells show as the language shows them; the other carriers keep their names.
+    let payload = "\"(\\n  cell(body: [x]),\\n  grid.header,\\n  grid.footer,\\n  grid.hline,\\n  grid.vline,\\n  cell(body: [x]),\\n  table.header,\\n  table.footer,\\n  table.hline,\\n  table.vline,\\n)\"";
     for expression in [
         "repr((grid.cell([x]),grid.header(grid.cell([x])),grid.footer(grid.cell([x])),grid.hline(),grid.vline(),table.cell([x]),table.header(table.cell([x])),table.footer(table.cell([x])),table.hline(),table.vline()))",
         "repr((grid.cell.with()([x]),grid.header.with()(grid.cell([x])),grid.footer.with()(grid.cell([x])),grid.hline.with()(),grid.vline.with()(),table.cell.with()([x]),table.header.with()(table.cell([x])),table.footer.with()(table.cell([x])),table.hline.with()(),table.vline.with()()))",
@@ -1613,17 +1614,15 @@ fn set_admission_keeps_every_element_settable() {
     }
     // Valid declarations without effect warn and never fail.
     for (source, name) in [
-        ("#set grid(fill: red)", "grid.fill"),
         ("#set underline(offset: 1pt)", "underline.offset"),
         ("#set table(fill: gradient.linear(red, blue))", "table.fill"),
-        ("#set table(gutter: 3pt)", "table.gutter"),
         ("#set block(fill: gradient.linear(red, blue))", "block.fill"),
         ("#set outline(depth: 2)", "outline.depth"),
         ("#set heading(outlined: false)", "heading.outlined"),
         ("#set figure(scope: \"parent\")", "figure.scope"),
         ("#set document(date: auto)", "document.date"),
         ("#set underline(stroke: 1pt)", "underline.stroke"),
-        ("#set grid.cell(fill: red)", "grid.cell.fill"),
+        ("#set grid.cell(breakable: false)", "grid.cell.breakable"),
     ] {
         let (output, _) = set_svg("warn", &format!("{source}\nok"));
         assert!(output.success(), "{source}: {output:#?}");
@@ -2387,4 +2386,219 @@ fn lists_keep_each_effect_once() {
             "{source}: {output:#?}"
         );
     }
+}
+
+// Expectations: approved grid and table package.
+
+/// Text baselines, in emission order.
+fn text_ys(body: &str) -> Vec<f64> {
+    let (output, svg) = set_svg("text-y", body);
+    assert!(output.success(), "{body}: {output:#?}");
+    let mut shifts: Vec<f64> = Vec::new();
+    let mut found = Vec::new();
+    for tag in svg.split('<') {
+        if tag.starts_with("/g>") {
+            shifts.pop();
+        } else if tag.starts_with("g ") || tag.starts_with("g>") {
+            let numbers: Vec<f64> = tag
+                .split_once('(')
+                .and_then(|(_, rest)| rest.split_once(')'))
+                .map(|(inner, _)| {
+                    inner.split([' ', ',']).filter_map(|n| n.parse().ok()).collect()
+                })
+                .unwrap_or_default();
+            let y = match numbers.len() {
+                2 => numbers[1],
+                6 => numbers[5],
+                _ => 0.0,
+            };
+            shifts.push(y);
+            if tag.contains("matrix(1 0 0 -1") {
+                found.push(shifts.iter().sum());
+            }
+        }
+    }
+    found
+}
+
+#[test]
+fn grid_cells_keep_their_lines() {
+    // A broken cell keeps the first baseline of a single line and the
+    // advance of a block, in any column.
+    let block = text_ys("#block[b #linebreak() c]");
+    for body in [
+        "#grid(columns: (auto, 1fr), [a], [b #linebreak() c])",
+        "#grid(columns: 2, [b #linebreak() c], [a])",
+        "#table(columns: 2, inset: 0pt, stroke: none, [a], [b #linebreak() c])",
+    ] {
+        let ys = text_ys(body);
+        let single = text_ys("#grid(columns: 2, [a], [b])")[0];
+        assert!(ys.iter().all(|y| *y >= single - 0.01), "{body}: {ys:?}");
+        let mut lines: Vec<f64> = ys.clone();
+        lines.sort_by(f64::total_cmp);
+        lines.dedup_by(|a, b| (*a - *b).abs() < 0.01);
+        assert!((lines[0] - single).abs() < 0.01, "{body}: {ys:?}");
+        assert!(
+            (lines[1] - lines[0] - (block[1] - block[0])).abs() < 0.01,
+            "{body}: {ys:?} {block:?}"
+        );
+    }
+    // A trailing space that does not fit hangs before an explicit break.
+    assert_eq!(
+        text_ys("#block(width: 5.1pt)[a #linebreak() b]"),
+        text_ys("#block[a #linebreak() b]")
+    );
+    // A heading in a cell starts at the cell's top, as in a block.
+    assert!(
+        (text_ys("#grid([= H], [x])")[0] - text_ys("#block[= H]")[0]).abs() < 0.01,
+        "heading in a cell"
+    );
+}
+
+#[test]
+fn grid_children_are_content() {
+    // Expected values measured on the pinned reference.
+    for (expression, expected) in [
+        (r#"grid("a").children"#, "(cell(body: [a]),)"),
+        (
+            "grid(columns: 2, [a])",
+            r"grid(\n  columns: (auto, auto),\n  children: (cell(body: [a]),),\n)",
+        ),
+        ("table([a], [b])", "table(children: (cell(body: [a]), cell(body: [b])))"),
+        (
+            "grid(gutter: 2pt, [a]).fields().keys()",
+            r#"("column-gutter", "row-gutter", "children")"#,
+        ),
+        ("grid(stroke: (x: 1pt), [a]).stroke", "(left: 1pt, right: 1pt)"),
+        ("table(inset: (x: 3pt), [a]).inset", "(left: 0% + 3pt, right: 0% + 3pt)"),
+    ] {
+        calc_repr(expression, expected);
+    }
+    calc_error("grid(1)", "expected content, found integer", Some(5));
+    calc_error("table([a], 2.5)", "expected content, found float", Some(11));
+    calc_error("grid(foo: 1)", "unexpected argument: foo", Some(10));
+    // Text and none are cells; text is drawn.
+    set_equals(
+        "grid-str",
+        r#"#grid(columns: 2, "a", "b", "c")"#,
+        "#grid(columns: 2)[a][b][c]",
+    );
+    set_equals("grid-none", "#grid(columns: 2, none, [b])", "#grid(columns: 2)[][b]");
+}
+
+#[test]
+fn grid_gutters_sit_between_tracks() {
+    for (gutter, explicit) in [
+        (
+            "#grid(columns: (10pt, 10pt), column-gutter: 5pt, fill: red)[a][b]",
+            "#grid(columns: (10pt, 5pt, 10pt), fill: (red, none, red))[a][][b]",
+        ),
+        (
+            "#grid(rows: (10pt, 10pt), row-gutter: 5pt, fill: red)[a][b]",
+            "#grid(rows: (10pt, 5pt, 10pt), fill: (x, y) => if y != 1 {red})[a][][b]",
+        ),
+        (
+            "#grid(columns: (10pt, 10pt, 10pt), gutter: (2pt, 6pt), fill: red)[a][b][c]",
+            "#grid(columns: (10pt, 2pt, 10pt, 6pt, 10pt), fill: (red, none))[a][][b][][c]",
+        ),
+    ] {
+        set_equals("grid-gutter", gutter, explicit);
+    }
+    set_equals(
+        "grid-gutter-both",
+        "#grid(columns: 2, gutter: 5pt)[a][b][c][d]",
+        "#grid(columns: 2, column-gutter: 5pt, row-gutter: 5pt)[a][b][c][d]",
+    );
+    set_differs(
+        "table-gutter",
+        "#table(columns: 2, gutter: 5pt)[a][b]",
+        "#table(columns: 2)[a][b]",
+    );
+    // A span covers the gutters inside it.
+    set_equals(
+        "grid-span-gutter",
+        "#grid(columns: (10pt, 10pt), column-gutter: 5pt, grid.cell(colspan: 2, fill: red)[])",
+        "#grid(columns: (25pt), fill: red)[]",
+    );
+}
+
+#[test]
+fn grid_values_apply_per_cell() {
+    let cells = "[a][b][c][d]";
+    let fixed = "grid.cell(fill: red)[a], grid.cell(fill: blue)[b], grid.cell(fill: red)[c], grid.cell(fill: blue)[d]";
+    set_equals(
+        "grid-fill-array",
+        &format!("#grid(columns: 2, fill: (red, blue)){cells}"),
+        &format!("#grid(columns: 2, {fixed})"),
+    );
+    set_equals(
+        "grid-fill-func",
+        &format!(
+            "#grid(columns: 2, fill: (x, y) => if x == 0 {{red}} else {{blue}}){cells}"
+        ),
+        &format!("#grid(columns: 2, {fixed})"),
+    );
+    set_equals(
+        "grid-align-func",
+        "#grid(columns: (40pt, 40pt), align: (x, y) => if x == 0 {right} else {left})[a][b]",
+        "#grid(columns: (40pt, 40pt), grid.cell(align: right)[a], grid.cell(align: left)[b])",
+    );
+    set_equals(
+        "table-fill-func",
+        "#table(columns: 2, fill: (x, y) => if y == 0 {gray})[a][b][c][d]",
+        "#table(columns: 2, table.cell(fill: gray)[a], table.cell(fill: gray)[b], [c], [d])",
+    );
+    set_equals(
+        "table-inset-dict",
+        "#table(inset: (x: 10pt))[a]",
+        "#table(inset: (x: 10pt, y: 5pt))[a]",
+    );
+    // A cell's own value wins, and free slots are painted.
+    set_equals(
+        "grid-fill-own",
+        "#grid(columns: 2, fill: (red, blue), grid.cell(fill: green)[a], [b], [c])",
+        "#grid(columns: 2, grid.cell(fill: green)[a], grid.cell(fill: blue)[b], grid.cell(fill: red)[c], grid.cell(fill: blue)[])",
+    );
+}
+
+#[test]
+fn grid_takes_declarations() {
+    for (declared, explicit) in [
+        ("#set grid(gutter: 8pt)\n#grid(columns: 2, fill: red)[a][b][c][d]", "#grid(columns: 2, gutter: 8pt, fill: red)[a][b][c][d]"),
+        ("#set grid(fill: red, inset: 4pt)\n#grid(columns: 2)[a][b]", "#grid(columns: 2, fill: red, inset: 4pt)[a][b]"),
+        ("#set grid(columns: 3)\n#grid[a][b][c]", "#grid(columns: 3)[a][b][c]"),
+        ("#set grid(stroke: 1pt)\n#grid(columns: 2, stroke: none)[a][b]", "#grid(columns: 2)[a][b]"),
+        ("#set grid.cell(fill: red)\n#grid(columns: 2)[a][b]", "#grid(columns: 2, fill: red)[a][b]"),
+        ("#set table(gutter: 5pt)\n#table(columns: 2)[a][b][c][d]", "#table(columns: 2, gutter: 5pt)[a][b][c][d]"),
+        (
+            "#set table(fill: (x, y) => if calc.even(y) {silver})\n#table(columns: 2)[a][b][c][d]",
+            "#table(columns: 2, fill: (x, y) => if calc.even(y) {silver})[a][b][c][d]",
+        ),
+    ] {
+        set_equals("grid-set", declared, explicit);
+    }
+}
+
+#[test]
+fn grid_lines_and_positions_follow_the_call() {
+    set_equals(
+        "grid-vline-x",
+        "#grid(columns: 2, grid.vline(x: 1), [a], [b])",
+        "#grid(columns: 2, [a], grid.vline(), [b])",
+    );
+    set_equals(
+        "grid-hline-y",
+        "#grid(columns: 2, grid.hline(y: 1), [a], [b], [c], [d])",
+        "#grid(columns: 2, [a], [b], grid.hline(), [c], [d])",
+    );
+    set_equals(
+        "grid-cell-xy",
+        "#grid(columns: 2, grid.cell(x: 1, y: 1)[a], [b])",
+        "#grid(columns: 2, [b], [], [], [a])",
+    );
+    set_equals(
+        "grid-cell-skip",
+        "#grid(columns: 2, [b], [c], grid.cell(x: 0, y: 2)[a])",
+        "#grid(columns: 2, [b], [c], [], [], [a])",
+    );
 }

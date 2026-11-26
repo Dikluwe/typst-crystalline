@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/placement.md
-//! @prompt-hash ad5c5bb1
+//! @prompt-hash a7a3bb08
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -1351,7 +1351,7 @@ mod grid_align_regressions {
     use comemo::Track;
 
     fn grid(cols: usize) -> Content {
-        Content::Grid(std::sync::Arc::new(GridElem {
+        Content::Grid(std::sync::Arc::new(GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Fixed(50.0); cols],
             rows: vec![TrackSizing::Fixed(25.0)],

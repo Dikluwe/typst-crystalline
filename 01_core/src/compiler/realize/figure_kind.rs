@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/figure_kind.md
-//! @prompt-hash 71183b23
+//! @prompt-hash 3e0a64b4
 //! @layer L1
 //! @updated 2026-10-19
 
@@ -644,7 +644,7 @@ mod tests {
         FigureKind::Element(Func::native("image", crate::compiler::stdlib::native_image))
     }
     fn grid() -> GridElem {
-        GridElem {
+        GridElem { spec: None,
             columns: vec![],
             rows: vec![],
             cells: vec![Content::raw("raw", None, false)],

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction/tables.md
-//! @prompt-hash 1a285334
+//! @prompt-hash 1225da68
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -16,7 +16,7 @@ impl Content {
         rows: Vec<TrackSizing>,
         children: Vec<Content>,
     ) -> Self {
-        Self::Table(Arc::new(TableElem { omitted: 0,
+        Self::Table(Arc::new(TableElem { omitted: 0, spec: None,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,
@@ -47,7 +47,7 @@ impl Content {
         children: Vec<Content>,
         caption: Option<Content>,
     ) -> Self {
-        Self::Table(Arc::new(TableElem { omitted: 0,
+        Self::Table(Arc::new(TableElem { omitted: 0, spec: None,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             resolved: None,

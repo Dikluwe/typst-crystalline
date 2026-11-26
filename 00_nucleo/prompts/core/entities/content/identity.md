@@ -1,5 +1,5 @@
 # L0 — entities/content/identity
-Hash do Código: 155eec25
+Hash do Código: eeb660ce
 
 
 **Layer:** L1
@@ -212,3 +212,9 @@ Correct only MathVec and MathCases diagnostic elem_name entries to vec and cases
 This supersedes only conflicting lookup/name clauses above; continuous
 ADR-0127 parity correction without public Rust signature/entity/trait, phase
 or default changes. Tests first, RED→GREEN, existing suites and full lineage/lint.
+
+## Grid and table package
+
+A grid cell is named `cell`, as in the language.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

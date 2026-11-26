@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table.md
-//! @prompt-hash ade862fb
+//! @prompt-hash e19cf0b8
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -177,7 +177,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         cells: &visual_children,
         hlines: &e.hlines,
         vlines: &e.vlines,
-        gutter: None,
+        column_gutter: e.spec.as_ref().map_or(&[], |spec| spec.column_gutter.as_slice()),
+        row_gutter: e.spec.as_ref().map_or(&[], |spec| spec.row_gutter.as_slice()),
         align,
         table_alignment,
         inset: e.inset,

@@ -1,5 +1,5 @@
 # L0 — introspect/materialize_time
-Hash do Código: 02680360
+Hash do Código: 49b11011
 
 
 
@@ -286,3 +286,9 @@ carrier's internal preservation correction; raw omission remains absent.
 A list container keeps its kind, named arguments and labels.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+Grid and table literals carry the declared surface unchanged.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

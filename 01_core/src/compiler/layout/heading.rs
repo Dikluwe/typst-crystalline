@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/heading.md
-//! @prompt-hash 13be2757
+//! @prompt-hash 221dbc15
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -84,9 +84,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .unwrap_or(layouter.prev_line_baseline + prev_descent);
         layouter.regions.current.cursor_y = Pt(prev_bottom + gap) + top;
     } else {
-        let origin = layouter
-            .block_place_region
-            .map_or(layouter.page_config.margin.top, |region| region.y.0);
+        let origin = layouter.block_place_region.map_or(
+            if layouter.in_cell_frame {
+                layouter.sub_frame_top_y
+            } else {
+                layouter.page_config.margin.top
+            },
+            |region| region.y.0,
+        );
         layouter.regions.current.cursor_y = Pt(origin) + top;
     }
     // **P1063/P1119** — Limpar flag de parbreak antes de layout_content para evitar

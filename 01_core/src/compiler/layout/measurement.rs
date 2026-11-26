@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash fa1d8384
+//! @prompt-hash d4f12ebc
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -1322,7 +1322,7 @@ mod issue_8780_tests {
                 l.regions.current.line_start_x = Pt::ZERO;
                 l.regions.current.cursor_x = Pt::ZERO;
                 l.regions.current.cursor_y = Pt::ZERO;
-                let grid = Content::Grid(Arc::new(GridElem {
+                let grid = Content::Grid(Arc::new(GridElem { spec: None,
                     source_order: None,
                     columns: vec![TrackSizing::Auto],
                     rows: vec![TrackSizing::Auto],

@@ -1,5 +1,5 @@
 # L0 — compiler/realize/mod
-Hash do Código: e6b1c03d
+Hash do Código: 33ecf316
 
 **Layer:** L1.
 **Exclusive productive consumer:** `01_core/src/compiler/realize/mod.rs`.
@@ -546,3 +546,9 @@ by `compiler/realize/lists.md`.
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
 
 A contextual contribution in the paged target is grouped and prepared the same way.
+
+## Grid and table package
+
+Own the `grid` preparation module.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

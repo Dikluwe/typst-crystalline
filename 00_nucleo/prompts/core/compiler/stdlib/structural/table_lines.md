@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_lines
-Hash do Código: b09ae5f8
+Hash do Código: daeabb5c
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/table_lines.rs`
@@ -36,3 +36,9 @@ remains scalar. Keep all existing semantic assertions; update only their
 representation as necessary. Producers preserve full Length; layout consumers
 resolve against effective font size before scalar geometry. Repr preserves
 absolute/em components. RED→GREEN, build/tests and scoped lineage are required.
+
+## Grid and table package
+
+`hline(y:)` and `vline(x:)` record their track; without it the grid's automatic position applies.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

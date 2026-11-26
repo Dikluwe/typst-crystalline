@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash a1b35d70
+//! @prompt-hash 1404a0e6
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -1222,6 +1222,50 @@ pub(crate) fn eval_set_rule(
     if native_target.is_some_and(|call| {
         std::ptr::fn_addr_eq(
             call,
+            crate::compiler::stdlib::native_grid_cell as fn(_, _, _, _) -> _,
+        )
+    }) {
+        // Declared cell properties apply when the grid is inserted.
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("grid.cell", &args)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            match arg.name.as_deref() {
+                Some(name @ ("fill" | "align" | "inset" | "stroke")) => {
+                    styles = styles.push_custom(format!("grid.cell.{name}"), arg.value);
+                }
+                _ => warn_no_effect(engine, "grid.cell", &arg, args.span),
+            }
+        }
+        *engine.styles = styles;
+        return Ok(Value::None);
+    }
+
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_grid as fn(_, _, _, _) -> _,
+        )
+    }) {
+        // Declared grid properties apply when the grid is inserted.
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        schema::check("grid", &args)?;
+        let mut styles = engine.styles.clone();
+        for arg in args.occurrence_sequence() {
+            match arg.name.as_deref() {
+                Some(name) if crate::compiler::stdlib::GRID_PROPERTIES.contains(&name) => {
+                    styles = styles.push_custom(format!("grid.{name}"), arg.value);
+                }
+                _ => warn_no_effect(engine, "grid", &arg, args.span),
+            }
+        }
+        *engine.styles = styles;
+        return Ok(Value::None);
+    }
+
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
             crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _,
         )
     }) {
@@ -1243,6 +1287,15 @@ pub(crate) fn eval_set_rule(
                         )]);
                     }
                     styles = styles.push_custom("table.numbering", arg.value);
+                }
+                Some(name @ ("gutter" | "column-gutter" | "row-gutter")) => {
+                    crate::compiler::stdlib::extract_gutters(&arg.value, arg.value_span)?;
+                    styles = styles.push_custom(format!("table.{name}"), arg.value);
+                }
+                Some(name @ ("fill" | "stroke" | "inset"))
+                    if matches!(arg.value, Value::Array(_) | Value::Func(_)) =>
+                {
+                    styles = styles.push_custom(format!("table.{name}"), arg.value);
                 }
                 Some(name @ ("columns" | "rows" | "fill" | "stroke" | "inset")) => {
                     let key = format!("table.{name}");

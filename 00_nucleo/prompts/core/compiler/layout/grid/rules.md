@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/rules
-Hash do Código: f2c94edf
+Hash do Código: 8ee5faa5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:96c5b3ef9be3d171d3ca4c57f30fe826068c568fc17437f83b2b9b5d7372aeff
@@ -19,3 +19,9 @@ Layer L1. Sole productive consumer: `01_core/src/compiler/layout/grid/rules.rs`.
 L1 tests, build and crystalline-lint must pass. Structural separation proves no performance gain.
 
 Apply the pinned nucleus. Ratification supersedes older clauses awaiting approval or requiring declarative Paint/Stroke inside Shape only within the approved contract. Preserve all other existing behavior. L0 comes first, followed by RED→GREEN; explicitly migrate fixtures/consumers without a total From<Paint> conversion, PartialEq on carriers or a solid fallback merely to obtain a green build. Do not raise the old limit or move layout into L3. Validate fill/stroke transport, resources, clipping, affine Parent, native targets, Solid/Gradient controls, page semantics and the complete suite/build/doc/fmt/lineage. Prepared transport, native target integration and verification (historical T1c/T2/T3) are complete only together; a broken or partial intermediate state does not certify production. The remaining historical T4 scope and publication remain outside this package.
+
+## Grid and table package
+
+`hline(y:)` and `vline(x:)` place the line at that track; past the last track, at its far edge.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/tracks.md
-//! @prompt-hash ae858470
+//! @prompt-hash dc8ebfbd
 //! @layer L1
 //! @updated 2026-11-01
 
@@ -20,6 +20,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             !note
         });
         let checkpoint = note.then(|| self.capture_flow_suffix_checkpoint());
+        self.cell_frame_request = true;
         let product = self.layout_sub_frame(content, region);
         if let Some(checkpoint) = checkpoint {
             let results = (
@@ -458,9 +459,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         if col_idx >= num_cols {
                             break;
                         }
-                        let cell_w = resolved_widths[col_idx..col_idx + colspan]
-                            .iter()
-                            .sum::<f64>();
+                        // A span covers the gutters between its columns.
+                        let last = col_idx + colspan.max(1) - 1;
+                        let cell_w = col_starts[last] + resolved_widths[last] - col_starts[col_idx];
                         let cell_x = col_starts[col_idx];
 
                         // P1050 — considerar inset no cálculo da altura de linha da célula
@@ -1010,7 +1011,7 @@ mod v16_d_boundaries {
     fn v16_d_nested_table_is_a_measurement_projection_barrier() {
         use crate::entities::elements::table::{TableElem, TableGridResolved};
         let child = prepared(Content::text("Visible"));
-        let table = Arc::new(TableElem { omitted: 0,
+        let table = Arc::new(TableElem { spec: None, omitted: 0,
             items: None,
             source_span: crate::entities::span::Span::detached(),
             rows_explicit: false,

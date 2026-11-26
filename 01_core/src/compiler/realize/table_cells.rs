@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/table_cells.md
-//! @prompt-hash f6b0d275
+//! @prompt-hash 234569ef
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -21,6 +21,10 @@ pub(super) fn needs_preparation(content: &Content) -> bool {
             Content::Table(e) if e.resolved.is_none() => {
                 needs = true;
                 return Ok(Some(node.clone()));
+            }
+            Content::Grid(e) if super::grid::needs_preparation(e) => {
+                needs = true;
+                return Ok(None);
             }
             Content::TableCell(e) if e.stage() != Some(TableCellStage::Complete) => {
                 needs = true;
@@ -478,6 +482,7 @@ fn walk_node(
             Content::styled(result?, styles.clone())
         }
         Content::Table(e) if e.resolved.is_none() => table(node, ctx, engine)?,
+        Content::Grid(e) if super::grid::needs_preparation(e) => table(node, ctx, engine)?,
         Content::Located(e) if matches!(&e.body,Content::Table(t) if t.resolved.is_none()) => {
             table(node, ctx, engine)?
         }
@@ -1250,6 +1255,19 @@ fn table(
                 super::page_running::map_body(&captured, |body| walk(body, ctx, engine))
             }
             Content::Table(e) if e.resolved.is_none()=>Ok(Some(prepare_table(e,ctx,engine)?)),
+            // A grid is prepared after its own show rules, like a table.
+            Content::Grid(e) if super::grid::needs_preparation(e) => {
+                let prepared = super::grid::prepare(e, ctx, engine)?;
+                prepared
+                    .map_content(&mut |cell| {
+                        if matches!(cell, Content::Grid(_)) {
+                            Ok(None)
+                        } else {
+                            walk_node(cell, ctx, engine)
+                        }
+                    })
+                    .map(Some)
+            }
             Content::Located(e) if matches!(&e.body,Content::Table(t) if t.resolved.is_none())=>{
                 let Content::Table(t)=&e.body else{unreachable!()};
                 Ok(Some(Content::Located(Arc::new(LocatedContent {location:e.location,body:prepare_table(t,ctx,engine)?}))))
@@ -1343,6 +1361,21 @@ fn prepare_table(
         }
     };
     let num_rows = placed.iter().map(|p| p.row + p.rowspan).max().unwrap_or(0);
+    // Arrays and functions given or declared for the table apply per cell.
+    let celled: Vec<(&str, Value)> = ["fill", "stroke", "align", "inset"]
+        .into_iter()
+        .filter_map(|name| {
+            e.spec
+                .as_ref()
+                .and_then(|spec| spec.named(name).cloned())
+                .or_else(|| engine.styles.custom(&format!("table.{name}")).cloned())
+                .filter(|value| {
+                    matches!(value, Value::Func(_))
+                        || (name != "align" && matches!(value, Value::Array(_)))
+                })
+                .map(|value| (name, value))
+        })
+        .collect();
     let mut output = Vec::with_capacity(placed.len());
     for p in placed.drain(..) {
         let mut cell = match &p.body {
@@ -1392,6 +1425,38 @@ fn prepare_table(
         } else {
             e.stroke.clone()
         };
+        let mut fill = fill;
+        let mut stroke = stroke;
+        let mut own_align = properties.align;
+        let mut own_inset = properties.inset;
+        for (name, value) in &celled {
+            let value = super::grid::cell_value(value, p.col, p.row, ctx, engine)?;
+            match *name {
+                "fill" if properties.presence.fill != CellFieldPresence::Explicit => {
+                    fill = match value {
+                        Value::Color(color) => Some(color),
+                        _ => None,
+                    };
+                }
+                "stroke" if !properties.presence.stroke => {
+                    stroke = match value {
+                        Value::None | Value::Auto => None,
+                        value => Some(crate::compiler::stdlib::extract_stroke(
+                            &value, "table", "stroke",
+                        )?),
+                    };
+                }
+                "align" if own_align.is_none() => {
+                    if let Value::Align(align) = value {
+                        own_align = Some(align);
+                    }
+                }
+                "inset" if own_inset.is_none() => {
+                    own_inset = TableCellProperties::style_inset(&value);
+                }
+                _ => {}
+            }
+        }
         let breakable = properties.breakable.unwrap_or_else(|| {
             (p.row..p.row + p.rowspan)
                 .any(|row| matches!(e.rows.get(row), None | Some(TrackSizing::Auto)))
@@ -1406,13 +1471,12 @@ fn prepare_table(
             fill,
             stroke,
             align: fold_align(
-                properties.align,
+                own_align,
                 table_alignment.and_then(|align| {
                     crate::compiler::stdlib::table_alignment_at(align, p.col)
                 }),
             ),
-            inset: properties
-                .inset
+            inset: own_inset
                 .map(|s| {
                     crate::entities::sides::Sides::new(
                         s.left.unwrap_or(e.inset.left),
@@ -1440,6 +1504,25 @@ fn prepare_table(
         output.push(Content::TableCell(Arc::new(cell)));
     }
     let mut t = e.clone();
+    // Gutters declared by `set table` apply where the call gives none.
+    let mut spec = t.spec.as_deref().cloned().unwrap_or_default();
+    let given = |name: &str| spec.named(name).is_some();
+    let declared = |name: &str| engine.styles.custom(&format!("table.{name}")).cloned();
+    let lexical_both = given("gutter");
+    let both = declared("gutter");
+    let column = (!given("column-gutter") && !lexical_both)
+        .then(|| declared("column-gutter").or_else(|| both.clone()))
+        .flatten();
+    let row = (!given("row-gutter") && !lexical_both)
+        .then(|| declared("row-gutter").or(both))
+        .flatten();
+    if let Some(value) = column {
+        spec.column_gutter = crate::compiler::stdlib::extract_gutters(&value, e.source_span)?;
+    }
+    if let Some(value) = row {
+        spec.row_gutter = crate::compiler::stdlib::extract_gutters(&value, e.source_span)?;
+    }
+    t.spec = Some(Arc::new(spec));
     t.resolved = Some(Arc::new(TableGridResolved {
         header_groups,
         cells: output,

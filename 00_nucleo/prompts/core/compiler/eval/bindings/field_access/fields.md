@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: b6e7820a
+Hash do Código: 8470c883
 
 
 
@@ -545,3 +545,9 @@ flow covers raster admission and the measured internal WebP color correction.
 PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
 
 Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+## Grid and table package
+
+`grid`, `table` and grid cells are presence content: an unset declared field is known as unset, not undeclared.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

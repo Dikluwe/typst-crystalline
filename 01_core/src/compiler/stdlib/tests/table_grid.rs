@@ -14,20 +14,24 @@ fn p224_native_grid_aceita_gutter() {
     args.named.insert("gutter".into(), Value::Length(Length::pt(5.0)));
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Grid(e)) = r {
-        assert_eq!(e.gutter, Some(Length::pt(5.0)));
+        let spec = e.spec.as_ref().expect("declared surface");
+        let gutter = crate::entities::rel::Rel { rel: 0.0, abs: Length::pt(5.0) };
+        assert_eq!(spec.column_gutter, vec![gutter]);
+        assert_eq!(spec.row_gutter, vec![gutter]);
     } else {
         panic!("esperado Content::Grid");
     }
 }
 
 #[test]
-fn p224_native_grid_gutter_negativo_rejeita() {
+fn p224_native_grid_gutter_negativo_aceita() {
+    // A negative gutter is the author's explicit request, as in the language.
     null_ctx!(ctx);
     use crate::entities::layout_types::Length;
     let mut args = p(vec![Value::Content(Content::text("a"))]);
     args.named.insert("gutter".into(), Value::Length(Length::pt(-5.0)));
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
-    assert!(r.is_err(), "gutter negativo deve falhar");
+    assert!(r.is_ok(), "{r:?}");
 }
 
 #[test]

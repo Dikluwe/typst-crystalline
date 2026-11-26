@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash 19e1cdd6
+//! @prompt-hash 70434a0e
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -292,6 +292,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) text_horizontal_offset: Pt,
     pub(super) superscript_source_break: bool,
     pub(super) literal_script_break_pending: bool,
+    /// Page and baseline of a line just closed by a trailing space that did
+    /// not fit. A following explicit break ends that same line.
+    pub(super) space_wrap_line: Option<(usize, f64)>,
     /// Primeiro idioma efetivo, inclusive sem glifos emitidos.
     document_language: Option<crate::entities::lang::Lang>,
     /// Cadeia de estilos activa — source-of-truth do estilo (Passo 100,
@@ -371,6 +374,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) relative_region_size: Option<(f64, f64)>,
     /// Vertical origin expected when recomposing this sub-frame into its parent.
     pub(super) sub_frame_origin_y: f64,
+    /// Local y of the sub-frame's top edge in its baseline convention.
+    pub(super) sub_frame_top_y: f64,
+    /// Set by a grid cell for the sub-frame it opens next.
+    pub(super) cell_frame_request: bool,
+    /// The active sub-frame is a grid cell's body.
+    pub(super) in_cell_frame: bool,
+    /// Gutter after each row of the grid being laid out, in points.
+    pub(super) grid_row_gaps: Vec<f64>,
     /// Physical flow end and the prepared cursor that certifies it.
     pub(super) flow_placement_end: Option<(f64, f64)>,
     /// Logical origin and occupied width of the active flow scope.
@@ -1010,6 +1021,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             text_horizontal_offset: Pt(0.0),
             superscript_source_break: false,
             literal_script_break_pending: false,
+            space_wrap_line: None,
             document_language: None,
             chain: StyleChain::default_chain(),
             text_tracking_state: text_tracking::State::default(),
@@ -1043,6 +1055,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             is_sub_frame: false,
             relative_region_size: None,
             sub_frame_origin_y: 0.0,
+            sub_frame_top_y: 0.0,
+            cell_frame_request: false,
+            in_cell_frame: false,
+            grid_row_gaps: Vec::new(),
             flow_placement_end: None,
             flow_frame_extent: (0.0, 0.0),
             last_sub_frame_flow_width: 0.0,

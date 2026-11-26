@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash ba3aa532
+//! @prompt-hash 11dd7892
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -623,7 +623,10 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::TermItem(_)
-        | Content::Terms(_) => true,
+        | Content::Terms(_)
+        | Content::Grid(_)
+        | Content::Table(_)
+        | Content::GridCell(_) => true,
         Content::Transform(e) => !matches!(
             e.operation,
             crate::entities::elements::transform::TransformOperation::Matrix(_)
@@ -693,10 +696,8 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::FigureCaption(..)
         | Content::Shape(..)
         | Content::Curve(..)
-        | Content::Grid(..)
         | Content::GridHeader(..)
         | Content::GridFooter(..)
-        | Content::GridCell(..)
         | Content::GridHLine(..)
         | Content::GridVLine(..)
         | Content::SetPage(..)
@@ -713,7 +714,6 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::SmallCaps { .. }
         | Content::Pad(..)
         | Content::Columns(..)
-        | Content::Table(..)
         | Content::TableCell(..)
         | Content::TableHeader(..)
         | Content::TableFooter(..)

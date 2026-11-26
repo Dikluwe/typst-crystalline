@@ -5955,7 +5955,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
     };
 
     let grid =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![
                 crate::entities::layout_types::TrackSizing::Fixed(100.0),
@@ -9302,7 +9302,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
@@ -9474,7 +9474,7 @@ mod tests_show_rule_integration {
             Content::text("D"),
         ];
         let with_stroke = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9512,7 +9512,7 @@ mod tests_show_rule_integration {
             .map(|i| Content::text(i.to_string()))
             .collect();
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(20.0); num_cols],
                 rows: vec![TrackSizing::Fixed(15.0); num_rows],
@@ -9581,7 +9581,7 @@ mod tests_show_rule_integration {
             breakable: None,
         }));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
@@ -9682,7 +9682,7 @@ mod tests_show_rule_integration {
             Content::text("D"),
         ];
         let with_stroke = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9745,7 +9745,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g_no_stroke = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9787,7 +9787,7 @@ mod tests_show_rule_integration {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -9856,7 +9856,7 @@ mod tests_show_rule_integration {
             Content::text("D"),
         ];
         let with_fill = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9900,7 +9900,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g_no_fill = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9944,7 +9944,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -9995,7 +9995,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10050,7 +10050,7 @@ mod tests_show_rule_integration {
     fn p228_table_fill_delegate_paridade_grid() {
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -10130,7 +10130,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10180,7 +10180,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10240,7 +10240,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10300,7 +10300,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10340,7 +10340,7 @@ mod tests_show_rule_integration {
 
         let cell_raw = Content::text("raw"); // Content raw sem stroke/fill
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10410,7 +10410,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -10475,7 +10475,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -11669,7 +11669,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -11753,7 +11753,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -11845,7 +11845,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -11945,7 +11945,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -12179,7 +12179,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13030,7 +13030,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13121,7 +13121,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13185,7 +13185,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13285,7 +13285,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13371,7 +13371,7 @@ mod tests_show_rule_integration {
             },
         ));
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -13479,7 +13479,7 @@ mod tests_show_rule_integration {
             ))
         };
         let t = Content::Table(std::sync::Arc::new(
-            crate::entities::elements::table::TableElem { omitted: 0,
+            crate::entities::elements::table::TableElem { spec: None, omitted: 0,
                 items: None,
                 source_span: crate::entities::span::Span::detached(),
                 resolved: None,
@@ -14137,7 +14137,7 @@ mod tests_show_rule_integration {
             Content::text("p232plain"),
         );
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -14188,7 +14188,7 @@ mod tests_show_rule_integration {
             Content::text("p232herda"),
         );
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -14237,7 +14237,7 @@ mod tests_show_rule_integration {
             Content::text("p232override"),
         );
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -14286,7 +14286,7 @@ mod tests_show_rule_integration {
             Content::text("p232full"),
         );
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0)],
                 rows: vec![],
@@ -14322,7 +14322,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Auto],
                 rows: vec![],
@@ -14351,7 +14351,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
                 rows: vec![],
@@ -14380,7 +14380,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![
                     TrackSizing::Auto,
@@ -14413,7 +14413,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![
                     TrackSizing::Fixed(50.0),
@@ -14446,7 +14446,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
                 rows: vec![],
@@ -14487,7 +14487,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
                 rows: vec![],
@@ -14544,7 +14544,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(40.0)],
@@ -14607,7 +14607,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
@@ -14670,7 +14670,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
@@ -14713,7 +14713,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(20.0)],
@@ -14751,7 +14751,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
@@ -14801,7 +14801,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
@@ -14843,7 +14843,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
                 rows: vec![],
@@ -14886,7 +14886,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(30.0)],
                 rows: vec![TrackSizing::Fixed(15.0), TrackSizing::Fixed(15.0)],
@@ -14933,7 +14933,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(60.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
@@ -14990,7 +14990,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![
                     TrackSizing::Fixed(20.0),
@@ -15058,7 +15058,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(50.0)],
@@ -15103,7 +15103,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(80.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
@@ -15146,7 +15146,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
@@ -15192,7 +15192,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
@@ -15237,7 +15237,7 @@ mod tests_show_rule_integration {
             },
         ));
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![TrackSizing::Fixed(30.0)],
@@ -15344,7 +15344,7 @@ mod tests_show_rule_integration {
 
         // Versão Grid.
         let g = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: columns.clone(),
                 rows: vec![],
@@ -18682,7 +18682,7 @@ mod p273_9_containers_estendidos {
     fn p273_9_grid_cell_save_restore_parent_bbox() {
         let cell_content = rect_shape(20.0, 10.0);
         let grid = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![],
@@ -18715,7 +18715,7 @@ mod p273_9_containers_estendidos {
     #[test]
     fn p273_9_grid_cell_lifo_restore() {
         let grid = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0)],
                 rows: vec![],
@@ -18861,7 +18861,7 @@ mod p273_9_containers_estendidos {
         // Smoke test: layout grid simples e verifica que pelo menos
         // uma FrameItem::Shape é emitida (consumption preserved).
         let grid = Content::Grid(std::sync::Arc::new(
-            crate::entities::elements::grid::GridElem {
+            crate::entities::elements::grid::GridElem { spec: None,
                 source_order: None,
                 columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
                 rows: vec![],
@@ -22288,7 +22288,7 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
 
     let margin = 28.35;
     let g =
-        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![

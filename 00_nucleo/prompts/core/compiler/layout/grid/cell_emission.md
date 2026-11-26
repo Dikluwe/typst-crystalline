@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_emission
-Hash do Código: 4786fa49
+Hash do Código: 0a0fb346
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -381,3 +381,9 @@ and later distinct-note counter2, all earlier stages and #8954/#8777. All build,
 test and generated render artifacts use only
 /dev/shm/typst-crystalline-8935-01a191de with the recorded resource limits.
 Do not claim general Table context, call/body-page, Note width or rich-float parity.
+
+## Grid and table package
+
+A row gutter follows every row but the last, and a repeated header keeps the gutter after it. With gutters every cell strokes its own outline; no edge is shared.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

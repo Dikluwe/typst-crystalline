@@ -1,5 +1,5 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: fc3443ed
+Hash do Código: 323dc156
 
 
 
@@ -895,3 +895,9 @@ rows, fill, stroke folded over the default, inset by side. Declared rows count a
 explicit. A horizontal line whose table omitted columns is placed again for the
 declared column count. Limit: a vertical line without x in such a table keeps the
 column it had.
+
+## Grid and table package
+
+Unprepared grids are prepared by `compiler/realize/grid` during the table walk. A table's fill, stroke, align and inset given or declared as arrays or functions apply per cell where the cell sets none; declared gutters apply where the call gives none.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

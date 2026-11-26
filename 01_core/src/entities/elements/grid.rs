@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/grid.md
-//! @prompt-hash ce629622
+//! @prompt-hash 520eb349
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -26,6 +26,40 @@ pub enum GridChildOrder {
     VLine(usize),
 }
 
+/// Declared surface shared by `grid` and `table`: the named arguments as
+/// written, in order, and the gutter of each track gap.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GridSpec {
+    /// Named arguments of the constructor, in source order.
+    pub named: Vec<(ecow::EcoString, crate::entities::value::Value)>,
+    /// Gutter after each column; the last entry repeats.
+    pub column_gutter: Vec<crate::entities::rel::Rel<Length>>,
+    /// Gutter after each row; the last entry repeats.
+    pub row_gutter: Vec<crate::entities::rel::Rel<Length>>,
+    /// Declarations and per-cell values have been applied.
+    pub prepared: bool,
+}
+
+impl GridSpec {
+    /// The named argument as written, if any.
+    pub fn named(&self, name: &str) -> Option<&crate::entities::value::Value> {
+        self.named.iter().rev().find(|(key, _)| key == name).map(|(_, value)| value)
+    }
+
+    /// Gutter between track `index` and the next, in points.
+    pub fn gutter_at(
+        gutters: &[crate::entities::rel::Rel<Length>],
+        index: usize,
+        font_size: f64,
+        base: f64,
+    ) -> f64 {
+        gutters.get(index).or(gutters.last()).map_or(0.0, |gutter| {
+            gutter.abs.resolve_pt(font_size)
+                + if base.is_finite() { gutter.rel * base } else { 0.0 }
+        })
+    }
+}
+
 /// Grade: `cells` distribuídas em `columns`×`rows`; `header`/`footer` opcionais;
 /// `gutter`/`align`/`inset`/`stroke`/`fill` cosméticos.
 /// **P512**: `hlines`/`vlines` são renderizadas pelo layout_grid.
@@ -44,6 +78,8 @@ pub struct GridElem {
     pub footer: Option<Content>,
     pub stroke: Option<Stroke>,
     pub fill: Option<Color>,
+    /// Declared surface; `None` for elements built outside the constructor.
+    pub spec: Option<Arc<GridSpec>>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `TrackSizing`/`Length`/
@@ -87,6 +123,7 @@ impl Element for GridElem {
             footer: self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
             stroke: self.stroke.clone(),
             fill: self.fill.clone(),
+            spec: self.spec.clone(),
         })))
     }
 
@@ -108,6 +145,7 @@ impl Element for GridElem {
             footer: self.footer.as_ref().map(|f| f.map_text(transform)),
             stroke: self.stroke.clone(),
             fill: self.fill.clone(),
+            spec: self.spec.clone(),
         }))
     }
 }
@@ -119,7 +157,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> GridElem {
-        GridElem {
+        GridElem { spec: None,
             source_order: None,
             columns: vec![],
             rows: vec![],

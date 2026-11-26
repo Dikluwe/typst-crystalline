@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/page_running.md
-//! @prompt-hash 7481d4cb
+//! @prompt-hash b46115d6
 //! @layer L1
 //! @updated 2026-10-21
 
@@ -3047,7 +3047,7 @@ mod source_plan_tests {
             Content::heading(1, Content::text("FIRST")),
             Content::heading(1, Content::text("SECOND")),
         ];
-        let grid = Content::Grid(Arc::new(GridElem {
+        let grid = Content::Grid(Arc::new(GridElem { spec: None,
             source_order: None,
             columns: vec![TrackSizing::Auto],
             rows: vec![],

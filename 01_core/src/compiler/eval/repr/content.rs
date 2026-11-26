@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/content.md
-//! @prompt-hash 9354d6d7
+//! @prompt-hash 5dee6e69
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -554,10 +554,16 @@ pub fn repr_content(c: &Content) -> String {
                 format!("{}{}", c.elem_name(), pretty_array_like(&fields, false))
             }
         }
-        Content::Grid(_) => "grid".to_string(),
+        Content::Grid(_) => repr_grid_like(
+            "grid",
+            crate::compiler::stdlib::grid_fields(c).unwrap_or_default(),
+        ),
         Content::GridHeader(_) => "grid.header".to_string(),
         Content::GridFooter(_) => "grid.footer".to_string(),
-        Content::GridCell(_) => "grid.cell".to_string(),
+        Content::GridCell(_) => repr_grid_like(
+            "cell",
+            crate::compiler::stdlib::grid_cell_fields(c).unwrap_or_default(),
+        ),
         Content::GridHLine(_) => "grid.hline".to_string(),
         Content::GridVLine(_) => "grid.vline".to_string(),
         Content::Align(a) => format!("align({:?})[...]", a.alignment),
@@ -710,7 +716,16 @@ pub fn repr_content(c: &Content) -> String {
             Some(name) => format!("{name}(body: {})", repr_content(&b.body)),
             None => format!("block[{}]", repr_content(&b.body)),
         },
-        Content::TableCell(_) => "table.cell".to_string(),
+        Content::TableCell(_) => repr_grid_like(
+            "cell",
+            [
+                "body", "x", "y", "colspan", "rowspan", "inset", "align", "fill", "stroke",
+                "breakable",
+            ]
+            .into_iter()
+            .filter_map(|name| c.get_field(name).map(|value| (name, value)))
+            .collect(),
+        ),
         Content::Bibliography(b) => {
             let path = b.path.as_ref().map(|p| p.as_str()).unwrap_or("");
             format!("bibliography(\"{}\")", path)
@@ -725,7 +740,10 @@ pub fn repr_content(c: &Content) -> String {
         Content::TableFooter(_) => "table.footer".to_string(),
         Content::TableHLine(_) => "table.hline".to_string(),
         Content::TableVLine(_) => "table.vline".to_string(),
-        Content::Table(_) => "table".to_string(),
+        Content::Table(_) => repr_grid_like(
+            "table",
+            crate::compiler::stdlib::grid_fields(c).unwrap_or_default(),
+        ),
         Content::Repeat(repeat) => {
             let mut fields = vec![format!("body: {}", repr_content(&repeat.body))];
             if let Some(gap) = repeat.gap {
@@ -764,6 +782,15 @@ pub fn repr_content(c: &Content) -> String {
             }
         }
     }
+}
+
+/// `grid`, `table` and their cells as constructor calls over their set fields.
+fn repr_grid_like(name: &str, fields: Vec<(&'static str, Value)>) -> String {
+    let parts: Vec<_> = fields
+        .iter()
+        .map(|(field, value)| format!("{field}: {}", repr_value(value)))
+        .collect();
+    format!("{name}{}", pretty_array_like(&parts, false))
 }
 
 #[cfg(test)]

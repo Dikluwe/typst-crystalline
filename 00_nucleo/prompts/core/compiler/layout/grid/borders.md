@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/borders
-Hash do Código: 0060b18c
+Hash do Código: acabcc0c
 
 
 Núcleos Tekt:
@@ -195,3 +195,9 @@ Resolve the existing declarative Length thickness against the restored table
 font size, as the original final segment emitters now do. Require that physical
 thickness to be positive and finite; preserve the concurrently approved Length
 contract rather than reverting it to a scalar.
+
+## Grid and table package
+
+A span's width runs from its first column's left edge to its last column's right edge, covering gutters.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

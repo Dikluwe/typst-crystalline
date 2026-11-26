@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: bfb5f8c6
+Hash do Código: fc15ff3f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -256,3 +256,9 @@ Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract
 Add one crate-private record of omitted columns, rows, fill, stroke and inset, zero
 meaning that every property counts as supplied. It takes part in equality, hash and
 observation and has no getter.
+
+## Grid and table package
+
+`TableElem.spec` carries the same declared surface as `grid`.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

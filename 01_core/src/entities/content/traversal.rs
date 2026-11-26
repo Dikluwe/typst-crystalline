@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash 04ec363d
+//! @prompt-hash f5cc62f8
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -1315,7 +1315,7 @@ impl Content {
             // Modelo D (Lote 12 P327): Grid container delega ao elemento.
             Content::Grid(e) => rebuild_pre_node(|| Ok({ let new_cells: SourceResult<Vec<Content>> =
             e.cells.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Grid(Arc::new(GridElem {
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Grid(Arc::new(GridElem { spec: e.spec.clone(),
             source_order: e.source_order.clone(),
             columns: e.columns.clone(),
             rows: e.rows.clone(),
@@ -1381,7 +1381,7 @@ impl Content {
             })),
             Content::Table(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem { omitted: e.omitted, items: None,
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem { omitted: e.omitted, spec: e.spec.clone(), items: None,
             source_span: e.source_span,
             resolved: e.resolved.clone(),
             rows_explicit: e.rows_explicit,

@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: 5d4c32c3
+Hash do Código: c06c2b86
 
 Layer L1. Sole productive consumer:
 `01_core/src/compiler/realize/recipes.rs`. Owner-ratified contract; seal the
@@ -570,3 +570,9 @@ While a list, enum or terms rule is in force, consecutive items of a sequence ar
 grouped before they are visited.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+An unprepared grid is prepared like a table insertion before its children are realized.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

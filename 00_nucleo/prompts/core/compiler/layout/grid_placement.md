@@ -1,5 +1,5 @@
 # L0 — grid placement
-Hash do Código: 4d8a672d
+Hash do Código: 6a59cf6d
 
 
 **Layer:** L1
@@ -194,3 +194,9 @@ occurs. Keep a local group cursor, derive min/max occupied rows, preserve the
 outer cursor for wholly positioned groups, and reject overlap with foreign
 occupied rows or unordered header ranges. This refines the prior whole-free-row
 rule for automatic admission without inventing another placement engine.
+
+## Grid and table package
+
+Publish each cell's source index, column and row, and the free slots of the occupied rows.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

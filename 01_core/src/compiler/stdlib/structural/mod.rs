@@ -957,7 +957,8 @@ mod tests {
         if let Value::Content(Content::GridHLine(e)) = v {
             assert_eq!(e.start, 0);
             assert_eq!(e.end, None);
-            assert_eq!(e.row, 0);
+            // Without `y` the line follows the automatic position.
+            assert_eq!(e.row, usize::MAX);
             assert_eq!(e.position.as_str(), "auto");
             assert_eq!(
                 e.stroke.as_ref().expect("stroke default").thickness,
@@ -990,7 +991,8 @@ mod tests {
         if let Value::Content(Content::GridVLine(e)) = v {
             assert_eq!(e.start, 0);
             assert_eq!(e.end, None);
-            assert_eq!(e.col, 0);
+            // Without `x` the line follows the automatic position.
+            assert_eq!(e.col, usize::MAX);
             assert_eq!(e.position.as_str(), "left");
         } else {
             panic!("esperado GridVLine");
@@ -1003,7 +1005,8 @@ mod tests {
         if let Value::Content(Content::TableHLine(e)) = v {
             assert_eq!(e.start, 0);
             assert_eq!(e.end, None);
-            assert_eq!(e.row, 0);
+            // Without `y` the line follows the automatic position.
+            assert_eq!(e.row, usize::MAX);
             assert_eq!(e.position.as_str(), "auto");
         } else {
             panic!("esperado TableHLine");
@@ -1016,7 +1019,8 @@ mod tests {
         if let Value::Content(Content::TableVLine(e)) = v {
             assert_eq!(e.start, 0);
             assert_eq!(e.end, None);
-            assert_eq!(e.col, 0);
+            // Without `x` the line follows the automatic position.
+            assert_eq!(e.col, usize::MAX);
             assert_eq!(e.position.as_str(), "left");
         } else {
             panic!("esperado TableVLine");

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash 9caa1376
+//! @prompt-hash 2443582a
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -182,6 +182,7 @@ impl ObservationEq for crate::entities::elements::grid::GridChildOrder {
 impl ObservationEq for crate::entities::elements::grid::GridElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            spec: _,
             source_order: _,
             columns: _,
             rows: _,
@@ -210,6 +211,11 @@ impl ObservationEq for crate::entities::elements::grid::GridElem {
             .and(self.footer.observation_relation(&other.footer))
             .and(self.stroke.observation_relation(&other.stroke))
             .and(self.fill.observation_relation(&other.fill))
+            .and(if self.spec == other.spec {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Unproven
+            })
     }
 }
 impl ObservationEq for crate::entities::elements::grid_hline::GridHLineElem {
@@ -470,6 +476,7 @@ impl ObservationEq for crate::entities::elements::table::TableAlignment {
 impl ObservationEq for crate::entities::elements::table::TableElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            spec: _,
             items: _,
             source_span: _,
             rows_explicit: _,
@@ -509,6 +516,11 @@ impl ObservationEq for crate::entities::elements::table::TableElem {
             .and(self.summary.observation_relation(&other.summary))
             .and(self.inset.observation_relation(&other.inset))
             .and(self.align.observation_relation(&other.align))
+            .and(if self.spec == other.spec {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Unproven
+            })
     }
 }
 impl ObservationEq for crate::entities::elements::table_vline::TableVLineElem {

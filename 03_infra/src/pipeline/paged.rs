@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 4b5a4ad6
+//! @prompt-hash 0805e3fd
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -1781,7 +1781,7 @@ mod batch_g_reuse_proof_tests {
         Arc::make_mut(&mut elem).caption =
             Some(Content::heading(1, Content::text("CAPTION")));
         assert!(!initial_layout_independent(&Content::Table(elem)));
-        let grid = GridElem {
+        let grid = GridElem { spec: None,
             source_order: None,
             columns: vec![],
             rows: vec![],

@@ -1,5 +1,5 @@
 # L0 — measurement
-Hash do Código: 347ec051
+Hash do Código: 9b9a0fdb
 
 
 
@@ -370,3 +370,9 @@ L0 and scoped reseal precede real RED, code and GREEN; valid V15/V26 precede rep
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/shapes-package-2026-11-24.pt-BR.md`.
 A block with an outline and a leaf shape are measured by the shape owner's sizes. Box
 sizes use the projected box; baseline does not change measured height.
+
+## Grid and table package
+
+Grid literals carry the declared surface unchanged.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

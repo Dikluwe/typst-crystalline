@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: cd793b07
+Hash do Código: c4397db0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -757,3 +757,9 @@ The properties of `list`, `enum` and `terms` are declared through
 `compiler/stdlib/structural/lists.md`.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid and table package
+
+`set grid` carries every grid property and `set grid.cell` its fill, align, inset and stroke as raw declarations, applied when the grid is inserted. `set table` also carries the three gutters, and fill, stroke and inset given as arrays or functions.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.

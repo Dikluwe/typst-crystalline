@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/realize/mod.md
-//! @prompt-hash b78561b7
+//! @prompt-hash 3eda9adb
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -13,6 +13,7 @@ pub(in crate::compiler) mod recipes;
 pub mod reference_supplements;
 pub(in crate::compiler) mod sequences;
 pub(crate) mod lists;
+mod grid;
 mod table_cells;
 
 use crate::compiler::eval::{EvalContext, EvalTarget};

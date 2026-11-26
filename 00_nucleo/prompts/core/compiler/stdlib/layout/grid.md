@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/grid — grid e tracks
-Hash do Código: 78463430
+Hash do Código: 5d2e89f4
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/grid.rs`
@@ -93,3 +93,9 @@ While doing existing Grid positional extraction, record Some(Vec<GridChildOrder>
 ### Acceptance and limits
 
 Preserve all unrelated prior obligations and nucleus pins. This amendment supersedes only conflicting Figure/Grid clauses stated above. Require independent semantic RED→GREEN, exhaustive decision extension builds, existing workspace/build/tests/all-targets/Clippy/Rustdoc/fmt, canonical paths, strict forward/reverse lineage and valid V15/V26 before scoped resealing. No suppression, severity downgrade, weakened assertion or global hash repair. The bounded package does not certify full Figure/Grid parity: standalone HTML rendering, complete caption synthesis, supplement-dependent selector preview, external Dynamic enumeration, Grid footer phase and complex Table supplemental target order remain visible debt.
+
+## Grid and table package
+
+`grid` and `table` accept `columns`, `rows`, `gutter`, `column-gutter`, `row-gutter`, `fill`, `align`, `stroke` and `inset` in every language form; arrays and functions apply per cell when realized. A positional child is content, text, a symbol or `none`; any other value fails with `expected content, found T` at its span. The declared surface records the named arguments as written and the gutters. Fields read it in declaration order, with tracks, gutters and sides normalized as the language shows them.
+
+Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
