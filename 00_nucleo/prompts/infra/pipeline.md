@@ -1,5 +1,5 @@
 # L0 — infra/pipeline
-Hash do Código: 0beb92a5
+Hash do Código: b2c0d66d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -392,3 +392,9 @@ existing semantics. The existing bounded Heading certificate remains the
 only authority for retaining the Heading owner. A refusal rebuilds the
 Heading even when the body preserves its owner. This step changes neither
 public interfaces nor phase order.
+
+## Multi-page PNG package
+
+Re-export `compile_to_png_output_files` with the other PNG facades.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

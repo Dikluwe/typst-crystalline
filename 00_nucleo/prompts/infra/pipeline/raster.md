@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/raster
-Hash do Código: abec53af
+Hash do Código: 69d58f92
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/raster.rs`
@@ -43,3 +43,11 @@ is the measured basis. Consume private resolve_export_fonts for bound original
 fonts under the existing instancing gate. Instancing stays in the exporter at
 the same render/export phase, retaining diagnostics/API/page selection. The old
 name implied already-instanced bytes; that is not this contract.
+
+## Multi-page PNG package
+
+Add public `compile_to_png_output_files(world, source, full_error, features, ppi_override, pages_override, output)` with the same result shape as `compile_to_svg_output_files`. Compile once, resolve PPI and fonts once, and render every selected page with the same render options. Destinations follow the SVG page template rule shared from the SVG owner, including the stdout and missing-template errors and the empty selection. This supersedes, for the CLI, the first-page-only clause above; the first-page facades keep their signatures and behavior for other callers.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.
+
+A unit test checks that the first page of the collection has the bytes of the first-page facade.

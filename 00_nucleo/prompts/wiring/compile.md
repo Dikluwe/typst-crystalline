@@ -1,5 +1,5 @@
 # L0 — wiring/compile
-Hash do Código: 252aa300
+Hash do Código: c19a779b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:09b32666fb1b1fa7ba8f2ef7c979c60cbc64cc515b8d9c46818bec19d7471fb1
@@ -427,3 +427,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Multi-page PNG package
+
+PNG output goes through `compile_to_png_output_files` with `--pages`, `--ppi` and the output path, and its files are written exactly like the SVG collection.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

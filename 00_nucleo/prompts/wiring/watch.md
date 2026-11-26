@@ -1,5 +1,5 @@
 # L0 — wiring/watch
-Hash do Código: 415f2ecd
+Hash do Código: 0a5a2190
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-product-reuse.toml sha256:69dd4f797e17336227f56e038f9d833a0c6eff81bfc8e6beef4cf268fec27430
@@ -342,3 +342,11 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Multi-page PNG package
+
+With PNG or SVG output and an indexable path, every written staged page is published to its own destination: the staged file name without the leading dot and the `.crystalline-watch-<pid>.tmp` suffix, in the same directory. A failed cycle abandons the staged pages. Single-file outputs keep the existing staging.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.
+
+Unit tests cover the staged page name and publication of every page.

@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_png.md
-//! @prompt-hash 7ed4852e
+//! @prompt-hash 763442f6
 
 #[path = "../../03_infra/tests/support/wiring/format_png.rs"]
 mod harness;
@@ -465,4 +465,80 @@ fn p1465_successor_html_is_feature_gated_from_format_namespace() {
         ),
     );
     checks.finish();
+}
+
+const THREE_PAGES: &str =
+    "#set page(width: 20pt, height: 20pt, margin: 0pt)\na\n#pagebreak()\nb\n#pagebreak()\nc\n";
+
+fn compile_to(label: &str, source: &str, output: &str, extra: &[&str]) -> (TempDir, ProcessResult) {
+    let temp = TempDir::new(label);
+    let input = temp.path.join("main.typ");
+    fs::write(&input, source).unwrap();
+    let mut args = vec![
+        OsString::from("compile"),
+        input.as_os_str().to_os_string(),
+        if output == "-" { OsString::from("-") } else { temp.path.join(output).into_os_string() },
+        OsString::from("--format"),
+        OsString::from("png"),
+    ];
+    args.extend(extra.iter().map(OsString::from));
+    let process = run_typst(args);
+    (temp, process)
+}
+
+fn written(temp: &TempDir) -> Vec<String> {
+    let mut names: Vec<String> = fs::read_dir(&temp.path)
+        .unwrap()
+        .filter_map(|entry| entry.ok()?.file_name().into_string().ok())
+        .filter(|name| name.ends_with(".png"))
+        .collect();
+    names.sort();
+    names
+}
+
+#[test]
+fn multi_page_png_follows_the_page_template() {
+    for (output, extra, expected) in [
+        ("m-{p}.png", &[][..], &["m-1.png", "m-2.png", "m-3.png"][..]),
+        ("m-{p}-of-{t}.png", &[], &["m-1-of-3.png", "m-2-of-3.png", "m-3-of-3.png"]),
+        ("m-{n}.png", &[], &["m-1.png", "m-2.png", "m-3.png"]),
+        ("m-{p}.png", &["--pages", "2-3"], &["m-2.png", "m-3.png"]),
+    ] {
+        let (temp, process) = compile_to("png-template", THREE_PAGES, output, extra);
+        assert!(process.success, "{output}: {}", process.stderr);
+        assert_eq!(written(&temp), expected, "{output} {extra:?}");
+        for name in expected {
+            let bytes = fs::read(temp.path.join(name)).unwrap();
+            assert!(png_dimensions(&bytes).is_ok(), "{name}");
+        }
+    }
+    let twelve = format!(
+        "#set page(width: 20pt, height: 20pt, margin: 0pt)\n#for i in range(12) [#i #pagebreak(weak: true)]\n"
+    );
+    let (temp, process) = compile_to("png-padded", &twelve, "d-{0p}.png", &[]);
+    assert!(process.success, "{}", process.stderr);
+    let names = written(&temp);
+    assert_eq!(names.len(), 12);
+    assert_eq!(names.first().map(String::as_str), Some("d-01.png"));
+    assert_eq!(names.last().map(String::as_str), Some("d-12.png"));
+}
+
+#[test]
+fn multi_page_png_needs_a_template_or_a_single_page() {
+    let (temp, process) = compile_to("png-plain", THREE_PAGES, "m.png", &[]);
+    assert_eq!(process.code, Some(1));
+    assert!(process.stderr.contains(
+        "cannot export multiple images without a page number template ({p}, {0p}) in the output path"
+    ), "{}", process.stderr);
+    assert!(written(&temp).is_empty());
+    let (_temp, process) = compile_to("png-stdout", THREE_PAGES, "-", &[]);
+    assert_eq!(process.code, Some(1));
+    assert!(process.stderr.contains("cannot export multiple images to stdout"), "{}", process.stderr);
+    let one = "#set page(width: 20pt, height: 20pt, margin: 0pt)\na\n";
+    let (temp, process) = compile_to("png-single", one, "s.png", &[]);
+    assert!(process.success && written(&temp) == ["s.png"], "{}", process.stderr);
+    let (temp, process) = compile_to("png-single-template", one, "s-{p}.png", &[]);
+    assert!(process.success && written(&temp) == ["s-1.png"], "{}", process.stderr);
+    let (temp, process) = compile_to("png-one-of-three", THREE_PAGES, "m.png", &["--pages", "2"]);
+    assert!(process.success && written(&temp) == ["m.png"], "{}", process.stderr);
 }

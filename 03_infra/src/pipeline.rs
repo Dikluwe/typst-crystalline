@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash e5532316
+//! @prompt-hash 69810163
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -135,6 +135,7 @@ pub use raster::{
     compile_to_png_bytes_with_timings_full_error,
     compile_to_png_bytes_with_timings_full_error_and_features,
     compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
+    compile_to_png_output_files,
 };
 mod svg;
 pub use svg::{
@@ -144,7 +145,10 @@ pub use svg::{
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty,
     compile_to_svg_string_with_timings_full_error_and_features_and_pretty_override,
 };
-use svg::{svg_destination_context_for_page, svg_glyph_font_context_for_page};
+use svg::{
+    page_destination, page_template, svg_destination_context_for_page,
+    svg_glyph_font_context_for_page,
+};
 mod resources;
 use resources::{collect_fonts_from_doc, resolve_export_fonts, resolve_fonts};
 #[cfg(test)]

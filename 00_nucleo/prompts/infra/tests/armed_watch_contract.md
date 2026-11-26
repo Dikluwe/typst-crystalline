@@ -1,5 +1,5 @@
 # L0 — External armed watch capability tests
-Hash do Código: 8f69c2d7
+Hash do Código: da52c41f
 
 **Layer:** L3 (integration tests)
 **Exclusive consumer:** `03_infra/tests/armed_watch_contract.rs`
@@ -109,3 +109,9 @@ nominal and exhaustive, so future enum growth still forces an explicit owner
 decision. This alternative changes only how the structural obligation is measured;
 it weakens neither the future-variant obligation nor the independent functional
 controls, and no probe result is claimed by the specification.
+
+## Multi-page PNG package
+
+The pinned public inherent surface of `ArmedWatch` adds `publish_files` and `abandon_files`.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

@@ -1,5 +1,5 @@
 # L0 — wiring/tests/format_svg
-Hash do Código: ed0b3994
+Hash do Código: b9bd6ba4
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/format_svg.rs`
@@ -140,3 +140,9 @@ code/API change. Preserve all seven original scenarios and full validation.
 The L3 helper owns filesystem enumeration only; final language assertions stay
 in this L4 owner. This correction adds no production imports, public contract,
 mode/default or phase.
+
+## Multi-page PNG package
+
+The neutral PNG comparison compiles the multi-page source with `main-{p}.png` and compares the first page, since a plain PNG name with several pages is an error as in the language.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

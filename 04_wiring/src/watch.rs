@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/watch.md
-//! @prompt-hash 22afd19d
+//! @prompt-hash 3dbadcad
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -57,10 +57,14 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or("output");
-    let staging = destination.with_file_name(format!(
-        ".{file_name}.crystalline-watch-{}.tmp",
-        std::process::id()
-    ));
+    let staging_suffix = format!(".crystalline-watch-{}.tmp", std::process::id());
+    let staging = destination.with_file_name(format!(".{file_name}{staging_suffix}"));
+    // A page template stages and publishes one file per page.
+    let page_collection =
+        matches!(intent.compile.output_format, OutputFormat::Png | OutputFormat::Svg)
+            && ["{p}", "{0p}", "{n}"]
+                .iter()
+                .any(|token| destination.to_str().unwrap_or_default().contains(token));
 
     let font_session = std::sync::Arc::new(typst_infra::world::FontCatalogSession::new());
     let source_session = std::sync::Arc::new(typst_infra::world::SourceSession::new());
@@ -117,6 +121,14 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
                 let publication = if intent.compile.output_format == OutputFormat::Bundle
                 {
                     armed.publish_directory(&staging, &destination)
+                } else if page_collection {
+                    let files: Vec<_> = written_outputs
+                        .iter()
+                        .map(|staged| {
+                            (staged.clone(), published_page(staged, &staging_suffix))
+                        })
+                        .collect();
+                    armed.publish_files(&files)
                 } else {
                     armed.publish(&staging, &destination)
                 };
@@ -138,6 +150,8 @@ pub(super) fn run_watch(intent: WatchIntent) -> Result<ExitCode, Vec<std::io::Er
                 }
             } else if intent.compile.output_format == OutputFormat::Bundle {
                 armed.abandon_directory(&staging)
+            } else if page_collection {
+                armed.abandon_files(&written_outputs)
             } else {
                 armed.abandon(&staging)
             };
@@ -245,6 +259,15 @@ fn with_dependencies<T>(
             Err(errors)
         }
     }
+}
+
+/// The destination of one staged page: its name without the leading dot and
+/// the staging suffix, in the same directory.
+fn published_page(staged: &Path, suffix: &str) -> std::path::PathBuf {
+    let name = staged.file_name().and_then(|name| name.to_str()).unwrap_or_default();
+    let name = name.strip_prefix('.').unwrap_or(name);
+    let name = name.strip_suffix(suffix).unwrap_or(name);
+    staged.with_file_name(name)
 }
 
 fn discard_staging(staging: &Path, format: OutputFormat) -> std::io::Result<()> {
@@ -997,5 +1020,46 @@ mod metadata_tests {
             );
             std::fs::remove_dir_all(root).unwrap();
         }
+    }
+}
+
+#[cfg(test)]
+mod page_collection_tests {
+    use super::*;
+
+    #[test]
+    fn a_staged_page_publishes_to_its_own_name() {
+        let suffix = ".crystalline-watch-7.tmp";
+        assert_eq!(
+            published_page(Path::new("dir/.out-2.png.crystalline-watch-7.tmp"), suffix),
+            Path::new("dir/out-2.png")
+        );
+        assert_eq!(
+            published_page(Path::new("pages-3/.out.svg.crystalline-watch-7.tmp"), suffix),
+            Path::new("pages-3/out.svg")
+        );
+    }
+
+    #[test]
+    fn every_staged_page_is_published_or_removed() {
+        let root =
+            std::env::temp_dir().join(format!("tekt-watch-pages-{}", std::process::id()));
+        std::fs::create_dir_all(&root).unwrap();
+        let stage = |n: usize| root.join(format!(".out-{n}.png.stage"));
+        let final_page = |n: usize| root.join(format!("out-{n}.png"));
+        for n in 1..=2 {
+            std::fs::write(stage(n), format!("page {n}")).unwrap();
+        }
+        let armed = typst_infra::watch::arm(&[]);
+        armed.publish_files(&[(stage(1), final_page(1)), (stage(2), final_page(2))]).unwrap();
+        assert_eq!(std::fs::read(final_page(2)).unwrap(), b"page 2");
+        assert!(!stage(1).exists() && !stage(2).exists());
+
+        std::fs::write(stage(1), b"next").unwrap();
+        let missing = root.join("missing-parent").join("out.png");
+        let armed = typst_infra::watch::arm(&[]);
+        assert!(armed.publish_files(&[(stage(3), missing), (stage(1), final_page(1))]).is_err());
+        assert!(!stage(1).exists(), "a failed publication removes the remaining pages");
+        std::fs::remove_dir_all(root).unwrap();
     }
 }

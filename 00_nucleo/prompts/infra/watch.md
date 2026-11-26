@@ -1,5 +1,5 @@
 # L0 — Filesystem watch capability and local preview server
-Hash do Código: 10e1aa2a
+Hash do Código: 852fe4c3
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/watch.rs`
@@ -168,3 +168,9 @@ import-only diff/no extension inference, no syntax-mirror tests. Build/strict
 workspace-all-target Clippy -Dwarnings/-Dunfulfilled_lint_expectations/workspace
 suite/fmt/strict Rustdoc/four indexes/V1-V5-V15-V26/reverse/SARIF/diff --check;
 heavy sequential12GiB/swap0/job1, no release.
+
+## Multi-page PNG package
+
+`ArmedWatch::publish_files` publishes a list of staged files, renaming each to its destination in order; on the first failure it removes the remaining staged files and reports the error. `ArmedWatch::abandon_files` removes staged files best-effort. Both return the captured baseline like `publish` and `abandon`.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

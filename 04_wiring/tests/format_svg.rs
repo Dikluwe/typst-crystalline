@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/format_svg.md
-//! @prompt-hash 65779dd7
+//! @prompt-hash a552333d
 
 #[path = "../../03_infra/tests/support/wiring/format_svg.rs"]
 mod harness;
@@ -810,8 +810,16 @@ fn svg_document_option_is_neutral_to_pdf_png_html_and_html_frame() {
         }
     }
 
-    let png_false = compile("neutral-png-false", &false_page, "png", None, None);
-    let png_true = compile("neutral-png-true", &true_page, "png", None, None);
+    // The source has several pages: PNG needs a page template, as in the
+    // language; the first page is compared.
+    let first_png = |label: &str, source: &str| {
+        let mut compiled = compile_to_name(label, source, "png", None, None, "main-{p}.png");
+        compiled.output_path = compiled.output_path.with_file_name("main-1.png");
+        compiled.artifact = fs::read(&compiled.output_path).ok();
+        compiled
+    };
+    let png_false = first_png("neutral-png-false", &false_page);
+    let png_true = first_png("neutral-png-true", &true_page);
     require_success(&mut checks, "neutral/PNG/false", &png_false);
     require_success(&mut checks, "neutral/PNG/true", &png_true);
     if png_false.artifact.is_some() && png_true.artifact.is_some() {

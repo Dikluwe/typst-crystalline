@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash 95c9eb80
+//! @prompt-hash 419657a7
 //! @layer L4
 //! @updated 2026-10-08
 
@@ -19,8 +19,7 @@ use typst_infra::pipeline::{
     compile_to_bundle_files,
     compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override,
-    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override,
-    compile_to_svg_output_files, BundleCompileOptions, BundleFile,
+    compile_to_png_output_files, compile_to_svg_output_files, BundleCompileOptions, BundleFile,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{CompileIntent, OutputFormat};
@@ -424,6 +423,7 @@ pub(super) fn run_compile_observed_with_sessions(
     let emit_html_experimental_warning = matches!(&output_format, OutputFormat::Html)
         && features.contains(typst_core::entities::compiler_features::Feature::Html);
     let mut bundle_files: Option<Vec<BundleFile>> = None;
+    // Page collections of SVG and PNG output.
     let mut svg_outputs: Option<Vec<(PathBuf, Vec<u8>)>> = None;
     let mut published: Option<Published> = None;
     let (result, warnings, timings): (
@@ -530,19 +530,25 @@ pub(super) fn run_compile_observed_with_sessions(
             }
         }
         OutputFormat::Png => {
-            if timings_json.is_some() {
-                let (r, w, t) =
-                    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
-                        &world, &source, full_error, features, ppi,
-                    );
-                (r, w, t)
+            let (result, warnings, measured_timings) = compile_to_png_output_files(
+                &world,
+                &source,
+                full_error,
+                features,
+                ppi,
+                pages.clone(),
+                &output,
+            );
+            let result = result.map(|files| {
+                svg_outputs = Some(files);
+                Vec::new()
+            });
+            let timings = if timings_json.is_some() {
+                measured_timings
             } else {
-                let (r, w, _) =
-                    compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_override(
-                        &world, &source, full_error, features, ppi,
-                    );
-                (r, w, typst_infra::pipeline::Timings::default())
-            }
+                typst_infra::pipeline::Timings::default()
+            };
+            (result, warnings, timings)
         }
         OutputFormat::Svg => {
             let (result, warnings, measured_timings) = compile_to_svg_output_files(

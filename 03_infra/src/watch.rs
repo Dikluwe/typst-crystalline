@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/watch.md
-//! @prompt-hash f5abe026
+//! @prompt-hash a3070d24
 //! @layer L3
 //! @updated 2026-08-23
 
@@ -126,6 +126,28 @@ impl ArmedWatch {
     /// Discards only the uncommitted bundle tree.
     pub fn abandon_directory(self, staging: &Path) -> WatchSnapshot {
         let _ = fs::remove_dir_all(staging);
+        self.snapshot
+    }
+
+    /// Publishes staged files in order, each by rename to its destination.
+    /// On the first failure the remaining staged files are removed.
+    pub fn publish_files(self, files: &[(PathBuf, PathBuf)]) -> io::Result<WatchSnapshot> {
+        for (index, (staging, destination)) in files.iter().enumerate() {
+            if let Err(error) = fs::rename(staging, destination) {
+                for (rest, _) in &files[index..] {
+                    let _ = fs::remove_file(rest);
+                }
+                return Err(error);
+            }
+        }
+        Ok(self.snapshot)
+    }
+
+    /// Abandons staged files best-effort and returns the captured baseline.
+    pub fn abandon_files(self, staged: &[PathBuf]) -> WatchSnapshot {
+        for path in staged {
+            let _ = fs::remove_file(path);
+        }
         self.snapshot
     }
 

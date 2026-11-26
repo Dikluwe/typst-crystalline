@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/svg
-Hash do Código: 4a73b491
+Hash do Código: 682ff705
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/svg.rs`
@@ -182,3 +182,9 @@ This is a transparent alias, not a new public type, opaque wrapper or changed
 function contract. Preserve the exact expanded public type specified above,
 all callers, output selection, diagnostics and ownership. Do not add a lint
 allow/expect or change the Clippy policy.
+
+## Multi-page PNG package
+
+The page template rule (indexable tokens, destination substitution and the two multi-page errors) is shared through crate-private helpers so the PNG output collection applies it unchanged. SVG behavior does not change.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.

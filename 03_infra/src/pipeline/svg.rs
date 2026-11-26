@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/svg.md
-//! @prompt-hash e830c9f9
+//! @prompt-hash bab15caa
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -184,16 +184,7 @@ pub fn compile_to_svg_output_files(
                 pages.includes_page(std::num::NonZeroUsize::new(index + 1).unwrap())
             })
         }).collect();
-        let template = output.to_str().unwrap_or_default();
-        let indexable = ["{p}", "{0p}", "{n}"].iter().any(|token| template.contains(token));
-        if selected.len() > 1 && !indexable {
-            let message = if output == std::path::Path::new("-") {
-                "cannot export multiple images to stdout"
-            } else {
-                "cannot export multiple images without a page number template ({p}, {0p}) in the output path"
-            };
-            return Err(vec![SourceDiagnostic::error(Span::detached(), message)]);
-        }
+        let indexable = page_template(output, selected.len())?;
         if selected.is_empty() { return Ok(Vec::new()); }
         let fonts = resolve_export_fonts(&document, world).map_err(|error| vec![error])?;
         let options = crate::export::SvgOptions {
@@ -202,16 +193,9 @@ pub fn compile_to_svg_output_files(
         };
         let start = Instant::now();
         let total = document.pages.len();
-        let width = 1 + total.checked_ilog10().unwrap_or(0) as usize;
         let outputs = selected.into_iter().map(|(index, page)| {
             let physical = index + 1;
-            let destination = if indexable {
-                std::path::PathBuf::from(template
-                    .replace("{p}", &physical.to_string())
-                    .replace("{0p}", &format!("{physical:0width$}"))
-                    .replace("{n}", &format!("{physical:0width$}"))
-                    .replace("{t}", &total.to_string()))
-            } else { output.to_owned() };
+            let destination = page_destination(output, indexable, physical, total);
             let destinations = svg_destination_context_for_page(&document, physical);
             let glyph_fonts = svg_glyph_font_context_for_page(page, world);
             let svg = if fonts.is_empty() {
@@ -231,6 +215,45 @@ pub fn compile_to_svg_output_files(
         + timings.shape_ms
         + timings.render_ms;
     (result, warnings, timings)
+}
+
+/// Whether `output` is a page template; several selected pages need one.
+pub(super) fn page_template(
+    output: &std::path::Path,
+    selected: usize,
+) -> Result<bool, Vec<SourceDiagnostic>> {
+    let template = output.to_str().unwrap_or_default();
+    let indexable = ["{p}", "{0p}", "{n}"].iter().any(|token| template.contains(token));
+    if selected > 1 && !indexable {
+        let message = if output == std::path::Path::new("-") {
+            "cannot export multiple images to stdout"
+        } else {
+            "cannot export multiple images without a page number template ({p}, {0p}) in the output path"
+        };
+        return Err(vec![SourceDiagnostic::error(Span::detached(), message)]);
+    }
+    Ok(indexable)
+}
+
+/// The destination of one physical page under the page template rule.
+pub(super) fn page_destination(
+    output: &std::path::Path,
+    indexable: bool,
+    physical: usize,
+    total: usize,
+) -> std::path::PathBuf {
+    if !indexable {
+        return output.to_owned();
+    }
+    let template = output.to_str().unwrap_or_default();
+    let width = 1 + total.checked_ilog10().unwrap_or(0) as usize;
+    std::path::PathBuf::from(
+        template
+            .replace("{p}", &physical.to_string())
+            .replace("{0p}", &format!("{physical:0width$}"))
+            .replace("{n}", &format!("{physical:0width$}"))
+            .replace("{t}", &total.to_string()),
+    )
 }
 
 pub(super) fn svg_destination_context_for_page(

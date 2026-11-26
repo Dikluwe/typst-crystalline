@@ -1,5 +1,5 @@
 # L0 — wiring/tests/format_png
-Hash do Código: 45dafd22
+Hash do Código: 8da1fbba
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/format_png.rs`
@@ -87,3 +87,9 @@ indexes, strict V1/V5/V15/V26/reverse lineage and diff --check. L0 first; reseal
 limited to authorized owners/code. Heavy jobs sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1; freeze sources/L0/configuration during commands.
 No import-syntax mirror tests, unmeasured RAM/AI-gain claims or release publication.
+
+## Multi-page PNG package
+
+Cover every page template form, `--pages`, zero padding, the two multi-page errors and single-page outputs through the CLI.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/png-pages-package-2026-11-26.pt-BR.md`.
