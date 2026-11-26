@@ -1,5 +1,5 @@
 # L0 — link
-Hash do Código: 196c9f59
+Hash do Código: 8061a19f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -97,3 +97,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Layout family package
+
+Literals carry layout presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

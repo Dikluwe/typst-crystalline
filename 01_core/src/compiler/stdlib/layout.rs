@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout.md
-//! @prompt-hash 72ca3491
+//! @prompt-hash 21acb2d0
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -70,6 +70,220 @@ pub use self::measure::extract_measure_body;
 pub use self::measure::native_layout;
 pub use self::measure::native_measure;
 pub use self::pad::native_pad;
+
+/// Properties of layout elements that `set` declares and their layout reads
+/// when the call does not give them.
+const LAYOUT_DECLARED: [(&str, &[&str]); 10] = [
+    ("pad", &["left", "top", "right", "bottom", "x", "y", "rest"]),
+    ("place", &["dx", "dy"]),
+    ("stack", &["dir", "spacing"]),
+    ("repeat", &["gap", "justify"]),
+    ("outline", &["title", "depth", "target"]),
+    ("quote", &["block", "quotes"]),
+    ("raw", &["tab-size", "align", "theme"]),
+    ("figure.caption", &["position"]),
+    ("pagebreak", &["to"]),
+    ("linebreak", &["justify"]),
+];
+
+/// The style entries a `set` of a layout element carries, or `None` when the
+/// property has no effect yet. `pad` sides are expanded from `x`, `y` and
+/// `rest` so that each side is read on its own.
+pub(crate) fn declare_layout(
+    element: &str,
+    name: &str,
+    value: &Value,
+) -> Option<Vec<(String, Value)>> {
+    let (_, names) = LAYOUT_DECLARED.iter().find(|(known, _)| *known == element)?;
+    if !names.contains(&name) {
+        return None;
+    }
+    let sides: &[&str] = match (element, name) {
+        ("pad", "x") => &["left", "right"],
+        ("pad", "y") => &["top", "bottom"],
+        ("pad", "rest") => &["left", "top", "right", "bottom"],
+        _ => &[],
+    };
+    if sides.is_empty() {
+        Some(vec![(format!("{element}.{name}"), value.clone())])
+    } else {
+        Some(sides.iter().map(|side| (format!("pad.{side}"), value.clone())).collect())
+    }
+}
+
+/// The `given` bits of a layout element call: one per declared property
+/// named in the call, in the order of `LAYOUT_DECLARED`.
+pub(crate) fn layout_given(element: &str, args: &Args) -> u8 {
+    let Some((_, names)) = LAYOUT_DECLARED.iter().find(|(known, _)| *known == element) else {
+        return 0;
+    };
+    names
+        .iter()
+        .enumerate()
+        .filter(|(_, name)| args.named.contains_key(**name))
+        .fold(0, |bits, (index, _)| bits | (1 << index))
+}
+
+/// Marks on a constructed layout element which properties its call gave.
+pub(crate) fn with_given(value: Value, element: &str, args: &Args) -> Value {
+    let given = layout_given(element, args);
+    let Value::Content(content) = value else { return value };
+    Value::Content(match content {
+        Content::Place(mut e) => {
+            std::sync::Arc::make_mut(&mut e).given = given;
+            Content::Place(e)
+        }
+        Content::Stack(mut e) => {
+            std::sync::Arc::make_mut(&mut e).given = given;
+            Content::Stack(e)
+        }
+        Content::Repeat(mut e) => {
+            std::sync::Arc::make_mut(&mut e).given = given;
+            Content::Repeat(e)
+        }
+        Content::Outline(mut e) => {
+            std::sync::Arc::make_mut(&mut e).given = given;
+            Content::Outline(e)
+        }
+        Content::Quote(mut e) => {
+            std::sync::Arc::make_mut(&mut e).given = given;
+            Content::Quote(e)
+        }
+        other => other,
+    })
+}
+
+/// The `set` declaration of a property the call did not give.
+fn declared_for<'a>(
+    chain: &'a crate::entities::style_chain::StyleChain,
+    element: &str,
+    name: &str,
+    given: u8,
+) -> Option<&'a Value> {
+    let (_, names) = LAYOUT_DECLARED.iter().find(|(known, _)| *known == element)?;
+    let index = names.iter().position(|known| *known == name)?;
+    if given & (1 << index) != 0 {
+        return None;
+    }
+    chain.custom(&format!("{element}.{name}"))
+}
+
+/// A layout element with its `set` declarations applied, when any applies.
+pub(crate) fn effective_layout(
+    content: &Content,
+    chain: &crate::entities::style_chain::StyleChain,
+    font: f64,
+) -> Option<Content> {
+    let as_length = |value: &Value| {
+        if let Value::Length(length) = value {
+            Some(*length)
+        } else if let Value::Relative(rel) = value {
+            (rel.rel == 0.0).then_some(rel.abs)
+        } else {
+            None
+        }
+    };
+    let length = |value: &Value| as_length(value).map(|length| length.resolve_pt(font));
+    match content {
+        Content::Place(e) => {
+            let dx = declared_for(chain, "place", "dx", e.given).and_then(length);
+            let dy = declared_for(chain, "place", "dy", e.given).and_then(length);
+            if dx.is_none() && dy.is_none() {
+                return None;
+            }
+            let mut out = e.as_ref().clone();
+            out.dx = dx.unwrap_or(out.dx);
+            out.dy = dy.unwrap_or(out.dy);
+            Some(Content::Place(std::sync::Arc::new(out)))
+        }
+        Content::Stack(e) => {
+            let dir = declared_for(chain, "stack", "dir", e.given)
+                .and_then(|value| self::stack::extract_dir(value).ok());
+            let spacing = declared_for(chain, "stack", "spacing", e.given).and_then(as_length);
+            if dir.is_none() && spacing.is_none() {
+                return None;
+            }
+            let mut out = e.as_ref().clone();
+            out.dir = dir.unwrap_or(out.dir);
+            out.spacing = spacing.or(out.spacing);
+            Some(Content::Stack(std::sync::Arc::new(out)))
+        }
+        Content::Repeat(e) => {
+            let gap = declared_for(chain, "repeat", "gap", e.given).and_then(as_length);
+            let justify = declared_for(chain, "repeat", "justify", e.given)
+                .and_then(|value| if let Value::Bool(justify) = value { Some(*justify) } else { None });
+            if gap.is_none() && justify.is_none() {
+                return None;
+            }
+            let mut out = e.as_ref().clone();
+            out.gap = gap.or(out.gap);
+            out.justify = justify.unwrap_or(out.justify);
+            Some(Content::Repeat(std::sync::Arc::new(out)))
+        }
+        Content::Quote(e) => {
+            let block = declared_for(chain, "quote", "block", e.given)
+                .and_then(|value| if let Value::Bool(value) = value { Some(*value) } else { None });
+            let quotes = declared_for(chain, "quote", "quotes", e.given)
+                .and_then(|value| if let Value::Bool(value) = value { Some(*value) } else { None });
+            if block.is_none() && quotes.is_none() {
+                return None;
+            }
+            let mut out = e.as_ref().clone();
+            out.block = block.unwrap_or(out.block);
+            if let Some(quotes) = quotes {
+                out.quotes = quotes;
+                out.given |= 2;
+            }
+            Some(Content::Quote(std::sync::Arc::new(out)))
+        }
+        other => {
+            // Only the elements above have declarations.
+            let _ = other;
+            None
+        }
+    }
+}
+
+/// An outline with `set outline(title:, depth:)` applied where its call
+/// left them out.
+pub(crate) fn declared_outline(
+    outline: &crate::entities::elements::outline::OutlineElem,
+    chain: &crate::entities::style_chain::StyleChain,
+) -> crate::entities::elements::outline::OutlineElem {
+    let title = chain.custom("outline.title").map(|value| {
+        if let Value::Content(title) = value {
+            Some(title.clone())
+        } else if let Value::Str(title) = value {
+            Some(Content::text(title.as_str()))
+        } else {
+            None
+        }
+    });
+    let depth = chain.custom("outline.depth").and_then(|value| {
+        if let Value::Int(depth) = value {
+            usize::try_from(*depth).ok()
+        } else {
+            None
+        }
+    });
+    outline.with_declarations(title, depth)
+}
+
+/// A declared length of a layout element, if one was set.
+pub(crate) fn declared_length(
+    chain: &crate::entities::style_chain::StyleChain,
+    key: &str,
+) -> Option<Length> {
+    let value = chain.custom(key)?;
+    if let Value::Length(length) = value {
+        Some(*length)
+    } else if let Value::Relative(rel) = value {
+        (rel.rel == 0.0).then_some(rel.abs)
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 pub(super) use self::page::is_horizontal_page_binding;
 #[cfg(test)]

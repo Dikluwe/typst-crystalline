@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/linebreak.md
-//! @prompt-hash f914e300
+//! @prompt-hash 0ca6f2fe
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -63,7 +63,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             }],
         });
     }
-    if elem.justify {
+    // Without `justify:` in the call, `set linebreak(justify:)` applies.
+    let justify = if elem.justify_explicit {
+        elem.justify
+    } else {
+        matches!(
+            layouter.chain.custom("linebreak.justify"),
+            Some(crate::entities::value::Value::Bool(true))
+        )
+    };
+    if justify {
         layouter.justify_current_line();
     }
     layouter.flush_line();

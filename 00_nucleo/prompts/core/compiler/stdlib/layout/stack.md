@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/stack — stack
-Hash do Código: 1dbbc16e
+Hash do Código: a847a9da
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/stack.rs`
@@ -35,3 +35,9 @@ Remove only the obsolete negative-Length rejection after successful typed spacin
 ### Acceptance
 
 Require functional RED→GREEN before implementation, source-current bilateral PDF/SVG<=0.001pt, all four directions, spacing/default/negative, target clipping, mixed/no-paint children, nesting and exact-fit/19+1/14+6 pagination, text adjacency and h boundaries. Preserve real Context/page/label/counter source semantics and all current positive image/h, A–H/R1–R13/notes/relative-line controls. Repeat all12 established technical gates, unfiltered lint with zero warning/error, frozen provenance and restricted lineage reseal. Recheck JPEG acceptance/complete decode/dedup/time/RSS and R6 size/memory gates with no competing builds. Bound the known invalid oversized oracle case explicitly; never hide a timeout/signal as a qualified rejection. Historical self-sealed stdout limitations remain explicit; do not rewrite old manifests. No commit/push.
+
+## Layout family package
+
+Calls record their presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

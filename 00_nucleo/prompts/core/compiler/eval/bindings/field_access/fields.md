@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: 8470c883
+Hash do Código: 4623a949
 
 
 
@@ -551,3 +551,9 @@ Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preservi
 `grid`, `table` and grid cells are presence content: an unset declared field is known as unset, not undeclared.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+A figure carrying its own styles is presence content.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

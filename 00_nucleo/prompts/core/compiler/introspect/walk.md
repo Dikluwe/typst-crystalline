@@ -1,5 +1,5 @@
 # L0 — introspect/walk
-Hash do Código: dfba602e
+Hash do Código: 599889cb
 
 
 
@@ -817,3 +817,9 @@ Retain existing policies and negative certificates for all other carriers.
 At actual Footnote registration, preserve the original Content and Location. Populate its existing introspected fields snapshot with body, effective numbering string and label, and record existing resolved-label text for a labelled note from its exact counter-at-Location and lexical pattern. Do not add a TagIntrospector field or trait method. Do not resolve styles by painting or using the reference site.
 
 This is internal convergence/restoration of existing language behavior under ADR-0127 continuous flow: no public entity/trait/signature, user mode/default, compatibility break or eval/layout phase change. Preserve the constructor's raw morphology and all #8935 identity, measurement and header replay corrections. Nucleus obligations are shared only through these full pins; each source retains its canonical sole owner. Require minimal real RED before production code, GREEN, prior14 #8935, footnote/subframe/column suites, bilingual source controls, full PDF extraction and SVG paint checks. Use only the task's exclusive /dev/shm target, one compilation job, 12GiB process limit, preserve concurrent work and do not commit/push. Global combined qualification remains separate. Any new public carrier or phase need stops at a concrete proposal for human approval.
+
+## Layout family package
+
+A figure declared or constructed with `outlined: false` stays out of the list of figures.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

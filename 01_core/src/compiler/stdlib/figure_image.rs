@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/figure_image.md
-//! @prompt-hash 7fbedb64
+//! @prompt-hash 7a678aea
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -84,7 +84,20 @@ pub fn native_figure(
     // Keep the existing caption body extraction; reject invalid casts explicitly.
     let caption = match args.named.get("caption") {
         None | Some(Value::None) => None,
-        Some(Value::Content(Content::FigureCaption(fc))) => Some(fc.body.clone()),
+        // The caption's own position travels with its body.
+        Some(Value::Content(Content::FigureCaption(fc))) => Some(match fc.position {
+            Some(position) => Content::styled(
+                fc.body.clone(),
+                crate::entities::style::Styles::new().push_custom(
+                    "figure.caption.own-position",
+                    Value::Bool(
+                        position
+                            == crate::entities::elements::figure_caption::CaptionPosition::Top,
+                    ),
+                ),
+            ),
+            None => fc.body.clone(),
+        }),
         Some(Value::Content(c)) => Some(c.clone()),
         Some(Value::LocatedContent(c, _)) => Some(c.content().clone()),
         Some(Value::Str(s)) => Some(Content::text(s.as_str())),
@@ -354,7 +367,8 @@ pub fn native_figure(
         if let Some(name) = occurrence.name {
             if !matches!(
                 name.as_str(),
-                "caption" | "kind" | "supplement" | "numbering" | "placement"
+                "caption" | "kind" | "supplement" | "numbering" | "placement" | "gap"
+                    | "outlined"
             ) {
                 let diagnostic = if name.as_str() == "body" {
                     SourceDiagnostic::error(
@@ -390,13 +404,34 @@ pub fn native_figure(
         supplement,
         resolved_supplement: None,
     }));
-    Ok(Value::Content(match numbering {
-        Some(value) => Content::styled(
-            Box::new(figure),
-            crate::entities::style::Styles::new().push_custom("figure.numbering", value),
-        ),
-        None => figure,
-    }))
+    // `numbering`, `gap` and `outlined` travel as the figure's own styles.
+    let mut styles = crate::entities::style::Styles::new();
+    let mut own = false;
+    if let Some(value) = numbering {
+        styles = styles.push_custom("figure.numbering", value);
+        own = true;
+    }
+    for name in ["gap", "outlined"] {
+        if let Some(value) = args.named.get(name) {
+            let valid = match name {
+                "gap" => matches!(value, Value::Length(_)),
+                _ => matches!(value, Value::Bool(_)),
+            };
+            if !valid {
+                return Err(vec![SourceDiagnostic::error(
+                    value_span(Some(name)),
+                    format!(
+                        "expected {}, found {}",
+                        if name == "gap" { "length" } else { "boolean" },
+                        vanilla_type_name(value)
+                    ),
+                )]);
+            }
+            styles = styles.push_custom(format!("figure.{name}"), value.clone());
+            own = true;
+        }
+    }
+    Ok(Value::Content(if own { Content::styled(Box::new(figure), styles) } else { figure }))
 }
 
 // ── P1473 — `figure.caption(body, position?, separator?)` ───────────────────

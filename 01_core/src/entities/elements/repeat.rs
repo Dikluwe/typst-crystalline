@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/repeat.md
-//! @prompt-hash 06d272bf
+//! @prompt-hash cbe849a5
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -21,6 +21,9 @@ pub struct RepeatElem {
     pub body: Content,
     pub gap: Option<Length>,
     pub justify: bool,
+    /// Properties given in the call, one bit each in the order of the
+    /// layout declarations; the others read `set`.
+    pub(crate) given: u8,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length` carrega `f64`.
@@ -43,7 +46,7 @@ impl Element for RepeatElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Repeat(Arc::new(RepeatElem {
+        Ok(Content::Repeat(Arc::new(RepeatElem { given: self.given,
             body: self.body.map_content(transform)?,
             gap: self.gap,
             justify: self.justify,
@@ -54,7 +57,7 @@ impl Element for RepeatElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Repeat(Arc::new(RepeatElem {
+        Content::Repeat(Arc::new(RepeatElem { given: self.given,
             body: self.body.map_text(transform),
             gap: self.gap,
             justify: self.justify,
@@ -67,7 +70,7 @@ mod tests {
     use super::*;
 
     fn ex() -> RepeatElem {
-        RepeatElem {
+        RepeatElem { given: 0,
             body: Content::text("ab"),
             gap: Some(Length::pt(2.0)),
             justify: true,
@@ -82,7 +85,7 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(RepeatElem { body: Content::Empty, gap: None, justify: false }.is_empty());
+        assert!(RepeatElem { given: 0, body: Content::Empty, gap: None, justify: false }.is_empty());
     }
 
     #[test]

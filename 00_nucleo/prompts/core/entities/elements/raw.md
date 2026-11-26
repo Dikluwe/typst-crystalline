@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/raw` — `RawElem`
-Hash do Código: 91c80bf8
+Hash do Código: 63812cb5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
@@ -81,3 +81,9 @@ owners. No broader compatibility/parity closure is claimed.
 ## Historical record
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/raw.md` preserves the original evidence and chronology.
+
+## Layout family package
+
+`RawOptions` carries `tab-size`, `align` and `theme: none` from the call.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/repeat — repeat
-Hash do Código: e7791f95
+Hash do Código: 83423225
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/repeat.rs`
@@ -45,3 +45,9 @@ it. This bounded parity correction supersedes the historical preserve-all-
 diagnostics instruction only for the independently refuted negative-gap error.
 ADR-0127 continuous flow applies: L0 first, observed RED, exact acceptance and
 full hash/lineage/test gates, with no new phase or suppression.
+
+## Layout family package
+
+Calls record their presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

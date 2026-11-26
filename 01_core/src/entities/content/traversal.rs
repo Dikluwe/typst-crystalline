@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash f5cc62f8
+//! @prompt-hash 0dacb3e5
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -1162,7 +1162,7 @@ impl Content {
         })))),
 
             // Modelo D (Lote 8 P323): Quote container delega ao elemento.
-            Content::Quote(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Quote(Arc::new(QuoteElem {
+            Content::Quote(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Quote(Arc::new(QuoteElem { given: e.given,
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             attribution: e
                 .attribution
@@ -1240,7 +1240,7 @@ impl Content {
             // Modelo D (Lote 9 P324): Stack container delega ao elemento.
             Content::Stack(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre_with_origin_inner(transform, origin)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Stack(Arc::new(StackElem {
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Stack(Arc::new(StackElem { given: e.given,
             children: Arc::from(new_children?),
             dir: e.dir,
             spacing: e.spacing,
@@ -1248,7 +1248,7 @@ impl Content {
 
             // Passo 156J: Repeat container — recurse em body; gap e
             // justify são Copy primitivos (Option<Length>, bool).
-            Content::Repeat(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Repeat(Arc::new(RepeatElem {
+            Content::Repeat(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Repeat(Arc::new(RepeatElem { given: e.given,
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             gap: e.gap,
             justify: e.justify,
@@ -1474,7 +1474,7 @@ impl Content {
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
         })))),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
-            Content::Place(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Place(Arc::new(PlaceElem {
+            Content::Place(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Place(Arc::new(PlaceElem { given: e.given,
             alignment: e.alignment,
             dx: e.dx,
             dy: e.dy,

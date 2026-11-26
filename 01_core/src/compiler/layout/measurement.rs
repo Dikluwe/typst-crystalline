@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/measurement.md
-//! @prompt-hash d4f12ebc
+//! @prompt-hash 979bd3e0
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -498,6 +498,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P273.11 — delega ao helper Layouter::measure_stack (substitui
             // replicação inline ~25 LOC; bit-exact preserved).
             Content::Stack(e) => {
+                let declared = crate::compiler::stdlib::effective_layout(
+                    content,
+                    &self.chain,
+                    self.style.size.val(),
+                );
+                let e = match &declared {
+                    Some(Content::Stack(declared)) => declared,
+                    _ => e,
+                };
                 self.measure_stack(&e.children, e.dir, e.spacing, max_width)
             }
 

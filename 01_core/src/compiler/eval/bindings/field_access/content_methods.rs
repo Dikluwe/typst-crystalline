@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 302acd25
+//! @prompt-hash 5c4bfecc
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -76,6 +76,16 @@ pub(super) fn content_field(
         Content::Realized(e) => content_field(&e.visual, field),
         Content::Styled(styled) => {
             if crate::compiler::realize::figure::is_figure(&styled.body) {
+                // `numbering`, `gap` and `outlined` given to the constructor
+                // travel as the figure's own styles.
+                if matches!(field, "numbering" | "gap" | "outlined") {
+                    let key = format!("figure.{field}");
+                    if let Some((_, value)) =
+                        styled.styles.delta().custom.iter().rev().find(|(k, _)| *k == key)
+                    {
+                        return ContentField::Set(value.clone());
+                    }
+                }
                 return content_field(&styled.body, field);
             }
             if equation_descendant(c).is_none() {
@@ -437,7 +447,13 @@ pub(super) fn content_set_fields(
     let c = c.source_body();
     if let Content::Styled(styled) = c {
         if crate::compiler::realize::figure::is_figure(&styled.body) {
-            return content_set_fields(&styled.body);
+            let mut fields = content_set_fields(&styled.body);
+            for name in ["numbering", "gap", "outlined"] {
+                if let ContentField::Set(value) = content_field(c, name) {
+                    fields.push((name, value));
+                }
+            }
+            return fields;
         }
     }
     if let Some(fields) = crate::compiler::stdlib::grid_fields(c)

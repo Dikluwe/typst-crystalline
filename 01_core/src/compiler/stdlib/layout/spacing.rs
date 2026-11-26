@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/spacing.md
-//! @prompt-hash be2392aa
+//! @prompt-hash 1bbf96fd
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -67,9 +67,9 @@ pub(crate) fn build_spacing(
         }
     };
 
-    // Validação: amount negativo rejeitado per perfil ADR-0054 graded
-    // (vanilla aceita-o; cristalino diverge intencionalmente neste passo).
-    if let Spacing::Absolute(l) = amount {
+    // Validação: amount negativo rejeitado em `h` per perfil ADR-0054 graded.
+    // `v` aceita-o, como a linguagem: é pedido explícito do autor.
+    if let (Spacing::Absolute(l), false) = (amount, fn_name == "v") {
         if l.abs.0 < 0.0 || l.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -129,10 +129,10 @@ pub fn native_h(
 /// vertical fracionária é outro mecanismo — scope-out registado no
 /// relatório de P842); a mensagem pré-P842 preserva-se verbatim.
 pub fn native_v(
-    _ctx: &mut EvalContext,
+    ctx: &mut EvalContext,
     args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::elements::h_space::Spacing;
     let (amount, weak, weak_explicit) = build_spacing(args, "v", &["weak"])?;
@@ -142,10 +142,16 @@ pub fn native_v(
             weak,
             weak_explicit,
         ))),
-        Spacing::Fractional(_) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "v() espera amount como length, recebeu fraction".to_string(),
-        )]),
+        // A fractional `v` takes its share of the remaining region exactly as
+        // a fractional block without spacing does in the language.
+        Spacing::Fractional(fr) => {
+            let mut block = Args::positional(vec![]);
+            block.span = args.span;
+            block.named.insert("height".into(), Value::Fraction(fr));
+            block.named.insert("above".into(), Value::Length(Length::ZERO));
+            block.named.insert("below".into(), Value::Length(Length::ZERO));
+            super::native_block(ctx, &block, world, current_file)
+        }
     }
 }
 

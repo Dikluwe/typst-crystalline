@@ -1,5 +1,5 @@
 # L0 — cursor
-Hash do Código: 7cb4bd6d
+Hash do Código: 6fb754f0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -264,3 +264,9 @@ Before the existing block-chain baseline guard requests implicit outer page
 progress, consult the Block-owned terminal text-region query. Keep baseline
 resolution and spacing, KnownTop admission, explicit pagebreaks and marker
 float-drain transitions unchanged.
+
+## Layout family package
+
+A paragraph after weak spacing starts at that spacing exactly.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

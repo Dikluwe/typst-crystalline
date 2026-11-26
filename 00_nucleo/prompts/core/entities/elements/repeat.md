@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/repeat` — `RepeatElem`
-Hash do Código: 08559690
+Hash do Código: c5dfbc87
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/repeat.rs`
@@ -36,3 +36,9 @@ Verify recursive maps, text/emptiness delegation, and structural equality.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/repeat.md`. Historical observations are not a new parity certification.
+
+## Layout family package
+
+`given` records which declarable properties the call gave.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

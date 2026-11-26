@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: 0d8835db
+Hash do Código: bbd4018e
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -199,3 +199,10 @@ Own the black-box cases of `00_nucleo/diagnostics/methods-dates-package-2026-11-
 type functions called on values, their errors, date arithmetic including the
 out-of-range error where the pinned reference crashes, unit conversions and selector
 representations, with values measured on the pinned reference.
+
+## Approved layout family package
+
+Own the black-box cases of `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`:
+`v` against equal paragraph spacing, weak and fractional forms, placements that end a
+paragraph, every declared layout property against the equal constructor, raw tabs and
+theme errors, figure gap and outlined, page parity and block quotes.

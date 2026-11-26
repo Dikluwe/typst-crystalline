@@ -1,5 +1,5 @@
 # L0 — quote
-Hash do Código: f3640019
+Hash do Código: da3ccf5d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -48,3 +48,9 @@ At baseline HEAD `63b7b96b99109b61655b373dc0d248beb7838f86`, the complete source
 ### Exclusive protocol responsibility
 
 Route this feature's actual source children through closed typed plan edges `QuoteBody, QuoteAttribution`, retaining their field/index and original source authority. Generated markers, punctuation and decorations remain explicitly unplanned; do not turn equal-looking generated content into source children. Preserve all existing geometry, style, hiding, count, spacing, diagnostics and restoration formulas. Hidden bodies retain causal admissions even though their paint is removed; no execution is introduced. Source-route coverage is checked independently from paint.
+
+## Layout family package
+
+Quotes are automatic (on outside a block) unless given or declared. A block quote is a block with 2.4em above and 1.8em below, padded 1em on both sides on every line; its attribution follows 0.9em below, aligned to the end. Outside a block the attribution is not shown.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

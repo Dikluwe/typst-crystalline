@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/checkpoint.md
-//! @prompt-hash cc944f88
+//! @prompt-hash 0a444e87
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -34,6 +34,9 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     sub_frame_top_y: f64,
     cell_frame_request: bool,
     in_cell_frame: bool,
+    fixed_gap: bool,
+    place_break_pending: bool,
+    place_break_items: Option<(usize, usize, usize)>,
     flow_placement_end: Option<(f64, f64)>,
     flow_frame_extent: (f64, f64),
     last_sub_frame_flow_width: f64,
@@ -232,6 +235,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             sub_frame_top_y: self.sub_frame_top_y,
             cell_frame_request: self.cell_frame_request,
             in_cell_frame: self.in_cell_frame,
+            fixed_gap: self.fixed_gap,
+            place_break_pending: self.place_break_pending,
+            place_break_items: self.place_break_items,
             flow_placement_end: self.flow_placement_end,
             flow_frame_extent: self.flow_frame_extent,
             last_sub_frame_flow_width: self.last_sub_frame_flow_width,
@@ -387,6 +393,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.sub_frame_top_y = checkpoint.sub_frame_top_y;
         self.cell_frame_request = checkpoint.cell_frame_request;
         self.in_cell_frame = checkpoint.in_cell_frame;
+        self.fixed_gap = checkpoint.fixed_gap;
+        self.place_break_pending = checkpoint.place_break_pending;
+        self.place_break_items = checkpoint.place_break_items;
         self.flow_placement_end = checkpoint.flow_placement_end;
         self.flow_frame_extent = checkpoint.flow_frame_extent;
         self.last_sub_frame_flow_width = checkpoint.last_sub_frame_flow_width;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/markup.md
-//! @prompt-hash 0bb33044
+//! @prompt-hash 98760be6
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -94,7 +94,7 @@ pub fn native_raw(
 
     for (key, _value) in args.named.iter() {
         match key.as_str() {
-            "lang" | "block" => {}
+            "lang" | "block" | "tab-size" | "align" | "theme" => {}
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -134,12 +134,69 @@ pub fn native_raw(
     if args.named.contains_key("lang") {
         set_fields |= RAW_SET_LANG;
     }
+    let options = raw_options(args)?;
     Ok(Value::Content(Content::Raw(std::sync::Arc::new(RawElem {
         text,
         lang,
         block,
         set_fields,
+        options,
     }))))
+}
+
+/// `tab-size`, `align` and `theme` of a `raw` call or `set raw`.
+pub(crate) fn raw_options(
+    args: &Args,
+) -> SourceResult<crate::entities::elements::raw::RawOptions> {
+    use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+    use crate::entities::layout_types::Align2D;
+    let mut options = crate::entities::elements::raw::RawOptions::default();
+    let span = |name: &str| crate::compiler::stdlib::layout::named_value_span(args, name);
+    if let Some(value) = args.named.get("tab-size") {
+        options.tab_size = Some(match value {
+            Value::Int(size) if *size >= 0 => *size as usize,
+            Value::Int(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    span("tab-size"),
+                    "number must be at least zero",
+                )])
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    span("tab-size"),
+                    format!("expected integer, found {}", vanilla_type_name(other)),
+                )])
+            }
+        });
+    }
+    if let Some(value) = args.named.get("align") {
+        options.align = Some(match value {
+            Value::Align(Align2D { h: Some(h), v: None }) => *h,
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    span("align"),
+                    format!("expected alignment, found {}", vanilla_type_name(other)),
+                )])
+            }
+        });
+    }
+    if let Some(value) = args.named.get("theme") {
+        options.theme_none = Some(match value {
+            Value::None => true,
+            Value::Auto => false,
+            // Loading a theme file is I/O, which the core does not do.
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    span("theme"),
+                    format!(
+                        "theme files are not supported; expected none or auto, found {}",
+                        vanilla_type_name(other)
+                    ),
+                )])
+            }
+        });
+    }
+    Ok(options)
 }
 
 // ── `heading()` — função nativa + selector para show rules (P451) ───────────

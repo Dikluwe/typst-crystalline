@@ -1,5 +1,5 @@
 # L0 — linebreak
-Hash do Código: 3bcdeace
+Hash do Código: 45133e60
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:91cb1c097fc694c138acf2d044a3fc46dc7c41ec608ac557f086e1dc41ec0f57
@@ -59,3 +59,9 @@ Require occurrence/UTF8/restoration/parbreak-origin tests and bilateral wraps. E
 An explicit break right after a line closed by a trailing space ends that line; it does not open an empty one.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+Without `justify:` in the call, `set linebreak(justify:)` applies.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

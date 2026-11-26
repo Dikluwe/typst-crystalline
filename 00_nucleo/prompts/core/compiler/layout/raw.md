@@ -1,5 +1,5 @@
 # L0 — raw highlight
-Hash do Código: 2de14bbd
+Hash do Código: 6073e24f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:993c94c8c186448b35b1ba8a0d84c1aadd95e9db0a09b19394fe95b08db52c7e
@@ -304,3 +304,9 @@ On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
 the measured RED cases and the limits. Raw inherits the nearest text fill through StyleChain. Token colors override the inherited paint with Solid Paint.
 Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
 paint, a solid control and the absence of tiling on this route.
+
+## Layout family package
+
+Tabs expand to the next multiple of the tab size (2 by default, else given or declared). `theme: none` turns highlighting off. A block's `align` aligns each line within its longest line.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

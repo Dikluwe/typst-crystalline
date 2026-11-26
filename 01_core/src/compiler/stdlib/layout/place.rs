@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/place.md
-//! @prompt-hash 1d1e518a
+//! @prompt-hash 62a24c82
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -190,7 +190,11 @@ pub fn native_place(
             )]
         })?;
 
-    Ok(Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)))
+    Ok(crate::compiler::stdlib::with_given(
+Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)),
+        "place",
+        args,
+    ))
 }
 
 /// `place.flush()` → sentinela que realiza os floats já pendentes.

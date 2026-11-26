@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/quote
-Hash do Código: 014a65dc
+Hash do Código: 31485695
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/quote.rs`
@@ -15,3 +15,9 @@ quote requires one Content|Str body and named attribution: Content|Str|none=none
 ## Acceptance
 
 Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
+
+## Layout family package
+
+Calls record their presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

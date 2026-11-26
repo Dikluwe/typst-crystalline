@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/stack.md
-//! @prompt-hash 665e3bd8
+//! @prompt-hash 2b9a6f12
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -21,6 +21,9 @@ pub struct StackElem {
     pub children: Arc<[Content]>,
     pub dir: Dir,
     pub spacing: Option<Length>,
+    /// Properties given in the call, one bit each in the order of the
+    /// layout declarations; the others read `set`.
+    pub(crate) given: u8,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `spacing: Option<Length>`
@@ -46,7 +49,7 @@ impl Element for StackElem {
     {
         let new_children: SourceResult<Vec<Content>> =
             self.children.iter().map(|c| c.map_content(transform)).collect();
-        Ok(Content::Stack(Arc::new(StackElem {
+        Ok(Content::Stack(Arc::new(StackElem { given: self.given,
             children: Arc::from(new_children?),
             dir: self.dir,
             spacing: self.spacing,
@@ -59,7 +62,7 @@ impl Element for StackElem {
     {
         let new_children: Vec<Content> =
             self.children.iter().map(|c| c.map_text(transform)).collect();
-        Content::Stack(Arc::new(StackElem {
+        Content::Stack(Arc::new(StackElem { given: self.given,
             children: Arc::from(new_children),
             dir: self.dir,
             spacing: self.spacing,
@@ -74,7 +77,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> StackElem {
-        StackElem {
+        StackElem { given: 0,
             children: Arc::from(vec![Content::text("a"), Content::text("b")]),
             dir: Dir::TTB,
             spacing: None,
@@ -89,7 +92,7 @@ mod tests {
     #[test]
     fn is_empty_todos_vazios() {
         assert!(!ex().is_empty());
-        let vazio = StackElem {
+        let vazio = StackElem { given: 0,
             children: Arc::from(vec![Content::Empty]),
             dir: Dir::TTB,
             spacing: None,
@@ -122,7 +125,7 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = StackElem {
+        let outro = StackElem { given: 0,
             children: Arc::from(vec![Content::text("x")]),
             dir: Dir::TTB,
             spacing: None,

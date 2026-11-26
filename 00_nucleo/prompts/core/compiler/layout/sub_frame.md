@@ -1,5 +1,5 @@
 # L0 — sub frame
-Hash do Código: b6bcd2c7
+Hash do Código: b257b0e0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -641,3 +641,9 @@ ADR-0127 continuous flow: this restores measured note semantics/pagination/morph
 A sub-frame opened by a grid cell is a cell frame: its top is the ascender less the text top, its first line reconciles like its last, and a closing block ends at its own bottom without trailing spacing. Other sub-frames keep their behavior.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+A placement break still pending when the frame closes is dropped.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

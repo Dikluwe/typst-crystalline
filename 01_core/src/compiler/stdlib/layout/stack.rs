@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/stack.md
-//! @prompt-hash 34e2ebff
+//! @prompt-hash 73164b8c
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -80,5 +80,9 @@ pub fn native_stack(
         }
     }
 
-    Ok(Value::Content(Content::stack(children, dir, spacing)))
+    Ok(crate::compiler::stdlib::with_given(
+Value::Content(Content::stack(children, dir, spacing)),
+        "stack",
+        args,
+    ))
 }

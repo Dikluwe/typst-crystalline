@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/quote` — `QuoteElem`
-Hash do Código: 72fa9794
+Hash do Código: d072186b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/quote.rs`
@@ -40,3 +40,9 @@ optional attribution, body-only emptiness, recursive maps, and equality.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/quote.md`. Historical observations are not a new parity certification.
+
+## Layout family package
+
+`given` records which declarable properties the call gave.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

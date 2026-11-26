@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: 382e6921
+Hash do Código: 10602ed8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/outline.rs`
@@ -61,3 +61,9 @@ and recursive title transformations.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/elements/outline.md`. Historical observations are not a new parity certification.
+
+## Layout family package
+
+`given` records title and depth presence; `with_declarations` applies declared ones the call left out.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

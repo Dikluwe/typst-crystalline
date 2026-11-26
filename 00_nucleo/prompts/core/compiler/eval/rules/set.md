@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: c4397db0
+Hash do Código: e0a4c91e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -763,3 +763,9 @@ Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md
 `set grid` carries every grid property and `set grid.cell` its fill, align, inset and stroke as raw declarations, applied when the grid is inserted. `set table` also carries the three gutters, and fill, stroke and inset given as arrays or functions.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+`set` of `pad`, `place`, `stack`, `repeat`, `outline`, `quote`, `raw`, `figure.caption`, `pagebreak` and `linebreak` carries the declared properties of `compiler/stdlib/layout`. `set figure(outlined:)` is carried.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

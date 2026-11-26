@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/quote.md
-//! @prompt-hash 551eee95
+//! @prompt-hash 1534a7b6
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -104,5 +104,9 @@ pub fn native_quote(
         }
     }
 
-    Ok(Value::Content(Content::quote(body, attribution, block, quotes)))
+    Ok(crate::compiler::stdlib::with_given(
+Value::Content(Content::quote(body, attribution, block, quotes)),
+        "quote",
+        args,
+    ))
 }

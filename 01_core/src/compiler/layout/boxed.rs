@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/boxed.md
-//! @prompt-hash c8e52491
+//! @prompt-hash 6e4f0fa8
 //! @layer L1
 //! @updated 2026-10-21
 //!
@@ -2303,7 +2303,7 @@ mod composition_regressions {
         Content::Boxed(Arc::new(e))
     }
     fn repeat_baseline_piece(gap: f64) -> Content {
-        Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem {
+        Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem { given: 0,
             body: Content::text("X"),
             gap: Some(Length::pt(gap)),
             justify: false,
@@ -2453,13 +2453,13 @@ mod composition_regressions {
     fn box_repeat_opaque_stack_prefix_keeps_existing_first_paint_fallback() {
         for inside_repeat in [false, true] {
             let stack =
-                Content::Stack(Arc::new(crate::entities::elements::stack::StackElem {
+                Content::Stack(Arc::new(crate::entities::elements::stack::StackElem { given: 0,
                     children: Arc::from(vec![Content::text("S"), Content::text("T")]),
                     dir: crate::entities::dir::Dir::TTB,
                     spacing: Some(Length::pt(3.0)),
                 }));
             let prefix = if inside_repeat {
-                Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem {
+                Content::Repeat(Arc::new(crate::entities::elements::repeat::RepeatElem { given: 0,
                     body: stack,
                     gap: Some(Length::pt(3.0)),
                     justify: false,

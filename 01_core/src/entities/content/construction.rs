@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction.md
-//! @prompt-hash 89fc322b
+//! @prompt-hash 4a750f86
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -166,7 +166,7 @@ impl Content {
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
         use crate::entities::elements::raw::{RAW_SET_BLOCK, RAW_SET_LANG};
         let set_fields = RAW_SET_BLOCK | if lang.is_some() { RAW_SET_LANG } else { 0 };
-        Self::Raw(Arc::new(RawElem { text: text.into(), lang, block, set_fields }))
+        Self::Raw(Arc::new(RawElem { options: Default::default(), text: text.into(), lang, block, set_fields }))
     }
     /// `align(alignment, body)` — Modelo D (Lote 7 P322).
     pub fn align(alignment: Align2D, body: Content) -> Self {
@@ -512,7 +512,7 @@ impl Content {
         block: bool,
         quotes: bool,
     ) -> Self {
-        Self::Quote(Arc::new(QuoteElem { body, attribution, block, quotes }))
+        Self::Quote(Arc::new(QuoteElem { given: 0, body, attribution, block, quotes }))
     }
 
     /// **Passo 397** — `Content::Document` (metadata pura).

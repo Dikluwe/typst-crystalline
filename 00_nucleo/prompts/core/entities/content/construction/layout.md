@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/layout
-Hash do Código: be895d3e
+Hash do Código: f5fa54b1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -93,3 +93,9 @@ Migrate only this consumer's ShapeElem literal/destructure: legacy rect_radius
 and rect_stroke are None (or explicitly bound/observed for observation). Preserve
 all existing values, expectations and other APIs; public addition is approved.
 Do not materialize unrelated square/container features.
+
+## Layout family package
+
+Constructed layout elements carry empty presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

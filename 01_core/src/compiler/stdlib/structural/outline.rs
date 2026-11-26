@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/outline.md
-//! @prompt-hash aee316df
+//! @prompt-hash 5b941a77
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -674,18 +674,81 @@ pub fn native_outline(
             )]),
         },
         Some(Value::None) | None => OutlineTarget::Headings,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("outline(target:): espera string, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => outline_target(other).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                crate::compiler::stdlib::layout::named_value_span(args, "target"),
+                format!(
+                    "outline(target:): only headings, figures and tables of one kind are supported, found {}",
+                    crate::compiler::eval::repr::repr_value(other)
+                ),
+            )]
+        })?,
     };
 
-    Ok(Value::Content(Content::Outline(std::sync::Arc::new(
-        OutlineElem::with_target_and_title_presence(
-            title, title_set, depth, indent, target,
-        )
-        .with_indent_presence(args.named.contains_key("indent")),
-    ))))
+    let mut outline = OutlineElem::with_target_and_title_presence(
+        title, title_set, depth, indent, target,
+    )
+    .with_indent_presence(args.named.contains_key("indent"));
+    // A positional title is a given title too.
+    outline.given = crate::compiler::stdlib::layout_given("outline", args) | u8::from(title_set);
+    Ok(Value::Content(Content::Outline(std::sync::Arc::new(outline))))
+}
+
+/// The outline target of a selector: headings, all figures, or the figures
+/// of the table or image kind.
+fn outline_target(value: &Value) -> Option<OutlineTarget> {
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::selector::Selector;
+    let kind_of = |value: &Value| {
+        if let Value::Func(func) = value {
+            crate::compiler::stdlib::element_kind_of_native_func(func)
+        } else {
+            None
+        }
+    };
+    let selector = if let Value::Selector(selector) = value {
+        selector.clone()
+    } else {
+        Selector::Kind(kind_of(value)?)
+    };
+    if let Selector::Kind(kind) = &selector {
+        return if *kind == ElementKind::Heading {
+            Some(OutlineTarget::Headings)
+        } else if *kind == ElementKind::Figure {
+            Some(OutlineTarget::Figures)
+        } else if *kind == ElementKind::Table {
+            Some(OutlineTarget::Tables)
+        } else {
+            None
+        };
+    }
+    let (figure_base, value) = if let Selector::Element { function, fields } = &selector {
+        let figure = crate::compiler::stdlib::element_kind_of_native_func(function)
+            == Some(ElementKind::Figure)
+            || function.name() == Some("figure");
+        let [(field, value)] = fields.as_slice() else { return None };
+        if field != "kind" {
+            return None;
+        }
+        (figure, value.clone())
+    } else if let Selector::Where { base, field, value } = &selector {
+        if field != "kind" {
+            return None;
+        }
+        (matches!(base.as_ref(), Selector::Kind(ElementKind::Figure)), value.as_ref().clone())
+    } else {
+        return None;
+    };
+    if !figure_base {
+        return None;
+    }
+    if kind_of(&value) == Some(ElementKind::Table) {
+        Some(OutlineTarget::Tables)
+    } else if matches!(&value, Value::Func(func) if func.name() == Some("image")) {
+        Some(OutlineTarget::Figures)
+    } else {
+        None
+    }
 }
 
 /// **P472** — `lof(title:?)` — emite `Content::Outline` com `target = Figures`.

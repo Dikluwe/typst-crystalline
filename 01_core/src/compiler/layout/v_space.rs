@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/v_space.md
-//! @prompt-hash 2a5c1844
+//! @prompt-hash 1dee3141
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -23,10 +23,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.page_has_unpainted_material = true;
     }
     let pt = e.amount.resolve_pt(layouter.style.size.val());
-    // Termina linha em curso se houver content pendente — caso
-    // contrário texto na linha actual fica meio-render.
-    if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
+    // `v` is block-level: it ends the paragraph in progress, which keeps the
+    // spacing between paragraphs.
+    if super::html_frame::items_have_causal_line(&layouter.regions.current.current_line) {
+        super::parbreak::layout(layouter);
+    } else if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
         layouter.flush_line();
+    }
+    if e.weak {
+        // Weak spacing at the start of a region disappears.
+        if !layouter.block_chain_active {
+            return;
+        }
+        // Between blocks or paragraphs it replaces their spacing.
+        layouter.prev_block_below_pending = pt;
+        layouter.prev_margin_is_parbreak = false;
+        layouter.fixed_gap = true;
+        return;
     }
     let end = layouter
         .flow_placement_y()

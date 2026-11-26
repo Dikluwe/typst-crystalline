@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/pad.md
-//! @prompt-hash 9cbe13c6
+//! @prompt-hash 456b2e07
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -26,10 +26,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // efectiva durante body layout via save/restore (paridade
     // mecânica vanilla).
     let font = layouter.style.size.val();
-    let left = sides.left.map_or(0.0, |l| l.resolve_pt(font));
-    let top = sides.top.map_or(0.0, |l| l.resolve_pt(font));
-    let right = sides.right.map_or(0.0, |l| l.resolve_pt(font));
-    let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
+    // A side the call leaves out takes its `set pad` declaration.
+    let side = |given: Option<crate::entities::layout_types::Length>, name: &str| {
+        given
+            .or_else(|| {
+                crate::compiler::stdlib::declared_length(&layouter.chain, &format!("pad.{name}"))
+            })
+            .map_or(0.0, |l| l.resolve_pt(font))
+    };
+    let left = side(sides.left, "left");
+    let top = side(sides.top, "top");
+    let right = side(sides.right, "right");
+    let bottom = side(sides.bottom, "bottom");
 
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
         layouter.flush_line();

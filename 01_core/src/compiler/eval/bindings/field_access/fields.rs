@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 11dd7892
+//! @prompt-hash 23159e2a
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -611,6 +611,12 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
 fn is_presence_content(content: &crate::entities::content::Content) -> bool {
     if content.constructor_heading().is_some() {
         return true;
+    }
+    // A figure carrying its own `numbering`, `gap` or `outlined` styles.
+    if let crate::entities::content::Content::Styled(styled) = content {
+        if crate::compiler::realize::figure::is_figure(&styled.body) {
+            return true;
+        }
     }
     use crate::entities::content::Content;
     match content {

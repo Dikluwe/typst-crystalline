@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/cursor.md
-//! @prompt-hash b5233dd0
+//! @prompt-hash 96b5821a
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -120,7 +120,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.metrics.text_edges(self.style.size, &self.style).0
                 }
             };
-            let gap = if self.prev_margin_is_parbreak {
+            let gap = if std::mem::take(&mut self.fixed_gap) {
+                self.prev_block_below_pending
+            } else if self.prev_margin_is_parbreak {
                 let above = match self.chain.custom("par.spacing") {
                     Some(crate::entities::value::Value::Length(v)) => {
                         v.resolve_pt(self.style.size.val())

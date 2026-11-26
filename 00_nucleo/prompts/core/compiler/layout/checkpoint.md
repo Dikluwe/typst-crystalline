@@ -1,5 +1,5 @@
 # L0 — compiler/layout/checkpoint
-Hash do Código: d1ae7f47
+Hash do Código: 1b46d14b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -471,3 +471,9 @@ This is internal convergence/restoration of existing language behavior under ADR
 Checkpoints carry the space-wrap line, the sub-frame top and the cell-frame flags.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+Checkpoints carry the fixed gap and the pending placement break with its items.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

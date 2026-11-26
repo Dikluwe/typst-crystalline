@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/place — place and flush
-Hash do Código: 7eda64f2
+Hash do Código: d7104046
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
@@ -80,3 +80,9 @@ Tests cover invalid types, zero/negative/numeric point compatibility, omitted
 vertical alignment, causal span and dx-before-dy precedence. Preserve explicitly
 measured dimensional limitations; do not add resolution in eval or change a
 public carrier. This is continuous internal contract repair under ADR-0127.
+
+## Layout family package
+
+Calls record their presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

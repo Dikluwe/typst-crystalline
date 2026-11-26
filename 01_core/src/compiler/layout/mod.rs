@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash 70434a0e
+//! @prompt-hash 2455084f
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -382,6 +382,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) in_cell_frame: bool,
     /// Gutter after each row of the grid being laid out, in points.
     pub(super) grid_row_gaps: Vec<f64>,
+    /// The pending gap was set by weak spacing and is final: the next
+    /// block or paragraph does not collapse it with its own spacing.
+    pub(super) fixed_gap: bool,
+    /// A placed element ended a paragraph; the break is taken before the
+    /// next material, so that trailing placement adds no spacing.
+    pub(super) place_break_pending: bool,
+    /// Page and item range of the placement awaiting that break.
+    pub(super) place_break_items: Option<(usize, usize, usize)>,
     /// Physical flow end and the prepared cursor that certifies it.
     pub(super) flow_placement_end: Option<(f64, f64)>,
     /// Logical origin and occupied width of the active flow scope.
@@ -1059,6 +1067,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cell_frame_request: false,
             in_cell_frame: false,
             grid_row_gaps: Vec::new(),
+            fixed_gap: false,
+            place_break_pending: false,
+            place_break_items: None,
             flow_placement_end: None,
             flow_frame_extent: (0.0, 0.0),
             last_sub_frame_flow_width: 0.0,
@@ -1582,6 +1593,34 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     fn dispatch_content_body(&mut self, content: &Content) {
+        if self.place_break_pending
+            && !matches!(
+                content,
+                Content::Space
+                    | Content::SpaceFromNewline
+                    | Content::Sequence(_)
+                    | Content::Styled(_)
+                    | Content::Empty
+                    | Content::Located(_)
+                    | Content::Source(_)
+                    | Content::Place(_)
+            )
+        {
+            self.place_break_pending = false;
+            let items = self.place_break_items.take();
+            if !matches!(content, Content::Parbreak) {
+                parbreak::layout(self);
+            }
+            let shift = self.prev_block_below_pending;
+            if let Some((page, start, end)) = items.filter(|(page, _, _)| *page == self.pages.len()) {
+                let _ = page;
+                let end = end.min(self.regions.current.current_items.len());
+                for item in &mut self.regions.current.current_items[start.min(end)..end] {
+                    let (x, y) = item_pos(item);
+                    *item = translate_frame_item(item.clone(), Pt(x), Pt(y + shift));
+                }
+            }
+        }
         text::observe_content_boundary(self, content);
         paragraph_indent::before_content(self, content);
         // Observe the logical input once; leaf arms remain static adapters.
@@ -1894,7 +1933,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 61/P457 — TOC: delegado a outline.rs.
-            Content::Outline(e) => outline::layout_outline(self, e),
+            Content::Outline(e) => {
+                let declared = crate::compiler::stdlib::declared_outline(e, &self.chain);
+                outline::layout_outline(self, &declared)
+            }
 
             Content::OutlineEntry(e) => outline_entry::layout(self, e),
 
@@ -1976,7 +2018,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // finish). `float: false` preserva comportamento P84.5+P84.6
             // literal (body in-place via cursor).
             // Atomizado (ADR-0109, P378) → layout/place.rs.
-            Content::Place(e) => place::layout(self, e),
+            Content::Place(e) => match crate::compiler::stdlib::effective_layout(
+                content,
+                &self.chain,
+                self.style.size.val(),
+            ) {
+                Some(Content::Place(declared)) => place::layout(self, &declared),
+                _ => place::layout(self, e),
+            },
             Content::Flush(e) => flush::layout(self, e),
 
             // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
@@ -2042,7 +2091,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // posicionamento absoluto reverso real (sob forma de
             // FrameItem positioning).
             // Atomizado (ADR-0109, P376) → layout/stack.rs.
-            Content::Stack(e) => stack::layout(self, e),
+            Content::Stack(e) => match crate::compiler::stdlib::effective_layout(
+                content,
+                &self.chain,
+                self.style.size.val(),
+            ) {
+                Some(Content::Stack(declared)) => stack::layout(self, &declared),
+                _ => stack::layout(self, e),
+            },
 
             // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
             // Container INLINE: NÃO força flush_line. Aplica inset.left
@@ -2093,7 +2149,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // (só uma cópia neste passo). `justify` armazenado mas
             // sem distribuição de espaço residual (idem).
             // Atomizado (ADR-0109, P380) → layout/repeat.rs.
-            Content::Repeat(e) => repeat::layout(self, e),
+            Content::Repeat(e) => match crate::compiler::stdlib::effective_layout(
+                content,
+                &self.chain,
+                self.style.size.val(),
+            ) {
+                Some(Content::Repeat(declared)) => repeat::layout(self, &declared),
+                _ => repeat::layout(self, e),
+            },
 
             // ── P219 (DEBT-56 sub-fase b 3/4) — columns consumer REAL graded
             //
@@ -2186,7 +2249,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             // Atomizado (ADR-0109, P381) → layout/quote.rs.
-            Content::Quote(e) => quote::layout(self, e),
+            Content::Quote(e) => match crate::compiler::stdlib::effective_layout(
+                content,
+                &self.chain,
+                self.style.size.val(),
+            ) {
+                Some(Content::Quote(declared)) => quote::layout(self, &declared),
+                _ => quote::layout(self, e),
+            },
 
             // P1493: ContextBlock continua no-op salvo na passagem intrínseca
             // detalhada, onde um carrier privado acompanha a geometria final.

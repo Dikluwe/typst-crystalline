@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/observation/elements.md
-//! @prompt-hash 2443582a
+//! @prompt-hash a54f68c0
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -392,7 +392,7 @@ impl ObservationEq for crate::entities::elements::strong::StrongElem {
 }
 impl ObservationEq for crate::entities::elements::raw::RawElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { text: _, lang: _, block: _, set_fields: _ } = self;
+        let Self { text: _, lang: _, block: _, set_fields: _, options: _ } = self;
         ObservationRelation::Same
             .and(self.text.observation_relation(&other.text))
             .and(self.lang.observation_relation(&other.lang))
@@ -665,7 +665,7 @@ impl ObservationEq for crate::entities::elements::block::BlockHeight {
 }
 impl ObservationEq for crate::entities::elements::repeat::RepeatElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { body: _, gap: _, justify: _ } = self;
+        let Self { body: _, gap: _, justify: _, given: _ } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.gap.observation_relation(&other.gap))
@@ -691,6 +691,7 @@ impl ObservationEq for crate::entities::elements::link::LinkElem {
 impl ObservationEq for crate::entities::elements::place::PlaceElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            given: _,
             alignment: _,
             dx: _,
             dy: _,
@@ -742,7 +743,7 @@ impl ObservationEq for crate::entities::elements::emph::EmphElem {
 }
 impl ObservationEq for crate::entities::elements::quote::QuoteElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { body: _, attribution: _, block: _, quotes: _ } = self;
+        let Self { body: _, attribution: _, block: _, quotes: _, given: _ } = self;
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.attribution.observation_relation(&other.attribution))
@@ -758,7 +759,7 @@ impl ObservationEq for crate::entities::elements::flush::FlushElem {
 }
 impl ObservationEq for crate::entities::elements::stack::StackElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { children: _, dir: _, spacing: _ } = self;
+        let Self { children: _, dir: _, spacing: _, given: _ } = self;
         ObservationRelation::Same
             .and(self.children.observation_relation(&other.children))
             .and(self.dir.observation_relation(&other.dir))
@@ -1534,7 +1535,7 @@ mod raw_presence_tests {
     fn raw_presence_observation_distinguishes_masks_with_equal_values() {
         for a in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
             for b in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
-                let left = RawElem {
+                let left = RawElem { options: Default::default(),
                     text: "x".into(),
                     lang: None,
                     block: false,

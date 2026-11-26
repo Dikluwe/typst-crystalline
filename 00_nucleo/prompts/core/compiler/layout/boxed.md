@@ -1,5 +1,5 @@
 # L0 — boxed
-Hash do Código: c1cb99a7
+Hash do Código: 252cd3b4
 
 
 **Layer:** L1
@@ -786,3 +786,9 @@ sizes and baseline become concrete before any existing reader. An aligned baseli
 top, horizon or bottom places that part of the frame on the line's baseline. Sides
 with different strokes paint through the rectangle owner. The declared fraction width
 keeps its constructor-only effect.
+
+## Layout family package
+
+Test literals carry layout presence bits.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

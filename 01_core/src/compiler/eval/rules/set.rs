@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 1404a0e6
+//! @prompt-hash a0dba92c
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -422,6 +422,14 @@ pub(crate) fn eval_set_rule(
                 && matches!(arg.value, Value::Length(_) | Value::Func(_) | Value::Auto)
             {
                 *engine.styles = engine.styles.push_custom("outline.indent", arg.value);
+            } else if let Some(values) = crate::compiler::stdlib::declare_layout(
+                "outline",
+                arg.name.as_deref().unwrap_or_default(),
+                &arg.value,
+            ) {
+                for (key, value) in values {
+                    *engine.styles = engine.styles.push_custom(key, value);
+                }
             } else {
                 warn_no_effect(engine, "outline", &arg, args.span);
             }
@@ -1174,7 +1182,7 @@ pub(crate) fn eval_set_rule(
             if let Some(name) = arg.name.as_deref() {
                 if !matches!(
                     name,
-                    "kind" | "supplement" | "numbering" | "placement" | "gap"
+                    "kind" | "supplement" | "numbering" | "placement" | "gap" | "outlined"
                 ) {
                     warn_no_effect(engine, "figure", &arg, args.span);
                     continue;
@@ -1209,7 +1217,7 @@ pub(crate) fn eval_set_rule(
                             return Err(vec![SourceDiagnostic::error(span, format!("expected string, function, or none, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(&value)))]);
                         }
                     }
-                    "gap" => {}
+                    "gap" | "outlined" => {}
                     _ => unreachable!("Figure property filter is closed"),
                 }
                 *engine.styles =
@@ -1508,6 +1516,10 @@ pub(crate) fn eval_set_rule(
                     styles.custom(&key),
                 )
                 .map(|value| vec![(key, value)])
+            } else if let Some(values) =
+                crate::compiler::stdlib::declare_layout(element, name, &arg.value)
+            {
+                Some(values)
             } else {
                 crate::compiler::stdlib::shape_frame::declare(
                     element,

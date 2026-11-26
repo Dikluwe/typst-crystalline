@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/outline.md
-//! @prompt-hash 8a9f92c5
+//! @prompt-hash bc13b279
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -79,6 +79,9 @@ pub struct OutlineElem {
     captured_styles: Styles,
     parent_key: i64,
     realized_body: Option<Content>,
+    /// Properties given in the call, one bit each in the order of the
+    /// layout declarations; the others read `set`.
+    pub(crate) given: u8,
 }
 
 impl PartialEq for OutlineElem {
@@ -118,7 +121,7 @@ impl std::hash::Hash for OutlineElem {
 impl OutlineElem {
     /// Defaults do vanilla: sem título customizado, profundidade 3, indentação auto.
     pub fn new(title: Option<Content>, depth: usize, indent: OutlineIndent) -> Self {
-        Self {
+        Self { given: 0,
             title,
             depth,
             indent,
@@ -139,7 +142,7 @@ impl OutlineElem {
         indent: OutlineIndent,
         target: OutlineTarget,
     ) -> Self {
-        Self {
+        Self { given: 0,
             title,
             depth,
             indent,
@@ -187,6 +190,24 @@ impl OutlineElem {
             rule.id.hash(&mut hasher);
         }
         elem.parent_key = hasher.finish() as i64;
+        elem
+    }
+
+    /// The outline with the declared title and depth its call did not give
+    /// (`given` bits 0 and 1).
+    pub(crate) fn with_declarations(
+        &self,
+        title: Option<Option<Content>>,
+        depth: Option<usize>,
+    ) -> Self {
+        let mut elem = self.clone();
+        if let (Some(title), 0) = (title, self.given & 1) {
+            elem.title = title;
+            elem.title_set = true;
+        }
+        if let (Some(depth), 0) = (depth, self.given & 2) {
+            elem.depth = depth;
+        }
         elem
     }
 
@@ -242,7 +263,7 @@ impl Element for OutlineElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Outline(Arc::new(OutlineElem {
+        Ok(Content::Outline(Arc::new(OutlineElem { given: self.given,
             title: self.title.as_ref().map(|c| c.map_content(transform)).transpose()?,
             depth: self.depth,
             indent: self.indent.clone(),
@@ -264,7 +285,7 @@ impl Element for OutlineElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Outline(Arc::new(OutlineElem {
+        Content::Outline(Arc::new(OutlineElem { given: self.given,
             title: self.title.as_ref().map(|c| c.map_text(transform)),
             depth: self.depth,
             indent: self.indent.clone(),

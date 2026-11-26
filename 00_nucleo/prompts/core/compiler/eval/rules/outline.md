@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/outline — Synthesized outlines
-Hash do Código: 2a089500
+Hash do Código: a7029459
 
 
 Layer: L1
@@ -302,3 +302,9 @@ In this owner's existing traversal/certificate use Complete visual cells, else
 authoritative Some(items), else legacy children/header/footer, and caption once.
 No parallel visitation, new allocation, context evaluation, phase or public API.
 Retain existing policies and negative certificates for all other carriers.
+
+## Layout family package
+
+A heading outline applies `set outline(title:, depth:)` declared where it was inserted, for what its call left out.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

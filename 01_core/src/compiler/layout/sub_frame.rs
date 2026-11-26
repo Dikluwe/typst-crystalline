@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/sub_frame.md
-//! @prompt-hash 81fbe00d
+//! @prompt-hash 826d4ac8
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -796,6 +796,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.sub_frame_origin_y = saved_sub_frame_origin_y;
         self.sub_frame_top_y = saved_sub_frame_top_y;
         self.in_cell_frame = saved_in_cell_frame;
+        // A placement pending inside the frame has no follower outside it.
+        self.place_break_pending = false;
+        self.place_break_items = None;
         self.flow_placement_end = saved_flow_placement_end;
         self.flow_baseline = saved_flow_baseline;
         self.flow_frame_extent = saved_flow_frame_extent;

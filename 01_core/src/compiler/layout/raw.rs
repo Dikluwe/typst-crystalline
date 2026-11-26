@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/raw.md
-//! @prompt-hash 8ca39bd9
+//! @prompt-hash ab779696
 //! @layer L1
 //! @updated 2026-10-31
 //!
@@ -356,7 +356,84 @@ fn paint_literal_spaces<M: FontMetrics, S: ImageSizer>(
     }
 }
 
+/// Tabs replaced by spaces up to the next multiple of `tab_size`.
+fn align_tabs(text: &str, tab_size: usize) -> ecow::EcoString {
+    let mut out = ecow::EcoString::new();
+    let mut column = 0;
+    for c in text.chars() {
+        if c == '\t' {
+            let required = tab_size - column % tab_size.max(1);
+            for _ in 0..required {
+                out.push(' ');
+            }
+            column += required;
+        } else {
+            out.push(c);
+            column = if c == '\n' { 0 } else { column + 1 };
+        }
+    }
+    out
+}
+
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e: &RawElem,
+) {
+    use crate::entities::value::Value;
+    // `tab-size`, `theme` and `align` from the call, else from `set raw`.
+    let tab_size = e.options.tab_size.unwrap_or_else(|| {
+        if let Some(Value::Int(size)) = layouter.chain.custom("raw.tab-size") {
+            usize::try_from(*size).unwrap_or(2)
+        } else {
+            2
+        }
+    });
+    let theme_none = e
+        .options
+        .theme_none
+        .unwrap_or(matches!(layouter.chain.custom("raw.theme"), Some(Value::None)));
+    if e.text.contains('\t') || (theme_none && e.lang.is_some()) {
+        let mut prepared = e.clone();
+        if e.text.contains('\t') {
+            prepared.text = align_tabs(&e.text, tab_size);
+        }
+        if theme_none {
+            prepared.lang = None;
+        }
+        prepared.options.theme_none = Some(false);
+        return layout(layouter, &prepared);
+    }
+    let align = e.options.align.or_else(|| {
+        if let Some(Value::Align(crate::entities::layout_types::Align2D { h: Some(h), .. })) =
+            layouter.chain.custom("raw.align")
+        {
+            Some(*h)
+        } else {
+            None
+        }
+    });
+    let (Some(align), true) = (align, e.block) else {
+        layout_prepared(layouter, e);
+        return;
+    };
+    // Lines align within the block's natural width: its longest line.
+    let style = default_style(&layouter.style, &layouter.chain);
+    let natural = e
+        .text
+        .lines()
+        .map(|line| layouter.metrics.text_width(line, style.size, &style).0)
+        .fold(0.0, f64::max);
+    let saved_alignment = layouter.explicit_line_alignment.replace(align);
+    let saved_width = layouter.regions.current.width;
+    let right = layouter.regions.current.line_start_x.0 + natural;
+    layouter.regions.current.width =
+        (right + layouter.page_config.margin.right).min(saved_width);
+    layout_prepared(layouter, e);
+    layouter.regions.current.width = saved_width;
+    layouter.explicit_line_alignment = saved_alignment;
+}
+
+fn layout_prepared<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &RawElem,
 ) {

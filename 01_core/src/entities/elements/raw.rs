@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/raw.md
-//! @prompt-hash 030c6988
+//! @prompt-hash 7a4e8fea
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -29,6 +29,17 @@ pub struct RawElem {
     pub block: bool,
     /// Máscara dos campos opcionais conhecidos; demais bits são reservados.
     pub set_fields: u8,
+    /// Layout options given in the call; `None` reads `set raw`.
+    pub(crate) options: RawOptions,
+}
+
+/// `tab-size`, `align` and `theme` of a raw call.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Hash)]
+pub(crate) struct RawOptions {
+    pub(crate) tab_size: Option<usize>,
+    pub(crate) align: Option<crate::entities::layout_types::HAlign>,
+    /// `Some(true)` for `theme: none`, which turns highlighting off.
+    pub(crate) theme_none: Option<bool>,
 }
 
 impl Element for RawElem {
@@ -162,7 +173,7 @@ mod tests {
     use super::*;
 
     fn ex() -> RawElem {
-        RawElem {
+        RawElem { options: Default::default(),
             text: "let x = 1".into(),
             lang: Some("rust".into()),
             block: true,
@@ -186,7 +197,7 @@ mod tests {
     #[test]
     fn raw_presence_maps_preserve_known_none_and_false() {
         for set_fields in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
-            let raw = RawElem {
+            let raw = RawElem { options: Default::default(),
                 text: "x".into(),
                 lang: None,
                 block: false,

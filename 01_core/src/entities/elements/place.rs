@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/place.md
-//! @prompt-hash 8da7c19e
+//! @prompt-hash 2aeab152
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -25,6 +25,9 @@ pub struct PlaceElem {
     pub float: bool,
     pub clearance: Option<Length>,
     pub body: Content,
+    /// Properties given in the call, one bit each in the order of the
+    /// layout declarations; the others read `set`.
+    pub(crate) given: u8,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `dx`/`dy` são `f64`;
@@ -48,7 +51,7 @@ impl Element for PlaceElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Place(Arc::new(PlaceElem {
+        Ok(Content::Place(Arc::new(PlaceElem { given: self.given,
             alignment: self.alignment,
             dx: self.dx,
             dy: self.dy,
@@ -63,7 +66,7 @@ impl Element for PlaceElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Place(Arc::new(PlaceElem {
+        Content::Place(Arc::new(PlaceElem { given: self.given,
             alignment: self.alignment,
             dx: self.dx,
             dy: self.dy,
@@ -82,7 +85,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> PlaceElem {
-        PlaceElem {
+        PlaceElem { given: 0,
             alignment: Align2D::default(),
             dx: 0.0,
             dy: 0.0,

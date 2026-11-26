@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/html_frame.md
-//! @prompt-hash 1d811c68
+//! @prompt-hash 20112f9d
 //! @layer L1
 
 use crate::entities::elements::pdf_artifact::ArtifactKind;
@@ -376,7 +376,7 @@ mod p1493_tests {
 
     #[test]
     fn p1493_layout_detalhado_transporta_place_e_remove_carrier() {
-        let body = Content::Place(Arc::new(PlaceElem {
+        let body = Content::Place(Arc::new(PlaceElem { given: 0,
             alignment: Align2D::from_string("top-left"),
             dx: 30.0,
             dy: 20.0,

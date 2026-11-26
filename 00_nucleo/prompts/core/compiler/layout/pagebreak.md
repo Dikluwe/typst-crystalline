@@ -1,5 +1,5 @@
 # L0 — pagebreak
-Hash do Código: ad7a7863
+Hash do Código: 63de39b8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -74,3 +74,9 @@ Classification: internal parity correction under ADR-0127 continuous flow. Keep 
 Exclusive owning obligation: At an explicit source flow boundary, after preserving the current pagebreak intent/flush semantics, invalidate only the private shared footnote-entry scope so the following source flow establishes its own prefix. Do not reset this snapshot on automatic pagination or nested ordinary subframes. Existing weak/strong/required successors, page-running plans and pending note ownership remain unchanged.
 
 Require source-bound assertional module RED→GREEN before runtime changes; actual PDF complete per-page words/page sizes and SVG glyph/rule geometry at unchanged0.001pt in debug/release; preserve original R8–R11 corpora and all A–H/R1–R7 language/render controls, full workspace/tests/Clippy/fmt/rustdoc, full lint and both lineage gates, resource/stress gates and received evidence. Configuration warnings and old unrelated limits remain explicit.
+
+## Layout family package
+
+Without `to:` in the call, `set pagebreak(to:)` applies.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

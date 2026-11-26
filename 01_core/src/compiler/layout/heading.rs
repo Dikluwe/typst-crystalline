@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/heading.md
-//! @prompt-hash 221dbc15
+//! @prompt-hash 11e2f5b0
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -71,12 +71,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // O `text_edges` deve usar `heading_style` (bold ativo) para obter o cap_height exato da face Bold.
     let (top, _) = layouter.metrics.text_edges(heading_size, &heading_style);
     if layouter.block_chain_active || layouter.flow_placement_y().is_some() {
-        let gap = super::block::collapse_margin(
-            layouter.prev_block_below_pending,
-            layouter.prev_margin_is_parbreak,
-            above_pt,
-            false,
-        );
+        let gap = if std::mem::take(&mut layouter.fixed_gap) {
+            layouter.prev_block_below_pending
+        } else {
+            super::block::collapse_margin(
+                layouter.prev_block_below_pending,
+                layouter.prev_margin_is_parbreak,
+                above_pt,
+                false,
+            )
+        };
         let prev_descent = layouter.prev_block_equation_descent;
         let prev_bottom = layouter
             .last_block_descent_y

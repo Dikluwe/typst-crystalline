@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/repeat.md
-//! @prompt-hash 3a0011ef
+//! @prompt-hash dbe2e00f
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -86,7 +86,11 @@ pub fn native_repeat(
         }
     }
 
-    Ok(Value::Content(Content::repeat(body, gap, justify)))
+    Ok(crate::compiler::stdlib::with_given(
+Value::Content(Content::repeat(body, gap, justify)),
+        "repeat",
+        args,
+    ))
 }
 
 /// **P218 helper** — extrai `count: usize` posicional obrigatório

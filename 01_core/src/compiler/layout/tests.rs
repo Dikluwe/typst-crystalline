@@ -22206,7 +22206,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
                     sticky: false,
                 },
             )),
-            Content::Place(std::sync::Arc::new(PlaceElem {
+            Content::Place(std::sync::Arc::new(PlaceElem { given: 0,
                 alignment: Align2D::from_string("bottom"),
                 dx: 0.0,
                 dy,
@@ -22409,7 +22409,7 @@ fn p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao() {
     layouter.page_config.height = f64::INFINITY;
 
     let place = Content::Place(std::sync::Arc::new(
-        crate::entities::elements::place::PlaceElem {
+        crate::entities::elements::place::PlaceElem { given: 0,
             alignment: Align2D::from_string("bottom"),
             dx: 0.0,
             dy: 0.0,
@@ -22988,7 +22988,7 @@ fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
     layouter.page_config.height = f64::INFINITY;
 
     let place = Content::Place(std::sync::Arc::new(
-        crate::entities::elements::place::PlaceElem {
+        crate::entities::elements::place::PlaceElem { given: 0,
             alignment: Align2D::from_string("bottom"),
             dx: 0.0,
             dy: 0.0,

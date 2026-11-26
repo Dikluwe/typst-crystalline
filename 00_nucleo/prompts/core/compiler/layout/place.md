@@ -1,5 +1,5 @@
 # L0 — place
-Hash do Código: 0c1de04f
+Hash do Código: 0bc64f99
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -211,3 +211,9 @@ same file/module only; no interface, branch, callback or geometry changes.
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 Migrate legacy image literals to the approved optional format/SVG metadata; do not synthesize original source. Preserve format on reconstruction, existing frame geometry and raster behavior.
+
+## Layout family package
+
+A placement ends the paragraph in progress. A float breaks it at once; an in-flow placement keeps the ended line's origin and defers the break to the next material.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

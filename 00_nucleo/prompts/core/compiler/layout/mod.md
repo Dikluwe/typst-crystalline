@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: eb96ac5d
+Hash do Código: 1cb027c8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -901,3 +901,9 @@ on their default empty runtime input and existing checkpoint behavior.
 The layouter carries the space-wrap line, the cell-frame request and flag, the cell frame's top and the row gutters of the grid being laid out.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+Place, stack, repeat, quote and outline are laid out with their declared properties. A pending placement break is taken before the next material, moving the placement below the paragraph spacing; if no material follows, the paragraph ends without spacing.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

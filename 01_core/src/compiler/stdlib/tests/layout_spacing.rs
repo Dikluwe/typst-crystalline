@@ -359,22 +359,18 @@ fn p842_l7_native_h_aceita_fraction() {
 }
 
 #[test]
-fn p842_l7_native_v_rejeita_fraction_com_mensagem_previa() {
-    // v(1fr) fica fora de escopo em P842 (distribuição vertical é outro
-    // mecanismo) — a rejeição pré-P842 preserva-se verbatim.
+fn native_v_fraction_is_a_fractional_block() {
+    // `v(1fr)` takes its share of the region like a fractional block without spacing.
     null_ctx!(ctx);
     let r =
         native_v(&mut ctx, &p(vec![Value::Fraction(1.0)]), &null_world(), test_file_id());
-    match r {
-        Err(diags) => assert!(
-            diags[0]
-                .message
-                .contains("v() espera amount como length, recebeu fraction"),
-            "mensagem inesperada: {}",
-            diags[0].message
-        ),
-        Ok(v) => panic!("v(1fr) devia ser rejeitado em P842, obteve {v:?}"),
-    }
+    let Ok(Value::Content(Content::Block(block))) = r else {
+        panic!("v(1fr) must build a block, got {r:?}");
+    };
+    assert!(matches!(
+        block.height,
+        Some(crate::entities::elements::block::BlockHeight::Fractional(weight)) if weight == 1.0
+    ));
 }
 
 #[test]
@@ -435,7 +431,8 @@ fn native_v_aceita_length_e_weak() {
 }
 
 #[test]
-fn native_v_rejeita_amount_negativo() {
+fn native_v_aceita_amount_negativo() {
+    // A negative amount is the author's explicit request, as in the language.
     null_ctx!(ctx);
     use crate::entities::layout_types::Length;
     let r = native_v(
@@ -444,7 +441,7 @@ fn native_v_rejeita_amount_negativo() {
         &null_world(),
         test_file_id(),
     );
-    assert!(r.is_err(), "amount negativo deve retornar Err em P156D");
+    assert!(r.is_ok(), "{r:?}");
 }
 
 #[test]

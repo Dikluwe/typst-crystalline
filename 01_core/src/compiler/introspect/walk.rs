@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/walk.md
-//! @prompt-hash 7ac98609
+//! @prompt-hash 16bb2c07
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -1163,8 +1163,12 @@ pub(super) fn walk_at(
         // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
         // do padrão lido da chain aqui. **P1034** — default da linguagem é "1",
         // logo ausente conta; só `Some(Value::None)` desactiva explicitamente.
-        if let ElementPayload::Figure { is_counted, .. } = &mut payload {
+        if let ElementPayload::Figure { is_counted, caption_text, .. } = &mut payload {
             *is_counted = !matches!(chain.custom("figure.numbering"), Some(Value::None));
+            // `outlined: false` keeps the figure out of the list of figures.
+            if matches!(chain.custom("figure.outlined"), Some(Value::Bool(false))) {
+                *caption_text = None;
+            }
         }
         // P461: a table não baka o padrão. `is_counted` placeholder
         // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate

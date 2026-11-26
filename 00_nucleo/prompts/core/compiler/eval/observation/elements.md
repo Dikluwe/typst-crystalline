@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: 22a9197f
+Hash do Código: da74ac6c
 
 
 **Layer:** L1
@@ -541,3 +541,9 @@ Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md
 The declared surface of `grid` and `table` is observed as equal only when it is equal; otherwise unproven.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+The layout presence bits (`given`) and raw options are carried, not observed.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

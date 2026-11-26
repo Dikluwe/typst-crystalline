@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/figure.md
-//! @prompt-hash cfe54aed
+//! @prompt-hash 96a9f503
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -257,10 +257,35 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
     } else {
         0.0
     };
-    let caption_y = body_piece.height + gap;
-    let height = caption_y + caption_piece.height;
+    // The caption's own position wins; otherwise `set figure.caption`.
+    let own_position = caption.as_ref().and_then(|caption| {
+        let Content::Styled(styled) = caption.source_body() else { return None };
+        styled
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .find(|(key, _)| key.as_str() == "figure.caption.own-position")
+            .and_then(|(_, value)| if let crate::entities::value::Value::Bool(top) = value { Some(*top) } else { None })
+    });
+    let top = match own_position {
+        Some(top) => top,
+        None => matches!(
+            layouter.chain.custom("figure.caption.position"),
+            Some(crate::entities::value::Value::Align(Align2D {
+                v: Some(crate::entities::layout_types::VAlign::Top),
+                ..
+            }))
+        ),
+    };
+    let (body_y, caption_y) = if top {
+        (caption_piece.height + gap, 0.0)
+    } else {
+        (0.0, body_piece.height + gap)
+    };
+    let height = body_piece.height + gap + caption_piece.height;
     let baseline = if body_piece.flow_present {
-        body_piece.baseline
+        body_piece.baseline.map(|baseline| baseline.map(|y| y + body_y))
     } else {
         caption_piece.baseline.map(|baseline| baseline.map(|y| y + caption_y))
     };
@@ -286,7 +311,7 @@ fn layout_figure_prefix<M: FontMetrics, S: ImageSizer>(
     let mut decorations = Vec::new();
     let mut groups = Vec::new();
     for (piece, x, y) in
-        [(body_piece, body_dx, 0.0), (caption_piece, caption_dx, caption_y)]
+        [(body_piece, body_dx, body_y), (caption_piece, caption_dx, caption_y)]
     {
         for segment in piece.decorations {
             decorations.push(super::DecoSegment {

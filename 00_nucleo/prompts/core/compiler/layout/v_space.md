@@ -1,5 +1,5 @@
 # L0 — v space
-Hash do Código: eb5465b8
+Hash do Código: ba97dd68
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:7510f3bba27256221d4447db608839af562ac71b4eacc0c042f693b531a95184
@@ -53,3 +53,9 @@ L0 precedes RED→GREEN and restricted resealing. Revalidate complete suite, HTM
 Record actual explicit vertical-spacing admission as unpainted page material outside isolated subframes, including zero and weak spacing. The page admission witness does not implement or modify geometric spacing collapse.
 
 L0 precedes code under continuous-flow ADR-0127. No public field, signature, trait, phase, default or compatibility change. Validate the refuters and retain all previous note/float/Context/column/strong/PageRun controls.
+
+## Layout family package
+
+`v` ends the paragraph in progress, keeping the paragraph spacing. Weak spacing disappears at the start of a region and otherwise fixes the gap to the next block or paragraph. Negative amounts are the author's request.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

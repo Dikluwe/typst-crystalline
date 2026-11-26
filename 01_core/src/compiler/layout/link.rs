@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/link.md
-//! @prompt-hash 234a9d41
+//! @prompt-hash 58019673
 //! @layer L1
 //! @updated 2026-11-07
 //!
@@ -682,7 +682,7 @@ mod fragment_regressions {
             elements::place::PlaceElem,
             layout_types::{Align2D, HAlign, PlaceScope, VAlign},
         };
-        Content::Place(Arc::new(PlaceElem {
+        Content::Place(Arc::new(PlaceElem { given: 0,
             alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
             dx: 0.0,
             dy: 0.0,

@@ -1,5 +1,5 @@
 # L0 — figure
-Hash do Código: d316f02a
+Hash do Código: b47139ec
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/figure-placement.toml sha256:86797e01ffab87b98e601e7530074daec3a66252c8dd93eb918af8e775b1b8d0
@@ -322,3 +322,9 @@ changing a fixture, expectation or productive renderer.
 
 Approved on 2026-11-24 (“Aprovo A–F”): `00_nucleo/diagnostics/set-contract-package-2026-11-24.pt-BR.md`.
 The space between body and caption is the declared figure.gap, else the existing 0.65em.
+
+## Layout family package
+
+The caption sits above the body when its own position, or else `set figure.caption(position:)`, is top.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

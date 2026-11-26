@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/place.md
-//! @prompt-hash d8b5fa21
+//! @prompt-hash 8fab26ad
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -39,6 +39,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         None => *alignment,
     };
 
+    // A placed element is block-level: it ends the paragraph in progress.
+    let ends_paragraph =
+        super::html_frame::items_have_causal_line(&layouter.regions.current.current_line);
+    if *float && ends_paragraph {
+        super::parbreak::layout(layouter);
+    }
     if *float {
         // P245 — float real: layout body em sub-frame,
         // capturar items + dimensões, push ao buffer.
@@ -105,7 +111,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         } else {
             None
         };
+        let start = layouter.regions.current.current_items.len();
+        // After a paragraph break the placement also waits for the spacing.
+        let after_paragraph = !ends_paragraph
+            && layouter.block_chain_active
+            && layouter.prev_margin_is_parbreak
+            && !super::html_frame::items_have_material(&layouter.regions.current.current_line);
         layouter.layout_place(effective_alignment, *dx, *dy, *scope, body, flow_y);
+        // The paragraph ends here, but its spacing exists only if content
+        // follows: the break is taken before the next material, and the
+        // placement then moves below that spacing.
+        if ends_paragraph || after_paragraph {
+            layouter.place_break_pending = true;
+            layouter.place_break_items = flow_y.map(|_| {
+                (layouter.pages.len(), start, layouter.regions.current.current_items.len())
+            });
+        }
     }
 }
 

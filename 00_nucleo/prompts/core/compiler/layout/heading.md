@@ -1,5 +1,5 @@
 # L0 — heading
-Hash do Código: b96844e5
+Hash do Código: 4e620bdd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -178,3 +178,9 @@ block does not change heading spacing.
 Inside a cell frame a heading starts at the frame's top, not at the page margin.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+A heading after weak spacing starts at that spacing exactly.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

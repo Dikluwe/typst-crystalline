@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/markup
-Hash do Código: f8d25fb5
+Hash do Código: aca4efa6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
@@ -42,3 +42,9 @@ receipt `lab/history/construction/records/00_nucleo/materialization/raw-presenca
 This completes only Raw's formerly incomplete presence contract and supersedes
 no-mask clauses. Preserve other contracts; add no phase/default/render behavior.
 Validate RED→GREEN tests, suite, build and lineage.
+
+## Layout family package
+
+`raw` accepts `tab-size` (non-negative integer), `align` (horizontal alignment) and `theme` (`none` or `auto`; theme files are I/O and fail explicitly). Unlike the pinned reference, a `tab-size` given to the constructor applies: the reference reads only `set raw`, a proven defect that is not reproduced.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

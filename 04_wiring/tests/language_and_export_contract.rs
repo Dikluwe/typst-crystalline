@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 993d1120
+//! @prompt-hash 25d91471
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -1617,7 +1617,6 @@ fn set_admission_keeps_every_element_settable() {
         ("#set underline(offset: 1pt)", "underline.offset"),
         ("#set table(fill: gradient.linear(red, blue))", "table.fill"),
         ("#set block(fill: gradient.linear(red, blue))", "block.fill"),
-        ("#set outline(depth: 2)", "outline.depth"),
         ("#set heading(outlined: false)", "heading.outlined"),
         ("#set figure(scope: \"parent\")", "figure.scope"),
         ("#set document(date: auto)", "document.date"),
@@ -2672,4 +2671,133 @@ fn lengths_and_selectors_read_as_the_language() {
     ] {
         calc_repr(expression, expected);
     }
+}
+
+// Expectations: approved layout family package.
+
+#[test]
+fn vertical_spacing_follows_blocks() {
+    // `v` ends the paragraph and keeps the spacing between paragraphs.
+    assert_eq!(text_ys("a\n#v(10pt)\nb"), text_ys("a\n\n#v(10pt)\n\nb"));
+    assert_eq!(text_ys("a #v(10pt) b"), text_ys("a\n\n#v(10pt)\n\nb"));
+    // Weak spacing replaces it.
+    assert_eq!(
+        text_ys("a\n#v(10pt, weak: true)\nb"),
+        text_ys("#set par(spacing: 10pt)\na\n\nb")
+    );
+    // At the start of a region weak spacing disappears.
+    assert_eq!(text_ys("#v(10pt, weak: true)\na"), text_ys("a"));
+    // A fractional `v` is a fractional block without spacing.
+    set_equals(
+        "v-fr",
+        "a\n#v(1fr)\nb",
+        "a\n#block(height: 1fr, above: 0pt, below: 0pt)\nb",
+    );
+}
+
+#[test]
+fn placed_elements_end_the_paragraph() {
+    // The text after the placement starts a new paragraph.
+    assert_eq!(text_ys("x #place[P] y").last(), text_ys("x\n\ny").last());
+    set_equals(
+        "place-break",
+        "x #place(top + right)[P] y",
+        "x\n#place(top + right)[P]\n\ny",
+    );
+}
+
+#[test]
+fn layout_elements_take_declarations() {
+    for (declared, explicit) in [
+        ("#set pad(x: 20pt)\n#pad[#lorem(5)]", "#pad(x: 20pt)[#lorem(5)]"),
+        (
+            "#set pad(rest: 15pt)\n#pad(right: 40pt)[#lorem(5)]",
+            "#pad(rest: 15pt, right: 40pt)[#lorem(5)]",
+        ),
+        ("#set place(dx: 20pt)\nx #place[P] y", "x #place(dx: 20pt)[P] y"),
+        (
+            "#set stack(dir: ltr, spacing: 20pt)\n#stack[a][b]",
+            "#stack(dir: ltr, spacing: 20pt)[a][b]",
+        ),
+        (
+            "#set outline(title: [TT], depth: 1)\n#outline()\n= A\n== B",
+            "#outline(title: [TT], depth: 1)\n= A\n== B",
+        ),
+        (
+            "#set quote(block: true)\n#quote[#lorem(12)]",
+            "#quote(block: true)[#lorem(12)]",
+        ),
+        ("#set quote(quotes: false)\nx #quote[abc]", "x #quote(quotes: false)[abc]"),
+        (
+            "#set raw(align: right)\n#raw(\"a\\nbbbbb\", block: true)",
+            "#raw(\"a\\nbbbbb\", block: true, align: right)",
+        ),
+        (
+            "#set raw(theme: none)\n#raw(\"fn f() {}\", block: true, lang: \"rust\")",
+            "#raw(\"fn f() {}\", block: true)",
+        ),
+        (
+            "#set figure.caption(position: top)\n#figure(rect(), caption: [c])",
+            "#figure(rect(), caption: figure.caption(position: top)[c])",
+        ),
+        (
+            "#set figure(gap: 30pt)\n#figure(rect(), caption: [c])",
+            "#figure(rect(), caption: [c], gap: 30pt)",
+        ),
+        (
+            "#set linebreak(justify: true)\n#lorem(8) #linebreak() #lorem(4)",
+            "#lorem(8) #linebreak(justify: true) #lorem(4)",
+        ),
+    ] {
+        set_equals("layout-set", declared, explicit);
+    }
+}
+
+#[test]
+fn layout_constructors_take_their_arguments() {
+    // A tab advances to the next multiple of the tab size (2 by default).
+    set_equals("raw-tab", "#raw(\"a\\tb\", block: true)", "#raw(\"a b\", block: true)");
+    set_equals(
+        "raw-tab-8",
+        "#raw(\"a\\tb\", block: true, tab-size: 8)",
+        "#raw(\"a       b\", block: true)",
+    );
+    calc_error("raw(\"a\", theme: \"x.tmTheme\")", "theme files are not supported", None);
+    calc_repr("figure(rect(), gap: 30pt, outlined: false).outlined", "false");
+    // `set pagebreak(to:)` adds the blank page the constructor would.
+    let pages = |label: &str, body: &str| {
+        let scratch = Scratch::new(&format!("layout-{label}"));
+        let input = scratch.0.join("main.typ");
+        let output = scratch.0.join("main.pdf");
+        fs::write(&input, body).unwrap();
+        let result =
+            run(BIN, &["compile", input.to_str().unwrap(), output.to_str().unwrap()]);
+        assert!(result.success(), "{result:#?}");
+        let pdf = String::from_utf8_lossy(&fs::read(&output).unwrap()).into_owned();
+        pdf.matches("/Type /Page ").count() + pdf.matches("/Type /Page\n").count()
+    };
+    assert_eq!(
+        pages("pagebreak-set", "#set pagebreak(to: \"odd\")\na #pagebreak() b"),
+        pages("pagebreak-ctor", "a #pagebreak(to: \"odd\") b"),
+    );
+    assert_ne!(
+        pages("pagebreak-plain", "a #pagebreak() b"),
+        pages("pagebreak-ctor", "a #pagebreak(to: \"odd\") b"),
+    );
+    let (output, _) = set_svg(
+        "outline-target",
+        "#outline(target: figure.where(kind: table))\n#figure(table[a], caption: [t])",
+    );
+    assert!(output.success(), "{output:#?}");
+}
+
+#[test]
+fn block_quotes_pad_every_line() {
+    let ys_first = text_ys("#quote(block: true)[#lorem(12)]");
+    assert!(ys_first.len() > 2);
+    set_equals(
+        "quote-inline-attribution",
+        "x #quote(attribution: [A])[abc] y",
+        "x #quote[abc] y",
+    );
 }

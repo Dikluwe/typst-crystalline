@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/block.md
-//! @prompt-hash 73581a43
+//! @prompt-hash 13042f35
 //! @layer L1
 //! @updated 2026-11-01
 //!
@@ -138,6 +138,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             crate::compiler::introspect::page_running::PlanEdge::BlockBody,
             body,
         );
+        // A placement that ended the block's last paragraph has no follower.
+        layouter.place_break_pending = false;
+        layouter.place_break_items = None;
     });
 }
 
@@ -1225,12 +1228,16 @@ fn admit_frame_start<M: FontMetrics, S: ImageSizer>(
         let end = layouter.flow_placement_y().unwrap_or(layouter.prev_line_baseline);
         layouter.regions.current.cursor_y = Pt(end + above_pt);
     } else if layouter.block_chain_active {
-        let gap = collapse_margin(
-            layouter.prev_block_below_pending,
-            layouter.prev_margin_is_parbreak,
-            above_pt,
-            !has_custom_above,
-        );
+        let gap = if std::mem::take(&mut layouter.fixed_gap) {
+            layouter.prev_block_below_pending
+        } else {
+            collapse_margin(
+                layouter.prev_block_below_pending,
+                layouter.prev_margin_is_parbreak,
+                above_pt,
+                !has_custom_above,
+            )
+        };
         let prev_descent = layouter.prev_block_equation_descent;
         layouter.regions.current.cursor_y =
             Pt(layouter.prev_line_baseline + prev_descent + gap);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/pagebreak.md
-//! @prompt-hash 56e58336
+//! @prompt-hash b7b10f0f
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -44,7 +44,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.weak_page_successor = e.weak;
     }
     // Skipping a weak break does not waive its physical parity requirement.
-    if let Some(parity) = e.to {
+    // Without `to:` in the call, `set pagebreak(to:)` applies.
+    let declared = match layouter.chain.custom("pagebreak.to") {
+        Some(crate::entities::value::Value::Str(to)) if to.as_str() == "odd" => {
+            Some(crate::entities::parity::Parity::Odd)
+        }
+        Some(crate::entities::value::Value::Str(to)) if to.as_str() == "even" => {
+            Some(crate::entities::parity::Parity::Even)
+        }
+        _ => None,
+    };
+    if let Some(parity) = e.to.or(declared) {
         if !parity.matches(layouter.pages.len() + 1) {
             layouter.new_page();
             layouter.weak_page_successor = optional_successor;

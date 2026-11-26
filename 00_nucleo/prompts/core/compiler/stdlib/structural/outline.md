@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/outline — outline constructors and Entry surface
-Hash do Código: 553b9a74
+Hash do Código: 237be56c
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -131,3 +131,9 @@ pending physical-phase approval. L0/pins first, meaningful RED→GREEN, V15/V26
 before resealing, full source-language/PDF/SVG and technical gates. Keep all
 historical/JPEG controls and remaining readiness negatives; do not relax any
 metric, suppress diagnostics or claim general rich-prefix/RTL/wrapping parity.
+
+## Layout family package
+
+`outline(target:)` accepts heading, figure and table selectors and `figure.where(kind: table|image)`; other selectors fail explicitly. Calls record their presence bits, a positional title included.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

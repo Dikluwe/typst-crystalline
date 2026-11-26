@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/quote.md
-//! @prompt-hash 1994ada6
+//! @prompt-hash 04582c2b
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -20,6 +20,9 @@ pub struct QuoteElem {
     pub attribution: Option<Content>,
     pub block: bool,
     pub quotes: bool,
+    /// Properties given in the call, one bit each in the order of the
+    /// layout declarations; the others read `set`.
+    pub(crate) given: u8,
 }
 
 impl Element for QuoteElem {
@@ -42,7 +45,7 @@ impl Element for QuoteElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Quote(Arc::new(QuoteElem {
+        Ok(Content::Quote(Arc::new(QuoteElem { given: self.given,
             body: self.body.map_content(transform)?,
             attribution: self
                 .attribution
@@ -58,7 +61,7 @@ impl Element for QuoteElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Quote(Arc::new(QuoteElem {
+        Content::Quote(Arc::new(QuoteElem { given: self.given,
             body: self.body.map_text(transform),
             attribution: self.attribution.as_ref().map(|c| c.map_text(transform)),
             block: self.block,
@@ -74,7 +77,7 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> QuoteElem {
-        QuoteElem {
+        QuoteElem { given: 0,
             body: Content::text("vida"),
             attribution: Some(Content::text("alguém")),
             block: true,
@@ -89,7 +92,7 @@ mod tests {
 
     #[test]
     fn plain_text_sem_aspas_sem_atribuicao() {
-        let e = QuoteElem {
+        let e = QuoteElem { given: 0,
             body: Content::text("x"),
             attribution: None,
             block: false,

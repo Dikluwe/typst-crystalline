@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 50757b4b
+Hash do Código: a0d568f6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -180,3 +180,9 @@ Transport the approved selected image format and SVG provenance through existing
 Human approval: `lab/results/construction/diagnostics/svg-svgz-2026-11-01/approval.json`. Preserve unrelated contracts.
 
 The full-suite RED native_image_formato_desconhecido_gera_erro shows extension-selected raster formats bypassed the existing unknown-signature refusal. Preserve early unknown image format for unrecognized raster payloads even when the path has a recognized raster extension. Explicit SVG/SVGZ extensions still reach SVG validation; retain selected-format authority for recognized signatures and all original-source semantics.
+
+## Layout family package
+
+`figure` accepts `gap` (length) and `outlined` (boolean), carried as the figure's own styles like `numbering`. A caption's own position travels with its body.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

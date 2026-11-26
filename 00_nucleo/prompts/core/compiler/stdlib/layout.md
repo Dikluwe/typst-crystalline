@@ -1,5 +1,5 @@
 # L0 — stdlib/layout — layout façade and alignment
-Hash do Código: d356d128
+Hash do Código: e327465b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/layout.rs`
@@ -109,3 +109,9 @@ recorded carrier debt and is not replaced by rejection or claimed resolved.
 Re-export the grid surface helpers to the compiler.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+Own the layout declarations: which properties of `pad`, `place`, `stack`, `repeat`, `outline`, `quote`, `raw`, `figure.caption`, `pagebreak` and `linebreak` `set` carries, the presence bits of their calls, and the effective elements and outlines with declarations applied where the call left them out. `pad` sides expand from `x`, `y` and `rest`.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

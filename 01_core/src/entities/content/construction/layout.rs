@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction/layout.md
-//! @prompt-hash f491fb29
+//! @prompt-hash 5b529bf1
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -373,7 +373,7 @@ impl Content {
     /// sub-passo 3). Atinge target 72% Layout. Aceita `Vec<Content>` que
     /// converte para `Arc<[Content]>` (clone O(1) per ADR-0026 revisão).
     pub fn stack(children: Vec<Content>, dir: Dir, spacing: Option<Length>) -> Self {
-        Self::Stack(Arc::new(StackElem { children: children.into(), dir, spacing }))
+        Self::Stack(Arc::new(StackElem { given: 0, children: children.into(), dir, spacing }))
     }
 
     /// **Lote 9 P324** — `Content::SmartQuote` (aspa lang-aware).
@@ -415,7 +415,7 @@ impl Content {
         clearance: Option<Length>,
         body: Content,
     ) -> Self {
-        Self::Place(Arc::new(PlaceElem {
+        Self::Place(Arc::new(PlaceElem { given: 0,
             alignment,
             dx,
             dy,
@@ -436,7 +436,7 @@ impl Content {
     /// (paridade vanilla); algoritmo dinâmico de quantidade-para-encher
     /// diferido per ADR-0054 graded.
     pub fn repeat(body: Content, gap: Option<Length>, justify: bool) -> Self {
-        Self::Repeat(Arc::new(RepeatElem { body, gap, justify }))
+        Self::Repeat(Arc::new(RepeatElem { given: 0, body, gap, justify }))
     }
 
     /// **P217** — Construtor `Content::Columns` (multi-column container).

@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/spacing — spacing and line breaks
-Hash do Código: b52d4ce7
+Hash do Código: 6225dfae
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/spacing.rs`
@@ -17,3 +17,9 @@ Extraction preserves signatures, function identity, syntax, morphology, errors a
 ## Acceptance
 
 The L1 suite and `crystalline-lint .` must remain regression-free. Parity is at the language level under ADR-0107/0108; mechanics may diverge. Preserve exclusive ownership under ADR-0129/0130.
+
+## Layout family package
+
+`v(fr)` is a fractional block without spacing; `v` accepts negative amounts. `h` keeps rejecting them.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

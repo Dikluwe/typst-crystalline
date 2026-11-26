@@ -1,5 +1,5 @@
 # L0 — measurement
-Hash do Código: 9b9a0fdb
+Hash do Código: b2672fbd
 
 
 
@@ -376,3 +376,9 @@ sizes use the projected box; baseline does not change measured height.
 Grid literals carry the declared surface unchanged.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+A stack is measured with its declared properties.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

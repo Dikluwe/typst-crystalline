@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/outline.md
-//! @prompt-hash d5afa4f2
+//! @prompt-hash 70b88ff2
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -180,6 +180,13 @@ pub(crate) fn realize_heading_outline(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
     use crate::entities::layout_types::Length;
+
+    // `set outline(title:, depth:)` declared where the outline was inserted.
+    let declared = crate::compiler::stdlib::declared_outline(
+        outline,
+        &StyleChain::default_chain().push_styles(outline.captured_styles()),
+    );
+    let outline = &declared;
 
     let previous_styles = engine.styles.clone();
     let previous_rules = Arc::clone(&*engine.show_rules);

@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: 52329c9d
+Hash do Código: 2f499ee7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -168,3 +168,9 @@ Verify a gradient case that asserts paint and a solid control.
 Re-export the grid surface helpers to the compiler.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Layout family package
+
+Re-export the layout declaration helpers to the compiler.
+
+Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.

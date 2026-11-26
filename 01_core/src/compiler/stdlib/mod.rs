@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/mod.md
-//! @prompt-hash 67f366e8
+//! @prompt-hash c2d5f204
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -163,7 +163,8 @@ pub use crate::compiler::stdlib::text::{
 };
 // P387 (ADR-0111) — data import.
 pub(crate) use crate::compiler::stdlib::layout::{
-    extract_gutters, extract_stroke, grid_cell_fields, grid_field, grid_fields,
+    declare_layout, declared_length, declared_outline, effective_layout, layout_given, with_given, extract_gutters, extract_stroke, grid_cell_fields,
+    grid_field, grid_fields,
     GRID_PROPERTIES,
 };
 pub use crate::compiler::stdlib::layout::{
