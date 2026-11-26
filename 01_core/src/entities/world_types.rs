@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/world_types.md
-//! @prompt-hash f3b7cb51
+//! @prompt-hash 337977d6
 //! @layer L1
 //! @updated 2026-10-05
 
@@ -196,6 +196,96 @@ impl Datetime {
     pub fn ordinal(&self) -> Option<u16> {
         self.date.map(|d| d.ordinal())
     }
+
+    /// `date`, `time` or `datetime`, as the language names the kinds.
+    pub fn kind(&self) -> &'static str {
+        match (self.date, self.time) {
+            (Some(_), Some(_)) => "datetime",
+            (Some(_), None) => "date",
+            (None, _) => "time",
+        }
+    }
+
+    /// The value moved by `nanos`. A date gains a time only when the result
+    /// is not at midnight; a time wraps around the day. `None` when the
+    /// date leaves the supported calendar.
+    pub fn shifted(&self, nanos: i128) -> Option<Self> {
+        let day_nanos = NANOS_PER_DAY;
+        let clock = self.time.map_or(0, time_nanos);
+        let Some(date) = self.date else {
+            let wrapped = (clock + nanos).rem_euclid(day_nanos);
+            return Some(Self { date: None, time: Some(time_from_nanos(wrapped)?) });
+        };
+        let total = clock.checked_add(nanos)?;
+        let days = i64::try_from(total.div_euclid(day_nanos)).ok()?;
+        let rest = total.rem_euclid(day_nanos);
+        let (year, month, day) = civil_from_days(days_from_civil(&date).checked_add(days)?);
+        let month = time::Month::try_from(month).ok()?;
+        let date = time::Date::from_calendar_date(i32::try_from(year).ok()?, month, day).ok()?;
+        let time = if self.time.is_none() && rest == 0 {
+            None
+        } else {
+            Some(time_from_nanos(rest)?)
+        };
+        Some(Self { date: Some(date), time })
+    }
+
+    /// The nanoseconds from `other` to `self`; both must be of one kind.
+    pub fn since(&self, other: &Self) -> Result<i128, String> {
+        if self.kind() != other.kind() {
+            return Err(format!("cannot subtract {} from {}", other.kind(), self.kind()));
+        }
+        let at = |value: &Self| {
+            value.date.map_or(0, |date| i128::from(days_from_civil(&date)) * NANOS_PER_DAY)
+                + value.time.map_or(0, time_nanos)
+        };
+        Ok(at(self) - at(other))
+    }
+}
+
+const NANOS_PER_DAY: i128 = 86_400 * 1_000_000_000;
+
+fn time_nanos(time: time::Time) -> i128 {
+    (i128::from(time.hour()) * 3600 + i128::from(time.minute()) * 60 + i128::from(time.second()))
+        * 1_000_000_000
+}
+
+fn time_from_nanos(nanos: i128) -> Option<time::Time> {
+    let seconds = nanos / 1_000_000_000;
+    time::Time::from_hms(
+        u8::try_from(seconds / 3600).ok()?,
+        u8::try_from(seconds / 60 % 60).ok()?,
+        u8::try_from(seconds % 60).ok()?,
+    )
+    .ok()
+}
+
+/// Days since 1970-01-01 in the proleptic Gregorian calendar.
+fn days_from_civil(date: &time::Date) -> i64 {
+    let (mut year, month, day) = (i64::from(date.year()), i64::from(date.month() as u8), i64::from(date.day()));
+    if month <= 2 {
+        year -= 1;
+    }
+    let era = year.div_euclid(400);
+    let year_of_era = year - era * 400;
+    let day_of_year = (153 * ((month + 9) % 12) + 2) / 5 + day - 1;
+    let day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    era * 146_097 + day_of_era - 719_468
+}
+
+/// The calendar date `days` after 1970-01-01.
+fn civil_from_days(days: i64) -> (i64, u8, u8) {
+    let days = days + 719_468;
+    let era = days.div_euclid(146_097);
+    let day_of_era = days - era * 146_097;
+    let year_of_era =
+        (day_of_era - day_of_era / 1460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
+    let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
+    let shifted_month = (5 * day_of_year + 2) / 153;
+    let day = (day_of_year - (153 * shifted_month + 2) / 5 + 1) as u8;
+    let month = if shifted_month < 10 { shifted_month + 3 } else { shifted_month - 9 } as u8;
+    let year = year_of_era + era * 400 + i64::from(month <= 2);
+    (year, month, day)
 }
 
 /// Erro de acesso a ficheiro.

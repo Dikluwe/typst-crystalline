@@ -1,5 +1,5 @@
 # world_types — World domain interfaces
-Hash do Código: d1e946c7
+Hash do Código: 0495e41f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/world_types.rs`
@@ -85,3 +85,9 @@ ratified interfaces nor invents approval from implementation.
 
 The original specification and its construction chronology are preserved in
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/world_types.md`. Historical observations are not a new parity certification.
+
+## Methods and dates package
+
+`Datetime::kind`, `shifted` and `since` own date arithmetic: a date gains a time only off midnight, a time wraps around the day, and only values of one kind subtract. Calendar arithmetic is pure, over days since 1970-01-01.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

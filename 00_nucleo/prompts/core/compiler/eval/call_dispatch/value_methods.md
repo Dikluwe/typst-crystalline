@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/value_methods
-Hash do Código: 0ab3643f
+Hash do Código: 188db92e
 
 ## Ownership and evidence
 
@@ -108,3 +108,9 @@ visible and review their semantic domains. No suppression, scan/severity/exclusi
 change or equivalent open fallback hidden in another syntax. Validate full tests,
 paths, direct/reverse lineage, V15/V26, build, all-target Clippy, fmt, Rustdoc and
 exact SARIF delta. Preserve all earlier contracts and separately reported debts.
+
+## Methods and dates package
+
+`mm`, `cm` and `inches` convert through the language's raw scale (127 per point; 360 per mm, 3600 per cm, 9144 per inch). The selector functions take any selectable value as receiver; `and` and `or` place it after the others.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

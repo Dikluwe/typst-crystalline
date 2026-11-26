@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods/selector
-Hash do Código: 5b7c7acf
+Hash do Código: 922196f9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -187,3 +187,9 @@ catch, default Source, identity reuse or silent error is permitted for this migr
 This clause supersedes only the old infallible return/panic expectations for the
 five approved APIs; it does not authorize unrelated signatures, fields, phases
 or broadening/loss of existing diagnostics or negative controls.
+
+## Methods and dates package
+
+`and` and `or` place the receiver after the other selectors, as the language does.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

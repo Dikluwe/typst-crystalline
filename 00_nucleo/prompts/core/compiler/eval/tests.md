@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 076aa459
+Hash do Código: c7a5087c
 
 
 
@@ -803,3 +803,9 @@ flow covers raster admission and the measured internal WebP color correction.
 PNG behavior and source invariants remain; SVG/PDF and format/raw pixels stay out.
 
 Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preserving the ratified optional path and original source semantics. The previous temporary pending subset admissao-demais-raster-bytes is completed here; original source contract and legacy absence remain. No new public schema, phase, flag or vector support.
+
+## Methods and dates package
+
+`datetime` values answer their type's functions as methods.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/layout_types.md
-//! @prompt-hash c21ea7eb
+//! @prompt-hash 62ac7314
 //! @layer L1
 //! @updated 2026-11-07
 //!
@@ -1240,17 +1240,18 @@ impl Length {
     /// Pontos por polegada: 72 exacto (= 9144 / 127).
     pub const PT_PER_IN: f64 = 72.0;
 
-    /// Centímetros → Length (razão exacta 3600/127).
+    /// Centímetros → Length. As in the language, the value is scaled to
+    /// raw units (3600 per cm) before division by 127 per point.
     pub fn cm(v: f64) -> Self {
-        Self { abs: Abs::pt(v * Self::PT_PER_CM), em: 0.0 }
+        Self { abs: Abs::pt(v * 3600.0 / 127.0), em: 0.0 }
     }
-    /// Milímetros → Length (razão exacta 360/127).
+    /// Milímetros → Length (360 raw units per mm, 127 per point).
     pub fn mm(v: f64) -> Self {
-        Self { abs: Abs::pt(v * Self::PT_PER_MM), em: 0.0 }
+        Self { abs: Abs::pt(v * 360.0 / 127.0), em: 0.0 }
     }
-    /// Polegadas → Length (72 pt exacto).
+    /// Polegadas → Length (9144 raw units per inch, 127 per point).
     pub fn inches(v: f64) -> Self {
-        Self { abs: Abs::pt(v * Self::PT_PER_IN), em: 0.0 }
+        Self { abs: Abs::pt(v * 9144.0 / 127.0), em: 0.0 }
     }
 
     pub fn is_zero(&self) -> bool {

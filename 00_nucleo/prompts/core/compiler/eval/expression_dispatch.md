@@ -1,5 +1,5 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: cff3d8be
+Hash do Código: c2fd228f
 
 
 
@@ -655,3 +655,9 @@ Internal measured parity correction follows ADR-0127 continuous flow: L0 before
 actual functional RED, implementation only after RED, GREEN and source-bound
 full tests/build/fmt/Clippy/Rustdoc/lint/lineage. Preserve all earlier positive
 visual/history and JPEG criteria; no normalization, suppression or limit change.
+
+## Methods and dates package
+
+`mm`, `cm` and `in` literals use the length constructors, which scale through raw units.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

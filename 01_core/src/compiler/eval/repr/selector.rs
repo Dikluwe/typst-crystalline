@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/repr/selector.md
-//! @prompt-hash bb5ddc24
+//! @prompt-hash 8d8505a3
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -31,11 +31,11 @@ pub fn repr_selector(sel: &Selector) -> String {
         Selector::Location(_) => "location".to_string(),
         Selector::And(list) => {
             let parts: Vec<String> = list.iter().map(repr_selector).collect();
-            format!("({})", parts.join(" & "))
+            format!("selector.and({})", parts.join(", "))
         }
         Selector::Or(list) => {
             let parts: Vec<String> = list.iter().map(repr_selector).collect();
-            format!("({})", parts.join(" | "))
+            format!("selector.or({})", parts.join(", "))
         }
         Selector::Regex(r) => format!("regex(\"{}\")", r.pattern()),
         Selector::Where { base, field, value } => {

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/arithmetic
-Hash do Código: 257abbae
+Hash do Código: bb6fa86d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -254,3 +254,9 @@ retain the entire Length in the approved Stroke carrier; Relative+Color keeps
 its existing r.abs projection but retains that Length em component. Percentage
 stroke debt is unchanged. Preserve paint/presence/overhang, all other domains
 and error priority. Internal ADR-0127 correction, no new API/phase/default.
+
+## Methods and dates package
+
+`datetime + duration`, `duration + datetime`, `datetime - duration` and `datetime - datetime` follow the language. A result outside the calendar fails with `the result is out of range`; the pinned reference crashes there, a proven defect that is not reproduced.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

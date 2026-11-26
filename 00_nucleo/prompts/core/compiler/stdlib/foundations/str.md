@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/str
-Hash do Código: 556a9422
+Hash do Código: b120d828
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/str.rs`
@@ -17,3 +17,9 @@ str.from-unicode requires an integer Unicode scalar; reject outside the scalar r
 ## Acceptance
 
 Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
+
+## Methods and dates package
+
+`str.from-unicode` reports `expected integer, found T`.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

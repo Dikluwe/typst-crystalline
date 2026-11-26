@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md
-//! @prompt-hash 339c085f
+//! @prompt-hash 7d463a97
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -127,6 +127,12 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
                 None => Err("overflow em duration + duration".into()),
             }
         }
+        // A duration moves a datetime; out of the calendar is an error, not a crash.
+        (BinOp::Add, Value::Datetime(a), Value::Duration(b))
+        | (BinOp::Add, Value::Duration(b), Value::Datetime(a)) => a
+            .shifted(b.nanos)
+            .map(Value::Datetime)
+            .ok_or_else(|| "the result is out of range".to_string()),
         (BinOp::Add, Value::Str(a), Value::Str(b)) => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) => {
             Ok(Value::Content(concat_content(a, b)))
@@ -203,6 +209,15 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
                 Some(diff) => Ok(Value::Duration(Duration::from_nanos(diff))),
                 None => Err("underflow em duration - duration".into()),
             }
+        }
+        (BinOp::Sub, Value::Datetime(a), Value::Duration(b)) => b
+            .nanos
+            .checked_neg()
+            .and_then(|nanos| a.shifted(nanos))
+            .map(Value::Datetime)
+            .ok_or_else(|| "the result is out of range".to_string()),
+        (BinOp::Sub, Value::Datetime(a), Value::Datetime(b)) => {
+            a.since(&b).map(|nanos| Value::Duration(Duration::from_nanos(nanos)))
         }
         // ── Multiplicação ────────────────────────────────────────────────────
         (BinOp::Mul, Value::Int(a), Value::Int(b)) => {

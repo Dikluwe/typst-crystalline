@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/call.md
-//! @prompt-hash d5e2f1fa
+//! @prompt-hash d3b02bb1
 //! @layer L1
 //! @updated 2026-11-08
 
@@ -102,6 +102,29 @@ fn borrowed_collection_len(call: FuncCallNode<'_>, scopes: &Scopes<'_>) -> Optio
         | Value::Path(_)
         | Value::Type(_)
         | Value::SpotColorant(_) => None,
+    }
+}
+
+/// The function `field` of the scope of `target`'s type, when `target` is not
+/// a value whose fields are themselves callable.
+fn type_scope_function(
+    target: &Value,
+    access: crate::entities::ast::expr::FieldAccess<'_>,
+) -> Option<crate::entities::func::Func> {
+    if matches!(
+        target,
+        Value::Type(_) | Value::Module(_) | Value::Func(_) | Value::Symbol(_)
+    ) {
+        return None;
+    }
+    let field = access.field();
+    match bindings::eval_value_field_access(
+        Value::Type(target.type_of()),
+        field.as_str(),
+        field.span(),
+    ) {
+        Ok(Value::Func(func)) => Some(func),
+        Ok(_) | Err(_) => None,
     }
 }
 
@@ -233,6 +256,30 @@ pub(in crate::compiler::eval) fn eval_func_call(
             if resolved_callee.is_none() {
                 let target =
                     resolve_receiver(access, &mut cached_receiver, scopes, ctx, engine)?;
+                // A function of the value's type is a method: it receives the
+                // value as its first argument.
+                if let Some(func) = type_scope_function(target, access) {
+                    let receiver = target.clone();
+                    let mut args = match resolved_args.take() {
+                        Some(args) => args,
+                        None => eval_args(call.args(), scopes, ctx, engine)?,
+                    };
+                    args.span = call.span();
+                    args.items.insert(0, receiver);
+                    if let Some(occurrences) = args.occurrences.as_mut() {
+                        occurrences.insert(
+                            0,
+                            crate::entities::args::ArgOccurrence {
+                                name: None,
+                                value: args.items[0].clone(),
+                                span: access.target().span(),
+                                value_span: access.target().span(),
+                            },
+                        );
+                    }
+                    let result = super::apply::apply_func(func, args, scopes, ctx, engine);
+                    return trace_call(result, Some(access.field().as_str()), call.span(), engine);
+                }
                 if let Some(err) = bindings::field_callee_error(target, access) {
                     return Err(err);
                 }

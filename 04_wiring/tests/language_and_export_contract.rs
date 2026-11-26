@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 9fe02f52
+//! @prompt-hash 993d1120
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -2601,4 +2601,75 @@ fn grid_lines_and_positions_follow_the_call() {
         "#grid(columns: 2, [b], [c], grid.cell(x: 0, y: 2)[a])",
         "#grid(columns: 2, [b], [c], [], [], [a])",
     );
+}
+
+// Expectations: approved methods and dates package, measured on the pinned reference.
+
+#[test]
+fn type_functions_are_methods() {
+    let date = "datetime(year: 2020, month: 3, day: 2)";
+    for (expression, expected) in [
+        (format!("{date}.year()"), "2020"),
+        (format!("{date}.weekday()"), "1"),
+        (format!("{date}.ordinal()"), "62"),
+        (format!("{date}.hour()"), "none"),
+        (format!("{date}.display(\"[day]/[month]\")"), "\"02/03\""),
+        ("red.rgb()".into(), "rgb(\"#ff4136\")"),
+        ("red.cmyk()".into(), "cmyk(0%, 74.51%, 78.82%, 0%)"),
+        ("red.luma()".into(), "luma(54.02%)"),
+        ("red.hsl()".into(), "color.hsl(3.28deg, 100%, 60.59%)"),
+    ] {
+        calc_repr(&expression, expected);
+    }
+    calc_error("(1, 2).range()", "expected integer, found array", None);
+    calc_error("\"a\".from-unicode()", "expected integer, found string", None);
+    calc_error("5.foo()", "type integer has no method `foo`", None);
+}
+
+#[test]
+fn dates_add_and_subtract() {
+    let date = "datetime(year: 2020, month: 3, day: 2)";
+    let time = "datetime(hour: 23, minute: 0, second: 0)";
+    for (expression, expected) in [
+        (format!("{date} + duration(days: 3)"), "datetime(year: 2020, month: 3, day: 5)"),
+        (format!("duration(days: 3) + {date}"), "datetime(year: 2020, month: 3, day: 5)"),
+        (
+            format!("{date} - duration(days: 3)"),
+            "datetime(year: 2020, month: 2, day: 28)",
+        ),
+        (
+            format!("{date} - datetime(year: 2020, month: 1, day: 2)"),
+            "duration(weeks: 8, days: 4)",
+        ),
+        (
+            format!("{time} + duration(hours: 2)"),
+            "datetime(hour: 1, minute: 0, second: 0)",
+        ),
+        (
+            "datetime(year: 2024, month: 2, day: 28) + duration(days: 1)".into(),
+            "datetime(year: 2024, month: 2, day: 29)",
+        ),
+    ] {
+        calc_repr(&expression, expected);
+    }
+    calc_error(&format!("{date} - {time}"), "cannot subtract time from date", None);
+    // The pinned reference crashes here; the language result is an error.
+    calc_error(
+        "datetime(year: 9999, month: 12, day: 31) + duration(days: 1)",
+        "the result is out of range",
+        None,
+    );
+}
+
+#[test]
+fn lengths_and_selectors_read_as_the_language() {
+    for (expression, expected) in [
+        ("(1pt).mm()", "0.3527777777777778"),
+        ("(3cm).mm()", "30.0"),
+        ("(10mm).inches()", "0.3937007874015748"),
+        ("selector(heading).or(figure)", "selector.or(figure, heading)"),
+        ("selector.and(heading, figure)", "selector.and(figure, heading)"),
+    ] {
+        calc_repr(expression, expected);
+    }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/gradients/parsing.md
-//! @prompt-hash 608ae388
+//! @prompt-hash 630ac54e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -163,8 +163,7 @@ pub(super) fn parse_stops(items: &[Value]) -> SourceResult<Vec<GradientStop>> {
             }
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.linear: stop {} deve ser Color ou [Color, Ratio], recebeu {}",
-                        i, other.type_name()),
+                format!("expected color or array, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)),
             )]),
         };
         stops.push(stop);

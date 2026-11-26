@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md
-//! @prompt-hash ba034437
+//! @prompt-hash 1ad9d141
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -168,7 +168,8 @@ pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
             "unexpected argument",
         )]);
     }
-    let mut selectors = vec![base];
+    // As in the language, the receiver follows the others.
+    let mut selectors = Vec::with_capacity(args.items.len() + 1);
     for other in args.items {
         let Some(other_sel) = value_to_query_selector(&other) else {
             return Err(vec![SourceDiagnostic::error(
@@ -182,6 +183,7 @@ pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
         };
         selectors.push(other_sel);
     }
+    selectors.push(base);
 
     match method {
         "or" => Ok(Some(Selector::Or(EcoVec::from(selectors)))),

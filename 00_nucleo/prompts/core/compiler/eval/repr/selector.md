@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr/selector
-Hash do Código: 91182105
+Hash do Código: e7b2a7be
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
@@ -60,3 +60,9 @@ universal parity claim. Atomic promotion, language RED before code, static/safe
 Rust, 1:1/V26 before restricted owner resealing, build/core suite/linter remain
 required. Revalidate bare/where/alias, true/false equality, direct/composed
 query/counter, homonymous function and partial/closure; preserve D05/D07/query.
+
+## Methods and dates package
+
+`and` and `or` show as `selector.and(...)` and `selector.or(...)`, in stored order.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

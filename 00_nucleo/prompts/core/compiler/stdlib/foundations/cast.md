@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/cast
-Hash do Código: 9306ead6
+Hash do Código: e42e72b6
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/cast.rs`
@@ -23,3 +23,9 @@ symbol variants are strings of exactly one extended grapheme cluster or (modifie
 ## Acceptance
 
 Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
+
+## Methods and dates package
+
+`range` reports `expected integer, found T`, `missing argument: end` and `unexpected argument`, as the language does.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/cast.md
-//! @prompt-hash 1910df31
+//! @prompt-hash e8179f4e
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -173,10 +173,7 @@ pub fn native_range(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!(
-                    "range() argumento 'step' requer int, recebeu {}",
-                    other.type_name()
-                ),
+                format!("expected integer, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)),
             )]);
         }
         None => 1,
@@ -197,7 +194,12 @@ pub fn native_range(
         [Value::Int(start), Value::Int(end)] => {
             Ok(Value::Array(stepped_range(*start, *end, step, inclusive)))
         }
-        _ => err(format!("range() requer 1 ou 2 Int, recebeu {} args", args.items.len())),
+        // The language's own messages: the first non-integer, then arity.
+        [] => err("missing argument: end".to_string()),
+        items => match items.iter().take(2).find(|value| !matches!(value, Value::Int(_))) {
+            Some(other) => err(format!("expected integer, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other))),
+            None => err("unexpected argument".to_string()),
+        },
     }
 }
 

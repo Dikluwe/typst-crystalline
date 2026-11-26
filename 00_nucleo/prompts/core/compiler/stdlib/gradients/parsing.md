@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/gradients/parsing
-Hash do Código: 936849f1
+Hash do Código: 7b9856f6
 
 ## Ownership and evidence
 
@@ -12,3 +12,9 @@ Parse common arguments, stops, color space, relative and ratio. Preserve signatu
 ## Acceptance
 
 Preserve the L1 suite and gradient tests; `crystalline-lint .` must validate ownership and hashes. Do not infer performance gains.
+
+## Methods and dates package
+
+A gradient stop that is not a color or array reports `expected color or array, found T`.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

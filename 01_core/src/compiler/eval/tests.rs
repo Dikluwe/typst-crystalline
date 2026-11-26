@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash c5f13cf3
+//! @prompt-hash 5cdd2793
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -27464,10 +27464,11 @@ mod regressions {
 
     #[test]
     fn p1146_datetime_rejeita_instancia_e_formato_incompativel() {
+        // A type function is a method of its values, as in the language.
         assert!(p729_eval(
-            "#let d = datetime(year: 2024, month: 2, day: 29)\n#let x = d.day()"
+            "#let d = datetime(year: 2024, month: 2, day: 29)\n#assert.eq(d.day(), 29)"
         )
-        .is_err());
+        .is_ok());
         let errors = p729_eval(
             "#let d = datetime(year: 2024, month: 2, day: 29)\n#let x = datetime.display(d, \"[hour]\")",
         )

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/str.md
-//! @prompt-hash e0a71120
+//! @prompt-hash fc103944
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -106,7 +106,7 @@ pub fn native_str_from_unicode(
             _ => err("str.from-unicode() requer um codepoint Unicode válido"),
         },
         [other] => {
-            err(format!("str.from-unicode() requer Int, recebeu {}", other.type_name()))
+            err(format!("expected integer, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)))
         }
         _ => err(format!(
             "str.from-unicode() requer 1 argumento, recebeu {}",

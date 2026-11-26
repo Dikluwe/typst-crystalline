@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: eb549983
+Hash do Código: 0d8835db
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -192,3 +192,10 @@ representations measured on the pinned reference, gutters against equal explicit
 tracks, per-cell arrays and functions against equal explicit cells, `set grid`,
 `set grid.cell` and `set table` against the equal constructor, and explicit line and
 cell positions.
+
+## Approved methods and dates package
+
+Own the black-box cases of `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`:
+type functions called on values, their errors, date arithmetic including the
+out-of-range error where the pinned reference crashes, unit conversions and selector
+representations, with values measured on the pinned reference.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md
-//! @prompt-hash 44b230b4
+//! @prompt-hash 6e31ee1e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -103,7 +103,16 @@ pub(super) fn p1284_static_call(
     };
     let mut rest = args.clone();
     rest.remove_positional(0);
-    dispatch_p1284_value_method(target.clone(), method, rest, scopes, ctx, engine)
+    // The selector functions take any selectable value as their receiver.
+    let target = match (method, target) {
+        ("and" | "or" | "within" | "before" | "after", value)
+            if !matches!(value, Value::Selector(_)) =>
+        {
+            bindings::value_to_query_selector(value).map_or(value.clone(), Value::Selector)
+        }
+        (_, value) => value.clone(),
+    };
+    dispatch_p1284_value_method(target, method, rest, scopes, ctx, engine)
 }
 
 macro_rules! p1284_static {
@@ -329,9 +338,10 @@ pub(super) fn dispatch_p1284_value_method(
             let points = length.abs.to_pt();
             Ok(Value::Float(match method {
                 "pt" => points,
-                "mm" => points * 25.4 / 72.0,
-                "cm" => points * 2.54 / 72.0,
-                "inches" => points / 72.0,
+                // The language converts through its raw scale: 127 per point.
+                "mm" => points * 127.0 / 360.0,
+                "cm" => points * 127.0 / 3600.0,
+                "inches" => points * 127.0 / 9144.0,
                 _ => {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
@@ -352,7 +362,8 @@ pub(super) fn dispatch_p1284_value_method(
             }
             match method {
                 "and" | "or" => {
-                    let mut selectors = vec![base];
+                    // As in the language, the receiver follows the others.
+                    let mut selectors = Vec::with_capacity(args.items.len() + 1);
                     for value in &args.items {
                         let selector = bindings::value_to_query_selector(value)
                             .ok_or_else(|| {
@@ -366,6 +377,7 @@ pub(super) fn dispatch_p1284_value_method(
                             })?;
                         selectors.push(selector);
                     }
+                    selectors.push(base);
                     Ok(Value::Selector(if method == "and" {
                         crate::entities::selector::Selector::And(EcoVec::from(selectors))
                     } else {

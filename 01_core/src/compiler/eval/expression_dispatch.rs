@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash fe463a12
+//! @prompt-hash 3bfbc410
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -737,15 +737,9 @@ fn eval_expr_inner(
             let (value, unit) = num.get();
             match unit {
                 Unit::Pt => Ok(Value::Length(Length { abs: Abs(value), em: 0.0 })),
-                Unit::Mm => Ok(Value::Length(Length {
-                    abs: Abs(value * Length::PT_PER_MM),
-                    em: 0.0,
-                })),
-                Unit::Cm => Ok(Value::Length(Length {
-                    abs: Abs(value * Length::PT_PER_CM),
-                    em: 0.0,
-                })),
-                Unit::In => Ok(Value::Length(Length { abs: Abs(value * 72.0), em: 0.0 })),
+                Unit::Mm => Ok(Value::Length(Length::mm(value))),
+                Unit::Cm => Ok(Value::Length(Length::cm(value))),
+                Unit::In => Ok(Value::Length(Length::inches(value))),
                 Unit::Em => Ok(Value::Length(Length { abs: Abs(0.0), em: value })),
                 Unit::Deg => Ok(Value::Angle(Angle::deg(value))),
                 Unit::Rad => Ok(Value::Angle(Angle::rad(value))),

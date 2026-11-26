@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 1c29011a
+Hash do Código: 9e5f596b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:06ae067763e4c77876f7d999903f2e5e4144df34eb799eb62f2c52a31d8a030b
@@ -339,3 +339,9 @@ On 2026-11-24 the owner approved (“Aprovo o pacote”) the scope in
 the measured RED cases and the limits. TextStyle.fill and FrameItem::Line.color are Option<Paint>. All geometric operations preserve them. None keeps black. This supersedes only the Color type of those two fields. highlight stays Color.
 Apply the pinned text-gradient-paint nucleus. Verify a gradient case that asserts
 paint, a solid control and the absence of tiling on this route.
+
+## Methods and dates package
+
+`Length::mm`, `cm` and `inches` scale to raw units before dividing by 127 per point, as the language does.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.

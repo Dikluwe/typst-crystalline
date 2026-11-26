@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/call
-Hash do Código: b8b71157
+Hash do Código: 6b04e0de
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -184,3 +184,9 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Methods and dates package
+
+After every native method dispatch, a field call whose target is not a type, module, function or symbol calls the function of that name in the scope of the target's type, with the target as first argument. Only when no such function exists is the method missing.
+
+Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.
