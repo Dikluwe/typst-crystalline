@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: 9776297f
+Hash do Código: ef182511
 
 
 
@@ -550,3 +550,9 @@ an outline does not match block.
 The items are selected only by their own functions. A loose sequence is no longer a list.
 
 Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md`.
+
+## Grid headers and footers package
+
+Grid header values carry the header level.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

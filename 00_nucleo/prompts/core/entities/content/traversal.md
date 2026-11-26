@@ -1,5 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: 67910cb2
+Hash do Código: 026ce32b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:6343f553bd5f842f83190bd6533a9a9642118a34214550d8289c9daaba219043
@@ -718,3 +718,9 @@ Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package
 Traversal keeps the presence bits of layout elements.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Grid headers and footers package
+
+Rebuilding a grid header keeps its level.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

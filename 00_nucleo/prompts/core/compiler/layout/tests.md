@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: a7e0275a
+Hash do Código: 623b6c8d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -650,3 +650,9 @@ Cover a single-point curve and a table on a `width: auto` page, a curve measured
 Requested on 2026-11-26 (“Corrigir os panics”): `00_nucleo/diagnostics/upstream-suite-panics-2026-11-26.pt-BR.md`.
 
 Also cover fractional columns with a spanning cell on a `width: auto` page.
+
+## Grid headers and footers package
+
+Cover a grid header and a table footer repeated across pages, several grid headers with levels, and content repetition.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/row_groups
-Hash do Código: c0b3cea3
+Hash do Código: 77b8ce4d
 
 
 Núcleos Tekt:
@@ -122,3 +122,9 @@ before OrderedGroup and ordered_groups. Keep productive declarations before
 the terminal test module. Move that module unchanged; preserve declaration
 visibility, ordering logic, assertions and diagnostics. This is a mechanical
 Clippy correction with no public contract or language change.
+
+## Grid headers and footers package
+
+Ordered groups accept grid headers and footers as well as table ones, with the header level; empty headers and footers are accepted.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

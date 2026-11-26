@@ -1,5 +1,5 @@
 # L0 — introspect/materialize_time
-Hash do Código: 49b11011
+Hash do Código: ee15c0ae
 
 
 
@@ -292,3 +292,9 @@ Approved on 2026-11-24: `00_nucleo/diagnostics/lists-package-2026-11-24.pt-BR.md
 Grid and table literals carry the declared surface unchanged.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+Rebuilding a grid header keeps its level.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

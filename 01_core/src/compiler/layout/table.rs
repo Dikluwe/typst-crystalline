@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/table.md
-//! @prompt-hash e19cf0b8
+//! @prompt-hash ce47d3f3
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -170,8 +170,42 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             }
         }
     };
+    // Row groups of a prepared table: ordered headers, or the single leading
+    // header, and the trailing footer.
+    let groups = e.items.iter().flatten().chain(e.header.iter()).chain(e.footer.iter());
+    let mut footer_repeat = None;
+    let mut leading_header = None;
+    for item in groups {
+        if let Content::TableFooter(footer) = item.source_body() {
+            footer_repeat = Some(footer.repeat);
+        } else if let Content::TableHeader(header) = item.source_body() {
+            leading_header.get_or_insert((header.level.max(1), header.repeat));
+        }
+    }
+    let leading = e
+        .resolved
+        .as_ref()
+        .filter(|r| r.header_groups.is_empty() && r.header_rows > 0)
+        .and_then(|r| {
+            leading_header.map(|(level, repeat)| {
+                vec![crate::entities::elements::table::TableHeaderRange {
+                    start: 0,
+                    end: r.header_rows,
+                    level,
+                    repeat,
+                }]
+            })
+        });
+    let footer_group = e
+        .resolved
+        .as_ref()
+        .filter(|r| r.footer_start < r.num_rows)
+        .and_then(|r| footer_repeat.map(|repeat| (r.footer_start, repeat)));
     layouter.layout_grid(super::grid::GridLayoutInput {
-        header_groups: e.resolved.as_ref().map_or(&[], |r| r.header_groups.as_slice()),
+        header_groups: leading.as_deref().unwrap_or_else(|| {
+            e.resolved.as_ref().map_or(&[], |r| r.header_groups.as_slice())
+        }),
+        footer_group,
         columns: &e.columns,
         rows: &e.rows,
         cells: &visual_children,

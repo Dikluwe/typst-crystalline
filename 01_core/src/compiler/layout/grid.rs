@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid.md
-//! @prompt-hash df0126bc
+//! @prompt-hash c1ae6306
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -132,6 +132,8 @@ impl LayoutVLine for TableVLineElem {
 
 pub(super) struct GridLayoutInput<'b, H: LayoutHLine, V: LayoutVLine> {
     pub(super) header_groups: &'b [crate::entities::elements::table::TableHeaderRange],
+    /// First footer row and whether the footer repeats in every region.
+    pub(super) footer_group: Option<(usize, bool)>,
     pub(super) columns: &'b [TrackSizing],
     pub(super) rows: &'b [TrackSizing],
     pub(super) cells: &'b [Content],
@@ -190,11 +192,39 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Some(spec) => (spec.column_gutter.as_slice(), spec.row_gutter.as_slice()),
         None => (legacy.as_slice(), legacy.as_slice()),
     };
+    // Children kept in document order carry their own row groups.
+    let ordered = e
+        .cells
+        .iter()
+        .any(|c| matches!(c.source_body(), Content::GridHeader(_) | Content::GridFooter(_)));
+    let mut header_groups = Vec::new();
+    let mut footer_group = None;
+    let mut positioned = Vec::new();
+    if ordered {
+        let columns = e.columns.len().max(1);
+        match super::grid_placement::place_grid_items(&e.cells, columns) {
+            Ok((placed, groups, footer_start)) => {
+                let rows = placed.iter().map(|p| p.row + p.rowspan).max().unwrap_or(0);
+                let repeat = e.cells.iter().find_map(|c| match c.source_body() {
+                    Content::GridFooter(footer) => Some(footer.repeat),
+                    _ => None,
+                });
+                footer_group = repeat.filter(|_| footer_start < rows).map(|r| (footer_start, r));
+                header_groups = groups;
+                positioned = placed.into_iter().map(positioned_cell).collect();
+            }
+            Err(errors) => {
+                layouter.layout_errors.extend(errors);
+                return;
+            }
+        }
+    }
     layouter.layout_grid(GridLayoutInput {
-        header_groups: &[],
+        header_groups: &header_groups,
+        footer_group,
         columns: &e.columns,
         rows: &e.rows,
-        cells: &e.cells,
+        cells: if ordered { &positioned } else { &e.cells },
         hlines: &e.hlines,
         vlines: &e.vlines,
         column_gutter,
@@ -207,6 +237,31 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         stroke: e.stroke.as_ref(),
         fill: e.fill.as_ref(),
     });
+}
+
+/// A placed cell with its position written back, so the shared engine
+/// places it at the same row and column.
+fn positioned_cell(placed: PlacedCell) -> Content {
+    let mut cell = match placed.body.source_body() {
+        Content::GridCell(cell) => cell.as_ref().clone(),
+        _ => crate::entities::elements::grid_cell::GridCellElem {
+            body: placed.body.clone(),
+            x: None,
+            y: None,
+            colspan: None,
+            rowspan: None,
+            stroke: None,
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
+        },
+    };
+    cell.x = Some(placed.col);
+    cell.y = Some(placed.row);
+    cell.colspan = Some(placed.colspan);
+    cell.rowspan = Some(placed.rowspan);
+    Content::GridCell(std::sync::Arc::new(cell))
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
@@ -224,6 +279,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     ) {
         let GridLayoutInput {
             header_groups,
+            footer_group,
             columns,
             rows,
             cells,
@@ -505,10 +561,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
+        // A single leading header or a trailing footer given outside the
+        // ordered children still forms a row group.
+        let synthesized_header;
+        let header_groups = if header_groups.is_empty() {
+            synthesized_header = header
+                .and_then(|h| row_groups::header_range(h, num_cols))
+                .into_iter()
+                .collect::<Vec<_>>();
+            synthesized_header.as_slice()
+        } else {
+            header_groups
+        };
+        let footer_group = footer_group.or_else(|| {
+            footer.and_then(|f| row_groups::footer_range(f, num_cols, num_rows_produced_final))
+        });
         let emitted_row_starts =
             self.emit_grid_cells_planned(cell_emission::GridEmissionInput {
                 paint_borders: true,
                 header_groups,
+                footer_group,
                 measured_cells: &mut measured_cells,
                 placed_cells: &placed_cells,
                 cells_per_row: &cells_per_row,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash 1247fbc3
+//! @prompt-hash b178eb8a
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -194,6 +194,19 @@ pub fn native_table(
                     vline.col = col;
                 }
                 vlines.push(vline);
+            }
+            // ref: lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:486-500
+            Value::Content(Content::GridHeader(_)) => {
+                return Err(vec![SourceDiagnostic::error(
+                    v_span(v),
+                    "cannot use `grid.header` as a table header",
+                )]);
+            }
+            Value::Content(Content::GridFooter(_)) => {
+                return Err(vec![SourceDiagnostic::error(
+                    v_span(v),
+                    "cannot use `grid.footer` as a table footer",
+                )]);
             }
             Value::Content(c @ Content::TableHeader(_)) => {
                 if ordered_items.is_some() {
@@ -887,27 +900,10 @@ pub fn native_table_header(
 ) -> SourceResult<Value> {
     // P772i — colectar todos os argumentos posicionais, não só o primeiro
     // (mesmo bug de `native_grid_header`, ver comentário lá).
-    let level = match args.named.get("level") {
-        None => 1,
-        Some(Value::Int(value)) => {
-            if *value > 0 && *value <= u32::MAX as i64 {
-                *value as u32
-            } else {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "number must be positive",
-                )]);
-            }
-        }
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("expected integer, found {}", other.type_name()),
-            )])
-        }
-    };
+    let level = header_level(args)?;
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
+        reject_nested_group(v)?;
         let content = match v {
             Value::Content(c) => c.clone(),
             Value::Str(s) => Content::text(s.as_str()),
@@ -1080,13 +1076,6 @@ pub fn native_table_header(
         };
         cell_values.push(product);
     }
-    if cell_values.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "table_header() exige pelo menos uma célula como argumento posicional"
-                .to_string(),
-        )]);
-    }
     let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
@@ -1104,6 +1093,51 @@ pub fn native_table_header(
     let Content::TableHeader(header) = &mut content else { unreachable!() };
     std::sync::Arc::make_mut(header).level = level;
     Ok(Value::Content(content))
+}
+
+/// `level` of a grid or table header: a positive integer, default 1.
+fn v_span(value: &Value) -> Span {
+    if let Value::Content(content) = value { content.source_span() } else { Span::detached() }
+}
+
+fn header_level(args: &Args) -> SourceResult<u32> {
+    Ok(match args.named.get("level") {
+        None => 1,
+        Some(Value::Int(value)) => {
+            if *value > 0 && *value <= u32::MAX as i64 {
+                *value as u32
+            } else {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "number must be positive",
+                )]);
+            }
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("expected integer, found {}", other.type_name()),
+            )])
+        }
+    })
+}
+
+/// ref: lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:530-545
+/// A header or footer cannot hold another header or footer.
+fn reject_nested_group(value: &Value) -> SourceResult<()> {
+    let Value::Content(content) = value else { return Ok(()) };
+    let message = if let Content::GridHeader(_) = content.source_body() {
+        "cannot place a grid header within another header or footer"
+    } else if let Content::TableHeader(_) = content.source_body() {
+        "cannot place a table header within another header or footer"
+    } else if let Content::GridFooter(_) = content.source_body() {
+        "cannot place a grid footer within another footer or header"
+    } else if let Content::TableFooter(_) = content.source_body() {
+        "cannot place a table footer within another footer or header"
+    } else {
+        return Ok(());
+    };
+    Err(vec![SourceDiagnostic::error(content.source_span(), message)])
 }
 
 fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
@@ -1266,6 +1300,7 @@ pub fn native_table_footer(
     // (mesmo bug de `native_grid_header`, ver comentário lá).
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
+        reject_nested_group(v)?;
         let content = match v {
             Value::Content(c) => c.clone(),
             Value::Str(s) => Content::text(s.as_str()),
@@ -1299,13 +1334,6 @@ pub fn native_table_footer(
             };
             cell_values.push(product);
         }
-    }
-    if cell_values.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "table_footer() exige pelo menos uma célula como argumento posicional"
-                .to_string(),
-        )]);
     }
     let body = Content::sequence(cell_values);
 
@@ -1450,6 +1478,7 @@ pub fn native_grid_header(
     // lab/results/construction/diagnostics/paridade-producao-p772i.md.
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
+        reject_nested_group(v)?;
         let classified = match v {
             Value::Content(c) => Value::Content(c.source_body().clone()),
             other => other.clone(),
@@ -1463,17 +1492,10 @@ pub fn native_grid_header(
             )]),
         }
     }
-    if cell_values.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "grid_header() exige pelo menos uma célula como argumento posicional"
-                .to_string(),
-        )]);
-    }
     let body = Content::sequence(cell_values);
 
     for key in args.named.keys() {
-        if !["repeat"].contains(&key.as_str()) {
+        if !["repeat", "level"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("grid_header(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
@@ -1482,8 +1504,11 @@ pub fn native_grid_header(
     }
 
     let repeat = extract_bool_with_default(args, "grid_header", "repeat", true)?;
-
-    Ok(Value::Content(Content::grid_header(body, repeat)))
+    let level = header_level(args)?;
+    let mut content = Content::grid_header(body, repeat);
+    let Content::GridHeader(header) = &mut content else { unreachable!() };
+    std::sync::Arc::make_mut(header).level = level;
+    Ok(Value::Content(content))
 }
 
 /// `grid_footer(body, repeat: true)` → `Content::GridFooter`.
@@ -1500,6 +1525,7 @@ pub fn native_grid_footer(
     // (mesmo bug de `native_grid_header`, ver comentário lá).
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
+        reject_nested_group(v)?;
         let classified = match v {
             Value::Content(c) => Value::Content(c.source_body().clone()),
             other => other.clone(),
@@ -1512,13 +1538,6 @@ pub fn native_grid_footer(
                 format!("grid_footer() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
             )]),
         }
-    }
-    if cell_values.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "grid_footer() exige pelo menos uma célula como argumento posicional"
-                .to_string(),
-        )]);
     }
     let body = Content::sequence(cell_values);
 

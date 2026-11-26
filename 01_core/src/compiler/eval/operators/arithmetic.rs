@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md
-//! @prompt-hash 7d463a97
+//! @prompt-hash 43154a4d
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -267,6 +267,13 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
                 .checked_mul(n as usize)
                 .ok_or_else(|| format!("cannot repeat this array {n} times"))?;
             Ok(Value::Array(a.iter().cloned().cycle().take(count).collect()))
+        }
+        // ref: lab/typst-original/crates/typst-library/src/foundations/ops.rs:276-277
+        // Content repeats as a sequence of copies.
+        (BinOp::Mul, Value::Content(c), Value::Int(n))
+        | (BinOp::Mul, Value::Int(n), Value::Content(c)) => {
+            let count = usize::try_from(n).map_err(|_| "number must be at least zero")?;
+            Ok(Value::Content(Content::sequence(vec![c; count])))
         }
         // P818-e — Str * Int / Int * Str (paridade `Str::repeat`, vanilla
         // `foundations/str.rs:92-99` + `ops.rs:272-273`): repetição;

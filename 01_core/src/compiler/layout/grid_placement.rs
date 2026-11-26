@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid_placement.md
-//! @prompt-hash 2283c894
+//! @prompt-hash 282acb7b
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -65,6 +65,8 @@ pub struct PlacedCell {
 enum PlacementPolicy {
     GridExplicitFirst,
     TableDocumentOrder,
+    /// Grid cells in document order, as row groups require.
+    GridDocumentOrder,
 }
 
 #[cfg(test)]
@@ -144,14 +146,33 @@ pub(crate) fn place_table_items(
     Vec<crate::entities::elements::table::TableHeaderRange>,
     usize,
 )> {
+    place_items(items, columns, minimum_rows, PlacementPolicy::TableDocumentOrder)
+}
+
+/// Grid children in document order, headers and footer included.
+pub(crate) fn place_grid_items(
+    items: &[Content],
+    columns: usize,
+) -> SourceResult<(
+    Vec<PlacedCell>,
+    Vec<crate::entities::elements::table::TableHeaderRange>,
+    usize,
+)> {
+    place_items(items, columns, 0, PlacementPolicy::GridDocumentOrder)
+}
+
+fn place_items(
+    items: &[Content],
+    columns: usize,
+    minimum_rows: usize,
+    policy: PlacementPolicy,
+) -> SourceResult<(
+    Vec<PlacedCell>,
+    Vec<crate::entities::elements::table::TableHeaderRange>,
+    usize,
+)> {
     let (cells, mut groups) = super::grid::row_groups::ordered_groups(items)?;
-    let placed = place_indexed(
-        &cells,
-        columns,
-        minimum_rows,
-        PlacementPolicy::TableDocumentOrder,
-        &mut groups,
-    )?;
+    let placed = place_indexed(&cells, columns, minimum_rows, policy, &mut groups)?;
     let rows = placed.iter().map(|(_, c)| c.row + c.rowspan).max().unwrap_or(0);
     let footer = groups.iter().find(|g| g.header.is_none()).map_or(rows, |g| g.start);
     let headers = groups
@@ -194,6 +215,7 @@ fn place_indexed(
         )]);
     }
     let table = matches!(policy, PlacementPolicy::TableDocumentOrder);
+    let document_order = !matches!(policy, PlacementPolicy::GridExplicitFirst);
     let fields = |c: &Content| match c {
         Content::TableCell(e) => {
             if table {
@@ -331,7 +353,7 @@ fn place_indexed(
         | Content::Dynamic(..) => (None, None, None, None, Span::detached()),
     };
     let mut ordered = cells.iter().enumerate().collect::<Vec<_>>();
-    if !table {
+    if !document_order {
         ordered.sort_by_key(|(_, c)| {
             let (x, y, _, _, _) = fields(c);
             x.is_none() && y.is_none()

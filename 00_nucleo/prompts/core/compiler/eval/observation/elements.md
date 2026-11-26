@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/elements
-Hash do Código: da74ac6c
+Hash do Código: 20ccc0af
 
 
 **Layer:** L1
@@ -547,3 +547,9 @@ Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package
 The layout presence bits (`given`) and raw options are carried, not observed.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Grid headers and footers package
+
+Grid header observation compares the header level.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

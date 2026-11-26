@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_emission
-Hash do Código: 0a0fb346
+Hash do Código: f8e65ee3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:0684f5fcab7844d2ac81dd302d9afc7c12595cf5651a9f4c7c91daea8166b3f7
@@ -387,3 +387,11 @@ Do not claim general Table context, call/body-page, Note width or rich-float par
 A row gutter follows every row but the last, and a repeated header keeps the gutter after it. With gutters every cell strokes its own outline; no edge is shared.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+A repeating footer is reserved in every region: when the next row would leave no room for it, the footer rows are emitted right after the last row of the region, as the language does, and the grid continues in the next region. The footer's final occurrence stays after the last row.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.
+
+A header taller than the region is laid out once, may break across regions and does not repeat; headers that would leave no room for the next row are not repeated in that region. Neither case is an error, as in the language.

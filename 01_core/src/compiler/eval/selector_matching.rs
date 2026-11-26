@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash 3fd5aecb
+//! @prompt-hash 41496507
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -950,6 +950,7 @@ mod tests {
             crate::entities::elements::grid_header::GridHeaderElem {
                 body: Content::text("body"),
                 repeat: true,
+                level: 1,
             },
         ));
         let table_function =

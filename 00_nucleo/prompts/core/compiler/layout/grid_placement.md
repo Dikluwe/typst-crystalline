@@ -1,5 +1,5 @@
 # L0 — grid placement
-Hash do Código: 6a59cf6d
+Hash do Código: 828e04b4
 
 
 **Layer:** L1
@@ -200,3 +200,9 @@ rule for automatic admission without inventing another placement engine.
 Publish each cell's source index, column and row, and the free slots of the occupied rows.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+Grid items in document order are placed with the grid cell positions, keeping header and footer rows as groups.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

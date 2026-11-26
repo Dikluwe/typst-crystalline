@@ -1,5 +1,5 @@
 # L0 — entities/content/construction/layout
-Hash do Código: f5fa54b1
+Hash do Código: 6976be03
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -99,3 +99,9 @@ Do not materialize unrelated square/container features.
 Constructed layout elements carry empty presence bits.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Grid headers and footers package
+
+`Content::grid_header` builds a level-1 header; the level is set by the constructor that reads it.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

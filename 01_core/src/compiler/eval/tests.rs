@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash 5cdd2793
+//! @prompt-hash 66c58720
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -34186,6 +34186,59 @@ mod regressions {
                 ],
                 "{source}"
             );
+        }
+    }
+
+    mod grid_headers_package {
+        use super::*;
+
+        fn eval_result(source: &str) -> Result<(), Vec<String>> {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            eval_for_test(&world, &src)
+                .map(|_| ())
+                .map_err(|errors| errors.iter().map(|d| d.message.to_string()).collect())
+        }
+
+        fn fails_with(source: &str, message: &str) {
+            let errors = eval_result(source).expect_err(source);
+            assert!(errors.iter().any(|m| m == message), "{source}: {errors:?}");
+        }
+
+        #[test]
+        fn content_repeats_by_an_integer() {
+            eval_result(r#"#assert.eq(repr([a] * 3), "sequence([a], [a], [a])")"#).unwrap();
+            eval_result(r#"#assert.eq(repr(2 * [b]), "sequence([b], [b])")"#).unwrap();
+            fails_with("#([a] * -1)", "number must be at least zero");
+        }
+
+        #[test]
+        fn headers_and_footers_belong_to_their_container() {
+            fails_with("#grid(table.header[a])", "cannot use `table.header` as a grid header");
+            fails_with("#grid(table.footer[a])", "cannot use `table.footer` as a grid footer");
+            fails_with("#table(grid.header[a])", "cannot use `grid.header` as a table header");
+            fails_with("#table(grid.footer[a])", "cannot use `grid.footer` as a table footer");
+            fails_with(
+                "#grid.header(grid.header[a])",
+                "cannot place a grid header within another header or footer",
+            );
+            fails_with(
+                "#table.footer(table.header[a])",
+                "cannot place a table header within another header or footer",
+            );
+            fails_with(
+                "#grid.header(grid.footer[a])",
+                "cannot place a grid footer within another footer or header",
+            );
+        }
+
+        #[test]
+        fn headers_take_levels_and_may_be_empty_or_repeated() {
+            eval_result("#grid(grid.header(level: 2, [a]), [b])").unwrap();
+            eval_result("#grid(grid.header([a]), [b], grid.header([c]), [d])").unwrap();
+            eval_result("#table(table.header([a]), [b], table.header([c]), [d])").unwrap();
+            eval_result("#table(table.header(), [a], table.footer())").unwrap();
+            eval_result("#grid(grid.header(), [a], grid.footer())").unwrap();
         }
     }
 }

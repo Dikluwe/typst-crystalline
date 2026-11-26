@@ -1,5 +1,5 @@
 # L0 — grid
-Hash do Código: 5ae89c96
+Hash do Código: 37b7c75f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:3921c80230cfcc66a807429fbf8bc07ee090bae4988c351b6524023038bab84b
@@ -244,3 +244,9 @@ contract or phase change. Require local border-coverage RED→GREEN, original
 Column and row gutters sit between tracks; relative ones resolve against the region. Tracks are measured at the cells' actual positions. A row reached only by explicitly placed cells is as tall as its single-row cells. Row gutters are kept for the grid being laid out and restored on exit.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+A grid whose `cells` hold headers or a footer is placed in document order with the grid cell positions, and its header and footer row groups drive repetition. A grid with a single leading header and explicit lines still repeats that header when `repeat` is true.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

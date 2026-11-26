@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/elements/grid_header.md
-//! @prompt-hash d2cc27f7
+//! @prompt-hash 08d2bdee
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -18,6 +18,9 @@ use crate::entities::source_result::SourceResult;
 pub struct GridHeaderElem {
     pub body: Content,
     pub repeat: bool,
+    /// Header level, at least 1; a new header replaces repeating ones of
+    /// equal or higher level.
+    pub level: u32,
 }
 
 impl Element for GridHeaderElem {
@@ -36,6 +39,7 @@ impl Element for GridHeaderElem {
         Ok(Content::GridHeader(Arc::new(GridHeaderElem {
             body: self.body.map_content(transform)?,
             repeat: self.repeat,
+            level: self.level,
         })))
     }
 
@@ -46,6 +50,7 @@ impl Element for GridHeaderElem {
         Content::GridHeader(Arc::new(GridHeaderElem {
             body: self.body.map_text(transform),
             repeat: self.repeat,
+            level: self.level,
         }))
     }
 }
@@ -55,7 +60,7 @@ mod tests {
     use super::*;
 
     fn ex() -> GridHeaderElem {
-        GridHeaderElem { body: Content::text("h"), repeat: true }
+        GridHeaderElem { body: Content::text("h"), repeat: true, level: 1 }
     }
 
     #[test]
@@ -66,7 +71,7 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(GridHeaderElem { body: Content::Empty, repeat: false }.is_empty());
+        assert!(GridHeaderElem { body: Content::Empty, repeat: false, level: 1 }.is_empty());
     }
 
     #[test]
@@ -83,6 +88,6 @@ mod tests {
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), GridHeaderElem { body: Content::text("h"), repeat: false });
+        assert_ne!(ex(), GridHeaderElem { body: Content::text("h"), repeat: false, level: 1 });
     }
 }

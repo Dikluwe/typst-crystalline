@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash f08e5471
+//! @prompt-hash a63be8f9
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -27412,5 +27412,54 @@ mod upstream_suite_panics {
                 assert!(y <= page.height, "item below its page: {y} > {}", page.height);
             }
         }
+    }
+}
+
+mod grid_headers_package {
+    use super::*;
+
+    fn texts(doc: &PagedDocument, text: &str) -> usize {
+        doc.pages
+            .iter()
+            .map(|page| {
+                frame_items_recursive(&page.items)
+                    .into_iter()
+                    .filter(|item| matches!(item, FrameItem::Text { text: t, .. } if t.as_str() == text))
+                    .count()
+            })
+            .sum()
+    }
+
+    const PAGE: &str = "#set page(height: 80pt, width: 120pt, margin: 10pt)\n";
+
+    #[test]
+    fn a_grid_header_repeats_on_every_page() {
+        let doc = layout_test(&format!("{PAGE}#grid(grid.header([H]), ..range(12).map(str))"));
+        assert!(doc.pages.len() >= 2);
+        assert_eq!(texts(&doc, "H"), doc.pages.len());
+    }
+
+    #[test]
+    fn a_table_footer_repeats_on_every_page() {
+        let doc = layout_test(&format!("{PAGE}#table(..range(12).map(str), table.footer([F]))"));
+        assert!(doc.pages.len() >= 2);
+        assert_eq!(texts(&doc, "F"), doc.pages.len());
+    }
+
+    #[test]
+    fn grid_subheaders_keep_document_order() {
+        let doc = layout_test(
+            "#grid(grid.header([A]), [1], grid.header(level: 2, [B]), [2])",
+        );
+        let y = |text: &str| {
+            frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { pos, text: t, .. } if t.as_str() == text => Some(pos.y.0),
+                    _ => None,
+                })
+                .expect(text)
+        };
+        assert!(y("A") < y("1") && y("1") < y("B") && y("B") < y("2"));
     }
 }

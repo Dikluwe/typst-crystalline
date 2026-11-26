@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/row_groups.md
-//! @prompt-hash 029981e6
+//! @prompt-hash d76d2e54
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -213,6 +213,48 @@ pub(super) fn combine_cells(
             combined
         };
     Ok(combined_cells)
+}
+
+fn group_rows(body: &Content, num_cols: usize) -> usize {
+    let count = match body {
+        Content::Sequence(items) => items.len(),
+        _ => 1,
+    };
+    count.div_ceil(num_cols.max(1))
+}
+
+/// Rows of a header given outside the ordered children: the leading rows.
+pub(super) fn header_range(
+    header: &Content,
+    num_cols: usize,
+) -> Option<crate::entities::elements::table::TableHeaderRange> {
+    let (body, level, repeat) = match header.source_body() {
+        Content::GridHeader(e) => (&e.body, e.level, e.repeat),
+        Content::TableHeader(e) => (&e.body, e.level, e.repeat),
+        _ => return None,
+    };
+    let end = group_rows(body, num_cols);
+    (end > 0).then_some(crate::entities::elements::table::TableHeaderRange {
+        start: 0,
+        end,
+        level: level.max(1),
+        repeat,
+    })
+}
+
+/// First row of a footer given outside the ordered children, and whether it repeats.
+pub(super) fn footer_range(
+    footer: &Content,
+    num_cols: usize,
+    rows: usize,
+) -> Option<(usize, bool)> {
+    let (body, repeat) = match footer.source_body() {
+        Content::GridFooter(e) => (&e.body, e.repeat),
+        Content::TableFooter(e) => (&e.body, e.repeat),
+        _ => return None,
+    };
+    let count = group_rows(body, num_cols);
+    (count > 0 && count <= rows).then(|| (rows - count, repeat))
 }
 
 /// Parallel source addresses for the exact existing row-group projection.
@@ -874,50 +916,20 @@ pub(in crate::compiler) fn ordered_groups(
         let fail = |message| vec![SourceDiagnostic::error(item.source_span(), message)];
         match item.source_body() {
             Content::TableHeader(header) => {
-                if footer_seen {
-                    return Err(fail("table header cannot follow footer"));
-                }
-                if header.level == 0 {
-                    return Err(fail("header level must be positive"));
-                }
-                let first = cells.len();
-                if let Content::Sequence(parts) = header.body.source_body() {
-                    cells.extend(parts.iter().map(|c| c.source_body().clone()));
-                } else {
-                    cells.push(header.body.source_body().clone());
-                }
-                if first == cells.len() {
-                    return Err(fail("table header must contain a cell"));
-                }
-                groups.push(OrderedGroup {
-                    first,
-                    last: cells.len(),
-                    header: Some((header.level, header.repeat)),
-                    start: 0,
-                    end: 0,
-                });
+                push_group(&mut cells, &mut groups, Some((header.level, header.repeat)), &header.body, footer_seen)
+                    .map_err(fail)?;
+            }
+            Content::GridHeader(header) => {
+                push_group(&mut cells, &mut groups, Some((header.level, header.repeat)), &header.body, footer_seen)
+                    .map_err(fail)?;
             }
             Content::TableFooter(footer) => {
-                if footer_seen {
-                    return Err(fail("table: não pode haver mais do que um footer"));
-                }
+                push_group(&mut cells, &mut groups, None, &footer.body, footer_seen).map_err(fail)?;
                 footer_seen = true;
-                let first = cells.len();
-                if let Content::Sequence(parts) = footer.body.source_body() {
-                    cells.extend(parts.iter().map(|c| c.source_body().clone()));
-                } else {
-                    cells.push(footer.body.source_body().clone());
-                }
-                if first == cells.len() {
-                    cells.push(Content::Empty);
-                }
-                groups.push(OrderedGroup {
-                    first,
-                    last: cells.len(),
-                    header: None,
-                    start: 0,
-                    end: 0,
-                });
+            }
+            Content::GridFooter(footer) => {
+                push_group(&mut cells, &mut groups, None, &footer.body, footer_seen).map_err(fail)?;
+                footer_seen = true;
             }
             Content::TableHLine(_) | Content::TableVLine(_) => {
                 return Err(fail(
@@ -995,8 +1007,6 @@ pub(in crate::compiler) fn ordered_groups(
             | Content::Curve(..)
             | Content::Transform(..)
             | Content::Grid(..)
-            | Content::GridHeader(..)
-            | Content::GridFooter(..)
             | Content::SetPage(..)
             | Content::PageRun(..)
             | Content::Align(..)
@@ -1049,6 +1059,37 @@ pub(in crate::compiler) fn ordered_groups(
         }
     }
     Ok((cells, groups))
+}
+
+/// Appends one header or footer group; an empty one is a single blank cell.
+fn push_group(
+    cells: &mut Vec<Content>,
+    groups: &mut Vec<OrderedGroup>,
+    header: Option<(u32, bool)>,
+    body: &Content,
+    footer_seen: bool,
+) -> Result<(), &'static str> {
+    if footer_seen {
+        return Err(if header.is_some() {
+            "table header cannot follow footer"
+        } else {
+            "table: não pode haver mais do que um footer"
+        });
+    }
+    if header.is_some_and(|(level, _)| level == 0) {
+        return Err("header level must be positive");
+    }
+    let first = cells.len();
+    if let Content::Sequence(parts) = body.source_body() {
+        cells.extend(parts.iter().map(|c| c.source_body().clone()));
+    } else if !matches!(body.source_body(), Content::Empty) {
+        cells.push(body.source_body().clone());
+    }
+    if first == cells.len() {
+        cells.push(Content::Empty);
+    }
+    groups.push(OrderedGroup { first, last: cells.len(), header, start: 0, end: 0 });
+    Ok(())
 }
 
 #[cfg(test)]

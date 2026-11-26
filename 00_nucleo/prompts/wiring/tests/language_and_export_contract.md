@@ -1,5 +1,5 @@
 # L0 — wiring/tests/language_and_export_contract
-Hash do Código: bbd4018e
+Hash do Código: b77b90c3
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/language_and_export_contract.rs`
@@ -206,3 +206,9 @@ Own the black-box cases of `00_nucleo/diagnostics/layout-package-2026-11-26.pt-B
 `v` against equal paragraph spacing, weak and fractional forms, placements that end a
 paragraph, every declared layout property against the equal constructor, raw tabs and
 theme errors, figure gap and outlined, page parity and block quotes.
+
+## Grid headers and footers package
+
+Empty `grid.header()`, `grid.footer()`, `table.header()` and `table.footer()` are accepted, as in the language; the arity transcript keeps only the cell constructors.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

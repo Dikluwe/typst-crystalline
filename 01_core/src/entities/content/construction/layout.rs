@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/construction/layout.md
-//! @prompt-hash 5b529bf1
+//! @prompt-hash 03cc8915
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -253,7 +253,7 @@ impl Content {
     }
     /// `grid_header(body, repeat)` — Modelo D (Lote 5 P320).
     pub fn grid_header(body: Content, repeat: bool) -> Self {
-        Self::GridHeader(Arc::new(GridHeaderElem { body, repeat }))
+        Self::GridHeader(Arc::new(GridHeaderElem { body, repeat, level: 1 }))
     }
     /// `grid_footer(body, repeat)` — Modelo D (Lote 5 P320).
     pub fn grid_footer(body: Content, repeat: bool) -> Self {

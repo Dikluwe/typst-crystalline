@@ -1,5 +1,5 @@
 # L0 — table
-Hash do Código: dd1f5d6c
+Hash do Código: 170a40cd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/physical-page-occurrences.toml sha256:b33f2e3c6238da01aa48783aecee6a8b6153b4f36ddcdc23edfe78434bae5b42
@@ -231,3 +231,9 @@ missing logical preparation instead of silently rendering an empty table.
 Tables pass the gutters of their declared surface to the grid layout.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+The table passes its footer row group to the shared emission so a repeating footer appears in every region.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

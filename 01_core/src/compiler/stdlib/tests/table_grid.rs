@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/tests/table_grid.md
-//! @prompt-hash 4648c961
+//! @prompt-hash 32c3c485
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -94,22 +94,12 @@ fn p772i_native_grid_header_footer_como_children_populam_grid_elem() {
     let args = p(vec![Value::Content(Content::text("body")), hdr, ftr]);
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Grid(e)) = r {
-        assert!(e.header.is_some(), "header presente (via child)");
-        assert!(e.footer.is_some(), "footer presente (via child)");
-        assert!(
-            matches!(e.header.as_ref().unwrap(), Content::GridHeader(_)),
-            "header deve ser Content::GridHeader"
-        );
-        assert!(
-            matches!(e.footer.as_ref().unwrap(), Content::GridFooter(_)),
-            "footer deve ser Content::GridFooter"
-        );
-        // "body" (Content::text) continua como célula normal.
-        assert_eq!(
-            e.cells.len(),
-            1,
-            "header/footer não devem contar como células normais"
-        );
+        // Without explicit lines the children keep document order: the
+        // header after the first cell is placed where it appears.
+        assert!(e.header.is_none() && e.footer.is_none());
+        assert_eq!(e.cells.len(), 3);
+        assert!(matches!(e.cells[1].source_body(), Content::GridHeader(_)));
+        assert!(matches!(e.cells[2].source_body(), Content::GridFooter(_)));
     } else {
         panic!("esperado Content::Grid");
     }
@@ -1482,17 +1472,17 @@ fn native_table_footer_repeat_false_explicito() {
 }
 
 #[test]
-fn native_table_header_sem_body_rejeitado() {
+fn native_table_header_sem_body_aceito() {
     null_ctx!(ctx);
     let r = native_table_header(&mut ctx, &p(vec![]), &null_world(), test_file_id());
-    assert!(r.is_err(), "table_header() sem body deve retornar Err");
+    assert!(r.is_ok(), "table.header() vazio é uma linha em branco, como na linguagem");
 }
 
 #[test]
-fn native_table_footer_sem_body_rejeitado() {
+fn native_table_footer_sem_body_aceito() {
     null_ctx!(ctx);
     let r = native_table_footer(&mut ctx, &p(vec![]), &null_world(), test_file_id());
-    assert!(r.is_err(), "table_footer() sem body deve retornar Err");
+    assert!(r.is_ok(), "table.footer() vazio é uma linha em branco, como na linguagem");
 }
 
 #[test]

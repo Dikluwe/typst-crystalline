@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/traversal.md
-//! @prompt-hash 0dacb3e5
+//! @prompt-hash 07d8bb90
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -1334,6 +1334,7 @@ impl Content {
             Content::GridHeader(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridHeader(Arc::new(GridHeaderElem {
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,
             repeat: e.repeat,
+            level: e.level,
         })))),
             Content::GridFooter(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridFooter(Arc::new(GridFooterElem {
             body: e.body.map_content_pre_with_origin_inner(transform, origin)?,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/grid/cell_emission.md
-//! @prompt-hash e73bc70c
+//! @prompt-hash 00e579bc
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -11,6 +11,8 @@ use super::*;
 pub(super) struct GridEmissionInput<'b> {
     pub(super) paint_borders: bool,
     pub(super) header_groups: &'b [crate::entities::elements::table::TableHeaderRange],
+    /// First footer row and whether the footer repeats in every region.
+    pub(super) footer_group: Option<(usize, bool)>,
     pub(super) measured_cells: &'b mut measurement_cache::MeasuredCells,
     pub(super) placed_cells: &'b [PlacedCell],
     pub(super) cells_per_row: &'b [Vec<usize>],
@@ -36,6 +38,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let GridEmissionInput {
             paint_borders,
             header_groups,
+            footer_group,
             measured_cells,
             placed_cells,
             cells_per_row,
@@ -135,8 +138,82 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let mut capture: Option<(usize, usize, crate::entities::locator::LocatorSeed)> =
             None;
         let mut header_seeds = vec![None; header_groups.len()];
+        let mut too_large = vec![false; header_groups.len()];
+        // ref: lab/typst-original/crates/typst-layout/src/grid/repeated.rs:471-570
+        // A repeating footer is reserved in every region and emitted right
+        // after the region's last row; its final occurrence ends the grid.
+        let repeated_footer = footer_group
+            .filter(|(start, repeat)| *repeat && *start < num_rows_produced_final)
+            .map(|(start, _)| start);
+        let footer_height: f64 = repeated_footer.map_or(0.0, |start| {
+            row_heights[start..num_rows_produced_final].iter().sum::<f64>()
+                + (start..num_rows_produced_final.saturating_sub(1))
+                    .map(|row| self.grid_row_gaps.get(row).copied().unwrap_or(0.0))
+                    .sum::<f64>()
+        });
+        let mut rows_in_region = false;
+        let mut region_page = self.pages.len();
         for row_idx in 0..num_rows_produced_final {
             let row_h = row_heights[row_idx];
+            if self.pages.len() != region_page {
+                rows_in_region = false;
+            }
+            if let Some(start) = repeated_footer.filter(|start| row_idx < *start) {
+                let required = header_groups.iter().find(|g| g.start == row_idx).map_or(
+                    row_h,
+                    |g| {
+                        row_heights[g.start..g.end].iter().sum::<f64>()
+                            + row_heights.get(g.end).copied().unwrap_or(0.0)
+                    },
+                );
+                let cursor = self.regions.current.cursor_y.0;
+                if rows_in_region
+                    && self.grid_row_breaks(cursor, required + footer_height)
+                    && footer_height <= self.page_bottom_limit() - cursor + 1e-8
+                {
+                    flush_all_vsegments(
+                        &mut open_vsegments,
+                        col_starts,
+                        resolved_widths,
+                        num_cols,
+                        self,
+                    );
+                    let starts = match self.replay_grid_rows(
+                        start..num_rows_produced_final,
+                        GridReplayInput {
+                            paint_borders: uniform_stroke.is_none(),
+                            measured_cells: &mut *measured_cells,
+                            placed_cells,
+                            num_cols,
+                            row_heights,
+                            col_starts,
+                            resolved_widths,
+                            row_tracks,
+                            inset,
+                            table_alignment,
+                            stroke,
+                            fill,
+                            routes,
+                        },
+                    ) {
+                        Ok(starts) => starts,
+                        Err(()) => return emitted_row_starts,
+                    };
+                    if uniform_stroke.is_some() {
+                        for (offset, row_start) in starts.iter().enumerate() {
+                            if border_boundaries.is_empty() {
+                                border_boundaries.push(*row_start);
+                            }
+                            border_boundaries.push(row_start + row_heights[start + offset]);
+                        }
+                    }
+                    // The next row now starts in the following region.
+                    let limit = self.page_bottom_limit();
+                    if self.regions.current.cursor_y.0 + required <= limit {
+                        self.regions.current.cursor_y = Pt(limit + 1e-6);
+                    }
+                }
+            }
 
             if self.grid_row_breaks(self.regions.current.cursor_y.0, row_h) {
                 if let Some(stroke) = &uniform_stroke {
@@ -171,18 +248,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             });
             let capacity =
                 self.regions.current.height - self.page_config.margin.vertical();
-            if starting.is_some()
-                && (!header_height.is_finite() || header_height > capacity)
-            {
-                self.layout_errors.push(
-                    crate::entities::source_result::SourceDiagnostic::error(
-                        self.current_source_span,
-                        "table header group does not fit the available region",
-                    ),
-                );
-                return emitted_row_starts;
+            // ref: lab/typst-original/crates/typst-layout/src/grid/repeated.rs:24-33
+            // A header taller than a region is laid out once, without moving
+            // to a new region and without repeating.
+            let oversized = starting.is_some()
+                && (!header_height.is_finite() || header_height > capacity);
+            if let Some(index) = starting.filter(|_| oversized) {
+                too_large[index] = true;
             }
             if !header_groups.is_empty()
+                && !oversized
                 && self.grid_row_breaks(self.regions.current.cursor_y.0, required)
             {
                 flush_all_vsegments(
@@ -209,18 +284,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                         row_heights[group.start..group.end].iter().sum::<f64>()
                     })
                     .sum();
-                if self.regions.current.cursor_y.0 + repeat_height + required
+                // Headers that would leave no room for the next row are not
+                // repeated in this region.
+                let repeats = if self.regions.current.cursor_y.0 + repeat_height + required
                     > self.page_bottom_limit() + 1e-8
                 {
-                    self.layout_errors.push(
-                        crate::entities::source_result::SourceDiagnostic::error(
-                            self.current_source_span,
-                            "repeating table headers leave no room for the next row",
-                        ),
-                    );
-                    return emitted_row_starts;
-                }
-                for index in &active {
+                    Vec::new()
+                } else {
+                    active.clone()
+                };
+                for index in &repeats {
                     let group = &header_groups[*index];
                     let source_indices: Vec<_> = placed_cells
                         .iter()
@@ -282,6 +355,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     let starts = self.emit_grid_cells_planned(GridEmissionInput {
                         paint_borders: uniform_stroke.is_none(),
                         header_groups: &[],
+                        footer_group: None,
                         measured_cells: &mut *measured_cells,
                         placed_cells: &repeated,
                         cells_per_row: &by_row,
@@ -453,7 +527,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 .is_some_and(|(index, _, _)| header_groups[*index].end == row_idx + 1)
             {
                 let (index, page, start) = capture.take().unwrap();
-                if page != self.pages.len() {
+                if page != self.pages.len() && !too_large[index] {
                     self.layout_errors.push(
                         crate::entities::source_result::SourceDiagnostic::error(
                             self.current_source_span,
@@ -470,11 +544,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                     self,
                 );
                 header_seeds[index] = Some((start, self.locator.checkpoint()));
-                if header_groups[index].repeat {
+                if header_groups[index].repeat && !too_large[index] {
                     active.push(index);
                 }
             }
 
+            rows_in_region = true;
+            region_page = self.pages.len();
             // Avançar cursor para o fim da linha (altura conhecida).
             self.regions.current.cursor_y = Pt(row_start_y + row_h);
             self.record_flow_placement_end(row_start_y + row_h);
@@ -512,6 +588,104 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         );
 
         emitted_row_starts
+    }
+}
+
+pub(super) struct GridReplayInput<'b> {
+    pub(super) paint_borders: bool,
+    pub(super) measured_cells: &'b mut measurement_cache::MeasuredCells,
+    pub(super) placed_cells: &'b [PlacedCell],
+    pub(super) num_cols: usize,
+    pub(super) row_heights: &'b [f64],
+    pub(super) col_starts: &'b [f64],
+    pub(super) resolved_widths: &'b [f64],
+    pub(super) row_tracks: &'b [TrackSizing],
+    pub(super) inset: Sides<Length>,
+    pub(super) table_alignment:
+        Option<&'b crate::entities::elements::table::TableAlignment>,
+    pub(super) stroke: Option<&'b Stroke>,
+    pub(super) fill: Option<&'b Color>,
+    pub(super) routes: Option<&'b [Option<super::super::page_running_requests::Cursor>]>,
+}
+
+impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
+    /// Emits a copy of `rows` at the cursor. The copy does not consume the
+    /// source's location allocation: the original occurrence keeps it.
+    pub(super) fn replay_grid_rows(
+        &mut self,
+        rows: std::ops::Range<usize>,
+        input: GridReplayInput<'_>,
+    ) -> Result<Vec<f64>, ()> {
+        let source_indices: Vec<_> = input
+            .placed_cells
+            .iter()
+            .enumerate()
+            .filter(|(_, p)| rows.start <= p.row && p.row < rows.end)
+            .map(|(i, _)| i)
+            .collect();
+        let repeated: Vec<_> = source_indices
+            .iter()
+            .map(|i| {
+                let mut cell = input.placed_cells[*i].clone();
+                cell.row -= rows.start;
+                cell
+            })
+            .collect();
+        let count = rows.end - rows.start;
+        let tracks: Vec<_> = rows
+            .clone()
+            .map(|row| input.row_tracks[row % input.row_tracks.len()].clone())
+            .collect();
+        let mut by_row = vec![Vec::new(); count];
+        for (i, cell) in repeated.iter().enumerate() {
+            by_row[cell.row].push(i);
+        }
+        let replay_routes = match input.routes {
+            Some(routes) => {
+                let mut replay = Vec::with_capacity(source_indices.len());
+                for index in &source_indices {
+                    let cursor = match &routes[*index] {
+                        Some(cursor) => match self.table_header_replay_cursor(cursor) {
+                            Ok(cursor) => Some(cursor),
+                            Err(errors) => {
+                                self.layout_errors.extend(errors);
+                                return Err(());
+                            }
+                        },
+                        None => None,
+                    };
+                    replay.push(cursor);
+                }
+                Some(replay)
+            }
+            None => None,
+        };
+        let live = self.locator.checkpoint();
+        let location = self.current_location;
+        let transported = self.transported_root_location;
+        let starts = self.emit_grid_cells_planned(GridEmissionInput {
+            paint_borders: input.paint_borders,
+            header_groups: &[],
+            footer_group: None,
+            measured_cells: input.measured_cells,
+            placed_cells: &repeated,
+            cells_per_row: &by_row,
+            num_rows_produced_final: count,
+            num_cols: input.num_cols,
+            row_heights: &input.row_heights[rows.clone()],
+            col_starts: input.col_starts,
+            resolved_widths: input.resolved_widths,
+            row_tracks: &tracks,
+            inset: input.inset,
+            table_alignment: input.table_alignment,
+            stroke: input.stroke,
+            fill: input.fill,
+            routes: replay_routes.as_deref(),
+        });
+        self.current_location = location;
+        self.transported_root_location = transported;
+        self.locator = crate::entities::locator::Locator::from_seed(live);
+        Ok(starts)
     }
 }
 

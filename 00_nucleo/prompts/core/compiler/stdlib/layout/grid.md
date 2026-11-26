@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/grid — grid e tracks
-Hash do Código: 5d2e89f4
+Hash do Código: 4eac36e7
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/grid.rs`
@@ -99,3 +99,9 @@ Preserve all unrelated prior obligations and nucleus pins. This amendment supers
 `grid` and `table` accept `columns`, `rows`, `gutter`, `column-gutter`, `row-gutter`, `fill`, `align`, `stroke` and `inset` in every language form; arrays and functions apply per cell when realized. A positional child is content, text, a symbol or `none`; any other value fails with `expected content, found T` at its span. The declared surface records the named arguments as written and the gutters. Fields read it in declaration order, with tracks, gutters and sides normalized as the language shows them.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+`grid` refuses `table.header` and `table.footer` children with `cannot use `table.header` as a grid header` and `cannot use `table.footer` as a grid footer`. Without explicit lines, a grid with headers or a footer keeps its children in document order in `cells`, headers and footer included, so several headers with levels are accepted.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

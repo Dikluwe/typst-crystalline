@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/arithmetic
-Hash do Código: bb6fa86d
+Hash do Código: 793f2da0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -260,3 +260,9 @@ and error priority. Internal ADR-0127 correction, no new API/phase/default.
 `datetime + duration`, `duration + datetime`, `datetime - duration` and `datetime - datetime` follow the language. A result outside the calendar fails with `the result is out of range`; the pinned reference crashes there, a proven defect that is not reproduced.
 
 Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+`content * int` and `int * content` repeat the content as a sequence, as the language does; a negative count reports `number must be at least zero`.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

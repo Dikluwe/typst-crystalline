@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/language_and_export_contract.md
-//! @prompt-hash 25d91471
+//! @prompt-hash e7d88e4c
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -789,25 +789,13 @@ fn p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved() {
 
 #[test]
 fn p1293_d_preexisting_arity_and_serializer_transcript_is_preserved() {
+    // Empty headers and footers are rows of their own, as in the language.
+    for expression in ["grid.header()", "grid.footer()", "table.header()", "table.footer()"] {
+        assert!(eval(BIN, expression, false).success(), "{expression} must be accepted");
+    }
     for (expression, message) in [
         ("repr(grid.cell())", "grid_cell() exige body como argumento posicional\n\n  while calling `cell` at <input-expression>:1:5\n    grid.cell()"),
-        (
-            "repr(grid.header())",
-            "grid_header() exige pelo menos uma célula como argumento posicional\n\n  while calling `header` at <input-expression>:1:5\n    grid.header()",
-        ),
-        (
-            "repr(grid.footer())",
-            "grid_footer() exige pelo menos uma célula como argumento posicional\n\n  while calling `footer` at <input-expression>:1:5\n    grid.footer()",
-        ),
         ("repr(table.cell())", "table_cell() exige body como argumento posicional\n\n  while calling `cell` at <input-expression>:1:5\n    table.cell()"),
-        (
-            "repr(table.header())",
-            "table_header() exige pelo menos uma célula como argumento posicional\n\n  while calling `header` at <input-expression>:1:5\n    table.header()",
-        ),
-        (
-            "repr(table.footer())",
-            "table_footer() exige pelo menos uma célula como argumento posicional\n\n  while calling `footer` at <input-expression>:1:5\n    table.footer()",
-        ),
     ] {
         assert_candidate_eval(
             expression,

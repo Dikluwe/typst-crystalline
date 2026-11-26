@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/table_grid
-Hash do Código: 7c68ddbb
+Hash do Código: 96a7cd2a
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/table_grid.rs`
@@ -72,3 +72,9 @@ a prepared scalar is compared to its declarative source, explicitly resolve
 that source with the fixture font; do not relax expected geometry or tolerance.
 This test migration implements only the approved field representation change;
 existing non-stroke obligations and prior approvals remain intact.
+
+## Grid headers and footers package
+
+Empty table headers and footers are accepted. A grid with headers or a footer and no explicit lines keeps them among its cells in document order.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

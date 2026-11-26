@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_grid
-Hash do Código: 3dccb1ce
+Hash do Código: ec3d9531
 
 
 
@@ -205,3 +205,9 @@ native_table records which of columns, rows, fill, stroke and inset were omitted
 `table` shares the grid surface: the same named arguments and child rules, per-cell arrays and functions, inset dictionaries, and `expected content, found T` for other children. An alignment function applies per cell.
 
 Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+`grid.header` and `table.header` take `level`, a positive integer with default 1. A header or footer may be empty. A header or footer placed inside another header or footer reports the language's `cannot place a … within another header or footer` errors. `table` refuses `grid.header` and `grid.footer` children with `cannot use `grid.header` as a table header` and `cannot use `grid.footer` as a table footer`. Several table headers keep their own levels in document order; a later header replaces the repeating ones of equal or higher level.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

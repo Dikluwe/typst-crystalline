@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/introspect/materialize_time.md
-//! @prompt-hash cce5c48b
+//! @prompt-hash 483c0900
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -300,7 +300,11 @@ pub(super) fn materialize_time(
             },
         )),
         // Modelo D (Lote 5 P320): GridHeader/GridFooter via construtor.
-        Content::GridHeader(e) => Content::grid_header(materialize_time(&e.body, intr, location), e.repeat),
+        Content::GridHeader(e) => {
+            let mut header = (**e).clone();
+            header.body = materialize_time(&e.body, intr, location);
+            Content::GridHeader(std::sync::Arc::new(header))
+        }
         Content::GridFooter(e) => Content::grid_footer(materialize_time(&e.body, intr, location), e.repeat),
         // Passo 512 — linhas em grid/table são terminais.
         Content::GridHLine(_) | Content::GridVLine(_) => content.clone(),

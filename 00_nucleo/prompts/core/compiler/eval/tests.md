@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: c7a5087c
+Hash do Código: 454721d1
 
 
 
@@ -809,3 +809,9 @@ Extend the existing admitted byte raster set to JPEG/PNG/GIF/WebP while preservi
 `datetime` values answer their type's functions as methods.
 
 Approved on 2026-11-25 (“Aprovo A–D”): `00_nucleo/diagnostics/methods-dates-package-2026-11-25.pt-BR.md`.
+
+## Grid headers and footers package
+
+Cover content repetition, header and footer container errors, header levels, empty and repeated headers.
+
+Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.

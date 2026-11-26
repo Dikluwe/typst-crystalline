@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/grid.md
-//! @prompt-hash 06f79103
+//! @prompt-hash f944e2ec
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -524,6 +524,9 @@ pub fn native_grid(
     let mut header: Option<Content> = None;
     let mut footer: Option<Content> = None;
     let mut source_order = Vec::new();
+    // Children in document order; headers and footer keep their position.
+    let mut ordered: Vec<Content> = Vec::new();
+    let mut headers = 0usize;
     let mut cells: Vec<Content> = Vec::new();
     let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> =
         Vec::new();
@@ -566,15 +569,32 @@ pub fn native_grid(
                 vlines.push(vline);
             }
             // P772i — header and footer are children, outside auto-placement.
+            // ref: lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:486-500
+            Content::TableHeader(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    positional_value_span(args, index),
+                    "cannot use `table.header` as a grid header",
+                )]);
+            }
+            Content::TableFooter(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    positional_value_span(args, index),
+                    "cannot use `table.footer` as a grid footer",
+                )]);
+            }
             Content::GridHeader(_) => {
-                if header.is_some() {
+                if footer.is_some() {
                     return Err(vec![SourceDiagnostic::error(
                         positional_value_span(args, index),
-                        "grid: não pode haver mais do que um header (scope-out — múltiplos headers por `level` não suportados)".to_string(),
+                        "footer must end at the last row".to_string(),
                     )]);
                 }
-                source_order.push(GridChildOrder::Header);
-                header = Some(c.clone());
+                ordered.push(c.clone());
+                headers += 1;
+                if header.is_none() {
+                    source_order.push(GridChildOrder::Header);
+                    header = Some(c.clone());
+                }
             }
             Content::GridFooter(_) => {
                 if footer.is_some() {
@@ -584,6 +604,7 @@ pub fn native_grid(
                     )]);
                 }
                 source_order.push(GridChildOrder::Footer);
+                ordered.push(c.clone());
                 footer = Some(c.clone());
             }
             _ => {
@@ -595,6 +616,7 @@ pub fn native_grid(
                     )]);
                 }
                 source_order.push(GridChildOrder::Cell(cells.len()));
+                ordered.push(c.clone());
                 cells.push(c.clone());
                 col += 1;
                 if col >= num_cols {
@@ -628,6 +650,21 @@ pub fn native_grid(
         }
     };
 
+    // Without explicit lines, a grid with row groups keeps its children in
+    // document order: the layout places them and derives the groups.
+    if (header.is_some() || footer.is_some()) && hlines.is_empty() && vlines.is_empty() {
+        source_order = (0..ordered.len())
+            .map(crate::entities::elements::grid::GridChildOrder::Cell)
+            .collect();
+        cells = ordered;
+        header = None;
+        footer = None;
+    } else if headers > 1 {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "ordered headers with explicit lines are not supported",
+        )]);
+    }
     Ok(Value::Content(Content::Grid(std::sync::Arc::new(
         crate::entities::elements::grid::GridElem {
             source_order: Some(source_order),
