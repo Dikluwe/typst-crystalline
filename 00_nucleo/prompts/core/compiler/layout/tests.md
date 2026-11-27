@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 623b6c8d
+Hash do Código: 98cc38d5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -656,3 +656,13 @@ Also cover fractional columns with a spanning cell on a `width: auto` page.
 Cover a grid header and a table footer repeated across pages, several grid headers with levels, and content repetition.
 
 Approved on 2026-11-26 (“Aprovo A–D”): `00_nucleo/diagnostics/grid-headers-package-2026-11-26.pt-BR.md`.
+
+## Text runs package
+
+`text_runs_package` checks, with metrics whose `AV` pair kerns by one point,
+that attached same-style text is placed like one run while an element boundary
+or another style keeps the plain advance, that an automatic opening quote wraps
+with its word, and that planned and single-line paragraphs resolve quotes in
+order.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

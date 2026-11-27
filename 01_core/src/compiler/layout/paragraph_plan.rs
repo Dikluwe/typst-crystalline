@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_plan.md
-//! @prompt-hash 15db3197
+//! @prompt-hash d0fe3f21
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -142,6 +142,18 @@ pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     body: &Content,
 ) -> bool {
+    // A failed plan leaves the quote context as the incremental path expects it.
+    let quotes = l.smartquote_context.clone();
+    let planned = try_layout_impl(l, body);
+    if !planned {
+        l.smartquote_context = quotes;
+    }
+    planned
+}
+fn try_layout_impl<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    body: &Content,
+) -> bool {
     if defer_integral_styled(body) {
         return false;
     }
@@ -214,7 +226,20 @@ pub(super) fn try_source_parts<M: FontMetrics, S: ImageSizer>(
 fn try_parts_impl<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     parts: &[Content],
+    close: Option<&mut Option<super::paragraph_paint::CloseTail>>,
+) -> bool {
+    let quotes = l.smartquote_context.clone();
+    let planned = try_parts_planned(l, parts, close, &quotes);
+    if !planned {
+        l.smartquote_context = quotes;
+    }
+    planned
+}
+fn try_parts_planned<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    parts: &[Content],
     mut close: Option<&mut Option<super::paragraph_paint::CloseTail>>,
+    quotes: &crate::compiler::lang::quotes::SmartQuoteContext,
 ) -> bool {
     let Some((strategy, width, font, justify)) = options(l) else { return false };
     super::paragraph_indent::start_scope(l, parts);
@@ -228,7 +253,11 @@ fn try_parts_impl<M: FontMetrics, S: ImageSizer>(
     let costs = crate::compiler::text_costs::resolve(&l.chain);
     let mut prepared = Vec::new();
     let mut first_material = true;
-    for segment in parts.split(|part| matches!(part, Content::Parbreak)) {
+    for (index, segment) in parts.split(|part| matches!(part, Content::Parbreak)).enumerate() {
+        // Each later segment is emitted after a paragraph break.
+        if index > 0 {
+            l.smartquote_context.reset_paragraph();
+        }
         if segment.iter().all(|part| {
             matches!(part, Content::Empty | Content::Space | Content::SpaceFromNewline)
         }) {
@@ -296,6 +325,7 @@ fn try_parts_impl<M: FontMetrics, S: ImageSizer>(
     {
         return false;
     }
+    l.smartquote_context = quotes.clone();
     for (index, segment) in prepared.iter().enumerate() {
         if index > 0 {
             super::parbreak::layout(l);
@@ -303,6 +333,9 @@ fn try_parts_impl<M: FontMetrics, S: ImageSizer>(
         let Some(segment) = segment else { continue };
         match segment {
             Segment::Planned(product) => {
+                if let Some(reached) = &product.prepared.quotes {
+                    l.smartquote_context = reached.clone();
+                }
                 if let Some(close) = close.as_deref_mut().filter(|_| index + 1 == prepared.len()) {
                     *close = paragraph_emit::emit_source_product(l, product, width, justify, true);
                 } else {

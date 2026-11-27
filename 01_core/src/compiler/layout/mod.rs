@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/mod.md
-//! @prompt-hash 2455084f
+//! @prompt-hash 8a30911c
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -636,6 +636,10 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     bidi_cursor: Option<bidi_origin::Cursor>,
     pub(super) text_bidi: Option<crate::entities::bidi_context::BidiSpan>,
     pub(super) text_segment_chain: Option<StyleChain>,
+    /// Element boundaries seen so far; text joins only within one boundary.
+    pub(super) text_run_boundary: u64,
+    /// Line index, boundary and x of the last text item `push_text` emitted.
+    pub(super) text_run_last: Option<(usize, u64, f64)>,
     pub(super) geometric_text_lines: bool,
     pub(super) active_paragraph_dir: Option<crate::entities::dir::Dir>,
     pub(super) pending_line_dir: Option<crate::entities::dir::Dir>,
@@ -1173,6 +1177,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             bidi_cursor: None,
             text_bidi: None,
             text_segment_chain: None,
+            text_run_boundary: 0,
+            text_run_last: None,
             geometric_text_lines: false,
             active_paragraph_dir: None,
             pending_line_dir: None,
@@ -1346,6 +1352,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        // Text joins one run only between element boundaries.
+        let element = !text::continues_text_run(content);
+        self.text_run_boundary += u64::from(element);
+        self.layout_content_entered(content);
+        self.text_run_boundary += u64::from(element);
+    }
+
+    fn layout_content_entered(&mut self, content: &Content) {
         footnote::prepare_entry_scope(self, content);
         let saved = self.page_running_pass.as_mut().and_then(|pass| pass.cursor.take());
         let note_atomic = self.begin_footnote_atomic(content);
@@ -1400,6 +1414,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// ocorrência; descendants continuam a chamar `layout_content` e, como a
     /// sentinela já foi consumida, integram a mesma unidade atómica.
     pub(super) fn layout_content_once(&mut self, content: &Content) {
+        let element = !text::continues_text_run(content);
+        self.text_run_boundary += u64::from(element);
+        self.layout_content_once_entered(content);
+        self.text_run_boundary += u64::from(element);
+    }
+
+    fn layout_content_once_entered(&mut self, content: &Content) {
         if !self.locations_reserved {
             crate::compiler::introspect::walk::reserve_locations(
                 content,

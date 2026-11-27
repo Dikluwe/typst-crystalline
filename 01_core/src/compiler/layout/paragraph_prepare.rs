@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_prepare.md
-//! @prompt-hash d7fc765d
+//! @prompt-hash 074d39b0
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -41,6 +41,8 @@ pub(super) struct Prepared {
     pub words: Vec<Word>,
     pub trailing: Vec<Gap>,
     pub right_overhang: f64,
+    /// Quote context reached after resolving automatic quotes, if any.
+    pub quotes: Option<crate::compiler::lang::quotes::SmartQuoteContext>,
 }
 
 impl Prepared {
@@ -155,37 +157,74 @@ fn text<M: FontMetrics, S: ImageSizer>(
     let mut parts = text.split(' ').peekable();
     while let Some(part) = parts.next() {
         if !part.is_empty() {
-            if p.words.is_empty() || !p.trailing.is_empty() {
-                p.words.push(Word {
-                    fragments: Vec::new(),
-                    before: std::mem::take(&mut p.trailing),
-                    width: 0.0,
-                    hyphenation: None,
-                });
-            }
-            let word = p.words.last_mut()?;
-            if let Some(last) = word.fragments.last_mut().filter(|f| {
-                f.replacement.is_none()
-                    && f.style == style
-                    && f.hyphenate == hyphenate(l)
-                    && f.overhang == overhang(l)
-            }) {
-                last.text.push_str(part);
-            } else {
-                word.fragments.push(Fragment {
-                    replacement: None,
-                    text: part.into(),
-                    style: style.clone(),
-                    width: 0.0,
-                    hyphenate: hyphenate(l),
-                    overhang: overhang(l),
-                });
-            }
+            attach(l, p, part, &style)?;
         }
         if parts.peek().is_some() {
             gap(l, p, TextSeparatorOrigin::Literal)?;
         }
     }
+    Some(())
+}
+
+/// Append text to the current word, merging it with a fragment of the same policy.
+fn attach<M: FontMetrics, S: ImageSizer>(
+    l: &Layouter<M, S>,
+    p: &mut Prepared,
+    part: &str,
+    style: &TextStyle,
+) -> Option<()> {
+    if p.words.is_empty() || !p.trailing.is_empty() {
+        p.words.push(Word {
+            fragments: Vec::new(),
+            before: std::mem::take(&mut p.trailing),
+            width: 0.0,
+            hyphenation: None,
+        });
+    }
+    let word = p.words.last_mut()?;
+    if let Some(last) = word.fragments.last_mut().filter(|f| {
+        f.replacement.is_none()
+            && f.style == *style
+            && f.hyphenate == hyphenate(l)
+            && f.overhang == overhang(l)
+    }) {
+        last.text.push_str(part);
+    } else {
+        word.fragments.push(Fragment {
+            replacement: None,
+            text: part.into(),
+            style: style.clone(),
+            width: 0.0,
+            hyphenate: hyphenate(l),
+            overhang: overhang(l),
+        });
+    }
+    Some(())
+}
+
+/// Resolve an automatic quote as text of the neighbouring word.
+// ref: lab/typst-original/crates/typst-layout/src/inline/collect.rs:196-211
+fn quote<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    p: &mut Prepared,
+    element: &crate::entities::elements::smartquote::SmartQuoteElem,
+) -> Option<()> {
+    let style = super::text::effective_style(l);
+    if !style_supported(l, &style) {
+        return None;
+    }
+    let glyph = crate::compiler::lang::quotes::resolve_smart_quote(
+        &mut l.smartquote_context,
+        element,
+        &l.chain,
+        style.lang.as_ref(),
+    )
+    .ok()?;
+    if glyph.is_empty() || glyph.contains(' ') {
+        return None;
+    }
+    attach(l, p, &glyph, &style)?;
+    p.quotes = Some(l.smartquote_context.clone());
     Some(())
 }
 
@@ -217,9 +256,19 @@ fn collect<M: FontMetrics, S: ImageSizer>(
 ) -> Option<()> {
     match body.source_body() {
         Content::Empty => Some(()),
-        Content::Text(t) => text(l, p, t),
-        Content::Space => gap(l, p, TextSeparatorOrigin::Markup),
-        Content::SpaceFromNewline => gap(l, p, TextSeparatorOrigin::Newline),
+        Content::Text(t) => {
+            l.smartquote_context.observe_text(t);
+            text(l, p, t)
+        }
+        Content::SmartQuote(e) => quote(l, p, e),
+        Content::Space => {
+            l.smartquote_context.observe_text(" ");
+            gap(l, p, TextSeparatorOrigin::Markup)
+        }
+        Content::SpaceFromNewline => {
+            l.smartquote_context.observe_text(" ");
+            gap(l, p, TextSeparatorOrigin::Newline)
+        }
         Content::Sequence(parts) => {
             for part in parts.iter() {
                 collect(l, p, part)?;
@@ -309,6 +358,9 @@ pub(super) fn prepare<M: FontMetrics, S: ImageSizer>(
 ) -> Option<Prepared> {
     let mut p = Prepared::default();
     collect(l, &mut p, body)?;
+    if p.quotes.is_some() {
+        p.quotes = Some(l.smartquote_context.clone());
+    }
     finish(l, p)
 }
 pub(super) fn prepare_parts<M: FontMetrics, S: ImageSizer>(
@@ -318,6 +370,9 @@ pub(super) fn prepare_parts<M: FontMetrics, S: ImageSizer>(
     let mut p = Prepared::default();
     for part in parts {
         collect(l, &mut p, part)?;
+    }
+    if p.quotes.is_some() {
+        p.quotes = Some(l.smartquote_context.clone());
     }
     finish(l, p)
 }

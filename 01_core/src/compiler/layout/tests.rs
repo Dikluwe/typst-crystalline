@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/tests.md
-//! @prompt-hash a63be8f9
+//! @prompt-hash d33d2161
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -27461,5 +27461,130 @@ mod grid_headers_package {
                 .expect(text)
         };
         assert!(y("A") < y("1") && y("1") < y("B") && y("B") < y("2"));
+    }
+}
+
+// ref: 00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md
+mod text_runs_package {
+    use super::*;
+    use crate::entities::layout_types::TextStyle;
+
+    const PAGE: &str = "#set page(height: auto, width: 120pt, margin: 10pt)\n";
+
+    /// Fixed metrics whose `AV` pair kerns by one point, like a real font.
+    struct Kerned;
+    impl FontMetrics for Kerned {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            let pairs = text.matches("AV").count() as f64;
+            FixedMetrics.text_width(text, size, style) - Pt(pairs)
+        }
+    }
+
+    fn kerned(parts: Vec<Content>) -> Vec<(String, f64)> {
+        use comemo::Track;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut l = Layouter::new(
+            Kerned,
+            crate::entities::image_sizer::NullImageSizer,
+            10.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        l.layout_content(&Content::sequence(parts));
+        let doc = l.finish();
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if !text.is_empty() => {
+                    Some((text.to_string(), pos.x.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn items(doc: &PagedDocument) -> Vec<(String, f64)> {
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if !text.is_empty() => {
+                    Some((text.to_string(), pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn attached_same_style_text_kerns_like_one_run() {
+        let runs = kerned(vec![Content::text("A"), Content::text("V")]);
+        let (a, v) = (runs[0].1, runs[1].1);
+        assert!((v - a - (6.6 - 1.0)).abs() < 1e-9, "{runs:?}");
+    }
+
+    #[test]
+    fn an_element_boundary_keeps_runs_apart() {
+        let runs = kerned(vec![
+            Content::text("A"),
+            Content::metadata(crate::entities::value::Value::Int(1)),
+            Content::text("V"),
+        ]);
+        let (a, v) = (runs[0].1, runs[1].1);
+        assert!((v - a - 6.6).abs() < 1e-9, "{runs:?}");
+    }
+
+    #[test]
+    fn different_styles_keep_runs_apart() {
+        let runs = kerned(vec![
+            Content::text("A"),
+            Content::emph(Content::text("V")),
+        ]);
+        let (a, v) = (runs[0].1, runs[1].1);
+        assert!((v - a - 6.6).abs() < 1e-9, "{runs:?}");
+    }
+
+    #[test]
+    fn no_break_after_an_automatic_opening_quote() {
+        let doc = layout_test(&format!("{PAGE}xx \"yyyyyyyyyyyyy"));
+        let all = items(&doc);
+        let y = |needle: &str| {
+            all.iter()
+                .find(|(text, _)| text.contains(needle))
+                .map(|(_, y)| *y)
+                .expect(needle)
+        };
+        assert!(y("“") > y("xx"), "{all:?}");
+        assert_eq!(y("“"), y("yyyyyyyyyyyyy"), "{all:?}");
+    }
+
+    #[test]
+    fn planned_paragraphs_resolve_quotes_in_order() {
+        let doc = layout_test(&format!(
+            "{PAGE}\"aaa bbb ccc ddd eee fff ggg hhh\" 'iii' jjj's \"kkk\""
+        ));
+        let text: String =
+            texts(&doc).join(" ").split_whitespace().collect::<Vec<_>>().join(" ");
+        assert_eq!(text, "“aaa bbb ccc ddd eee fff ggg hhh” ‘iii’ jjj’s “kkk”");
+    }
+
+    #[test]
+    fn single_line_paragraphs_keep_their_quotes() {
+        let doc = layout_test(&format!("{PAGE}'a' \"b\""));
+        assert_eq!(texts(&doc).concat(), "‘a’“b”");
+    }
+
+    fn texts(doc: &PagedDocument) -> Vec<String> {
+        items(doc).into_iter().map(|(text, _)| text).collect()
     }
 }

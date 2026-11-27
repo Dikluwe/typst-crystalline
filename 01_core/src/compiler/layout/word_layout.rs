@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/word_layout.md
-//! @prompt-hash 738bf4cb
+//! @prompt-hash f1b38bc9
 //! @layer L1
 //! @updated 2026-10-24
 
@@ -128,6 +128,9 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
             parent_bbox_at_emit: None,
         });
     }
+    if replacement.is_none() {
+        kern_attached(layouter, &text, width);
+    }
     let visual = FrameItem::Text {
         pos: Point {
             x: layouter.regions.current.cursor_x + layouter.text_horizontal_offset,
@@ -148,7 +151,57 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
         Some(crate::entities::value::Value::Bool(false))
     ));
     layouter.regions.current.current_line.push(item);
+    layouter.text_run_last = Some((
+        layouter.regions.current.current_line.len() - 1,
+        layouter.text_run_boundary,
+        layouter.regions.current.cursor_x.0 + layouter.text_horizontal_offset.0,
+    ));
     layouter.text_tracking_state.record();
+}
+
+/// Place text attached to the previous run of the same style as shaping one run would.
+///
+/// The previous item is never changed, so checkpoints that truncate the line stay
+/// valid; the cursor moves by the pair adjustment the joined text measures.
+// ref: lab/typst-original/crates/typst-layout/src/inline/collect.rs:409-415
+fn kern_attached<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    text: &str,
+    width: Pt,
+) {
+    if layouter.style.highlight.is_some()
+        || layouter.style.tracking.is_some()
+        || layouter.text_bidi.is_some()
+        || layouter.style.dir == Some(crate::entities::dir::Dir::RTL)
+        || super::paragraph::line_direction(layouter) == Some(crate::entities::dir::Dir::RTL)
+    {
+        return;
+    }
+    let here = layouter.regions.current.cursor_x.0 + layouter.text_horizontal_offset.0;
+    let line = layouter.regions.current.current_line.len();
+    let Some(FrameItem::Text { pos, text: previous, style, bidi: None }) =
+        layouter.regions.current.current_line.last()
+    else {
+        return;
+    };
+    if line == 0
+        || layouter.text_run_last != Some((line - 1, layouter.text_run_boundary, pos.x.0))
+        || *style != layouter.style
+        || (pos.y.0 - layouter.baseline_y().0).abs() > 0.001
+    {
+        return;
+    }
+    let before = text_measure::word(&layouter.metrics, previous, style);
+    if (pos.x.0 + before.0 - here).abs() > 0.01 {
+        return;
+    }
+    let mut joined = previous.to_string();
+    joined.push_str(text);
+    let after = text_measure::word(&layouter.metrics, &joined, style);
+    let adjustment = after.0 - before.0 - width.0;
+    if adjustment.is_finite() {
+        layouter.regions.current.cursor_x += Pt(adjustment);
+    }
 }
 
 #[cfg(test)]

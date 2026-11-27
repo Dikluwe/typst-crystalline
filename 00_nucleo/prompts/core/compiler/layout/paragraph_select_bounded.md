@@ -1,5 +1,5 @@
 # L0 — paragraph_select_bounded
-Hash do Código: 9588ae1d
+Hash do Código: adc6bd1a
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_bounded.rs`
@@ -26,3 +26,10 @@ This owner retains only common preparation, reconstruction, the upper-bound vari
 Differential tests compare complete range sequences to exact selection across empty, overlong, justified/unjustified, widths/gaps, tracking and negative runt cost. Candidate/prune counts are exposed only to tests and do not prove timing gain. Build and crystalline-lint must have no violations.
 
 Keep a default-ignored release Criterion microbenchmark reusing identical Prepared instances across variants. Measure complete selection, including greedy-bound construction, on deterministic short/narrow, medium and wide inputs. Consume output with black_box and establish range equivalence before timing. Per pair, keep cost, font size, justification and width identical. Extend to 1,000 words in all three width regimes with the same generator, font, gaps, costs, differential check and full-selection timing; record separate results/provenance rather than extrapolating the earlier cases. Record commit/tree, command, environment and uncertainty. Local synthetic results do not establish whole-compiler gain.
+
+## Prepared quote context in tests
+
+Test paragraphs built here carry no smart quote context (`quotes: None`).
+Selection does not read it.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

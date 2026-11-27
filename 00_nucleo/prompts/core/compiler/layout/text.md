@@ -1,5 +1,5 @@
 # L0 — text
-Hash do Código: 3a162698
+Hash do Código: 925c82dc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
@@ -185,3 +185,13 @@ Classification: private parity correction under ADR-0127 continuous flow. No pub
 ### Exclusive owning obligation
 
 Within an active existing footnote capture, admit literal LF/CRLF through the existing ordinary linebreak owner while retaining original UTF-8/Bidi spans and source siblings, rather than submitting a whole multiline word. Keep the original outer line style for the flush and restore scoped style/offset/Bidi state. Only actual superscript breaks publish the existing literal_script_break_pending cause; note-body ordinary text must not acquire it. Preserve all ordinary noncapture and superscript behavior, no new generic newline mode or source Content rewriting. Require actual multiline-note source-preservation and sibling-boundary RED before implementation, and all prior script/R8/R9 controls.
+
+## Content that continues a text run
+
+`continues_text_run` names the content that keeps the surrounding style chain:
+empty content, text, automatic quotes, spaces, sequences and source wrappers.
+Every other element opens a boundary for text runs (see `mod` and
+`word_layout`), as vanilla only merges segments with equal style chains
+(`typst-layout/src/inline/collect.rs:409-415`).
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

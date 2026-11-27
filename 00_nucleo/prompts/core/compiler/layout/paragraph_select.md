@@ -1,5 +1,5 @@
 # L0 — paragraph_select
-Hash do Código: ad0ee5c6
+Hash do Código: f420580a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -79,3 +79,10 @@ C015 gate: confirm workspace/all-targets warning then fulfilled expectation; rem
 This internal parity correction follows ADR-0127 continuous flow: no new public field/signature, external flag/default, phase or realization order. Initial/continuation shape supersedes only the corresponding constant-width limitation. Certified Latin RTL remains subject to the nucleus conditions, without active BidiCursor/tracking or invented BidiSpan; every other prior limit remains. Off-page values/copies require frame/SVG inspection rather than equality of clipped extraction. Do not anticipate the separate R3-T1 scope.
 
 Require RED→GREEN before implementation and source→layout/bilateral controls for relevant signs, boundaries, variants and restoration. Executing a grouped arm does not prove every alternative: closed nominal inline/flow-context classifications are intentional and need class/variant tests. Reseal only after V15/V26 are valid; run tests, build, Clippy/Rustdoc/fmt, reverse lineage and differential Tekt against pin1279707, under 12GiB/High8GiB/swap0/jobs1. No publication.
+
+## Prepared quote context in tests
+
+Test paragraphs built here carry no smart quote context (`quotes: None`).
+Selection does not read it.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

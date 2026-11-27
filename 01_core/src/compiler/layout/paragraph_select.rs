@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_select.md
-//! @prompt-hash b80dce65
+//! @prompt-hash 7d8ce809
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -273,6 +273,7 @@ mod tests {
                 .collect(),
             trailing: Vec::new(),
             right_overhang: 0.0,
+            quotes: None,
         }
     }
     #[test]

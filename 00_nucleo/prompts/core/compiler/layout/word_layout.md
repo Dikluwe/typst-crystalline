@@ -1,5 +1,5 @@
 # L0 — word_layout
-Hash do Código: c8277100
+Hash do Código: f8abf52d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:b556a9f22e29d478ae1afac3e31427aeea3fa58f44a4aa04e46c86b90fb5779c
@@ -101,3 +101,29 @@ Layouter when emitting text so later outer-style restoration cannot enable a
 terminal overhang:false. No public field or source carrier changes. The record
 is reset at line commit; unrelated/opaque terminal material cannot certify text.
 Prepared emission retains its own fragment policy. Preserve all break/cost rules.
+
+## Attached same-style text runs
+
+Measured at HEAD 76d5778e4: `A#[V]` ends at 36.94pt against the vanilla
+34.70pt at 20pt, `f#[i]` loses the `fi` ligature, and an automatic closing
+quote after a letter loses its kerning pair. Each word becomes its own
+`FrameItem::Text` (`word_layout.rs:92-150`) and shaping runs per item. Vanilla
+merges adjacent text segments with the same styles before shaping
+(`typst-layout/src/inline/collect.rs:409-415`). This is language geometry.
+
+When `push_text` emits plain text (no replacement, no highlight, no tracking)
+attached to the last text item of the current line, with the same style, the
+same baseline, a measured end that coincides with the cursor and no
+bidirectional span on either side, the cursor moves by the pair adjustment of
+the joined text: the width of the previous text and the new text measured
+together, minus both widths measured apart. The new text stays its own item, so
+checkpoints that truncate the line remain valid and no earlier item changes.
+Kerning across the boundary therefore matches one shaped run. Ligatures across
+nodes stay out of scope, because they would need one item. Text joins only
+within one element boundary: the previous item must be the last text
+`push_text` emitted, at the same line index and x, under the same
+`text_run_boundary` count, as vanilla compares style chains rather than resolved
+styles. Right-to-left lines and styles keep their current placement. Break
+decisions, tracking, hyphenation and replacements keep their current rules.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

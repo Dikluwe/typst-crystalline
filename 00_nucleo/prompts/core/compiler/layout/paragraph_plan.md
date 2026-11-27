@@ -1,5 +1,5 @@
 # L0 — paragraph_plan
-Hash do Código: 6a33ec3f
+Hash do Código: 1fd1c895
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -282,3 +282,16 @@ and pinned vanilla comparison. No commit is authorized by this adoption.
 
 Return the optional witness only to source sequence planning when eligible.
 Incremental paths, failed planning and later segments cannot inherit it.
+
+## Quote context across planning
+
+Preparation may advance the layouter's smart quote context (see
+`paragraph_prepare`). `try_layout` and the multi-part planner save the context
+before preparing and restore it whenever they return `false`, so the
+incremental fallback resolves the same quotes again from the same state. Every
+segment after the first starts from a reset context, as its emission follows a
+paragraph break. A planned segment that resolved quotes records the context it
+reached, and its emission installs that context; incremental segments observe
+their content live. The product cache keeps rejecting smart quotes.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

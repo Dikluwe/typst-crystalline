@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 1cb027c8
+Hash do Código: 9b1e40b5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:ad1c3b199f21c8a84384ff679c5c79a9b9e7cbbcc8d49e2d3f30a288fa210c47
@@ -907,3 +907,13 @@ Approved on 2026-11-25 (“Aprovo A–F”): `00_nucleo/diagnostics/grid-package
 Place, stack, repeat, quote and outline are laid out with their declared properties. A pending placement break is taken before the next material, moving the placement below the paragraph spacing; if no material follows, the paragraph ends without spacing.
 
 Approved on 2026-11-26 (“Aprovo A–E”): `00_nucleo/diagnostics/layout-package-2026-11-26.pt-BR.md`.
+
+## Text run boundaries
+
+`layout_content` and `layout_content_once` count element boundaries in the private `text_run_boundary`:
+content other than text, automatic quotes, spaces, sequences, source wrappers
+and empty content increments it on entry and on exit. `word_layout` records the
+last text item with `text_run_last` and adjusts attached text only under the same
+count (see `word_layout`). Both fields are private layout state, not output.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

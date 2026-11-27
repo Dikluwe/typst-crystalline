@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/paragraph_hyphen.md
-//! @prompt-hash 174ba01b
+//! @prompt-hash b8045c0e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -251,7 +251,7 @@ fn materialize(p: &Prepared, a: Point, b: Point) -> Prepared {
     } else {
         0.0
     };
-    Prepared { words, trailing, right_overhang }
+    Prepared { words, trailing, right_overhang, quotes: p.quotes.clone() }
 }
 pub(super) fn select(
     p: &Prepared,
@@ -401,6 +401,7 @@ mod tests {
                 words: vec![w],
                 trailing: Vec::new(),
                 right_overhang: 0.0,
+                quotes: None,
             };
             for strategy in [Strategy::Simple, Strategy::Optimized] {
                 let lines = select(&p, 60.0, 12.0, true, strategy, LineCosts::default());
@@ -512,6 +513,7 @@ mod tests {
             words: vec![w],
             trailing: Vec::new(),
             right_overhang: 0.0,
+            quotes: None,
         };
         for strategy in [Strategy::Simple, Strategy::Optimized] {
             let lines = select(&p, 60.0, 12.0, true, strategy, LineCosts::default());
@@ -546,6 +548,7 @@ mod tests {
             words: vec![w.clone()],
             trailing: Vec::new(),
             right_overhang: 0.0,
+            quotes: None,
         };
         let end = Point { word: 0, cut: 1 };
         let first = penalty(&p, end, Point { word: 0, cut: 0 }, LineCosts::default());

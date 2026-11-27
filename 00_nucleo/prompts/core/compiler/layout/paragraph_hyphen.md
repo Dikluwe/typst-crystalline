@@ -1,5 +1,5 @@
 # L0 — paragraph_hyphen
-Hash do Código: 1c211048
+Hash do Código: 368e3ad4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -149,3 +149,11 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Quote context of materialized lines
+
+`Prepared` carries the smart quote context its preparation reached (see
+`paragraph_prepare`). Materializing hyphenated lines keeps that context
+unchanged; hyphenation never resolves quotes.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/layout/text.md
-//! @prompt-hash 9a573492
+//! @prompt-hash 41397878
 //! @layer L1
 //! @updated 2026-10-24
 //!
@@ -50,6 +50,22 @@ pub(super) fn observe_content_boundary<M: FontMetrics, S: ImageSizer>(
     ) {
         layouter.literal_script_break_pending = false;
     }
+}
+
+/// Content that keeps the surrounding style chain, so its text can share a run.
+// ref: lab/typst-original/crates/typst-layout/src/inline/collect.rs:409-415
+pub(super) fn continues_text_run(content: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    matches!(
+        content,
+        Content::Empty
+            | Content::Text(..)
+            | Content::SmartQuote(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Sequence(..)
+            | Content::Source(..)
+    )
 }
 
 /// Layout de um nó `Text`: resolve o estilo efectivo (chain tipada vence o

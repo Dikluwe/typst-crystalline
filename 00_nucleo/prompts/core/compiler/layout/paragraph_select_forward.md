@@ -1,5 +1,5 @@
 # L0 — paragraph_select_forward
-Hash do Código: 0f2924e6
+Hash do Código: 73f001fa
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_forward.rs`
@@ -38,3 +38,10 @@ In cfg(test) active_before precomputation, enumerate mutable slots starting at i
 Differentially compare complete breaks to exact for empty, overlong, widths/gaps, justification, tracking and negative runt. Release benchmarks reuse identical inputs, establish range equality before timing and measure complete selection. Compare exact baseline, complete forward and Simple-only in one Criterion run to isolate seed cost from loop inversion; compare the three forward variants and baseline together for prefix-measure ablation, requiring exact final ranges in differential and timed matrices despite rounding. Compare whole adaptive selection, including choice cost, to isolated paths on the same inputs. Repeat calibration after including relative width. Record exact-state provenance; synthetic gains do not authorize production/default changes or general-gain claims.
 
 Build and crystalline-lint must have no violations. Internal equivalent maintenance follows continuous flow under ADR-0127 without public/default/phase changes. Preserve existing expected outputs; do not add tests merely mirroring loops. Validate core suite including conflicts, spans, fixups, markers and differential selection, all targets, build, documentation, Clippy and lineage with restricted resealing.
+
+## Prepared quote context in tests
+
+Test paragraphs built here carry no smart quote context (`quotes: None`).
+Selection does not read it.
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`

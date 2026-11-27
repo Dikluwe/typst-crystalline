@@ -1,5 +1,5 @@
 # L0 — paragraph_prepare
-Hash do Código: cd543d8f
+Hash do Código: 367c5d90
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -154,3 +154,24 @@ features. Current adoption uses disk-backed task targets, one Cargo job,12GiB AS
 to their original correction. Require real capture RED→GREEN, complete suites,
 lineage/ownership, source/effect/invalidation controls and measured before/after
 and pinned vanilla comparison. No commit is authorized by this adoption.
+
+## Automatic quotes in prepared paragraphs
+
+Measured at HEAD 76d5778e4: in `xx "yyyyyyyyyzzz` on a 150pt page the
+automatic opening quote stays on the first line while the word wraps; vanilla
+wraps `“yyyyyyyyyzzz` together, as Tekt already does for the literal `“`.
+`collect` returns `None` for `SmartQuote` (`paragraph_prepare.rs:213-235`), so
+the paragraph falls back to word-by-word layout, which places the quote as an
+isolated word. Vanilla resolves the quote during collection as text of the
+neighbouring segment (`typst-layout/src/inline/collect.rs:196-211`).
+
+`collect` resolves a `SmartQuote` with `resolve_smart_quote`, the layouter's
+quote context, the current chain and the effective language, and appends the
+glyph to the current word as a fragment with the effective style, without a
+break opportunity of its own. Collected text and spaces are observed by the
+same context so a following quote sees the preceding character. Resolution
+errors make preparation fail. A quote glyph containing an ASCII space makes
+preparation fail. The quote context is the layouter's context: callers that
+abandon a preparation restore it (see `paragraph_plan`).
+
+Approved on 2026-11-26 (“Aprovo A–B”): `00_nucleo/diagnostics/text-runs-package-2026-11-26.pt-BR.md`
